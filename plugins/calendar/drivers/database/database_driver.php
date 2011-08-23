@@ -353,6 +353,8 @@ class database_driver extends calendar_driver
     // process event attendees
     $_attendees = '';
     foreach ((array)$event['attendees'] as $attendee) {
+      if (!$attendee['name'] && !$attendee['email'])
+        continue;
       $_attendees .= 'NAME="'.addcslashes($attendee['name'], '"') . '"' .
         ';STATUS=' . $attendee['status'].
         ';ROLE=' . $attendee['role'] .
@@ -730,7 +732,7 @@ class database_driver extends calendar_driver
       $event['attendees'] = $attendees;
     }
 
-    unset($event['event_id'], $event['calendar_id'], $event['notifyat'], $event['_attachments']);
+    unset($event['event_id'], $event['calendar_id'], $event['notifyat'], $event['all_day'], $event['_attachments']);
     return $event;
   }
 
