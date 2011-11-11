@@ -276,7 +276,7 @@ class rcube_kolab
      */
     public static function folder_id($folder)
     {
-        return asciiwords(strtr($folder, '/.', '--'));
+        return asciiwords(strtr($folder, '/.-', '___'));
     }
 
     /**
