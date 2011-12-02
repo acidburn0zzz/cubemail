@@ -258,11 +258,6 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   if (rcmail.task != 'calendar') {
     var cal = new rcube_calendar(rcmail.env.calendar_settings);
 
-<<<<<<< HEAD
-    rcmail.register_command('plugin.calendar', function() { rcmail.switch_task('calendar'); }, true);
-
-=======
->>>>>>> 2f570dd... Fix so when switching from compose to calendar confirmation alert will be displayed (#530)
     rcmail.addEventListener('plugin.display_alarms', function(alarms){ cal.display_alarms(alarms); });
     
     rcmail.addEventListener('plugin.update_event_rsvp_status', function(p){
