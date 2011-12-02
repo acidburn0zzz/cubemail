@@ -257,7 +257,9 @@ rcube_calendar.fetch_event_rsvp_status = function(event)
 window.rcmail && rcmail.addEventListener('init', function(evt) {
   if (rcmail.task != 'calendar') {
     var cal = new rcube_calendar(rcmail.env.calendar_settings);
-    
+
+    rcmail.register_command('plugin.calendar', function() { rcmail.switch_task('calendar'); }, true);
+
     rcmail.addEventListener('plugin.display_alarms', function(alarms){ cal.display_alarms(alarms); });
     
     rcmail.addEventListener('plugin.update_event_rsvp_status', function(p){
