@@ -6,11 +6,25 @@
  * Plugin to use Kolab server as a configuration storage. Provides an API to handle
  * configuration according to http://wiki.kolab.org/KEP:9.
  *
- * Copyright (C) 2011, Kolab Systems AG
+ * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Additional permission is granted to distribute and use this file under
+ * the terms of the GNU General Public License Version 2 in conjunction with
+ * the Roundcube Web Mailer Version 0.7 as distributed by the Roundcube
+ * Community (http://roundcube.net).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author Machniak Aleksander <machniak@kolabsys.com>
  *
