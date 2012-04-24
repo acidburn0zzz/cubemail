@@ -243,9 +243,12 @@ class calendar_itip
     // already stored this
     if ($stored[$base])
       return $token;
-    
+
+    // delete old entry
+    $this->rc->db->query("DELETE FROM itipinvitations WHERE token=?", $base);
+
     $query = $this->rc->db->query(
-      "REPLACE INTO itipinvitations
+      "INSERT INTO itipinvitations
        (token, event_uid, user_id, event, expires)
        VALUES(?, ?, ?, ?, ?)",
       $base,
