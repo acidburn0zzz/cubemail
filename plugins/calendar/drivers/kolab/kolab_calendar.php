@@ -725,6 +725,8 @@ class kolab_calendar
       
       $object['_is_all_day'] = 1;
     }
+    else
+      $object['_is_all_day'] = 0;
 
     // in Horde attachments are indexed by name
     $object['_attachments'] = array();

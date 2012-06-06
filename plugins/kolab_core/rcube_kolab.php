@@ -224,7 +224,7 @@ class rcube_kolab
       if (!$subscribed) {
         $rcmail     = rcmail::get_instance();
         $storage    = $rcmail->get_storage();
-        $subscribed = $storage->list_folders();
+        $subscribed = $storage->list_folders_subscribed();
       }
 
       return in_array($folder, $subscribed);
