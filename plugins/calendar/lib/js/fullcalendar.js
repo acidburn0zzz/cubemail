@@ -1,7 +1,7 @@
 /**
  * @preserve
- * FullCalendar v1.5.2
- * http://arshaw.com/fullcalendar/
+ * FullCalendar v1.5.3-rcube-0.7.2
+ * https://github.com/roundcube/fullcalendar
  *
  * Use fullcalendar.css for basic styling.
  * For event drag & drop, requires jQuery UI draggable.
@@ -11,7 +11,7 @@
  * Dual licensed under the MIT and GPL licenses, located in
  * MIT-LICENSE.txt and GPL-LICENSE.txt respectively.
  *
- * Date: Sun Aug 21 22:06:09 2011 -0700
+ * Date: Sun Mar 4 14:35:09 2012 +0100
  *
  */
  
@@ -136,7 +136,7 @@ var rtlDefaults = {
 
 
 
-var fc = $.fullCalendar = { version: "1.5.2" };
+var fc = $.fullCalendar = { version: "1.5.3-rcube-0.7.2" };
 var fcViews = fc.views = {};
 
 
@@ -4652,11 +4652,11 @@ function DayEventRenderer() {
 					if (overflows[k])
 						seg.overflow = true;
 					if (seg.overflow) {
-						if (seg.isStart && !overflowLinks[k])
-							overflowLinks[k] = { seg:seg, top:top, date:cloneDate(seg.start, true), count:0 };
-						if (overflowLinks[k])
-							overflowLinks[k].count++;
 						overflows[k]++;
+						if (seg.isStart && k == seg.startCol && !overflowLinks[k])
+							overflowLinks[k] = { seg:seg, top:top, date:cloneDate(seg.start, true), count:(overflows[k]||0) };
+						else if (overflowLinks[k])
+							overflowLinks[k].count++;
 					}
 					else
 						colHeights[k] = top;
@@ -5656,7 +5656,8 @@ function ListView(element, calendar) {
 	}
 	
 	function setHeight(height, dateChanged) {
-		body.css('height', (height-1)+'px').css('overflow', 'auto');
+	  if (!opt('listNoHeight'))
+		  body.css('height', (height-1)+'px').css('overflow', 'auto');
 	}
 
 	function setWidth(width) {
@@ -5762,7 +5763,7 @@ function TableEventRenderer() {
 							s += "<td class='fc-event-time'>" + htmlEscape(times[1]) + "</td>";
 						}
 					} else {
-						s += "<td class='fc-event-" + col + "'>" + (htmlEscape(event[col]) || '&nbsp;') + "</td>";
+						s += "<td class='fc-event-" + col + "'>" + (event[col] ? htmlEscape(event[col]) : '&nbsp;') + "</td>";
 					}
 				}
 				s += "</tr>";
@@ -5888,7 +5889,8 @@ function TableView(element, calendar) {
 	}
 	
 	function setHeight(height, dateChanged) {
-		div.css('height', (height-1)+'px').css('overflow', 'auto');
+	  if (!opt('listNoHeight'))
+		  div.css('height', (height-1)+'px').css('overflow', 'auto');
 	}
 
 	function setWidth(width) {
