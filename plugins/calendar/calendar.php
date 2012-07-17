@@ -1059,6 +1059,7 @@ class calendar extends rcube_plugin
       $event['recurrence_text'] = $this->_recurrence_text($event['recurrence']);
 
     return array(
+      '_id'   => $event['calendar'] . ':' . $event['id'],  // unique identifier for fullcalendar
       'start' => gmdate('c', $this->fromGMT($event['start'])), // client treats date strings as they were in users's timezone
       'end'   => gmdate('c', $this->fromGMT($event['end'])),   // so shift timestamps to users's timezone and render a date string
       'description' => strval($event['description']),
