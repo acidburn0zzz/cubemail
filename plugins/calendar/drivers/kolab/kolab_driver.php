@@ -259,6 +259,8 @@ class kolab_driver extends calendar_driver
     if (strlen($oldfolder)) {
         $this->rc->imap_connect();
         $options = $this->rc->imap->mailbox_info($oldfolder);
+        if (!isset($prop['name']))  // if no name is submitted, the app assumes no write privileges
+            $options['protected'] = true;
     }
 
     if (!empty($options) && ($options['norename'] || $options['protected'])) {
