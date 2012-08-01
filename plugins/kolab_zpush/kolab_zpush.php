@@ -279,6 +279,10 @@ class kolab_zpush extends rcube_plugin
     public function list_folders()
     {
         if (!isset($this->folders)) {
+            if (empty($this->cache)) {
+                $this->init_imap();
+            }
+
             // read cached folder meta data
             if ($cached_folders = $this->cache->read('folders')) {
                 $this->folders_meta = $cached_folders;
