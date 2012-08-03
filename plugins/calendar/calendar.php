@@ -1081,7 +1081,7 @@ class calendar extends rcube_plugin
         'id'       => $alarm['id'],
         'start'    => gmdate('c', $this->fromGMT($alarm['start'])),
         'end'      => gmdate('c', $this->fromGMT($alarm['end'])),
-        'allDay'   => ($event['allday'] == 1)?true:false,
+        'allDay'   => ($alarm['allday'] == 1)?true:false,
         'title'    => $alarm['title'],
         'location' => $alarm['location'],
         'calendar' => $alarm['calendar'],
