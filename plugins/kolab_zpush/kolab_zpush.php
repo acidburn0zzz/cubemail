@@ -56,6 +56,8 @@ class kolab_zpush extends rcube_plugin
         
         if ($this->rc->action == 'plugin.zpushconfig')
           $this->require_plugin('kolab_core');
+
+        $this->init_imap();
     }
 
 
