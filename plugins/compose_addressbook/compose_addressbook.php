@@ -76,9 +76,10 @@ class compose_addressbook extends rcube_plugin
     $contacts = array();
     $this->load_config();
     $rcmail = rcmail::get_instance();
-    
-    $mode = $rcmail->config->get('compose_addressbook_mode', 'full');
-        
+
+    $mode   = $rcmail->config->get('compose_addressbook_mode', 'full');
+    $single = $rcmail->config->get('autocomplete_single');
+
     // get the addressbooks, or default to all address sources
     $book_types = (array) $rcmail->config->get('compose_addressbooks', array_keys($rcmail->get_address_sources()));
         
@@ -89,9 +90,11 @@ class compose_addressbook extends rcube_plugin
       if($mode == 'full') {
         $result = $abook->list_records();
         while ($sql_arr = $result->iterate()) {
-          foreach ((array)$abook->get_col_values('email', $sql_arr, true) as $email) {
+          foreach (array_unique((array)$abook->get_col_values('email', $sql_arr, true)) as $email) {
             $contact = format_email_recipient($email, $sql_arr['name']);
             $contacts[] = array('name' => $sql_arr['name'] , 'email' => format_email_recipient($email, $sql_arr['name']));
+            if ($single)
+              break;
           }
         }
         $search = null;
@@ -111,9 +114,11 @@ class compose_addressbook extends rcube_plugin
         if(!empty($search)) {
           $result = $abook->search(array('name','email'),$search, false, true, true, 'email');
           while ($sql_arr = $result->iterate()) {
-            foreach ((array)$abook->get_col_values('email', $sql_arr, true) as $email) {
+            foreach (array_unique((array)$abook->get_col_values('email', $sql_arr, true)) as $email) {
               $contact = format_email_recipient($email, $sql_arr['name']);
               $contacts[] = array('name' => $sql_arr['name'] , 'email' => format_email_recipient($email, $sql_arr['name']));
+              if ($single)
+                break;
             }
           }
           if($abook->groups) {
