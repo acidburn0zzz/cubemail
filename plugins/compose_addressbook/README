@@ -1,0 +1,42 @@
++-------------------------------------------------------------------------+
+|
+|  Author:  Cor Bosman (roundcube@wa.ter.net)
+|  Plugin:  compose_addressbook
+|  Version: 5.0-beta1
+|  Purpose: Add addressbook window to compose screen
+| Required: jqueryui plugin
+|
++-------------------------------------------------------------------------+
+
+IMPORTANT: as of version 2.2 you need to install the jqueryui plugin.
+           http://underwa.ter.net/roundcube-plugins/
+
+
+compose_addressbook plugin adds a button to the compose screen allowing you
+to select contacts with the mouse. These contacts can then be added to your
+recipients (To/CC/BCC) with a mouse click. 
+
+Some features:
+
+- doubleclick to quickly add a contact to your To field
+- select multiple contacts and click one of the buttons to add to the
+  specific field
+- config option lets you select which addressbooks to use
+- set mode in config file to switch between full or search mod
+- you can drag the window using the top name bar
+- use the search field to search in your addressbook
+
+Installation
+------------
+
+- install jqueryui plugin (http://underwa.ter.net/roundcube-plugins/)
+
+- Add 'jqueryui' and 'compose_addressbook' to your plugin config in main.inc.php
+
+- if necessary edit config.php.inc in the compose_addressbook plugin
+ 
+
+Licensing:
+----------
+This plugin is distributed under the GNU General Public License Version 2.
+Please read through the file LICENSE for more information about this license.

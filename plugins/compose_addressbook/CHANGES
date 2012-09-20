@@ -1,0 +1,49 @@
+5.0-beta1           use with svn/0.6
+
+4.0  0.5            use with 0.5 stable
+
+3.1  0.4.2-stable   only use with 0.4.2 and up
+
+3.0  0.4-stable     release for roundcube 0.4-stable
+
+2.21                added dependancy information to README
+
+2.2  ui changes     minor ui changes
+     dependancy     IMPORTANT: as of 2.2 you need to install jqueryui plugin
+
+2.1  ui change      switched from jqmodal to jquery-ui dialog window due to incompatibility with roundcube
+     bugfix         small bug in search mode fixed
+
+2.0  new            compatible with new address groups
+     new            will use all address sources by default
+
+IMPORTANT:  only use version 2.0+ with roundcube 0.4 or newer. 
+
+1.5.1 new           allow skin override
+
+1.5.0 new           improve LDAP compatibility, create 'mode' option
+
+1.4.0 bugfix        make compatible with jquery 1.4
+
+1.3.2 translation   added spanish and polish translations
+      bugfix        typo in english translation
+
+1.3.1 translation   added french translation by bagu
+
+1.3 translation     added taiwanese translatopn by siulee88
+    ui change       changed some ui elements, patch by epinter
+
+1.2 translation     added swedish translation by Joans Nasholm 
+
+1.1 bugfix          LDAP addressbooks didnt work
+
+1.0 no changes
+
+0.3 ui change       changed toolbar icon
+
+0.2 bugfix	        config option needs to be an array
+    bugfix         	changed some variable names to not cause JS name
+		                conflict with other plugins
+    translation     german translation added (thanks to Rosali) 
+
+0.1 initial version
