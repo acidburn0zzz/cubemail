@@ -2175,7 +2175,7 @@ class calendar extends rcube_plugin
       $part = $this->rc->imap->get_message_part($uid, $mime_id);
       if ($part->ctype_parameters['charset'])
         $charset = $part->ctype_parameters['charset'];
-      $headers = $this->rc->imap->get_headers($uid);
+      $headers = $this->rc->imap->get_message_headers($uid);
     }
 
     $events = $this->get_ical()->import($part, $charset);
