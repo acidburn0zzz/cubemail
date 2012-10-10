@@ -120,7 +120,7 @@ class calendar extends rcube_plugin
         $this->user_timezone = new DateTimeZone($this->timezone);
     }
 
-    $now = new DateTime('now', $this->timezone);
+    $now = new DateTime('now', $this->user_timezone);
     $this->gmt_offset = $now->getOffset();
     $this->dst_active = $now->format('I');
 
