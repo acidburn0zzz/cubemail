@@ -39,7 +39,13 @@ class tinymce_config extends rcube_plugin
         'force_br_newlines' => true,
     );
 
-    $script = sprintf('$.extend(window.rcmail_editor_settings, %s);', json_encode($config));
+    $script = sprintf('
+        if (!window.rcmail_editor_settings)
+          window.rcmail_editor_settings = {};
+        var tinymce_config = %s;
+        for (var i in tinymce_config)
+          window.rcmail_editor_settings[i] = tinymce_config[i];
+    ', json_encode($config));
 
     $rcmail->output->add_script($script, 'docready');
   }
