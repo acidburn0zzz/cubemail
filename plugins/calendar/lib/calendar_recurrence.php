@@ -76,12 +76,15 @@ class calendar_recurrence
   {
     $time = false;
     if ($this->next && ($next = $this->engine->nextActiveRecurrence(array('year' => $this->next->year, 'month' => $this->next->month, 'mday' => $this->next->mday + 1, 'hour' => $this->next->hour, 'min' => $this->next->min, 'sec' => $this->next->sec)))) {
+      # consider difference in daylight saving between base event and recurring instance
+      $dst_diff = ($this->dst_start - $next->format('I')) * 3600;
+      # fix time for all-day events
       if ($this->event['allday']) {
-        $next->hour = $this->hour;  # fix time for all-day events
+        $next->hour = $this->hour;
         $next->min = 0;
+        $dst_diff = 0;
       }
-      # $dst_diff = ($this->dst_start - $next->format('I')) * 3600;  # consider difference in daylight saving between base event and recurring instance
-      $time = $next->timestamp() - $this->tz_offset;
+      $time = $next->timestamp() - $this->tz_offset - $dst_diff;
       $this->next = $next;
     }
 
