@@ -102,27 +102,17 @@ class calendar extends rcube_plugin
     $this->add_texts('localization/', $this->rc->task == 'calendar' && (!$this->rc->action || $this->rc->action == 'print'));
 
     // set user's timezone
-    // In 0.7 timezone setting is (most likely) a numeric value
-    $timezone = $this->rc->config->get('timezone', 'UTC');
-    if (is_numeric($timezone) && ($tz = timezone_name_from_abbr("", $timezone * 3600, 0))) {
-        $timezone = $tz;
-    }
-    else if (empty($timezone)) {
-        $timezone = 'UTC';
-    }
+    $this->timezone = $this->rc->config->get('timezone');
+    $this->dst_active = $this->rc->config->get('dst_active');
+    $this->gmt_offset = ($this->timezone + $this->dst_active) * 3600;
 
     try {
-        $this->timezone = $timezone;
-        $this->user_timezone = new DateTimeZone($this->timezone);
+        $this->user_timezone = new DateTimeZone($this->timezone ? timezone_name_from_abbr("", $this->gmt_offset, $this->dst_active) : 'GMT');
     }
     catch (Exception $e) {
-        $this->timezone = 'UTC';
-        $this->user_timezone = new DateTimeZone($this->timezone);
+        $this->timezone = 0;
+        $this->user_timezone = new DateTimeZone('UTC');
     }
-
-    $now = new DateTime('now', $this->user_timezone);
-    $this->gmt_offset = $now->getOffset();
-    $this->dst_active = $now->format('I');
 
     require($this->home . '/lib/calendar_ui.php');
     $this->ui = new calendar_ui($this);
