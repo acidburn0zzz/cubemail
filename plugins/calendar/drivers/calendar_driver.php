@@ -37,8 +37,8 @@
  *            'id' => 'Event ID used for editing',
  *           'uid' => 'Unique identifier of this event',
  *      'calendar' => 'Calendar identifier to add event to or where the event is stored',
- *         'start' => <unixtime>,  // Event start date/time as unix timestamp
- *           'end' => <unixtime>,  // Event end date/time as unix timestamp
+ *         'start' => DateTime,  // Event start date/time as unix timestamp
+ *           'end' => DateTime,  // Event end date/time as unix timestamp
  *        'allday' => true|false,  // Boolean flag if this is an all-day event
  *       'changed' => <unixtime>, // Last modification date of event
  *         'title' => 'Event title/summary',
@@ -47,7 +47,7 @@
  *    'recurrence' => array(   // Recurrence definition according to iCalendar (RFC 2445) specification as list of key-value pairs
  *            'FREQ' => 'DAILY|WEEKLY|MONTHLY|YEARLY',
  *        'INTERVAL' => 1...n,
- *           'UNTIL' => <unixtime>,
+ *           'UNTIL' => DateTime,
  *           'COUNT' => 1..n,   // number of times
  *                      // + more properties (see http://www.kanzaki.com/docs/ical/recur.html)
  *          'EXDATE' => array(),  // list of <unixtime>s of exception Dates/Times

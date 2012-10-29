@@ -45,6 +45,7 @@ class calendar extends rcube_plugin
   public $urlbase;
   public $timezone;
   public $gmt_offset;
+  public $user_timezone;
 
   public $ical;
   public $ui;
@@ -859,7 +860,7 @@ class calendar extends rcube_plugin
       $events = $this->get_ical()->import_from_file($_FILES['_data']['tmp_name']);
 
       $count = $errors = 0;
-      $rangestart = $_REQUEST['_range'] ? strtotime("now -" . intval($_REQUEST['_range']) . " months") : 0;
+      $rangestart = $_REQUEST['_range'] ? date_create("now -" . intval($_REQUEST['_range']) . " months") : 0;
       foreach ($events as $event) {
         // TODO: correctly handle recurring events which start before $rangestart
         if ($event['end'] < $rangestart && (!$event['recurrence'] || ($event['recurrence']['until'] && $event['recurrence']['until'] < $rangestart)))
@@ -1030,12 +1031,22 @@ class calendar extends rcube_plugin
   }
 
   /**
-   * Convert the given date string into a GMT-based time stamp
+   * Convert the given date value into a DateTime object in user's timezone
    */
-  function fromGMT($datetime)
+  function toUserDateTime($datetime)
   {
-    $ts = is_numeric($datetime) ? $datetime : strtotime($datetime);
-    return $ts + $this->gmt_offset;
+    if (is_a($datetime, 'DateTime')) {
+      $datetime->setTimezone($this->user_timezone);
+      return $datetime;
+    }
+    try {
+        $dt = new DateTime(is_numeric($datetime) ? '@'.$datetime : $datetime, new DateTimeZone('UTC'));
+        $dt->setTimezone($this->user_timezone);
+    }
+    catch (Exception $e) {
+        $dt = new DateTime('1970-01-01 00:00:00', $this->user_timezone);
+    }
+    return $dt;
   }
 
   /**
@@ -1067,8 +1078,8 @@ class calendar extends rcube_plugin
 
     return array(
       '_id'   => $event['calendar'] . ':' . $event['id'],  // unique identifier for fullcalendar
-      'start' => gmdate('c', $this->fromGMT($event['start'])), // client treats date strings as they were in users's timezone
-      'end'   => gmdate('c', $this->fromGMT($event['end'])),   // so shift timestamps to users's timezone and render a date string
+      'start' => $this->toUserDateTime($event['start'])->format('c'), // client treats date strings as they were in users's timezone
+      'end'   => $this->toUserDateTime($event['end'])->format('c'),   // so shift timestamps to users's timezone and render a date string
       'description' => strval($event['description']),
       'location'    => strval($event['location']),
       'className'   => ($addcss ? 'fc-event-cal-'.asciiwords($event['calendar'], true).' ' : '') . 'fc-event-cat-' . asciiwords(strtolower($event['categories']), true),
@@ -1086,8 +1097,8 @@ class calendar extends rcube_plugin
     foreach ($alarms as $alarm) {
       $out[] = array(
         'id'       => $alarm['id'],
-        'start'    => gmdate('c', $this->fromGMT($alarm['start'])),
-        'end'      => gmdate('c', $this->fromGMT($alarm['end'])),
+        'start'    => $this->toUserDateTime($alarm['start'])->format('c'),
+        'end'      => $this->toUserDateTime($alarm['end'])->format('c'),
         'allDay'   => ($alarm['allday'] == 1)?true:false,
         'title'    => $alarm['title'],
         'location' => $alarm['location'],
@@ -1116,7 +1127,7 @@ class calendar extends rcube_plugin
     }
     
     if (preg_match('/@(\d+)/', $trigger, $m)) {
-      $text .= ' ' . $this->gettext(array('name' => 'alarmat', 'vars' => array('datetime' => format_date($m[1]))));
+      $text .= ' ' . $this->gettext(array('name' => 'alarmat', 'vars' => array('datetime' => self::format_date($m[1]))));
     }
     else if ($val = self::parse_alaram_value($trigger)) {
       $text .= ' ' . intval($val[0]) . ' ' . $this->gettext('trigger' . $val[1]);
@@ -1156,7 +1167,7 @@ class calendar extends rcube_plugin
     if ($rrule['COUNT'])
       $until =  $this->gettext(array('name' => 'forntimes', 'vars' => array('nr' => $rrule['COUNT'])));
     else if ($rrule['UNTIL'])
-      $until = $this->gettext('recurrencend') . ' ' . format_date($rrule['UNTIL'], self::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format'])));
+      $until = $this->gettext('recurrencend') . ' ' . self::format_date($rrule['UNTIL'], self::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format'])));
     else
       $until = $this->gettext('forever');
     
@@ -1198,11 +1209,11 @@ class calendar extends rcube_plugin
       $k = strtoupper($k);
       switch ($k) {
         case 'UNTIL':
-          $val = gmdate('Ymd\THis', $val);
+          $val = $val->format('Ymd\THis');
           break;
         case 'EXDATE':
           foreach ((array)$val as $i => $ex)
-            $val[$i] = gmdate('Ymd\THis', $ex);
+            $val[$i] = $ex->format('Ymd\THis');
           $val = join(',', $val);
           break;
       }
@@ -1298,7 +1309,7 @@ class calendar extends rcube_plugin
         $start -= 3600;
       
       if ($allday) {
-        $start = strtotime(date('Y-m-d 00:00:00', $start));
+        $start = date_create(date('Y-m-d 00:00:00', $start));
         $duration = 86399;
       }
       
@@ -1552,6 +1563,13 @@ class calendar extends rcube_plugin
    */
   private function prepare_event(&$event, $action)
   {
+    // convert dates into DateTime objects in user's current timezone
+    $event['start'] = new DateTime($event['start'], $this->user_timezone);
+    $event['end'] = new DateTime($event['end'], $this->user_timezone);
+
+    if ($event['recurrence']['UNTIL'])
+      $event['recurrence']['UNTIL'] = new DateTime($event['recurrence']['UNTIL'], $this->user_timezone);
+
     $attachments = array();
     $eventid = 'cal:'.$event['id'];
     if (is_array($_SESSION['event_session']) && $_SESSION['event_session']['id'] == $eventid) {
@@ -1661,17 +1679,17 @@ class calendar extends rcube_plugin
     $time_format = self::to_php_date_format($this->rc->config->get('calendar_time_format', $this->defaults['calendar_time_format']));
     
     if ($event['allday']) {
-      $fromto = format_date($event['start'], $date_format);
-      if (($todate = format_date($event['end'], $date_format)) != $fromto)
+      $fromto = self::format_date($event['start'], $date_format);
+      if (($todate = self::format_date($event['end'], $date_format)) != $fromto)
         $fromto .= ' - ' . $todate;
     }
-    else if ($duration < 86400 && gmdate('d', $event['start']) == gmdate('d', $event['end'])) {
-      $fromto = format_date($event['start'], $date_format) . ' ' . format_date($event['start'], $time_format) .
-        ' - ' . format_date($event['end'], $time_format);
+    else if ($duration < 86400 && $event['start']->format('d') == $event['end']->format('d')) {
+      $fromto = self::format_date($event['start'], $date_format) . ' ' . self::format_date($event['start'], $time_format) .
+        ' - ' . self::format_date($event['end'], $time_format);
     }
     else {
-      $fromto = format_date($event['start'], $date_format) . ' ' . format_date($event['start'], $time_format) .
-        ' - ' . format_date($event['end'], $date_format) . ' ' . format_date($event['end'], $time_format);
+      $fromto = self::format_date($event['start'], $date_format) . ' ' . self::format_date($event['start'], $time_format) .
+        ' - ' . self::format_date($event['end'], $date_format) . ' ' . self::format_date($event['end'], $time_format);
     }
     
     // add timezone information
@@ -1680,6 +1698,15 @@ class calendar extends rcube_plugin
     }
     
     return $fromto;
+  }
+
+  /**
+   * Wrapper for Roundcube's internal format_date() function
+   * accepting DateTime objects as argument
+   */
+  public static function format_date($date, $format=null)
+  {
+    return format_date(is_a($date, 'DateTime') ? $date->format('c') : $date, $format);
   }
 
   /**

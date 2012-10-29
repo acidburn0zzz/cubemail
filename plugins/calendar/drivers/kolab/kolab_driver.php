@@ -794,7 +794,7 @@ class kolab_driver extends calendar_driver
 
       foreach ($calendar->list_events($time, $time + 86400 * 365) as $e) {
         // add to list if alarm is set
-        if ($e['_alarm'] && ($notifyat = $e['start'] - $e['_alarm'] * 60) <= $time) {
+        if ($e['_alarm'] && ($notifyat = $e['start']->format('U') - $e['_alarm'] * 60) <= $time) {
           $id = $e['id'];
           $events[$id] = $e;
           $events[$id]['notifyat'] = $notifyat;

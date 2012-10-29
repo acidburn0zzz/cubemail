@@ -337,9 +337,11 @@ class calendar_ui
     $input_time = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time', 'size' => 6));
     
     $select_offset = new html_select(array('name' => 'alarmoffset[]', 'class' => 'edit-alarm-offset'));
-    foreach (array('-M','-H','-D','+M','+H','+D','@') as $trigger)
+    foreach (array('-M','-H','-D','+M','+H','+D') as $trigger)
       $select_offset->add($this->cal->gettext('trigger' . $trigger), $trigger);
-     
+    if (!is_a($this->cal->driver, 'kolab_driver'))
+      $select_offset->add($this->cal->gettext('trigger@'), '@');
+    
     // pre-set with default values from user settings
     $preset = calendar::parse_alaram_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
     $hidden = array('style' => 'display:none');

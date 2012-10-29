@@ -208,7 +208,19 @@ function rcube_calendar_ui(settings)
         date.setTime((ts + 3600) * 1000);
       return date;
     };
-    
+
+    // turn the given date into an ISO 8601 date string understandable by PHPs strtotime()
+    var date2servertime = function(date)
+    {
+      return date.getFullYear()+'-'+zeropad(date.getMonth()+1)+'-'+zeropad(date.getDate())
+          + 'T'+zeropad(date.getHours())+':'+zeropad(date.getMinutes())+':'+zeropad(date.getSeconds());
+    }
+
+    var zeropad = function(num)
+    {
+        return (num < 10 ? '0' : '') + num;
+    }
+
     // determine whether the given date is on a weekend
     var is_weekend = function(date)
     {
@@ -642,8 +654,8 @@ function rcube_calendar_ui(settings)
         // post data to server
         var data = {
           calendar: event.calendar,
-          start: date2unixtime(start),
-          end: date2unixtime(end),
+          start: date2servertime(start),
+          end: date2servertime(end),
           allday: allday.checked?1:0,
           title: title.val(),
           description: description.val(),
@@ -702,7 +714,7 @@ function rcube_calendar_ui(settings)
           if (until == 'count')
             data.recurrence.COUNT = rrtimes.val();
           else if (until == 'until')
-            data.recurrence.UNTIL = date2unixtime(parse_datetime(endtime.val(), rrenddate.val()));
+            data.recurrence.UNTIL = date2servertime(parse_datetime(endtime.val(), rrenddate.val()));
           
           if (freq == 'WEEKLY') {
             var byday = [];
@@ -2355,8 +2367,8 @@ function rcube_calendar_ui(settings)
         var data = {
           id: event.id,
           calendar: event.calendar,
-          start: date2unixtime(event.start),
-          end: date2unixtime(event.end),
+          start: date2servertime(event.start),
+          end: date2servertime(event.end),
           allday: allDay?1:0
         };
         update_event_confirm('move', event, data);
@@ -2373,8 +2385,8 @@ function rcube_calendar_ui(settings)
         var data = {
           id: event.id,
           calendar: event.calendar,
-          start: date2unixtime(event.start),
-          end: date2unixtime(event.end)
+          start: date2servertime(event.start),
+          end: date2servertime(event.end)
         };
         update_event_confirm('resize', event, data);
       },

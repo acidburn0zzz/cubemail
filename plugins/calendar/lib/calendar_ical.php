@@ -153,8 +153,8 @@ class calendar_ical
       'uid' => $ve->getAttributeDefault('UID'),
       'changed' => $ve->getAttributeDefault('DTSTAMP', 0),
       'title' => $ve->getAttributeDefault('SUMMARY'),
-      'start' => $ve->getAttribute('DTSTART'),
-      'end' => $ve->getAttribute('DTEND'),
+      'start' => $this->_date2time($ve->getAttribute('DTSTART')),
+      'end' => $this->_date2time($ve->getAttribute('DTEND')),
       // set defaults
       'free_busy' => 'busy',
       'priority' => 0,
@@ -162,15 +162,16 @@ class calendar_ical
     );
     
     // check for all-day dates
-    if (is_array($event['start'])) {
-      // create timestamp at 12:00 in user's timezone
-      $event['start'] = $this->_date2time($event['start']);
+    if (is_array($ve->getAttribute('DTSTART')))
       $event['allday'] = true;
-    }
-    if (is_array($event['end'])) {
-      $event['end'] = $this->_date2time($event['end']) - 23 * 3600;
-    }
-
+    
+    if ($event['allday'])
+      $event['end'] = new DateTime('@'.($event['end']->format('U') - 23*3600));
+    
+    // assign current timezone to event start/end
+    $event['start']->setTimezone($this->cal->user_timezone);
+    $event['end']->setTimezone($this->cal->user_timezone);
+    
     // map other attributes to internal fields
     $_attendees = array();
     foreach ($ve->getAllAttributes() as $attr) {
@@ -225,9 +226,15 @@ class calendar_ical
             $params[$k] = $v;
           }
           if ($params['UNTIL'])
-            $params['UNTIL'] = $ve->_parseDateTime($params['UNTIL']);
+            $params['UNTIL'] = date_create($params['UNTIL']);
           if (!$params['INTERVAL'])
             $params['INTERVAL'] = 1;
+          if ($params['EXDATE']) {
+            $exdates = array();
+            foreach (explode(',', $params['EXDATE']) as $excl)
+              $exdates[] = new DateTime($params['EXDATE'], $this->cal->user_timezone);
+            $params['EXDATE'] = $exdates;
+          }
           
           $event['recurrence'] = $params;
           break;
@@ -319,9 +326,13 @@ class calendar_ical
   private function _date2time($prop)
   {
     // create timestamp at 12:00 in user's timezone
-    return is_array($prop) ? strtotime(sprintf('%04d%02d%02dT120000%s', $prop['year'], $prop['month'], $prop['mday'], $this->timezone)) : $prop;
+    if (is_array($prop))
+      return date_create(sprintf('%04d%02d%02dT120000', $prop['year'], $prop['month'], $prop['mday']), $this->cal->user_timezone);
+    else if (is_numeric($prop))
+      return date_create('@'.$prop);
+    
+    return $prop;
   }
-
 
   /**
    * Free resources by clearing member vars
@@ -358,15 +369,16 @@ class calendar_ical
       foreach ($events as $event) {
         $vevent = "BEGIN:VEVENT" . self::EOL;
         $vevent .= "UID:" . self::escpape($event['uid']) . self::EOL;
-        $vevent .= "DTSTAMP:" . gmdate('Ymd\THis\Z', $event['changed'] ? $event['changed'] : time()) . self::EOL;
+        $vevent .= $this->format_datetime("DTSTAMP", $event['changed'] ?: new DateTime(), false, true) . self::EOL;
         // correctly set all-day dates
         if ($event['allday']) {
-          $vevent .= "DTSTART;VALUE=DATE:" . gmdate('Ymd', $event['start'] + $this->cal->gmt_offset) . self::EOL;
-          $vevent .= "DTEND;VALUE=DATE:" . gmdate('Ymd', $event['end'] + $this->cal->gmt_offset + 86400) . self::EOL;  // ends the next day
+          $event['end'] = new DateTime('@'.($event['end']->format('U') + 86400));  // ends the next day
+          $vevent .= $this->format_datetime("DTSTART", $event['start'], true) . self::EOL;
+          $vevent .= $this->format_datetime("DTEND",   $event['end'], true) . self::EOL;
         }
         else {
-          $vevent .= "DTSTART:" . gmdate('Ymd\THis\Z', $event['start']) . self::EOL;
-          $vevent .= "DTEND:" . gmdate('Ymd\THis\Z', $event['end']) . self::EOL;
+          $vevent .= $this->format_datetime("DTSTART", $event['start'], false) . self::EOL;
+          $vevent .= $this->format_datetime("DTEND",   $event['end'], false) . self::EOL;
         }
         $vevent .= "SUMMARY:" . self::escpape($event['title']) . self::EOL;
         $vevent .= "DESCRIPTION:" . self::escpape($event['description']) . self::EOL;
@@ -429,7 +441,27 @@ class calendar_ical
       // fold lines to 75 chars
       return rcube_vcard::rfc2425_fold($ical);
   }
-  
+
+  private function format_datetime($attr, $dt, $dateonly = false, $utc = false)
+  {
+    if (is_numeric($dt))
+        $dt = new DateTime('@'.$dt);
+
+    if ($utc)
+      $dt->setTimezone(new DateTimeZone('UTC'));
+
+    if ($dateonly) {
+      return $attr . ';VALUE=DATE:' . $dt->format('Ymd');
+    }
+    else {
+      // <ATTR>;TZID=Europe/Zurich:20120706T210000
+      $tz = $dt->getTimezone();
+      $tzname = $tz ? $tz->getName() : 'UTC';
+      $tzid = $tzname != 'UTC' && $tzname != '+00:00' ? ';TZID=' . $tzname : '';
+      return $attr . $tzid . ':' . $dt->format('Ymd\THis' . ($tzid ? '' : '\Z'));
+    }
+  }
+
   private function escpape($str)
   {
     return preg_replace('/(?<!\\\\)([\:\;\,\\n\\r])/', '\\\$1', $str);
