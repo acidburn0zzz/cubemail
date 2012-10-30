@@ -3,12 +3,12 @@
 /**
  * Database driver for the Calendar plugin
  *
- * @version 0.7-beta
+ * @version 0.7.3
  * @author Lazlo Westerhof <hello@lazlo.me>
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2010, Lazlo Westerhof - Netherlands
- * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2010, Lazlo Westerhof <hello@lazlo.me>
+ * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -26,12 +26,14 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 
 class database_driver extends calendar_driver
 {
+  const DB_DATE_FORMAT = 'Y-m-d H:i:s';
+
   // features this backend supports
   public $alarms = true;
   public $attendees = true;
@@ -45,6 +47,7 @@ class database_driver extends calendar_driver
   private $calendars = array();
   private $calendar_ids = '';
   private $free_busy_map = array('free' => 0, 'busy' => 1, 'out-of-office' => 2, 'outofoffice' => 2, 'tentative' => 3);
+  private $server_timezone;
   
   private $db_events = 'events';
   private $db_calendars = 'calendars';
@@ -61,6 +64,7 @@ class database_driver extends calendar_driver
   {
     $this->cal = $cal;
     $this->rc = $cal->rc;
+    $this->server_timezone = new DateTimeZone(date_default_timezone_get());
     
     // load library classes
     require_once($this->cal->home . '/lib/Horde_Date_Recurrence.php');
@@ -93,7 +97,8 @@ class database_driver extends calendar_driver
       );
       while ($result && ($arr = $this->rc->db->fetch_assoc($result))) {
         $arr['showalarms'] = intval($arr['showalarms']);
-        $arr['active'] = !in_array($arr['id'], $hidden);
+        $arr['active']     = !in_array($arr['id'], $hidden);
+        $arr['name']       = Q($arr['name']);
         $this->calendars[$arr['calendar_id']] = $arr;
         $calendar_ids[] = $this->rc->db->quote($arr['calendar_id']);
       }
@@ -220,14 +225,14 @@ class database_driver extends calendar_driver
       $query = $this->rc->db->query(sprintf(
         "INSERT INTO " . $this->db_events . "
          (calendar_id, created, changed, uid, start, end, all_day, recurrence, title, description, location, categories, free_busy, priority, sensitivity, attendees, alarms, notifyat)
-         VALUES (?, %s, %s, ?, %s, %s, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         VALUES (?, %s, %s, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
           $this->rc->db->now(),
-          $this->rc->db->now(),
-          $this->rc->db->fromunixtime($event['start']),
-          $this->rc->db->fromunixtime($event['end'])
+          $this->rc->db->now()
         ),
         $event['calendar'],
         strval($event['uid']),
+        $event['start']->format(self::DB_DATE_FORMAT),
+        $event['end']->format(self::DB_DATE_FORMAT),
         intval($event['all_day']),
         $event['_recurrence'],
         strval($event['title']),
@@ -304,20 +309,23 @@ class database_driver extends calendar_driver
           case 'future':
             if ($master['id'] != $event['id']) {
               // set until-date on master event, then save this instance as new recurring event
-              $master['recurrence']['UNTIL'] = $event['start'] - 86400;
+              $master['recurrence']['UNTIL'] = clone $event['start'];
+              $master['recurrence']['UNTIL']->modify('-1 day');
               unset($master['recurrence']['COUNT']);
               $update_master = true;
-            
+              
               // if recurrence COUNT, update value to the correct number of future occurences
               if ($event['recurrence']['COUNT']) {
+                $fromdate = clone $event['start'];
+                $fromdate->setTimezone($this->server_timezone);
                 $sqlresult = $this->rc->db->query(sprintf(
                   "SELECT event_id FROM " . $this->db_events . "
                    WHERE calendar_id IN (%s)
-                   AND start >= %s
+                   AND start >= ?
                    AND recurrence_id=?",
-                  $this->calendar_ids,
-                  $this->rc->db->fromunixtime($event['start'])
+                  $this->calendar_ids
                   ),
+                  $fromdate->format(self::DB_DATE_FORMAT),
                   $master['id']);
                 if ($count = $this->rc->db->num_rows($sqlresult))
                   $event['recurrence']['COUNT'] = $count;
@@ -334,20 +342,21 @@ class database_driver extends calendar_driver
             $event['recurrence_id'] = 0;
             
             // use start date from master but try to be smart on time or duration changes
-            $old_start_date = date('Y-m-d', $old['start']);
-            $old_start_time = date('H:i', $old['start']);
-            $old_duration = $old['end'] - $old['start'];
+            $old_start_date = $old['start']->format('Y-m-d');
+            $old_start_time = $old['start']->format('H:i');
+            $old_duration = $old['end']->format('U') - $old['start']->format('U');
             
-            $new_start_date = date('Y-m-d', $event['start']);
-            $new_start_time = date('H:i', $event['start']);
-            $new_duration = $event['end'] - $event['start'];
+            $new_start_date = $event['start']->format('Y-m-d');
+            $new_start_time = $event['start']->format('H:i');
+            $new_duration = $event['end']->format('U') - $event['start']->format('U');
             
             $diff = $old_start_date != $new_start_date || $old_start_time != $new_start_time || $old_duration != $new_duration;
             
             // shifted or resized
             if ($diff && ($old_start_date == $new_start_date || $old_duration == $new_duration)) {
-              $event['start'] = $master['start'] + ($event['start'] - $old['start']);
-              $event['end'] = $event['start'] + $new_duration;
+              $event['start'] = $master['start']->add($old['start']->diff($event['start']));
+              $event['end'] = clone $event['start'];
+              $event['end']->modify('+'.$new_duration.' seconds');
             }
             break;
         }
@@ -368,6 +377,12 @@ class database_driver extends calendar_driver
    */
   private function _save_preprocess($event)
   {
+    // shift dates to server's timezone
+    $event['start'] = clone $event['start'];
+    $event['start']->setTimezone($this->server_timezone);
+    $event['end'] = clone $event['end'];
+    $event['end']->setTimezone($this->server_timezone);
+    
     // compose vcalendar-style recurrencue rule from structured data
     $rrule = $event['recurrence'] ? calendar::to_rrule($event['recurrence']) : '';
     $event['_recurrence'] = rtrim($rrule, ';');
@@ -439,9 +454,11 @@ class database_driver extends calendar_driver
   {
     $event = $this->_save_preprocess($event);
     $sql_set = array();
-    $set_cols = array('all_day', 'recurrence_id', 'title', 'description', 'location', 'categories', 'free_busy', 'priority', 'sensitivity', 'attendees', 'alarms', 'notifyat');
+    $set_cols = array('start', 'end', 'all_day', 'recurrence_id', 'sequence', 'title', 'description', 'location', 'categories', 'free_busy', 'priority', 'sensitivity', 'attendees', 'alarms', 'notifyat');
     foreach ($set_cols as $col) {
-      if (isset($event[$col]))
+      if (is_object($event[$col]) && is_a($event[$col], 'DateTime'))
+        $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . $this->rc->db->quote($event[$col]->format(self::DB_DATE_FORMAT));
+      else if (isset($event[$col]))
         $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . $this->rc->db->quote($event[$col]);
     }
     
@@ -453,12 +470,10 @@ class database_driver extends calendar_driver
     
     $query = $this->rc->db->query(sprintf(
       "UPDATE " . $this->db_events . "
-       SET   changed=%s, start=%s, end=%s %s
+       SET   changed=%s %s
        WHERE event_id=?
        AND   calendar_id IN (" . $this->calendar_ids . ")",
         $this->rc->db->now(),
-        $this->rc->db->fromunixtime($event['start']),
-        $this->rc->db->fromunixtime($event['end']),
         ($sql_set ? ', ' . join(', ', $sql_set) : '')
       ),
       $event['id']
@@ -512,21 +527,24 @@ class database_driver extends calendar_driver
       require_once($this->cal->home . '/lib/calendar_recurrence.php');
       
       $recurrence = new calendar_recurrence($this->cal, $event);
-      
-      $duration = $event['end'] - $event['start'];
-      while ($next_ts = $recurrence->next_start()) {
-        $notify_at = $this->_get_notification(array('alarms' => $event['alarms'], 'start' => $next_ts, 'end' => $next_ts + $duration));
+
+      $duration = $event['end']->format('U') - $event['start']->format('U');
+      while ($next_start = $recurrence->next_start()) {
+        $next_start->setTimezone($this->server_timezone);
+        $next_end = clone $next_start;
+        $next_end->modify('+'.$duration.' seconds');
+        $notify_at = $this->_get_notification(array('alarms' => $event['alarms'], 'start' => $next_start, 'end' => $next_end));
         $query = $this->rc->db->query(sprintf(
           "INSERT INTO " . $this->db_events . "
            (calendar_id, recurrence_id, created, changed, uid, start, end, all_day, recurrence, title, description, location, categories, free_busy, priority, sensitivity, alarms, notifyat)
-            SELECT calendar_id, ?, %s, %s, uid, %s, %s, all_day, recurrence, title, description, location, categories, free_busy, priority, sensitivity, alarms, ?
+            SELECT calendar_id, ?, %s, %s, uid, ?, ?, all_day, recurrence, title, description, location, categories, free_busy, priority, sensitivity, alarms, ?
             FROM  " . $this->db_events . " WHERE event_id=? AND calendar_id IN (" . $this->calendar_ids . ")",
             $this->rc->db->now(),
-            $this->rc->db->now(),
-            $this->rc->db->fromunixtime($next_ts),
-            $this->rc->db->fromunixtime($next_ts + $duration)
+            $this->rc->db->now()
           ),
           $event['id'],
+          $next_start->format(self::DB_DATE_FORMAT),
+          $next_end->format(self::DB_DATE_FORMAT),
           $notify_at,
           $event['id']
         );
@@ -583,7 +601,7 @@ class database_driver extends calendar_driver
 
       // read master if deleting a recurring event
       if ($event['recurrence'] || $event['recurrence_id']) {
-        $master = $event['recurrence_id'] ? $this->get_event(array('id' => $old['recurrence_id'])) : $event;
+        $master = $event['recurrence_id'] ? $this->get_event(array('id' => $event['recurrence_id'])) : $event;
         $savemode = $event['_savemode'];
       }
 
@@ -605,16 +623,20 @@ class database_driver extends calendar_driver
         case 'future':
           if ($master['id'] != $event['id']) {
             // set until-date on master event
-            $master['recurrence']['UNTIL'] = $event['start'] - 86400;
+            $master['recurrence']['UNTIL'] = clone $event['start'];
+            $master['recurrence']['UNTIL']->modify('-1 day');
             unset($master['recurrence']['COUNT']);
             $update_master = true;
             
             // delete this and all future instances
+            $fromdate = clone $old['start'];
+            $fromdate->setTimezone($this->server_timezone);
             $query = $this->rc->db->query(
               "DELETE FROM " . $this->db_events . "
                WHERE calendar_id IN (" . $this->calendar_ids . ")
-               AND start >= " . $this->rc->db->fromunixtime($old['start']) . "
+               AND start >= ?
                AND recurrence_id=?",
+              $fromdate->format(self::DB_DATE_FORMAT),
               $master['id']
             );
             break;
@@ -651,8 +673,8 @@ class database_driver extends calendar_driver
   public function get_event($event, $writeable = null)
   {
     $id = is_array($event) ? ($event['id'] ? $event['id'] : $event['uid']) : $event;
-    $col = $event['id'] && is_numeric($event['id']) ? 'event_id' : 'uid';
-    
+    $col = is_array($event) && is_numeric($id) ? 'event_id' : 'uid';
+
     if ($this->cache[$id])
       return $this->cache[$id];
     
@@ -727,8 +749,8 @@ class database_driver extends calendar_driver
     $free_busy_map = array_flip($this->free_busy_map);
     
     $event['id'] = $event['event_id'];
-    $event['start'] = strtotime($event['start']);
-    $event['end'] = strtotime($event['end']);
+    $event['start'] = new DateTime($event['start']);
+    $event['end'] = new DateTime($event['end']);
     $event['allday'] = intval($event['all_day']);
     $event['changed'] = strtotime($event['changed']);
     $event['free_busy'] = $free_busy_map[$event['free_busy']];
@@ -742,9 +764,9 @@ class database_driver extends calendar_driver
         if (is_numeric($rr[2]))
           $rr[2] = intval($rr[2]);
         else if ($rr[1] == 'UNTIL')
-          $rr[2] = strtotime($rr[2]);
+          $rr[2] = date_create($rr[2]);
         else if ($rr[1] == 'EXDATE')
-          $rr[2] = array_map('strtotime', explode(',', $rr[2]));
+          $rr[2] = array_map('date_create', explode(',', $rr[2]));
         $event['recurrence'][$rr[1]] = $rr[2];
       }
     }
@@ -816,7 +838,7 @@ class database_driver extends calendar_driver
   public function dismiss_alarm($event_id, $snooze = 0)
   {
     // set new notifyat time or unset if not snoozed
-    $notify_at = $snooze > 0 ? date('Y-m-d H:i:s', time() + $snooze) : null;
+    $notify_at = $snooze > 0 ? date(self::DB_DATE_FORMAT, time() + $snooze) : null;
     
     $query = $this->rc->db->query(sprintf(
       "UPDATE " . $this->db_events . "
