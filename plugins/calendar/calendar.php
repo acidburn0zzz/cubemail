@@ -1075,6 +1075,8 @@ class calendar extends rcube_plugin
       $event['alarms_text'] = $this->_alarms_text($event['alarms']);
     if ($event['recurrence'])
       $event['recurrence_text'] = $this->_recurrence_text($event['recurrence']);
+    if ($event['recurrence']['UNTIL'])
+      $event['recurrence']['UNTIL'] = $this->toUserDateTime($event['recurrence']['UNTIL'])->format('c');
 
     return array(
       '_id'   => $event['calendar'] . ':' . $event['id'],  // unique identifier for fullcalendar
@@ -1322,8 +1324,8 @@ class calendar extends rcube_plugin
       
       $this->driver->new_event(array(
         'uid' => $this->generate_uid(),
-        'start' => $start,
-        'end' => $start + $duration,
+        'start' => new DateTime('@'.$start),
+        'end' => new DateTime('@'.($start + $duration)),
         'allday' => $allday,
         'title' => rtrim($title),
         'free_busy' => $fb == 2 ? 'outofoffice' : ($fb ? 'busy' : 'free'),
@@ -1672,7 +1674,9 @@ class calendar extends rcube_plugin
   public function event_date_text($event, $tzinfo = false)
   {
     $fromto = '';
-    $duration = $event['end'] - $event['start'];
+    $event['start'] = $this->toUserDateTime($event['start']);
+    $event['end'] = $this->toUserDateTime($event['end']);
+    $duration = $event['end']->format('U') - $event['start']->format('U');
     
     $this->date_format_defaults();
     $date_format = self::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format']));
@@ -1706,7 +1710,7 @@ class calendar extends rcube_plugin
    */
   public static function format_date($date, $format=null)
   {
-    return format_date(is_a($date, 'DateTime') ? $date->format('c') : $date, $format);
+    return format_date(is_a($date, 'DateTime') ? $date->format('c') : $date, $format, false);
   }
 
   /**

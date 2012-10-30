@@ -557,7 +557,7 @@ function rcube_calendar_ui(settings)
         recurrence = $('#edit-recurrence-frequency').val(event.recurrence ? event.recurrence.FREQ : '').change();
         interval = $('select.edit-recurrence-interval').val(event.recurrence ? event.recurrence.INTERVAL : 1);
         rrtimes = $('#edit-recurrence-repeat-times').val(event.recurrence ? event.recurrence.COUNT : 1);
-        rrenddate = $('#edit-recurrence-enddate').val(event.recurrence && event.recurrence.UNTIL ? $.fullCalendar.formatDate(new Date(event.recurrence.UNTIL*1000), settings['date_format']) : '');
+        rrenddate = $('#edit-recurrence-enddate').val(event.recurrence && event.recurrence.UNTIL ? $.fullCalendar.formatDate($.fullCalendar.parseISO8601(event.recurrence.UNTIL,true), settings['date_format']) : '');
         $('input.edit-recurrence-until:checked').prop('checked', false);
       
         var weekdays = ['SU','MO','TU','WE','TH','FR','SA'];

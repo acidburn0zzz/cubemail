@@ -53,6 +53,12 @@ class calendar_recurrence
     // TODO: replace with something that has less than 6'000 lines of code
     require_once($this->cal->home . '/lib/Horde_Date_Recurrence.php');
 
+    // shift until date by one day in order to trick the Horde_Date_Recurrence computation
+    if ($event['recurrence']['UNTIL']) {
+      $event['recurrence']['UNTIL'] = clone $event['recurrence']['UNTIL'];
+      $event['recurrence']['UNTIL']->modify('+1 day');
+    }
+
     $this->event = $event;
     $this->engine = new Horde_Date_Recurrence($dtstart->format('U'));
     $this->engine->fromRRule20(calendar::to_rrule($event['recurrence']));

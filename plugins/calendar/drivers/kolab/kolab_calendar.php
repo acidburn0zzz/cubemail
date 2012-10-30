@@ -452,7 +452,8 @@ class kolab_calendar
     $duration = $event['end']->format('U') - $event['start']->format('U');
     $i = 0;
     while ($rec_start = $recurrence->next_start()) {
-      $rec_end = new DateTime('@' . ($rec_start->format('U') + $duration));
+      $rec_end = clone $rec_start;
+      $rec_end->modify('+'.$duration.' seconds');
       $rec_id = $event['id'] . '-' . ++$i;
 
       // add to output if in range
@@ -485,22 +486,21 @@ class kolab_calendar
     $start_time = date('H:i:s', $rec['start-date']);
     $allday = $rec['_is_all_day'] || ($start_time == '00:00:00' && $start_time == date('H:i:s', $rec['end-date']));
     if ($allday) {  // in Roundcube all-day events only go from 12:00 to 13:00
-      $rec['start-date'] += 12 * 3600;
       $dtstart = new DateTime('@'.$rec['start-date']);
-      $dtstart->setTime(12, 0, 0);
+      $dtstart->modify('+12 hours');
       $dtstart->setTimezone($this->cal->user_timezone);
+      $dtstart->setTime(12, 0, 0);
 
-      $rec['end-date'] -= 11 * 3600;
       $dtend = new DateTime('@'.$rec['end-date']);
-      $dtend->setTime(13, 0, 0);
       $dtend->setTimezone($this->cal->user_timezone);
-
-      $rec['start-date'] = $dtstart;
-      $rec['end-date'] = $dtend;
+      $dtend->modify('-11 hours');
+      $dtend->setTime(13, 0, 0);
 
       // sanity check
-      if ($rec['end-date'] <= $rec['start-date'])
-        $dtend = new DateTime('@' . ($dtstart->format('U') + 90000));
+      if ($dtend <= $dtstart) {
+        $dtend = clone $dtstart;
+        $dtend->modify('+25 hours');
+      }
     }
     else {
       $dtstart = new DateTime('@'.$rec['start-date']);
@@ -531,8 +531,10 @@ class kolab_calendar
       
       if ($recurrence['range-type'] == 'number')
         $rrule['COUNT'] = intval($recurrence['range']);
-      else if ($recurrence['range-type'] == 'date')
+      else if ($recurrence['range-type'] == 'date') {
         $rrule['UNTIL'] = new DateTime('@'.$recurrence['range']);
+        $rrule['UNTIL']->setTimezone($this->cal->user_timezone);
+      }
       
       if ($recurrence['day']) {
         $byday = array();
