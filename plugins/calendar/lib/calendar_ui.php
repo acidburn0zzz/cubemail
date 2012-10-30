@@ -2,7 +2,7 @@
 /**
  * User Interface class for the Calendar plugin
  *
- * @version 0.7-beta
+ * @version 0.7.3
  * @author Lazlo Westerhof <hello@lazlo.me>
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
