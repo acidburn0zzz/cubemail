@@ -108,7 +108,7 @@ class calendar extends rcube_plugin
     $this->gmt_offset = ($this->timezone + $this->dst_active) * 3600;
 
     try {
-        $this->user_timezone = new DateTimeZone($this->timezone ? timezone_name_from_abbr("", $this->gmt_offset, $this->dst_active) : 'GMT');
+        $this->user_timezone = new DateTimeZone($this->timezone ? self::tzOffsetToName($this->timezone, $this->dst_active) : 'GMT');
     }
     catch (Exception $e) {
         $this->timezone = 0;
@@ -1076,7 +1076,7 @@ class calendar extends rcube_plugin
     if ($event['recurrence'])
       $event['recurrence_text'] = $this->_recurrence_text($event['recurrence']);
     if ($event['recurrence']['UNTIL'])
-      $event['recurrence']['UNTIL'] = $this->toUserDateTime($event['recurrence']['UNTIL'])->format('c');
+      $event['recurrence']['UNTIL'] = $event['recurrence']['UNTIL']->format('c');
 
     return array(
       '_id'   => $event['calendar'] . ':' . $event['id'],  // unique identifier for fullcalendar
@@ -2354,6 +2354,43 @@ class calendar extends rcube_plugin
     $url .= preg_replace('!^\./!', '/', $this->rc->url($param));
     
     return $url; 
+  }
+
+  /**
+   * Converts a timezone hourly offset to its timezone's name.
+   * from http://ch.php.net/manual/en/function.timezone-name-from-abbr.php
+   *
+   * @param float $offset The timezone's offset in hours.
+   *                      Lowest value: -12 (Pacific/Kwajalein)
+   *                      Highest value: 14 (Pacific/Kiritimati)
+   * @param bool  $isDst  Is the offset for the timezone when it's in daylight savings time?
+   * @return string The name of the timezone: 'Asia/Tokyo', 'Europe/Paris', ...
+   */
+  public static function tzOffsetToName($offset, $isDst = null)
+  {
+    if ($isDst === null)
+        $isDst = date('I');
+
+    $offset *= 3600;
+    $zone    = timezone_name_from_abbr('', $offset, $isDst);
+
+    if ($zone === false) {
+      foreach (timezone_abbreviations_list() as $abbr) {
+        foreach ($abbr as $city) {
+          if ((bool)$city['dst'] === (bool)$isDst &&
+            strlen($city['timezone_id']) > 0    &&
+            $city['offset'] == $offset) {
+            $zone = $city['timezone_id'];
+            break;
+          }
+        }
+
+        if ($zone !== false)
+          break;
+      }
+    }
+
+    return $zone;
   }
 
 }
