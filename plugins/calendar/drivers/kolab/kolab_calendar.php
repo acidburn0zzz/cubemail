@@ -532,8 +532,8 @@ class kolab_calendar
       if ($recurrence['range-type'] == 'number')
         $rrule['COUNT'] = intval($recurrence['range']);
       else if ($recurrence['range-type'] == 'date') {
-        $rrule['UNTIL'] = new DateTime('@'.$recurrence['range']);
-        $rrule['UNTIL']->setTimezone($this->cal->user_timezone);
+        $rrule['UNTIL'] = new DateTime('@' . $recurrence['range']);
+        $rrule['UNTIL']->setTimezone(new DateTimeZone(date_default_timezone_get()));
       }
       
       if ($recurrence['day']) {

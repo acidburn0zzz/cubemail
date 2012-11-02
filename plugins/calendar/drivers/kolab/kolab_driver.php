@@ -498,7 +498,7 @@ class kolab_driver extends calendar_driver
           
           // removing the first instance => just move to next occurence
           if ($master['id'] == $event['id']) {
-            $recurring = reset($storage->_get_recurring_events($event, $event['start'], $event['end'] + 86400 * 370, $event['id'].'-1'));
+            $recurring = reset($storage->_get_recurring_events($event, $event['start']->format('U'), $event['end']->format('U') + 86400 * 370, $event['id'].'-1'));
             $master['start'] = $recurring['start'];
             $master['end'] = $recurring['end'];
             if ($master['recurrence']['COUNT'])
@@ -515,7 +515,8 @@ class kolab_driver extends calendar_driver
             $_SESSION['calendar_restore_event_data'] = $master;
             
             // set until-date on master event
-            $master['recurrence']['UNTIL'] = $event['start'] - 86400;
+            $master['recurrence']['UNTIL'] = clone $event['start'];
+            $master['recurrence']['UNTIL']->modify('-1 day');
             unset($master['recurrence']['COUNT']);
             $success = $storage->update_event($master);
             break;
