@@ -1,7 +1,7 @@
 /**
  * Print view for the Calendar plugin
  *
- * @version 0.7-beta
+ * @version 0.7.4
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
  * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>

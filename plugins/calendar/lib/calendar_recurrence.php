@@ -5,7 +5,7 @@
  *
  * Uitility class to compute instances of recurring events.
  *
- * @version 0.7.3
+ * @version 0.7.4
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  * @package calendar
  *

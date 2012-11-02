@@ -3,7 +3,7 @@
 /**
  * Kolab driver for the Calendar plugin
  *
- * @version 0.7.3
+ * @version 0.7.4
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *

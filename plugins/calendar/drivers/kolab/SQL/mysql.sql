@@ -1,7 +1,7 @@
 /**
  * Roundcube Calendar Kolab backend
  *
- * @version 0.7-beta
+ * @version 0.7.4
  * @author Thomas Bruederli
  * @licence GNU AGPL
  **/
