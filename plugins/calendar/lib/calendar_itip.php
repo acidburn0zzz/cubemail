@@ -255,7 +255,7 @@ class calendar_itip
       $event['uid'],
       $this->rc->user->ID,
       self::serialize_event($event),
-      date('Y-m-d H:i:s', $event['end'] + 86400 * 2)
+      date('Y-m-d H:i:s', $event['end']->format('U') + 86400 * 2)
     );
     
     if ($this->rc->db->affected_rows($query)) {

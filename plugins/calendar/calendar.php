@@ -1566,8 +1566,8 @@ class calendar extends rcube_plugin
   private function prepare_event(&$event, $action)
   {
     // convert dates into DateTime objects in user's current timezone
-    $event['start'] = new DateTime($event['start'], $this->user_timezone);
-    $event['end'] = new DateTime($event['end'], $this->user_timezone);
+    $event['start'] = new DateTime(is_numeric($event['start']) ? '@'.$event['start'] : $event['start'], $this->user_timezone);
+    $event['end'] = new DateTime(is_numeric($event['end']) ? '@'.$event['end'] : $event['end'], $this->user_timezone);
 
     if ($event['recurrence']['UNTIL'])
       $event['recurrence']['UNTIL'] = new DateTime($event['recurrence']['UNTIL'], $this->user_timezone);

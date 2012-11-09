@@ -369,7 +369,7 @@ class calendar_ical
       foreach ($events as $event) {
         $vevent = "BEGIN:VEVENT" . self::EOL;
         $vevent .= "UID:" . self::escpape($event['uid']) . self::EOL;
-        $vevent .= $this->format_datetime("DTSTAMP", $event['changed'] ?: new DateTime(), false, true) . self::EOL;
+        $vevent .= $this->format_datetime("DTSTAMP", $event['changed'] ? $event['changed'] : new DateTime(), false, true) . self::EOL;
         // correctly set all-day dates
         if ($event['allday']) {
           $event['end'] = new DateTime('@'.($event['end']->format('U') + 86400));  // ends the next day
