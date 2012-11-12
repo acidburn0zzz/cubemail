@@ -52,7 +52,7 @@ class kolab_storage
         self::$config = $rcmail->config;
         self::$version = $rcmail->config->get('kolab_format_version', self::$version);
         self::$imap = $rcmail->get_storage();
-        self::$ready = class_exists('kolabformat') &&
+        self::$ready = class_exists('Horde_Kolab_Format') &&
             (self::$imap->get_capability('METADATA') || self::$imap->get_capability('ANNOTATEMORE') || self::$imap->get_capability('ANNOTATEMORE2'));
 
         if (self::$ready) {

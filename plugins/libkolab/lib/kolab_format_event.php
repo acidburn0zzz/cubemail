@@ -22,13 +22,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class kolab_format_event extends kolab_format_xcal
+class kolab_format_event extends kolab_format
 {
-    public $CTYPEv2 = 'application/x-vnd.kolab.event';
+    public $CTYPE = 'application/x-vnd.kolab.event';
 
-    protected $objclass = 'Event';
-    protected $read_func = 'readEvent';
-    protected $write_func = 'writeEvent';
+    protected $xmltype = 'event';
+
+    public static $fulltext_cols = array('title', 'description', 'location', 'attendees:name', 'attendees:email', 'categories');
 
     private $kolab2_rolemap = array(
         'required' => 'REQ-PARTICIPANT',
@@ -52,7 +52,7 @@ class kolab_format_event extends kolab_format_xcal
      */
     public function to_libcal()
     {
-        return class_exists('kolabcalendaring') ? new EventCal($this->obj) : false;
+        return false;
     }
 
     /**
@@ -64,32 +64,7 @@ class kolab_format_event extends kolab_format_xcal
     {
         $this->init();
 
-        // set common xcal properties
-        parent::set($object);
-
-        // do the hard work of setting object values
-        $this->obj->setStart(self::get_datetime($object['start'], null, $object['allday']));
-        $this->obj->setEnd(self::get_datetime($object['end'], null, $object['allday']));
-        $this->obj->setTransparency($object['free_busy'] == 'free');
-
-        $status = kolabformat::StatusUndefined;
-        if ($object['free_busy'] == 'tentative')
-            $status = kolabformat::StatusTentative;
-        if ($object['cancelled'])
-            $status = kolabformat::StatusCancelled;
-        $this->obj->setStatus($status);
-
-        // save attachments
-        $vattach = new vectorattachment;
-        foreach ((array)$object['_attachments'] as $cid => $attr) {
-            if (empty($attr))
-                continue;
-            $attach = new Attachment;
-            $attach->setLabel((string)$attr['name']);
-            $attach->setUri('cid:' . $cid, $attr['mimetype']);
-            $vattach->push($attach);
-        }
-        $this->obj->setAttachments($vattach);
+        // TODO: implement this
 
         // cache this data
         $this->data = $object;
@@ -101,65 +76,6 @@ class kolab_format_event extends kolab_format_xcal
      */
     public function is_valid()
     {
-        return $this->data || (is_object($this->obj) && $this->obj->isValid() && $this->obj->uid());
-    }
-
-    /**
-     * Convert the Event object into a hash array data structure
-     *
-     * @return array  Event data as hash array
-     */
-    public function to_array()
-    {
-        // return cached result
-        if (!empty($this->data))
-            return $this->data;
-
-        $this->init();
-
-        // read common xcal props
-        $object = parent::to_array();
-
-        // read object properties
-        $object += array(
-            'end'         => self::php_datetime($this->obj->end()),
-            'allday'      => $this->obj->start()->isDateOnly(),
-            'free_busy'   => $this->obj->transparency() ? 'free' : 'busy',  // TODO: transparency is only boolean
-            'attendees'   => array(),
-        );
-
-        // organizer is part of the attendees list in Roundcube
-        if ($object['organizer']) {
-            $object['organizer']['role'] = 'ORGANIZER';
-            array_unshift($object['attendees'], $object['organizer']);
-        }
-
-        // status defines different event properties...
-        $status = $this->obj->status();
-        if ($status == kolabformat::StatusTentative)
-          $object['free_busy'] = 'tentative';
-        else if ($status == kolabformat::StatusCancelled)
-          $objec['cancelled'] = true;
-
-        // handle attachments
-        $vattach = $this->obj->attachments();
-        for ($i=0; $i < $vattach->size(); $i++) {
-            $attach = $vattach->get($i);
-
-            // skip cid: attachments which are mime message parts handled by kolab_storage_folder
-            if (substr($attach->uri(), 0, 4) != 'cid:' && $attach->label()) {
-                $name = $attach->label();
-                $data = $attach->data();
-                $object['_attachments'][$name] = array(
-                    'name'     => $name,
-                    'mimetype' => $attach->mimetype(),
-                    'size'     => strlen($data),
-                    'content'  => $data,
-                );
-            }
-        }
-
-        $this->data = $object;
         return $this->data;
     }
 

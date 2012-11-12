@@ -480,14 +480,7 @@ class kolab_storage_folder
         // check kolab format version
         $format_version = $headers->others['x-kolab-mime-version'];
         if (empty($format_version)) {
-            list($xmltype, $subtype) = explode('.', $object_type);
-            $xmlhead = substr($xml, 0, 512);
-
-            // detect old Kolab 2.0 format
-            if (strpos($xmlhead, '<' . $xmltype) !== false && strpos($xmlhead, 'xmlns=') === false)
-                $format_version = 2.0;
-            else
-                $format_version = 3.0; // assume 3.0
+            $format_version = 2.0; // assume 2.0
         }
 
         // get Kolab format handler for the given type
@@ -752,9 +745,8 @@ class kolab_storage_folder
             . 'To view this object you will need an email client that understands the Kolab Groupware format. '
             . "For a list of such email clients please visit http://www.kolab.org/\n\n");
 
-        $ctype = kolab_storage::$version == 2.0 ? $format->CTYPEv2 : $format->CTYPE;
         $mime->addAttachment($xml,  // file
-            $ctype,                 // content-type
+            $format->CTYPE,         // content-type
             'kolab.xml',            // filename
             false,                  // is_file
             '8bit',                 // encoding

@@ -25,11 +25,8 @@
 class kolab_format_note extends kolab_format
 {
     public $CTYPE = 'application/x-vnd.kolab.note';
-    public $CTYPEv2 = 'application/x-vnd.kolab.note';
 
-    protected $objclass = 'Note';
-    protected $read_func = 'readNote';
-    protected $write_func = 'writeNote';
+    protected $xmltype = 'note';
 
 
     /**
@@ -40,13 +37,6 @@ class kolab_format_note extends kolab_format
     public function set(&$object)
     {
         $this->init();
-
-        // set some automatic values if missing
-        if (!empty($object['uid']))
-            $this->obj->setUid($object['uid']);
-
-        $object['changed'] = new DateTime('now', self::$timezone);
-        $this->obj->setLastModified(self::get_datetime($object['changed'], new DateTimeZone('UTC')));
 
         // TODO: set object propeties
 
@@ -60,7 +50,7 @@ class kolab_format_note extends kolab_format
      */
     public function is_valid()
     {
-        return $this->data || (is_object($this->obj) && $this->obj->isValid());
+        return $this->data;
     }
 
     /**
@@ -73,35 +63,9 @@ class kolab_format_note extends kolab_format
             'changed' => $record['last-modification-date'],
         );
 
+        // TODO: implement this
 
         $this->data = $object;
-    }
-
-    /**
-     * Convert the Configuration object into a hash array data structure
-     *
-     * @return array  Config object data as hash array
-     */
-    public function to_array()
-    {
-        // return cached result
-        if (!empty($this->data))
-            return $this->data;
-
-        $this->init();
-
-        // read object properties
-        $object = array(
-            'uid'       => $this->obj->uid(),
-            'created'   => self::php_datetime($this->obj->created()),
-            'changed'   => self::php_datetime($this->obj->lastModified()),
-        );
-
-
-        // TODO: read object properties
-
-        $this->data = $object;
-        return $this->data;
     }
 
 }

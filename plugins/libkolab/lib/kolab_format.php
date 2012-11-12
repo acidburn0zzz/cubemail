@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Kolab format model class wrapping libkolabxml bindings
+ * Kolab format model class
  *
  * Abstract base class for different Kolab groupware objects read from/written
- * to the new Kolab 3 format using the PHP bindings of libkolabxml.
+ * to the Kolab 2 format using Horde_Kolab_Format classes.
  *
  * @version @package_version@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
@@ -30,21 +30,18 @@ abstract class kolab_format
     public static $timezone;
 
     public /*abstract*/ $CTYPE;
-    public /*abstract*/ $CTYPEv2;
 
-    protected /*abstract*/ $objclass;
-    protected /*abstract*/ $read_func;
-    protected /*abstract*/ $write_func;
+    protected /*abstract*/ $xmltype;
+    protected /*abstract*/ $subtype;
 
-    protected $obj;
+    protected $handler;
     protected $data;
     protected $xmldata;
-    protected $xmlobject;
     protected $loaded = false;
-    protected $version = 3.0;
+    protected $version = 2.0;
 
     const KTYPE_PREFIX = 'application/x-vnd.kolab.';
-    const PRODUCT_ID = 'Roundcube-libkolab-0.9';
+    const PRODUCT_ID = 'Roundcube-libkolab-horde-0.9';
 
     /**
      * Factory method to instantiate a kolab_format object of the given type and version
@@ -54,7 +51,7 @@ abstract class kolab_format
      * @param string Cached xml data to initialize with
      * @return object kolab_format
      */
-    public static function factory($type, $version = 3.0, $xmldata = null)
+    public static function factory($type, $version = 2.0, $xmldata = null)
     {
         if (!isset(self::$timezone))
             self::$timezone = new DateTimeZone('UTC');
@@ -62,11 +59,13 @@ abstract class kolab_format
         if (!self::supports($version))
             return PEAR::raiseError("No support for Kolab format version " . $version);
 
+        list($xmltype, $subtype) = explode('.', $type);
+
         $type = preg_replace('/configuration\.[a-z.]+$/', 'configuration', $type);
-        $suffix = preg_replace('/[^a-z]+/', '', $type);
+        $suffix = preg_replace('/[^a-z]+/', '', $xmltype);
         $classname = 'kolab_format_' . $suffix;
         if (class_exists($classname))
-            return new $classname($xmldata, $version);
+            return new $classname($xmldata, $subtype);
 
         return PEAR::raiseError("Failed to load Kolab Format wrapper for type " . $type);
     }
@@ -80,9 +79,9 @@ abstract class kolab_format
     public static function supports($version)
     {
         if ($version == 2.0)
-            return class_exists('kolabobject');
-        // default is version 3
-        return class_exists('kolabformat');
+            return class_exists('Horde_Kolab_Format');
+
+        return false;
     }
 
     /**
@@ -210,17 +209,17 @@ abstract class kolab_format
     /**
      * Default constructor of all kolab_format_* objects
      */
-    public function __construct($xmldata = null, $version = null)
+    public function __construct($xmldata = null, $subtype = null)
     {
-        $this->obj = new $this->objclass;
+        $this->subtype = $subtype;
+
+        $handler = Horde_Kolab_Format::factory('XML', $this->xmltype, array('subtype' => $this->subtype));
+        if (!is_object($handler) || is_a($handler, 'PEAR_Error')) {
+            return false;
+        }
+
+        $this->handler = $handler;
         $this->xmldata = $xmldata;
-
-        if ($version)
-            $this->version = $version;
-
-        // use libkolab module if available
-        if (class_exists('kolabobject'))
-            $this->xmlobject = new XMLObject();
     }
 
     /**
@@ -265,8 +264,7 @@ abstract class kolab_format
     {
         // get generated UID
         if (!$this->data['uid']) {
-            $this->data['uid'] = $this->xmlobject ? $this->xmlobject->getSerializedUID() : kolabformat::getSerializedUID();
-            $this->obj->setUid($this->data['uid']);
+            $this->data['uid'] = 'TODO';
         }
     }
 
@@ -285,39 +283,6 @@ abstract class kolab_format
     }
 
     /**
-     * Get constant value for libkolab's version parameter
-     *
-     * @param float Version value to convert
-     * @return int Constant value of either kolabobject::KolabV2 or kolabobject::KolabV3 or false if kolabobject module isn't available
-     */
-    protected function libversion($v = null)
-    {
-        if (class_exists('kolabobject')) {
-            $version = $v ?: $this->version;
-            if ($version <= 2.0)
-                return kolabobject::KolabV2;
-            else
-                return kolabobject::KolabV3;
-        }
-
-        return false;
-    }
-
-    /**
-     * Determine the correct libkolab(xml) wrapper function for the given call
-     * depending on the available PHP modules
-     */
-    protected function libfunc($func)
-    {
-        if (is_array($func) || strpos($func, '::'))
-            return $func;
-        else if (class_exists('kolabobject'))
-            return array($this->xmlobject, $func);
-        else
-            return 'kolabformat::' . $func;
-    }
-
-    /**
      * Direct getter for object properties
      */
     public function __get($var)
@@ -333,17 +298,9 @@ abstract class kolab_format
      */
     public function load($xml)
     {
-        $read_func = $this->libfunc($this->read_func);
-
-        if (is_array($read_func))
-            $r = call_user_func($read_func, $xml, $this->libversion());
-        else
-            $r = call_user_func($read_func, $xml, false);
-
-        if (is_resource($r))
-            $this->obj = new $this->objclass($r);
-        else if (is_a($r, $this->objclass))
-            $this->obj = $r;
+        // XML-to-array
+        $object = $this->handler->load($xml);
+        $this->fromkolab2($object);
 
         $this->loaded = !$this->format_errors();
     }
@@ -357,11 +314,8 @@ abstract class kolab_format
     public function write($version = null)
     {
         $this->init();
-        $write_func = $this->libfunc($this->write_func);
-        if (is_array($write_func))
-            $this->xmldata = call_user_func($write_func, $this->obj, $this->libversion($version), self::PRODUCT_ID);
-        else
-            $this->xmldata = call_user_func($write_func, $this->obj, self::PRODUCT_ID);
+
+        // TODO: implement his
 
         if (!$this->format_errors())
             $this->update_uid();
@@ -384,11 +338,18 @@ abstract class kolab_format
     abstract public function is_valid();
 
     /**
-     * Convert the Kolab object into a hash array data structure
+     * Getter for the parsed object data
      *
      * @return array  Kolab object data as hash array
      */
-    abstract public function to_array();
+    public function to_array()
+    {
+        // load from XML if not done yet
+        if (!empty($this->data))
+            $this->init();
+
+        return $this->data;
+    }
 
     /**
      * Load object data from Kolab2 format

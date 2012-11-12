@@ -25,11 +25,8 @@
 class kolab_format_configuration extends kolab_format
 {
     public $CTYPE = 'application/x-vnd.kolab.configuration';
-    public $CTYPEv2 = 'application/x-vnd.kolab.configuration';
 
-    protected $objclass = 'Configuration';
-    protected $read_func = 'readConfiguration';
-    protected $write_func = 'writeConfiguration';
+    protected $xmltype = 'configuration';
 
     private $type_map = array(
         'dictionary' => Configuration::TypeDictionary,
@@ -46,31 +43,24 @@ class kolab_format_configuration extends kolab_format
     {
         $this->init();
 
+        if ($object['type'])
+            $this->subtype = $object['type'];
+
         // read type-specific properties
-        switch ($object['type']) {
+        switch ($this->subtype) {
         case 'dictionary':
-            $dict = new Dictionary($object['language']);
-            $dict->setEntries(self::array2vector($object['e']));
-            $this->obj = new Configuration($dict);
+            // TODO: implement this
             break;
 
         case 'category':
             // TODO: implement this
-            $categories = new vectorcategorycolor;
-            $this->obj = new Configuration($categories);
             break;
         default:
             return false;
         }
 
-        // set some automatic values if missing
-        if (!empty($object['uid']))
-            $this->obj->setUid($object['uid']);
-        if (!empty($object['created']))
-            $this->obj->setCreated(self::get_datetime($object['created']));
-
         // adjust content-type string
-        $this->CTYPE = $this->CTYPEv2 = 'application/x-vnd.kolab.configuration.' . $object['type'];
+        $this->CTYPE = 'application/x-vnd.kolab.configuration.' . $this->subtype;
 
         // cache this data
         $this->data = $object;
@@ -92,39 +82,16 @@ class kolab_format_configuration extends kolab_format
      */
     public function to_array()
     {
-        // return cached result
+        // load from XML if not done yet
         if (!empty($this->data))
-            return $this->data;
-
-        $this->init();
-        $type_map = array_flip($this->type_map);
-
-        // read object properties
-        $object = array(
-            'uid'     => $this->obj->uid(),
-            'created' => self::php_datetime($this->obj->created()),
-            'changed' => self::php_datetime($this->obj->lastModified()),
-            'type'    => $type_map[$this->obj->type()],
-        );
-
-        // read type-specific properties
-        switch ($object['type']) {
-        case 'dictionary':
-            $dict = $this->obj->dictionary();
-            $object['language'] = $dict->language();
-            $object['e'] = self::vector2array($dict->entries());
-            break;
-
-        case 'category':
-            // TODO: implement this
-            break;
-        }
+            $this->init();
 
         // adjust content-type string
-        if ($object['type'])
-            $this->CTYPE = $this->CTYPEv2 = 'application/x-vnd.kolab.configuration.' . $object['type'];
+        if ($this->data['type']) {
+            $this->subtype = $this->data;
+            $this->CTYPE = 'application/x-vnd.kolab.configuration.' . $this->subtype;
+        }
 
-        $this->data = $object;
         return $this->data;
     }
 

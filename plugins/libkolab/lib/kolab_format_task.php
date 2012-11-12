@@ -22,13 +22,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class kolab_format_task extends kolab_format_xcal
+class kolab_format_task extends kolab_format
 {
-    public $CTYPEv2 = 'application/x-vnd.kolab.task';
+    public $CTYPE = 'application/x-vnd.kolab.task';
 
-    protected $objclass = 'Todo';
-    protected $read_func = 'readTodo';
-    protected $write_func = 'writeTodo';
+    protected $xmltype = 'task';
+
+    public static $fulltext_cols = array('title', 'description', 'location', 'attendees:name', 'attendees:email', 'categories');
 
 
     /**
@@ -40,20 +40,7 @@ class kolab_format_task extends kolab_format_xcal
     {
         $this->init();
 
-        // set common xcal properties
-        parent::set($object);
-
-        $this->obj->setPercentComplete(intval($object['complete']));
-
-        if (isset($object['start']))
-            $this->obj->setStart(self::get_datetime($object['start'], null, $object['start']->_dateonly));
-
-        $this->obj->setDue(self::get_datetime($object['due'], null, $object['due']->_dateonly));
-
-        $related = new vectors;
-        if (!empty($object['parent_id']))
-            $related->push($object['parent_id']);
-        $this->obj->setRelatedTo($related);
+        // TODO: implement this
 
         // cache this data
         $this->data = $object;
@@ -65,39 +52,6 @@ class kolab_format_task extends kolab_format_xcal
      */
     public function is_valid()
     {
-        return $this->data || (is_object($this->obj) && $this->obj->isValid());
-    }
-
-    /**
-     * Convert the Configuration object into a hash array data structure
-     *
-     * @return array  Config object data as hash array
-     */
-    public function to_array()
-    {
-        // return cached result
-        if (!empty($this->data))
-            return $this->data;
-
-        $this->init();
-
-        // read common xcal props
-        $object = parent::to_array();
-
-        $object['complete'] = intval($this->obj->percentComplete());
-
-        // if due date is set
-        if ($due = $this->obj->due())
-            $object['due'] = self::php_datetime($due);
-
-        // related-to points to parent task; we only support one relation
-        $related = self::vector2array($this->obj->relatedTo());
-        if (count($related))
-            $object['parent_id'] = $related[0];
-
-        // TODO: map more properties
-
-        $this->data = $object;
         return $this->data;
     }
 

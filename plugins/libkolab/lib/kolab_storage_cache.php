@@ -534,7 +534,7 @@ class kolab_storage_cache
         }
 
         if ($object['_formatobj']) {
-            $sql_data['xml'] = preg_replace('!(</?[a-z0-9:-]+>)[\n\r\t\s]+!ms', '$1', (string)$object['_formatobj']->write(3.0));
+            $sql_data['xml'] = preg_replace('!(</?[a-z0-9:-]+>)[\n\r\t\s]+!ms', '$1', (string)$object['_formatobj']->write());
             $sql_data['tags'] = ' ' . join(' ', $object['_formatobj']->get_tags()) . ' ';  // pad with spaces for strict/prefix search
             $sql_data['words'] = ' ' . join(' ', $object['_formatobj']->get_words()) . ' ';
         }
@@ -582,7 +582,7 @@ class kolab_storage_cache
         $object['_type'] = $sql_arr['type'];
         $object['_msguid'] = $sql_arr['msguid'];
         $object['_mailbox'] = $this->folder->name;
-        $object['_formatobj'] = kolab_format::factory($sql_arr['type'], 3.0, $sql_arr['xml']);
+        $object['_formatobj'] = kolab_format::factory($sql_arr['type'], 2.0, $sql_arr['xml']);
 
         return $object;
     }

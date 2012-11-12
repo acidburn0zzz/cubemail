@@ -24,12 +24,9 @@
 
 class kolab_format_distributionlist extends kolab_format
 {
-    public $CTYPE = 'application/vcard+xml';
-    public $CTYPEv2 = 'application/x-vnd.kolab.distribution-list';
+    public $CTYPE = 'application/x-vnd.kolab.distribution-list';
 
-    protected $objclass = 'DistList';
-    protected $read_func = 'readDistlist';
-    protected $write_func = 'writeDistlist';
+    protected $xmltype = 'distributionlist';
 
 
     /**
@@ -41,31 +38,7 @@ class kolab_format_distributionlist extends kolab_format
     {
         $this->init();
 
-        // set some automatic values if missing
-        if (!empty($object['uid']))
-            $this->obj->setUid($object['uid']);
-
-        $object['changed'] = new DateTime('now', self::$timezone);
-        $this->obj->setLastModified(self::get_datetime($object['changed'], new DateTimeZone('UTC')));
-
-        $this->obj->setName($object['name']);
-
-        $seen = array();
-        $members = new vectorcontactref;
-        foreach ((array)$object['member'] as $member) {
-            if ($member['uid'])
-                $m = new ContactReference(ContactReference::UidReference, $member['uid']);
-            else if ($member['email'])
-                $m = new ContactReference(ContactReference::EmailReference, $member['email']);
-            else
-                continue;
-
-            $m->setName($member['name']);
-            $members->push($m);
-            $seen[$member['email']]++;
-        }
-
-        $this->obj->setMembers($members);
+        // TODO: implement this
 
         // set type property for proper caching
         $object['_type'] = 'distribution-list';
@@ -77,7 +50,7 @@ class kolab_format_distributionlist extends kolab_format
 
     public function is_valid()
     {
-        return $this->data || (is_object($this->obj) && $this->obj->isValid());
+        return $this->data;
     }
 
     /**
@@ -101,43 +74,6 @@ class kolab_format_distributionlist extends kolab_format
         }
 
         $this->data = $object;
-    }
-
-    /**
-     * Convert the Distlist object into a hash array data structure
-     *
-     * @return array  Distribution list data as hash array
-     */
-    public function to_array()
-    {
-        // return cached result
-        if (!empty($this->data))
-            return $this->data;
-
-        $this->init();
-
-        // read object properties
-        $object = array(
-            'uid'       => $this->obj->uid(),
-            'changed'   => self::php_datetime($this->obj->lastModified()),
-            'name'      => $this->obj->name(),
-            'member'    => array(),
-            '_type'     => 'distribution-list',
-        );
-
-        $members = $this->obj->members();
-        for ($i=0; $i < $members->size(); $i++) {
-            $member = $members->get($i);
-#            if ($member->type() == ContactReference::UidReference && ($uid = $member->uid()))
-                $object['member'][] = array(
-                    'uid' => $member->uid(),
-                    'email' => $member->email(),
-                    'name' => $member->name(),
-                );
-        }
-
-        $this->data = $object;
-        return $this->data;
     }
 
 }
