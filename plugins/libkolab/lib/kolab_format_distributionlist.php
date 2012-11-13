@@ -63,7 +63,7 @@ class kolab_format_distributionlist extends kolab_format
 
     public function is_valid()
     {
-        return !empty($this->data['uid']);
+        return !empty($this->data['uid']) && !empty($this->data['name']);
     }
 
     /**

@@ -238,7 +238,7 @@ class kolab_format_contact extends kolab_format
      */
     public function is_valid()
     {
-        return strlen($this->data['uid']);
+        return !empty($this->data['uid']);
     }
 
     /**
