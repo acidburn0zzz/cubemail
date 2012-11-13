@@ -37,6 +37,7 @@ abstract class kolab_format
     protected $handler;
     protected $data;
     protected $xmldata;
+    protected $kolab_object;
     protected $loaded = false;
     protected $version = 2.0;
 
@@ -165,36 +166,6 @@ abstract class kolab_format
     }
 
     /**
-     * Convert a libkolabxml vector to a PHP array
-     *
-     * @param object vector Object
-     * @return array Indexed array contaning vector elements
-     */
-    public static function vector2array($vec, $max = PHP_INT_MAX)
-    {
-        $arr = array();
-        for ($i=0; $i < $vec->size() && $i < $max; $i++)
-            $arr[] = $vec->get($i);
-        return $arr;
-    }
-
-    /**
-     * Build a libkolabxml vector (string) from a PHP array
-     *
-     * @param array Array with vector elements
-     * @return object vectors
-     */
-    public static function array2vector($arr)
-    {
-        $vec = new vectors;
-        foreach ((array)$arr as $val) {
-            if (strlen($val))
-                $vec->push($val);
-        }
-        return $vec;
-    }
-
-    /**
      * Parse the X-Kolab-Type header from MIME messages and return the object type in short form
      *
      * @param string X-Kolab-Type header value
@@ -215,7 +186,7 @@ abstract class kolab_format
 
         $handler = Horde_Kolab_Format::factory('XML', $this->xmltype, array('subtype' => $this->subtype));
         if (!is_object($handler) || is_a($handler, 'PEAR_Error')) {
-            return false;
+            return;
         }
 
         $this->handler = $handler;
@@ -227,45 +198,32 @@ abstract class kolab_format
      *
      * @return boolean True if there were errors, False if OK
      */
-    protected function format_errors()
+    protected function format_errors($p)
     {
-        $ret = $log = false;
-        switch (kolabformat::error()) {
-            case kolabformat::NoError:
-                $ret = false;
-                break;
-            case kolabformat::Warning:
-                $ret = false;
-                $log = "Warning";
-                break;
-            default:
-                $ret = true;
-                $log = "Error";
-        }
+        $ret = false;
 
-        if ($log) {
+        if (is_object($p) && is_a($p, 'PEAR_Error')) {
             rcube::raise_error(array(
                 'code' => 660,
                 'type' => 'php',
                 'file' => __FILE__,
                 'line' => __LINE__,
-                'message' => "kolabformat $log: " . kolabformat::errorMessage(),
+                'message' => "Horde_Kolab_Format error: " . $p->getMessage(),
             ), true);
+
+            $ret = true;
         }
 
         return $ret;
     }
 
     /**
-     * Save the last generated UID to the object properties.
-     * Should be called after kolabformat::writeXXXX();
+     * Generate a unique identifier for a Kolab object
      */
-    protected function update_uid()
+    protected function generate_uid()
     {
-        // get generated UID
-        if (!$this->data['uid']) {
-            $this->data['uid'] = 'TODO';
-        }
+        $rc = rcube::get_instance();
+        return strtoupper(md5(time() . uniqid(rand())) . '-' . substr(md5($rc->user ? $rc->user->get_username() : rand()), 0, 16));
     }
 
     /**
@@ -298,11 +256,15 @@ abstract class kolab_format
      */
     public function load($xml)
     {
+        $this->loaded = false;
+
         // XML-to-array
         $object = $this->handler->load($xml);
-        $this->fromkolab2($object);
-
-        $this->loaded = !$this->format_errors();
+        if (!$this->format_errors($object)) {
+            $this->kolab_object = $object;
+            $this->fromkolab2($object);
+            $this->loaded = true;
+        }
     }
 
     /**
@@ -315,12 +277,23 @@ abstract class kolab_format
     {
         $this->init();
 
-        // TODO: implement his
+        if ($version && !self::supports($version))
+            return false;
 
-        if (!$this->format_errors())
-            $this->update_uid();
-        else
+        // generate UID if not set
+        if (!$this->kolab_object['uid']) {
+            $this->kolab_object['uid'] = $this->generate_uid();
+        }
+
+        $xml = $this->handler->save($this->kolab_object);
+
+        if (!$this->format_errors($xml) && strlen($xml)) {
+            $this->xmldata = $xml;
+            $this->data['uid'] = $this->kolab_object['uid'];
+        }
+        else {
             $this->xmldata = null;
+        }
 
         return $this->xmldata;
     }

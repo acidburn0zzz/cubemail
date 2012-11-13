@@ -63,7 +63,7 @@ class kolab_format_configuration extends kolab_format
         $this->CTYPE = 'application/x-vnd.kolab.configuration.' . $this->subtype;
 
         // cache this data
-        $this->data = $object;
+        $this->data = $this->kolab_object = $object;
         unset($this->data['_formatobj']);
     }
 

@@ -543,22 +543,25 @@ class kolab_storage_folder
                 if ($object['_attachments'][$key] == false) {
                     unset($object['_attachments'][$key]);
                 }
-                // load photo.attachment from old Kolab2 format to be directly embedded in xcard block
+                // load photo.attachment from old Kolab2 format
                 else if ($type == 'contact' && ($key == 'photo.attachment' || $key == 'kolab-picture.png') && $att['id']) {
-                    if (!isset($object['photo']))
-                        $object['photo'] = $this->get_attachment($object['_msguid'], $att['id'], $object['_mailbox']);
-                    unset($object['_attachments'][$key]);
+                    $existing_photo = true;
+                    if (isset($object['photo']))
+                        unset($object['_attachments'][$key]);
+                    else
+                        $object['photo'] = $key;
                 }
             }
         }
 
-        // save contact photo to attachment for Kolab2 format
-        if (kolab_storage::$version == 2.0 && $object['photo'] && !$existing_photo) {
-            $attkey = 'kolab-picture.png';  // this file name is hard-coded in libkolab/kolabformatV2/contact.cpp
+        // save new contact photo to attachment for Kolab2 format
+        if ($object['photo'] && !$existing_photo) {
+            $attkey = 'photo.attachment';  // this file name is hard-coded in libkolab/kolabformatV2/contact.cpp
             $object['_attachments'][$attkey] = array(
                 'mimetype'=> rc_image_content_type($object['photo']),
                 'content' => preg_match('![^a-z0-9/=+-]!i', $object['photo']) ? $object['photo'] : base64_decode($object['photo']),
             );
+            $object['photo'] = $attkey;
         }
 
         // process attachments
@@ -716,11 +719,11 @@ class kolab_storage_folder
             return false;
 
         $format->set($object);
-        $xml = $format->write(kolab_storage::$version);
+        $xml = $format->write();
         $object['uid'] = $format->uid;  // read UID from format
         $object['_formatobj'] = $format;
 
-        if (!$format->is_valid() || empty($object['uid'])) {
+        if (empty($xml) || !$format->is_valid() || empty($object['uid'])) {
             return false;
         }
 

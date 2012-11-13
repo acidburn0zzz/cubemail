@@ -94,6 +94,13 @@ class kolab_format_contact extends kolab_format
     private $kolab2_addresstypes = array(
         'business' => 'work'
     );
+    private $kolab2_arrays = array(
+        'web-page' => 'url',
+        'im-address' => true,
+        'manager-name' => true,
+        'assistant' => true,
+        'children' => true,
+    );
     private $kolab2_gender = array(0 => 'male', 1 => 'female');
 
 
@@ -114,7 +121,112 @@ class kolab_format_contact extends kolab_format
     {
         $this->init();
 
-        // TODO: implement this
+        if ($object['uid'])
+            $this->kolab_object['uid'] = $object['uid'];
+
+        $this->kolab_object['last-modification-date'] = time();
+
+        // map fields rcube => $kolab
+        foreach ($this->kolab2_fieldmap as $kolab => $rcube) {
+            $this->kolab_object[$kolab] = $object[$rcube];
+        }
+
+        // map gener values
+        if (isset($object['gender'])) {
+            $gender_map = array_flip($this->kolab2_gender);
+            $this->kolab_object['gender'] = $gender_map[$object['gender']];
+        }
+
+        // format dates
+        if ($object['birthday'] && ($date = @strtotime($object['birthday'])))
+            $this->kolab_object['birthday'] = date('Y-m-d', $date);
+        if ($object['anniversary'] && ($date = @strtotime($object['anniversary'])))
+            $this->kolab_object['anniversary'] = date('Y-m-d', $date);
+
+        // make sure these attributes are single string values
+        foreach ($this->kolab2_arrays as $col => $field) {
+            if (!is_array($this->kolab_object[$col]))
+                continue;
+            if ($field === true) {
+                $values = $this->kolab_object[$col];
+            }
+            else {
+                $values = array();
+                foreach ($this->kolab_object[$col] as $v)
+                    $values[] = $v[$field];
+            }
+            $this->kolab_object[$col] = join('; ', $values);
+        }
+
+        // save email addresses to field 'emails'
+        $emails = array();
+        foreach ((array)$object['email'] as $email)
+            $emails[] = $email;
+        $this->kolab_object['emails'] = join(', ', array_filter($emails));
+        unset($this->kolab_object['email']);
+
+        // map phone types
+        foreach ((array)$this->kolab_object['phone'] as $i => $phone) {
+            if ($type = $this->phonetypes[$phone['type']])
+                $this->kolab_object['phone'][$i]['type'] = $type;
+        }
+
+        // save addresses (how weird is that?!)
+        $this->kolab_object['address'] = array();
+        $seen_types = array();
+        foreach ((array)$object['address'] as $adr) {
+            if ($type = $this->addresstypes[$adr['type']]) {
+                $updated = false;
+                $basekey = 'addr-' . $type . '-';
+
+                $this->kolab_object[$basekey . 'type']     = $type;
+                $this->kolab_object[$basekey . 'street']   = $adr['street'];
+                $this->kolab_object[$basekey . 'locality'] = $adr['locality'];
+                $this->kolab_object[$basekey . 'postal-code'] = $adr['zipcode'];
+                $this->kolab_object[$basekey . 'region']   = $adr['region'];
+                $this->kolab_object[$basekey . 'country']  = $adr['country'];
+
+                // check if we updates an existing address entry of this type...
+                foreach($this->kolab_object['address'] as $index => $address) {
+                    if ($this->kolab_object['type'] == $type) {
+                        $this->kolab_object['address'][$index] = $new_address;
+                        $updated = true;
+                    }
+                }
+
+                // ... add as new if not
+                if (!$updated) {
+                    $this->kolab_object['address'][] = array(
+                        'type'     => $type,
+                        'street'   => $adr['street'],
+                        'locality' => $adr['locality'],
+                        'postal-code' => $adr['code'],
+                        'region'   => $adr['region'],
+                        'country'  => $adr['country'],
+                    );
+                }
+
+                $seen_types[$type] = true;
+            }
+            else if ($adr['type'] == 'office') {
+                $this->kolab_object['office-location'] = $adr['locality'];
+            }
+        }
+
+        // unset removed address properties
+        foreach ($this->addresstypes as $type) {
+            if (!$seen_types[$type]) {
+                $basekey = 'addr-' . $type . '-';
+                unset(
+                    $this->kolab_object[$basekey . 'type'],
+                    $this->kolab_object[$basekey . 'street'],
+                    $this->kolab_object[$basekey . 'locality'],
+                    $this->kolab_object[$basekey . 'postal-code'],
+                    $this->kolab_object[$basekey . 'region'],
+                    $this->kolab_object[$basekey . 'country']
+                );
+            }
+        }
 
         // cache this data
         $this->data = $object;
@@ -126,7 +238,7 @@ class kolab_format_contact extends kolab_format
      */
     public function is_valid()
     {
-        return $this->data;
+        return strlen($this->data['uid']);
     }
 
     /**
@@ -155,13 +267,28 @@ class kolab_format_contact extends kolab_format
     {
         $object = array(
           'uid' => $record['uid'],
+          'changed' => $record['last-modification-date'],
           'email' => array(),
           'phone' => array(),
         );
 
         foreach ($this->kolab2_fieldmap as $kolab => $rcube) {
-          if (is_array($record[$kolab]) || strlen($record[$kolab]))
-            $object[$rcube] = $record[$kolab];
+            if (is_array($record[$kolab]) || strlen($record[$kolab])) {
+                $object[$rcube] = $record[$kolab];
+
+                // split pseudo-arry values
+                if ($field = $this->kolab2_arrays[$kolab]) {
+                    if ($field === true) {
+                        $object[$rcube] = explode('; ', $record[$kolab]);
+                    }
+                    else {
+                        $values = array();
+                        foreach (explode('; ', $record[$kolab]) as $v)
+                            $values[] = array($field => $v);
+                        $object[$rcube] = $values;
+                    }
+                }
+            }
         }
 
         if (isset($record['gender']))

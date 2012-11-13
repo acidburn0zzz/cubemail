@@ -31,7 +31,7 @@ class kolab_storage
     const SERVERSIDE_SUBSCRIPTION = 0;
     const CLIENTSIDE_SUBSCRIPTION = 1;
 
-    public static $version = 3.0;
+    public static $version = 2.0;
     public static $last_error;
 
     private static $ready = false;
@@ -50,7 +50,6 @@ class kolab_storage
 
         $rcmail = rcube::get_instance();
         self::$config = $rcmail->config;
-        self::$version = $rcmail->config->get('kolab_format_version', self::$version);
         self::$imap = $rcmail->get_storage();
         self::$ready = class_exists('Horde_Kolab_Format') &&
             (self::$imap->get_capability('METADATA') || self::$imap->get_capability('ANNOTATEMORE') || self::$imap->get_capability('ANNOTATEMORE2'));

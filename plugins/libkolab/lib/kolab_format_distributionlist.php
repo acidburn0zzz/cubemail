@@ -38,7 +38,20 @@ class kolab_format_distributionlist extends kolab_format
     {
         $this->init();
 
-        // TODO: implement this
+        if ($object['uid'])
+            $this->kolab_object['uid'] = $object['uid'];
+
+        $this->kolab_object['last-modification-date'] = time();
+        $this->kolab_object['last-name'] = $object['name'];
+        $this->kolab_object['member'] = array();
+
+        foreach ($object['member'] as $member) {
+            $this->kolab_object['member'][] = array(
+                'uid' => $member['uid'],
+                'smtp-address' => $member['email'],
+                'display-name' => $member['name'],
+            );
+        }
 
         // set type property for proper caching
         $object['_type'] = 'distribution-list';
@@ -50,7 +63,7 @@ class kolab_format_distributionlist extends kolab_format
 
     public function is_valid()
     {
-        return $this->data;
+        return !empty($this->data['uid']);
     }
 
     /**
