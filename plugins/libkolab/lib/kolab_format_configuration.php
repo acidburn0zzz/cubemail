@@ -28,12 +28,6 @@ class kolab_format_configuration extends kolab_format
 
     protected $xmltype = 'configuration';
 
-    private $type_map = array(
-        'dictionary' => Configuration::TypeDictionary,
-        'category' => Configuration::TypeCategoryColor,
-    );
-
-
     /**
      * Set properties to the kolabformat object
      *
@@ -45,19 +39,6 @@ class kolab_format_configuration extends kolab_format
 
         if ($object['type'])
             $this->subtype = $object['type'];
-
-        // read type-specific properties
-        switch ($this->subtype) {
-        case 'dictionary':
-            // TODO: implement this
-            break;
-
-        case 'category':
-            // TODO: implement this
-            break;
-        default:
-            return false;
-        }
 
         // adjust content-type string
         $this->CTYPE = 'application/x-vnd.kolab.configuration.' . $this->subtype;
