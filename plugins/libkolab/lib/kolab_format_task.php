@@ -74,7 +74,7 @@ class kolab_format_task extends kolab_format
         if ($kolab_status = $status_map[$object['status']])
             $this->kolab_object['status'] = $kolab_status;
 
-        $this->kolab_object['due'] = $this->kolab_object['start'] = 0;
+        $this->kolab_object['due'] = $this->kolab_object['start'] = null;
         if ($object['due']) {
             $dtdue = clone $object['due'];
             $dtdue->setTimezone(new DateTimeZone('UTC'));
@@ -91,13 +91,13 @@ class kolab_format_task extends kolab_format
         }
 
         // set 'completed-date' on transition
-        if (!$this->kolab_object['complete'] && $object['status'] == 'COMPLETED')
+        if ($this->kolab_object['complete'] < 100 && $object['status'] == 'COMPLETED')
             $this->kolab_object['completed-date'] = time();
 
         if ($object['status'] == 'COMPLETED' || $object['complete'] == 100)
             $this->kolab_object['completed'] = true;
-        else if ($object['status'] != 'COMPLETED' && $this->kolab_object['completed'])
-            $this->kolab_object['completed'] = 0;
+        else if ($object['status'] != 'COMPLETED')
+            $this->kolab_object['completed'] = intval($object['complete']);
 
         // handle alarms
         $this->kolab_object['alarm'] = self::to_kolab2_alarm($object['alarms']);
@@ -123,7 +123,7 @@ class kolab_format_task extends kolab_format
         $object = array(
             'uid'     => $record['uid'],
             'dtstamp' => $record['last-modification-date'],
-            'complete' => 0,
+            'complete' => intval($record['completed']),
         );
 
         // map basic fields rcube => $kolab
@@ -131,12 +131,11 @@ class kolab_format_task extends kolab_format
             $object[$rcube] = $record[$kolab];
         }
 
-        if ($record['completed']) {
+        if ($record['completed'] === true || $record['completed'] == 100) {
             $object['status'] = 'COMPLETED';
-            $object['complete'] = 100;
         }
 
-        $object['categories'] = array_filter(explode(',', $record['categories']));
+        $object['categories'] = array_filter(explode(',', $record['_categories_all'] ? $record['_categories_all'] : $record['categories']));
 
         if ($record['due']) {
             $object['due'] = new DateTime('@'.$record['due']);
