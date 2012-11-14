@@ -96,6 +96,61 @@ abstract class kolab_format
         return preg_replace('/dictionary.[a-z.]+$/', 'dictionary', substr($x_kolab_type, strlen(self::KTYPE_PREFIX)));
     }
 
+    /**
+     * Convert alarm time into internal ical-based format
+     *
+     * @param int  Alarm value as saved in Kolab 2 format
+     * @return string iCal-style alarm value for internal use
+     */
+    public static function from_kolab2_alarm($alarm_value)
+    {
+        if (!$alarm_value)
+            return null;
+
+        $alarm_unit = 'M';
+        if ($rec['alarm'] % 1440 == 0) {
+            $alarm_value /= 1440;
+            $alarm_unit = 'D';
+        }
+        else if ($rec['alarm'] % 60 == 0) {
+            $alarm_value /= 60;
+            $alarm_unit = 'H';
+        }
+        $alarm_value *= -1;
+
+        return $alarm_value . $alarm_unit;
+    }
+
+    /**
+     * Utility function to convert from Roundcube's internal alarms format
+     * to an alarm offset in minutes used by the Kolab 2 format.
+     *
+     * @param string iCal-style alarm string
+     * @return int Alarm offset in minutes
+     */
+    public static function to_kolab2_alarm($alarms)
+    {
+        $ret = null;
+
+        if (!$alarms)
+            return $ret;
+
+        $alarmbase = explode(":", $alarms);
+        $avalue = intval(preg_replace('/[^0-9]/', '', $alarmbase[0]));
+
+        if (preg_match("/H/",$alarmbase[0])) {
+            $ret = $avalue*60;
+        }
+        else if (preg_match("/D/",$alarmbase[0])) {
+            $ret = $avalue*24*60;
+        }
+        else {
+            $ret = $avalue;
+        }
+
+        return $ret;
+    }
+
 
     /**
      * Default constructor of all kolab_format_* objects

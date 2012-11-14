@@ -30,6 +30,24 @@ class kolab_format_task extends kolab_format
 
     public static $fulltext_cols = array('title', 'description', 'location', 'attendees:name', 'attendees:email', 'categories');
 
+    // Kolab 2 format field map
+    private $kolab2_fieldmap = array(
+      // kolab       => roundcube
+      'name'         => 'title',
+      'body'         => 'description',
+      'categories'   => 'categories',
+      'sensitivity'  => 'sensitivity',
+      'priority'     => 'priority',
+      'parent'       => 'parent_id',
+    );
+    private $kolab2_statusmap = array(
+        'none'        => 'NEEDS-ACTION',
+        'deferred'    => 'NEEDS-ACTION',
+        'not-started' => 'NEEDS-ACTION',
+        'in-progress' => 'IN-PROCESS',
+        'complete'    => 'COMPLETED',
+    );
+
 
     /**
      * Set properties to the kolabformat object
@@ -40,7 +58,49 @@ class kolab_format_task extends kolab_format
     {
         $this->init();
 
-        // TODO: implement this
+        if ($object['uid'])
+            $this->kolab_object['uid'] = $object['uid'];
+
+        $this->kolab_object['last-modification-date'] = time();
+
+        // map basic fields rcube => $kolab
+        foreach ($this->kolab2_fieldmap as $kolab => $rcube) {
+            $this->kolab_object[$kolab] = $object[$rcube];
+        }
+
+        $this->kolab_object['categories'] = join(',', (array)$object['categories']);
+
+        $status_map = array_flip($this->kolab2_statusmap);
+        if ($kolab_status = $status_map[$object['status']])
+            $this->kolab_object['status'] = $kolab_status;
+
+        $this->kolab_object['due'] = $this->kolab_object['start'] = 0;
+        if ($object['due']) {
+            $dtdue = clone $object['due'];
+            $dtdue->setTimezone(new DateTimeZone('UTC'));
+            if ($object['due']->_dateonly)
+                $dtdue->setTime(0,0,0);
+            $this->kolab_object['due'] = $dtdue->format('U');
+        }
+        if ($object['start']) {
+            $dtstart = clone $object['start'];
+            $dtstart->setTimezone(new DateTimeZone('UTC'));
+            if ($object['start']->_dateonly)
+                $dtstart->setTime(0,0,0);
+            $this->kolab_object['start'] = $dtstart->format('U');
+        }
+
+        // set 'completed-date' on transition
+        if (!$this->kolab_object['complete'] && $object['status'] == 'COMPLETED')
+            $this->kolab_object['completed-date'] = time();
+
+        if ($object['status'] == 'COMPLETED' || $object['complete'] == 100)
+            $this->kolab_object['completed'] = true;
+        else if ($object['status'] != 'COMPLETED' && $this->kolab_object['completed'])
+            $this->kolab_object['completed'] = 0;
+
+        // handle alarms
+        $this->kolab_object['alarm'] = self::to_kolab2_alarm($object['alarms']);
 
         // cache this data
         $this->data = $object;
@@ -52,7 +112,7 @@ class kolab_format_task extends kolab_format
      */
     public function is_valid()
     {
-        return $this->data;
+        return !empty($this->data['uid']) && isset($this->data['title']);
     }
 
     /**
@@ -62,10 +122,37 @@ class kolab_format_task extends kolab_format
     {
         $object = array(
             'uid'     => $record['uid'],
-            'changed' => $record['last-modification-date'],
+            'dtstamp' => $record['last-modification-date'],
+            'complete' => 0,
         );
 
-        // TODO: implement this
+        // map basic fields rcube => $kolab
+        foreach ($this->kolab2_fieldmap as $kolab => $rcube) {
+            $object[$rcube] = $record[$kolab];
+        }
+
+        if ($record['completed']) {
+            $object['status'] = 'COMPLETED';
+            $object['complete'] = 100;
+        }
+
+        $object['categories'] = array_filter(explode(',', $record['categories']));
+
+        if ($record['due']) {
+            $object['due'] = new DateTime('@'.$record['due']);
+            if ($object['due']->format('H:i') == '00:00')
+                $object['due']->_dateonly = true;
+            $object['due']->setTimezone(self::$timezone);
+        }
+        if ($record['start']) {
+            $object['start'] = new DateTime('@'.$record['start']);
+            if ($object['start']->format('H:i') == '00:00')
+                $object['start']->_dateonly = true;
+            $object['start']->setTimezone(self::$timezone);
+        }
+
+        if ($record['alarm'])
+            $object['alarms'] = self::from_kolab2_alarm($record['alarm']);
 
         $this->data = $object;
     }

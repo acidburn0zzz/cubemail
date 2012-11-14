@@ -115,20 +115,7 @@ class kolab_format_event extends kolab_format
         }
 
         // handle alarms
-        if ($object['alarms']) {
-            $alarmbase = explode(":", $object['alarms']);
-            $avalue = preg_replace('/[^0-9]/', '', $alarmbase[0]); 
-
-            if (preg_match("/H/",$alarmbase[0])) {
-                $this->kolab_object['alarm'] = $avalue*60;
-            }
-            else if (preg_match("/D/",$alarmbase[0])) {
-                $this->kolab_object['alarm'] = $avalue*24*60;
-            }
-            else {
-                $this->kolab_object['alarm'] = $avalue;
-            }
-        }
+        $this->kolab_object['alarm'] = self::to_kolab2_alarm($object['alarms']);
 
         // recurr object/array
         if (count($object['recurrence']) > 1) {
@@ -297,21 +284,6 @@ class kolab_format_event extends kolab_format
                 $rec['end-date'] += 86400;
         }
 
-        // convert alarm time into internal format
-        if ($rec['alarm']) {
-            $alarm_value = $rec['alarm'];
-            $alarm_unit = 'M';
-            if ($rec['alarm'] % 1440 == 0) {
-                $alarm_value /= 1440;
-                $alarm_unit = 'D';
-            }
-            else if ($rec['alarm'] % 60 == 0) {
-                $alarm_value /= 60;
-                $alarm_unit = 'H';
-            }
-            $alarm_value *= -1;
-        }
-
         // convert recurrence rules into internal pseudo-vcalendar format
         if ($recurrence = $rec['recurrence']) {
             $rrule = array(
@@ -379,7 +351,7 @@ class kolab_format_event extends kolab_format
             'end'   => new DateTime('@'.$rec['end-date']),
             'allday' => $allday,
             'recurrence' => $rrule,
-            'alarms' => $alarm_value . $alarm_unit,
+            'alarms' => self::from_kolab2_alarm($rec['alarm']),
             'categories' => $rec['categories'],
             'attendees' => $attendees,
             'free_busy' => $rec['show-time-as'],
