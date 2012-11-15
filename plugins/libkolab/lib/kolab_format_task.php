@@ -33,7 +33,7 @@ class kolab_format_task extends kolab_format
     // Kolab 2 format field map
     private $kolab2_fieldmap = array(
       // kolab       => roundcube
-      'name'         => 'title',
+      'summary'      => 'title',
       'body'         => 'description',
       'categories'   => 'categories',
       'sensitivity'  => 'sensitivity',
@@ -61,41 +61,26 @@ class kolab_format_task extends kolab_format
         if ($object['uid'])
             $this->kolab_object['uid'] = $object['uid'];
 
-        $this->kolab_object['last-modification-date'] = time();
+        $this->kolab_object['last-modification-date'] = new DateTime();
 
         // map basic fields rcube => $kolab
         foreach ($this->kolab2_fieldmap as $kolab => $rcube) {
             $this->kolab_object[$kolab] = $object[$rcube];
         }
 
-        $this->kolab_object['categories'] = join(',', (array)$object['categories']);
+        // make sure categories is an array
+        if (!is_array($this->kolab_object['categories']))
+            $this->kolab_object['categories'] = array_filter((array)$this->kolab_object['categories']);
 
         $status_map = array_flip($this->kolab2_statusmap);
         if ($kolab_status = $status_map[$object['status']])
             $this->kolab_object['status'] = $kolab_status;
 
-        $this->kolab_object['due'] = $this->kolab_object['start'] = null;
-        if ($object['due']) {
-            $dtdue = clone $object['due'];
-            $dtdue->setTimezone(new DateTimeZone('UTC'));
-            if ($object['due']->_dateonly)
-                $dtdue->setTime(0,0,0);
-            $this->kolab_object['due'] = $dtdue->format('U');
-        }
-        if ($object['start']) {
-            $dtstart = clone $object['start'];
-            $dtstart->setTimezone(new DateTimeZone('UTC'));
-            if ($object['start']->_dateonly)
-                $dtstart->setTime(0,0,0);
-            $this->kolab_object['start'] = $dtstart->format('U');
-        }
-
-        // set 'completed-date' on transition
-        if ($this->kolab_object['complete'] < 100 && $object['status'] == 'COMPLETED')
-            $this->kolab_object['completed-date'] = time();
+        $this->kolab_object['due-date']   = $object['due']   ? self::horde_datetime($object['due'], null, $object['due']->_dateonly) : null;
+        $this->kolab_object['start-date'] = $object['start'] ? self::horde_datetime($object['start'], null, $object['start']->_dateonly) : null;
 
         if ($object['status'] == 'COMPLETED' || $object['complete'] == 100)
-            $this->kolab_object['completed'] = true;
+            $this->kolab_object['completed'] = 100;
         else if ($object['status'] != 'COMPLETED')
             $this->kolab_object['completed'] = intval($object['complete']);
 
@@ -105,6 +90,8 @@ class kolab_format_task extends kolab_format
         // cache this data
         $this->data = $object;
         unset($this->data['_formatobj']);
+
+console($this->data, $this->kolab_object);
     }
 
     /**
@@ -135,18 +122,12 @@ class kolab_format_task extends kolab_format
             $object['status'] = 'COMPLETED';
         }
 
-        $object['categories'] = array_filter(explode(',', $record['_categories_all'] ? $record['_categories_all'] : $record['categories']));
-
-        if ($record['due']) {
-            $object['due'] = new DateTime('@'.$record['due']);
-            if ($object['due']->format('H:i') == '00:00')
-                $object['due']->_dateonly = true;
+        if ($record['due-date']) {
+            $object['due'] = self::php_datetime($record['due-date']);
             $object['due']->setTimezone(self::$timezone);
         }
-        if ($record['start']) {
-            $object['start'] = new DateTime('@'.$record['start']);
-            if ($object['start']->format('H:i') == '00:00')
-                $object['start']->_dateonly = true;
+        if ($record['start-date']) {
+            $object['start'] = self::php_datetime($record['start-date']);
             $object['start']->setTimezone(self::$timezone);
         }
 

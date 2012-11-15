@@ -196,7 +196,10 @@ abstract class kolab_format
         $alarmbase = explode(":", $alarms);
         $avalue = intval(preg_replace('/[^0-9]/', '', $alarmbase[0]));
 
-        if (preg_match("/H/",$alarmbase[0])) {
+        if (preg_match("/^@/", $alarmbase[0])) {
+            $ret = null;
+        }
+        else if (preg_match("/H/",$alarmbase[0])) {
             $ret = $avalue*60;
         }
         else if (preg_match("/D/",$alarmbase[0])) {
