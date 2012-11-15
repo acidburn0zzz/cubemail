@@ -60,12 +60,6 @@ class kolab_format_contact extends kolab_format
     // old Kolab 2 format field map
     private $kolab2_fieldmap = array(
       // kolab       => roundcube
-      'full-name'    => 'name',
-      'given-name'   => 'firstname',
-      'middle-names' => 'middlename',
-      'last-name'    => 'surname',
-      'prefix'       => 'prefix',
-      'suffix'       => 'suffix',
       'nick-name'    => 'nickname',
       'organization' => 'organization',
       'department'   => 'department',
@@ -81,9 +75,16 @@ class kolab_format_contact extends kolab_format
       'spouse-name'  => 'spouse',
       'children'     => 'children',
       'body'         => 'notes',
-      'pgp-publickey' => 'pgppublickey',
       'free-busy-url' => 'freebusyurl',
       'picture'       => 'photo',
+    );
+    private $kolab2_fieldmap_name = array(
+        'full-name'    => 'name',
+        'given-name'   => 'firstname',
+        'middle-names' => 'middlename',
+        'last-name'    => 'surname',
+        'prefix'       => 'prefix',
+        'suffix'       => 'suffix',
     );
     private $kolab2_phonetypes = array(
         'home1' => 'home',
@@ -126,6 +127,11 @@ class kolab_format_contact extends kolab_format
 
         $this->kolab_object['last-modification-date'] = time();
 
+        // map name fields rcube => $kolab
+        foreach ($this->kolab2_fieldmap_name as $kolab => $rcube) {
+            $this->kolab_object['name'][$kolab] = $object[$rcube];
+        }
+
         // map fields rcube => $kolab
         foreach ($this->kolab2_fieldmap as $kolab => $rcube) {
             $this->kolab_object[$kolab] = $object[$rcube];
@@ -138,10 +144,20 @@ class kolab_format_contact extends kolab_format
         }
 
         // format dates
-        if ($object['birthday'] && ($date = @strtotime($object['birthday'])))
-            $this->kolab_object['birthday'] = date('Y-m-d', $date);
-        if ($object['anniversary'] && ($date = @strtotime($object['anniversary'])))
-            $this->kolab_object['anniversary'] = date('Y-m-d', $date);
+        foreach (array('birthday','anniversary') as $col) {
+            if (!empty($object[$col])) {
+                try {
+                    $tz = new DateTimeZone(rcube::get_instance()->config->get('timezone'));
+                    $dt = new DateTime($object[$col], $tz);
+                    $this->kolab_object[$col] = $dt;
+                }
+                catch (Exception $e) {
+                    rcube::raise_error($e, true);
+                }
+            }
+            else
+                $this->kolab_object[$col] = null;
+        }
 
         // make sure these attributes are single string values
         foreach ($this->kolab2_arrays as $col => $field) {
@@ -158,12 +174,13 @@ class kolab_format_contact extends kolab_format
             $this->kolab_object[$col] = join('; ', $values);
         }
 
-        // save email addresses to field 'emails'
+        // save email addresses as simple-person attributes
         $emails = array();
-        foreach ((array)$object['email'] as $email)
-            $emails[] = $email;
-        $this->kolab_object['emails'] = join(', ', array_filter($emails));
-        unset($this->kolab_object['email']);
+        foreach ((array)$object['email'] as $email) {
+            if (!empty($email))
+                $emails[] = array('smtp-address' => $email);
+        }
+        $this->kolab_object['email'] = $emails;
 
         // map phone types
         foreach ((array)$this->kolab_object['phone'] as $i => $phone) {
@@ -173,58 +190,19 @@ class kolab_format_contact extends kolab_format
 
         // save addresses (how weird is that?!)
         $this->kolab_object['address'] = array();
-        $seen_types = array();
         foreach ((array)$object['address'] as $adr) {
             if ($type = $this->addresstypes[$adr['type']]) {
-                $updated = false;
-                $basekey = 'addr-' . $type . '-';
-
-                $this->kolab_object[$basekey . 'type']     = $type;
-                $this->kolab_object[$basekey . 'street']   = $adr['street'];
-                $this->kolab_object[$basekey . 'locality'] = $adr['locality'];
-                $this->kolab_object[$basekey . 'postal-code'] = $adr['zipcode'];
-                $this->kolab_object[$basekey . 'region']   = $adr['region'];
-                $this->kolab_object[$basekey . 'country']  = $adr['country'];
-
-                // check if we updates an existing address entry of this type...
-                foreach($this->kolab_object['address'] as $index => $address) {
-                    if ($this->kolab_object['type'] == $type) {
-                        $this->kolab_object['address'][$index] = $new_address;
-                        $updated = true;
-                    }
-                }
-
-                // ... add as new if not
-                if (!$updated) {
-                    $this->kolab_object['address'][] = array(
-                        'type'     => $type,
-                        'street'   => $adr['street'],
-                        'locality' => $adr['locality'],
-                        'postal-code' => $adr['code'],
-                        'region'   => $adr['region'],
-                        'country'  => $adr['country'],
-                    );
-                }
-
-                $seen_types[$type] = true;
+                $this->kolab_object['address'][] = array(
+                    'type'     => $type,
+                    'street'   => $adr['street'],
+                    'locality' => $adr['locality'],
+                    'postal-code' => $adr['code'],
+                    'region'   => $adr['region'],
+                    'country'  => $adr['country'],
+                );
             }
             else if ($adr['type'] == 'office') {
                 $this->kolab_object['office-location'] = $adr['locality'];
-            }
-        }
-
-        // unset removed address properties
-        foreach ($this->addresstypes as $type) {
-            if (!$seen_types[$type]) {
-                $basekey = 'addr-' . $type . '-';
-                unset(
-                    $this->kolab_object[$basekey . 'type'],
-                    $this->kolab_object[$basekey . 'street'],
-                    $this->kolab_object[$basekey . 'locality'],
-                    $this->kolab_object[$basekey . 'postal-code'],
-                    $this->kolab_object[$basekey . 'region'],
-                    $this->kolab_object[$basekey . 'country']
-                );
             }
         }
 
@@ -272,8 +250,16 @@ class kolab_format_contact extends kolab_format
           'phone' => array(),
         );
 
+        // map name fields rcube => $kolab
+        foreach ($this->kolab2_fieldmap_name as $kolab => $rcube) {
+            $object[$rcube] = $record['name'][$kolab];
+        }
+
         foreach ($this->kolab2_fieldmap as $kolab => $rcube) {
-            if (is_array($record[$kolab]) || strlen($record[$kolab])) {
+            if (is_object($record[$kolab]) && is_a($record[$kolab], 'DateTime')) {
+                $object[$rcube] = $record[$kolab];
+            }
+            else if (is_array($record[$kolab]) || strlen($record[$kolab])) {
                 $object[$rcube] = $record[$kolab];
 
                 // split pseudo-arry values

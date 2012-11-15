@@ -50,19 +50,8 @@ class libkolab extends rcube_plugin
             kolab_format::$timezone = new DateTimeZone('GMT');
         }
 
-        // load Horde Kolab_Format dependencies
-        if (include_once('Horde/Util.php')) {
-            include_once 'Horde/Kolab/Format.php';
-            include_once 'Horde/Kolab/Format/XML.php';
-            include_once 'Horde/Kolab/Format/XML/contact.php';
-            include_once 'Horde/Kolab/Format/XML/distributionlist.php';
-            include_once 'Horde/Kolab/Format/XML/event.php';
-            include_once 'Horde/Kolab/Format/XML/note.php';
-            include_once 'Horde/Kolab/Format/XML/task.php';
-            include_once 'Horde_Kolab_Format_XML_configuration.php';
-
-            String::setDefaultCharset('UTF-8');
-        }
+        // Register autoloader
+        spl_autoload_register('libkolab::autoload');
     }
 
     /**
@@ -74,5 +63,21 @@ class libkolab extends rcube_plugin
         return $p;
     }
 
+    /**
+     * Autloader routine for Horde classes
+     */
+    public static function autoload($classname)
+    {
+        if (strpos($classname, 'Horde') === 0) {
+            $filename = str_replace('_', '/', $classname);
+            if ($fp = @fopen("$filename.php", 'r', true)) {
+                fclose($fp);
+                include_once "$filename.php";
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 }

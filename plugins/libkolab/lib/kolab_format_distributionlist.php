@@ -41,8 +41,8 @@ class kolab_format_distributionlist extends kolab_format
         if ($object['uid'])
             $this->kolab_object['uid'] = $object['uid'];
 
-        $this->kolab_object['last-modification-date'] = time();
-        $this->kolab_object['last-name'] = $object['name'];
+        $this->kolab_object['changed'] = new DateTime();
+        $this->kolab_object['display-name'] = $object['name'];
         $this->kolab_object['member'] = array();
 
         foreach ($object['member'] as $member) {
@@ -73,8 +73,8 @@ class kolab_format_distributionlist extends kolab_format
     {
         $object = array(
             'uid'     => $record['uid'],
-            'changed' => $record['last-modification-date'],
-            'name'    => $record['last-name'],
+            'changed' => $record['changed'],
+            'name'    => $record['display-name'],
             'member'  => array(),
         );
 

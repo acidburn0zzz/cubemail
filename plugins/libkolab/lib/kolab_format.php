@@ -80,7 +80,7 @@ abstract class kolab_format
     public static function supports($version)
     {
         if ($version == 2.0)
-            return class_exists('Horde_Kolab_Format');
+            return class_exists('Horde_Kolab_Format_Xml');
 
         return false;
     }
@@ -159,13 +159,17 @@ abstract class kolab_format
     {
         $this->subtype = $subtype;
 
-        $handler = Horde_Kolab_Format::factory('XML', $this->xmltype, array('subtype' => $this->subtype));
-        if (!is_object($handler) || is_a($handler, 'PEAR_Error')) {
-            return;
+        try {
+            $factory = new Horde_Kolab_Format_Factory();
+            $handler = $factory->create('Xml', $this->xmltype, array('subtype' => $this->subtype));
+            if (is_object($handler) && !is_a($handler, 'PEAR_Error')) {
+                $this->handler = $handler;
+                $this->xmldata = $xmldata;
+            }
         }
-
-        $this->handler = $handler;
-        $this->xmldata = $xmldata;
+        catch (Exception $e) {
+            rcube::raise_error($e, true);
+        }
     }
 
     /**
@@ -234,11 +238,15 @@ abstract class kolab_format
         $this->loaded = false;
 
         // XML-to-array
-        $object = $this->handler->load($xml);
-        if (!$this->format_errors($object)) {
+        try {
+            $object = $this->handler->load($xml, array('relaxed' => true));
             $this->kolab_object = $object;
             $this->fromkolab2($object);
             $this->loaded = true;
+        }
+        catch (Exception $e) {
+            rcube::raise_error($e, true);
+            console($xml);
         }
     }
 
@@ -260,13 +268,15 @@ abstract class kolab_format
             $this->kolab_object['uid'] = $this->generate_uid();
         }
 
-        $xml = $this->handler->save($this->kolab_object);
-
-        if (!$this->format_errors($xml) && strlen($xml)) {
-            $this->xmldata = $xml;
-            $this->data['uid'] = $this->kolab_object['uid'];
+        try {
+            $xml = $this->handler->save($this->kolab_object);
+            if (strlen($xml)) {
+                $this->xmldata = $xml;
+                $this->data['uid'] = $this->kolab_object['uid'];
+            }
         }
-        else {
+        catch (Exception $e) {
+            rcube::raise_error($e, true);
             $this->xmldata = null;
         }
 
