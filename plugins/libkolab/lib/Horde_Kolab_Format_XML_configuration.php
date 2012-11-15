@@ -1,11 +1,20 @@
 <?php
+/**
+ * Implementation for configuration objects in the Kolab XML format (KEP:9 and KEP:16)
+ *
+ * PHP version 5
+ *
+ * @category Kolab
+ * @package  Kolab_Format
+ * @author   Aleksander Machniak <machniak@kolabsys.com>
+ * @author   Thomas Bruederli <bruederli@kolabsys.com>
+ * @license  http://www.gnu.org/licenses/agpl-3.0.html AGPL 3
+ */
 
 /**
- * Kolab XML handler for configuration (KEP:9).
+ * Kolab XML handler for client preferences.
  *
- * @author  Aleksander Machniak <machniak@kolabsys.com>
- *
- * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,58 +28,47 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @category Kolab
+ * @package  Kolab_Format
+ * @author   Aleksander Machniak <machniak@kolabsys.com>
+ * @author   Thomas Bruederli <bruederli@kolabsys.com>
+ * @license  http://www.gnu.org/licenses/agpl-3.0.html AGPL 3
  */
-class Horde_Kolab_Format_XML_configuration extends Horde_Kolab_Format_XML {
+class Horde_Kolab_Format_Xml_Configuration extends Horde_Kolab_Format_Xml
+{
     /**
-     * Specific data fields for the configuration object
+     * The name of the root element.
+     *
+     * @var string
+     */
+    protected $_root_name = 'configuration';
+
+    /**
+     * Specific data fields for the prefs object
      *
      * @var Kolab
      */
-    var $_fields_specific;
+    protected $_fields_specific = array(
+        'application' => 'Horde_Kolab_Format_Xml_Type_String_MaybeMissing',
+        'type' => 'Horde_Kolab_Format_Xml_Type_String',
+    );
 
-    var $_root_version = 2.1;
-
-    /**
-     * Constructor
-     */
-    function Horde_Kolab_Format_XML_configuration($params = array())
+    function __construct(
+        Horde_Kolab_Format_Xml_Parser $parser,
+        Horde_Kolab_Format_Factory $factory,
+        $params = null
+    )
     {
-        $this->_root_name = 'configuration';
-
-        // Specific configuration fields, in kolab format specification order
-        $this->_fields_specific = array(
-            'application' => array (
-                'type'    => HORDE_KOLAB_XML_TYPE_STRING,
-                'value'   => HORDE_KOLAB_XML_VALUE_MAYBE_MISSING,
-            ),
-            'type' => array(
-                'type'    => HORDE_KOLAB_XML_TYPE_STRING,
-                'value'   => HORDE_KOLAB_XML_VALUE_NOT_EMPTY,
-            ),
-        );
-
         // Dictionary fields
         if (!empty($params['subtype']) && preg_match('/^dictionary.*/', $params['subtype'])) {
-            $this->_fields_specific = array_merge($this->_fields_specific, array(
-                'language' => array (
-                    'type'    => HORDE_KOLAB_XML_TYPE_STRING,
-                    'value'   => HORDE_KOLAB_XML_VALUE_NOT_EMPTY,
-                ),
-                'e' => array(
-                    'type'    => HORDE_KOLAB_XML_TYPE_MULTIPLE,
-                    'value'   => HORDE_KOLAB_XML_VALUE_NOT_EMPTY,
-                    'array'   => array(
-                        'type' => HORDE_KOLAB_XML_TYPE_STRING,
-                        'value' => HORDE_KOLAB_XML_VALUE_NOT_EMPTY,
-                    ),
-                ),
-            ));
+            $this->_fields_specific += array(
+                'language' => 'Horde_Kolab_Format_Xml_Type_String',
+                'e' => 'Horde_Kolab_Format_Xml_Type_Multiple_String',
+            );
         }
 
-        parent::Horde_Kolab_Format_XML($params);
-
-        unset($this->_fields_basic['body']);
-        unset($this->_fields_basic['categories']);
-        unset($this->_fields_basic['sensitivity']);
+        parent::__construct($parser, $factory, $params);
     }
 }
+
