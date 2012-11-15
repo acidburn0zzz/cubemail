@@ -79,40 +79,21 @@ class kolab_format_event extends kolab_format
         if ($object['uid'])
             $this->kolab_object['uid'] = $object['uid'];
 
-        $this->kolab_object['last-modification-date'] = time();
+        $this->kolab_object['last-modification-date'] = new DateTime();
 
         // map basic fields rcube => $kolab
         foreach ($this->kolab2_fieldmap as $kolab => $rcube) {
             $this->kolab_object[$kolab] = $object[$rcube];
         }
 
-        // all-day event
-        if (intval($object['allday'])) {
-            // shift times from user's timezone to server's timezone
-            // because Horde_Kolab_Format_Date::encodeDate() uses strftime() which operates in server tz
-            $server_tz = new DateTimeZone(date_default_timezone_get());
-            $start = clone $object['start'];
-            $end = clone $object['end'];
+        // make sure categories is an array
+        if (!is_array($this->kolab_object['categories']))
+            $this->kolab_object['categories'] = array_filter((array)$this->kolab_object['categories']);
 
-            $start->setTimezone($server_tz);
-            $end->setTimezone($server_tz);
-            $start->setTime(0,0,0);
-            $end->setTime(0,0,0);
-
-            // create timestamps at exactly 00:00. This is also needed for proper re-interpretation in _to_rcube_event() after updating an event
-            $this->kolab_object['start-date'] = mktime(0,0,0, $start->format('n'), $start->format('j'), $start->format('Y'));
-            $this->kolab_object['end-date']   = mktime(0,0,0, $end->format('n'),   $end->format('j'),   $end->format('Y')) + 86400;
-
-            // sanity check: end date is same or smaller than start
-            if (date('Y-m-d', $this->kolab_object['end-date']) <= date('Y-m-d', $this->kolab_object['start-date']))
-              $this->kolab_object['end-date'] = mktime(13,0,0, $start->format('n'), $start->format('j'), $start->format('Y')) + 86400;
-
-            $this->kolab_object['_is_all_day'] = 1;
-        }
-        else {
-            $this->kolab_object['start-date'] = $object['start']->format('U');
-            $this->kolab_object['end-date']   = $object['end']->format('U');
-        }
+        // convert dates into a structure Horde understands
+        $is_allday = intval($object['allday']);
+        $this->kolab_object['start-date'] = self::horde_datetime($object['start'], null, $is_allday);
+        $this->kolab_object['end-date']   = self::horde_datetime($object['end'], null, $is_allday);
 
         // handle alarms
         $this->kolab_object['alarm'] = self::to_kolab2_alarm($object['alarms']);
@@ -130,11 +111,11 @@ class kolab_format_event extends kolab_format
             // range Type
             if ($ra['UNTIL']) {
                 $this->kolab_object['recurrence']['range-type'] = 'date';
-                $this->kolab_object['recurrence']['range'] = $ra['UNTIL']->format('U');
+                $this->kolab_object['recurrence']['range'] = $ra['UNTIL'];
             }
             if ($ra['COUNT']) {
                 $this->kolab_object['recurrence']['range-type'] = 'number';
-                $this->kolab_object['recurrence']['range'] = $ra['COUNT'];
+                $this->kolab_object['recurrence']['range'] = intval($ra['COUNT']);
             }
 
             // WEEKLY
@@ -149,7 +130,7 @@ class kolab_format_event extends kolab_format
                 }
             }
 
-            // MONTHLY (temporary hack to follow Horde logic)
+            // MONTHLY (hack to follow Horde logic)
             if ($ra['FREQ'] == 'MONTHLY') {
                 if ($ra['BYDAY'] && preg_match('/(-?[1-4])([A-Z]+)/', $ra['BYDAY'], $m)) {
                     $this->kolab_object['recurrence']['daynumber'] = $m[1];
@@ -264,26 +245,6 @@ class kolab_format_event extends kolab_format
      */
     public function fromkolab2($rec)
     {
-        if (PEAR::isError($rec))
-            return;
-
-        $start_time = date('H:i:s', $rec['start-date']);
-        $allday = $rec['_is_all_day'] || ($start_time == '00:00:00' && $start_time == date('H:i:s', $rec['end-date']));
-
-        // in Roundcube all-day events go from 12:00 to 13:00
-        if ($allday) {
-            $now = new DateTime('now', self::$timezone);
-            $gmt_offset = $now->getOffset();
-
-            $rec['start-date'] += 12 * 3600;
-            $rec['end-date']   -= 11 * 3600;
-            $rec['end-date']   -= $gmt_offset - date('Z', $rec['end-date']);    // shift times from server's timezone to user's timezone
-            $rec['start-date'] -= $gmt_offset - date('Z', $rec['start-date']);  // because generated with mktime() in Horde_Kolab_Format_Date::decodeDate()
-            // sanity check
-            if ($rec['end-date'] <= $rec['start-date'])
-                $rec['end-date'] += 86400;
-        }
-
         // convert recurrence rules into internal pseudo-vcalendar format
         if ($recurrence = $rec['recurrence']) {
             $rrule = array(
@@ -291,10 +252,10 @@ class kolab_format_event extends kolab_format
                 'INTERVAL' => intval($recurrence['interval']),
             );
 
-            if ($recurrence['range-type'] == 'number')
+            if (is_object($recurrence['range']) && is_a($recurrence['range'], 'DateTime'))
+                $rrule['UNTIL'] = $recurrence['range'];
+            if (!empty($recurrence['range']) && is_numeric($recurrence['range']))
                 $rrule['COUNT'] = intval($recurrence['range']);
-            else if ($recurrence['range-type'] == 'date')
-                $rrule['UNTIL'] = date_create('@'.$recurrence['range']);
 
             if ($recurrence['day']) {
                 $byday = array();
@@ -316,7 +277,7 @@ class kolab_format_event extends kolab_format
 
             if ($recurrence['exclusion']) {
                 foreach ((array)$recurrence['exclusion'] as $excl)
-                    $rrule['EXDATE'][] = date_create($excl . date(' H:i:s', $rec['start-date']));  // use time of event start
+                    $rrule['EXDATE'][] = is_a($excl, 'DateTime') ? $excl : date_create($excl . date(' H:i:s', $rec['start-date']));  // use time of event start
             }
         }
 
@@ -344,12 +305,12 @@ class kolab_format_event extends kolab_format
 
         $this->data = array(
             'uid' => $rec['uid'],
+            'changed' => self::php_datetime($rec['last-modification-date']),
             'title' => $rec['summary'],
             'location' => $rec['location'],
             'description' => $rec['body'],
-            'start' => new DateTime('@'.$rec['start-date']),
-            'end'   => new DateTime('@'.$rec['end-date']),
-            'allday' => $allday,
+            'start' => self::php_datetime($rec['start-date']),
+            'end'   => self::php_datetime($rec['end-date']),
             'recurrence' => $rrule,
             'alarms' => self::from_kolab2_alarm($rec['alarm']),
             'categories' => $rec['categories'],
@@ -360,8 +321,10 @@ class kolab_format_event extends kolab_format
             'changed' => $rec['last-modification-date'],
         );
 
-        // assign current timezone to event start/end which are in UTC
-        $this->data['start']->setTimezone(self::$timezone);
-        $this->data['end']->setTimezone(self::$timezone);
+        $this->data['allday'] = $this->data['start']->_dateonly;
+
+        // assign current timezone to event start/end which are most likely in UTC
+        // $this->data['start']->setTimezone(self::$timezone);
+        // $this->data['end']->setTimezone(self::$timezone);
     }
 }

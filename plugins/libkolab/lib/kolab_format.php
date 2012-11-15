@@ -86,6 +86,64 @@ abstract class kolab_format
     }
 
     /**
+     * Convert the given date/time value into a structure for Horde_Kolab_Format_Xml_Type_DateTime
+     *
+     * @param mixed         Date/Time value either as unix timestamp, date string or PHP DateTime object
+     * @param DateTimeZone  The timezone the date/time is in. Use global default if Null, local time if False
+     * @param boolean       True of the given date has no time component
+     * @return array        Hash array with date
+     */
+    public static function horde_datetime($datetime, $tz = null, $dateonly = false)
+    {
+        // use timezone information from datetime of global setting
+        if (!$tz && $tz !== false) {
+            if ($datetime instanceof DateTime)
+                $tz = $datetime->getTimezone();
+            if (!$tz)
+                $tz = self::$timezone;
+        }
+        $result = null;
+
+        // got a unix timestamp (in UTC)
+        if (is_numeric($datetime)) {
+            $datetime = new DateTime('@'.$datetime, new DateTimeZone('UTC'));
+            if ($tz) $datetime->setTimezone($tz);
+        }
+        else if (is_string($datetime) && strlen($datetime)) {
+            try { $datetime = new DateTime($datetime, $tz ?: null); }
+            catch (Exception $e) { }
+        }
+
+        if ($datetime instanceof DateTime) {
+            $result = array('date' => $datetime, 'date-only' => $dateonly || $datetime->_dateonly);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Convert the given Horde_Kolab_Format_Xml_Type_DateTime structure into a simple PHP DateTime object
+     *
+     * @param arrry   Hash array with datetime properties
+     * @return object DateTime  PHP datetime instance
+     */
+    public static function php_datetime($data)
+    {
+        if (is_array($data)) {
+            $d = $data['date'];
+            if (is_a($d, 'DateTime')) {
+                if ($data['date-only'])
+                    $d->_dateonly = $data['date-only'];
+                return $d;
+            }
+        }
+        else if (is_object($data) && is_a($data, 'DateTime'))
+            return $data;
+
+        return null;
+    }
+
+    /**
      * Parse the X-Kolab-Type header from MIME messages and return the object type in short form
      *
      * @param string X-Kolab-Type header value
@@ -108,11 +166,11 @@ abstract class kolab_format
             return null;
 
         $alarm_unit = 'M';
-        if ($rec['alarm'] % 1440 == 0) {
+        if ($alarm_value % 1440 == 0) {
             $alarm_value /= 1440;
             $alarm_unit = 'D';
         }
-        else if ($rec['alarm'] % 60 == 0) {
+        else if ($alarm_value % 60 == 0) {
             $alarm_value /= 60;
             $alarm_unit = 'H';
         }
