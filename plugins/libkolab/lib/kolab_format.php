@@ -263,7 +263,7 @@ abstract class kolab_format
     protected function generate_uid()
     {
         $rc = rcube::get_instance();
-        return strtoupper(md5(time() . uniqid(rand())) . '-' . substr(md5($rc->user ? $rc->user->get_username() : rand()), 0, 16));
+        return md5(time() . uniqid(rand())) . '-' . substr(md5($rc->user ? $rc->user->get_username() : rand()), 0, 16);
     }
 
     /**
