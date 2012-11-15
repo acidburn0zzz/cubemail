@@ -97,10 +97,7 @@ abstract class kolab_format
     {
         // use timezone information from datetime of global setting
         if (!$tz && $tz !== false) {
-            if ($datetime instanceof DateTime)
-                $tz = $datetime->getTimezone();
-            if (!$tz)
-                $tz = self::$timezone;
+            $tz = self::$timezone;
         }
         $result = null;
 
@@ -115,6 +112,9 @@ abstract class kolab_format
         }
 
         if ($datetime instanceof DateTime) {
+            // always save dates in UTC for compatibility reasons
+            if (!$dateonly && !$datetime->_dateonly && $tz !== false)
+                $datetime->setTimezone(new DateTimeZone('UTC'));
             $result = array('date' => $datetime, 'date-only' => $dateonly || $datetime->_dateonly);
         }
 
