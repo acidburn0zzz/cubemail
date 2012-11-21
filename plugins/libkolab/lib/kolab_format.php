@@ -364,7 +364,7 @@ abstract class kolab_format
     public function to_array()
     {
         // load from XML if not done yet
-        if (!empty($this->data))
+        if (empty($this->data))
             $this->init();
 
         return $this->data;
