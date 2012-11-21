@@ -62,6 +62,18 @@ class kolab_storage
             ));
             self::$imap->set_pagesize(9999);
         }
+        else if (!class_exists('Horde_Kolab_Format_Factory')) {
+            rcube::raise_error(array(
+                'code' => 900, 'type' => 'php',
+                'message' => "Missing required Horde_Kolab_Format_Factory class. Make sure that the Horde5/Kolab_Format package is installed. See README for instructions"
+            ), true);
+        }
+        else {
+            rcube::raise_error(array(
+                'code' => 900, 'type' => 'php',
+                'message' => "IMAP server doesn't support METADATA or ANNOTATEMORE"
+            ), true);
+        }
 
         return self::$ready;
     }
