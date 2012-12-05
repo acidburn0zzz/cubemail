@@ -246,6 +246,28 @@ class calendar extends rcube_plugin
     return $this->ical;
   }
 
+  /**
+   * Get properties of the calendar this user has specified as default
+   */
+  public function get_default_calendar($writeable = false)
+  {
+    $default_id = $this->rc->config->get('calendar_default_calendar');
+    $calendars = $this->driver->list_calendars(false, true);
+    $calendar = $calendars[$default_id] ?: null;
+    if (!$calendar || ($writeable && $calendar['readonly'])) {
+      foreach ($calendars as $cal) {
+        if ($cal['default']) {
+          $calendar = $cal;
+          break;
+        }
+        if (!$writeable || !$cal['readonly']) {
+          $first = $cal;
+        }
+      }
+    }
+
+    return $calendar ?: $first;
+  }
 
   /**
    * Render the main calendar view from skin template
@@ -397,9 +419,8 @@ class calendar extends rcube_plugin
       // default calendar selection
       $field_id = 'rcmfd_default_calendar';
       $select_cal = new html_select(array('name' => '_default_calendar', 'id' => $field_id));
-      foreach ((array)$this->driver->list_calendars() as $id => $prop) {
-        if (!$prop['readonly'])
-          $select_cal->add($prop['name'], strval($id));
+      foreach ((array)$this->driver->list_calendars(false, true) as $id => $prop) {
+        $select_cal->add($prop['name'], strval($id));
       }
       $p['blocks']['view']['options']['defaultcalendar'] = array(
         'title' => html::label($field_id . 'value', Q($this->gettext('defaultcalendar'))),
@@ -689,7 +710,7 @@ class calendar extends rcube_plugin
         $status = $event['fallback'];
         $html = html::div('rsvp-status', $status != 'CANCELLED' ? $this->gettext('acceptinvitation') : '');
         $this->load_driver();
-        if ($existing = $this->driver->get_event($event, true)) {
+        if ($existing = $this->driver->get_event($event, true, false, true)) {
           $emails = $this->get_user_emails();
           foreach ($existing['attendees'] as $i => $attendee) {
             if ($attendee['email'] && in_array($attendee['email'], $emails)) {
@@ -700,7 +721,7 @@ class calendar extends rcube_plugin
         }
         else {
           // get a list of writeable calendars
-          $calendars = $this->driver->list_calendars();
+          $calendars = $this->driver->list_calendars(false, true);
           $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'calendar-saveto'));
           $numcals = 0;
           foreach ($calendars as $calendar) {
@@ -911,7 +932,7 @@ class calendar extends rcube_plugin
     if (!$start) $start = mktime(0, 0, 0, 1, date('n'), date('Y')-1);
     if (!$end) $end = mktime(0, 0, 0, 31, 12, date('Y')+10);
     $calid = $calname = get_input_value('source', RCUBE_INPUT_GET);
-    $calendars = $this->driver->list_calendars();
+    $calendars = $this->driver->list_calendars(true);
     
     if ($calendars[$calid]) {
       $calname = $calendars[$calid]['name'] ? $calendars[$calid]['name'] : $calid;
@@ -1294,12 +1315,8 @@ class calendar extends rcube_plugin
   {
     $num = $_REQUEST['_num'] ? intval($_REQUEST['_num']) : 100;
     $cats = array_keys($this->driver->list_categories());
-    $cals = array();
-    foreach ($this->driver->list_calendars() as $cid => $cal) {
-      if ($cal['active'])
-        $cals[$cid] = $cal;
-    }
-    
+    $cals = $this->driver->list_calendars(true);
+
     while ($count++ < $num) {
       $start = round((time() + rand(-2600, 2600) * 1000) / 300) * 300;
       $duration = round(rand(30, 360) / 30) * 30 * 60;
@@ -2127,17 +2144,9 @@ class calendar extends rcube_plugin
     // successfully parsed events?
     if (!empty($events) && ($event = $events[$index])) {
       // find writeable calendar to store event
-      $cal_id = !empty($_REQUEST['_calendar']) ? get_input_value('_calendar', RCUBE_INPUT_POST) : $this->rc->config->get('calendar_default_calendar');
-      $calendars = $this->driver->list_calendars();
-      $calendar = $calendars[$cal_id] ? $calendars[$cal_id] : null;
-      if (!$calendar || $calendar['readonly']) {
-        foreach ($calendars as $cal) {
-          if (!$cal['readonly']) {
-            $calendar = $cal;
-            break;
-          }
-        }
-      }
+      $cal_id = !empty($_REQUEST['_calendar']) ? get_input_value('_calendar', RCUBE_INPUT_POST) : null;
+      $calendars = $this->driver->list_calendars(false, true);
+      $calendar = $calendars[$cal_id] ?: $this->get_default_calendar(true);
 
       // update my attendee status according to submitted method
       if (!empty($status)) {
@@ -2200,6 +2209,7 @@ class calendar extends rcube_plugin
           // import the (newer) event
           // TODO: compare SEQUENCE numbers instead of changed dates
           else if ($event['changed'] >= $existing['changed']) {
+            $event['calendar'] = $existing['calendar'];
             $success = $this->driver->edit_event($event);
           }
           else if (!empty($status)) {
