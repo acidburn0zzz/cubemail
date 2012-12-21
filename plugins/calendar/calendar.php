@@ -2214,6 +2214,7 @@ class calendar extends rcube_plugin
           // import the (newer) event
           // TODO: compare SEQUENCE numbers instead of changed dates
           else if ($event['changed'] >= $existing['changed']) {
+            $event['id'] = $existing['id'];
             $event['calendar'] = $existing['calendar'];
             $success = $this->driver->edit_event($event);
           }
