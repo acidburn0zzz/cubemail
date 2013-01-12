@@ -6,10 +6,10 @@ $labels['folderctype'] = 'Content type';
 $labels['foldertypemail'] = 'Mail';
 $labels['foldertypeevent'] = 'Calendar'; // Events?
 $labels['foldertypejournal'] = 'Journal';
-$labels['foldertypetask'] = 'Tasks';
-$labels['foldertypenote'] = 'Notes';
-$labels['foldertypecontact'] = 'Contacts';
-$labels['foldertypeconfiguration'] = 'Konfiguracja';
+$labels['foldertypetask'] = 'Tareas';
+$labels['foldertypenote'] = 'Notas';
+$labels['foldertypecontact'] = 'Contactos';
+$labels['foldertypeconfiguration'] = 'Configuración';
 $labels['foldertypefile'] = 'Files';
 $labels['foldertypefreebusy'] = 'Free-Busy';
 

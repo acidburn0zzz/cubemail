@@ -18,6 +18,7 @@ $labels['contact'] = 'Kontakte';
 $labels['event'] = 'Kalender';
 $labels['task'] = 'Aufgaben';
 $labels['note'] = 'Notizen';
+$labels['configuration'] = 'Konfiguration';
 $labels['deletedevice'] = 'Gerät löschen';
 $labels['imageformat'] = 'Bildformat';
 $labels['laxpiclabel'] = 'PNG- und GIF-Bilder erlauben';
@@ -27,5 +28,6 @@ $labels['savingerror'] = 'Fehler beim Speichern';
 $labels['notsupported'] = 'Ihr Server unterstützt keine Activesync-Konfiguration';
 $labels['devicedeleteconfirm'] = 'Wollen Sie wirklich alle Einstellungen für dieses Gerät löschen?';
 $labels['successfullydeleted'] = 'Die Geräteinstellungen wurden erfolgreich gelöscht';
+$labels['devicenotfound'] = 'Es kann nicht auf die Gerätekonfiguration zugegriffen werden';
 
 ?>

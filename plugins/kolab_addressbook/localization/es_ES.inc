@@ -1,7 +1,7 @@
 <?php
 
 $labels = array();
-$labels['initials'] = 'Inicjały';
+$labels['initials'] = 'Iniciales';
 $labels['profession'] = 'Profession';
 $labels['officelocation'] = 'Office location';
 $labels['children'] = 'Children';
@@ -17,7 +17,7 @@ $labels['typeradio'] = 'Radio';
 $labels['typeisdn'] = 'ISDN';
 $labels['typettytdd'] = 'TTY/TDD';
 $labels['typecallback'] = 'Callback';
-$labels['settings'] = 'Settings';
+$labels['settings'] = 'Servicios';
 
 $labels['bookcreate'] = 'Create address book';
 $labels['bookedit'] = 'Edit address book';

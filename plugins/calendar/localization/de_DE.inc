@@ -132,9 +132,9 @@ $labels['eventcancelmailbody'] = "*\$title*\n\nWann: \$date\n\nTeilnehmer: \$att
 
 // invitation handling
 $labels['itipinvitation'] = 'Einladung zu';
-$labels['itipreply'] = 'Antwort zu';
 $labels['itipupdate'] = 'Aktialisiert:';
 $labels['itipcancellation'] = 'Abgesagt:';
+$labels['itipreply'] = 'Antwort zu';
 $labels['itipaccepted'] = 'Akzeptieren';
 $labels['itiptentative'] = 'Mit Vorbehalt';
 $labels['itipdeclined'] = 'Ablehnen';
@@ -182,11 +182,13 @@ $labels['importedsuccessfully'] = 'Der Termin wurde erfolgreich in \'$calendar\'
 $labels['attendeupdateesuccess'] = 'Teilnehmerstatus erfolgreich aktualisiert';
 $labels['itipsendsuccess'] = 'Einladung an Teilnehmer versendet.';
 $labels['itipresponseerror'] = 'Die Antwort auf diese Einladung konnte nicht versendet werden';
+$labels['itipinvalidrequest'] = 'Diese Einladung ist nicht mehr gültig.';
 $labels['sentresponseto'] = 'Antwort auf diese Einladung erfolgreich an $mailto gesendet';
 $labels['localchangeswarning'] = 'Die Änderungen an diesem Termin können nur in Ihrem persönlichen Kalender gespeichert werden.';
 $labels['importsuccess'] = 'Es wurden $nr Termine erfolgreich importiert';
 $labels['importnone'] = 'Keine Termine zum Importieren gefunden';
 $labels['importerror'] = 'Fehler beim Importieren';
+$labels['aclnorights'] = 'Der Zugriff auf diesen Kalender erfordert Administrator-Rechte.';
 
 // recurrence form
 $labels['repeat'] = 'Wiederholung';

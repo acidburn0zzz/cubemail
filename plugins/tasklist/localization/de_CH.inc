@@ -40,7 +40,6 @@ $labels['deletetask'] = 'Aufgabe löschen';
 $labels['deletethisonly'] = 'Nur diese Aufgabe löschen';
 $labels['deletewithchilds'] = 'Mit allen Teilaufhaben löschen';
 
-
 $labels['tabsummary'] = 'Übersicht';
 $labels['tabrecurrence'] = 'Wiederholung';
 $labels['tabattachments'] = 'Anhänge';
