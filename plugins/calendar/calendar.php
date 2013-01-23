@@ -2173,7 +2173,7 @@ class calendar extends rcube_plugin
         $event['calendar'] = $calendar['id'];
         
         // check for existing event with the same UID
-        $existing = $this->driver->get_event($event['uid'], true);
+        $existing = $this->driver->get_event($event['uid'], true, false, true);
         
         if ($existing) {
           // only update attendee status
