@@ -5,7 +5,7 @@
  | Version 0.7.4                                                           |
  |                                                                         |
  | Copyright (C) 2010, Lazlo Westerhof - Netherlands                       |
- | Copyright (C) 2011, Kolab Systems AG                                    |
+ | Copyright (C) 2013, Kolab Systems AG                                    |
  |                                                                         |
  | This program is free software: you can redistribute it and/or modify    |
  | it under the terms of the GNU Affero General Public License as          |
@@ -21,9 +21,10 @@
 // backend type (database, google, kolab)
 $rcmail_config['calendar_driver'] = "database";
 
-// optionally disable the DTSTAMP check of iTip messages (enabled by default)
-// setting this to false will always show RSVP buttons, even for invitations older than the local copy
-$rcmail_config['calendar_itip_dtstampcheck'] = true;
+// optionally enable the DTSTAMP check for iTip messages (disabled by default).
+// setting this to true will only show RSVP buttons if an iTip inivation is newer
+// than the local copy of the matching event.
+$rcmail_config['calendar_itip_dtstampcheck'] = false;
 
 // default calendar view (agendaDay, agendaWeek, month)
 $rcmail_config['calendar_default_view'] = "agendaWeek";

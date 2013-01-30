@@ -8,7 +8,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
  * Copyright (C) 2010, Lazlo Westerhof - Netherlands
- * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2013, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -740,7 +740,7 @@ class calendar extends rcube_plugin
         }
         else if (in_array($status, array('ACCEPTED','TENTATIVE','DECLINED'))) {
           $html = html::div('rsvp-status ' . strtolower($status), $this->gettext('youhave'.strtolower($status)));
-          if ($this->rc->config->get('calendar_itip_dtstampcheck', true) && $existing['changed'] && $event['changed'] < $existing['changed']) {
+          if ($this->rc->config->get('calendar_itip_dtstampcheck', false) && $existing['changed'] && $event['changed'] < $existing['changed']) {
             $action = '';
           }
         }
@@ -2213,7 +2213,7 @@ class calendar extends rcube_plugin
           }
           // import the (newer) event
           // TODO: compare SEQUENCE numbers instead of changed dates
-          else if ($event['changed'] >= $existing['changed'] || !$this->rc->config->get('calendar_itip_dtstampcheck', true)) {
+          else if ($event['changed'] >= $existing['changed'] || !$this->rc->config->get('calendar_itip_dtstampcheck', false)) {
             $event['id'] = $existing['id'];
             $event['calendar'] = $existing['calendar'];
             $success = $this->driver->edit_event($event);
