@@ -2,7 +2,7 @@
 /*
  +-------------------------------------------------------------------------+
  | Configuration for the Calendar plugin                                   |
- | Version 0.7.4                                                        |
+ | Version 0.7.4                                                           |
  |                                                                         |
  | Copyright (C) 2010, Lazlo Westerhof - Netherlands                       |
  | Copyright (C) 2011, Kolab Systems AG                                    |
@@ -20,6 +20,10 @@
 
 // backend type (database, google, kolab)
 $rcmail_config['calendar_driver'] = "database";
+
+// optionally disable the DTSTAMP check of iTip messages (enabled by default)
+// setting this to false will always show RSVP buttons, even for invitations older than the local copy
+$rcmail_config['calendar_itip_dtstampcheck'] = true;
 
 // default calendar view (agendaDay, agendaWeek, month)
 $rcmail_config['calendar_default_view'] = "agendaWeek";

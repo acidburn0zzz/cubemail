@@ -740,7 +740,7 @@ class calendar extends rcube_plugin
         }
         else if (in_array($status, array('ACCEPTED','TENTATIVE','DECLINED'))) {
           $html = html::div('rsvp-status ' . strtolower($status), $this->gettext('youhave'.strtolower($status)));
-          if ($existing['changed'] && $event['changed'] < $existing['changed']) {
+          if ($this->rc->config->get('calendar_itip_dtstampcheck', true) && $existing['changed'] && $event['changed'] < $existing['changed']) {
             $action = '';
           }
         }
@@ -2213,14 +2213,16 @@ class calendar extends rcube_plugin
           }
           // import the (newer) event
           // TODO: compare SEQUENCE numbers instead of changed dates
-          else if ($event['changed'] >= $existing['changed']) {
+          else if ($event['changed'] >= $existing['changed'] || !$this->rc->config->get('calendar_itip_dtstampcheck', true)) {
             $event['id'] = $existing['id'];
             $event['calendar'] = $existing['calendar'];
             $success = $this->driver->edit_event($event);
+            $calendar = $calendars[$event['calendar']];
           }
           else if (!empty($status)) {
             $existing['attendees'] = $event['attendees'];
             $success = $this->driver->edit_event($existing);
+            $calendar = $calendars[$existing['calendar']];
           }
           else
             $error_msg = $this->gettext('newerversionexists');
