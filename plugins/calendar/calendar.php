@@ -1286,9 +1286,10 @@ class calendar extends rcube_plugin
     $event['attachments'] = $attachments;
 
     // check for organizer in attendees
-    if (!$event['attendees'])
-      $event['attendees'] = array();
     if ($action == 'new' || $action == 'edit') {
+      if (!$event['attendees'])
+        $event['attendees'] = array();
+
       $emails = $this->get_user_emails();
       $organizer = $owner = false;
       foreach ((array)$event['attendees'] as $i => $attendee) {
