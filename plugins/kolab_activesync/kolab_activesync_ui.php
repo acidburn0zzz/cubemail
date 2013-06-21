@@ -167,6 +167,7 @@ class kolab_activesync_ui
                 }
             }
 
+            $folder_id = 'rcmf' . html_identifier($folder);
             $names[] = $origname;
             $classes = array('mailbox');
 
@@ -174,9 +175,6 @@ class kolab_activesync_ui
                 $foldername = html::quote($this->rc->gettext($folder_class));
                 $classes[] = $folder_class;
             }
-
-            $folder_id = 'rcmf' . html_identifier($folder);
-            $padding = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
 
             $table->add_row();
             $table->add('subscription', $checkbox_sync->show(
@@ -189,7 +187,7 @@ class kolab_activesync_ui
                     array('value' => $folder, 'id' => $folder_id.'_alarm')));
             }
 
-            $table->add(join(' ', $classes), html::label($folder_id, $padding . $foldername));
+            $table->add(join(' ', $classes), html::label($folder_id, $foldername));
         }
 
         return $table->show();
