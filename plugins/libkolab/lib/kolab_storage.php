@@ -37,7 +37,6 @@ class kolab_storage
     private static $subscriptions;
     private static $states;
     private static $config;
-    private static $cache;
     private static $imap;
 
 
@@ -289,7 +288,7 @@ class kolab_storage
         else {
             // these characters are problematic e.g. when used in LIST/LSUB
             foreach (array($delimiter, '%', '*') as $char) {
-                if (strpos($folder, $delimiter) !== false) {
+                if (strpos($folder, $char) !== false) {
                     self::$last_error = 'forbiddencharacter';
                     return false;
                 }
