@@ -31,7 +31,7 @@ class kolab_format_contact extends kolab_format
     protected $read_func = 'readContact';
     protected $write_func = 'writeContact';
 
-    public static $fulltext_cols = array('name', 'firstname', 'surname', 'middlename', 'email:address');
+    public static $fulltext_cols = array('name', 'firstname', 'surname', 'middlename', 'email');
 
     public $phonetypes = array(
         'home'    => Telephone::Home,
@@ -383,18 +383,7 @@ class kolab_format_contact extends kolab_format
     {
         $data = '';
         foreach (self::$fulltext_cols as $col) {
-            list($col, $field) = explode(':', $colname);
-
-            if ($field) {
-                $a = array();
-                foreach ((array)$this->data[$col] as $attr)
-                    $a[] = $attr[$field];
-                $val = join(' ', $a);
-            }
-            else {
-                $val = is_array($this->data[$col]) ? join(' ', $this->data[$col]) : $this->data[$col];
-            }
-
+            $val = is_array($this->data[$col]) ? join(' ', $this->data[$col]) : $this->data[$col];
             if (strlen($val))
                 $data .= $val . ' ';
         }
