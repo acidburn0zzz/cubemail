@@ -111,7 +111,7 @@ abstract class kolab_format_xcal extends kolab_format
         );
 
         // read organizer and attendees
-        if (($organizer = $this->obj->organizer()) && ($organizer->email() || $organizer->name())) {
+        if ($organizer = $this->obj->organizer()) {
             $object['organizer'] = array(
                 'email' => $organizer->email(),
                 'name' => $organizer->name(),
@@ -170,9 +170,9 @@ abstract class kolab_format_xcal extends kolab_format
                 $object['recurrence']['BYMONTH'] = join(',', self::vector2array($bymonth));
             }
 
-            if ($exdates = $this->obj->exceptionDates()) {
-                for ($i=0; $i < $exdates->size(); $i++) {
-                    if ($exdate = self::php_datetime($exdates->get($i)))
+            if ($exceptions = $this->obj->exceptionDates()) {
+                for ($i=0; $i < $exceptions->size(); $i++) {
+                    if ($exdate = self::php_datetime($exceptions->get($i)))
                         $object['recurrence']['EXDATE'][] = $exdate;
                 }
             }

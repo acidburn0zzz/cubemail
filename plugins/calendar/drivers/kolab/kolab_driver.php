@@ -580,8 +580,6 @@ class kolab_driver extends calendar_driver
     // keep saved exceptions (not submitted by the client)
     if ($old['recurrence']['EXDATE'])
       $event['recurrence']['EXDATE'] = $old['recurrence']['EXDATE'];
-    if ($old['recurrence']['EXCEPTIONS'])
-      $event['recurrence']['EXCEPTIONS'] = $old['recurrence']['EXCEPTIONS'];
 
     switch ($savemode) {
       case 'new':
@@ -599,11 +597,26 @@ class kolab_driver extends calendar_driver
         break;
         
       case 'current':
-        // save as exception to master event
+        // modifying the first instance => just move to next occurence
+        if ($master['id'] == $event['id']) {
+          $recurring = reset($storage->_get_recurring_events($event, $event['start'], null, $event['id'].'-1'));
+          $master['start'] = $recurring['start'];
+          $master['end'] = $recurring['end'];
+          if ($master['recurrence']['COUNT'])
+            $master['recurrence']['COUNT']--;
+        }
+        else {  // add exception to master event
+          $master['recurrence']['EXDATE'][] = $old['start'];
+		}
+
+        $storage->update_event($master);
+        
+        // insert new event for this occurence
+        $event += $old;
         $event['recurrence'] = array();
-        $master['recurrence']['EXCEPTIONS'][] = $event;
-#       $master['recurrence']['EXDATE'][] = $event['start'];
-        $success = $storage->update_event($master);
+        unset($event['recurrence_id']);
+        $event['uid'] = $this->cal->generate_uid();
+        $success = $storage->insert_event($event);
         break;
         
       case 'future':
@@ -634,20 +647,6 @@ class kolab_driver extends calendar_driver
         }
 
       default:  // 'all' is default
-
-        // remove some internal properties which should not be saved
-        unset($event['_savemode'], $event['_fromcalendar'], $event['_identity']);
-
-        // save properties to a recurrence exception instance
-        if ($old['recurrence_id']) {
-            $i = $old['_instance'] - 1;
-            if (!empty($master['recurrence']['EXCEPTIONS'][$i])) {
-                $master['recurrence']['EXCEPTIONS'][$i] = $event;
-                $success = $storage->update_event($master, $old['id']);
-                break;
-            }
-        }
-
         $event['id'] = $master['id'];
         $event['uid'] = $master['uid'];
 

@@ -1091,7 +1091,6 @@ class calendar extends rcube_plugin
       $event['recurrence_text'] = $this->_recurrence_text($event['recurrence']);
       if ($event['recurrence']['UNTIL'])
         $event['recurrence']['UNTIL'] = $this->lib->adjust_timezone($event['recurrence']['UNTIL'])->format('c');
-      unset($event['recurrence']['EXCEPTIONS']);
     }
 
     foreach ((array)$event['attachments'] as $k => $attachment) {
@@ -1122,7 +1121,7 @@ class calendar extends rcube_plugin
       'title'       => strval($event['title']),
       'description' => strval($event['description']),
       'location'    => strval($event['location']),
-      'className'   => ($addcss ? 'fc-event-cal-'.asciiwords($event['calendar'], true).' ' : '') . 'fc-event-cat-' . asciiwords(strtolower(join('-', (array)$event['categories'])), true),
+      'className'   => ($addcss ? 'fc-event-cal-'.asciiwords($event['calendar'], true).' ' : '') . 'fc-event-cat-' . asciiwords(strtolower($event['categories']), true),
       'allDay'      => ($event['allday'] == 1),
     ) + $event;
   }
