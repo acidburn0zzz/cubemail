@@ -347,32 +347,27 @@ class calendar_ical
    * @param  boolean Directly send data to stdout instead of returning
    * @return string  Events in iCalendar format (http://tools.ietf.org/html/rfc5545)
    */
-  public function export($events, $method = null, $write = false, $recurrence_id = null)
+  public function export($events, $method = null, $write = false)
   {
-      if (!$recurrence_id) {
-        $ical = "BEGIN:VCALENDAR" . self::EOL;
-        $ical .= "VERSION:2.0" . self::EOL;
-        $ical .= "PRODID:-//Roundcube Webmail " . RCMAIL_VERSION . "//NONSGML Calendar//EN" . self::EOL;
-        $ical .= "CALSCALE:GREGORIAN" . self::EOL;
-
-        if ($method)
-          $ical .= "METHOD:" . strtoupper($method) . self::EOL;
-
-        if ($write) {
-          echo $ical;
-          $ical = '';
-        }
+      $ical = "BEGIN:VCALENDAR" . self::EOL;
+      $ical .= "VERSION:2.0" . self::EOL;
+      $ical .= "PRODID:-//Roundcube Webmail " . RCMAIL_VERSION . "//NONSGML Calendar//EN" . self::EOL;
+      $ical .= "CALSCALE:GREGORIAN" . self::EOL;
+      
+      if ($method)
+        $ical .= "METHOD:" . strtoupper($method) . self::EOL;
+        
+      if ($write) {
+        echo $ical;
+        $ical = '';
       }
-
+      
       foreach ($events as $event) {
         $vevent = "BEGIN:VEVENT" . self::EOL;
         $vevent .= "UID:" . self::escape($event['uid']) . self::EOL;
         $vevent .= $this->format_datetime("DTSTAMP", $event['changed'] ?: new DateTime(), false, true) . self::EOL;
         if ($event['sequence'])
-          $vevent .= "SEQUENCE:" . intval($event['sequence']) . self::EOL;
-        if ($recurrence_id)
-          $vevent .= $recurrence_id . self::EOL;
-        
+            $vevent .= "SEQUENCE:" . intval($event['sequence']) . self::EOL;
         // correctly set all-day dates
         if ($event['allday']) {
           $event['end'] = clone $event['end'];
@@ -394,7 +389,7 @@ class calendar_ical
         if (!empty($event['location'])) {
           $vevent .= "LOCATION:" . self::escape($event['location']) . self::EOL;
         }
-        if ($event['recurrence'] && !$recurrence_id) {
+        if ($event['recurrence']) {
           $vevent .= "RRULE:" . libcalendaring::to_rrule($event['recurrence'], self::EOL) . self::EOL;
         }
         if(!empty($event['categories'])) {
@@ -431,30 +426,18 @@ class calendar_ical
         // TODO: export attachments
         
         $vevent .= "END:VEVENT" . self::EOL;
-
-        // append recurrence exceptions
-        if ($event['recurrence']['EXCEPTIONS'] && !$recurrence_id) {
-          foreach ($event['recurrence']['EXCEPTIONS'] as $ex) {
-            $exdate = clone $event['start'];
-            $exdate->setDate($ex['start']->format('Y'), $ex['start']->format('n'), $ex['start']->format('j'));
-            $vevent .= $this->export(array($ex), null, false,
-              $this->format_datetime('RECURRENCE-ID', $exdate, $event['allday']));
-          }
-        }
-
+        
         if ($write)
           echo rcube_vcard::rfc2425_fold($vevent);
         else
           $ical .= $vevent;
       }
       
-      if (!$recurrence_id) {
-        $ical .= "END:VCALENDAR" . self::EOL;
+      $ical .= "END:VCALENDAR" . self::EOL;
       
-        if ($write) {
-          echo $ical;
-          return true;
-        }
+      if ($write) {
+        echo $ical;
+        return true;
       }
 
       // fold lines to 75 chars
