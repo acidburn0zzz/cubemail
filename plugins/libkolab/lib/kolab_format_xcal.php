@@ -111,7 +111,6 @@ abstract class kolab_format_xcal extends kolab_format
             'title'       => $this->obj->summary(),
             'location'    => $this->obj->location(),
             'description' => $this->obj->description(),
-            'url'         => $this->obj->url(),
             'status'      => $status_map[$this->obj->status()],
             'sensitivity' => $sensitivity_map[$this->obj->classification()],
             'priority'    => $this->obj->priority(),
@@ -244,7 +243,12 @@ abstract class kolab_format_xcal extends kolab_format
         $this->obj->setPriority($object['priority']);
         $this->obj->setClassification($this->sensitivity_map[$object['sensitivity']]);
         $this->obj->setCategories(self::array2vector($object['categories']));
-        $this->obj->setUrl(strval($object['url']));
+
+        $vurls = new vectorurl;
+        foreach ((array)$object['url'] as $url) {
+            $vurls->push(new Url(strval($url)));
+        }
+        $this->obj->setUrls($vurls);
 
         // process event attendees
         $attendees = new vectorattendee;
