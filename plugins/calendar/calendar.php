@@ -1290,7 +1290,7 @@ class calendar extends rcube_plugin
       return;
     }
 
-    if ($event['recurrence']['UNTIL'])
+    if (is_array($event['recurrence']) && !empty($event['recurrence']['UNTIL']))
       $event['recurrence']['UNTIL'] = new DateTime($event['recurrence']['UNTIL'], $this->timezone);
 
     $attachments = array();
