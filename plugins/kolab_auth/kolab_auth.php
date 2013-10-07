@@ -66,11 +66,18 @@ class kolab_auth extends rcube_plugin
             $rcmail->config->set('smtp_log', true);
             $rcmail->config->set('log_logins', true);
             $rcmail->config->set('log_session', true);
-            $rcmail->config->set('sql_debug', true);
             $rcmail->config->set('memcache_debug', true);
             $rcmail->config->set('imap_debug', true);
             $rcmail->config->set('ldap_debug', true);
             $rcmail->config->set('smtp_debug', true);
+            $rcmail->config->set('sql_debug', true);
+
+            // SQL debug need to be set directly on DB object
+            // setting config variable will not work here because
+            // the object is already initialized/configured
+            if ($db = $rcmail->get_dbh()) {
+                $db->set_debug(true);
+            }
         }
     }
 
