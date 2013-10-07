@@ -37,6 +37,8 @@ class kolab_auth extends rcube_plugin
     {
         $rcmail = rcube::get_instance();
 
+        $this->load_config();
+
         $this->add_hook('authenticate', array($this, 'authenticate'));
         $this->add_hook('startup', array($this, 'startup'));
         $this->add_hook('user_create', array($this, 'user_create'));
@@ -54,10 +56,11 @@ class kolab_auth extends rcube_plugin
         // Hook to modify some configuration, e.g. ldap
         $this->add_hook('config_get', array($this, 'config_get'));
 
-        $this->add_hook('write_log', array($this, 'write_log'));
+        // Enable debug logs per-user, this enables logging only after
+        // user has logged in
+        if (!empty($_SESSION['username']) && $rcmail->config->get('kolab_auth_auditlog')) {
+            $this->add_hook('write_log', array($this, 'write_log'));
 
-        // TODO: This section does not actually seem to work
-        if ($rcmail->config->get('kolab_auth_auditlog', false)) {
             $rcmail->config->set('debug_level', 1);
             $rcmail->config->set('devel_mode', true);
             $rcmail->config->set('smtp_log', true);
@@ -86,8 +89,6 @@ class kolab_auth extends rcube_plugin
         // Replaces ldap_vars (%dc, etc) in public kolab ldap addressbooks
         // config based on the users base_dn. (for multi domain support)
         if ($args['name'] == 'ldap_public' && !empty($args['result'])) {
-            $this->load_config();
-
             $rcmail      = rcube::get_instance();
             $kolab_books = (array) $rcmail->config->get('kolab_auth_ldap_addressbooks');
 
@@ -118,8 +119,6 @@ class kolab_auth extends rcube_plugin
         }
 
         $rcmail = rcube::get_instance();
-        $this->load_config();
-
 
         // Example 'kolab_auth_role_plugins' =
         //
@@ -207,52 +206,48 @@ class kolab_auth extends rcube_plugin
         }
     }
 
+    /**
+     * Logging method replacement to print debug/errors into
+     * a separate (sub)folder for each user
+     */
     public function write_log($args)
     {
         $rcmail = rcube::get_instance();
 
-        if (!$rcmail->config->get('kolab_auth_auditlog', false)) {
+        if ($rcmail->config->get('log_driver') == 'syslog') {
             return $args;
+        }
+
+        $line = sprintf("[%s]: %s\n", $args['date'], $args['line']);
+
+        // log_driver == 'file' is assumed here
+        $log_dir  = $rcmail->config->get('log_dir', RCUBE_INSTALL_PATH . 'logs');
+        $log_path = $log_dir.'/'.strtolower($_SESSION['kolab_auth_admin']).'/'.strtolower($_SESSION['username']);
+
+        // Append original username + target username
+        if (!is_dir($log_path)) {
+            // Attempt to create the directory
+            if (@mkdir($log_path, 0750, true)) {
+                $log_dir = $log_path;
+            }
+        }
+        else {
+            $log_dir = $log_path;
+        }
+
+        // try to open specific log file for writing
+        $logfile = $log_dir.'/'.$args['name'];
+
+        if ($fp = fopen($logfile, 'a')) {
+            fwrite($fp, $line);
+            fflush($fp);
+            fclose($fp);
+        }
+        else {
+            trigger_error("Error writing to log file $logfile; Please check permissions", E_USER_WARNING);
         }
 
         $args['abort'] = true;
-
-        if ($rcmail->config->get('log_driver') == 'syslog') {
-            $prio = $args['name'] == 'errors' ? LOG_ERR : LOG_INFO;
-            syslog($prio, $args['line']);
-            return $args;
-        }
-        else {
-            $line = sprintf("[%s]: %s\n", $args['date'], $args['line']);
-
-            // log_driver == 'file' is assumed here
-            $log_dir  = $rcmail->config->get('log_dir', INSTALL_PATH . 'logs');
-            $log_path = $log_dir.'/'.strtolower($_SESSION['kolab_auth_admin']).'/'.strtolower($_SESSION['username']);
-
-            // Append original username + target username
-            if (!is_dir($log_path)) {
-                // Attempt to create the directory
-                if (@mkdir($log_path, 0750, true)) {
-                    $log_dir = $log_path;
-                }
-            }
-            else {
-                $log_dir = $log_path;
-            }
-
-            // try to open specific log file for writing
-            $logfile = $log_dir.'/'.$args['name'];
-
-            if ($fp = fopen($logfile, 'a')) {
-                fwrite($fp, $line);
-                fflush($fp);
-                fclose($fp);
-                return $args;
-            }
-            else {
-                trigger_error("Error writing to log file $logfile; Please check permissions", E_USER_WARNING);
-            }
-        }
 
         return $args;
     }
@@ -296,7 +291,6 @@ class kolab_auth extends rcube_plugin
      */
     public function login_form($args)
     {
-        $this->load_config();
         $this->add_texts('localization/');
 
         $rcmail      = rcube::get_instance();
@@ -623,18 +617,7 @@ class kolab_auth extends rcube_plugin
             return self::$ldap;
         }
 
-        $rcmail = rcube::get_instance();
-
-        // $this->load_config();
-        // we're in static method, load config manually
-        $fpath = $rcmail->plugins->dir . '/kolab_auth/config.inc.php';
-        if (is_file($fpath) && !$rcmail->config->load_from_file($fpath)) {
-            rcube::raise_error(array(
-                'code' => 527, 'type' => 'php',
-                'file' => __FILE__, 'line' => __LINE__,
-                'message' => "Failed to load config from $fpath"), true, false);
-        }
-
+        $rcmail      = rcube::get_instance();
         $addressbook = $rcmail->config->get('kolab_auth_addressbook');
 
         if (!is_array($addressbook)) {
