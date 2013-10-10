@@ -26,3 +26,5 @@ $labels['repeatinhrs'] = 'Powtórz po $hrs godzinach';
 $labels['repeattomorrow'] = 'Powtórz jutro';
 $labels['repeatinweek'] = 'Powtórz za tydzień';
 
+$labels['showmore'] = 'Pokaż więcej...';
+
