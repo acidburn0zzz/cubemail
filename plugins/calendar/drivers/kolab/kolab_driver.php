@@ -122,6 +122,7 @@ class kolab_driver extends calendar_driver
           'id' => $cal->id,
           'name' => $name,
           'virtual' => true,
+          'readonly' => true,
         );
       }
       else {

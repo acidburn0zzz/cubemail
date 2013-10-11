@@ -104,6 +104,7 @@ class tasklist_kolab_driver extends tasklist_driver
                     'id' => $list_id,
                     'name' => $name,
                     'virtual' => true,
+                    'editable' => false,
                 );
                 continue;
             }
