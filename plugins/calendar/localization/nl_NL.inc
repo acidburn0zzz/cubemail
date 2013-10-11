@@ -1,39 +1,145 @@
 <?php
-/**
- * RoundCube Calendar
- *
- * Plugin to add a calendar to RoundCube.
- *
- * @version 0.2 BETA 2
- * @author Lazlo Westerhof
- * @url http://rc-calendar.lazlo.me
- * @licence GNU GPL
- * @copyright (c) 2010 Lazlo Westerhof - Netherlands
- *
- **/
-
-$labels = array();
-
-// config
 $labels['default_view'] = 'Standaard agenda';
 $labels['time_format'] = 'Tijdsformaat';
 $labels['timeslots'] = 'Timeslots per uur';
 $labels['first_day'] = 'Eerste weekdag';
-
-// calendar
+$labels['first_hour'] = 'Eerste uur om weer te geven';
+$labels['workinghours'] = 'Werkuren';
+$labels['add_category'] = 'Categorie toevoegen';
+$labels['remove_category'] = 'Categorie verwijderen';
+$labels['eventcoloring'] = 'Evenement kleuren';
+$labels['coloringmode0'] = 'Volgens kalender';
+$labels['coloringmode1'] = 'Volgens categorie';
+$labels['coloringmode2'] = 'Kalender voor omtrek, categorie voor inhoud';
+$labels['coloringmode3'] = 'Categorie voor omtrek, kalender voor inhoud';
 $labels['calendar'] = 'Agenda';
+$labels['calendars'] = 'Kalenders';
+$labels['category'] = 'Categorie';
+$labels['categories'] = 'Categorieen';
+$labels['createcalendar'] = 'Creeer nieuwe kalender';
+$labels['editcalendar'] = 'Wijzig calendar eigenschappen';
+$labels['name'] = 'Naam';
+$labels['color'] = 'Kleur';
 $labels['day'] = 'Dag';
 $labels['week'] = 'Week';
 $labels['month'] = 'Maand';
+$labels['agenda'] = 'Agenda';
+$labels['new'] = 'Nieuw';
 $labels['new_event'] = 'Nieuw evenement';
 $labels['edit_event'] = 'Wijzig evenement';
+$labels['edit'] = 'Wijzig';
 $labels['save'] = 'Bewaar';
 $labels['remove'] = 'Verwijder';
 $labels['cancel'] = 'Terug';
+$labels['select'] = 'Selecteer';
+$labels['print'] = 'Print';
+$labels['printtitle'] = 'Print kalenders';
 $labels['title'] = 'Samenvatting';
 $labels['description'] = 'Beschrijving';
 $labels['all-day'] = 'hele dag';
 $labels['export'] = 'Exporteer naar ICS';
-$labels['category'] = 'Categorie';
+$labels['exporttitle'] = 'Als iCalender exporteren';
 $labels['location'] = 'Locatie';
+$labels['date'] = 'Datum';
+$labels['start'] = 'Begin';
+$labels['end'] = 'Eind';
+$labels['selectdate'] = 'Kies datum';
+$labels['freebusy'] = 'Toon mij als';
+$labels['free'] = 'Vrij';
+$labels['busy'] = 'Bezig';
+$labels['outofoffice'] = 'Niet Aanwezig';
+$labels['tentative'] = 'Misschien';
+$labels['priority'] = 'Prioriteit';
+$labels['sensitivity'] = 'Privacy';
+$labels['public'] = 'publiek';
+$labels['private'] = 'prive';
+$labels['confidential'] = 'vertrouwelijk';
+$labels['alarms'] = 'Herinnering';
+$labels['generated'] = 'gegenereerd op';
+$labels['printdescriptions'] = 'Print beschrijvingen';
+$labels['searchearlierdates'] = '« Zoek voor eerdere evenementen';
+$labels['searchlaterdates'] = 'Zoek voor latere evenementen »';
+$labels['andnmore'] = '$nr meer...';
+$labels['createfrommail'] = 'Bewaar als evenement';
+$labels['importevents'] = 'Evenementen importeren';
+$labels['onemonthback'] = '1 maand terug';
+$labels['nmonthsback'] = '$nr maanden terug';
+$labels['showurl'] = 'Toon kalender URL';
+$labels['until'] = 'tot';
+$labels['today'] = 'Vandaag';
+$labels['tomorrow'] = 'Morgen';
+$labels['thisweek'] = 'Deze week';
+$labels['nextweek'] = 'Volgende week';
+$labels['thismonth'] = 'Deze maand';
+$labels['nextmonth'] = 'Volgende maand';
+$labels['weekofyear'] = 'Week';
+$labels['pastevents'] = 'Verleden';
+$labels['futureevents'] = 'Toekomst';
+$labels['showalarms'] = 'Alarmen tonen';
+$labels['attendee'] = 'Deelnemer';
+$labels['role'] = 'Rol';
+$labels['availability'] = 'Beschikb.';
+$labels['confirmstate'] = 'Status';
+$labels['addattendee'] = 'Deelnemer toevoegen';
+$labels['roleorganizer'] = 'Organisatie';
+$labels['rolerequired'] = 'Verplicht';
+$labels['roleoptional'] = 'Optioneel';
+$labels['availfree'] = 'Vrij';
+$labels['availbusy'] = 'Bezig';
+$labels['availunknown'] = 'Onbekend';
+$labels['availtentative'] = 'Misschien';
+$labels['availoutofoffice'] = 'Niet Aanwezig';
+$labels['scheduletime'] = 'Vind beschikbaarheid';
+$labels['sendinvitations'] = 'Verzend uitnodigingen';
+$labels['itipinvitation'] = 'Uitnodiging voor';
+$labels['itipupdate'] = 'Update van';
+$labels['itipcancellation'] = 'Afgelast:';
+$labels['itipaccepted'] = 'Accepteer';
+$labels['itiptentative'] = 'Misschien';
+$labels['itipdeclined'] = 'Afwijzen';
+$labels['importtocalendar'] = 'Bewaar in mijn kalender';
+$labels['removefromcalendar'] = 'Verwijder van mijn kalender';
+$labels['updateattendeestatus'] = 'Update status van deelnemer';
+$labels['acceptinvitation'] = 'Accepteer je deze uitnodiging?';
+$labels['youhaveaccepted'] = 'Je hebt de uitnodiging geaccepteerd';
+$labels['youhavedeclined'] = 'Je hebt deze uitnodiging afgewezen';
+$labels['eventcancelled'] = 'Dit evenement is afgelast';
+$labels['saveincalendar'] = 'bewaar in';
+$labels['tabsummary'] = 'Samenvatting';
+$labels['tabrecurrence'] = 'Herhaling';
+$labels['tabattendees'] = 'Deelnemers';
+$labels['tabattachments'] = 'Toebehoren';
+$labels['tabsharing'] = 'Delen';
+$labels['savingdata'] = 'Data wordt opgeslagen...';
+$labels['repeat'] = 'Herhaal';
+$labels['frequency'] = 'Herhaal';
+$labels['never'] = 'nooit';
+$labels['daily'] = 'dagelijks';
+$labels['weekly'] = 'weekelijks';
+$labels['monthly'] = 'maandelijks';
+$labels['yearly'] = 'jaarlijks';
+$labels['every'] = 'Elke';
+$labels['days'] = 'dag(en)';
+$labels['weeks'] = 'week / weken';
+$labels['months'] = 'maand(en)';
+$labels['bydays'] = 'Op';
+$labels['untildate'] = 'de';
+$labels['each'] = 'Elke';
+$labels['onevery'] = 'Op elke';
+$labels['onsamedate'] = 'Op dezelfde datum';
+$labels['forever'] = 'oneindig';
+$labels['recurrencend'] = 'tot';
+$labels['forntimes'] = 'voor $nr keer';
+$labels['first'] = 'eerste';
+$labels['second'] = 'tweede';
+$labels['third'] = 'derde';
+$labels['fourth'] = 'vierde';
+$labels['last'] = 'laatste';
+$labels['dayofmonth'] = 'Dag van de maand';
+$labels['changeeventconfirm'] = 'Wijzig evenement';
+$labels['removeeventconfirm'] = 'Verwijder evenement';
+$labels['currentevent'] = 'Huidige';
+$labels['futurevents'] = 'Toekomst';
+$labels['allevents'] = 'Alle';
+$labels['saveasnew'] = 'Bewaar als nieuw';
 ?>

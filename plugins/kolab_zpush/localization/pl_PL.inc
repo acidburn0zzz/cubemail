@@ -1,6 +1,4 @@
 <?php
-
-$labels = array();
 $labels['tabtitle'] = 'ActiveSync';
 $labels['devices'] = 'Urządzenia';
 $labels['devicealias'] = 'Nazwa urządzenia';
@@ -28,5 +26,4 @@ $labels['savingerror'] = 'Nie udało się zapisać konfiguracji';
 $labels['notsupported'] = 'Twój serwer nie obsługuje metadanych (metadata/annotations).';
 $labels['devicedeleteconfirm'] = 'Czy na pewno chcesz usunąć konfigurację dla tego urządzenia?';
 $labels['successfullydeleted'] = 'Konfiguracja urządzenia została pomyślnie usunięta.';
-
 ?>

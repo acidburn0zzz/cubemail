@@ -1,30 +1,24 @@
 <?php
-
-$labels = array();
-
-$labels['tabtitle'] = 'Delegation';
-$labels['delegates'] = 'Delegates';
-$labels['delegate'] = 'Delegate';
+$labels['tabtitle'] = '委任';
+$labels['delegates'] = '委任者';
+$labels['delegate'] = '委任者';
 $labels['mail'] = 'Email';
-$labels['contact'] = 'Address Books';
-$labels['event'] = 'Calendars';
-$labels['task'] = 'Tasks';
-$labels['note'] = 'Notes';
-$labels['yes'] = 'Yes';
-$labels['no'] = 'No';
-
-$labels['adddelegate'] = 'Add delegate';
-$labels['deletedelegate'] = 'Delete delegate';
-
-$labels['savingdata'] = 'Saving data...';
-$labels['delegatedeleteconfirm'] = 'Do you really want to delete this delegate?';
-$labels['delegateremoveacl'] = 'remove access rights on folders assigned to this user';
-$labels['deleteconfirm'] = 'Confirmation';
-$labels['deletesuccess'] = 'The delegate was successfully removed.';
-$labels['deleteerror'] = 'Could not remove delegate.';
-$labels['updatesuccess'] = 'The delegate was successfully updated.';
-$labels['updateerror'] = 'Could not update delegate.';
-$labels['createsuccess'] = 'The delegate was successfully added.';
-$labels['createerror'] = 'Could not add delegate.';
-
+$labels['contact'] = 'アドレス帳';
+$labels['event'] = 'カレンダー';
+$labels['task'] = 'タスク';
+$labels['note'] = 'ノート';
+$labels['yes'] = 'はい';
+$labels['no'] = 'いいえ';
+$labels['adddelegate'] = '委任者を追加';
+$labels['deletedelegate'] = '委任者を削除';
+$labels['savingdata'] = 'データを保存中…';
+$labels['delegatedeleteconfirm'] = 'この委任者を本当に削除しますか？';
+$labels['delegateremoveacl'] = 'このユーザにアサインされたフォルダのアクセス権を削除しました';
+$labels['deleteconfirm'] = '確認';
+$labels['deletesuccess'] = '委任者の削除に成功しました';
+$labels['deleteerror'] = '委任者の削除ができません。';
+$labels['updatesuccess'] = '委任者の更新に成功しました。';
+$labels['updateerror'] = '委任者の更新ができません。';
+$labels['createsuccess'] = '委任者の追加に成功しました。';
+$labels['createerror'] = '委任者の追加ができません。';
 ?>

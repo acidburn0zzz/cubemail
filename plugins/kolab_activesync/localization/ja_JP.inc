@@ -1,33 +1,29 @@
 <?php
-
-$labels = array();
-$labels['tabtitle'] = 'Activesync';
-$labels['devices'] = 'Devices';
-$labels['devicealias'] = 'Device name';
-$labels['syncmode'] = 'Sync Mode';
-$labels['modeauto'] = 'Determine automatically';
-$labels['modeflat'] = 'Force flat mode';
-$labels['modefolder'] = 'Force folder mode';
-$labels['synchronize'] = 'Synchronize';
-$labels['withalarms'] = 'With alarms';
-$labels['syncsettings'] = 'Synchronization settings';
-$labels['deviceconfig'] = 'Device configration';
-$labels['folderstosync'] = 'Folders to synchronize';
+$labels['tabtitle'] = 'アクティブシンク';
+$labels['devices'] = '機器';
+$labels['devicealias'] = '機器名';
+$labels['syncmode'] = '同期モード';
+$labels['modeauto'] = '自動決定';
+$labels['modeflat'] = '強制フラットモード';
+$labels['modefolder'] = '強制フォルダモード';
+$labels['synchronize'] = '同期';
+$labels['withalarms'] = 'アラーム付';
+$labels['syncsettings'] = '同期設定';
+$labels['deviceconfig'] = '機器設定';
+$labels['folderstosync'] = '同期するフォルダ';
 $labels['mail'] = 'Email';
-$labels['contact'] = 'Address Books';
-$labels['event'] = 'Calendars';
-$labels['task'] = 'Tasks';
-$labels['note'] = 'Notes';
+$labels['contact'] = 'アドレス帳';
+$labels['event'] = 'カレンダー';
+$labels['task'] = 'タスク';
+$labels['note'] = 'ノート';
 $labels['configuration'] = '設定';
-$labels['deletedevice'] = 'Delete device';
-$labels['imageformat'] = 'Image format';
-$labels['laxpiclabel'] = 'Allow PNG and GIF images';
-$labels['nodevices'] = 'There are currently no devices registered.<br/><br/>In order to register a device, please connect it to the server first, using <a href="http://wiki.kolab.org/Setup_ActiveSync">the instructions in the Wiki</a>. Afterwards the device should become available for configuration here.';
-$labels['savingdata'] = 'Saving data...';
-$labels['savingerror'] = 'Failed to save configuration';
-$labels['notsupported'] = 'Your server does not support metadata/annotations';
-$labels['devicedeleteconfirm'] = 'Do you really want to delete the configuration for this device?';
-$labels['successfullydeleted'] = 'The device configuration was successfully removed';
-$labels['devicenotfound'] = 'Unable to read device configuration';
-
+$labels['deletedevice'] = '機器の削除';
+$labels['imageformat'] = 'イメージの形式';
+$labels['laxpiclabel'] = 'ＰＮＧとGIFのイメージを使用可';
+$labels['savingdata'] = 'データを保存中…';
+$labels['savingerror'] = '設定の保存に失敗しました';
+$labels['notsupported'] = 'サーバはmetadata/annotionsをサポートしていません';
+$labels['devicedeleteconfirm'] = '本当にこのデバイスの設定を削除しますか？';
+$labels['successfullydeleted'] = 'デヴァイスの削除に成功しました';
+$labels['devicenotfound'] = 'デヴァイスの設定を読込めません';
 ?>

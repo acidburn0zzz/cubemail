@@ -1,0 +1,22 @@
+<?php
+$labels['alarmemail'] = 'Verzend E-mail';
+$labels['alarmdisplay'] = 'Bericht weergeven';
+$labels['alarmdisplayoption'] = 'Bericht';
+$labels['alarmemailoption'] = 'E-mail';
+$labels['alarmat'] = 'op $datetime';
+$labels['trigger@'] = 'op datum';
+$labels['trigger-M'] = 'minuten voor';
+$labels['trigger-H'] = 'uren voor';
+$labels['trigger-D'] = 'dagen voor';
+$labels['trigger+M'] = 'minuten na';
+$labels['trigger+H'] = 'uren na';
+$labels['trigger+D'] = 'dagen na';
+$labels['addalarm'] = 'alarm toevoegen';
+$labels['alarmtitle'] = 'Aankomende evenementen';
+$labels['snooze'] = 'Snooze';
+$labels['repeatinmin'] = 'Herhaal over $min minuten';
+$labels['repeatinhr'] = 'Herhaal over 1 uur';
+$labels['repeatinhrs'] = 'Herhaal over $hrs uur';
+$labels['repeattomorrow'] = 'Herhaal morgen';
+$labels['repeatinweek'] = 'Herhaal over een week';
+$labels['showmore'] = 'Toon meer...';

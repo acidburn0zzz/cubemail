@@ -1,13 +1,11 @@
 <?php
-
-$labels = array();
 $labels['tabtitle'] = 'ActiveSync';
 $labels['devices'] = 'Urządzenia';
 $labels['devicealias'] = 'Nazwa urządzenia';
 $labels['syncmode'] = 'Tryb synchronizacji';
 $labels['modeauto'] = 'Ustaw automatycznie';
-$labels['modeflat'] = 'Wymuś tryb płaski';
-$labels['modefolder'] = 'Wymuś tryb folderu';
+$labels['modeflat'] = 'Wymuszaj tryb "płaski"';
+$labels['modefolder'] = 'Wymuszaj tryb folderów';
 $labels['synchronize'] = 'Synchronizuj';
 $labels['withalarms'] = 'Z alarmami';
 $labels['syncsettings'] = 'Ustawienia synchronizacji';
@@ -18,14 +16,13 @@ $labels['contact'] = 'Książki adresowe';
 $labels['event'] = 'Kalendarze';
 $labels['task'] = 'Zadania';
 $labels['note'] = 'Notatki';
+$labels['configuration'] = 'Konfiguracja';
 $labels['deletedevice'] = 'Usuń urządzenie';
-$labels['imageformat'] = 'Format obrazka';
-$labels['laxpiclabel'] = 'Zezwalaj na obrazki PNG i GIF';
-$labels['nodevices'] = 'Obecnie brak zarejestrowanych urządzeń.<br/><br/>Aby zarejestrować urządzenie najpierw podłącz je do serwera według <a href="http://wiki.kolab.org/Setup_ActiveSync">instrukcji z Wiki</a>. Po tym procesie urządzenie powinno dać się skonfigurować tutaj.';
-$labels['savingdata'] = 'Zapisywanie danych...';
+$labels['imageformat'] = 'Format obrazków';
+$labels['savingdata'] = 'Zapisuję dane...';
 $labels['savingerror'] = 'Nie udało się zapisać konfiguracji';
-$labels['notsupported'] = 'Twój serwer nie obsługuje metadanych (metadata/annotations).';
-$labels['devicedeleteconfirm'] = 'Czy na pewno chcesz usunąć konfigurację dla tego urządzenia?';
-$labels['successfullydeleted'] = 'Konfiguracja urządzenia została pomyślnie usunięta.';
-
+$labels['notsupported'] = 'Twój serwer nie obsługuje rozszerzenia metadata/annotations';
+$labels['devicedeleteconfirm'] = 'Czy na pewno chcesz usunąć konfigurację tego urządzenia?';
+$labels['successfullydeleted'] = 'Konfiguracja urządzenie została usunięta';
+$labels['devicenotfound'] = 'Nie można odczytać konfiguracji urządzenia';
 ?>

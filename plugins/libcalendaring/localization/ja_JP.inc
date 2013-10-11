@@ -1,0 +1,24 @@
+<?php
+$labels['alarmemail'] = 'メール送信';
+$labels['alarmdisplay'] = 'メッセージ表示';
+$labels['alarmdisplayoption'] = 'メッセージ';
+$labels['alarmemailoption'] = 'Eメール';
+$labels['alarmat'] = '$datetime に';
+$labels['trigger@'] = '日付に';
+$labels['trigger-M'] = '分前';
+$labels['trigger-H'] = '時間前';
+$labels['trigger-D'] = '分後';
+$labels['trigger+M'] = '分後';
+$labels['trigger+H'] = '時間後';
+$labels['trigger+D'] = '日後';
+$labels['addalarm'] = 'アラーム追加';
+$labels['alarmtitle'] = '今後のイベント';
+$labels['dismissall'] = '全て削除';
+$labels['dismiss'] = '削除';
+$labels['snooze'] = 'スノーズ';
+$labels['repeatinmin'] = '$min 以内で繰返し';
+$labels['repeatinhr'] = '1時間で繰返し';
+$labels['repeatinhrs'] = '$hrs で繰返し';
+$labels['repeattomorrow'] = '明日繰返し';
+$labels['repeatinweek'] = '1週間で繰返し';
+$labels['showmore'] = 'さらに表示…';

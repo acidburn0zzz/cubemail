@@ -1,21 +1,17 @@
 <?php
-
-$labels = array();
-
-$labels['alarmemail'] = 'Wyślij pocztę';
+$labels['alarmemail'] = 'Wyślij e-mail';
 $labels['alarmdisplay'] = 'Pokaż wiadomość';
 $labels['alarmdisplayoption'] = 'Wiadomość';
-$labels['alarmemailoption'] = 'Poczta';
+$labels['alarmemailoption'] = 'E-mail';
 $labels['alarmat'] = 'o $datetime';
 $labels['trigger@'] = 'w dniu';
-$labels['trigger-M'] = 'minuty przed';
+$labels['trigger-M'] = 'minut(y) przed';
 $labels['trigger-H'] = 'godziny przed';
 $labels['trigger-D'] = 'dni przed';
 $labels['trigger+M'] = 'minut po';
-$labels['trigger+H'] = 'godziny po';
+$labels['trigger+H'] = 'godzin(y) po';
 $labels['trigger+D'] = 'dni po';
 $labels['addalarm'] = 'dodaj alarm';
-
 $labels['alarmtitle'] = 'Nadchodzące zdarzenia';
 $labels['dismissall'] = 'Odrzuć wszystkie';
 $labels['dismiss'] = 'Odrzuć';
@@ -25,6 +21,4 @@ $labels['repeatinhr'] = 'Powtórz po godzinie';
 $labels['repeatinhrs'] = 'Powtórz po $hrs godzinach';
 $labels['repeattomorrow'] = 'Powtórz jutro';
 $labels['repeatinweek'] = 'Powtórz za tydzień';
-
 $labels['showmore'] = 'Pokaż więcej...';
-

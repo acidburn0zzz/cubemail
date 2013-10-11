@@ -1,6 +1,4 @@
 <?php
-
-$labels = array();
 $labels['initials'] = 'Initiales';
 $labels['profession'] = 'Profession';
 $labels['officelocation'] = 'Emplacement du bureau';
@@ -18,20 +16,17 @@ $labels['typeisdn'] = 'ISDN';
 $labels['typettytdd'] = 'TTY/TDD';
 $labels['typecallback'] = 'Rappel';
 $labels['settings'] = 'Paramètres';
-
 $labels['bookcreate'] = 'Créer un carnet d\'adresse';
 $labels['bookedit'] = 'Modifier un carnet d\'adresse';
 $labels['bookdelete'] = 'Supprimer un carnet d\'adresse';
 $labels['bookproperties'] = 'Propriétés du carnet d\'adresse';
 $labels['bookname'] = 'Nom du carnet';
 $labels['parentbook'] = 'Carnet parent';
-
 $labels['addressbookprio'] = 'Sélection du(des) carnet(s) d\'adresses/comportement';
 $labels['personalfirst'] = 'Carnet(s) d\'adresse personnel en premier';
 $labels['globalfirst'] = 'Carnet(s) d\'adresse global(aux) en premier';
 $labels['personalonly'] = 'Carnet(s) d\'adresse personnel seulement';
 $labels['globalonly'] = 'Carnet(s) d\'adresse global(aux) seulement';
-
 $messages['bookdeleteconfirm']  = 'Voulez-vous vraiment supprimer le carnet d\'adresse sélectionné et tous ses contacts?';
 $messages['bookdeleting'] = 'Suppression du carnet d\'adresse...';
 $messages['booksaving'] = 'Enregistrement du carnet d\'adresse...';
@@ -43,5 +38,4 @@ $messages['bookupdateerror'] = 'Une erreur est survenue lors de la modification 
 $messages['bookcreateerror'] = 'Une erreur est survenue lors de la création du carnet d\'adresse.';
 $messages['nobooknamewarning'] = 'Merci de saisir un nom pour le carnet d\'adresse';
 $messages['noemailnamewarning'] = 'Merci de saisir une adresse de courriel ou un nom de contact.';
-
 ?>

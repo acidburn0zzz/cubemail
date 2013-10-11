@@ -1,7 +1,4 @@
 <?php
-
-$labels = array();
-
 $labels['alarmemail'] = 'Poslat e-mail';
 $labels['alarmdisplay'] = 'Zobrazit zprávu';
 $labels['alarmdisplayoption'] = 'Zpráva';
@@ -15,7 +12,6 @@ $labels['trigger+M'] = 'minut po';
 $labels['trigger+H'] = 'hodin po';
 $labels['trigger+D'] = 'dnů po';
 $labels['addalarm'] = 'přidat upozornění';
-
 $labels['alarmtitle'] = 'Blížící se události';
 $labels['dismissall'] = 'Zrušit vše';
 $labels['dismiss'] = 'Zrušit';
@@ -25,6 +21,4 @@ $labels['repeatinhr'] = 'Zopakovat za 1 hodinu';
 $labels['repeatinhrs'] = 'Zopakovat za $hrs hodin';
 $labels['repeattomorrow'] = 'Zopakovat zítra';
 $labels['repeatinweek'] = 'Zopakovat za týden';
-
 $labels['showmore'] = 'Ukázat víc...';
-

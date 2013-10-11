@@ -1,6 +1,3 @@
 <?php
-
-$labels = array();
-$labels['owncloud'] = 'Files';
-
+$labels['owncloud'] = 'ファイル';
 ?>

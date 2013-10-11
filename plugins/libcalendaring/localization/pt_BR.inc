@@ -1,0 +1,24 @@
+<?php
+$labels['alarmemail'] = 'Enviar Email';
+$labels['alarmdisplay'] = 'Mostrar mensagem';
+$labels['alarmdisplayoption'] = 'Mensagem';
+$labels['alarmemailoption'] = 'Email';
+$labels['alarmat'] = 'como $datetime';
+$labels['trigger@'] = 'na data';
+$labels['trigger-M'] = 'minutos antes';
+$labels['trigger-H'] = 'horas antes';
+$labels['trigger-D'] = 'dias antes';
+$labels['trigger+M'] = 'minutos depois';
+$labels['trigger+H'] = 'horas depois';
+$labels['trigger+D'] = 'dias depois';
+$labels['addalarm'] = 'adicionar alarme';
+$labels['alarmtitle'] = 'Próximos eventos';
+$labels['dismissall'] = 'Dispensar tudo';
+$labels['dismiss'] = 'Dispensar';
+$labels['snooze'] = 'Tirar uma soneca';
+$labels['repeatinmin'] = 'Repetir em $min minutos';
+$labels['repeatinhr'] = 'Repetir em 1 hora';
+$labels['repeatinhrs'] = 'Repetir em $hrs horas';
+$labels['repeattomorrow'] = 'Repetir amanhã';
+$labels['repeatinweek'] = 'Repetir em uma semana';
+$labels['showmore'] = 'Mostrar mais...';

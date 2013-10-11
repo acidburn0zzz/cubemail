@@ -1,6 +1,4 @@
 <?php
-
-$labels = array();
 $labels['tabtitle'] = 'Activesync';
 $labels['devices'] = 'Geräte';
 $labels['devicealias'] = 'Gerätename';
@@ -28,5 +26,4 @@ $labels['savingerror'] = 'Fehler beim Speichern';
 $labels['notsupported'] = 'Ihr Server unterstützt keine Activesync-Konfiguration';
 $labels['devicedeleteconfirm'] = 'Wollen Sie wirklich alle Einstellungen für dieses Gerät löschen?';
 $labels['successfullydeleted'] = 'Die Geräteinstellungen wurden erfolgreich gelöscht';
-
 ?>

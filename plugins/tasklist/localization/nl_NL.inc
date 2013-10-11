@@ -1,11 +1,8 @@
 <?php
-
-$labels = array();
 $labels['navtitle'] = 'Taken';
 $labels['lists'] = 'Takenlijsten';
 $labels['list'] = 'Takenlijst';
 $labels['tags'] = 'Tags';
-
 $labels['newtask'] = 'Nieuwe Taak';
 $labels['createnewtask'] = 'Creer een nieuwe Taak (bijv. Zaterdag, gras maaien)';
 $labels['createfrommail'] = 'Als taak opslaan';
@@ -15,10 +12,8 @@ $labels['edit'] = 'Wijzigen';
 $labels['delete'] = 'Verwijderen';
 $labels['title'] = 'Titel';
 $labels['description'] = 'Beschrijving';
-$labels['datetime'] = 'Datum/Tijd';
 $labels['start'] = 'Begin';
 $labels['alarms'] = 'Herinnering';
-
 $labels['all'] = 'Alle';
 $labels['flagged'] = 'Gemarkeerd';
 $labels['complete'] = 'Compleet';
@@ -29,7 +24,6 @@ $labels['next7days'] = 'Deze week';
 $labels['later'] = 'Later';
 $labels['nodate'] = 'geen datum';
 $labels['removetag'] = 'Verwijder';
-
 $labels['taskdetails'] = 'Details';
 $labels['newtask'] = 'Nieuwe Taak';
 $labels['edittask'] = 'Taak Wijzigen';
@@ -39,26 +33,20 @@ $labels['addsubtask'] = 'Voeg subtaak toe';
 $labels['deletetask'] = 'Verwijder taak';
 $labels['deletethisonly'] = 'Verwijder alleen deze taak';
 $labels['deletewithchilds'] = 'Verwijder inclusief subtaken';
-
 $labels['tabsummary'] = 'Samenvatting';
 $labels['tabrecurrence'] = 'Herhaling';
 $labels['tabattachments'] = 'Toebehoren';
 $labels['tabsharing'] = 'Delen';
-
 $labels['editlist'] = 'Lijst wijzigen';
 $labels['createlist'] = 'Lijst toevoegen';
 $labels['listactions'] = 'Lijst opties...';
 $labels['listname'] = 'Naam';
 $labels['showalarms'] = 'Alarmen tonen';
 $labels['import'] = 'Importeren';
-
-// date words
 $labels['on'] = 'op';
 $labels['at'] = 'om';
 $labels['this'] = 'deze';
 $labels['next'] = 'volgende';
-
-// mesages
 $labels['savingdata'] = 'Data wordt opgeslagen...';
 $labels['errorsaving'] = 'Fout in opslaan van data.';
 $labels['notasksfound'] = 'Geen taken gevonden voor de gegeven criteria';
