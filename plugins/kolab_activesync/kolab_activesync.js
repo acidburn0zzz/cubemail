@@ -109,8 +109,6 @@ function kolab_activesync_config()
       cmd: 'save',
       id: rcmail.env.active_device,
       devicealias: $('#config-device-alias').val()
-//      syncmode: $('#config-device-mode option:selected').val(),
-//      laxpic: $('#config-device-laxpic').get(0).checked ? 1 : 0
     };
 
     if (data.devicealias == data.id)

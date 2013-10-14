@@ -7,7 +7,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2011-2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2013, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -68,18 +68,7 @@ class kolab_activesync_ui
         $input = new html_inputfield(array('name' => 'devicealias', 'id' => $field_id, 'size' => 40));
         $table->add('title', html::label($field_id, $this->plugin->gettext('devicealias')));
         $table->add(null, $input->show($this->device['ALIAS'] ? $this->device['ALIAS'] : $this->device['_id']));
-/*
-        $field_id = 'config-device-mode';
-        $select = new html_select(array('name' => 'syncmode', 'id' => $field_id));
-        $select->add(array($this->plugin->gettext('modeauto'), $this->plugin->gettext('modeflat'), $this->plugin->gettext('modefolder')), array('-1', '0', '1'));
-        $table->add('title', html::label($field_id, $this->plugin->gettext('syncmode')));
-        $table->add(null, $select->show('-1'));
 
-        $field_id = 'config-device-laxpic';
-        $checkbox = new html_checkbox(array('name' => 'laxpic', 'value' => '1', 'id' => $field_id));
-        $table->add('title', $this->plugin->gettext('imageformat'));
-        $table->add(null, html::label($field_id, $checkbox->show() . ' ' . $this->plugin->gettext('laxpiclabel')));
-*/
         // read-only device information
         $info = $this->plugin->device_info($this->device['ID']);
 

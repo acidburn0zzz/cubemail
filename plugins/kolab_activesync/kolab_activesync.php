@@ -7,7 +7,7 @@
  * @author Aleksander Machniak <machniak@kolabsys.com>
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2011-2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2013, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -70,11 +70,7 @@ class kolab_activesync extends rcube_plugin
             $device        = $devices[$imei];
             $subscriptions = (array) get_input_value('subscribed', RCUBE_INPUT_POST);
             $devicealias   = get_input_value('devicealias', RCUBE_INPUT_POST, true);
-//            $syncmode     = intval(get_input_value('syncmode', RCUBE_INPUT_POST));
-//            $laxpic       = intval(get_input_value('laxpic', RCUBE_INPUT_POST));
             $device['ALIAS'] = $devicealias;
-//            $device['MODE'] = $syncmode;
-//            $device['LAXPIC'] = $laxpic;
 
             $err = !$this->device_update($device, $imei);
 
