@@ -393,8 +393,10 @@ class kolab_driver extends calendar_driver
 
       $success = $storage->insert_event($event);
       
-      if ($success && $this->freebusy_trigger)
+      if ($success && $this->freebusy_trigger) {
         $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
+        $this->freebusy_trigger = false; // disable after first execution (#2355)
+      }
       
       return $success;
     }
