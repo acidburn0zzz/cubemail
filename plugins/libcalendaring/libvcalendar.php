@@ -115,10 +115,9 @@ class libvcalendar
         try {
             // estimate the memory usage and try to avoid fatal errors when allowed memory gets exhausted
             $count = substr_count($vcal, 'BEGIN:VEVENT');
-            $memory_available = parse_bytes(ini_get('memory_limit')) - (function_exists('memory_get_usage') ? memory_get_usage() : 16*1024*1024);
             $expected_memory = $count * 70*1024;  // assume ~ 70K per event (empirically determined)
 
-            if ($memory_available > 0 && $expected_memory > $memory_available) {
+            if (!rcube_utils::mem_check($expected_memory)) {
                 throw new Exception("iCal file too big");
             }
 
@@ -448,8 +447,8 @@ class libvcalendar
                             $trigger = '@' . $prop->getDateTime()->format('U');
                         }
                     }
-                    if (!$trigger) {
-                        $trigger = preg_replace('/PT?/', '', $prop->value);
+                    if (!$trigger && ($values = libcalendaring::parse_alaram_value($prop->value))) {
+                        $trigger = $values[2];
                     }
                     break;
 

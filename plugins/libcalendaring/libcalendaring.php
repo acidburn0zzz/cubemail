@@ -313,10 +313,16 @@ class libcalendaring extends rcube_plugin
      */
     public static function parse_alaram_value($val)
     {
-        if ($val[0] == '@')
+        if ($val[0] == '@') {
             return array(substr($val, 1));
-        else if (preg_match('/([+-])P?T?(\d+)([HMSDW])/', $val, $m))
-            return array($m[2], $m[1].$m[3]);
+        }
+        else if (preg_match('/([+-])P?(T?\d+[HMSDW])+/', $val, $m) && preg_match_all('/T?(\d+)([HMSDW])/', $val, $m2, PREG_SET_ORDER)) {
+            foreach ($m2 as $seg) {
+                if ($seg[1] > 0) {  // ignore zero values
+                    return array($seg[1], $m[1].$seg[2], $m[1].$seg[1].$seg[2]);
+                }
+            }
+        }
 
         return false;
     }

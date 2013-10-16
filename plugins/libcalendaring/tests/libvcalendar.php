@@ -139,15 +139,35 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($rrule['EXDATE']),          "Recurrence EXDATEs");
         $this->assertInstanceOf('DateTime', $rrule['EXDATE'][0], "Recurrence EXDATE as DateTime");
 
-        // alarms
+        // categories, class
+        $this->assertEquals('libcalendaring tests', join(',', (array)$event['categories']), "Event categories");
+        $this->assertEquals('confidential', $event['sensitivity'], "Class/sensitivity = confidential");
+    }
+
+    /**
+     * @depends test_import_from_file
+     */
+    function test_alarms()
+    {
+        $ical = new libvcalendar();
+
+        $events = $ical->import_from_file(__DIR__ . '/resources/recurring.ics', 'UTF-8');
+        $event = $events[0];
+
         $this->assertEquals('-12H:DISPLAY', $event['alarms'], "Serialized alarms string");
         $alarm = libcalendaring::parse_alaram_value($event['alarms']);
         $this->assertEquals('12', $alarm[0], "Alarm value");
         $this->assertEquals('-H', $alarm[1], "Alarm unit");
 
-        // categories, class
-        $this->assertEquals('libcalendaring tests', join(',', (array)$event['categories']), "Event categories");
-        $this->assertEquals('confidential', $event['sensitivity'], "Class/sensitivity = confidential");
+        // alarm trigger with 0 values
+        $events = $ical->import_from_file(__DIR__ . '/resources/alarms.ics', 'UTF-8');
+        $event = $events[0];
+
+        $this->assertEquals('-30M:DISPLAY', $event['alarms'], "Stripped alarm string");
+        $alarm = libcalendaring::parse_alaram_value($event['alarms']);
+        $this->assertEquals('30', $alarm[0], "Alarm value");
+        $this->assertEquals('-M', $alarm[1], "Alarm unit");
+        $this->assertEquals('-30M', $alarm[2], "Alarm string");
     }
 
     /**
