@@ -113,6 +113,15 @@ class libvcalendar
         // TODO: convert charset to UTF-8 if other
 
         try {
+            // estimate the memory usage and try to avoid fatal errors when allowed memory gets exhausted
+            $count = substr_count($vcal, 'BEGIN:VEVENT');
+            $memory_available = parse_bytes(ini_get('memory_limit')) - (function_exists('memory_get_usage') ? memory_get_usage() : 16*1024*1024);
+            $expected_memory = $count * 70*1024;  // assume ~ 70K per event (empirically determined)
+
+            if ($memory_available > 0 && $expected_memory > $memory_available) {
+                throw new Exception("iCal file too big");
+            }
+
             $vobject = VObject\Reader::read($vcal, VObject\Reader::OPTION_FORGIVING | VObject\Reader::OPTION_IGNORE_INVALID_LINES);
             if ($vobject)
                 return $this->import_from_vobject($vobject);
