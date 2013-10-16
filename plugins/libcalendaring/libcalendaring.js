@@ -23,11 +23,15 @@
 function rcube_libcalendaring(settings)
 {
     // member vars
-    this.settings = settings;
+    this.settings = settings || {};
     this.alarm_ids = [];
     this.alarm_dialog = null;
     this.snooze_popup = null;
     this.dismiss_link = null;
+
+    // abort if env isn't set
+    if (!settings || !settings.date_format)
+      return;
 
     // private vars
     var me = this;
