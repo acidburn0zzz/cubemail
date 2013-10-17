@@ -283,9 +283,17 @@ function rcube_libcalendaring(settings)
         var url1 = '.:;,', url2 = 'a-z0-9%=#@+?&/_~\\[\\]-';
         var link_pattern = new RegExp('([hf]t+ps?://)('+utf_domain+'(['+url1+']?['+url2+']+)*)?', 'ig');
         var mailto_pattern = new RegExp('([^\\s\\n\\(\\);]+@'+utf_domain+')', 'ig');
+        var link_replace = function(matches, p1, p2) {
+          var title = '', text = p2;
+          if (p2.length > 55) {
+            text = p2.substr(0, 45) + '...' + p2.substr(-8) : p2;
+            title = p1 + p2;
+          }
+          return '<a href="'+p1+p2+'" class="extlink" target="_blank">'+p1+text+'</a>'
+        };
 
         return html
-            .replace(link_pattern, '<a href="$1$2" class="extlink" target="_blank">$1$2</a>')
+            .replace(link_pattern, link_replace)
             .replace(mailto_pattern, '<a href="mailto:$1">$1</a>')
             .replace(/(mailto:)([^"]+)"/g, '$1$2" onclick="rcmail.command(\'compose\', \'$2\');return false"')
             .replace(/\n/g, "<br/>");
