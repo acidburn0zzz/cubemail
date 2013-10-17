@@ -286,10 +286,10 @@ function rcube_libcalendaring(settings)
         var link_replace = function(matches, p1, p2) {
           var title = '', text = p2;
           if (p2.length > 55) {
-            text = p2.substr(0, 45) + '...' + p2.substr(-8) : p2;
+            text = p2.substr(0, 45) + '...' + p2.substr(-8);
             title = p1 + p2;
           }
-          return '<a href="'+p1+p2+'" class="extlink" target="_blank">'+p1+text+'</a>'
+          return '<a href="'+p1+p2+'" class="extlink" target="_blank" title="'+title+'">'+p1+text+'</a>'
         };
 
         return html
