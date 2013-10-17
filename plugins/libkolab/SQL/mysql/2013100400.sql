@@ -1,27 +1,12 @@
-/**
- * libkolab database schema
- *
- * @version 1.0
- * @author Thomas Bruederli
- * @licence GNU AGPL
- **/
-
-
-DROP TABLE IF EXISTS `kolab_folders`;
-
 CREATE TABLE `kolab_folders` (
   `folder_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `resource` VARCHAR(255) NOT NULL,
+  `resource` VARCHAR(255)  NOT NULL,
   `type` VARCHAR(32) NOT NULL,
   `synclock` INT(10) NOT NULL DEFAULT '0',
   `ctag` VARCHAR(40) DEFAULT NULL,
   PRIMARY KEY(`folder_id`),
   INDEX `resource_type` (`resource`, `type`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
-
-DROP TABLE IF EXISTS `kolab_cache`;
-
-DROP TABLE IF EXISTS `kolab_cache_contact`;
 
 CREATE TABLE `kolab_cache_contact` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
@@ -40,8 +25,6 @@ CREATE TABLE `kolab_cache_contact` (
   INDEX `contact_type` (`folder_id`,`type`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
-DROP TABLE IF EXISTS `kolab_cache_event`;
-
 CREATE TABLE `kolab_cache_event` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
@@ -58,8 +41,6 @@ CREATE TABLE `kolab_cache_event` (
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY(`folder_id`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
-
-DROP TABLE IF EXISTS `kolab_cache_task`;
 
 CREATE TABLE `kolab_cache_task` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
@@ -78,8 +59,6 @@ CREATE TABLE `kolab_cache_task` (
   PRIMARY KEY(`folder_id`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
-DROP TABLE IF EXISTS `kolab_cache_journal`;
-
 CREATE TABLE `kolab_cache_journal` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
@@ -97,8 +76,6 @@ CREATE TABLE `kolab_cache_journal` (
   PRIMARY KEY(`folder_id`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
-DROP TABLE IF EXISTS `kolab_cache_note`;
-
 CREATE TABLE `kolab_cache_note` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
@@ -113,8 +90,6 @@ CREATE TABLE `kolab_cache_note` (
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY(`folder_id`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
-
-DROP TABLE IF EXISTS `kolab_cache_file`;
 
 CREATE TABLE `kolab_cache_file` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
@@ -133,8 +108,6 @@ CREATE TABLE `kolab_cache_file` (
   INDEX `folder_filename` (`folder_id`, `filename`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
-DROP TABLE IF EXISTS `kolab_cache_configuration`;
-
 CREATE TABLE `kolab_cache_configuration` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
@@ -151,8 +124,6 @@ CREATE TABLE `kolab_cache_configuration` (
   PRIMARY KEY(`folder_id`,`msguid`),
   INDEX `configuration_type` (`folder_id`,`type`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
-
-DROP TABLE IF EXISTS `kolab_cache_freebusy`;
 
 CREATE TABLE `kolab_cache_freebusy` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
@@ -172,4 +143,32 @@ CREATE TABLE `kolab_cache_freebusy` (
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 
-INSERT INTO `system` (`name`, `value`) VALUES ('libkolab-version', '2013100400');
+-- Migrate data from old kolab_cache table
+
+INSERT INTO kolab_folders (resource, type)
+  SELECT DISTINCT resource, type
+  FROM  kolab_cache WHERE type IN ('event','contact','task','file');
+
+INSERT INTO kolab_cache_event (folder_id, msguid, uid, created, changed, data, xml, tags, words, dtstart, dtend)
+  SELECT kolab_folders.folder_id, msguid, uid, created, changed, data, xml, tags, words, dtstart, dtend
+  FROM kolab_cache LEFT JOIN kolab_folders ON (kolab_folders.resource = kolab_cache.resource)
+  WHERE kolab_cache.type = 'event' AND kolab_folders.folder_id IS NOT NULL;
+
+INSERT INTO kolab_cache_task (folder_id, msguid, uid, created, changed, data, xml, tags, words, dtstart, dtend)
+  SELECT kolab_folders.folder_id, msguid, uid, created, changed, data, xml, tags, words, dtstart, dtend
+  FROM kolab_cache LEFT JOIN kolab_folders ON (kolab_folders.resource = kolab_cache.resource)
+  WHERE kolab_cache.type = 'task' AND kolab_folders.folder_id IS NOT NULL;
+
+INSERT INTO kolab_cache_contact (folder_id, msguid, uid, created, changed, data, xml, tags, words, type)
+  SELECT kolab_folders.folder_id, msguid, uid, created, changed, data, xml, tags, words, kolab_cache.type
+  FROM kolab_cache LEFT JOIN kolab_folders ON (kolab_folders.resource = kolab_cache.resource)
+  WHERE kolab_cache.type IN ('contact','distribution-list') AND kolab_folders.folder_id IS NOT NULL;
+
+INSERT INTO kolab_cache_file (folder_id, msguid, uid, created, changed, data, xml, tags, words, filename)
+  SELECT kolab_folders.folder_id, msguid, uid, created, changed, data, xml, tags, words, filename
+  FROM kolab_cache LEFT JOIN kolab_folders ON (kolab_folders.resource = kolab_cache.resource)
+  WHERE kolab_cache.type = 'file' AND kolab_folders.folder_id IS NOT NULL;
+
+
+DROP TABLE IF EXISTS `kolab_cache`;
+
