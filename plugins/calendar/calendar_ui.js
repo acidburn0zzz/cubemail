@@ -2597,8 +2597,8 @@ function rcube_calendar_ui(settings)
       minical = $('#datepicker').datepicker($.extend(datepicker_settings, {
         inline: true,
         showWeek: true,
-        changeMonth: false, // maybe enable?
-        changeYear: false,  // maybe enable?
+        changeMonth: true,
+        changeYear: true,
         onSelect: function(dateText, inst) {
           ignore_click = true;
           var d = minical.datepicker('getDate'); //parse_datetime('0:0', dateText);
