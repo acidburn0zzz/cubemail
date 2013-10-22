@@ -2076,6 +2076,9 @@ function rcube_calendar_ui(settings)
         if (existing.length) {
           $.extend(existing[0], event);
           fc.fullCalendar('updateEvent', existing[0]);
+          // remove old recurrence instances
+          if (event.recurrence && !event.recurrence_id)
+            fc.fullCalendar('removeEvents', function(e){ return e._id.indexOf(event._id+'-') == 0; });
         }
         else {
           event.source = source;  // link with source
