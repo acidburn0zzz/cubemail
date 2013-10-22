@@ -743,7 +743,7 @@ class database_driver extends calendar_driver
     }
     
     if (!$virtual)
-      $sql_arr .= ' AND e.recurrence_id = 0';
+      $sql_add .= ' AND e.recurrence_id = 0';
     
     if ($modifiedsince)
       $sql_add .= ' AND e.changed >= ' . $this->rc->db->quote(date('Y-m-d H:i:s', $modifiedsince));
