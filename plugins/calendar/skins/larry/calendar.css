@@ -31,7 +31,7 @@ body.attachmentwin #topnav .topright {
 	top: 0;
 	left: 10px;
 	bottom: 0;
-	width: 240px;
+	width: 250px;
 }
 
 #datepicker {
@@ -95,7 +95,7 @@ body.attachmentwin #topnav .topright {
 
 #calendarsidebartoggle {
 	position: absolute;
-	left: 254px;
+	left: 264px;
 	width: 8px;
 	top: 40px;
 	bottom: 0;
@@ -114,7 +114,7 @@ div.sidebarclosed {
 #calendar {
 	position: absolute;
 	top: 0;
-	left: 266px;
+	left: 276px;
 	right: 0;
 	bottom: 0;
 	padding-bottom: 28px;
@@ -280,21 +280,22 @@ pre {
 
 #calendartoolbar a.button {
 	background-image: url(images/toolbar.png);
+	padding-left: 0;
+	padding-right: 0;
+	min-width: 50px;
+	max-width: 60px;
 }
 
 #calendartoolbar a.button.addevent {
 	background-position: center 1px;
+	max-width: 70px;
 }
 
 #calendartoolbar a.button.export {
-	min-width: 50px;
-	max-width: 55px;
 	background-position: center -40px;
 }
 
 #calendartoolbar a.button.import {
-	min-width: 50px;
-	max-width: 55px;
 	background-position: center -440px;
 }
 
