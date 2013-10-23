@@ -2182,6 +2182,28 @@ function rcube_calendar_ui(settings)
       return query;
     };
 
+    // reload the calendar view by keeping the current date/view selection
+    this.reload_view = function()
+    {
+      var query = { view: fc.fullCalendar('getView').name },
+        date = fc.fullCalendar('getDate');
+      if (date)
+        query.date = date2unixtime(date);
+      rcmail.redirect(rcmail.url('', query));
+    }
+
+    // update browser location to remember current view
+    this.update_state = function()
+    {
+      var query = { view: current_view },
+        date = fc.fullCalendar('getDate');
+      if (date)
+        query.date = date2unixtime(date);
+
+      if (window.history.replaceState)
+        window.history.replaceState({}, document.title, rcmail.url('', query).replace('&_action=', ''));
+    };
+
 
     /***  event searching  ***/
 
@@ -2570,6 +2592,7 @@ function rcube_calendar_ui(settings)
           if (view.name != current_view)
             me.view_resize();
           current_view = view.name;
+          me.update_state();
         }
       },
       viewRender: function(view) {
@@ -2708,6 +2731,12 @@ function rcube_calendar_ui(settings)
             minical.datepicker('setDate', date);
           }
       });
+
+      if (rcmail.env.date) {
+        var viewdate = new Date();
+        viewdate.setTime(fromunixtime(rcmail.env.date));
+        minical.datepicker('setDate', viewdate);
+      }
 
       // init event dialog
       $('#eventtabs').tabs({
@@ -2878,6 +2907,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.addEventListener('plugin.refresh_calendar', function(p){ cal.refresh(p); });
   rcmail.addEventListener('plugin.import_success', function(p){ cal.import_success(p); });
   rcmail.addEventListener('plugin.import_error', function(p){ cal.import_error(p); });
+  rcmail.addEventListener('plugin.reload_view', function(p){ cal.reload_view(p); });
   rcmail.addEventListener('requestrefresh', function(q){ return cal.before_refresh(q); });
 
   // let's go
