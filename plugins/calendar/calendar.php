@@ -1014,7 +1014,7 @@ class calendar extends rcube_plugin
             for ($i = 0; $i < $zip->numFiles; $i++) { 
               $filename = $zip->getNameIndex($i);
               if (preg_match('/\.ics$/i', $filename)) {
-                $tmpfile = $tmpdir . '/' . $filename;
+                $tmpfile = $tmpdir . '/' . basename($filename);
                 if (copy('zip://' . $_FILES['_data']['tmp_name'] . '#'.$filename, $tmpfile)) {
                   $count += $this->import_from_file($tmpfile, $calendar, $rangestart, $errors);
                   unlink($tmpfile);

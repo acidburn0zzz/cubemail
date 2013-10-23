@@ -536,9 +536,14 @@ class calendar_ui
     // Get max filesize, enable upload progress bar
     $max_filesize = rcube_upload_init();
 
+    $accept = '.ics, text/calendar, text/x-vcalendar, application/ics';
+    if (class_exists('ZipArchive', false)) {
+      $accept .= ', .zip, application/zip';
+    }
+
     $input = new html_inputfield(array(
       'type' => 'file', 'name' => '_data', 'size' => $attrib['uploadfieldsize'],
-      'accept' => '.ics, text/calendar, text/x-vcalendar, application/ics, .zip, application/zip'));
+      'accept' => $accept));
 
     $select = new html_select(array('name' => '_range', 'id' => 'event-import-range'));
     $select->add(array(
