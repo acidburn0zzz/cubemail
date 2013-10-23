@@ -2036,6 +2036,7 @@ function rcube_calendar_ui(settings)
     this.import_error = function(p)
     {
       this.import_succeeded = false;
+      rcmail.set_busy(false, null, me.saving_lock);
       rcmail.display_message(p.message || rcmail.get_label('importerror', 'calendar'), 'error');
     }
 

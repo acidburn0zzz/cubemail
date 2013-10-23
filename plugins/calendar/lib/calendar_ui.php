@@ -537,7 +537,8 @@ class calendar_ui
     $max_filesize = rcube_upload_init();
 
     $input = new html_inputfield(array(
-      'type' => 'file', 'name' => '_data', 'size' => $attrib['uploadfieldsize']));
+      'type' => 'file', 'name' => '_data', 'size' => $attrib['uploadfieldsize'],
+      'accept' => '.ics, text/calendar, text/x-vcalendar, application/ics, .zip, application/zip'));
 
     $select = new html_select(array('name' => '_range', 'id' => 'event-import-range'));
     $select->add(array(

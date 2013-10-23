@@ -999,29 +999,45 @@ class calendar extends rcube_plugin
     if (!$err && $_FILES['_data']['tmp_name']) {
       $calendar = get_input_value('calendar', RCUBE_INPUT_GPC);
       $rangestart = $_REQUEST['_range'] ? date_create("now -" . intval($_REQUEST['_range']) . " months") : 0;
-      $user_email = $this->rc->user->get_username();
 
-      $ical = $this->get_ical();
-      $errors = !$ical->fopen($_FILES['_data']['tmp_name']);
-      $count = $i = 0;
-      foreach ($ical as $event) {
-        // keep the browser connection alive on long import jobs
-        if (++$i > 100 && $i % 100 == 0) {
-            echo "<!-- -->";
-            ob_flush();
+      // extract zip file
+      if ($_FILES['_data']['type'] == 'application/zip') {
+        $count = 0;
+        if (class_exists('ZipArchive', false)) {
+          $zip = new ZipArchive();
+          if ($zip->open($_FILES['_data']['tmp_name'])) {
+            $randname = uniqid('zip-' . session_id(), true);
+            $tmpdir = slashify($this->rc->config->get('temp_dir', sys_get_temp_dir())) . $randname;
+            mkdir($tmpdir, 0700);
+
+            // extract each ical file from the archive and import it
+            for ($i = 0; $i < $zip->numFiles; $i++) { 
+              $filename = $zip->getNameIndex($i);
+              if (preg_match('/\.ics$/i', $filename)) {
+                $tmpfile = $tmpdir . '/' . $filename;
+                if (copy('zip://' . $_FILES['_data']['tmp_name'] . '#'.$filename, $tmpfile)) {
+                  $count += $this->import_from_file($tmpfile, $calendar, $rangestart, $errors);
+                  unlink($tmpfile);
+                }
+              }
+            }
+
+            rmdir($tmpdir);
+            $zip->close();
+          }
+          else {
+            $errors = 1;
+            $msg = 'Failed to open zip file.';
+          }
         }
-
-        // TODO: correctly handle recurring events which start before $rangestart
-        if ($event['end'] < $rangestart && (!$event['recurrence'] || ($event['recurrence']['until'] && $event['recurrence']['until'] < $rangestart)))
-          continue;
-
-        $event['_owner'] = $user_email;
-        $event['calendar'] = $calendar;
-        if ($this->driver->new_event($event)) {
-          $count++;
+        else {
+          $errors = 1;
+          $msg = 'Zip files are not supported for import.';
         }
-        else
-          $errors++;
+      }
+      else {
+        // attempt to import teh uploaded file directly
+        $count = $this->import_from_file($_FILES['_data']['tmp_name'], $calendar, $rangestart, $errors);
       }
 
       if ($count) {
@@ -1046,11 +1062,45 @@ class calendar extends rcube_plugin
       }
 
       $this->rc->output->command('plugin.import_error', array('message' => $msg));
-      $this->rc->output->command('plugin.unlock_saving', false);
     }
 
     $this->rc->output->send('iframe');
   }
+
+  /**
+   * Helper function to parse and import a single .ics file
+   */
+  private function import_from_file($filepath, $calendar, $rangestart, &$errors)
+  {
+    $user_email = $this->rc->user->get_username();
+
+    $ical = $this->get_ical();
+    $errors = !$ical->fopen($filepath);
+    $count = $i = 0;
+    foreach ($ical as $event) {
+      // keep the browser connection alive on long import jobs
+      if (++$i > 100 && $i % 100 == 0) {
+          echo "<!-- -->";
+          ob_flush();
+      }
+
+      // TODO: correctly handle recurring events which start before $rangestart
+      if ($event['end'] < $rangestart && (!$event['recurrence'] || ($event['recurrence']['until'] && $event['recurrence']['until'] < $rangestart)))
+        continue;
+
+      $event['_owner'] = $user_email;
+      $event['calendar'] = $calendar;
+      if ($this->driver->new_event($event)) {
+        $count++;
+      }
+      else {
+        $errors++;
+      }
+    }
+
+    return $count;
+  }
+
 
   /**
    * Construct the ics file for exporting events to iCalendar format;
