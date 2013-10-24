@@ -245,7 +245,7 @@ function rcube_libcalendaring(settings)
 
         // limit visible text length
         if (maxlen) {
-            var morelink = ' <a href="#more" onclick="$(this).hide().next().show();return false" class="morelink">'+rcmail.gettext('showmore','libcalendaring')+'</a><span style="display:none">',
+            var morelink = '<span>... <a href="#more" onclick="$(this).parent().hide().next().show();return false" class="morelink">'+rcmail.gettext('showmore','libcalendaring')+'</a></span><span style="display:none">',
                 lines = html.split(/\r?\n/),
                 words, out = '', len = 0;
 
@@ -264,6 +264,7 @@ function rcube_libcalendaring(settings)
                         if (len > maxlen) {
                             out += morelink;
                             maxlen = html.length * 2;
+                            maxlines = 0;
                         }
                     }
                     out += '\n';
