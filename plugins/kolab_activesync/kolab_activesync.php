@@ -400,6 +400,15 @@ class kolab_activesync extends rcube_plugin
                     }
                 }
             }
+
+            // remove device data from syncroton database
+            $db    = $this->rc->get_dbh();
+            $table = $db->table_name('syncroton_device');
+
+            if (in_array($table, $db->list_tables())) {
+                $db->query("DELETE FROM $table WHERE owner_id = ? AND deviceid = ?",
+                    $this->rc->user->ID, $id);
+            }
         }
 
         return $result;
