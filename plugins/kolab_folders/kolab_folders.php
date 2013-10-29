@@ -26,8 +26,9 @@ class kolab_folders extends rcube_plugin
 {
     public $task = '?(?!login).*';
 
-    public $types = array('mail', 'event', 'journal', 'task', 'note', 'contact', 'configuration', 'file', 'freebusy');
+    public $types      = array('mail', 'event', 'journal', 'task', 'note', 'contact', 'configuration', 'file', 'freebusy');
     public $mail_types = array('inbox', 'drafts', 'sentitems', 'outbox', 'wastebasket', 'junkemail');
+    public $act_types  = array('event', 'task');
 
     private $rc;
     private static $instance;
@@ -86,7 +87,7 @@ class kolab_folders extends rcube_plugin
 
         // Create default folders
         if ($args['root'] == '' && $args['name'] = '*') {
-            $this->create_default_folders($folders, $args['filter'], $folderdata);
+            $this->create_default_folders($folders, $args['filter'], $folderdata, $args['mode'] == 'LSUB');
         }
 
         $args['folders'] = $folders;
@@ -476,7 +477,7 @@ class kolab_folders extends rcube_plugin
     /**
      * Creates default folders if they doesn't exist
      */
-    private function create_default_folders(&$folders, $filter, $folderdata = null)
+    private function create_default_folders(&$folders, $filter, $folderdata = null, $lsub = false)
     {
         $storage     = $this->rc->get_storage();
         $namespace   = $storage->get_namespace();
@@ -530,24 +531,53 @@ class kolab_folders extends rcube_plugin
             }
 
             list($type1, $type2) = explode('.', $type);
-            $exists = !empty($folderdata[$foldername]) || $foldername == 'INBOX';
 
-            // create folder
-            if (!$exists && !$storage->folder_exists($foldername)) {
-                $storage->create_folder($foldername);
-                $storage->subscribe($foldername);
+            $activate = in_array($type1, $this->act_types);
+            $exists   = false;
+            $result   = false;
+
+            // check if folder exists
+            if (!empty($folderdata[$foldername]) || $foldername == 'INBOX') {
+                $exists = true;
+            }
+            else if ((!$filter || $filter == $type1) && in_array($foldername, $folders)) {
+                // this assumes also that subscribed folder exists
+                $exists = true;
+            }
+            else {
+                $exists = $storage->folder_exists($foldername);
             }
 
-            // set type
-            $result = $this->set_folder_type($foldername, $type);
+            // create folder
+            if (!$exists) {
+                $exists = $storage->create_folder($foldername);
+            }
+
+            // set type + subscribe + activate
+            if ($exists) {
+                if ($result = kolab_storage::set_folder_type($foldername, $type)) {
+                    // check if folder is subscribed
+                    if ((!$filter || $filter == $type1) && $lsub && in_array($foldername, $folders)) {
+                        // already subscribed
+                        $subscribed = true;
+                    }
+                    else {
+                        $subscribed = $storage->subscribe($foldername);
+                    }
+
+                    // activate folder
+                    if ($activate) {
+                        kolab_storage::set_state($foldername, true);
+                    }
+                }
+            }
 
             // add new folder to the result
-            if ($result && (!$filter || $filter == $type1)) {
+            if ($result && (!$filter || $filter == $type1) && (!$lsub || $subscribed)) {
                 $folders[] = $foldername;
             }
         }
     }
-
 
     /**
      * Static getter for default folder of the given type
