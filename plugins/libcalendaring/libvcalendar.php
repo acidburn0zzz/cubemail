@@ -549,15 +549,15 @@ class libvcalendar implements Iterator
         }
 
         // find alarms
-        if ($valarms = $ve->select('VALARM')) {
+        foreach ($ve->select('VALARM') as $valarm) {
             $action = 'DISPLAY';
             $trigger = null;
 
-            $valarm = reset($valarms);
             foreach ($valarm->children as $prop) {
                 switch ($prop->name) {
                 case 'TRIGGER':
                     foreach ($prop->parameters as $param) {
+                        console(strval($param->name), strval($param->value));
                         if ($param->name == 'VALUE' && $param->value == 'DATE-TIME') {
                             $trigger = '@' . $prop->getDateTime()->format('U');
                         }
@@ -573,8 +573,10 @@ class libvcalendar implements Iterator
                 }
             }
 
-            if ($trigger)
+            if ($trigger && strtoupper($action) != 'NONE') {
                 $event['alarms'] = $trigger . ':' . $action;
+                break;
+            }
         }
 
         // assign current timezone to event start/end
