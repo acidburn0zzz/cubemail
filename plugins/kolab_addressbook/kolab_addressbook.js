@@ -4,6 +4,46 @@ if (window.rcmail) {
         if (rcmail.gui_objects.editform && rcmail.env.action.match(/^plugin\.book/)) {
             rcmail.enable_command('book-save', true);
         }
+
+        // add contextmenu items
+        if (window.rcm_contextmenu_register_command) {
+            var menu = $('#rcmGroupMenu');
+            rcm_contextmenu_register_command(
+                'book-edit',
+                function(cmd,el){ rcmail.book_edit() },
+                'kolab_addressbook.bookedit',
+                null,
+                true,
+                false,
+                false,
+                menu
+            );
+            rcm_contextmenu_register_command(
+                'book-delete',
+                function(cmd,el){ rcmail.book_delete() },
+                'kolab_addressbook.bookdelete',
+                null,
+                false,
+                false,
+                false,
+                menu
+            );
+
+            // adjust menu items when shown
+            rcmail.addEventListener('contextmenu_show', function(p){
+                if (p.menu.attr('id') != '#rcmGroupMenu')
+                    return;
+
+                var m = String(p.src.attr('id')).match(/rcmli([a-z0-9\-_=]+)/i),
+                    source = m && m.length ? rcmail.html_identifier_decode(m[1]) : null,
+                    sources = rcmail.env.address_sources,
+                    editable = source && sources[source] && sources[source].kolab && sources[source].editable;
+
+                if (p.menu) {
+                    p.menu[editable?'enableContextMenuItems':'disableContextMenuItems']('#book-edit,#book-delete');
+                }
+            });
+        }
     });
     rcmail.addEventListener('listupdate', function() {
         rcmail.set_book_actions();

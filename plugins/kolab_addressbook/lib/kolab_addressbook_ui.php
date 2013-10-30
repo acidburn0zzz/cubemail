@@ -87,7 +87,9 @@ class kolab_addressbook_ui
 
             $this->rc->output->add_label('kolab_addressbook.bookdeleteconfirm',
                 'kolab_addressbook.bookdeleting', 'kolab_addressbook.bookshowurl',
-                'kolab_addressbook.carddavurldescription');
+                'kolab_addressbook.carddavurldescription',
+                'kolab_addressbook.bookedit',
+                'kolab_addressbook.bookdelete');
         }
         // book create/edit form
         else {
