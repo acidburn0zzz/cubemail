@@ -60,6 +60,7 @@ class kolab_addressbook_ui
 
             if ($this->rc->config->get('kolab_addressbook_carddav_url')) {
               $options[] = 'book-showurl';
+              $this->rc->output->set_env('kolab_addressbook_carddav_url', true);
             }
 
             foreach ($options as $command) {
@@ -89,7 +90,8 @@ class kolab_addressbook_ui
                 'kolab_addressbook.bookdeleting', 'kolab_addressbook.bookshowurl',
                 'kolab_addressbook.carddavurldescription',
                 'kolab_addressbook.bookedit',
-                'kolab_addressbook.bookdelete');
+                'kolab_addressbook.bookdelete',
+                'kolab_addressbook.bookshowurl');
         }
         // book create/edit form
         else {
