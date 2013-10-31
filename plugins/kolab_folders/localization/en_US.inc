@@ -4,7 +4,7 @@ $labels = array();
 
 $labels['folderctype'] = 'Content type';
 $labels['foldertypemail'] = 'Mail';
-$labels['foldertypeevent'] = 'Calendar'; // Events?
+$labels['foldertypeevent'] = 'Calendar';
 $labels['foldertypejournal'] = 'Journal';
 $labels['foldertypetask'] = 'Tasks';
 $labels['foldertypenote'] = 'Notes';
