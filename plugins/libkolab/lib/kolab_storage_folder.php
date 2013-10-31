@@ -74,9 +74,9 @@ class kolab_storage_folder
      * @param string The folder name/path
      * @param string Optional folder type if known
      */
-    public function set_folder($name, $ftype = null)
+    public function set_folder($name, $type = null)
     {
-        $this->type_annotation = $ftype ? $ftype : kolab_storage::folder_type($name);
+        $this->type_annotation = $type ? $type : kolab_storage::folder_type($name);
 
         $oldtype = $this->type;
         list($this->type, $suffix) = explode('.', $this->type_annotation);
