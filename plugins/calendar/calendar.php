@@ -825,7 +825,7 @@ class calendar extends rcube_plugin
             $calendar_select = null;
         }
 
-        if ($status == 'unknown') {
+        if ($status == 'unknown' && !$this->rc->config->get('calendar_allow_itip_uninvited', true)) {
           $html = html::div('rsvp-status', $this->gettext('notanattendee'));
           $action = 'import';
         }
@@ -2083,6 +2083,17 @@ class calendar extends rcube_plugin
             $event['attendees'][$i]['status'] = strtoupper($status);
             $reply_sender = $attendee['email'];
           }
+        }
+
+        // add attendee with this user's default identity if not listed
+        if (!$reply_sender) {
+          $sender_identity = $this->rc->user->get_identity();
+          $event['attendees'][] = array(
+            'name' => $sender_identity['name'],
+            'email' => $sender_identity['email'],
+            'role' => 'OPT-PARTICIPANT',
+            'status' => strtoupper($status),
+          );
         }
       }
       

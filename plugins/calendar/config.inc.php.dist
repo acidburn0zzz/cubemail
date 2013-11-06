@@ -107,6 +107,10 @@ $rcmail_config['calendar_categories'] = array(
 // enable users to invite/edit attendees for shared events organized by others
 $rcmail_config['calendar_allow_invite_shared'] = false;
 
+// allow users to accecpt iTip invitations who are no explicitly listed as attendee.
+// this can be the case if invitations are sent to mailing lists or alias email addresses.
+$rcmail_config['calendar_allow_itip_uninvited'] = true;
+
 // enable asynchronous free-busy triggering after data changed
 $rcmail_config['calendar_freebusy_trigger'] = false;
 

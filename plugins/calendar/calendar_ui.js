@@ -377,7 +377,7 @@ function rcube_calendar_ui(settings)
           }
         }
         
-        $('#event-rsvp')[(rsvp&&!organizer?'show':'hide')]();
+        $('#event-rsvp')[(rsvp && !is_organizer(event) ? 'show' : 'hide')]();
         $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+rsvp+']').prop('disabled', true);
       }
 
