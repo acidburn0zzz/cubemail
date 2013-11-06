@@ -169,6 +169,11 @@ class kolab_delegation extends rcube_plugin
         // So we can handle event invitations on behalf of delegator
         // @TODO: should we do this only in delegators' folders?
 
+        // skip invalid messages or Kolab objects (for better performance)
+        if (empty($args['object']->headers) || $args['object']->headers->get('x-kolab-type', false)) {
+            return $args;
+        }
+
         $engine = $this->engine();
         $context = $engine->delegator_context_from_message($args['object']);
 
