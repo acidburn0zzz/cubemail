@@ -2132,8 +2132,8 @@ class calendar extends rcube_plugin
               $success = $this->driver->edit_event($existing);
             }
             // update the entire attendees block
-            else if ($event['changed'] >= $existing['changed'] && $event['attendees']) {
-              $existing['attendees'] = $event['attendees'];
+            else if (($event['sequence'] >= $existing['sequence'] || $event['changed'] >= $existing['changed']) && $event_attendee) {
+              $existing['attendees'][] = $event_attendee;
               $success = $this->driver->edit_event($existing);
             }
             else {
