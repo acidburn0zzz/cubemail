@@ -110,7 +110,9 @@ $rcmail_config['calendar_allow_invite_shared'] = false;
 // enable asynchronous free-busy triggering after data changed
 $rcmail_config['calendar_freebusy_trigger'] = false;
 
-// SMTP server host used to send (anonymous) itip messages
+// SMTP server host used to send (anonymous) itip messages.
+// Set to '' in order to use PHP's mail() function for email delivery.
+// To override the SMTP port or connection method, provide a full URL like 'tls://somehost:587'
 $rcmail_config['calendar_itip_smtp_server'] = null;
 
 // SMTP username used to send (anonymous) itip messages
