@@ -1,4 +1,4 @@
-#!/usr/bin/env php -d enable_dl=On
+#!/usr/bin/env php
 <?php
 
 /**
