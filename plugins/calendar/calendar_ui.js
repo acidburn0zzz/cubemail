@@ -2356,8 +2356,8 @@ function rcube_calendar_ui(settings)
 
     // create list of event sources AKA calendars
     this.calendars = {};
-    var li, cal, active, event_sources = [];
-    for (var id in rcmail.env.calendars) {
+    var id, li, cal, active, color, brightness, event_sources = [];
+    for (id in rcmail.env.calendars) {
       cal = rcmail.env.calendars[id];
       this.calendars[id] = $.extend({
         url: "./?_task=calendar&_action=load_events&source="+escape(id),
@@ -2365,13 +2365,24 @@ function rcube_calendar_ui(settings)
         className: 'fc-event-cal-'+id,
         id: id
       }, cal);
-      
-      this.calendars[id].color = settings.event_coloring % 2  ? '' : '#' + cal.color;
-      
+
+      // choose black text color when background is bright, white otherwise
+      if (color = settings.event_coloring % 2  ? '' : '#' + cal.color) {
+        if (/^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i.test(color)) {
+          // use information about brightness calculation found at
+          // http://javascriptrules.com/2009/08/05/css-color-brightness-contrast-using-javascript/
+          brightness = (parseInt(RegExp.$1, 16) * 299 + parseInt(RegExp.$2, 16) * 587 + parseInt(RegExp.$3, 16) * 114) / 1000;
+          if (brightness > 125)
+            this.calendars[id].textColor = 'black';
+        }
+      }
+
+      this.calendars[id].color = color;
+
       if ((active = cal.active || false)) {
         event_sources.push(this.calendars[id]);
       }
-      
+
       // init event handler on calendar list checkbox
       if ((li = rcmail.get_folder_li(id, 'rcmlical'))) {
         $('#'+li.id+' input').click(function(e){
