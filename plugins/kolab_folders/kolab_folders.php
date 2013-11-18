@@ -567,7 +567,7 @@ class kolab_folders extends rcube_plugin
 
                     // activate folder
                     if ($activate) {
-                        kolab_storage::set_state($foldername, true);
+                        kolab_storage::folder_activate($foldername, true);
                     }
                 }
             }
