@@ -380,6 +380,11 @@ class database_driver extends calendar_driver
               $event['end'] = clone $event['start'];
               $event['end']->add(new DateInterval('PT'.$new_duration.'S'));
             }
+            // dates did not change, use the ones from master
+            else if ($event['start'] == $old['start'] && $event['end'] == $old['end']) {
+              $event['start'] = $master['start'];
+              $event['end'] = $master['end'];
+            }
             break;
         }
       }
@@ -542,8 +547,8 @@ class database_driver extends calendar_driver
         $notify_at = $this->_get_notification(array('alarms' => $event['alarms'], 'start' => $next_start, 'end' => $next_end));
         $query = $this->rc->db->query(sprintf(
           "INSERT INTO " . $this->db_events . "
-           (calendar_id, recurrence_id, created, changed, uid, %s, %s, all_day, recurrence, title, description, location, categories, url, free_busy, priority, sensitivity, alarms, notifyat)
-            SELECT calendar_id, ?, %s, %s, uid, ?, ?, all_day, recurrence, title, description, location, categories, url, free_busy, priority, sensitivity, alarms, ?
+           (calendar_id, recurrence_id, created, changed, uid, %s, %s, all_day, recurrence, title, description, location, categories, url, free_busy, priority, sensitivity, alarms, attendees, notifyat)
+            SELECT calendar_id, ?, %s, %s, uid, ?, ?, all_day, recurrence, title, description, location, categories, url, free_busy, priority, sensitivity, alarms, attendees, ?
             FROM  " . $this->db_events . " WHERE event_id=? AND calendar_id IN (" . $this->calendar_ids . ")",
             $this->rc->db->quote_identifier('start'),
             $this->rc->db->quote_identifier('end'),
@@ -820,6 +825,9 @@ class database_driver extends calendar_driver
         $attendees[] = $att;
       }
       $event['attendees'] = $attendees;
+    }
+    else {
+      $event['attendees'] = array();
     }
 
     unset($event['event_id'], $event['calendar_id'], $event['notifyat'], $event['all_day'], $event['_attachments']);
