@@ -7,7 +7,7 @@
  * @copyright (C) 2012, Kolab Systems AG
  */
 
-CREATE TABLE `tasklists` (
+CREATE TABLE IF NOT EXISTS `tasklists` (
   `tasklist_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE `tasklists` (
     REFERENCES `users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) /*!40000 ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
-CREATE TABLE `tasks` (
+CREATE TABLE IF NOT EXISTS `tasks` (
   `task_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `tasklist_id` int(10) unsigned NOT NULL,
   `parent_id` int(10) unsigned DEFAULT NULL,
@@ -48,4 +48,4 @@ CREATE TABLE `tasks` (
     REFERENCES `tasklists`(`tasklist_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) /*!40000 ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
-INSERT INTO `system` (`name`, `value`) VALUES ('tasklist-database-version', '2013011000');
+REPLACE INTO `system` (`name`, `value`) VALUES ('tasklist-database-version', '2013011000');
