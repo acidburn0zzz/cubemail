@@ -264,7 +264,7 @@ class kolab_storage_cache
 
         if ($object) {
             // insert new object data...
-            $this->insert($msguid, $object);
+            $this->save($msguid, $object);
         }
         else {
             // ...or set in-memory cache to false
