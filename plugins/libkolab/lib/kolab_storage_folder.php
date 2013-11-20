@@ -753,24 +753,27 @@ class kolab_storage_folder
 
             $result = $this->imap->save_message($this->name, $raw_msg, null, false, null, null, $binary);
 
-            // delete old message
-            if ($result && !empty($object['_msguid']) && !empty($object['_mailbox'])) {
-                $this->cache->bypass(true);
-                $this->imap->delete_message($object['_msguid'], $object['_mailbox']);
-                $this->cache->bypass(false);
-                $this->cache->set($object['_msguid'], false, $object['_mailbox']);
-            }
-
             // update cache with new UID
             if ($result) {
+                $old_uid = $object['_msguid'];
+
                 $object['_msguid'] = $result;
                 $object['_mailbox'] = $this->name;
-                $this->cache->insert($result, $object);
 
-                // remove temp file
-                if ($body_file) {
-                    @unlink($body_file);
+                if ($old_uid) {
+                    // delete old message
+                    $this->cache->bypass(true);
+                    $this->imap->delete_message($old_uid, $object['_mailbox']);
+                    $this->cache->bypass(false);
                 }
+
+                // insert/update message in cache
+                $this->cache->save($result, $object, $old_uid);
+            }
+
+            // remove temp file
+            if ($body_file) {
+                @unlink($body_file);
             }
         }
 
