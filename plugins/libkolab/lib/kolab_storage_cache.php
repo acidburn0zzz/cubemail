@@ -274,41 +274,48 @@ class kolab_storage_cache
 
 
     /**
-     * Insert a cache entry
+     * Insert (or update) a cache entry
      *
-     * @param string Related IMAP message UID
+     * @param int    Related IMAP message UID
      * @param mixed  Hash array with object properties to save or false to delete the cache entry
+     * @param int    Optional old message UID (for update)
      */
-    public function insert($msguid, $object)
+    public function save($msguid, $object, $olduid)
     {
         // write to cache
         if ($this->ready) {
             $this->_read_folder_data();
 
             $sql_data = $this->_serialize($object);
+            $sql_data['folder_id'] = $this->folder_id;
+            $sql_data['msguid']    = $msguid;
+            $sql_data['uid']       = $object['uid'];
 
-            $extra_cols   = $this->extra_cols ? ', ' . join(', ', $this->extra_cols) : '';
-            $extra_fields = $this->extra_cols ? str_repeat(', ?', count($this->extra_cols)) : '';
+            $args = array();
+            $cols = array('folder_id', 'msguid', 'uid', 'changed', 'data', 'xml', 'tags', 'words');
+            $cols = array_merge($cols, $this->extra_cols);
 
-            $args = array(
-                "INSERT INTO $this->cache_table ".
-                " (folder_id, msguid, uid, created, changed, data, xml, tags, words $extra_cols)".
-                " VALUES (?, ?, ?, " . $this->db->now() . ", ?, ?, ?, ?, ? $extra_fields)",
-                $this->folder_id,
-                $msguid,
-                $object['uid'],
-                $sql_data['changed'],
-                $sql_data['data'],
-                $sql_data['xml'],
-                $sql_data['tags'],
-                $sql_data['words'],
-            );
-
-            foreach ($this->extra_cols as $col) {
-                $args[] = $sql_data[$col];
+            foreach ($cols as $idx => $col) {
+                $cols[$idx] = $this->db->quote_identifier($col);
+                $args[]     = $sql_data[$col];
             }
 
-            $result = call_user_func_array(array($this->db, 'query'), $args);
+            if ($olduid) {
+                foreach ($cols as $idx => $col) {
+                    $cols[$idx] = "$col = ?";
+                }
+
+                $query = "UPDATE $this->cache_table SET " . implode(', ', $cols)
+                    . " WHERE folder_id = ? AND msguid = ?";
+                $args[] = $this->folder_id;
+                $args[] = $olduid;
+            }
+            else {
+                $query = "INSERT INTO $this->cache_table (created, " . implode(', ', $cols)
+                    . ") VALUES (" . $this->db->now() . str_repeat(', ?', count($cols)) . ")";
+            }
+
+            $result = $this->db->query($query, $args);
 
             if (!$this->db->affected_rows($result)) {
                 rcube::raise_error(array(
