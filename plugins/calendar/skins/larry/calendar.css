@@ -117,7 +117,6 @@ div.sidebarclosed {
 	left: 266px;
 	right: 0;
 	bottom: 0;
-	padding-bottom: 28px;
 }
 
 .calendarmain #message.statusbar {
@@ -125,10 +124,10 @@ div.sidebarclosed {
 	border-bottom-color: #ababab;
 }
 
-#calendar .timezonedisplay {
+#timezonedisplay {
 	position: absolute;
-	bottom: 9px;
-	right: 8px;
+	bottom: 5px;
+	right: 12px;
 	font-size: 0.85em;
 	color: #666;
 }
@@ -1015,7 +1014,7 @@ a.dropdown-link:after {
 
 #agendaoptions {
 	position: absolute;
-	bottom: 28px;
+	bottom: 0;
 	left: 0;
 	right: 0;
 	height: auto;
@@ -1024,6 +1023,7 @@ a.dropdown-link:after {
 	border: 1px solid #c3c3c3;
 	border-top-color: #ddd;
 	border-bottom-color: #bbb;
+	border-radius: 0 0 4px 4px;
 	background: #ebebeb;
 	background: -moz-linear-gradient(top, #ebebeb 0%, #c6c6c6 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ebebeb), color-stop(100%,#c6c6c6));
@@ -1063,7 +1063,7 @@ a.dropdown-link:after {
 .rcube-fc-content {
 	overflow: hidden;
 	border: 0;
-	border-radius: 4px 4px 0 0;
+	border-radius: 4px;
 	box-shadow: 0 0 2px #999;
 	-o-box-shadow: 0 0 2px #999;
 	-webkit-box-shadow: 0 0 2px #999;
@@ -1075,7 +1075,7 @@ a.dropdown-link:after {
 	top: 40px;
 	left: 0;
 	right: 0;
-	bottom: 28px;
+	bottom: 0;
 	background: #fff;
 }
 
@@ -1333,6 +1333,9 @@ div.fc-event-location {
 .calendarmain .fc-view-table tr.fc-event td {
 	border-color: #ddd;
 	padding: 4px 7px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .calendarmain .fc-view-table tr.fc-event td.fc-event-handle {
@@ -1363,8 +1366,12 @@ div.fc-event-location {
 	box-shadow: inset 0px 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
+.calendarmain .fc-view-table col.fc-event-location {
+	width: 25%;
+}
+
 .fc-view-table table.fc-list-smart {
-	table-layout: auto;
+/*	table-layout: auto; */
 }
 
 .fc-listappend {

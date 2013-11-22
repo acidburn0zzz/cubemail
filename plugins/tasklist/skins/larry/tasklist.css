@@ -374,7 +374,7 @@ body.attachmentwin #topnav .topright {
 	left: 0;
 	top: 35px;
 	width: 100%;
-	bottom: 28px;
+	bottom: 0;
 	overflow: auto;
 }
 
