@@ -41,10 +41,12 @@
 
 	<div id="calendar">
 		<roundcube:object name="plugin.angenda_options" class="boxfooter" id="agendaoptions" />
-		<roundcube:object name="message" id="message" class="statusbar" />
-		<div class="timezonedisplay"><roundcube:var name="env:timezone" /></div>
 	</div>
 </div>
+
+<div id="timezonedisplay"><roundcube:var name="env:timezone" /></div>
+
+<roundcube:object name="message" id="messagestack" />
 
 <div id="calendaroptionsmenu" class="popupmenu">
 	<ul class="toolbarmenu">
