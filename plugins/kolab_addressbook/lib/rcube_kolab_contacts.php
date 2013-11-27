@@ -1203,6 +1203,9 @@ class rcube_kolab_contacts extends rcube_addressbook
 
         $contact['address'] = $addresses;
 
+        // categories are not supported in the web client but should be preserved (#2608)
+        $contact['categories'] = $old['categories'];
+
         // copy meta data (starting with _) from old object
         foreach ((array)$old as $key => $val) {
             if (!isset($contact[$key]) && $key[0] == '_')
