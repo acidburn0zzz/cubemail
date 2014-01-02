@@ -427,6 +427,10 @@ class kolab_storage_cache
                 $this->folder_id
             );
 
+            if ($this->db->is_error($sql_result)) {
+                return null;
+            }
+
             while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
                 if ($uids) {
                     $this->uid2msg[$sql_arr['uid']] = $sql_arr['msguid'];
@@ -447,7 +451,11 @@ class kolab_storage_cache
             }
             else {  // search by object type
                 $search = 'UNDELETED HEADER X-Kolab-Type ' . kolab_format::KTYPE_PREFIX . $filter['type'];
-                $index = $this->imap->search_once($this->folder->name, $search)->get();
+                $index  = $this->imap->search_once($this->folder->name, $search)->get();
+            }
+
+            if ($index->is_error()) {
+                return null;
             }
 
             // fetch all messages in $index from IMAP
@@ -477,8 +485,6 @@ class kolab_storage_cache
      */
     public function count($query = array())
     {
-        $count = 0;
-
         // cache is in sync, we can count records in local DB
         if ($this->synched) {
             $this->_read_folder_data();
@@ -489,14 +495,23 @@ class kolab_storage_cache
                 $this->folder_id
             );
 
+            if ($this->db->is_error($sql_result)) {
+                return null;
+            }
+
             $sql_arr = $this->db->fetch_assoc($sql_result);
-            $count = intval($sql_arr['numrows']);
+            $count   = intval($sql_arr['numrows']);
         }
         else {
             // search IMAP by object type
             $filter = $this->_query2assoc($query);
             $ctype  = kolab_format::KTYPE_PREFIX . $filter['type'];
-            $index = $this->imap->search_once($this->folder->name, 'UNDELETED HEADER X-Kolab-Type ' . $ctype);
+            $index  = $this->imap->search_once($this->folder->name, 'UNDELETED HEADER X-Kolab-Type ' . $ctype);
+
+            if ($index->is_error()) {
+                return null;
+            }
+
             $count = $index->count();
         }
 
