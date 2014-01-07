@@ -29,7 +29,6 @@ class kolab_storage_cache
     protected $folder;
     protected $uid2msg;
     protected $objects;
-    protected $index = null;
     protected $metadata = array();
     protected $folder_id;
     protected $resource_uri;
@@ -139,65 +138,71 @@ class kolab_storage_cache
         // increase time limit
         @set_time_limit($this->max_sync_lock_time);
 
-        // read cached folder metadata
-        $this->_read_folder_data();
-
-        // check cache status hash first ($this->metadata is set in _read_folder_data())
-        if ($this->metadata['ctag'] != $this->folder->get_ctag()) {
-
-            // lock synchronization for this folder or wait if locked
-            $this->_sync_lock();
-
-            // disable messages cache if configured to do so
-            $this->bypass(true);
-
-            // synchronize IMAP mailbox cache
+        if (!$this->ready) {
+            // kolab cache is disabled, synchronize IMAP mailbox cache only
             $this->imap->folder_sync($this->folder->name);
+        }
+        else {
+            // read cached folder metadata
+            $this->_read_folder_data();
 
-            // compare IMAP index with object cache index
-            $imap_index = $this->imap->index($this->folder->name);
-            $this->index = $imap_index->get();
+            // check cache status hash first ($this->metadata is set in _read_folder_data())
+            if ($this->metadata['ctag'] != $this->folder->get_ctag()) {
+                // lock synchronization for this folder or wait if locked
+                $this->_sync_lock();
 
-            // determine objects to fetch or to invalidate
-            if ($this->ready) {
-                // read cache index
-                $sql_result = $this->db->query(
-                    "SELECT msguid, uid FROM $this->cache_table WHERE folder_id=?",
-                    $this->folder_id
-                );
+                // disable messages cache if configured to do so
+                $this->bypass(true);
 
-                $old_index = array();
-                while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
-                    $old_index[] = $sql_arr['msguid'];
-                    $this->uid2msg[$sql_arr['uid']] = $sql_arr['msguid'];
-                }
+                // synchronize IMAP mailbox cache
+                $this->imap->folder_sync($this->folder->name);
 
-                // fetch new objects from imap
-                foreach (array_diff($this->index, $old_index) as $msguid) {
-                    if ($object = $this->folder->read_object($msguid, '*')) {
-                        $this->_extended_insert($msguid, $object);
-                    }
-                }
-                $this->_extended_insert(0, null);
+                // compare IMAP index with object cache index
+                $imap_index = $this->imap->index($this->folder->name, null, null, true, true);
 
-                // delete invalid entries from local DB
-                $del_index = array_diff($old_index, $this->index);
-                if (!empty($del_index)) {
-                    $quoted_ids = join(',', array_map(array($this->db, 'quote'), $del_index));
-                    $this->db->query(
-                        "DELETE FROM $this->cache_table WHERE folder_id=? AND msguid IN ($quoted_ids)",
+                // determine objects to fetch or to invalidate
+                if (!$imap_index->is_error()) {
+                    $imap_index = $imap_index->get();
+
+                    // read cache index
+                    $sql_result = $this->db->query(
+                        "SELECT msguid, uid FROM $this->cache_table WHERE folder_id=?",
                         $this->folder_id
                     );
+
+                    $old_index = array();
+                    while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
+                        $old_index[] = $sql_arr['msguid'];
+                        $this->uid2msg[$sql_arr['uid']] = $sql_arr['msguid'];
+                    }
+
+                    // fetch new objects from imap
+                    foreach (array_diff($imap_index, $old_index) as $msguid) {
+                        if ($object = $this->folder->read_object($msguid, '*')) {
+                            $this->_extended_insert($msguid, $object);
+                        }
+                    }
+                    $this->_extended_insert(0, null);
+
+                    // delete invalid entries from local DB
+                    $del_index = array_diff($old_index, $imap_index);
+                    if (!empty($del_index)) {
+                        $quoted_ids = join(',', array_map(array($this->db, 'quote'), $del_index));
+                        $this->db->query(
+                            "DELETE FROM $this->cache_table WHERE folder_id=? AND msguid IN ($quoted_ids)",
+                            $this->folder_id
+                        );
+                    }
+
+                    // update ctag value (will be written to database in _sync_unlock())
+                    $this->metadata['ctag'] = $this->folder->get_ctag();
                 }
 
-                // update ctag value (will be written to database in _sync_unlock())
-                $this->metadata['ctag'] = $this->folder->get_ctag();
+                $this->bypass(false);
+
+                // remove lock
+                $this->_sync_unlock();
             }
-
-            $this->bypass(false);
-
-            // remove lock
-            $this->_sync_unlock();
         }
 
         $this->synched = time();
@@ -351,22 +356,27 @@ class kolab_storage_cache
      */
     public function move($msguid, $uid, $target_folder)
     {
-        $target = kolab_storage::get_folder($target_folder);
+        if ($this->ready) {
+            $target = kolab_storage::get_folder($target_folder);
 
-        // resolve new message UID in target folder
-        if ($new_msguid = $target->cache->uid2msguid($uid)) {
-            $this->_read_folder_data();
+            // resolve new message UID in target folder
+            if ($new_msguid = $target->cache->uid2msguid($uid)) {
+                $this->_read_folder_data();
 
-            $this->db->query(
-                "UPDATE $this->cache_table SET folder_id=?, msguid=? ".
-                "WHERE folder_id=? AND msguid=?",
-                $target->cache->get_folder_id(),
-                $new_msguid,
-                $this->folder_id,
-                $msguid
-            );
+                $this->db->query(
+                    "UPDATE $this->cache_table SET folder_id=?, msguid=? ".
+                    "WHERE folder_id=? AND msguid=?",
+                    $target->cache->get_folder_id(),
+                    $new_msguid,
+                    $this->folder_id,
+                    $msguid
+                );
+
+                $result = $this->db->affected_rows();
+            }
         }
-        else {
+
+        if (empty($result)) {
             // just clear cache entry
             $this->set($msguid, false);
         }
@@ -380,12 +390,17 @@ class kolab_storage_cache
      */
     public function purge($type = null)
     {
+        if (!$this->ready) {
+            return true;
+        }
+
         $this->_read_folder_data();
 
         $result = $this->db->query(
             "DELETE FROM $this->cache_table WHERE folder_id=?",
             $this->folder_id
         );
+
         return $this->db->affected_rows($result);
     }
 
@@ -396,6 +411,10 @@ class kolab_storage_cache
      */
     public function rename($new_folder)
     {
+        if (!$this->ready) {
+            return;
+        }
+
         $target = kolab_storage::get_folder($new_folder);
 
         // resolve new message UID in target folder
@@ -443,21 +462,24 @@ class kolab_storage_cache
                 }
             }
         }
+        // use IMAP
         else {
-            // extract object type from query parameter
             $filter = $this->_query2assoc($query);
 
-            // use 'list' for folder's default objects
-            if (is_array($this->index) && $filter['type'] == $this->type) {
-                $index = $this->index;
-            }
-            else {  // search by object type
+            if ($filter['type']) {
                 $search = 'UNDELETED HEADER X-Kolab-Type ' . kolab_format::KTYPE_PREFIX . $filter['type'];
-                $index  = $this->imap->search_once($this->folder->name, $search)->get();
+                $index  = $this->imap->search_once($this->folder->name, $search);
+            }
+            else {
+                $index = $this->imap->index($this->folder->name, null, null, true, true);
             }
 
-            // fetch all messages in $index from IMAP
-            $result = $uids ? $this->_fetch_uids($index, $filter['type']) : $this->_fetch($index, $filter['type']);
+            if ($index->is_error()) {
+                return null;
+            }
+
+            $index  = $index->get();
+            $result = $uids ? $index : $this->_fetch($index, $filter['type']);
 
             // TODO: post-filter result according to query
         }
@@ -483,8 +505,8 @@ class kolab_storage_cache
      */
     public function count($query = array())
     {
-        // cache is in sync, we can count records in local DB
-        if ($this->synched) {
+        // read from local cache DB (assume it to be synchronized)
+        if ($this->ready) {
             $this->_read_folder_data();
 
             $sql_result = $this->db->query(
@@ -500,15 +522,23 @@ class kolab_storage_cache
             $sql_arr = $this->db->fetch_assoc($sql_result);
             $count   = intval($sql_arr['numrows']);
         }
+        // use IMAP
         else {
-            // search IMAP by object type
             $filter = $this->_query2assoc($query);
-            $ctype  = kolab_format::KTYPE_PREFIX . $filter['type'];
-            $index  = $this->imap->search_once($this->folder->name, 'UNDELETED HEADER X-Kolab-Type ' . $ctype);
+
+            if ($filter['type']) {
+                $search = 'UNDELETED HEADER X-Kolab-Type ' . kolab_format::KTYPE_PREFIX . $filter['type'];
+                $index  = $this->imap->search_once($this->folder->name, $search);
+            }
+            else {
+                $index = $this->imap->index($this->folder->name, null, null, true, true);
+            }
 
             if ($index->is_error()) {
                 return null;
             }
+
+            // TODO: post-filter result according to query
 
             $count = $index->count();
         }
@@ -596,43 +626,6 @@ class kolab_storage_cache
 
         return $results;
     }
-
-
-    /**
-     * Fetch object UIDs (aka message subjects) from IMAP
-     *
-     * @param array List of message UIDs to fetch
-     * @param string Requested object type or * for all
-     * @param string IMAP folder to read from
-     * @return array List of parsed Kolab objects
-     */
-    protected function _fetch_uids($index, $type = null)
-    {
-        if (!$type)
-            $type = $this->folder->type;
-
-        $this->bypass(true);
-
-        $results = array();
-        $headers = $this->imap->fetch_headers($this->folder->name, $index, false);
-
-        $this->bypass(false);
-
-        foreach ((array)$headers as $msguid => $headers) {
-            $object_type = kolab_format::mime2object_type($headers->others['x-kolab-type']);
-
-            // check object type header and abort on mismatch
-            if ($type != '*' && $object_type != $type)
-                return false;
-
-            $uid = $headers->subject;
-            $this->uid2msg[$uid] = $msguid;
-            $results[] = $uid;
-        }
-
-        return $results;
-    }
-
 
     /**
      * Helper method to convert the given Kolab object into a dataset to be written to cache
@@ -789,7 +782,7 @@ class kolab_storage_cache
     protected function _read_folder_data()
     {
         // already done
-        if (!empty($this->folder_id))
+        if (!empty($this->folder_id) || !$this->ready)
             return;
 
         $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT folder_id, synclock, ctag FROM $this->folders_table WHERE resource=?", $this->resource_uri));
