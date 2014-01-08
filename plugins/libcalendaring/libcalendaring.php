@@ -404,6 +404,11 @@ class libcalendaring extends rcube_plugin
             }
             $offset = $notify[0] * $mult;
             $refdate = $mult > 0 ? $rec['end'] : $rec['start'];
+
+            // abort of no reference date is available to compute notification time
+            if (!is_a($refdate, 'DateTime'))
+                return null;
+
             $notify_at = $refdate->format('U') + $offset;
         }
         else {  // absolute timestamp
