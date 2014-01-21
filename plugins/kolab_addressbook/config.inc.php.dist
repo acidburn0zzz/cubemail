@@ -11,7 +11,7 @@
 */
 $rcmail_config['kolab_addressbook_prio'] = 0;
 
-// Base URL to build fully qualified URIs to access calendars via CALDAV
+// Base URL to build fully qualified URIs to access address books via CardDAV
 // The following replacement variables are supported:
 // %h - Current HTTP host
 // %u - Current webmail user name
