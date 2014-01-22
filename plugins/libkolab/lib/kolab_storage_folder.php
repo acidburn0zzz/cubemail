@@ -809,7 +809,7 @@ class kolab_storage_folder
                         $recurrence = new kolab_date_recurrence($object['_formatobj']);
                         if ($end = $recurrence->end()) {
                             unset($exception['recurrence']['COUNT']);
-                            $exception['recurrence']['UNTIL'] = new DateTime('@'.$end);
+                            $exception['recurrence']['UNTIL'] = $end;
                         }
                     }
 

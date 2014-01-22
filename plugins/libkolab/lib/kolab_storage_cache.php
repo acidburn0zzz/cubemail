@@ -24,6 +24,8 @@
 
 class kolab_storage_cache
 {
+    const DB_DATE_FORMAT = 'Y-m-d H:i:s';
+
     protected $db;
     protected $imap;
     protected $folder;
