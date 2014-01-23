@@ -404,11 +404,13 @@ class database_driver extends calendar_driver
    */
   private function _save_preprocess($event)
   {
-    // shift dates to server's timezone
-    $event['start'] = clone $event['start'];
-    $event['start']->setTimezone($this->server_timezone);
-    $event['end'] = clone $event['end'];
-    $event['end']->setTimezone($this->server_timezone);
+    // shift dates to server's timezone (except for all-day events)
+    if (!$event['allday']) {
+      $event['start'] = clone $event['start'];
+      $event['start']->setTimezone($this->server_timezone);
+      $event['end'] = clone $event['end'];
+      $event['end']->setTimezone($this->server_timezone);
+    }
     
     // compose vcalendar-style recurrencue rule from structured data
     $rrule = $event['recurrence'] ? libcalendaring::to_rrule($event['recurrence']) : '';
