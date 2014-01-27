@@ -8,7 +8,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
  * Copyright (C) 2010, Lazlo Westerhof <hello@lazlo.me>
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -127,6 +127,28 @@ class database_driver extends calendar_driver
 
     // 'personal' is unsupported in this driver
 
+    // append the virtual birthdays calendar
+    if ($this->rc->config->get('calendar_contact_birthdays', false)) {
+      $prefs = $this->rc->config->get('birthday_calendar', array('color' => '87CEFA'));
+      $hidden = array_filter(explode(',', $this->rc->config->get('hidden_calendars', '')));
+
+      $id = self::BIRTHDAY_CALENDAR_ID;
+      if (!$active || !in_array($id, $hidden)) {
+        $calendars[$id] = array(
+          'id'         => $id,
+          'name'       => $this->cal->gettext('birthdays'),
+          'listname'   => $this->cal->gettext('birthdays'),
+          'color'      => $prefs['color'],
+          'showalarms' => $prefs['showalarms'],
+          'active'     => !in_array($id, $hidden),
+          'class_name' => 'birthdays',
+          'readonly'   => true,
+          'default'    => false,
+          'children'   => false,
+        );
+      }
+    }
+
     return $calendars;
   }
 
@@ -163,6 +185,17 @@ class database_driver extends calendar_driver
    */
   public function edit_calendar($prop)
   {
+    // birthday calendar properties are saved in user prefs
+    if ($prop['id'] == self::BIRTHDAY_CALENDAR_ID) {
+      $prefs = $this->rc->config->get('birthday_calendar', array('color' => '87CEFA'));
+      if (isset($prop['color']))
+        $prefs['color'] = $prop['color'];
+      if (isset($prop['showalarms']))
+        $prefs['showalarms'] = $prop['showalarms'] ? true : false;
+      $this->rc->user->save_prefs(array('birthday_calendar' => $prefs));
+      return true;
+    }
+
     $query = $this->rc->db->query(
       "UPDATE " . $this->db_calendars . "
        SET   name=?, color=?, showalarms=?
@@ -777,7 +810,12 @@ class database_driver extends calendar_driver
         $events[] = $this->_read_postprocess($event);
       }
     }
-    
+
+    // add events from the address books birthday calendar
+    if (in_array(self::BIRTHDAY_CALENDAR_ID, $calendars)) {
+      $events = array_merge($events, $this->load_birthday_events($start, $end, $search));
+    }
+
     return $events;
   }
 

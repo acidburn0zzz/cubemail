@@ -238,4 +238,9 @@ $labels['futurevents'] = 'Future';
 $labels['allevents'] = 'All';
 $labels['saveasnew'] = 'Save as new';
 
+// birthdays calendar
+$labels['birthdays'] = 'Birthdays';
+$labels['birthdayeventtitle'] = '$name\'s Birthday';
+$labels['birthdayage'] = 'Age $age';
+
 ?>

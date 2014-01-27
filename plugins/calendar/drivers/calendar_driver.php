@@ -8,7 +8,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
  * Copyright (C) 2010, Lazlo Westerhof <hello@lazlo.me>
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -81,6 +81,8 @@
  */
 abstract class calendar_driver
 {
+  const BIRTHDAY_CALENDAR_ID = '__bdays__';
+
   // features supported by backend
   public $alarms = false;
   public $attendees = false;
@@ -398,7 +400,120 @@ abstract class calendar_driver
    */
   public function get_color_values()
   {
-      return false;
+    return false;
+  }
+
+  /**
+   * Compose a list of birthday events from the contact records in the user's address books.
+   *
+   * This is a default implementation using Roundcube's address book API.
+   * It can be overriden with a more optimized version by the individual drivers.
+   *
+   * @param  integer Event's new start (unix timestamp)
+   * @param  integer Event's new end (unix timestamp)
+   * @param  string  Search query (optional)
+   * @return array A list of event records
+   */
+  public function load_birthday_events($start, $end, $search = null)
+  {
+    // convert to DateTime for comparisons
+    $start  = new DateTime('@'.$start);
+    $end    = new DateTime('@'.$end);
+    // extract the current year
+    $year   = $start->format('Y');
+    $year2  = $end->format('Y');
+
+    $events = array();
+    $search = mb_strtolower($search);
+    $rcmail = rcmail::get_instance();
+    $cache  = $rcmail->get_cache('calendar.birthdays', 'db', 3600);
+    $cache->expunge();
+
+    // TODO: let the user select the address books to consider in prefs
+    foreach ($rcmail->get_address_sources(false, true) as $source) {
+      $abook = $rcmail->get_address_book($source['id']);
+      $abook->set_pagesize(10000);
+
+      // skip LDAP address books (really?)
+      if ($abook instanceof rcube_ldap) {
+        continue;
+      }
+
+      // check for cached results
+      $cache_records = array();
+      $cached = $cache->get($source['id']);
+
+      // iterate over (cached) contacts
+      foreach ((array)($cached ?: $abook->list_records()) as $contact) {
+        if (!empty($contact['birthday'])) {
+          try {
+            if (is_array($contact['birthday']))
+              $contact['birthday'] = reset($contact['birthday']);
+
+            $bday = $contact['birthday'] instanceof DateTime ? $contact['birthday'] :
+                      new DateTime($contact['birthday'], new DateTimezone('UTC'));
+            $birthyear = $bday->format('Y');
+          }
+          catch (Exception $e) {
+            // console('BIRTHDAY PARSE ERROR: ' . $e);
+            continue;
+          }
+
+          $display_name = rcube_addressbook::compose_display_name($contact);
+          $event_title = $rcmail->gettext(array('name' => 'birthdayeventtitle', 'vars' => array('name' => $display_name)), 'calendar');
+
+          // add stripped record to cache
+          if (empty($cached)) {
+            $cache_records[] = array(
+              'id' => $contact['ID'],
+              'name' => $display_name,
+              'birthday' => $bday->format('Y-m-d'),
+            );
+          }
+
+          // filter by search term (only name is involved here)
+          if (!empty($search) && strpos(mb_strtolower($event_title), $search) === false) {
+            continue;
+          }
+
+          // quick-and-dirty recurrence computation: just replace the year
+          $bday->setDate($year, $bday->format('n'), $bday->format('j'));
+          $bday->setTime(12, 0, 0);
+
+          // date range reaches over multiple years: use end year if not in range
+          if (($bday > $end || $bday < $start) && $year2 != $year) {
+            $bday->setDate($year2, $bday->format('n'), $bday->format('j'));
+            $year = $year2;
+          }
+
+          // birthday is within requested range
+          if ($bday <= $end && $bday >= $start) {
+            $age = $year - $birthyear;
+            $event = array(
+              'id'          => md5('bday_' . $contact['id']),
+              'calendar'    => self::BIRTHDAY_CALENDAR_ID,
+              'title'       => $event_title,
+              'description' => $rcmail->gettext(array('name' => 'birthdayage', 'vars' => array('age' => $age)), 'calendar'),
+              // Add more contact information to description block?
+              'allday'      => true,
+              'start'       => $bday,
+              // TODO: add alarms (configurable?)
+            );
+            $event['end'] = clone $bday;
+            $event['end']->add(new DateInterval('PT1H'));
+
+            $events[] = $event;
+          }
+        }
+      }
+
+      // store collected contacts in cache
+      if (empty($cached)) {
+        $cache->write($source['id'], $cache_records);
+      }
+    }
+
+    return $events;
   }
 
 }

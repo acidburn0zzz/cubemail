@@ -7,7 +7,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -145,6 +145,26 @@ class kolab_driver extends calendar_driver
       }
     }
 
+    // append the virtual birthdays calendar
+    if ($this->rc->config->get('calendar_contact_birthdays', false)) {
+      $id = self::BIRTHDAY_CALENDAR_ID;
+      $prefs = $this->rc->config->get('kolab_calendars', array());  // read local prefs
+      if (!$active || $prefs[$id]['active']) {
+        $calendars[$id] = array(
+          'id'         => $id,
+          'name'       => $this->cal->gettext('birthdays'),
+          'listname'   => $this->cal->gettext('birthdays'),
+          'color'      => $prefs[$id]['color'],
+          'showalarms' => $prefs[$id]['showalarms'],
+          'active'     => $prefs[$id]['active'],
+          'class_name' => 'birthdays',
+          'readonly'   => true,
+          'default'    => false,
+          'children'   => false,
+        );
+      }
+    }
+
     return $calendars;
   }
 
@@ -245,23 +265,24 @@ class kolab_driver extends calendar_driver
 
       // create ID
       $id = kolab_storage::folder_id($newfolder);
-
-      // fallback to local prefs
-      $prefs['kolab_calendars'] = $this->rc->config->get('kolab_calendars', array());
-      unset($prefs['kolab_calendars'][$prop['id']]);
-
-      if (isset($prop['color']))
-        $prefs['kolab_calendars'][$id]['color'] = $prop['color'];
-      if (isset($prop['showalarms']))
-        $prefs['kolab_calendars'][$id]['showalarms'] = $prop['showalarms'] ? true : false;
-
-      if ($prefs['kolab_calendars'][$id])
-        $this->rc->user->save_prefs($prefs);
-
-      return true;
+    }
+    else {
+      $id = $prop['id'];
     }
 
-    return false;
+    // fallback to local prefs
+    $prefs['kolab_calendars'] = $this->rc->config->get('kolab_calendars', array());
+    unset($prefs['kolab_calendars'][$prop['id']]['color'], $prefs['kolab_calendars'][$prop['id']]['showalarms']);
+
+    if (isset($prop['color']))
+      $prefs['kolab_calendars'][$id]['color'] = $prop['color'];
+    if (isset($prop['showalarms']))
+      $prefs['kolab_calendars'][$id]['showalarms'] = $prop['showalarms'] ? true : false;
+
+    if (!empty($prefs['kolab_calendars'][$id]))
+      $this->rc->user->save_prefs($prefs);
+
+    return true;
   }
 
 
@@ -274,6 +295,13 @@ class kolab_driver extends calendar_driver
   {
     if ($prop['id'] && ($cal = $this->calendars[$prop['id']])) {
       return $cal->storage->activate($prop['active']);
+    }
+    else {
+      // save state in local prefs
+      $prefs['kolab_calendars'] = $this->rc->config->get('kolab_calendars', array());
+      $prefs['kolab_calendars'][$prop['id']]['active'] = (bool)$prop['active'];
+      $this->rc->user->save_prefs($prefs);
+      return true;
     }
 
     return false;
@@ -724,7 +752,12 @@ class kolab_driver extends calendar_driver
       $events = array_merge($events, $this->calendars[$cid]->list_events($start, $end, $search, $virtual, $query));
       $categories += $this->calendars[$cid]->categories;
     }
-    
+
+    // add events from the address books birthday calendar
+    if (in_array(self::BIRTHDAY_CALENDAR_ID, $calendars)) {
+      $events = array_merge($events, $this->load_birthday_events($start, $end, $search));
+    }
+
     // add new categories to user prefs
     $old_categories = $this->rc->config->get('calendar_categories', $this->default_categories);
     if ($newcats = array_diff(array_map('strtolower', array_keys($categories)), array_map('strtolower', array_keys($old_categories)))) {

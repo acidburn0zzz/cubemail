@@ -31,6 +31,9 @@ $rcmail_config['calendar_driver'] = "database";
 // default calendar view (agendaDay, agendaWeek, month)
 $rcmail_config['calendar_default_view'] = "agendaWeek";
 
+// show a birthdays calendar from the user's address book(s)
+$rcmail_config['calendar_contact_birthdays'] = false;
+
 // mapping of Roundcube date formats to calendar formats (long/short/agenda)
 // should be in sync with 'date_formats' in main config
 $rcmail_config['calendar_date_format_sets'] = array(
