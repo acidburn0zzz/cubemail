@@ -444,8 +444,8 @@ abstract class calendar_driver
       $cached = $cache->get($source['id']);
 
       // iterate over (cached) contacts
-      foreach ((array)($cached ?: $abook->list_records()) as $contact) {
-        if (!empty($contact['birthday'])) {
+      foreach (($cached ?: $abook->list_records()) as $contact) {
+        if (is_array($contact) && !empty($contact['birthday'])) {
           try {
             if (is_array($contact['birthday']))
               $contact['birthday'] = reset($contact['birthday']);
@@ -455,7 +455,7 @@ abstract class calendar_driver
             $birthyear = $bday->format('Y');
           }
           catch (Exception $e) {
-            // console('BIRTHDAY PARSE ERROR: ' . $e);
+            console('BIRTHDAY PARSE ERROR: ' . $e);
             continue;
           }
 

@@ -182,6 +182,12 @@ class calendar extends rcube_plugin
         $this->api->output->add_label('calendar.createfrommail');
       }
     }
+    else if ($args['task'] == 'addressbook') {
+      if ($this->rc->config->get('calendar_contact_birthdays')) {
+        $this->add_hook('contact_update', array($this, 'contact_update'));
+        $this->add_hook('contact_create', array($this, 'contact_update'));
+      }
+    }
 
     // add hooks to display alarms
     $this->add_hook('pending_alarms', array($this, 'pending_alarms'));
@@ -1002,6 +1008,18 @@ class calendar extends rcube_plugin
   {
     // NOP
     $this->rc->output->send();
+  }
+
+  /**
+   * Hook triggered when a contact is saved
+   */
+  function contact_update($p)
+  {
+    // clear birthdays calendar cache
+    if (!empty($p['record']['birthday'])) {
+      $cache = $this->rc->get_cache('calendar.birthdays', 'db');
+      $cache->remove();
+    }
   }
 
   /**
