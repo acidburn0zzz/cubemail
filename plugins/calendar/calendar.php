@@ -564,28 +564,30 @@ class calendar extends rcube_plugin
         $this->rc->output->add_script('$("input.colors").miniColors({ colorValues:rcmail.env.mscolors })', 'docready');
     }
 
-    $p['blocks']['birthdays']['name'] = $this->gettext('birthdayscalendar');
-
+    // virtual birthdays calendar
     if (!isset($no_override['calendar_contact_birthdays'])) {
+      $p['blocks']['birthdays']['name'] = $this->gettext('birthdayscalendar');
+
       if (!$p['current']) {
         $p['blocks']['birthdays']['content'] = true;
         return $p;
       }
 
       $field_id = 'rcmfd_contact_birthdays';
-      $input    = new html_checkbox(array('name' => '_contact_birthdays', 'id' => $field_id, 'value' => 1, 'onclick' => '$("input.calendar_birthday_props").prop("disabled",!this.checked)'));
+      $input    = new html_checkbox(array('name' => '_contact_birthdays', 'id' => $field_id, 'value' => 1, 'onclick' => '$(".calendar_birthday_props").prop("disabled",!this.checked)'));
 
       $p['blocks']['birthdays']['options']['contact_birthdays'] = array(
         'title'   => html::label($field_id, $this->gettext('displaybirthdayscalendar')),
         'content' => $input->show($this->rc->config->get('calendar_contact_birthdays')?1:0),
       );
 
-      $sources = array();
-      $checkbox = new html_checkbox(array(
-        'name' => '_birthday_adressbooks[]',
+      $input_attrib = array(
         'class' => 'calendar_birthday_props',
         'disabled' => !$this->rc->config->get('calendar_contact_birthdays'),
-      ));
+      );
+
+      $sources = array();
+      $checkbox = new html_checkbox(array('name' => '_birthday_adressbooks[]') + $input_attrib);
       foreach ($this->rc->get_address_sources(false, true) as $source) {
         $active = in_array($source['id'], (array)$this->rc->config->get('calendar_birthday_adressbooks', array())) ? $source['id'] : '';
         $sources[] = html::label(null, $checkbox->show($active, array('value' => $source['id'])) . '&nbsp;' . rcube::Q($source['realname'] ?: $source['name']));
@@ -597,14 +599,14 @@ class calendar extends rcube_plugin
       );
 
       $field_id = 'rcmfd_birthdays_alarm';
-      $select_type = new html_select(array('name' => '_birthdays_alarm_type', 'id' => $field_id));
+      $select_type = new html_select(array('name' => '_birthdays_alarm_type', 'id' => $field_id) + $input_attrib);
       $select_type->add($this->gettext('none'), '');
       foreach ($this->driver->alarm_types as $type) {
         $select_type->add(rcube_label(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
       }
 
-      $input_value = new html_inputfield(array('name' => '_birthdays_alarm_value', 'id' => $field_id . 'value', 'size' => 3));
-      $select_offset = new html_select(array('name' => '_birthdays_alarm_offset', 'id' => $field_id . 'offset'));
+      $input_value = new html_inputfield(array('name' => '_birthdays_alarm_value', 'id' => $field_id . 'value', 'size' => 3) + $input_attrib);
+      $select_offset = new html_select(array('name' => '_birthdays_alarm_offset', 'id' => $field_id . 'offset') + $input_attrib);
       foreach (array('-M','-H','-D') as $trigger)
         $select_offset->add(rcube_label('trigger' . $trigger, 'libcalendaring'), $trigger);
 
@@ -653,7 +655,7 @@ class calendar extends rcube_plugin
         'calendar_contact_birthdays'    => get_input_value('_contact_birthdays', RCUBE_INPUT_POST) ? true : false,
         'calendar_birthday_adressbooks' => array_filter((array)get_input_value('_birthday_adressbooks', RCUBE_INPUT_POST)),
         'calendar_birthdays_alarm_type'   => get_input_value('_birthdays_alarm_type', RCUBE_INPUT_POST),
-        'calendar_birthdays_alarm_offset' => $birthdays_alarm_value,
+        'calendar_birthdays_alarm_offset' => $birthdays_alarm_value ?: null,
       );
 
       // categories
