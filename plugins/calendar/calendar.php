@@ -564,6 +564,39 @@ class calendar extends rcube_plugin
         $this->rc->output->add_script('$("input.colors").miniColors({ colorValues:rcmail.env.mscolors })', 'docready');
     }
 
+    $p['blocks']['birthdays']['name'] = $this->gettext('birthdayscalendar');
+
+    if (!isset($no_override['calendar_contact_birthdays'])) {
+      if (!$p['current']) {
+        $p['blocks']['birthdays']['content'] = true;
+        return $p;
+      }
+
+      $field_id = 'rcmfd_contact_birthdays';
+      $input    = new html_checkbox(array('name' => '_contact_birthdays', 'id' => $field_id, 'value' => 1, 'onclick' => '$("input.calendar_birthday_props").prop("disabled",!this.checked)'));
+
+      $p['blocks']['birthdays']['options']['contact_birthdays'] = array(
+        'title'   => html::label($field_id, $this->gettext('displaybirthdayscalendar')),
+        'content' => $input->show($this->rc->config->get('calendar_contact_birthdays')?1:0),
+      );
+
+      $sources = array();
+      $checkbox = new html_checkbox(array(
+        'name' => '_birthday_adressbooks[]',
+        'class' => 'calendar_birthday_props',
+        'disabled' => !$this->rc->config->get('calendar_contact_birthdays'),
+      ));
+      foreach ($this->rc->get_address_sources(false, true) as $source) {
+        $active = in_array($source['id'], (array)$this->rc->config->get('calendar_birthday_adressbooks', array())) ? $source['id'] : '';
+        $sources[] = html::label(null, $checkbox->show($active, array('value' => $source['id'])) . '&nbsp;' . rcube::Q($source['realname'] ?: $source['name']));
+      }
+
+      $p['blocks']['birthdays']['options']['birthday_adressbooks'] = array(
+        'title'   => rcube::Q($this->gettext('birthdayscalendarsources')),
+        'content' => join(html::br(), $sources),
+      );
+    }
+
     return $p;
   }
 
@@ -596,6 +629,8 @@ class calendar extends rcube_plugin
         'calendar_default_calendar'     => get_input_value('_default_calendar', RCUBE_INPUT_POST),
         'calendar_date_format' => null,  // clear previously saved values
         'calendar_time_format' => null,
+        'calendar_contact_birthdays'    => get_input_value('_contact_birthdays', RCUBE_INPUT_POST) ? true : false,
+        'calendar_birthday_adressbooks' => array_filter((array)get_input_value('_birthday_adressbooks', RCUBE_INPUT_POST)),
       );
 
       // categories

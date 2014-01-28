@@ -240,6 +240,9 @@ $labels['saveasnew'] = 'Save as new';
 
 // birthdays calendar
 $labels['birthdays'] = 'Birthdays';
+$labels['birthdayscalendar'] = 'Birthdays Calendar';
+$labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
+$labels['birthdayscalendarsources'] = 'From these address books';
 $labels['birthdayeventtitle'] = '$name\'s Birthday';
 $labels['birthdayage'] = 'Age $age';
 

@@ -429,19 +429,22 @@ abstract class calendar_driver
     $cache  = $rcmail->get_cache('calendar.birthdays', 'db', 3600);
     $cache->expunge();
 
-    // TODO: let the user select the address books to consider in prefs
-    foreach ($rcmail->get_address_sources(false, true) as $source) {
-      $abook = $rcmail->get_address_book($source['id']);
-      $abook->set_pagesize(10000);
+    // let the user select the address books to consider in prefs
+    $selected_sources = $rcmail->config->get('calendar_birthday_adressbooks');
+    $sources = $selected_sources ?: array_keys($rcmail->get_address_sources(false, true));
+    foreach ($sources as $source) {
+      $abook = $rcmail->get_address_book($source);
 
-      // skip LDAP address books (really?)
-      if ($abook instanceof rcube_ldap) {
+      // skip LDAP address books unless selected by the user
+      if (!$abook || ($abook instanceof rcube_ldap && empty($selected_sources))) {
         continue;
       }
 
+      $abook->set_pagesize(10000);
+
       // check for cached results
       $cache_records = array();
-      $cached = $cache->get($source['id']);
+      $cached = $cache->get($source);
 
       // iterate over (cached) contacts
       foreach (($cached ?: $abook->list_records()) as $contact) {
@@ -509,7 +512,7 @@ abstract class calendar_driver
 
       // store collected contacts in cache
       if (empty($cached)) {
-        $cache->write($source['id'], $cache_records);
+        $cache->write($source, $cache_records);
       }
     }
 
