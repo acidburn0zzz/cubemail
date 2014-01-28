@@ -400,6 +400,11 @@ class rcube_kolab_contacts extends rcube_addressbook
         // NOTE: this is only some rough pre-filtering but probably includes false positives
         $squery = $this->_search_query($fields, $value, $mode);
 
+        // add magic selector to select contacts with birthday dates only
+        if (in_array('birthday', $required)) {
+            $squery[] = array('tags', '=', 'x-has-birthday');
+        }
+
         // get all/matching records
         $this->_fetch_contacts($squery);
 

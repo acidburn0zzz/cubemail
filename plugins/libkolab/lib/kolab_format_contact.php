@@ -408,6 +408,22 @@ class kolab_format_contact extends kolab_format
     }
 
     /**
+     * Callback for kolab_storage_cache to get object specific tags to cache
+     *
+     * @return array List of tags to save in cache
+     */
+    public function get_tags()
+    {
+        $tags = array();
+
+        if (!empty($this->data['birthday'])) {
+            $tags[] = 'x-has-birthday';
+        }
+
+        return $tags;
+    }
+
+    /**
      * Helper method to copy contents of an Address vector to the contact data object
      */
     private function read_addresses($addresses, &$object, $type = null)
