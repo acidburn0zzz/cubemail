@@ -155,8 +155,8 @@ class kolab_driver extends calendar_driver
           'name'       => $this->cal->gettext('birthdays'),
           'listname'   => $this->cal->gettext('birthdays'),
           'color'      => $prefs[$id]['color'],
-          'showalarms' => $prefs[$id]['showalarms'],
           'active'     => $prefs[$id]['active'],
+          'showalarms' => (bool)$this->rc->config->get('calendar_birthdays_alarm_type'),
           'class_name' => 'birthdays',
           'readonly'   => true,
           'default'    => false,
@@ -276,7 +276,10 @@ class kolab_driver extends calendar_driver
 
     if (isset($prop['color']))
       $prefs['kolab_calendars'][$id]['color'] = $prop['color'];
-    if (isset($prop['showalarms']))
+
+    if (isset($prop['showalarms']) && $id == self::BIRTHDAY_CALENDAR_ID)
+      $prefs['calendar_birthdays_alarm_type'] = $prop['showalarms'] ? $this->alarm_types[0] : '';
+    else if (isset($prop['showalarms']))
       $prefs['kolab_calendars'][$id]['showalarms'] = $prop['showalarms'] ? true : false;
 
     if (!empty($prefs['kolab_calendars'][$id]))

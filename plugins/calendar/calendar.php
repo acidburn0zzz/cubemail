@@ -595,6 +595,24 @@ class calendar extends rcube_plugin
         'title'   => rcube::Q($this->gettext('birthdayscalendarsources')),
         'content' => join(html::br(), $sources),
       );
+
+      $field_id = 'rcmfd_birthdays_alarm';
+      $select_type = new html_select(array('name' => '_birthdays_alarm_type', 'id' => $field_id));
+      $select_type->add($this->gettext('none'), '');
+      foreach ($this->driver->alarm_types as $type) {
+        $select_type->add(rcube_label(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
+      }
+
+      $input_value = new html_inputfield(array('name' => '_birthdays_alarm_value', 'id' => $field_id . 'value', 'size' => 3));
+      $select_offset = new html_select(array('name' => '_birthdays_alarm_offset', 'id' => $field_id . 'offset'));
+      foreach (array('-M','-H','-D') as $trigger)
+        $select_offset->add(rcube_label('trigger' . $trigger, 'libcalendaring'), $trigger);
+
+      $preset = libcalendaring::parse_alaram_value($this->rc->config->get('calendar_birthdays_alarm_offset', '-1D'));
+      $p['blocks']['birthdays']['options']['birthdays_alarmoffset'] = array(
+        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('showalarms'))),
+        'content' => $select_type->show($this->rc->config->get('calendar_birthdays_alarm_type', '')) . ' ' . $input_value->show($preset[0]) . '&nbsp;' . $select_offset->show($preset[1]),
+      );
     }
 
     return $p;
@@ -616,6 +634,9 @@ class calendar extends rcube_plugin
       $alarm_offset = get_input_value('_alarm_offset', RCUBE_INPUT_POST);
       $default_alarm = $alarm_offset[0] . intval(get_input_value('_alarm_value', RCUBE_INPUT_POST)) . $alarm_offset[1];
 
+      $birthdays_alarm_offset = get_input_value('_birthdays_alarm_offset', RCUBE_INPUT_POST);
+      $birthdays_alarm_value = $birthdays_alarm_offset[0] . intval(get_input_value('_birthdays_alarm_value', RCUBE_INPUT_POST)) . $birthdays_alarm_offset[1];
+
       $p['prefs'] = array(
         'calendar_default_view' => get_input_value('_default_view', RCUBE_INPUT_POST),
         'calendar_timeslots'    => intval(get_input_value('_timeslots', RCUBE_INPUT_POST)),
@@ -631,6 +652,8 @@ class calendar extends rcube_plugin
         'calendar_time_format' => null,
         'calendar_contact_birthdays'    => get_input_value('_contact_birthdays', RCUBE_INPUT_POST) ? true : false,
         'calendar_birthday_adressbooks' => array_filter((array)get_input_value('_birthday_adressbooks', RCUBE_INPUT_POST)),
+        'calendar_birthdays_alarm_type'   => get_input_value('_birthdays_alarm_type', RCUBE_INPUT_POST),
+        'calendar_birthdays_alarm_offset' => $birthdays_alarm_value,
       );
 
       // categories
@@ -1012,10 +1035,31 @@ class calendar extends rcube_plugin
   public function pending_alarms($p)
   {
     $this->load_driver();
-    if ($alarms = $this->driver->pending_alarms($p['time'] ?: time())) {
+    $time = $p['time'] ?: time();
+    if ($alarms = $this->driver->pending_alarms($time)) {
       foreach ($alarms as $alarm) {
         $alarm['id'] = 'cal:' . $alarm['id'];  // prefix ID with cal:
         $p['alarms'][] = $alarm;
+      }
+    }
+
+    // get alarms for birthdays calendar
+    if ($this->rc->config->get('calendar_contact_birthdays') && $this->rc->config->get('calendar_birthdays_alarm_type') == 'DISPLAY') {
+      $cache = $this->rc->get_cache('calendar.birthdayalarms', 'db');
+
+      foreach ($this->driver->load_birthday_events($time, $time + 86400 * 60) as $e) {
+        $alarm = libcalendaring::get_next_alarm($e);
+
+        // overwrite alarm time with snooze value (or null if dismissed)
+        if ($dismissed = $cache->get($e['id']))
+          $alarm['time'] = $dismissed['notifyat'];
+
+        // add to list if alarm is set
+        if ($alarm && $alarm['time'] && $alarm['time'] <= $time) {
+          $e['id'] = 'cal:bday:' . $e['id'];
+          $e['notifyat'] = $alarm['time'];
+          $p['alarms'][] = $e;
+        }
       }
     }
 
@@ -1029,8 +1073,12 @@ class calendar extends rcube_plugin
   {
       $this->load_driver();
       foreach ((array)$p['ids'] as $id) {
-          if (strpos($id, 'cal:') === 0)
+          if (strpos($id, 'cal:bday:') === 0) {
+              $p['success'] |= $this->driver->dismiss_birthday_alarm(substr($id, 9), $p['snooze']);
+          }
+          else if (strpos($id, 'cal:') === 0) {
               $p['success'] |= $this->driver->dismiss_alarm(substr($id, 4), $p['snooze']);
+          }
       }
 
       return $p;

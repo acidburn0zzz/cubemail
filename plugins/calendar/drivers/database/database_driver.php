@@ -139,7 +139,7 @@ class database_driver extends calendar_driver
           'name'       => $this->cal->gettext('birthdays'),
           'listname'   => $this->cal->gettext('birthdays'),
           'color'      => $prefs['color'],
-          'showalarms' => $prefs['showalarms'],
+          'showalarms' => (bool)$this->rc->config->get('calendar_birthdays_alarm_type'),
           'active'     => !in_array($id, $hidden),
           'class_name' => 'birthdays',
           'readonly'   => true,
@@ -187,12 +187,12 @@ class database_driver extends calendar_driver
   {
     // birthday calendar properties are saved in user prefs
     if ($prop['id'] == self::BIRTHDAY_CALENDAR_ID) {
-      $prefs = $this->rc->config->get('birthday_calendar', array('color' => '87CEFA'));
+      $prefs['birthday_calendar'] = $this->rc->config->get('birthday_calendar', array('color' => '87CEFA'));
       if (isset($prop['color']))
-        $prefs['color'] = $prop['color'];
+        $prefs['birthday_calendar']['color'] = $prop['color'];
       if (isset($prop['showalarms']))
-        $prefs['showalarms'] = $prop['showalarms'] ? true : false;
-      $this->rc->user->save_prefs(array('birthday_calendar' => $prefs));
+        $prefs['calendar_birthdays_alarm_type'] = $prop['showalarms'] ? $this->alarm_types[0] : '';
+      $this->rc->user->save_prefs($prefs);
       return true;
     }
 

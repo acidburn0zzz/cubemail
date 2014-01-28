@@ -429,6 +429,10 @@ abstract class calendar_driver
     $cache  = $rcmail->get_cache('calendar.birthdays', 'db', 3600);
     $cache->expunge();
 
+    $alarm_type = $rcmail->config->get('calendar_birthdays_alarm_type', '');
+    $alarm_offset = $rcmail->config->get('calendar_birthdays_alarm_offset', '-1D');
+    $alarms = $alarm_type ? $alarm_offset . ':' . $alarm_type : null;
+
     // let the user select the address books to consider in prefs
     $selected_sources = $rcmail->config->get('calendar_birthday_adressbooks');
     $sources = $selected_sources ?: array_keys($rcmail->get_address_sources(false, true));
@@ -493,14 +497,14 @@ abstract class calendar_driver
           if ($bday <= $end && $bday >= $start) {
             $age = $year - $birthyear;
             $event = array(
-              'id'          => md5('bday_' . $contact['id']),
+              'id'          => md5('bday_' . $contact['id'] . $year),
               'calendar'    => self::BIRTHDAY_CALENDAR_ID,
               'title'       => $event_title,
               'description' => $rcmail->gettext(array('name' => 'birthdayage', 'vars' => array('age' => $age)), 'calendar'),
               // Add more contact information to description block?
               'allday'      => true,
               'start'       => $bday,
-              // TODO: add alarms (configurable?)
+              'alarms'      => $alarms,
             );
             $event['end'] = clone $bday;
             $event['end']->add(new DateInterval('PT1H'));
@@ -517,6 +521,25 @@ abstract class calendar_driver
     }
 
     return $events;
+  }
+
+  /**
+   * Store alarm dismissal for birtual birthay events
+   *
+   * @param  string  Event identifier
+   * @param  integer Suspend the alarm for this number of seconds
+   */
+  public function dismiss_birthday_alarm($event_id, $snooze = 0)
+  {
+    $rcmail = rcmail::get_instance();
+    $cache  = $rcmail->get_cache('calendar.birthdayalarms', 'db', 86400 * 30);
+    $cache->remove($event_id);
+
+    // compute new notification time or disable if not snoozed
+    $notifyat = $snooze > 0 ? time() + $snooze : null;
+    $cache->set($event_id, array('snooze' => $snooze, 'notifyat' => $notifyat));
+
+    return true;
   }
 
 }
