@@ -412,10 +412,16 @@ abstract class calendar_driver
    * @param  integer Event's new start (unix timestamp)
    * @param  integer Event's new end (unix timestamp)
    * @param  string  Search query (optional)
+   * @param  integer Only list events modified since this time (unix timestamp)
    * @return array A list of event records
    */
-  public function load_birthday_events($start, $end, $search = null)
+  public function load_birthday_events($start, $end, $search = null, $modifiedsince = null)
   {
+    // ignore update requests for simplicity reasons
+    if (!empty($modifiedsince)) {
+      return array();
+    }
+
     // convert to DateTime for comparisons
     $start  = new DateTime('@'.$start);
     $end    = new DateTime('@'.$end);
@@ -451,7 +457,7 @@ abstract class calendar_driver
       $cached = $cache->get($source);
 
       // iterate over (cached) contacts
-      foreach (($cached ?: $abook->list_records()) as $contact) {
+      foreach (($cached ?: $abook->search('*', '', 2, true, true, array('birthday'))) as $contact) {
         if (is_array($contact) && !empty($contact['birthday'])) {
           try {
             if (is_array($contact['birthday']))
@@ -472,7 +478,7 @@ abstract class calendar_driver
           // add stripped record to cache
           if (empty($cached)) {
             $cache_records[] = array(
-              'id' => $contact['ID'],
+              'ID' => $contact['ID'],
               'name' => $display_name,
               'birthday' => $bday->format('Y-m-d'),
             );
@@ -497,7 +503,7 @@ abstract class calendar_driver
           if ($bday <= $end && $bday >= $start) {
             $age = $year - $birthyear;
             $event = array(
-              'id'          => md5('bday_' . $contact['id'] . $year),
+              'id'          => md5('bday_' . $contact['ID'] . $year),
               'calendar'    => self::BIRTHDAY_CALENDAR_ID,
               'title'       => $event_title,
               'description' => $rcmail->gettext(array('name' => 'birthdayage', 'vars' => array('age' => $age)), 'calendar'),

@@ -813,7 +813,7 @@ class database_driver extends calendar_driver
 
     // add events from the address books birthday calendar
     if (in_array(self::BIRTHDAY_CALENDAR_ID, $calendars)) {
-      $events = array_merge($events, $this->load_birthday_events($start, $end, $search));
+      $events = array_merge($events, $this->load_birthday_events($start, $end, $search, $modifiedsince));
     }
 
     return $events;

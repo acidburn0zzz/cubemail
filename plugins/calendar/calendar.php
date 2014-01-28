@@ -653,7 +653,7 @@ class calendar extends rcube_plugin
         'calendar_date_format' => null,  // clear previously saved values
         'calendar_time_format' => null,
         'calendar_contact_birthdays'    => get_input_value('_contact_birthdays', RCUBE_INPUT_POST) ? true : false,
-        'calendar_birthday_adressbooks' => array_filter((array)get_input_value('_birthday_adressbooks', RCUBE_INPUT_POST)),
+        'calendar_birthday_adressbooks' => (array)get_input_value('_birthday_adressbooks', RCUBE_INPUT_POST),
         'calendar_birthdays_alarm_type'   => get_input_value('_birthdays_alarm_type', RCUBE_INPUT_POST),
         'calendar_birthdays_alarm_offset' => $birthdays_alarm_value ?: null,
       );
