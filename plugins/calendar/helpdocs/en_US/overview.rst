@@ -118,6 +118,8 @@ Create a New Calendar
 
 The calendar view will reload and list the new calendar on the left.
 
+.. _calendar-edit-properties:
+
 Edit Calendar Names and Settings
 --------------------------------
 
