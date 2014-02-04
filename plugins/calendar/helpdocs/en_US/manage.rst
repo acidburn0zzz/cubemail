@@ -147,6 +147,7 @@ Invitations will be sent out when you click *Save* and the event is created.
 .. only:: kolab
 
     .. index:: Availability
+    .. _calendar-availability-finder:
 
     Find Availability
     ^^^^^^^^^^^^^^^^^

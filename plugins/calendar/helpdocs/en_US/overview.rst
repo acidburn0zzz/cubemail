@@ -125,7 +125,7 @@ Edit Calendar Names and Settings
 
 1. Select the calendar to edit by clicking it in the list.
 2. Click the gear icon in the calendars list footer and select *Edit* from the options menu.
-3. Adjust name, color or alarms settings in the edit dialog.
+3. Adjust name, color or reminders settings in the edit dialog.
 4. Click *Save* to finally update the calendar.
 
 Remove entire Calendars
