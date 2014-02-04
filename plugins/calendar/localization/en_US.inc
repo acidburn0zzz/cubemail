@@ -5,7 +5,7 @@ $labels = array();
 // preferences
 $labels['default_view'] = 'Default view';
 $labels['time_format'] = 'Time format';
-$labels['timeslots'] = 'Timeslots per hour';
+$labels['timeslots'] = 'Time slots per hour';
 $labels['first_day'] = 'First weekday';
 $labels['first_hour'] = 'First hour to show';
 $labels['workinghours'] = 'Working hours';
@@ -98,7 +98,7 @@ $labels['pastevents'] = 'Past';
 $labels['futureevents'] = 'Future';
 
 // alarm/reminder settings
-$labels['showalarms'] = 'Show alarms';
+$labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'Default reminder setting';
 $labels['defaultalarmoffset'] = 'Default reminder time';
 
