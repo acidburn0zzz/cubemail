@@ -147,6 +147,18 @@ If you organize your tasks in different lists, dropping a task onto a task list 
 moves it (and all child tasks) to that particular list.
 
 
+.. index:: Notifications, Reminders
+.. _tasklist-task-alarms:
+
+Get Notifications
+-----------------
+
+While logged in to the webmail, reminders about soon-to-be due tasks will be displayed with pop-up boxes at
+the specified time before the task is due. You can specify if you want to see reminders for every task list individually.
+Enable or disable reminders in :ref:`Task List Settings <tasklist-edit-list>` from the :ref:`tasklist-lists`.
+
+Read how to :ref:`Dismiss or Snooze Reminders <calendar-event-alarms>` in the calendar section.
+
 
 Delete Tasks
 ------------

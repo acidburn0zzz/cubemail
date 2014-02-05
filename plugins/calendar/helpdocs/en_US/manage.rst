@@ -113,10 +113,10 @@ Get Notifications
 
     While logged in to the webmail, event reminders will be displayed with pop-up boxes at the specified time
     before the event starts. You can specify if you want to see alarms for every calendar individually.
-    Enable or disable alarms in :ref:`Calendar Settings <calendar-edit-properties>` from the :ref:`calendar-lists`.
+    Enable or disable reminders in :ref:`Calendar Settings <calendar-edit-properties>` from the :ref:`calendar-lists`.
 
-Dismiss or Snooze Alarms
-^^^^^^^^^^^^^^^^^^^^^^^^
+Dismiss or Snooze Reminders
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When a reminder box pops up, you can either dismiss the notification for all events or each one individually.
 When dismissed, no further reminders will be displayed. Choose a time from the *Snooze* menu to get another
