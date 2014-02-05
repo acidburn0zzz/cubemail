@@ -12,4 +12,3 @@ The *Tasks* module helps you organize your daily jobs and ToDo's and will alert 
 
    overview
    manage
-   filterstags

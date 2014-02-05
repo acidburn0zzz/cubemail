@@ -29,7 +29,7 @@
 
 class kolab_addressbook extends rcube_plugin
 {
-    public $task = 'mail|settings|addressbook|calendar';
+    public $task = 'mail|settings|addressbook|calendar|tasks';
 
     private $sources;
     private $rc;

@@ -84,6 +84,8 @@ first select a file from your local disk and click *Upload* in order to attach i
     Even switching back and forth the tabs will not yet save the data.
 
 
+.. index:: Move, Drag & Drop
+
 Moving and Resizing with the Mouse
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
