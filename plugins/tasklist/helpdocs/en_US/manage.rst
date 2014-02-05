@@ -78,7 +78,7 @@ used tags will be shown. Use the arrow keys on the keyboard to select one and pr
 
 Remove tags with a click on the *Remove* icon.
 
-**Datg & Drop Tags**
+**Drag & Drop Tags**
 
 Existing tags listed in the tags box on the left can also be assigned to tasks directly in the list view
 by simply dragging the tag from the box and drop it on a task bar.
@@ -137,13 +137,13 @@ Create a Subtask
 Re-organize Groups
 ^^^^^^^^^^^^^^^^^^
 
-Ther hierarchical nesting of tasks and subtasks can be changed at any time. Simple grab a task with the mouse
+The hierarchical nesting of tasks and subtasks can be changed at any time. Simple grab a task with the mouse
 and drop onto another one to make it a subtask. This works for entire subtrees equally well. While dragging,
 a possible drop target is highlighted when moving over it.
 
 Drop a task onto the small bar on top of the tasks list to make it a main task again.
 
-If you organize your tasks in different lists, dropping a task onto a tasklist in the box on the left
+If you organize your tasks in different lists, dropping a task onto a task list in the box on the left
 moves it (and all child tasks) to that particular list.
 
 
