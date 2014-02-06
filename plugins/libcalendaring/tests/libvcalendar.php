@@ -142,6 +142,11 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         // categories, class
         $this->assertEquals('libcalendaring tests', join(',', (array)$event['categories']), "Event categories");
         $this->assertEquals('confidential', $event['sensitivity'], "Class/sensitivity = confidential");
+
+        // parse a reccuence chain instance
+        $events = $ical->import_from_file(__DIR__ . '/resources/recurrence-id.ics', 'UTF-8');
+        $this->assertEquals(1, count($events), "Fall back to Component::getComponents() when getBaseComponents() is empty");
+        $this->assertInstanceOf('DateTime', $events[0]['recurrence_date'], "Recurrence-ID as date");
     }
 
     /**
