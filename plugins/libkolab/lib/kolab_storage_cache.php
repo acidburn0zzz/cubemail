@@ -453,7 +453,7 @@ class kolab_storage_cache
             );
 
             if ($this->db->is_error($sql_result)) {
-                return null;
+                return $result;
             }
 
             while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
@@ -483,7 +483,7 @@ class kolab_storage_cache
             }
 
             if ($index->is_error()) {
-                return null;
+                return $result;
             }
 
             $index  = $index->get();
