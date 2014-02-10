@@ -221,7 +221,7 @@ function authenticate(&$opts)
             if ($opts['verbose'])
                 echo "IMAP login succeeded.\n";
             if (($user = rcube_user::query($opts['username'], $auth['host'])) && $user->ID)
-                $rcmail->set_user($user);
+                $rcmail->user = $user;
         }
         else
             die("Login to IMAP server failed!\n");
