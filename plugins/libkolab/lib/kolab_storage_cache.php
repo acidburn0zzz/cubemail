@@ -453,6 +453,7 @@ class kolab_storage_cache
             );
 
             if ($this->db->is_error($sql_result)) {
+                $result->set_error(true);
                 return $result;
             }
 
@@ -483,6 +484,7 @@ class kolab_storage_cache
             }
 
             if ($index->is_error()) {
+                $result->set_error(true);
                 return $result;
             }
 
