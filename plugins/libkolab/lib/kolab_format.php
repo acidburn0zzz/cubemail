@@ -242,7 +242,8 @@ abstract class kolab_format
                 break;
             case kolabformat::Warning:
                 $ret = false;
-                $log = "Warning";
+                $uid = is_object($this->obj) ? $this->obj->uid() : $this->data['uid'];
+                $log = "Warning @ $uid";
                 break;
             default:
                 $ret = true;
