@@ -318,7 +318,7 @@ class kolab_storage_cache
      * @param mixed  Hash array with object properties to save or false to delete the cache entry
      * @param int    Optional old message UID (for update)
      */
-    public function save($msguid, $object, $olduid)
+    public function save($msguid, $object, $olduid = null)
     {
         // write to cache
         if ($this->ready) {
