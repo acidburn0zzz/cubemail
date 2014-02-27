@@ -43,7 +43,8 @@ class libvcalendar implements Iterator
     private $attach_uri = null;
     private $prodid = '-//Roundcube//Roundcube libcalendaring//Sabre//Sabre VObject//EN';
     private $type_component_map = array('event' => 'VEVENT', 'task' => 'VTODO');
-    private $attendee_keymap = array('name' => 'CN', 'status' => 'PARTSTAT', 'role' => 'ROLE', 'cutype' => 'CUTYPE', 'rsvp' => 'RSVP');
+    private $attendee_keymap = array('name' => 'CN', 'status' => 'PARTSTAT', 'role' => 'ROLE',
+        'cutype' => 'CUTYPE', 'rsvp' => 'RSVP', 'delegated-from' => 'DELEGATED-FROM', 'delegated-to' => 'DELEGATED-TO');
     private $iteratorkey = 0;
     private $charset;
     private $forward_exceptions;
@@ -710,7 +711,7 @@ class libvcalendar implements Iterator
         $out = array();
         foreach ($map as $from => $to) {
             if (isset($values[$from]))
-                $out[$to] = $values[$from];
+                $out[$to] = is_array($values[$from]) ? join(',', $values[$from]) : $values[$from];
         }
         return $out;
     }

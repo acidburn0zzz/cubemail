@@ -137,6 +137,16 @@ abstract class kolab_format_xcal extends kolab_format
             $attendee = $attvec->get($i);
             $cr = $attendee->contact();
             if ($cr->email() != $object['organizer']['email']) {
+                $delegators = $delegatees = array();
+                $vdelegators = $attendee->delegatedFrom();
+                for ($j=0; $j < $vdelegators->size(); $j++) {
+                    $delegators[] = $vdelegators->get($j)->email();
+                }
+                $vdelegatees = $attendee->delegatedTo();
+                for ($j=0; $j < $vdelegatees->size(); $j++) {
+                    $delegatees[] = $vdelegatees->get($j)->email();
+                }
+
                 $object['attendees'][] = array(
                     'role' => $role_map[$attendee->role()],
                     'cutype' => $cutype_map[$attendee->cutype()],
@@ -144,6 +154,8 @@ abstract class kolab_format_xcal extends kolab_format
                     'rsvp' => $attendee->rsvp(),
                     'email' => $cr->email(),
                     'name' => $cr->name(),
+                    'delegated-from' => $delegators,
+                    'delegated-to' => $delegatees,
                 );
             }
         }
@@ -286,6 +298,21 @@ abstract class kolab_format_xcal extends kolab_format
                 $att->setRole($this->role_map[$attendee['role']] ? $this->role_map[$attendee['role']] : kolabformat::Required);
                 $att->setCutype($this->cutype_map[$attendee['cutype']] ? $this->cutype_map[$attendee['cutype']] : kolabformat::CutypeIndividual);
                 $att->setRSVP((bool)$attendee['rsvp']);
+
+                if (!empty($attendee['delegated-from'])) {
+                    $vdelegators = new vectorcontactref;
+                    foreach ((array)$attendee['delegated-from'] as $delegator) {
+                        $vdelegators->push(new ContactReference(ContactReference::EmailReference, $delegator));
+                    }
+                    $att->setDelegatedFrom($vdelegators);
+                }
+                if (!empty($attendee['delegated-to'])) {
+                    $vdelegatees = new vectorcontactref;
+                    foreach ((array)$attendee['delegated-to'] as $delegatee) {
+                        $vdelegatees->push(new ContactReference(ContactReference::EmailReference, $delegatee));
+                    }
+                    $att->setDelegatedTo($vdelegatees);
+                }
 
                 if ($att->isValid()) {
                     $attendees->push($att);
