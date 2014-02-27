@@ -409,6 +409,10 @@ a.miniColors-trigger {
 	background-position: right -60px;
 }
 
+.event-attendees span.delegated {
+	background-position: right -160px;
+}
+
 .event-attendees span.organizer {
 	background-position: right -80px;
 }
@@ -743,6 +747,10 @@ td.topalign {
 
 #edit-attendees-table td.confirmstate span.tentative {
 	background-position: 5px -60px;
+}
+
+#edit-attendees-table td.confirmstate span.delegated {
+	background-position: 5px -160px;
 }
 
 #attendees-freebusy-table {
