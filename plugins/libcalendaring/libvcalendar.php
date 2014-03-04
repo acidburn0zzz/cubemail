@@ -545,8 +545,12 @@ class libvcalendar implements Iterator
                 $event['allday'] = true;
             }
 
+            // all-day events may lack the DTEND property
+            if ($event['allday'] && empty($event['end'])) {
+                $event['end'] = clone $event['start'];
+            }
             // shift end-date by one day (except Thunderbird)
-            if ($event['allday'] && is_object($event['end'])) {
+            else if ($event['allday'] && is_object($event['end'])) {
                 $event['end']->sub(new \DateInterval('PT23H'));
             }
 
