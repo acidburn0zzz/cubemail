@@ -112,6 +112,7 @@ $labels['roleorganizer'] = 'Organizer';
 $labels['rolerequired'] = 'Required';
 $labels['roleoptional'] = 'Optional';
 $labels['rolechair'] = 'Chair';
+$labels['rolenonparticipant'] = 'Absent';
 $labels['cutypeindividual'] = 'Individual';
 $labels['cutypegroup'] = 'Group';
 $labels['cutyperesource'] = 'Resource';

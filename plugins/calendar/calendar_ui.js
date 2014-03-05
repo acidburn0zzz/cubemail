@@ -856,16 +856,17 @@ function rcube_calendar_ui(settings)
         .bind('click.roleicons', function(e){
           // toggle attendee status upon click on icon
           if (e.target.id && e.target.id.match(/rcmlia(.+)/)) {
-            var attendee, domid = RegExp.$1, roles = [ 'REQ-PARTICIPANT', 'OPT-PARTICIPANT', 'CHAIR' ];
+            var attendee, domid = RegExp.$1,
+                roles = [ 'REQ-PARTICIPANT', 'OPT-PARTICIPANT', 'NON-PARTICIPANT', 'CHAIR' ];
             if ((attendee = freebusy_ui.attendees[domid]) && attendee.role != 'ORGANIZER') {
-              var req = attendee.role != 'OPT-PARTICIPANT';
+              var req = attendee.role != 'OPT-PARTICIPANT' && attendee.role != 'NON-PARTICIPANT';
               var j = $.inArray(attendee.role, roles);
               j = (j+1) % roles.length;
               attendee.role = roles[j];
               $(e.target).parent().removeClass().addClass('attendee '+String(attendee.role).toLowerCase());
               
               // update total display if required-status changed
-              if (req != (roles[j] != 'OPT-PARTICIPANT')) {
+              if (req != (roles[j] != 'OPT-PARTICIPANT' && roles[j] != 'NON-PARTICIPANT')) {
                 compute_freebusy_totals();
                 update_freebusy_display(attendee.email);
               }
@@ -1462,6 +1463,7 @@ function rcube_calendar_ui(settings)
         opts.ORGANIZER = rcmail.gettext('calendar.roleorganizer');
       opts['REQ-PARTICIPANT'] = rcmail.gettext('calendar.rolerequired');
       opts['OPT-PARTICIPANT'] = rcmail.gettext('calendar.roleoptional');
+      opts['NON-PARTICIPANT'] = rcmail.gettext('calendar.rolenonparticipant');
       opts['CHAIR'] =  rcmail.gettext('calendar.rolechair');
       
       if (organizer && !readonly)
