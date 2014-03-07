@@ -484,7 +484,7 @@ a.miniColors-trigger {
 .calendarmain .fc-view-table td.fc-list-header,
 #attendees-freebusy-table h3.boxtitle,
 #schedule-freebusy-times thead th,
-#edit-attendees-table thead td
+.edit-attendees-table thead td
  {
 	color: #69939e;
 	font-size: 11px;
@@ -658,34 +658,34 @@ td.topalign {
 	padding: 0.5em;
 }
 
-#edit-attendees-table {
+.edit-attendees-table {
 	width: 100%;
 	margin-top: 0.5em;
 }
 
-#edit-attendees-table td.role {
+.edit-attendees-table td.role {
 	width: 9em;
 }
 
-#edit-attendees-table td.availability,
-#edit-attendees-table td.confirmstate {
+.edit-attendees-table td.availability,
+.edit-attendees-table td.confirmstate {
 	width: 4em;
 }
 
-#edit-attendees-table td.options {
+.edit-attendees-table td.options {
 	width: 3em;
 	text-align: right;
 	padding-right: 4px;
 }
 
-#edit-attendees-table td.name {
+.edit-attendees-table td.name {
 	width: auto;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-#edit-attendees-table a.deletelink {
+.edit-attendees-table a.deletelink {
 	display: block;
 	width: 17px;
 	height: 17px;
@@ -694,18 +694,20 @@ td.topalign {
 	text-indent: 1000px;
 }
 
-#edit-attendees-form {
+#edit-attendees-form,
+#edit-resources-form {
 	position: relative;
 	margin-top: 1em;
 }
 
-#edit-attendees-form #edit-attendee-schedule {
+#edit-attendees-form #edit-attendee-schedule,
+#edit-resources-form #edit-resource-find {
 	position: absolute;
 	top: 0;
 	right: 0;
 }
 
-#edit-attendees-table select.edit-attendee-role {
+.edit-attendees-table select.edit-attendee-role {
 	border: 0;
 	padding: 2px;
 	background: white;
@@ -778,34 +780,34 @@ td.topalign {
 	vertical-align: middle;
 }
 
-#edit-attendees-table tbody td.confirmstate {
+.edit-attendees-table tbody td.confirmstate {
 	overflow: hidden;
 	white-space: nowrap;
 	text-indent: -2000%;
 }
 
-#edit-attendees-table td.confirmstate span {
+.edit-attendees-table td.confirmstate span {
 	display: block;
 	width: 20px;
 	background: url(images/attendee-status.gif) 5px 0 no-repeat;
 }
 
-#edit-attendees-table td.confirmstate span.needs-action {
+.edit-attendees-table td.confirmstate span.needs-action {
 }
 
-#edit-attendees-table td.confirmstate span.accepted {
+.edit-attendees-table td.confirmstate span.accepted {
 	background-position: 5px -20px;
 }
 
-#edit-attendees-table td.confirmstate span.declined {
+.edit-attendees-table td.confirmstate span.declined {
 	background-position: 5px -40px;
 }
 
-#edit-attendees-table td.confirmstate span.tentative {
+.edit-attendees-table td.confirmstate span.tentative {
 	background-position: 5px -60px;
 }
 
-#edit-attendees-table td.confirmstate span.delegated {
+.edit-attendees-table td.confirmstate span.delegated {
 	background-position: 5px -160px;
 }
 
@@ -1041,6 +1043,88 @@ a.dropdown-link:after {
 	margin-top: 0.5em;
 	padding: 0.5em 1em;
 }
+
+#resource-selection {
+	position: absolute;
+	top: 0;
+	left: 8px;
+	right: 0;
+	bottom: 0;
+}
+
+#resource-selection .scroller {
+	top: 34px;
+}
+
+#resource-dialog-left {
+	position: absolute;
+	top: 10px;
+	left: 0;
+	width: 380px;
+	bottom: 10px;
+}
+
+#resource-dialog-right {
+	position: absolute;
+	top: 10px;
+	left: 392px;
+	right: 8px;
+	bottom: 10px;
+}
+
+#resource-info {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 56%;
+}
+
+#resource-info table {
+	margin: 8px;
+	width: 97%;
+}
+
+#resource-info thead td {
+	background: none;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+#resource-availability {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 40%;
+}
+
+#resourcequicksearch {
+	padding: 4px;
+	background: #c7e3ef;
+}
+
+#resourcesearchbox {
+	width: 100%;
+	height: 26px;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+}
+
+#resourcequicksearch .iconbutton.searchoptions {
+	position: absolute;
+	top: 5px;
+	left: 6px;
+	width: 16px;
+}
+
+.searchbox .iconbutton.reset {
+	position: absolute;
+	top: 4px;
+	right: 1px;
+}
+
+
 
 /* fullcalendar style overrides */
 

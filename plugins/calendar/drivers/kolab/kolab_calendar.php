@@ -218,8 +218,18 @@ class kolab_calendar
   public function list_events($start, $end, $search = null, $virtual = 1, $query = array())
   {
     // convert to DateTime for comparisons
-    $start = new DateTime('@'.$start);
-    $end = new DateTime('@'.$end);
+    try {
+      $start = new DateTime('@'.$start);
+    }
+    catch (Exception $e) {
+      $start = new DateTime('@0');
+    }
+    try {
+      $end = new DateTime('@'.$end);
+    }
+    catch (Exception $e) {
+      $end = new DateTime('today +10 years');
+    }
 
     // query Kolab storage
     $query[] = array('dtstart', '<=', $end);

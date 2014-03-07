@@ -86,6 +86,7 @@ abstract class calendar_driver
   // features supported by backend
   public $alarms = false;
   public $attendees = false;
+  public $resources = false;
   public $freebusy = false;
   public $attachments = false;
   public $undelete = false; // event undelete action
@@ -546,6 +547,37 @@ abstract class calendar_driver
     $cache->set($event_id, array('snooze' => $snooze, 'notifyat' => $notifyat));
 
     return true;
+  }
+
+
+  /**
+   * Fetch resource objects to be displayed for booking
+   *
+   * @param  string  Search query (optional)
+   * @return array  List of resource records available for booking
+   */
+  public function load_resources($query = null)
+  {
+    return array();
+  }
+
+  /**
+   * Return properties of a single resource
+   *
+   * @param mixed  UID string
+   * @return array Resource object as hash array
+   */
+  public function get_resource($uid)
+  {
+    return null;
+  }
+
+  /**
+   *
+   */
+  public function get_resource_owner($id)
+  {
+    return null;
   }
 
 }

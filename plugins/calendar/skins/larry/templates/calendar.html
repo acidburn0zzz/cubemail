@@ -113,6 +113,45 @@
 
 <roundcube:include file="/templates/eventedit.html" />
 
+<div id="eventresourcesdialog" class="uidialog">
+	<div id="resource-dialog-left">
+		<div id="resource-selection" class="uibox listbox">
+			<div id="resourcequicksearch">
+				<div class="searchbox">
+					<roundcube:object name="plugin.resources_searchform" id="resourcesearchbox" />
+					<a id="resourcesearchmenulink" class="iconbutton searchoptions"> </a>
+					<roundcube:button command="reset-resource-search" id="resourcesearchreset" class="iconbutton reset" title="resetsearch" content=" " />
+				</div>
+			</div>
+			<div class="scroller">
+				<roundcube:object name="plugin.resources_list" id="resources-list" class="listing treelist" />
+			</div>
+		<!--
+			<div class="boxpagenav">
+				<roundcube:button command="firstpage" type="link" class="icon firstpage disabled" classAct="icon firstpage" title="firstpage" content="|&amp;lt;" />
+				<roundcube:button command="previouspage" type="link" class="icon prevpage disabled" classAct="icon prevpage" title="previouspage" content="&amp;lt;" />
+				<roundcube:button command="nextpage" type="link" class="icon nextpage disabled" classAct="icon nextpage" title="nextpage" content="&amp;gt;" />
+				<roundcube:button command="lastpage" type="link" class="icon lastpage disabled" classAct="icon lastpage" title="lastpage" content="&amp;gt;|" />
+			</div>
+		-->
+		</div>
+	</div>
+
+	<div id="resource-dialog-right">
+		<div id="resource-info" class="uibox contentbox">
+			<h2 class="boxtitle"><roundcube:label name="calendar.resourcedetails" /></h2>
+			<div class="scroller">
+				<roundcube:object name="plugin.resource_info" id="resource-details" class="propform" />
+			</div>
+		</div>
+
+		<div id="resource-availability" class="uibox contentbox">
+			<h2 class="boxtitle"><roundcube:label name="calendar.resourceavailability" /></h2>
+			<div id="resource-freebusy-calendar"></div>
+		</div>
+	</div>
+</div>
+
 <div id="eventfreebusy" class="uidialog">
 	<roundcube:object name="plugin.attendees_freebusy_table" id="attendees-freebusy-table" cellpadding="0" />
 
@@ -205,6 +244,9 @@ $(document).ready(function(e){
 	})
 	.data('offset', $('#calendarsidebartoggle').position().left)
 	.data('sidebarwidth', $('#calendarsidebar').width() + $('#calendarsidebar').position().left);
+
+	new rcube_splitter({ id:'calresourceviewsplitter', p1:'#resource-dialog-left', p2:'#resource-dialog-right',
+		orientation:'v', relative:true, start:380, min:220, size:10, offset:-3 }).init();
 });
 
 </script>

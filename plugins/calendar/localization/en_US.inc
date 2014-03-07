@@ -140,6 +140,15 @@ $labels['eventupdatemailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$atten
 $labels['eventcancelsubject'] = '"$title" has been canceled';
 $labels['eventcancelmailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nThe event has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated event details.";
 
+// resources
+$labels['resource'] = 'Resource';
+$labels['addresource'] = 'Book resource';
+$labels['findresources'] = 'Find resources';
+$labels['resourcedetails'] = 'Details';
+$labels['resourceavailability'] = 'Availability';
+$labels['resourceowner'] = 'Owner';
+$labels['resourceadded'] = 'The resource was added to your event';
+
 // invitation handling
 $labels['itipinvitation'] = 'Invitation to';
 $labels['itipupdate'] = 'Update of';
@@ -171,6 +180,7 @@ $labels['saveincalendar'] = 'save in';
 $labels['tabsummary'] = 'Summary';
 $labels['tabrecurrence'] = 'Recurrence';
 $labels['tabattendees'] = 'Participants';
+$labels['tabresources'] = 'Resources';
 $labels['tabattachments'] = 'Attachments';
 $labels['tabsharing'] = 'Sharing';
 

@@ -141,6 +141,9 @@ class calendar extends rcube_plugin
       $this->register_action('mailtoevent', array($this, 'mail_message2event'));
       $this->register_action('inlineui', array($this, 'get_inline_ui'));
       $this->register_action('check-recent', array($this, 'check_recent'));
+      $this->register_action('resources-list', array($this, 'resources_list'));
+      $this->register_action('resources-owner', array($this, 'resources_owner'));
+      $this->register_action('resources-autocomplete', array($this, 'resources_autocomplete'));
       $this->add_hook('refresh', array($this, 'refresh'));
 
       // remove undo information...
@@ -287,13 +290,14 @@ class calendar extends rcube_plugin
     $this->ui->addJS();
 
     $this->ui->init_templates();
-    $this->rc->output->add_label('lowest','low','normal','high','highest','delete','cancel','uploading','noemailwarning');
+    $this->rc->output->add_label('lowest','low','normal','high','highest','delete','cancel','uploading','noemailwarning','close');
 
     // initialize attendees autocompletion
     rcube_autocomplete_init();
 
     $this->rc->output->set_env('timezone', $this->timezone->getName());
     $this->rc->output->set_env('calendar_driver', $this->rc->config->get('calendar_driver'), false);
+    $this->rc->output->set_env('resources', (bool)$this->driver->resources);
     $this->rc->output->set_env('mscolors', $this->driver->get_color_values());
     $this->rc->output->set_env('identities-selector', $this->ui->identity_select(array('id' => 'edit-identities-list')));
 
@@ -1927,6 +1931,55 @@ class calendar extends rcube_plugin
       $diff[] = 'attachments';
     
     return $diff;
+  }
+
+
+  /****  Resource management functions  ****/
+
+  public function resources_autocomplete()
+  {
+    $search = rcube_utils::get_input_value('_search', rcube_utils::INPUT_GPC, true);
+    $sid    = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+    $maxnum = (int)$this->rc->config->get('autocomplete_max', 15);
+    $results = array();
+
+    foreach ($this->driver->load_resources($search, $maxnum) as $rec) {
+      $results[]  = array(
+          'name'  => $rec['name'],
+          'email' => $rec['email'],
+          'type'  => $rec['_type'],
+      );
+    }
+
+    $this->rc->output->command('ksearch_query_results', $results, $search, $sid);
+    $this->rc->output->send();
+  }
+
+  /**
+   * Handler for load-requests for resource data
+   */
+  function resources_list()
+  {
+    $data = array();
+    foreach ($this->driver->load_resources() as $rec) {
+      $rec['dn'] = rcube_ldap::dn_decode($rec['ID']);
+      $data[] = $rec;
+    }
+
+    $this->rc->output->command('plugin.resource_data', $data);
+    $this->rc->output->send();
+  }
+
+  /**
+   * Handler for requests loading resource owner information
+   */
+  function resources_owner()
+  {
+    $id = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+    $data = $this->driver->get_resource_owner($id);
+
+    $this->rc->output->command('plugin.resource_owner', $data);
+    $this->rc->output->send();
   }
 
 
