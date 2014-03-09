@@ -779,6 +779,9 @@ function rcube_calendar_ui(settings)
         resizable: (!bw.ie6 && !bw.ie7),  // disable for performance reasons
         closeOnEscape: false,
         title: rcmail.gettext((action == 'edit' ? 'edit_event' : 'new_event'), 'calendar'),
+        open: function() {
+          $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+        },
         close: function() {
           editform.hide().appendTo(document.body);
           $dialog.dialog("destroy").remove();
@@ -1608,9 +1611,14 @@ function rcube_calendar_ui(settings)
           $dialog.dialog('destroy').hide();
         },
         buttons: buttons,
-        width: Math.min(1000, $(window).width() - 50),
+        width: 900,
         height: 500
       }).show();
+
+      // define add-button as main action
+      $('.ui-dialog-buttonset .ui-button', $dialog.parent()).first().addClass('mainaction').attr('id', 'rcmbtncalresadd');
+
+      me.dialog_resize($dialog.get(0), 540, Math.min(1000, $(window).width() - 50));
 
       // initialize the treelist widget
       if (!resources_treelist) {
@@ -1635,14 +1643,13 @@ function rcube_calendar_ui(settings)
         // fetch (all) resource data from server
         me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
         rcmail.http_request('resources-list', {}, me.loading_lock);
+
+        // register button
+        rcmail.register_button('add-resource', 'rcmbtncalresadd', 'uibutton');
       }
       else {
         resources_treelist.select('__none__');
       }
-
-      // register button
-      $('.ui-dialog-buttonset .ui-button', $dialog.parent()).first().addClass('mainaction').attr('id', 'rcmbtncalresadd');
-      rcmail.register_button('add-resource', 'rcmbtncalresadd', 'input');
     };
 
     // render the resource details UI box
@@ -1728,6 +1735,8 @@ function rcube_calendar_ui(settings)
     var resource_owner_load = function(data)
     {
       if (data) {
+        // TODO: cache this!
+
         var table = $(rcmail.gui_objects.resourceownerinfo).find('tbody').html('');
 
         for (var k in data) {
@@ -1899,13 +1908,8 @@ function rcube_calendar_ui(settings)
           return false;
         });
         
-        var buttons = [{
-          text: rcmail.gettext('cancel', 'calendar'),
-          click: function() {
-            $(this).dialog("close");
-          }
-        }];
-        
+        var buttons = [];
+
         if (!event.recurrence) {
           buttons.push({
             text: rcmail.gettext((action == 'remove' ? 'remove' : 'save'), 'calendar'),
@@ -1917,13 +1921,23 @@ function rcube_calendar_ui(settings)
             }
           });
         }
-      
+
+        buttons.push({
+          text: rcmail.gettext('cancel', 'calendar'),
+          click: function() {
+            $(this).dialog("close");
+          }
+        });
+
         $dialog.dialog({
           modal: true,
           width: 460,
           dialogClass: 'warning',
           title: rcmail.gettext((action == 'remove' ? 'removeeventconfirm' : 'changeeventconfirm'), 'calendar'),
           buttons: buttons,
+          open: function() {
+            $dialog.parent().find('.ui-button').first().focus();
+          },
           close: function(){
             $dialog.dialog("destroy").hide();
             if (!rcmail.busy)
@@ -2156,6 +2170,9 @@ function rcube_calendar_ui(settings)
         resizable: true,
         closeOnEscape: false,
         title: rcmail.gettext((calendar.id ? 'editcalendar' : 'createcalendar'), 'calendar'),
+        open: function() {
+          $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+        },
         close: function() {
           $dialog.html('').dialog("destroy").hide();
         },
@@ -2249,6 +2266,9 @@ function rcube_calendar_ui(settings)
         resizable: false,
         closeOnEscape: false,
         title: rcmail.gettext('importevents', 'calendar'),
+        open: function() {
+          $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+        },
         close: function() {
           $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
           $dialog.dialog("destroy").hide();
@@ -2326,6 +2346,9 @@ function rcube_calendar_ui(settings)
         resizable: false,
         closeOnEscape: false,
         title: rcmail.gettext('exporttitle', 'calendar'),
+        open: function() {
+          $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+        },
         close: function() {
           $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
           $dialog.dialog("destroy").hide();
