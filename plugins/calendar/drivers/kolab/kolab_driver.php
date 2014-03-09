@@ -1359,7 +1359,8 @@ class kolab_driver extends calendar_driver
 
     if ($ldap = $this->resurces_ldap()) {
       $owner = $ldap->get_record(rcube_ldap::dn_encode($dn), true);
-      unset($owner['_raw_attrib'], $owner['_type'], $owner['ID']);
+      $owner['ID'] = rcube_ldap::dn_decode($owner['ID']);
+      unset($owner['_raw_attrib'], $owner['_type']);
     }
 
     return $owner;

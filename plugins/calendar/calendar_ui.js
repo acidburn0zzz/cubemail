@@ -51,6 +51,7 @@ function rcube_calendar_ui(settings)
     var resources_treelist;
     var resources_data = {};
     var resources_index = [];
+    var resource_owners = {};
     var freebusy_ui = { workinhoursonly:false, needsupdate:false };
     var freebusy_data = {};
     var current_view = null;
@@ -1681,9 +1682,15 @@ function rcube_calendar_ui(settings)
         $(rcmail.gui_objects.resourceownerinfo).hide();
 
         if (resource.owner) {
-          // fetch owner data from server
-          me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
-          rcmail.http_request('resources-owner', { _id: resource.owner }, me.loading_lock);
+          // display cached data
+          if (resource_owners[resource.owner]) {
+            resource_owner_load(resource_owners[resource.owner]);
+          }
+          else {
+            // fetch owner data from server
+            me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
+            rcmail.http_request('resources-owner', { _id: resource.owner }, me.loading_lock);
+          }
         }
       }
     };
@@ -1735,12 +1742,13 @@ function rcube_calendar_ui(settings)
     var resource_owner_load = function(data)
     {
       if (data) {
-        // TODO: cache this!
+        // cache this!
+        resource_owners[data.ID] = data;
 
         var table = $(rcmail.gui_objects.resourceownerinfo).find('tbody').html('');
 
         for (var k in data) {
-          if (k == 'event')
+          if (k == 'event' || k == 'ID')
             continue;
 
           table.append($('<tr>').addClass(k)
