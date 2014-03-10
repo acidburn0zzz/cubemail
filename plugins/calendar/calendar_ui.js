@@ -762,7 +762,7 @@ function rcube_calendar_ui(settings)
 
       // show/hide tabs according to calendar's feature support
       $('#edit-tab-attendees')[(calendar.attendees?'show':'hide')]();
-      $('#edit-tab-resources')[(calendar.resources?'show':'hide')]();
+      $('#edit-tab-resources')[(rcmail.env.calendar_resources?'show':'hide')]();
       $('#edit-tab-attachments')[(calendar.attachments?'show':'hide')]();
 
       // activate the first tab
@@ -1516,7 +1516,7 @@ function rcube_calendar_ui(settings)
         '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(data.status || '') + '">' + Q(data.status || '') + '</span></td>' +
         '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
 
-      var table = calendar.resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
+      var table = rcmail.env.calendar_resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
       var tr = $('<tr>')
         .addClass(String(data.role).toLowerCase())
         .html(html)
@@ -1706,12 +1706,12 @@ function rcube_calendar_ui(settings)
 
       // assign parent-relations
       $.each(data, function(i, rec) {
-        resources_data[rec.dn] = rec;
-        resources_index.push(rec.dn);
+        resources_data[rec.ID] = rec;
+        resources_index.push(rec.ID);
 
         if (rec.members) {
           $.each(rec.members, function(j, m){
-            resources_data[m].parent_id = rec.dn;
+            resources_data[m].parent_id = rec.ID;
           });
         }
       });
@@ -1730,10 +1730,10 @@ function rcube_calendar_ui(settings)
       $.each(index, function(i, dn) {
         if (rec = resources_data[dn]) {
           link = $('<a>').attr('href', '#')
-            .attr('rel', rec.dn)
+            .attr('rel', rec.ID)
             .html(Q(rec.name));
 
-          resources_treelist.insert({ id:rec.dn, html:link, classes:[rec._type], collapsed:true }, rec.parent_id, false);
+          resources_treelist.insert({ id:rec.ID, html:link, classes:[rec._type], collapsed:true }, rec.parent_id, false);
         }
       });
     };
@@ -1772,7 +1772,7 @@ function rcube_calendar_ui(settings)
         for (var dn in resources_data) {
           rec = resources_data[dn];
           if (String(rec.name).toLowerCase().indexOf(q) >= 0) {
-            dataset.push(rec.dn);
+            dataset.push(rec.ID);
           }
         }
 

@@ -86,7 +86,6 @@ abstract class calendar_driver
   // features supported by backend
   public $alarms = false;
   public $attendees = false;
-  public $resources = false;
   public $freebusy = false;
   public $attachments = false;
   public $undelete = false; // event undelete action
@@ -528,56 +527,6 @@ abstract class calendar_driver
     }
 
     return $events;
-  }
-
-  /**
-   * Store alarm dismissal for birtual birthay events
-   *
-   * @param  string  Event identifier
-   * @param  integer Suspend the alarm for this number of seconds
-   */
-  public function dismiss_birthday_alarm($event_id, $snooze = 0)
-  {
-    $rcmail = rcmail::get_instance();
-    $cache  = $rcmail->get_cache('calendar.birthdayalarms', 'db', 86400 * 30);
-    $cache->remove($event_id);
-
-    // compute new notification time or disable if not snoozed
-    $notifyat = $snooze > 0 ? time() + $snooze : null;
-    $cache->set($event_id, array('snooze' => $snooze, 'notifyat' => $notifyat));
-
-    return true;
-  }
-
-
-  /**
-   * Fetch resource objects to be displayed for booking
-   *
-   * @param  string  Search query (optional)
-   * @return array  List of resource records available for booking
-   */
-  public function load_resources($query = null)
-  {
-    return array();
-  }
-
-  /**
-   * Return properties of a single resource
-   *
-   * @param mixed  UID string
-   * @return array Resource object as hash array
-   */
-  public function get_resource($uid)
-  {
-    return null;
-  }
-
-  /**
-   *
-   */
-  public function get_resource_owner($id)
-  {
-    return null;
   }
 
 }

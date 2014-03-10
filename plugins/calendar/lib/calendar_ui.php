@@ -196,7 +196,6 @@ class calendar_ui
       unset($prop['user_id']);
       $prop['alarms'] = $this->cal->driver->alarms;
       $prop['attendees'] = $this->cal->driver->attendees;
-      $prop['resources'] = $this->cal->driver->resources;
       $prop['freebusy'] = $this->cal->driver->freebusy;
       $prop['attachments'] = $this->cal->driver->attachments;
       $prop['undelete'] = $this->cal->driver->undelete;

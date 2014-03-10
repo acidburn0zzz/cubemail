@@ -135,4 +135,11 @@ $rcmail_config['calendar_itip_smtp_pass'] = '123456';
 // %i - Calendar UUID
 // $rcmail_config['calendar_caldav_url'] = 'http://%h/iRony/calendars/%u/%i';
 
+// Driver to provide a resource directory ('ldap' is the only implementation yet).
+// Leave empty or commented to disable resources support.
+// $rcmail_config['calendar_resources_driver'] = 'ldap';
+
+// LDAP directory configuration to find avilable resources for events
+// $rcmail_config['calendar_resources_directory'] = array(/* ldap_public-like address book configuration */)
+
 ?>

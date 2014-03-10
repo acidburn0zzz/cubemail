@@ -38,6 +38,7 @@ class calendar extends rcube_plugin
   public $rc;
   public $lib;
   public $driver;
+  public $resources_dir;
   public $home;  // declare public to be used in other classes
   public $urlbase;
   public $timezone;
@@ -211,16 +212,10 @@ class calendar extends rcube_plugin
     require_once($this->home . '/drivers/calendar_driver.php');
     require_once($this->home . '/drivers/' . $driver_name . '/' . $driver_class . '.php');
 
-    switch ($driver_name) {
-      case "kolab":
-        $this->require_plugin('libkolab');
-      default:
-        $this->driver = new $driver_class($this);
-        break;
-     }
+    $this->driver = new $driver_class($this);
 
-     if ($this->driver->undelete)
-        $this->driver->undelete = $this->rc->config->get('undo_timeout', 0) > 0;
+    if ($this->driver->undelete)
+      $this->driver->undelete = $this->rc->config->get('undo_timeout', 0) > 0;
   }
 
   /**
@@ -297,7 +292,7 @@ class calendar extends rcube_plugin
 
     $this->rc->output->set_env('timezone', $this->timezone->getName());
     $this->rc->output->set_env('calendar_driver', $this->rc->config->get('calendar_driver'), false);
-    $this->rc->output->set_env('resources', (bool)$this->driver->resources);
+    $this->rc->output->set_env('calendar_resources', (bool)$this->rc->config->get('calendar_resources_driver'));
     $this->rc->output->set_env('mscolors', $this->driver->get_color_values());
     $this->rc->output->set_env('identities-selector', $this->ui->identity_select(array('id' => 'edit-identities-list')));
 
@@ -1936,6 +1931,30 @@ class calendar extends rcube_plugin
 
   /****  Resource management functions  ****/
 
+  /**
+   * Getter for the configured implementation of the resource directory interface
+   */
+  private function resources_directory()
+  {
+    if (is_object($this->resources_dir)) {
+      return $this->resources_dir;
+    }
+
+    if ($driver_name = $this->rc->config->get('calendar_resources_driver')) {
+      $driver_class = 'resources_driver_' . $driver_name;
+
+      require_once($this->home . '/drivers/resources_driver.php');
+      require_once($this->home . '/drivers/' . $driver_name . '/' . $driver_class . '.php');
+
+      $this->resources_dir = new $driver_class($this);
+    }
+
+    return $this->resources_dir;
+  }
+
+  /**
+   * Handler for resoruce autocompletion requests
+   */
   public function resources_autocomplete()
   {
     $search = rcube_utils::get_input_value('_search', rcube_utils::INPUT_GPC, true);
@@ -1943,12 +1962,14 @@ class calendar extends rcube_plugin
     $maxnum = (int)$this->rc->config->get('autocomplete_max', 15);
     $results = array();
 
-    foreach ($this->driver->load_resources($search, $maxnum) as $rec) {
-      $results[]  = array(
-          'name'  => $rec['name'],
-          'email' => $rec['email'],
-          'type'  => $rec['_type'],
-      );
+    if ($directory = $this->resources_directory()) {
+      foreach ($directory->load_resources($search, $maxnum) as $rec) {
+        $results[]  = array(
+            'name'  => $rec['name'],
+            'email' => $rec['email'],
+            'type'  => $rec['_type'],
+        );
+      }
     }
 
     $this->rc->output->command('ksearch_query_results', $results, $search, $sid);
@@ -1961,9 +1982,11 @@ class calendar extends rcube_plugin
   function resources_list()
   {
     $data = array();
-    foreach ($this->driver->load_resources() as $rec) {
-      $rec['dn'] = rcube_ldap::dn_decode($rec['ID']);
-      $data[] = $rec;
+
+    if ($directory = $this->resources_directory()) {
+      foreach ($directory->load_resources() as $rec) {
+        $data[] = $rec;
+      }
     }
 
     $this->rc->output->command('plugin.resource_data', $data);
@@ -1975,8 +1998,10 @@ class calendar extends rcube_plugin
    */
   function resources_owner()
   {
-    $id = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
-    $data = $this->driver->get_resource_owner($id);
+    if ($directory = $this->resources_directory()) {
+      $id = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+      $data = $directory->get_resource_owner($id);
+    }
 
     $this->rc->output->command('plugin.resource_owner', $data);
     $this->rc->output->send();

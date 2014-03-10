@@ -47,6 +47,8 @@ class kolab_driver extends calendar_driver
    */
   public function __construct($cal)
   {
+    $cal->require_plugin('libkolab');
+
     $this->cal = $cal;
     $this->rc = $cal->rc;
     $this->_read_calendars();
@@ -59,10 +61,6 @@ class kolab_driver extends calendar_driver
     if (kolab_storage::$version == '2.0') {
         $this->alarm_types = array('DISPLAY');
         $this->alarm_absolute = false;
-    }
-
-    if ($this->rc->config->get('calendar_resources_directory')) {
-      $this->resources = true;
     }
   }
 
@@ -1285,107 +1283,6 @@ class kolab_driver extends calendar_driver
         'F0E68C','DDA0DD','90EE90','7FFFD4','C0C0C0','87CEFA','B0C4DE',
         '98FB98','ADD8E6','B0E0E6','D8BFD8','EEE8AA','AFEEEE','D3D3D3',
         'FFDEAD');
-  }
-
-
-  private function resurces_ldap()
-  {
-    if (!isset($this->resources_dir)) {
-      $this->resources_dir = new rcube_ldap($this->rc->config->get('calendar_resources_directory'), true);
-    }
-
-    return $this->resources_dir->ready ? $this->resources_dir : null;
-  }
-
-
-  /**
-   * Fetch resource objects to be displayed for booking
-   *
-   * @param  string  Search query (optional)
-   * @return array  List of resource records available for booking
-   */
-  public function load_resources($query = null, $num = 5000)
-  {
-    if (!($ldap = $this->resurces_ldap())) {
-      return array();
-    }
-
-    // TODO: apply paging
-    $ldap->set_pagesize($num);
-
-    if (isset($query)) {
-      $results = $ldap->search('*', $query, 0, true, true);
-    }
-    else {
-      $results = $ldap->list_records();
-    }
-
-    if ($results instanceof ArrayAccess) {
-      foreach ($results as $i => $rec) {
-        $results[$i] = $this->decode_resource($rec);
-      }
-    }
-
-    return $results;
-  }
-
-  /**
-   * Return properties of a single resource
-   *
-   * @param mixed  UID string
-   * @return array Resource object as hash array
-   */
-  public function get_resource($uid)
-  {
-    $rec = null;
-
-    if ($ldap = $this->resurces_ldap()) {
-      $rec = $ldap->get_record($uid);
-
-      if (!empty($rec)) {
-        $rec = $this->decode_resource($rec);
-      }
-    }
-
-    return $rec;
-  }
-
-  /**
-   *
-   */
-  public function get_resource_owner($dn)
-  {
-    $owner = null;
-
-    if ($ldap = $this->resurces_ldap()) {
-      $owner = $ldap->get_record(rcube_ldap::dn_encode($dn), true);
-      $owner['ID'] = rcube_ldap::dn_decode($owner['ID']);
-      unset($owner['_raw_attrib'], $owner['_type']);
-    }
-
-    return $owner;
-  }
-
-  /**
-   * Extract JSON-serialized attributes
-   */
-  private function decode_resource($rec)
-  {
-    if (is_array($rec['attributes']) && $rec['attributes'][0]) {
-      $attributes = array();
-
-      foreach ($rec['attributes'] as $sattr) {
-        $attr = @json_decode($sattr, true);
-        $attributes += $attr;
-      }
-
-      $rec['attributes'] = $attributes;
-    }
-
-    // remove unused cruft
-    unset($rec['_raw_attrib']);
-
-    return $rec;
   }
 
 }
