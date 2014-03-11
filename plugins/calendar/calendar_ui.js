@@ -286,7 +286,7 @@ function rcube_calendar_ui(settings)
     // event details dialog (show only)
     var event_show_dialog = function(event)
     {
-      var $dialog = $("#eventshow").removeClass().addClass('uidialog');
+      var $dialog = $("#eventshow").attr('class', 'uidialog');
       var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { editable:false };
       me.selected_event = event;
 
@@ -314,9 +314,9 @@ function rcube_calendar_ui(settings)
         $('#event-alarm').show().children('.event-text').html(Q(event.alarms_text));
       
       if (calendar.name)
-        $('#event-calendar').show().children('.event-text').html(Q(calendar.name)).removeClass().addClass('event-text').addClass('cal-'+calendar.id);
+        $('#event-calendar').show().children('.event-text').html(Q(calendar.name)).attr('class', 'event-text').addClass('cal-'+calendar.id);
       if (event.categories)
-        $('#event-category').show().children('.event-text').html(Q(event.categories)).removeClass().addClass('event-text cat-'+String(event.categories).toLowerCase().replace(rcmail.identifier_expr, ''));
+        $('#event-category').show().children('.event-text').html(Q(event.categories)).attr('class', 'event-text cat-'+String(event.categories).toLowerCase().replace(rcmail.identifier_expr, ''));
       if (event.free_busy)
         $('#event-free-busy').show().children('.event-text').html(Q(rcmail.gettext(event.free_busy, 'calendar')));
       if (event.priority > 0) {
@@ -354,7 +354,7 @@ function rcube_calendar_ui(settings)
           data = event.attendees[j];
           dispname = Q(data.name || data.email);
           if (data.email) {
-            dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink">' + dispname + '</a>';
+            dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
             if (data.role == 'ORGANIZER')
               organizer = true;
             else if ((data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp) && settings.identity.emails.indexOf(';'+data.email) >= 0)
@@ -377,7 +377,7 @@ function rcube_calendar_ui(settings)
           $('#event-attendees').show()
             .children('.event-text')
             .html(html)
-            .find('a.mailtolink').click(function(e) { rcmail.redirect(rcmail.url('mail/compose', { _to:this.href.substr(7) })); return false; });
+            .find('a.mailtolink').click(event_attendee_click);
 
           // display all attendees in a popup when clicking the "more" link
           if (morelink) {
@@ -388,7 +388,7 @@ function rcube_calendar_ui(settings)
                 rcmail.gettext('tabattendees','calendar'),
                 null,
                 { width:450, modal:false });
-              $('#all-event-attendees a.mailtolink').click(function(e) { rcmail.redirect(rcmail.url('mail/compose', { _to:this.href.substr(7) })); return false; });
+              $('#all-event-attendees a.mailtolink').click(event_attendee_click);
               return false;
             })
           }
@@ -442,6 +442,20 @@ function rcube_calendar_ui(settings)
         .click(function(){ return false; })
         .insertBefore($dialog.parent().find('.ui-dialog-buttonset').children().first());
 */
+    };
+
+    // event handler for clicks on an attendee link
+    var event_attendee_click = function(e)
+    {
+      var cutype = $(this).attr('data-cutype'),
+        mailto = this.href.substr(7);
+      if (rcmail.env.calendar_resources && cutype == 'RESOURCE') {
+        event_resources_dialog(mailto);
+      }
+      else {
+        rcmail.redirect(rcmail.url('mail/compose', { _to:mailto }));
+      }
+      return false;
     };
 
     // bring up the event dialog (jquery-ui popup)
@@ -885,7 +899,7 @@ function rcube_calendar_ui(settings)
               var j = $.inArray(attendee.role, roles);
               j = (j+1) % roles.length;
               attendee.role = roles[j];
-              $(e.target).parent().removeClass().addClass('attendee '+String(attendee.role).toLowerCase());
+              $(e.target).parent().attr('class', 'attendee '+String(attendee.role).toLowerCase());
               
               // update total display if required-status changed
               if (req != (roles[j] != 'OPT-PARTICIPANT' && roles[j] != 'NON-PARTICIPANT')) {
@@ -1481,7 +1495,7 @@ function rcube_calendar_ui(settings)
 
       var dispname = Q(data.name || data.email);
       if (data.email)
-        dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink">' + dispname + '</a>';
+        dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
       
       // role selection
       var organizer = data.role == 'ORGANIZER';
@@ -1523,7 +1537,7 @@ function rcube_calendar_ui(settings)
         .appendTo(table);
 
       tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
-      tr.find('a.mailtolink').click(function(e) { rcmail.redirect(rcmail.url('mail/compose', { _to:this.href.substr(7) })); return false; });
+      tr.find('a.mailtolink').click(event_attendee_click);
 
       // select organizer identity
       if (data.identity_id)
@@ -1555,11 +1569,11 @@ function rcube_calendar_ui(settings)
     {
       var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { freebusy:false };
       if (!calendar.freebusy) {
-        $(icon).removeClass().addClass('availabilityicon unknown');
+        $(icon).attr('class', 'availabilityicon unknown');
         return;
       }
       
-      icon = $(icon).removeClass().addClass('availabilityicon loading');
+      icon = $(icon).attr('class', 'availabilityicon loading');
       
       $.ajax({
         type: 'GET',
@@ -1583,10 +1597,9 @@ function rcube_calendar_ui(settings)
     };
 
     // open a dialog to display detailed free-busy information and to find free slots
-    var event_resources_dialog = function()
+    var event_resources_dialog = function(search)
     {
-      var $dialog = $('#eventresourcesdialog'),
-        event = me.selected_event;
+      var $dialog = $('#eventresourcesdialog');
 
       if ($dialog.is(':ui-dialog'))
         $dialog.dialog('close');
@@ -1621,6 +1634,9 @@ function rcube_calendar_ui(settings)
 
       me.dialog_resize($dialog.get(0), 540, Math.min(1000, $(window).width() - 50));
 
+      // set search query
+      $('#resourcesearchbox').val(search || '');
+
       // initialize the treelist widget
       if (!resources_treelist) {
         resources_treelist = new rcube_treelist_widget(rcmail.gui_objects.resourceslist, {
@@ -1632,7 +1648,7 @@ function rcube_calendar_ui(settings)
         resources_treelist.addEventListener('select', function(node) {
           if (resources_data[node.id]) {
             resource_showinfo(resources_data[node.id]);
-            rcmail.enable_command('add-resource', me.selected_event ? true : false);
+            rcmail.enable_command('add-resource', me.selected_event && $("#eventedit").is(':visible') ? true : false);
           }
           else {
             rcmail.enable_command('add-resource', false);
@@ -1650,6 +1666,8 @@ function rcube_calendar_ui(settings)
       }
       else {
         resources_treelist.select('__none__');
+        if (search)
+          resource_search();
       }
     };
 
@@ -1717,7 +1735,13 @@ function rcube_calendar_ui(settings)
       });
 
       resources_index.reverse();
-      resource_render_list(resources_index);
+
+      // apply search filter...
+      if ($('#resourcesearchbox').val() != '')
+        resource_search();
+      else  // ...or render full list
+        resource_render_list(resources_index);
+
       rcmail.set_busy(false, null, me.loading_lock);
     };
 
@@ -1752,7 +1776,7 @@ function rcube_calendar_ui(settings)
             continue;
 
           table.append($('<tr>').addClass(k)
-            .append('<td class="title">' + Q(ucfirst(rcmail.get_label('owner'+k, 'calendar'))) + '</td>')
+            .append('<td class="title">' + Q(ucfirst(rcmail.get_label(k, 'calendar'))) + '</td>')
             .append('<td class="value">' + text2html(data[k]) + '</td>')
           );
         }
@@ -1771,7 +1795,7 @@ function rcube_calendar_ui(settings)
         // search by iterating over all resource records
         for (var dn in resources_data) {
           rec = resources_data[dn];
-          if (String(rec.name).toLowerCase().indexOf(q) >= 0) {
+          if (String(rec.name).toLowerCase().indexOf(q) >= 0 || String(rec.email).toLowerCase() == q) {
             dataset.push(rec.ID);
           }
         }
@@ -2634,6 +2658,11 @@ function rcube_calendar_ui(settings)
 
     /***  startup code  ***/
 
+    // destroy wrongly configured treelist widget for the calendars list
+    if (rcmail.gui_objects.folderlist && rcmail.treelist) {
+      rcmail.treelist = null;
+    }
+
     // create list of event sources AKA calendars
     this.calendars = {};
     var id, li, cal, active, color, brightness, event_sources = [];
@@ -2704,6 +2733,9 @@ function rcube_calendar_ui(settings)
     // select default calendar
     if (settings.default_calendar && this.calendars[settings.default_calendar] && !this.calendars[settings.default_calendar].readonly)
       this.selected_calendar = settings.default_calendar;
+    
+    if (this.selected_calendar)
+      rcmail.select_folder(this.selected_calendar, 'rcmlical');
     
     var viewdate = new Date();
     if (rcmail.env.date)

@@ -797,6 +797,9 @@ class calendar_ui
     $this->rc->output->add_gui_object('resourceinfo', $attrib['id']);
     $this->rc->output->add_gui_object('resourceownerinfo', $attrib['id'] . '-owner');
 
+    // copy address book labels for owner details to client
+    $this->rc->output->add_label('name','firstname','surname','department','jobtitle','email','phone','address');
+
     $table_attrib = array('id','class','style','width','summary','cellpadding','cellspacing','border');
 
     return html::tag('table', $attrib,
