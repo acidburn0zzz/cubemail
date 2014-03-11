@@ -441,7 +441,7 @@ a.miniColors-trigger {
 .event-attendees span.attendee {
 	padding-right: 18px;
 	margin-right: 0.5em;
-	background: url(images/attendee-status.gif) right 0 no-repeat;
+	background: url(images/attendee-status.png) right 0 no-repeat;
 }
 
 .event-attendees span.attendee a.mailtolink {
@@ -467,7 +467,7 @@ a.miniColors-trigger {
 }
 
 .event-attendees span.delegated {
-	background-position: right -160px;
+	background-position: right -180px;
 }
 
 .event-attendees span.organizer {
@@ -789,7 +789,7 @@ td.topalign {
 .edit-attendees-table td.confirmstate span {
 	display: block;
 	width: 20px;
-	background: url(images/attendee-status.gif) 5px 0 no-repeat;
+	background: url(images/attendee-status.png) 5px 0 no-repeat;
 }
 
 .edit-attendees-table td.confirmstate span.needs-action {
@@ -808,7 +808,7 @@ td.topalign {
 }
 
 .edit-attendees-table td.confirmstate span.delegated {
-	background-position: 5px -160px;
+	background-position: 5px -180px;
 }
 
 #attendees-freebusy-table {
@@ -840,7 +840,7 @@ td.topalign {
 
 .attendees-list .attendee {
 	padding: 4px 4px 4px 1px;
-	background: url(images/attendee-status.gif) 2px -97px no-repeat;
+	background: url(images/attendee-status.png) 2px -97px no-repeat;
 	white-space: nowrap;
 }
 
@@ -868,8 +868,12 @@ td.topalign {
 	background-position: 2px -117px;
 }
 
-.attendees-list .chair {
+.attendees-list .non-participant {
 	background-position: 2px -137px;
+}
+
+.attendees-list .chair {
+	background-position: 2px -157px;
 }
 
 .attendees-list .loading {
@@ -1519,9 +1523,10 @@ div.calendar-invitebox .rsvp-status.loading {
 
 div.calendar-invitebox .rsvp-status.declined,
 div.calendar-invitebox .rsvp-status.tentative,
+div.calendar-invitebox .rsvp-status.delegated,
 div.calendar-invitebox .rsvp-status.accepted {
 	padding: 0 0 1px 22px;
-	background: url(images/attendee-status.gif) 2px -20px no-repeat;
+	background: url(images/attendee-status.png) 2px -20px no-repeat;
 }
 
 div.calendar-invitebox .rsvp-status.declined {
@@ -1530,6 +1535,10 @@ div.calendar-invitebox .rsvp-status.declined {
 
 div.calendar-invitebox .rsvp-status.tentative {
 	background-position: 2px -60px;
+}
+
+div.calendar-invitebox .rsvp-status.delegated {
+	background-position: 2px -180px;
 }
 
 /* iTIP attend reply page */
