@@ -16,7 +16,7 @@ body.calendarmain {
 #main {
 	position: absolute;
 	clear: both;
-	top: 90px;
+	top: 72px;
 	left: 0;
 	right: 0;
 	bottom: 10px;
@@ -24,13 +24,15 @@ body.calendarmain {
 
 #calendarsidebar {
 	position: absolute;
-	top: 37px;
+	top: 0px;
 	left: 10px;
 	bottom: 0;
 	width: 230px;
 }
 
 #datepicker {
+	position: relative;
+	top: 42px;
 	width: 100%;
 }
 
@@ -62,7 +64,7 @@ body.calendarmain {
 	position: absolute;
 	left: 244px;
 	width: 8px;
-	top: 37px;
+	top: 4px;
 	bottom: 0;
 	background: url(images/toggle.gif) 0 48% no-repeat transparent;
 	cursor: pointer;
@@ -78,7 +80,7 @@ div.sidebarclosed {
 
 #calendar {
 	position: absolute;
-	top: 0;
+	top: 4px;
 	left: 256px;
 	right: 10px;
 	bottom: 0;
@@ -94,7 +96,7 @@ pre {
 
 #calendars {
 	position: absolute;
-	top: 220px;
+	top: 228px;
 	left: 0;
 	bottom: 0;
 	right: 0;
@@ -207,8 +209,8 @@ pre {
 
 #calendartoolbar {
 	position: absolute;
-	top: 45px;
-	left: 256px;
+	top: 0px;
+	left: 0px;
 	height: 35px;
 }
 
@@ -269,7 +271,8 @@ pre {
 	background-position: -128px -32px;
 }
 
-#quicksearchbar {
+.calendarmain #quicksearchbar {
+	top: 82px;
 	right: 4px;
 }
 
@@ -410,7 +413,7 @@ a.miniColors-trigger {
 }
 
 .event-attendees span.delegated {
-	background-position: right -160px;
+	background-position: right -180px;
 }
 
 .event-attendees span.organizer {
@@ -599,7 +602,7 @@ td.topalign {
 	border: 1px solid #C2D071;
 }
 
-#edit-attendees-table {
+.edit-attendees-table {
 	width: 100%;
 	display: table;
 	table-layout: fixed;
@@ -607,49 +610,51 @@ td.topalign {
 	border: 1px solid #ccc;
 }
 
-#edit-attendees-table td {
+.edit-attendees-table td {
 	padding: 3px;
 	border-bottom: 1px solid #ccc;
 }
 
-#edit-attendees-table td.role {
+.edit-attendees-table td.role {
 	width: 8em;
 }
 
-#edit-attendees-table td.availability,
-#edit-attendees-table td.confirmstate {
+.edit-attendees-table td.availability,
+.edit-attendees-table td.confirmstate {
 	width: 4em;
 }
 
-#edit-attendees-table td.options {
+.edit-attendees-table td.options {
 	width: 3em;
 	text-align: right;
 	padding-right: 4px;
 }
 
-#edit-attendees-table td.name {
+.edit-attendees-table td.name {
 	width: auto;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-#edit-attendees-table thead td {
+.edit-attendees-table thead td {
 	background: url(images/listheader.gif) top left repeat-x #CCC;
 }
 
-#edit-attendees-form {
+#edit-attendees-form,
+#edit-resources-form {
 	position: relative;
 	margin-top: 1em;
 }
 
-#edit-attendees-form #edit-attendee-schedule {
+#edit-attendees-form #edit-attendee-schedule,
+#edit-resources-form #edit-resource-find {
 	position: absolute;
 	top: 0;
 	right: 0;
 }
 
-#edit-attendees-table select.edit-attendee-role {
+.edit-attendees-table select.edit-attendee-role {
 	border: 0;
 	padding: 2px;
 	background: white;
@@ -722,35 +727,35 @@ td.topalign {
 	vertical-align: middle;
 }
 
-#edit-attendees-table tbody td.confirmstate {
+.edit-attendees-table tbody td.confirmstate {
 	overflow: hidden;
 	white-space: nowrap;
 	text-indent: -2000%;
 }
 
-#edit-attendees-table td.confirmstate span {
+.edit-attendees-table td.confirmstate span {
 	display: block;
 	width: 20px;
 	background: url(images/attendee-status.gif) 5px 0 no-repeat;
 }
 
-#edit-attendees-table td.confirmstate span.needs-action {
+.edit-attendees-table td.confirmstate span.needs-action {
 }
 
-#edit-attendees-table td.confirmstate span.accepted {
+.edit-attendees-table td.confirmstate span.accepted {
 	background-position: 5px -20px;
 }
 
-#edit-attendees-table td.confirmstate span.declined {
+.edit-attendees-table td.confirmstate span.declined {
 	background-position: 5px -40px;
 }
 
-#edit-attendees-table td.confirmstate span.tentative {
+.edit-attendees-table td.confirmstate span.tentative {
 	background-position: 5px -60px;
 }
 
-#edit-attendees-table td.confirmstate span.delegated {
-	background-position: 5px -160px;
+.edit-attendees-table td.confirmstate span.delegated {
+	background-position: 5px -180px;
 }
 
 #attendees-freebusy-table {
@@ -814,8 +819,12 @@ td.topalign {
 	background-position: 2px -117px;
 }
 
-.attendees-list .chair {
+.attendees-list .non-participant {
 	background-position: 2px -137px;
+}
+
+.attendees-list .chair {
+	background-position: 2px -157px;
 }
 
 .attendees-list .loading {
@@ -1063,12 +1072,124 @@ span.spacer {
   padding-right: 10px;
 }
 
+#resource-dialog-right {
+	position: absolute;
+	top: 10px;
+	left: 300px;
+	right: 8px;
+	bottom: 10px;
+}
+
+#resource-info,
+#resource-availability {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 56%;
+	border: 1px solid #999;
+	background-color: #F9F9F9;
+	overflow: auto;
+}
+
+#resource-availability {
+	top: auto;
+	bottom: 0;
+	height: 41%;
+}
+
+#resource-info .boxtitle,
+#resource-availability .boxtitle {
+	margin-top: 0;
+}
+
+#resources-list div.treetoggle {
+	left: 3px !important;
+	top: -2px;
+}
+
+#resources-list li ul li a {
+	padding-left: 35px;
+}
+
+#resource-selection {
+  position: absolute;
+	top: 10px;
+	bottom: 10px;
+	left: 8px;
+	width: 280px;
+	border: 1px solid #999999;
+	background-color: #F9F9F9;
+	overflow: hidden;
+}
+
+#resource-selection .boxlistcontent {
+	top: 25px;
+	border-top: 1px solid #eee;
+}
+
+#resourcequicksearch {
+	position: absolute;
+	top: 3px;
+	left: 7px;
+	right: 4px;
+	height: 17px;
+	background: #fff;
+	border: 1px solid #888;
+	border-radius: 10px;
+	-webkit-box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.3);
+	box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.3);
+}
+
+#resourcesearchbox {
+	position: absolute;
+	top: 1px;
+	left: 24px;
+	width: 140px;
+	height: 15px;
+	font-size: 11px;
+	padding: 0px;
+	border: none;
+	outline: none;
+	background: #fff;
+}
+
+#resourcesearchreset {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	text-decoration: none;
+}
+
+#resource-details,
+#resource-details-owner {
+	margin: 8px;
+}
+
+#resource-details td.title,
+#resource-details-owner td.title {
+	color: #666;
+	padding-right: 10px;
+	min-width: 10em;
+}
+
+#resource-details-owner thead td {
+	color: #333;
+	font-size: 13px;
+	font-weight: bold;
+}
 
 /* fullcalendar style overrides */
 
+#calendar .fc-header-right {
+	padding-right: 200px;
+	padding-top: 4px;
+}
+
 .rcube-fc-content {
 	position: absolute !important;
-	top: 37px;
+	top: 38px;
 	left: 0;
 	right: 0;
 	bottom: 0;
@@ -1147,7 +1268,7 @@ div.fc-event-location {
 
 .fc-view-list div.fc-list-header,
 .fc-view-table td.fc-list-header,
-#edit-attendees-table thead td {
+.edit-attendees-table thead td {
 	padding: 3px;
 	background: #dddddd;
 	background-image: -moz-linear-gradient(center top, #f4f4f4, #d2d2d2);
@@ -1251,6 +1372,7 @@ div.calendar-invitebox .rsvp-status.loading {
 
 div.calendar-invitebox .rsvp-status.declined,
 div.calendar-invitebox .rsvp-status.tentative,
+div.calendar-invitebox .rsvp-status.delegated,
 div.calendar-invitebox .rsvp-status.accepted {
 	padding: 0 0 1px 22px;
 	background: url(images/attendee-status.gif) 2px -20px no-repeat;
@@ -1262,6 +1384,10 @@ div.calendar-invitebox .rsvp-status.declined {
 
 div.calendar-invitebox .rsvp-status.tentative {
 	background-position: 2px -60px;
+}
+
+div.calendar-invitebox .rsvp-status.delegated {
+	background-position: 2px -180px;
 }
 
 /* iTIP attend reply page */

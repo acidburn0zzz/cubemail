@@ -4,6 +4,7 @@
       <li><a href="#event-panel-1"><roundcube:label name="calendar.tabsummary" /></a></li>
       <li id="edit-tab-recurrence"><a href="#event-panel-recurrence"><roundcube:label name="calendar.tabrecurrence" /></a></li>
       <li id="edit-tab-attendees"><a href="#event-panel-attendees"><roundcube:label name="calendar.tabattendees" /></a></li>
+      <li id="edit-tab-resources"><a href="#event-panel-resources"><roundcube:label name="calendar.tabresources" /></a></li>
       <li id="edit-tab-attachments"><a href="#event-panel-attachments"><roundcube:label name="calendar.tabattachments" /></a></li>
     </ul>
     <!-- basic info -->
@@ -87,8 +88,14 @@
     </div>
     <!-- attendees list -->
     <div id="event-panel-attendees">
-      <roundcube:object name="plugin.attendees_list" id="edit-attendees-table" cellspacing="0" cellpadding="0" border="0" />
+      <roundcube:object name="plugin.attendees_list" id="edit-attendees-table" class="edit-attendees-table" cellspacing="0" cellpadding="0" border="0" />
       <roundcube:object name="plugin.attendees_form" id="edit-attendees-form" />
+      <roundcube:include file="/templates/freebusylegend.html" />
+    </div>
+    <!-- resources list -->
+    <div id="event-panel-resources">
+      <roundcube:object name="plugin.attendees_list" id="edit-resources-table" class="edit-attendees-table" cellspacing="0" cellpadding="0" border="0" coltitle="resource" />
+      <roundcube:object name="plugin.resources_form" id="edit-resources-form" />
       <roundcube:include file="/templates/freebusylegend.html" />
     </div>
     <!-- attachments list (with upload form) -->
