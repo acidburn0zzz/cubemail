@@ -1664,10 +1664,11 @@ function rcube_calendar_ui(settings)
         // register button
         rcmail.register_button('add-resource', 'rcmbtncalresadd', 'uibutton');
       }
+      else if (search) {
+        resource_search();
+      }
       else {
-        resources_treelist.select('__none__');
-        if (search)
-          resource_search();
+        resource_render_list(resources_index);
       }
     };
 
