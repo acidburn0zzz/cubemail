@@ -255,10 +255,19 @@
 }
 */
 
+#fileinfobox table {
+  table-layout: fixed;
+}
+
 #fileinfobox table td.label {
-  width: 1%;
+  width: 60px;
   font-weight: bold;
   padding-right: 0;
+}
+
+#fileinfobox table td.data {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #fileinfobox table td.data.filename {
