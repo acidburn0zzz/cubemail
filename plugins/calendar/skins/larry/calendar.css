@@ -1035,7 +1035,7 @@ a.dropdown-link:after {
 	padding-right: 10px;
 }
 
-.propform fieldset.tab {
+#calendar-kolabform fieldset.tab {
 	background: #efefef;
 	display: block;
 	margin-top: 0.5em;
