@@ -585,8 +585,8 @@ class kolab_auth extends rcube_plugin
             $admin_login = $rcmail->decrypt($_SESSION['kolab_auth_login']);
             $admin_pass  = $rcmail->decrypt($_SESSION['kolab_auth_password']);
 
-            $args['options']['smtp_auth_cid'] = $admin_login;
-            $args['options']['smtp_auth_pw']  = $admin_pass;
+            $args['smtp_auth_cid'] = $admin_login;
+            $args['smtp_auth_pw']  = $admin_pass;
         }
 
         return $args;
