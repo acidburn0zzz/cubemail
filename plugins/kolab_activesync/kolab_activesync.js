@@ -159,25 +159,5 @@ function kolab_activesync_config()
 
 
 window.rcmail && rcmail.addEventListener('init', function(evt) {
-  // add button to tabs list
-  var tab = $('<span>').attr('id', 'settingstabpluginactivesync').addClass('tablink'),
-    button = $('<a>').attr('href', rcmail.env.comm_path+'&_action=plugin.activesync')
-      .html(rcmail.gettext('tabtitle', 'kolab_activesync'))
-      .appendTo(tab);
-  rcmail.add_element(tab, 'tabs');
-
-  if (/^plugin.activesync/.test(rcmail.env.action))
-    activesync_object = new kolab_activesync_config();
+  activesync_object = new kolab_activesync_config();
 });
-
-
-// extend jQuery
-(function($){
-  $.fn.serializeJSON = function(){
-    var json = {};
-    jQuery.map($(this).serializeArray(), function(n, i) {
-      json[n['name']] = n['value'];
-    });
-    return json;
-  };
-})(jQuery);
