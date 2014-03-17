@@ -793,7 +793,7 @@ class Horde_Date_Recurrence
                 $next->year  = $rdate->year;
                 $next->month = $rdate->month;
                 $next->mday  = $rdate->mday;
-                if ($next->compareDateTime($after) > 0) {
+                if ($next->compareDateTime($after) >= 0) {
                     return $next;
                 }
             }
