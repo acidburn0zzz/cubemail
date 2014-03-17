@@ -476,7 +476,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
             $folder = $this->folders[$lid];
             foreach ($folder->select($query) as $record) {
-                if (!$record['alarms'])  // don't trust query :-)
+                if (!$record['alarms'] || $record['status'] == 'COMPLETED' || $record['complete'] == 100)  // don't trust query :-)
                     continue;
 
                 $task = $this->_to_rcube_task($record);
