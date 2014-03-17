@@ -1333,7 +1333,7 @@ function rcube_calendar_ui(settings)
       var event = me.selected_event,
         eventstart = clone_date(event.start, event.allDay ? 1 : 0).getTime(),  // calculate with integers
         eventend = clone_date(event.end, event.allDay ? 2 : 0).getTime(),
-        duration = eventend - eventstart - (event.allDay ? HOUR_MS : 0),  // make sure we don't cross day borders on DST change
+        duration = eventend - eventstart - (event.allDay ? HOUR_MS : 0),  /* make sure we don't cross day borders on DST change */
         sinterval = freebusy_data.interval * 60000,
         intvlslots = 1,
         numslots = Math.ceil(duration / sinterval),
@@ -1769,25 +1769,46 @@ function rcube_calendar_ui(settings)
     // callback from server for resource listing
     var resource_data_load = function(data)
     {
-      data.sort(function(a,b) {
-        var j = a._type == 'collection' ? 1 : 0,
-            k = b._type == 'collection' ? 1 : 0;
-        return k != j ? (j - k) : (a.name < b.name ? 1 : 0);
-      });
+      var resources_tree = {};
 
-      // assign parent-relations
+      // store data by ID
       $.each(data, function(i, rec) {
         resources_data[rec.ID] = rec;
-        resources_index.push(rec.ID);
 
+        // assign parent-relations
         if (rec.members) {
           $.each(rec.members, function(j, m){
-            resources_data[m].parent_id = rec.ID;
+            resources_tree[m] = rec.ID;
           });
         }
       });
 
-      resources_index.reverse();
+      // walk the parent-child tree to determine the depth of each node
+      $.each(data, function(i, rec) {
+        rec._depth = 0;
+        if (resources_tree[rec.ID])
+          rec.parent_id = resources_tree[rec.ID];
+
+        var parent_id = resources_tree[rec.ID];
+        while (parent_id) {
+          rec._depth++;
+          parent_id = resources_tree[parent_id];
+        }
+      });
+
+      // sort by depth, collection and name
+      data.sort(function(a,b) {
+        var j = a._type == 'collection' ? 1 : 0,
+            k = b._type == 'collection' ? 1 : 0,
+            d = a._depth - b._depth;
+        if (!d) d = (k - j);
+        if (!d) d = b.name < a.name ? 1 : -1;
+        return d;
+      });
+
+      $.each(data, function(i, rec) {
+        resources_index.push(rec.ID);
+      });
 
       // apply search filter...
       if ($('#resourcesearchbox').val() != '')
@@ -2130,7 +2151,7 @@ function rcube_calendar_ui(settings)
           date: date.getDate(),
           month: date.getMonth(),
           year: date.getFullYear(),
-          ignoreTimezone: true,  // will treat the given date strings as in local (browser's) timezone
+          ignoreTimezone: true,  /* will treat the given date strings as in local (browser's) timezone */
           eventSources: sources,
           monthNames : settings['months'],
           monthNamesShort : settings['months_short'],

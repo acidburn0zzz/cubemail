@@ -127,6 +127,11 @@ class resources_driver_ldap extends resources_driver
         $rec['attributes'] = $attributes;
       }
 
+      // force $rec['members'] to be an array
+      if (!empty($rec['members']) && !is_array($rec['members'])) {
+        $rec['members'] = array($rec['members']);
+      }
+
       // remove unused cruft
       unset($rec['_raw_attrib']);
 
