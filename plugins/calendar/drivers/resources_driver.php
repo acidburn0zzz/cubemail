@@ -27,6 +27,15 @@
  */
 abstract class resources_driver
 {
+  protected$cal;
+
+  /**
+   * Default constructor
+   */
+  function __construct($cal)
+  {
+      $this->cal = $cal;
+  }
 
   /**
    * Fetch resource objects to be displayed for booking
@@ -52,7 +61,54 @@ abstract class resources_driver
    */
   public function get_resource_owner($id)
   {
-    return null;
+      return null;
+  }
+
+  /**
+   * Get event data to display a resource's calendar
+   *
+   * The default implementation extracts the resource's email address
+   * and fetches free-busy data using the calendar backend driver.
+   *
+   * @param  integer Event's new start (unix timestamp)
+   * @param  integer Event's new end (unix timestamp)
+   * @return array A list of event objects (see calendar_driver specification)
+   */
+  public function get_resource_calendar($id, $start, $end)
+  {
+      $events = array();
+      $rec = $this->get_resource($id);
+      if ($rec && !empty($rec['email']) && $this->cal->driver) {
+          $fbtypemap = array(
+              calendar::FREEBUSY_BUSY => 'busy',
+              calendar::FREEBUSY_TENTATIVE => 'tentative',
+              calendar::FREEBUSY_OOF => 'outofoffice',
+          );
+
+          // if the backend has free-busy information
+          $fblist = $this->cal->driver->get_freebusy_list($rec['email'], $start, $end);
+          if (is_array($fblist)) {
+              foreach ($fblist as $slot) {
+                  list($from, $to, $type) = $slot;
+                  if ($type == calendar::FREEBUSY_FREE || $type == calendar::FREEBUSY_UNKNOWN) {
+                      continue;
+                  }
+                  if ($from < $end && $to > $start) {
+                      $event = array(
+                          'id'     => sha1($id . $from . $to),
+                          'title'  => $rec['name'],
+                          'start'  => new DateTime('@' . $from),
+                          'end'    => new DateTime('@' . $to),
+                          'status' => $fbtypemap[$type],
+                          'calendar' => '_resource',
+                      );
+                      $events[] = $event;
+                  }
+              }
+          }
+      }
+
+      return $events;
   }
 
 }

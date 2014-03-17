@@ -27,7 +27,6 @@
 class resources_driver_ldap extends resources_driver
 {
     private $rc;
-    private $cal;
     private $ldap;
 
     /**
@@ -81,7 +80,7 @@ class resources_driver_ldap extends resources_driver
       $rec = null;
 
       if ($ldap = $this->connect()) {
-        $rec = $ldap->get_record(rcube_ldap::dn_encode($dn));
+        $rec = $ldap->get_record(rcube_ldap::dn_encode($dn), true);
 
         if (!empty($rec)) {
           $rec = $this->decode_resource($rec);

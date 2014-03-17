@@ -139,7 +139,11 @@
 
 		<div id="resource-availability" class="uibox contentbox">
 			<h2 class="boxtitle"><roundcube:label name="calendar.resourceavailability" /></h2>
-			<div id="resource-freebusy-calendar"></div>
+			<roundcube:object name="plugin.resource_calendar" id="resource-freebusy-calendar" />
+			<div class="boxpagenav">
+				<roundcube:button name="resource-cal-prev" id="resource-calendar-prev" type="link" class="icon prevpage" title="calendar.prevslot" content="&amp;lt;" />
+				<roundcube:button name="resource-cal-next" id="resource-calendar-next" type="link" class="icon nextpage" title="calendar.nextslot" content="&amp;gt;" />
+			</div>
 		</div>
 	</div>
 </div>

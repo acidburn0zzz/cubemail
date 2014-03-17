@@ -52,6 +52,7 @@ function rcube_calendar_ui(settings)
     var resources_data = {};
     var resources_index = [];
     var resource_owners = {};
+    var resources_events_source = { url:null, editable:false };
     var freebusy_ui = { workinhoursonly:false, needsupdate:false };
     var freebusy_data = {};
     var current_view = null;
@@ -1624,6 +1625,10 @@ function rcube_calendar_ui(settings)
         close: function() {
           $dialog.dialog('destroy').hide();
         },
+        resize: function(e) {
+          var container = $(rcmail.gui_objects.resourceinfocalendar)
+          container.fullCalendar('option', 'height', container.height() + 4);
+        },
         buttons: buttons,
         width: 900,
         height: 500
@@ -1654,6 +1659,7 @@ function rcube_calendar_ui(settings)
             rcmail.enable_command('add-resource', false);
             $(rcmail.gui_objects.resourceinfo).hide();
             $(rcmail.gui_objects.resourceownerinfo).hide();
+            $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('removeEventSource', resources_events_source);
           }
         });
 
@@ -1663,12 +1669,53 @@ function rcube_calendar_ui(settings)
 
         // register button
         rcmail.register_button('add-resource', 'rcmbtncalresadd', 'uibutton');
+
+        // initialize resource calendar display
+        var resource_cal = $(rcmail.gui_objects.resourceinfocalendar);
+        resource_cal.fullCalendar({
+          header: { left: '', center: '', right: '' },
+          height: resource_cal.height() + 4,
+          defaultView: 'agendaWeek',
+          ignoreTimezone: true,
+          eventSources: [],
+          monthNames: settings['months'],
+          monthNamesShort: settings['months_short'],
+          dayNames: settings['days'],
+          dayNamesShort : settings['days_short'],
+          firstDay: settings['first_day'],
+          firstHour: settings['first_hour'],
+          slotMinutes: 60,
+          allDaySlot: false,
+          timeFormat: { '': settings['time_format'] },
+          axisFormat: settings['time_format'],
+          columnFormat: { day: 'dddd ' + settings['date_short'] },
+          titleFormat: { day: 'dddd ' + settings['date_long'] },
+          currentTimeIndicator: settings.time_indicator,
+          eventRender: function(event, element, view) {
+            element.addClass('status-' + event.status);
+            element.find('.fc-event-head').hide();
+            element.find('.fc-event-title').text(rcmail.get_label(event.status, 'calendar'));
+          }
+        });
+
+        $('#resource-calendar-prev').click(function(){
+          resource_cal.fullCalendar('prev');
+          return false;
+        });
+        $('#resource-calendar-next').click(function(){
+          resource_cal.fullCalendar('next');
+          return false;
+        });
       }
       else if (search) {
         resource_search();
       }
       else {
         resource_render_list(resources_index);
+      }
+
+      if (me.selected_event && me.selected_event.start) {
+        $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('gotoDate', me.selected_event.start);
       }
     };
 
@@ -1699,6 +1746,7 @@ function rcube_calendar_ui(settings)
         }
 
         $(rcmail.gui_objects.resourceownerinfo).hide();
+        $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('removeEventSource', resources_events_source);
 
         if (resource.owner) {
           // display cached data
@@ -1711,6 +1759,10 @@ function rcube_calendar_ui(settings)
             rcmail.http_request('resources-owner', { _id: resource.owner }, me.loading_lock);
           }
         }
+
+        // load resource calendar
+        resources_events_source.url = "./?_task=calendar&_action=resources-calendar&_id="+escape(resource.ID);
+        $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('addEventSource', resources_events_source);
       }
     };
 

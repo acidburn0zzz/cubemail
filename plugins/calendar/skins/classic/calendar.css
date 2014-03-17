@@ -1086,7 +1086,7 @@ span.spacer {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 56%;
+	height: 48%;
 	border: 1px solid #999;
 	background-color: #F9F9F9;
 	overflow: auto;
@@ -1095,12 +1095,47 @@ span.spacer {
 #resource-availability {
 	top: auto;
 	bottom: 0;
-	height: 41%;
+	height: 49%;
+	overflow: hidden;
 }
 
 #resource-info .boxtitle,
 #resource-availability .boxtitle {
 	margin-top: 0;
+}
+
+#resource-freebusy-calendar {
+	position: absolute;
+	top: 20px;
+	left: -1px;
+	right: -1px;
+	bottom: -1px;
+}
+
+#resource-freebusy-calendar .fc-content {
+	top: 0;
+}
+
+#resource-freebusy-calendar .fc-content .fc-event-bg {
+	background: 0;
+}
+
+#resource-freebusy-calendar .fc-event.status-busy,
+#resource-freebusy-calendar .status-busy .fc-event-skin {
+	border-color: #e26569;
+	background-color: #e26569;
+}
+
+#resource-freebusy-calendar .fc-event.status-tentative,
+#resource-freebusy-calendar .status-tentative .fc-event-skin {
+	border-color: #8383fc;
+	background: #8383fc;
+}
+
+#resource-freebusy-calendar .fc-event.status-outofoffice,
+#resource-freebusy-calendar .status-outofoffice .fc-event-skin {
+	border-color: #fbaa68;
+	background: #fbaa68;
 }
 
 #resources-list div.treetoggle {

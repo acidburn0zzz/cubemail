@@ -88,6 +88,7 @@ class calendar_ui
     $this->cal->register_handler('plugin.resources_list', array($this, 'resources_list'));
     $this->cal->register_handler('plugin.resources_searchform', array($this, 'resources_search_form'));
     $this->cal->register_handler('plugin.resource_info', array($this, 'resource_info'));
+    $this->cal->register_handler('plugin.resource_calendar', array($this, 'resource_calendar'));
     $this->cal->register_handler('plugin.attendees_freebusy_table', array($this, 'attendees_freebusy_table'));
     $this->cal->register_handler('plugin.edit_attendees_notify', array($this, 'edit_attendees_notify'));
     $this->cal->register_handler('plugin.edit_recurring_warning', array($this, 'recurring_event_warning'));
@@ -813,6 +814,18 @@ class calendar_ui
         ) .
         html::tag('tbody', null, ''),
         $table_attrib);
+  }
+
+  /**
+   *
+   */
+  public function resource_calendar($attrib = array())
+  {
+    $attrib += array('id' => 'calendar-resources-calendar');
+
+    $this->rc->output->add_gui_object('resourceinfocalendar', $attrib['id']);
+
+    return html::div($attrib, '');
   }
 
   /**

@@ -144,6 +144,7 @@ class calendar extends rcube_plugin
       $this->register_action('check-recent', array($this, 'check_recent'));
       $this->register_action('resources-list', array($this, 'resources_list'));
       $this->register_action('resources-owner', array($this, 'resources_owner'));
+      $this->register_action('resources-calendar', array($this, 'resources_calendar'));
       $this->register_action('resources-autocomplete', array($this, 'resources_autocomplete'));
       $this->add_hook('refresh', array($this, 'refresh'));
 
@@ -2005,6 +2006,24 @@ class calendar extends rcube_plugin
 
     $this->rc->output->command('plugin.resource_owner', $data);
     $this->rc->output->send();
+  }
+
+  /**
+   * Deliver event data for a resource's calendar
+   */
+  function resources_calendar()
+  {
+    $events = array();
+
+    if ($directory = $this->resources_directory()) {
+      $events = $directory->get_resource_calendar(
+        rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC),
+        rcube_utils::get_input_value('start', RCUBE_INPUT_GET),
+        rcube_utils::get_input_value('end', RCUBE_INPUT_GET));
+    }
+
+    echo $this->encode($events);
+    exit;
   }
 
 
