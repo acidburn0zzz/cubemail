@@ -1143,8 +1143,8 @@ span.spacer {
 	top: -2px;
 }
 
-#resources-list li ul li a {
-	padding-left: 35px;
+#resources-list li ul div.treetoggle {
+	left: 23px !important;
 }
 
 #resource-selection {
