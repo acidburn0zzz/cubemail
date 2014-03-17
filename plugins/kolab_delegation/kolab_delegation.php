@@ -65,9 +65,15 @@ class kolab_delegation extends rcube_plugin
             $this->register_action('plugin.delegation-save',         array($this, 'controller_action'));
             $this->register_action('plugin.delegation-autocomplete', array($this, 'controller_action'));
 
+            $this->add_hook('settings_actions', array($this, 'settings_actions'));
+
             if ($this->rc->action == 'plugin.delegation' || empty($_REQUEST['_framed'])) {
-                $this->add_texts('localization/', array('tabtitle', 'deleteconfirm', 'savingdata', 'yes', 'no'));
-                $this->include_script('kolab_delegation.js');
+                $this->add_texts('localization/', array('deleteconfirm', 'savingdata', 'yes', 'no'));
+
+                if ($this->rc->action == 'plugin.delegation') {
+                    $this->include_script('kolab_delegation.js');
+                }
+
                 $this->skin_path = $this->local_skin_path();
                 $this->include_stylesheet($this->skin_path . '/style.css');
             }
@@ -76,6 +82,21 @@ class kolab_delegation extends rcube_plugin
         else if ($this->rc->task == 'calendar' && empty($_REQUEST['_framed'])) {
             $this->calendar_ui();
         }
+    }
+
+    /**
+     * Adds Delegation section in Settings
+     */
+    function settings_actions($args)
+    {
+        $args['actions'][] = array(
+            'action' => 'plugin.delegation',
+            'class'  => 'delegation',
+            'label'  => 'tabtitle',
+            'domain' => 'kolab_delegation',
+        );
+
+        return $args;
     }
 
     /**

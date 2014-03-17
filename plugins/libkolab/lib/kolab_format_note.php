@@ -31,6 +31,11 @@ class kolab_format_note extends kolab_format
     protected $read_func = 'readNote';
     protected $write_func = 'writeNote';
 
+    protected $sensitivity_map = array(
+        'public'       => kolabformat::ClassPublic,
+        'private'      => kolabformat::ClassPrivate,
+        'confidential' => kolabformat::ClassConfidential,
+    );
 
     /**
      * Set properties to the kolabformat object
@@ -42,7 +47,12 @@ class kolab_format_note extends kolab_format
         // set common object properties
         parent::set($object);
 
-        // TODO: set object propeties
+        $this->obj->setSummary($object['title']);
+        $this->obj->setDescription($object['description']);
+        $this->obj->setClassification($this->sensitivity_map[$object['sensitivity']]);
+        $this->obj->setCategories(self::array2vector($object['categories']));
+
+        $this->set_attachments($object);
 
         // cache this data
         $this->data = $object;
@@ -73,10 +83,35 @@ class kolab_format_note extends kolab_format
         // read common object props into local data object
         $object = parent::to_array($data);
 
-        // TODO: read object properties
+        $sensitivity_map = array_flip($this->sensitivity_map);
 
-        $this->data = $object;
-        return $this->data;
+        // read object properties
+        $object += array(
+            'sensitivity' => $sensitivity_map[$this->obj->classification()],
+            'categories'  => self::vector2array($this->obj->categories()),
+            'title'       => $this->obj->summary(),
+            'description' => $this->obj->description(),
+        );
+
+        $this->get_attachments($object);
+
+        return $this->data = $object;
+    }
+
+    /**
+     * Callback for kolab_storage_cache to get object specific tags to cache
+     *
+     * @return array List of tags to save in cache
+     */
+    public function get_tags()
+    {
+        $tags = array();
+
+        foreach ((array) $this->data['categories'] as $cat) {
+            $tags[] = rcube_utils::normalize_string($cat);
+        }
+
+        return $tags;
     }
 
 }

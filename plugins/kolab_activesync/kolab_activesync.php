@@ -52,8 +52,28 @@ class kolab_activesync extends rcube_plugin
         $this->register_action('plugin.activesync-config', array($this, 'config_frame'));
         $this->register_action('plugin.activesync-json', array($this, 'json_command'));
 
-        $this->add_texts('localization/', true);
-        $this->include_script('kolab_activesync.js');
+        $this->add_hook('settings_actions', array($this, 'settings_actions'));
+
+        $this->add_texts('localization/', array('devicedeleteconfirm', 'savingdata'));
+
+        if (strpos($this->rc->action, 'plugin.activesync') === 0) {
+            $this->include_script('kolab_activesync.js');
+        }
+    }
+
+    /**
+     * Adds Activesync section in Settings
+     */
+    function settings_actions($args)
+    {
+        $args['actions'][] = array(
+            'action' => 'plugin.activesync',
+            'class'  => 'activesync',
+            'label'  => 'tabtitle',
+            'domain' => 'kolab_activesync',
+        );
+
+        return $args;
     }
 
     /**

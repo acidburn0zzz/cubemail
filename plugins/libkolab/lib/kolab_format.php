@@ -45,7 +45,7 @@ abstract class kolab_format
     protected $version = '3.0';
 
     const KTYPE_PREFIX = 'application/x-vnd.kolab.';
-    const PRODUCT_ID = 'Roundcube-libkolab-0.9';
+    const PRODUCT_ID   = 'Roundcube-libkolab-0.9';
 
     /**
      * Factory method to instantiate a kolab_format object of the given type and version
@@ -496,5 +496,51 @@ abstract class kolab_format
     public function get_words()
     {
         return array();
+    }
+
+    protected function get_attachments(&$object)
+    {
+        // handle attachments
+        $vattach = $this->obj->attachments();
+        for ($i=0; $i < $vattach->size(); $i++) {
+            $attach = $vattach->get($i);
+
+            // skip cid: attachments which are mime message parts handled by kolab_storage_folder
+            if (substr($attach->uri(), 0, 4) != 'cid:' && $attach->label()) {
+                $name    = $attach->label();
+                $content = $attach->data();
+                $object['_attachments'][$name] = array(
+                    'name'     => $name,
+                    'mimetype' => $attach->mimetype(),
+                    'size'     => strlen($content),
+                    'content'  => $content,
+                );
+            }
+            else if (substr($attach->uri(), 0, 4) == 'http') {
+                $object['links'][] = $attach->uri();
+            }
+        }
+    }
+
+    protected function set_attachments($object)
+    {
+        // save attachments
+        $vattach = new vectorattachment;
+        foreach ((array) $object['_attachments'] as $cid => $attr) {
+            if (empty($attr))
+                continue;
+            $attach = new Attachment;
+            $attach->setLabel((string)$attr['name']);
+            $attach->setUri('cid:' . $cid, $attr['mimetype']);
+            $vattach->push($attach);
+        }
+
+        foreach ((array) $object['links'] as $link) {
+            $attach = new Attachment;
+            $attach->setUri($link, 'unknown');
+            $vattach->push($attach);
+        }
+
+        $this->obj->setAttachments($vattach);
     }
 }

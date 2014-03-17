@@ -38,13 +38,6 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   else if (rcmail.env.task != 'settings')
     return;
 
-  // add Delegation section to the list
-  var tab = $('<span>').attr('id', 'settingstabplugindelegation').addClass('tablink'),
-    button = $('<a>').attr('href', rcmail.env.comm_path+'&_action=plugin.delegation')
-      .html(rcmail.gettext('tabtitle', 'kolab_delegation'))
-      .appendTo(tab);
-  rcmail.add_element(tab, 'tabs');
-
   if (/^plugin.delegation/.test(rcmail.env.action)) {
     rcmail.addEventListener('plugin.delegate_save_complete', function(e) { rcmail.delegate_save_complete(e); });
 
