@@ -647,9 +647,14 @@ class kolab_calendar
 
     $event['_owner'] = $identity['email'];
 
-    # remove EXDATE values if RDATE is given
+    // remove EXDATE values if RDATE is given
     if (!empty($event['recurrence']['RDATE'])) {
       $event['recurrence']['EXDATE'] = array();
+    }
+
+    // remove recurrence information (e.g. EXDATES and EXCEPTIONS) entirely
+    if ($event['recurrence'] && empty($event['recurrence']['FREQ']) && empty($event['recurrence']['RDATE'])) {
+      $event['recurrence'] = array();
     }
 
     // remove some internal properties which should not be saved
