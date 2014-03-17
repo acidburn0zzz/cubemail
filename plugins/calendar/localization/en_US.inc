@@ -210,6 +210,7 @@ $labels['daily'] = 'daily';
 $labels['weekly'] = 'weekly';
 $labels['monthly'] = 'monthly';
 $labels['yearly'] = 'annually';
+$labels['rdate'] = 'on dates';
 $labels['every'] = 'Every';
 $labels['days'] = 'day(s)';
 $labels['weeks'] = 'week(s)';
@@ -229,6 +230,7 @@ $labels['third'] = 'third';
 $labels['fourth'] = 'fourth';
 $labels['last'] = 'last';
 $labels['dayofmonth'] = 'Day of month';
+$labels['addrdate'] = 'Add repeat date';
 
 $labels['changeeventconfirm'] = 'Change event';
 $labels['removeeventconfirm'] = 'Remove event';
