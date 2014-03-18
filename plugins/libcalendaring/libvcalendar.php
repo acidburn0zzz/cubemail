@@ -518,6 +518,10 @@ class libvcalendar implements Iterator
                 }
                 break;
 
+            case 'COMMENT':
+                $event['comment'] = $prop->value;
+                break;
+
             default:
                 if (substr($prop->name, 0, 2) == 'X-')
                     $event['x-custom'][] = array($prop->name, strval($prop->value));
@@ -980,6 +984,9 @@ class libvcalendar implements Iterator
         if (!empty($event['parent_id'])) {
             $ve->add('RELATED-TO', $event['parent_id'], array('RELTYPE' => 'PARENT'));
         }
+
+        if ($event['comment'])
+            $ve->add('COMMENT', $event['comment']);
 
         // export attachments
         if (!empty($event['attachments'])) {
