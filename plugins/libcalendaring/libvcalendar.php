@@ -129,7 +129,7 @@ class libvcalendar implements Iterator
         try {
             // estimate the memory usage and try to avoid fatal errors when allowed memory gets exhausted
             if ($memcheck) {
-                $count = substr_count($vcal, 'BEGIN:VEVENT');
+                $count = substr_count($vcal, 'BEGIN:VEVENT') + substr_count($vcal, 'BEGIN:VTODO');
                 $expected_memory = $count * 70*1024;  // assume ~ 70K per event (empirically determined)
 
                 if (!rcube_utils::mem_check($expected_memory)) {
