@@ -144,6 +144,7 @@ class calendar extends rcube_plugin
       $this->register_action('check-recent', array($this, 'check_recent'));
       $this->register_action('itip-status', array($this, 'event_itip_status'));
       $this->register_action('itip-remove', array($this, 'event_itip_remove'));
+      $this->register_action('itip-decline-reply', array($this, 'mail_itip_decline_reply'));
       $this->register_action('resources-list', array($this, 'resources_list'));
       $this->register_action('resources-owner', array($this, 'resources_owner'));
       $this->register_action('resources-calendar', array($this, 'resources_calendar'));
@@ -2222,18 +2223,10 @@ class calendar extends rcube_plugin
   }
 
 
-  /**
-   * Handler for POST request to import an event attached to a mail message
-   */
-  public function mail_import_event()
+  private function mail_get_itip_event($mbox, $uid, $mime_id)
   {
-    $uid = get_input_value('_uid', RCUBE_INPUT_POST);
-    $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
-    $mime_id = get_input_value('_part', RCUBE_INPUT_POST);
-    $status = get_input_value('_status', RCUBE_INPUT_POST);
-    $delete = intval(get_input_value('_del', RCUBE_INPUT_POST));
     $charset = RCMAIL_CHARSET;
-    
+
     // establish imap connection
     $imap = $this->rc->get_storage();
     $imap->set_mailbox($mbox);
@@ -2253,6 +2246,26 @@ class calendar extends rcube_plugin
 
     // successfully parsed events?
     if (!empty($events) && ($event = $events[$index])) {
+      return $event;
+    }
+  }
+
+  /**
+   * Handler for POST request to import an event attached to a mail message
+   */
+  public function mail_import_event()
+  {
+    $uid = get_input_value('_uid', RCUBE_INPUT_POST);
+    $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+    $mime_id = get_input_value('_part', RCUBE_INPUT_POST);
+    $status = get_input_value('_status', RCUBE_INPUT_POST);
+    $delete = intval(get_input_value('_del', RCUBE_INPUT_POST));
+
+    $error_msg = $this->gettext('errorimportingevent');
+    $success = false;
+
+    // successfully parsed events?
+    if ($event = $this->mail_get_itip_event($mbox, $uid, $mime_id)) {
       // find writeable calendar to store event
       $cal_id = !empty($_REQUEST['_folder']) ? get_input_value('_folder', RCUBE_INPUT_POST) : null;
       $calendars = $this->driver->list_calendars(false, true);
@@ -2399,6 +2412,37 @@ class calendar extends rcube_plugin
     }
 
     $this->rc->output->send();
+  }
+
+
+  /**
+   * Handler for calendar/itip-remove requests
+   */
+  function mail_itip_decline_reply()
+  {
+    $uid = get_input_value('_uid', RCUBE_INPUT_POST);
+    $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+    $mime_id = get_input_value('_part', RCUBE_INPUT_POST);
+
+    if (($event = $this->mail_get_itip_event($mbox, $uid, $mime_id)) && $this->ical->method == 'REPLY') {
+      $event['comment'] = get_input_value('_comment', RCUBE_INPUT_POST);
+
+      foreach ($event['attendees'] as $_attendee) {
+        if ($_attendee['role'] != 'ORGANIZER') {
+          $attendee = $_attendee;
+          break;
+        }
+      }
+
+      $itip = $this->load_itip();
+      if ($itip->send_itip_message($event, 'CANCEL', $attendee, 'itipsubjectcancel', 'itipmailbodycancel'))
+        $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $attendee['name'] ? $attendee['name'] : $attendee['email']))), 'confirmation');
+      else
+        $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+    }
+    else {
+      $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+    }
   }
 
 

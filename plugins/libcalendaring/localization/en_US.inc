@@ -41,12 +41,15 @@ $labels['itipobjectnotfound'] = 'The object referred by this message was not fou
 $labels['itipsubjectaccepted'] = '"$title" has been accepted by $name';
 $labels['itipsubjecttentative'] = '"$title" has been tentatively accepted by $name';
 $labels['itipsubjectdeclined'] = '"$title" has been declined by $name';
+$labels['itipsubjectcancel'] = 'Your participation in "$title" has been cancelled';
 
 $labels['itipnewattendee'] = 'This is a reply from a new participant';
 $labels['updateattendeestatus'] = 'Update the participant\'s status';
 $labels['acceptinvitation'] = 'Do you accept this invitation?';
-$labels['acceptattendee'] = 'Accept attendee';
-$labels['declineattendee'] = 'Decline attendee';
+$labels['acceptattendee'] = 'Accept participant';
+$labels['declineattendee'] = 'Decline participant';
+$labels['declineattendeeconfirm'] = 'Enter a message to the declined participant (optional):';
+
 $labels['youhaveaccepted'] = 'You have accepted this invitation';
 $labels['youhavetentative'] = 'You have tentatively accepted this invitation';
 $labels['youhavedeclined'] = 'You have declined this invitation';

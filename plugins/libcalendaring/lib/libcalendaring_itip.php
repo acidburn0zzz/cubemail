@@ -115,6 +115,7 @@ class libcalendaring_itip
                 'attendees' => join(', ', $attendees_list),
                 'sender' => $this->sender['name'],
                 'organizer' => $this->sender['name'],
+                'comment' => $event['comment'],
             )
         ));
 
@@ -465,9 +466,9 @@ class libcalendaring_itip
         $this->rc->output->add_script("rcube_libcalendaring.fetch_itip_object_status(" . json_serialize($metadata) . ")", 'docready');
 
         // get localized texts from the right domain
-        $this->rc->output->command('add_label', 'itip.savingdata', $this->gettext('savingdata'));
-        $this->rc->output->command('add_label', 'itip.declinedeleteconfirm', $this->gettext('declinedeleteconfirm'));
-        $this->rc->output->command('add_label', 'itip.declinedeleteconfirm', $this->gettext('declinedeleteconfirm'));
+        foreach (array('savingdata','deleteobjectconfirm','declinedeleteconfirm','declineattendee','declineattendeeconfirm','cancel') as $label) {
+          $this->rc->output->command('add_label', "itip.$label", $this->gettext($label));
+        }
 
         // show event details with buttons
         return $this->itip_object_details_table($event, $title) .

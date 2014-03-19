@@ -149,6 +149,8 @@ $labels['itipobjectnotfound'] = 'The event referred by this message was not foun
 $labels['itipmailbodyaccepted'] = "\$sender has accepted the invitation to the following event:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender has tentatively accepted the invitation to the following event:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender has declined the invitation to the following event:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
+$labels['itipmailbodycancel'] = "\$sender has rejected your participation in the following event:\n\n*\$title*\n\nWhen: \$date\n\n\$comment";
+
 $labels['itipdeclineevent'] = 'Do you want to decline your invitation to this event?';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined event from your calendar?';
 

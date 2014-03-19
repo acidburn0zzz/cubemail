@@ -449,12 +449,12 @@ rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status)
     }
 
     rcmail.http_post(task + '/mailimportitip', {
-        '_uid': rcmail.env.uid,
-        '_mbox': rcmail.env.mailbox,
-        '_part': mime_id,
-        '_folder': $('#itip-saveto').val(),
-        '_status': status,
-        '_del': del?1:0
+        _uid: rcmail.env.uid,
+        _mbox: rcmail.env.mailbox,
+        _part: mime_id,
+        _folder: $('#itip-saveto').val(),
+        _status: status,
+        _del: del?1:0
       }, rcmail.set_busy(true, 'itip.savingdata'));
 
     return false;
@@ -465,21 +465,53 @@ rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status)
  */
 rcube_libcalendaring.remove_from_itip = function(uid, task, title)
 {
-  if (confirm(rcmail.gettext('itip.deleteobjectconfirm').replace('$title', title))) {
-    rcmail.http_post(task + '/itip-remove',
-      { uid: uid },
-      rcmail.set_busy(true, 'itip.savingdata'));
-  }
+    if (confirm(rcmail.gettext('itip.deleteobjectconfirm').replace('$title', title))) {
+        rcmail.http_post(task + '/itip-remove',
+            { uid: uid },
+            rcmail.set_busy(true, 'itip.savingdata')
+        );
+    }
 };
 
 /**
  *
  */
-rcube_libcalendaring.decline_attendee_reply = function(mime_id)
+rcube_libcalendaring.decline_attendee_reply = function(mime_id, task)
 {
-  // TODO: show dialog for entering a comment and send to server
+    // show dialog for entering a comment and send to server
+    var html = '<div class="itip-dialog-confirm-text">' + rcmail.gettext('itip.declineattendeeconfirm') + '</div>' +
+        '<textarea id="itip-decline-comment" class="itip-comment" cols="40" rows="8"></textarea>';
 
-  return false;
+    var dialog, buttons = [];
+    buttons.push({
+        text: rcmail.gettext('declineattendee', 'itip'),
+        click: function() {
+            rcmail.http_post(task + '/itip-decline-reply', {
+                _uid: rcmail.env.uid,
+                _mbox: rcmail.env.mailbox,
+                _part: mime_id,
+                _comment: $('#itip-decline-comment', window.parent.document).val()
+            }, rcmail.set_busy(true, 'itip.savingdata'));
+          dialog.dialog("close");
+        }
+    });
+
+    buttons.push({
+        text: rcmail.gettext('cancel', 'itip'),
+        click: function() {
+          dialog.dialog('close');
+        }
+    });
+
+    dialog = rcmail.show_popup_dialog(html, rcmail.gettext('declineattendee', 'itip'), buttons, {
+        width: 460,
+        open: function() {
+            $(this).parent().find('.ui-button').first().addClass('mainaction');
+            $('#itip-decline-comment').focus();
+        }
+    });
+
+    return false;
 };
 
 /**

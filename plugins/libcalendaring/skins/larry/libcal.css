@@ -52,3 +52,11 @@ span.edit-alarm-set {
 	width: 20px;
 	height: 16px;
 }
+
+.itip-dialog-confirm-text {
+	margin-bottom: 1em;
+}
+
+.popup textarea.itip-comment {
+	width: 98%;
+}
