@@ -1,0 +1,165 @@
+<?php
+
+$labels = array();
+
+// preferences
+$labels['default_view'] = 'Oletusnäkymä';
+$labels['time_format'] = 'Aikamuoto';
+$labels['first_day'] = 'Viikon ensimmäinen päivä';
+$labels['first_hour'] = 'Ensimmäinen näytettävä tunti';
+$labels['workinghours'] = 'Työaika';
+$labels['add_category'] = 'Lisää luokka';
+$labels['remove_category'] = 'Poista luokka';
+$labels['defaultcalendar'] = 'Luo uudet tapahtumat kohteeseen';
+$labels['eventcoloring'] = 'Tapahtuman väritys';
+$labels['coloringmode0'] = 'Kalenterin mukaan';
+$labels['coloringmode1'] = 'Luokan mukaan';
+
+// calendar
+$labels['calendar'] = 'Kalenteri';
+$labels['calendars'] = 'Kalenterit';
+$labels['category'] = 'Luokka';
+$labels['categories'] = 'Luokat';
+$labels['createcalendar'] = 'Luo uusi kalenteri';
+$labels['editcalendar'] = 'Muokkaa kalenterin ominaisuuksia';
+$labels['name'] = 'Nimi';
+$labels['color'] = 'Väri';
+$labels['day'] = 'Päivä';
+$labels['week'] = 'Viikko';
+$labels['month'] = 'Kuukausi';
+$labels['agenda'] = 'Asialista';
+$labels['new'] = 'Uusi';
+$labels['new_event'] = 'Uusi tapahtuma';
+$labels['edit_event'] = 'Muokkaa tapahtumaa';
+$labels['edit'] = 'Muokkaa';
+$labels['save'] = 'Tallenna';
+$labels['remove'] = 'Poista';
+$labels['cancel'] = 'Peru';
+$labels['select'] = 'Valitse';
+$labels['print'] = 'Tulosta';
+$labels['printtitle'] = 'Tulosta kalenterit';
+$labels['title'] = 'Yhteenveto';
+$labels['description'] = 'Kuvaus';
+$labels['all-day'] = 'koko päivä';
+$labels['export'] = 'Vie';
+$labels['exporttitle'] = 'Vie iCalendar-muotoon';
+$labels['exportrange'] = 'Tapahtumat';
+$labels['location'] = 'Sijainti';
+$labels['url'] = 'Osoite';
+$labels['date'] = 'Päiväys';
+$labels['start'] = 'Alkaa';
+$labels['end'] = 'Päättyy';
+$labels['selectdate'] = 'Valitse päiväys';
+$labels['freebusy'] = 'Aseta tilakseni';
+$labels['free'] = 'Vapaa';
+$labels['busy'] = 'Varattu';
+$labels['priority'] = 'Tärkeys';
+$labels['sensitivity'] = 'Yksityisyys';
+$labels['public'] = 'julkinen';
+$labels['private'] = 'yksityinen';
+$labels['confidential'] = 'luottamuksellinen';
+$labels['alarms'] = 'Muistutus';
+$labels['comment'] = 'Kommentti';
+$labels['printdescriptions'] = 'Tulosta kuvaukset';
+$labels['searchearlierdates'] = '« Etsi aiempia tapahtumia';
+$labels['searchlaterdates'] = 'Etsi myöhempiä tapahtumia »';
+$labels['andnmore'] = '$nr lisää...';
+$labels['createfrommail'] = 'Tallenna tapahtumana';
+$labels['importevents'] = 'Tuo tapahtumat';
+$labels['importrange'] = 'Tapahtumat';
+$labels['onemonthback'] = '1 kuukauden ajalta';
+$labels['nmonthsback'] = '$nr kuukauden ajalta';
+$labels['showurl'] = 'Näytä kalenterin osoite';
+$labels['showurldescription'] = 'Käytä seuraavia osoitteita avataksesi kalenterisi pelkässä lukumuodossa muissa sovelluksissa. Voit kopioida ja liittää osoitteen mihin tahansa iCal-muotoa tukevaan kalenterisovellukseen.';
+$labels['caldavurldescription'] = 'Kopioi tämä osoite <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a-asiakassovellukseen (esim. Evolution tai Mozilla Thunderbird) synkronoidaksesi tämän kalenterin tietokoneesi tai mobiililaitteesi kanssa.';
+
+// agenda view
+$labels['until'] = 'kunnes';
+$labels['today'] = 'Tänään';
+$labels['tomorrow'] = 'Huomenna';
+$labels['thisweek'] = 'Tällä viikolla';
+$labels['nextweek'] = 'Ensi viikolla';
+$labels['thismonth'] = 'Tässä kuussa';
+$labels['nextmonth'] = 'Ensi kuussa';
+$labels['weekofyear'] = 'Viikko';
+
+// alarm/reminder settings
+$labels['defaultalarmtype'] = 'Muistutuksen oletusasetus';
+$labels['defaultalarmoffset'] = 'Muistutuksen oletusaika';
+
+// attendees
+$labels['role'] = 'Rooli';
+$labels['confirmstate'] = 'Tila';
+$labels['addattendee'] = 'Lisää osallistuja';
+$labels['roleorganizer'] = 'Järjestäjä';
+$labels['rolerequired'] = 'Vaadittu';
+$labels['roleoptional'] = 'Valinnainen';
+$labels['cutypegroup'] = 'Ryhmä';
+$labels['cutyperesource'] = 'Resurssi';
+$labels['cutyperoom'] = 'Huone';
+$labels['availfree'] = 'Vapaa';
+$labels['availbusy'] = 'Varattu';
+$labels['availunknown'] = 'Tuntematon';
+$labels['scheduletime'] = 'Etsi saatavuus';
+$labels['sendinvitations'] = 'Lähetä kutsut';
+$labels['sendnotifications'] = 'Ilmoita osallistujille muutoksista';
+$labels['sendcancellation'] = 'Ilmoita osallistujille tapahtuman perumisesta';
+$labels['prevslot'] = 'Edellinen ajankohta';
+$labels['nextslot'] = 'Seuraava ajankohta';
+$labels['noslotfound'] = 'Vapaata ajankohtaa ei löytynyt';
+$labels['invitationsubject'] = 'Sinut on kutsuttu tapahtumaan "$title"';
+$labels['eventupdatesubject'] = '"$title" on päivitetty';
+$labels['eventupdatesubjectempty'] = 'Sinua koskeva tapahtuma on päivitetty';
+$labels['eventcancelsubject'] = '"$title" on peruttu';
+
+// invitation handling (overrides labels from libcalendaring)
+$labels['declinedeleteconfirm'] = 'Haluatko poistaa tämän hylätyn tapahtuman kalenteristasi?';
+
+$labels['notanattendee'] = 'Sinua ei ole määritetty tapahtuman osanottajaksi';
+$labels['eventcancelled'] = 'Tapahtuma on peruttu';
+
+// event dialog tabs
+$labels['tabsummary'] = 'Yhteenveto';
+$labels['tabrecurrence'] = 'Toistuminen';
+$labels['tabattendees'] = 'Osallistujat';
+$labels['tabattachments'] = 'Liitteet';
+$labels['tabsharing'] = 'Jakaminen';
+
+// messages
+$labels['deleteobjectconfirm'] = 'Haluatko varmasti poistaa tämän tapahtuman?';
+$labels['deleteventconfirm'] = 'Haluatko varmasti poistaa tämän tapahtuman?';
+$labels['deletecalendarconfirm'] = 'Haluatko varmasti poistaa tämän kalenterin ja kaikki sen tapahtumat?';
+$labels['deletecalendarconfirmrecursive'] = 'Haluatko varmasti poistaa tämän kalenterin ja kaikki sen tapahtumat sekä alikalenterit?';
+$labels['savingdata'] = 'Tallennetaan tietoja...';
+$labels['errorsaving'] = 'Muutosten tallentaminen epäonnistui.';
+$labels['operationfailed'] = 'Pyydetty toiminto epäonnistui.';
+$labels['invalidcalendarproperties'] = 'Kalenterin ominaisuudet ovat virheelliset. Aseta kelvollinen nimi.';
+$labels['searchnoresults'] = 'Valituista kalentereista ei löytynyt tapahtumia.';
+$labels['successremoval'] = 'Tapahtuma on poistettu onnistuneesti.';
+$labels['successrestore'] = 'Tapahtuma on palautettu onnistuneesti.';
+$labels['errorimportingevent'] = 'Tapahtuman tuonti epäonnistui';
+$labels['newerversionexists'] = 'Uudempi versio tästä tapahtumasta on jo olemassa! Keskeytetty.';
+$labels['nowritecalendarfound'] = 'Tapahtuman tallentamiseksi ei löytynyt kalenteria';
+$labels['importedsuccessfully'] = 'Tapahtuma lisättiin onnistuneesti kalenteriin \'$calendar\'';
+$labels['itipsendsuccess'] = 'Kutsu lähetetty osallistujille.';
+$labels['itipresponseerror'] = 'Vastauksen lähettäminen tapahtumakutsuun epäonnistui';
+$labels['itipinvalidrequest'] = 'Kutsu ei ole enää kelvollinen';
+$labels['localchangeswarning'] = 'Olet tekemässä muutoksia, jotka vaikuttavat ainoastaan omaan kalenteriisi. Muutoksia ei lähetetä tapahtuman järjestäjälle.';
+$labels['importsuccess'] = '$nr tapahtumaa tuotiin onnistuneesti';
+$labels['importnone'] = 'Tuotavaksi tarkoitettuja tapahtumia ei löytynyt';
+$labels['importerror'] = 'Tuotaessa tapahtui virhe';
+$labels['aclnorights'] = 'Sinulla ei ole ylläpitäjän oikeuksia tähän kalenteriin.';
+
+// recurrence form
+$labels['daily'] = 'päivittäin';
+$labels['weekly'] = 'viikottain';
+$labels['monthly'] = 'kuukausittain';
+$labels['yearly'] = 'vuosittain';
+$labels['forever'] = 'ikuisesti';
+$labels['recurrencend'] = 'kunnes';
+
+$labels['removeeventconfirm'] = 'Poista tapahtuma';
+$labels['allevents'] = 'Kaikki';
+$labels['saveasnew'] = 'Tallenna uutena';
+
+?>
