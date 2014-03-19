@@ -116,7 +116,6 @@ $labels['rolenonparticipant'] = 'Absent';
 $labels['cutypeindividual'] = 'Individual';
 $labels['cutypegroup'] = 'Group';
 $labels['cutyperesource'] = 'Ressource';
-$labels['cutyperoom'] = 'Room';
 $labels['availfree'] = 'Frei';
 $labels['availbusy'] = 'Gebucht';
 $labels['availunknown'] = 'Unbekannt';
@@ -145,7 +144,6 @@ $labels['itipmailbodyaccepted'] = "\$sender hat die Einladung zum folgenden Term
 $labels['itipmailbodytentative'] = "\$sender hat die Einladung mit Vorbehalt zum folgenden Termin angenommen:\n\n*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender hat die Einladung zum folgenden Termin abgelehnt:\n\n*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees";
 $labels['itipdeclineevent'] = 'Möchten Sie die Einladung zu diesem Termin ablehnen?';
-$labels['declinedeleteconfirm'] = 'Do you also want to delete this declined event from your calendar?';
 
 $labels['notanattendee'] = 'Sie sind nicht in der Liste der Teilnehmer aufgeführt';
 $labels['eventcancelled'] = 'Der Termin wurde vom Organisator abgesagt';
@@ -161,7 +159,6 @@ $labels['tabsharing'] = 'Freigabe';
 // messages
 $labels['deleteventconfirm'] = 'Möchten Sie diesen Termin wirklich löschen?';
 $labels['deletecalendarconfirm'] = 'Möchten Sie diesen Kalender mit allen Terminen wirklich löschen?';
-$labels['deletecalendarconfirmrecursive'] = 'Do you really want to delete this calendar with all its events and sub-calendars?';
 $labels['savingdata'] = 'Speichere Daten...';
 $labels['errorsaving'] = 'Fehler beim Speichern.';
 $labels['operationfailed'] = 'Die Aktion ist fehlgeschlagen.';
@@ -180,7 +177,6 @@ $labels['itipsendsuccess'] = 'Einladung an Teilnehmer versendet.';
 $labels['itipresponseerror'] = 'Die Antwort auf diese Einladung konnte nicht versendet werden';
 $labels['itipinvalidrequest'] = 'Diese Einladung ist nicht mehr gültig';
 $labels['sentresponseto'] = 'Antwort auf diese Einladung erfolgreich an $mailto gesendet';
-$labels['localchangeswarning'] = 'You are about to make changes that will only be reflected on your calendar and not be sent to the organizer of the event.';
 $labels['importsuccess'] = 'Es wurden $nr Termine erfolgreich importiert';
 $labels['importnone'] = 'Keine Termine zum Importieren gefunden';
 $labels['importerror'] = 'Fehler beim Importieren';
@@ -194,7 +190,6 @@ $labels['daily'] = 'täglich';
 $labels['weekly'] = 'wöchentlich';
 $labels['monthly'] = 'monatlich';
 $labels['yearly'] = 'jährlich';
-$labels['rdate'] = 'on dates';
 $labels['every'] = 'Alle';
 $labels['days'] = 'Tag(e)';
 $labels['weeks'] = 'Woche(n)';
@@ -214,7 +209,6 @@ $labels['third'] = 'dritter';
 $labels['fourth'] = 'vierter';
 $labels['last'] = 'letzter';
 $labels['dayofmonth'] = 'Tag des Montats';
-$labels['addrdate'] = 'Add repeat date';
 
 $labels['changeeventconfirm'] = 'Termin ändern';
 $labels['removeeventconfirm'] = 'Termin löschen';
@@ -226,11 +220,11 @@ $labels['allevents'] = 'Alle';
 $labels['saveasnew'] = 'Als neu speichern';
 
 // birthdays calendar
-$labels['birthdays'] = 'Birthdays';
-$labels['birthdayscalendar'] = 'Birthdays Calendar';
-$labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
-$labels['birthdayscalendarsources'] = 'From these address books';
-$labels['birthdayeventtitle'] = '$name\'s Birthday';
-$labels['birthdayage'] = 'Age $age';
+$labels['birthdays'] = 'Geburtstage';
+$labels['birthdayscalendar'] = 'Geburtstags-Kalender';
+$labels['displaybirthdayscalendar'] = 'Geburtstags-Kalender anzeigen';
+$labels['birthdayscalendarsources'] = 'Für diese Adressbücher';
+$labels['birthdayeventtitle'] = '$names Geburtstag';
+$labels['birthdayage'] = 'Alter $age';
 
 ?>

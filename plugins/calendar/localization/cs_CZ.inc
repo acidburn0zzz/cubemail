@@ -47,8 +47,6 @@ $labels['all-day'] = 'celý den';
 $labels['export'] = 'Exportovat do ICS';
 $labels['exporttitle'] = 'Exportovat souhrn do ICS';
 $labels['exportrange'] = 'Události od';
-$labels['exportattachments'] = 'With attachments';
-$labels['customdate'] = 'Custom date';
 $labels['location'] = 'Místo';
 $labels['url'] = 'URL';
 $labels['date'] = 'Datum';
@@ -80,7 +78,6 @@ $labels['onemonthback'] = '1 měsíc nazpátek';
 $labels['nmonthsback'] = '$nr měsíců nazpátek';
 $labels['showurl'] = 'Ukázat URL kalendáře';
 $labels['showurldescription'] = 'Tuto adresu použijte pro přístup (jen ke čtení) ke kalendáři z jiných aplikací. Můžete ji zkopírovat a vložit do jakéhokoli kalendářového softwaru, který podporuje formát iCal.';
-$labels['caldavurldescription'] = 'Copy this address to a <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> client application (e.g. Evolution or Mozilla Thunderbird) to fully synchronize this specific calendar with your computer or mobile device.';
 
 // agenda view
 $labels['listrange'] = 'Rozsah k zobrazení:';
@@ -104,19 +101,13 @@ $labels['defaultalarmoffset'] = 'Výchozí čas připomenutí';
 
 // attendees
 $labels['attendee'] = 'Účastník';
-$labels['role'] = 'Role';
 $labels['availability'] = 'Dost.';
 $labels['confirmstate'] = 'Stav';
 $labels['addattendee'] = 'Přidat účastníka';
 $labels['roleorganizer'] = 'Organizátor';
 $labels['rolerequired'] = 'Povinný';
 $labels['roleoptional'] = 'Nepovinný';
-$labels['rolechair'] = 'Chair';
-$labels['rolenonparticipant'] = 'Absent';
-$labels['cutypeindividual'] = 'Individual';
-$labels['cutypegroup'] = 'Group';
 $labels['cutyperesource'] = 'Prostředek';
-$labels['cutyperoom'] = 'Room';
 $labels['availfree'] = 'volno';
 $labels['availbusy'] = 'obsazeno';
 $labels['availunknown'] = 'neznámý';
@@ -145,7 +136,6 @@ $labels['itipmailbodyaccepted'] = "\$sender přijal(a) pozvání na tuto událos
 $labels['itipmailbodytentative'] = "\$sender nezávazně přijal(a) pozvání na tuto událost:\n\n*\$title*\n\nKdy: \$date\n\nPozváni: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender odmítl(a) pozvání na tuto událost:\n\n*\$title*\n\nKdy: \$date\n\nPozváni: \$attendees";
 $labels['itipdeclineevent'] = 'Opravdu chcete odmítnout pozvání na tuto událost?';
-$labels['declinedeleteconfirm'] = 'Do you also want to delete this declined event from your calendar?';
 $labels['notanattendee'] = 'Nejste na seznamu účastníků této události';
 $labels['eventcancelled'] = 'Tato událost byla zrušena';
 $labels['saveincalendar'] = 'uložit do';
@@ -179,7 +169,6 @@ $labels['itipsendsuccess'] = 'Pozvánky byly rozeslány účastníkům.';
 $labels['itipresponseerror'] = 'Nelze odeslat odpověď na tuto pozvánku';
 $labels['itipinvalidrequest'] = 'Tato pozvánka již není platná';
 $labels['sentresponseto'] = 'Odpověď na pozvánku byla úspěšně odeslána na adresu $mailto';
-$labels['localchangeswarning'] = 'You are about to make changes that will only be reflected on your calendar and not be sent to the organizer of the event.';
 $labels['importsuccess'] = 'Úspěšně importováno $nr událostí';
 $labels['importnone'] = 'Nebyly nalezeny žádné události k importu';
 $labels['importerror'] = 'Při importu došlo k chybě';
@@ -213,7 +202,6 @@ $labels['third'] = 'třetí';
 $labels['fourth'] = 'čtvrtý';
 $labels['last'] = 'poslední';
 $labels['dayofmonth'] = 'Den v měsíci';
-$labels['addrdate'] = 'Add repeat date';
 
 $labels['changeeventconfirm'] = 'Změnit událost';
 $labels['removeeventconfirm'] = 'Odstranit událost';
@@ -223,13 +211,5 @@ $labels['currentevent'] = 'Aktuální';
 $labels['futurevents'] = 'Budoucí';
 $labels['allevents'] = 'Všechny';
 $labels['saveasnew'] = 'Uložit jako novou';
-
-// birthdays calendar
-$labels['birthdays'] = 'Birthdays';
-$labels['birthdayscalendar'] = 'Birthdays Calendar';
-$labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
-$labels['birthdayscalendarsources'] = 'From these address books';
-$labels['birthdayeventtitle'] = '$name\'s Birthday';
-$labels['birthdayage'] = 'Age $age';
 
 ?>

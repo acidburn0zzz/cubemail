@@ -5,7 +5,6 @@ $labels = array();
 // preferences
 $labels['default_view'] = 'Domyślny widok';
 $labels['time_format'] = 'Format czasu';
-$labels['timeslots'] = 'Time slots per hour';
 $labels['first_day'] = 'Pierwszy dzień tygodnia';
 $labels['first_hour'] = 'Pierwsza godzina';
 $labels['workinghours'] = 'Godziny robocze';
@@ -193,7 +192,6 @@ $labels['daily'] = 'codziennie';
 $labels['weekly'] = 'cotygodniowo';
 $labels['monthly'] = 'miesięcznie';
 $labels['yearly'] = 'corocznie';
-$labels['rdate'] = 'on dates';
 $labels['every'] = 'Każdy';
 $labels['days'] = 'dnia';
 $labels['weeks'] = 'tygodnia';
@@ -213,7 +211,6 @@ $labels['third'] = 'trzeci';
 $labels['fourth'] = 'czwarty';
 $labels['last'] = 'ostatni';
 $labels['dayofmonth'] = 'Dzień miesiąca';
-$labels['addrdate'] = 'Add repeat date';
 
 $labels['changeeventconfirm'] = 'Zmień zdarzenie';
 $labels['removeeventconfirm'] = 'Usuń zdarzenie';
@@ -223,13 +220,5 @@ $labels['currentevent'] = 'Bieżące';
 $labels['futurevents'] = 'Przyszłe';
 $labels['allevents'] = 'Wszystkie';
 $labels['saveasnew'] = 'Zapisz jako nowe';
-
-// birthdays calendar
-$labels['birthdays'] = 'Birthdays';
-$labels['birthdayscalendar'] = 'Birthdays Calendar';
-$labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
-$labels['birthdayscalendarsources'] = 'From these address books';
-$labels['birthdayeventtitle'] = '$name\'s Birthday';
-$labels['birthdayage'] = 'Age $age';
 
 ?>

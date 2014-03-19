@@ -5,7 +5,6 @@ $labels = array();
 // preferences
 $labels['default_view'] = 'デフォルトビュー';
 $labels['time_format'] = '時刻表示形式';
-$labels['timeslots'] = 'Time slots per hour';
 $labels['first_day'] = '最初の平日';
 $labels['first_hour'] = '最初の時間を表示';
 $labels['workinghours'] = '労働時間';
@@ -47,8 +46,6 @@ $labels['all-day'] = '全日';
 $labels['export'] = 'エクスポート';
 $labels['exporttitle'] = 'iカレンダーへエクスポート';
 $labels['exportrange'] = 'イベント元';
-$labels['exportattachments'] = 'With attachments';
-$labels['customdate'] = 'Custom date';
 $labels['location'] = '場所';
 $labels['url'] = 'URL';
 $labels['date'] = '期日';
@@ -80,7 +77,6 @@ $labels['onemonthback'] = '1 ヶ月戻る';
 $labels['nmonthsback'] = '$nr ヶ月戻る';
 $labels['showurl'] = 'カレンダーURL表示';
 $labels['showurldescription'] = '以下のアドレスを使用して他のアプリケーションからカレンダーにアクセス(読込のみ)できます。iCal形式をサポートしたカレンダーソフトウェアへコピーアンドペーストができます。';
-$labels['caldavurldescription'] = 'Copy this address to a <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> client application (e.g. Evolution or Mozilla Thunderbird) to fully synchronize this specific calendar with your computer or mobile device.';
 
 // agenda view
 $labels['listrange'] = '表示範囲:';
@@ -98,7 +94,6 @@ $labels['pastevents'] = '以前';
 $labels['futureevents'] = '以降';
 
 // alarm/reminder settings
-$labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'デフォルト通知設定';
 $labels['defaultalarmoffset'] = 'デフォルト通知時間';
 
@@ -111,12 +106,8 @@ $labels['addattendee'] = '参加者追加';
 $labels['roleorganizer'] = '編成者';
 $labels['rolerequired'] = '要件';
 $labels['roleoptional'] = 'オプション';
-$labels['rolechair'] = 'Chair';
-$labels['rolenonparticipant'] = 'Absent';
-$labels['cutypeindividual'] = 'Individual';
 $labels['cutypegroup'] = 'グループ';
 $labels['cutyperesource'] = 'リソース';
-$labels['cutyperoom'] = 'Room';
 $labels['availfree'] = '空';
 $labels['availbusy'] = 'ビジー';
 $labels['availunknown'] = '不明';
@@ -145,7 +136,6 @@ $labels['itipmailbodyaccepted'] = "\$sender は以下のイベントへの招待
 $labels['itipmailbodytentative'] = "\$sender は以下のイベントへの招待を仮承諾しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender は以下のイベントへの招待を辞退しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipdeclineevent'] = 'このイベントへの招待を辞退しますか?';
-$labels['declinedeleteconfirm'] = 'Do you also want to delete this declined event from your calendar?';
 $labels['eventcancelled'] = 'このイベントはキャンセルされました';
 $labels['saveincalendar'] = '保存';
 
@@ -159,7 +149,6 @@ $labels['tabsharing'] = '共有';
 // messages
 $labels['deleteventconfirm'] = '本当にこのイベントを削除しますか?';
 $labels['deletecalendarconfirm'] = '本当にこのカレンダーを全イベントとともに削除しますか?';
-$labels['deletecalendarconfirmrecursive'] = 'Do you really want to delete this calendar with all its events and sub-calendars?';
 $labels['savingdata'] = 'データを保存中…';
 $labels['errorsaving'] = '変更が保存できませんでした。';
 $labels['operationfailed'] = '要求された操作ができませんでした。';
@@ -178,7 +167,6 @@ $labels['itipsendsuccess'] = '出席者へ招待を送信しました。';
 $labels['itipresponseerror'] = 'この招待の返信できませんでした';
 $labels['itipinvalidrequest'] = 'この招待は間もなく無効になります';
 $labels['sentresponseto'] = '$mailto への招待の返信しました';
-$labels['localchangeswarning'] = 'You are about to make changes that will only be reflected on your calendar and not be sent to the organizer of the event.';
 $labels['importsuccess'] = '$nr イベントをインポートしました';
 $labels['importnone'] = 'インポートされたイベントはありません';
 $labels['importerror'] = 'インポート中にエラーが発生しました。';
@@ -192,7 +180,6 @@ $labels['daily'] = '毎日';
 $labels['weekly'] = '毎週';
 $labels['monthly'] = '毎月';
 $labels['yearly'] = '毎年';
-$labels['rdate'] = 'on dates';
 $labels['every'] = 'いつでも';
 $labels['days'] = '日(s)';
 $labels['weeks'] = '週(s)';
@@ -212,7 +199,6 @@ $labels['third'] = '第3週';
 $labels['fourth'] = '第4週';
 $labels['last'] = '最終週';
 $labels['dayofmonth'] = '日';
-$labels['addrdate'] = 'Add repeat date';
 
 $labels['changeeventconfirm'] = 'イベント変更';
 $labels['removeeventconfirm'] = 'イベント削除';
@@ -222,13 +208,5 @@ $labels['currentevent'] = '現在';
 $labels['futurevents'] = '今後';
 $labels['allevents'] = '全て';
 $labels['saveasnew'] = '新規保存';
-
-// birthdays calendar
-$labels['birthdays'] = 'Birthdays';
-$labels['birthdayscalendar'] = 'Birthdays Calendar';
-$labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
-$labels['birthdayscalendarsources'] = 'From these address books';
-$labels['birthdayeventtitle'] = '$name\'s Birthday';
-$labels['birthdayage'] = 'Age $age';
 
 ?>

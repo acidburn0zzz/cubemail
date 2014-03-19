@@ -15,8 +15,6 @@ $labels['defaultcalendar'] = 'Crea nuovi eventi in';
 $labels['eventcoloring'] = 'Colorazione evento';
 $labels['coloringmode0'] = 'Secondo il calendario';
 $labels['coloringmode1'] = 'Secondo la categoria';
-$labels['coloringmode2'] = 'Calendar for outline, category for content';
-$labels['coloringmode3'] = 'Category for outline, calendar for content';
 
 // calendar
 $labels['calendar'] = 'Calendario';
@@ -116,7 +114,6 @@ $labels['rolenonparticipant'] = 'Assente';
 $labels['cutypeindividual'] = 'Individual';
 $labels['cutypegroup'] = 'Gruppo';
 $labels['cutyperesource'] = 'Risorsa';
-$labels['cutyperoom'] = 'Stanza';
 $labels['availfree'] = 'Libero';
 $labels['availbusy'] = 'Occupato';
 $labels['availunknown'] = 'Sconosciuto';
@@ -193,7 +190,6 @@ $labels['daily'] = 'quotidiana';
 $labels['weekly'] = 'settimanale';
 $labels['monthly'] = 'mensile';
 $labels['yearly'] = 'annuale';
-$labels['rdate'] = 'on dates';
 $labels['every'] = 'Ogni';
 $labels['days'] = 'giorno/i';
 $labels['weeks'] = 'settimana/e';
@@ -213,12 +209,9 @@ $labels['third'] = 'terzo';
 $labels['fourth'] = 'quarto';
 $labels['last'] = 'ultimo';
 $labels['dayofmonth'] = 'Giorno del mese';
-$labels['addrdate'] = 'Add repeat date';
 
 $labels['changeeventconfirm'] = 'Cambia evento';
 $labels['removeeventconfirm'] = 'Rimuovi evento';
-$labels['changerecurringeventwarning'] = 'This is a recurring event. Would you like to edit the current event only, this and all future occurences, all occurences or save it as a new event?';
-$labels['removerecurringeventwarning'] = 'This is a recurring event. Would you like to remove the current event only, this and all future occurences or all occurences of this event?';
 $labels['currentevent'] = 'Current';
 $labels['futurevents'] = 'Futuro';
 $labels['allevents'] = 'Tutto';

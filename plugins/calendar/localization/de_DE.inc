@@ -98,7 +98,6 @@ $labels['pastevents'] = 'Vergangene';
 $labels['futureevents'] = 'Zukünftige';
 
 // alarm/reminder settings
-$labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'Standard-Erinnerungseinstellung';
 $labels['defaultalarmoffset'] = 'Standard-Erinnerungszeit';
 
@@ -193,7 +192,6 @@ $labels['daily'] = 'täglich';
 $labels['weekly'] = 'wöchentlich';
 $labels['monthly'] = 'monatlich';
 $labels['yearly'] = 'jährlich';
-$labels['rdate'] = 'on dates';
 $labels['every'] = 'Alle';
 $labels['days'] = 'Tag(e)';
 $labels['weeks'] = 'Woche(n)';
@@ -213,7 +211,6 @@ $labels['third'] = 'dritter';
 $labels['fourth'] = 'vierter';
 $labels['last'] = 'letzter';
 $labels['dayofmonth'] = 'Tag des Montats';
-$labels['addrdate'] = 'Add repeat date';
 
 $labels['changeeventconfirm'] = 'Termin ändern';
 $labels['removeeventconfirm'] = 'Termin löschen';

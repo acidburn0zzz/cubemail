@@ -5,7 +5,6 @@ $labels = array();
 // preferences
 $labels['default_view'] = 'Vue par défaut';
 $labels['time_format'] = 'Format de l\'heure';
-$labels['timeslots'] = 'Time slots per hour';
 $labels['first_day'] = 'Premier jour de la semaine';
 $labels['first_hour'] = 'Première heure à afficher';
 $labels['workinghours'] = 'Heures de travail';
@@ -48,7 +47,6 @@ $labels['export'] = 'Exporter';
 $labels['exporttitle'] = 'Exporter vers iCalendar';
 $labels['exportrange'] = 'Évènements depuis';
 $labels['exportattachments'] = 'With attachments';
-$labels['customdate'] = 'Custom date';
 $labels['location'] = 'Lieu';
 $labels['url'] = 'URL';
 $labels['date'] = 'Date';
@@ -116,7 +114,6 @@ $labels['rolenonparticipant'] = 'Absent';
 $labels['cutypeindividual'] = 'Individual';
 $labels['cutypegroup'] = 'Groupe';
 $labels['cutyperesource'] = 'Ressource';
-$labels['cutyperoom'] = 'Room';
 $labels['availfree'] = 'Disponible';
 $labels['availbusy'] = 'Occupé';
 $labels['availunknown'] = 'Inconnu';
@@ -160,7 +157,6 @@ $labels['tabsharing'] = 'Partage';
 // messages
 $labels['deleteventconfirm'] = 'Voulez-vous vraiment supprimer cet évènement?';
 $labels['deletecalendarconfirm'] = 'Voulez-vous vraiment supprimer cet agenda et tous ses évènements?';
-$labels['deletecalendarconfirmrecursive'] = 'Do you really want to delete this calendar with all its events and sub-calendars?';
 $labels['savingdata'] = 'Enregistrer...';
 $labels['errorsaving'] = 'Échec lors de l\'enregistrement des changements';
 $labels['operationfailed'] = 'L\'opération demandée a échoué';
@@ -179,7 +175,6 @@ $labels['itipsendsuccess'] = 'Invitation envoyé aux participants.';
 $labels['itipresponseerror'] = 'Échec de l\'envoi d\'une réponse à cette invitation.';
 $labels['itipinvalidrequest'] = 'C\'est invitation n\'est plus valide.';
 $labels['sentresponseto'] = 'La réponse à l\'invitation a été envoyé à $mailto';
-$labels['localchangeswarning'] = 'You are about to make changes that will only be reflected on your calendar and not be sent to the organizer of the event.';
 $labels['importsuccess'] = '$nr évènements importés.';
 $labels['importnone'] = 'Pas d\'évènements à importer';
 $labels['importerror'] = 'Une erreur est arrivée lors de l\'import';
@@ -193,7 +188,6 @@ $labels['daily'] = 'Quotidienne';
 $labels['weekly'] = 'Hebdomadaire';
 $labels['monthly'] = 'Mensuelle';
 $labels['yearly'] = 'Annuelle';
-$labels['rdate'] = 'on dates';
 $labels['every'] = 'Tous les';
 $labels['days'] = 'jour(s)';
 $labels['weeks'] = 'semaine(s)';
@@ -213,7 +207,6 @@ $labels['third'] = 'troisième';
 $labels['fourth'] = 'quatrième';
 $labels['last'] = 'dernier';
 $labels['dayofmonth'] = 'Jour du mois';
-$labels['addrdate'] = 'Add repeat date';
 
 $labels['changeeventconfirm'] = 'Modifier l\'évènement';
 $labels['removeeventconfirm'] = 'Supprimer l\'évènement';
@@ -223,13 +216,5 @@ $labels['currentevent'] = 'Cette occurrence';
 $labels['futurevents'] = 'Cette occurrence et toutes les suivantes';
 $labels['allevents'] = 'Toutes les occurrences';
 $labels['saveasnew'] = 'Enregistrer comme un nouvel évènement';
-
-// birthdays calendar
-$labels['birthdays'] = 'Birthdays';
-$labels['birthdayscalendar'] = 'Birthdays Calendar';
-$labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
-$labels['birthdayscalendarsources'] = 'From these address books';
-$labels['birthdayeventtitle'] = '$name\'s Birthday';
-$labels['birthdayage'] = 'Age $age';
 
 ?>
