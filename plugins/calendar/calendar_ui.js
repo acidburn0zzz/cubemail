@@ -350,19 +350,26 @@ function rcube_calendar_ui(settings)
           return (j - k);
         });
 
-        var data, dispname, organizer = false, rsvp = false, line,  morelink, html = '',overflow = '';
+        var data, dispname, tooltip, organizer = false, rsvp = false, line,  morelink, html = '',overflow = '';
         for (var j=0; j < event.attendees.length; j++) {
           data = event.attendees[j];
           dispname = Q(data.name || data.email);
+          tooltip = '';
           if (data.email) {
-            dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
+            tooltip = data.email;
+            dispname = '<a href="mailto:' + data.email + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
             if (data.role == 'ORGANIZER')
               organizer = true;
             else if ((data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp) && settings.identity.emails.indexOf(';'+data.email) >= 0)
               rsvp = data.status.toLowerCase();
           }
           
-          line = '<span class="attendee ' + String(data.role == 'ORGANIZER' ? 'organizer' : data.status).toLowerCase() + '">' + dispname + '</span> ';
+          if (data['delegated-to'])
+            tooltip = rcmail.gettext('delegatedto', 'calendar') + data['delegated-to'];
+          else if (data['delegated-from'])
+            tooltip = rcmail.gettext('delegatedfrom', 'calendar') + data['delegated-from'];
+          
+          line = '<span class="attendee ' + String(data.role == 'ORGANIZER' ? 'organizer' : data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + dispname + '</span> ';
           if (morelink)
             overflow += line;
           else
@@ -1524,11 +1531,17 @@ function rcube_calendar_ui(settings)
       // delete icon
       var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : rcmail.gettext('delete');
       var dellink = '<a href="#delete" class="iconlink delete deletelink" title="' + Q(rcmail.gettext('delete')) + '">' + icon + '</a>';
-      
+      var tooltip = data.status || '';
+
+      if (data['delegated-to'])
+        tooltip = rcmail.gettext('delegatedto', 'calendar') + data['delegated-to'];
+      else if (data['delegated-from'])
+        tooltip = rcmail.gettext('delegatedfrom', 'calendar') + data['delegated-from'];
+
       var html = '<td class="role">' + select + '</td>' +
         '<td class="name">' + dispname + '</td>' +
         '<td class="availability"><img src="./program/resources/blank.gif" class="availabilityicon ' + avail + '" data-email="' + data.email + '" /></td>' +
-        '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(data.status || '') + '">' + Q(data.status || '') + '</span></td>' +
+        '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
         '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
 
       var table = rcmail.env.calendar_resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
