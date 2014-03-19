@@ -113,6 +113,41 @@
 
 <roundcube:include file="/templates/eventedit.html" />
 
+<div id="eventresourcesdialog" class="uidialog">
+	<div id="resource-dialog-left">
+		<div id="resource-selection" class="uibox listbox">
+			<div id="resourcequicksearch">
+				<div class="searchbox">
+					<roundcube:object name="plugin.resources_searchform" id="resourcesearchbox" />
+					<a id="resourcesearchmenulink" class="iconbutton searchoptions"> </a>
+					<roundcube:button command="reset-resource-search" id="resourcesearchreset" class="iconbutton reset" title="resetsearch" content=" " />
+				</div>
+			</div>
+			<div class="scroller">
+				<roundcube:object name="plugin.resources_list" id="resources-list" class="listing treelist" />
+			</div>
+		</div>
+	</div>
+
+	<div id="resource-dialog-right">
+		<div id="resource-info" class="uibox contentbox">
+			<h2 class="boxtitle"><roundcube:label name="calendar.resourcedetails" /></h2>
+			<div class="scroller">
+				<roundcube:object name="plugin.resource_info" id="resource-details" class="propform" />
+			</div>
+		</div>
+
+		<div id="resource-availability" class="uibox contentbox">
+			<h2 class="boxtitle"><roundcube:label name="calendar.resourceavailability" /></h2>
+			<roundcube:object name="plugin.resource_calendar" id="resource-freebusy-calendar" />
+			<div class="boxpagenav">
+				<roundcube:button name="resource-cal-prev" id="resource-calendar-prev" type="link" class="icon prevpage" title="calendar.prevslot" content="&amp;lt;" />
+				<roundcube:button name="resource-cal-next" id="resource-calendar-next" type="link" class="icon nextpage" title="calendar.nextslot" content="&amp;gt;" />
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="eventfreebusy" class="uidialog">
 	<roundcube:object name="plugin.attendees_freebusy_table" id="attendees-freebusy-table" cellpadding="0" />
 
@@ -151,6 +186,7 @@
 		<span class="attendee organizer"><roundcube:label name="calendar.roleorganizer" /></span>
 		<span class="attendee req-participant"><roundcube:label name="calendar.rolerequired" /></span>
 		<span class="attendee opt-participant"><roundcube:label name="calendar.roleoptional" /></span>
+		<span class="attendee non-participant"><roundcube:label name="calendar.rolenonparticipant" /></span>
 		<span class="attendee chair"><roundcube:label name="calendar.rolechair" /></span>
 	</div>
 </div>
@@ -205,6 +241,9 @@ $(document).ready(function(e){
 	})
 	.data('offset', $('#calendarsidebartoggle').position().left)
 	.data('sidebarwidth', $('#calendarsidebar').width() + $('#calendarsidebar').position().left);
+
+	new rcube_splitter({ id:'calresourceviewsplitter', p1:'#resource-dialog-left', p2:'#resource-dialog-right',
+		orientation:'v', relative:true, start:380, min:220, size:10, offset:-3 }).init();
 });
 
 </script>

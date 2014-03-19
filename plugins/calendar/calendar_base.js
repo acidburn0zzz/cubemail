@@ -48,7 +48,7 @@ function rcube_calendar(settings)
           ).then(function() {
             // disable attendees feature (autocompletion and stuff is not initialized)
             for (var c in rcmail.env.calendars)
-              rcmail.env.calendars[c].attendees = false;
+              rcmail.env.calendars[c].attendees = rcmail.env.calendars[c].resources = false;
             
             me.ui_loaded = true;
             me.ui = new rcube_calendar_ui(me.settings);

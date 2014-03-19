@@ -1341,6 +1341,9 @@ function rcube_tasklist_ui(settings)
           resizable: (!bw.ie6 && !bw.ie7),  // disable for performance reasons
           closeOnEscape: false,
           title: rcmail.gettext((action == 'edit' ? 'edittask' : 'newtask'), 'tasklist'),
+          open: function() {
+            $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+          },
           close: function() {
               editform.hide().appendTo(document.body);
               $dialog.dialog('destroy').remove();
@@ -1664,7 +1667,12 @@ function rcube_tasklist_ui(settings)
           resizable: true,
           closeOnEscape: false,
           title: rcmail.gettext((list.id ? 'editlist' : 'createlist'), 'tasklist'),
-          close: function() { $dialog.dialog('destroy').hide(); },
+          open: function() {
+            $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+          },
+          close: function() {
+            $dialog.dialog('destroy').hide();
+          },
           buttons: buttons,
           minWidth: 400,
           width: 420

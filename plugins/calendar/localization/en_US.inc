@@ -123,6 +123,8 @@ $labels['availbusy'] = 'Busy';
 $labels['availunknown'] = 'Unknown';
 $labels['availtentative'] = 'Tentative';
 $labels['availoutofoffice'] = 'Out of Office';
+$labels['delegatedto'] = 'Delegated to: ';
+$labels['delegatedfrom'] = 'Delegated from: ';
 $labels['scheduletime'] = 'Find availability';
 $labels['sendinvitations'] = 'Send invitations';
 $labels['sendnotifications'] = 'Notify participants about modifications';
@@ -155,10 +157,20 @@ $labels['eventcancelled'] = 'The event has been cancelled';
 $labels['saveincalendar'] = 'save in';
 $labels['updatemycopy'] = 'Update in my calendar';
 
+// resources
+$labels['resource'] = 'Resource';
+$labels['addresource'] = 'Book resource';
+$labels['findresources'] = 'Find resources';
+$labels['resourcedetails'] = 'Details';
+$labels['resourceavailability'] = 'Availability';
+$labels['resourceowner'] = 'Owner';
+$labels['resourceadded'] = 'The resource was added to your event';
+
 // event dialog tabs
 $labels['tabsummary'] = 'Summary';
 $labels['tabrecurrence'] = 'Recurrence';
 $labels['tabattendees'] = 'Participants';
+$labels['tabresources'] = 'Resources';
 $labels['tabattachments'] = 'Attachments';
 $labels['tabsharing'] = 'Sharing';
 

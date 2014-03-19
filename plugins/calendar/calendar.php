@@ -38,6 +38,7 @@ class calendar extends rcube_plugin
   public $rc;
   public $lib;
   public $driver;
+  public $resources_dir;
   public $home;  // declare public to be used in other classes
   public $urlbase;
   public $timezone;
@@ -143,6 +144,10 @@ class calendar extends rcube_plugin
       $this->register_action('check-recent', array($this, 'check_recent'));
       $this->register_action('itip-status', array($this, 'event_itip_status'));
       $this->register_action('itip-remove', array($this, 'event_itip_remove'));
+      $this->register_action('resources-list', array($this, 'resources_list'));
+      $this->register_action('resources-owner', array($this, 'resources_owner'));
+      $this->register_action('resources-calendar', array($this, 'resources_calendar'));
+      $this->register_action('resources-autocomplete', array($this, 'resources_autocomplete'));
       $this->add_hook('refresh', array($this, 'refresh'));
 
       // remove undo information...
@@ -210,16 +215,10 @@ class calendar extends rcube_plugin
     require_once($this->home . '/drivers/calendar_driver.php');
     require_once($this->home . '/drivers/' . $driver_name . '/' . $driver_class . '.php');
 
-    switch ($driver_name) {
-      case "kolab":
-        $this->require_plugin('libkolab');
-      default:
-        $this->driver = new $driver_class($this);
-        break;
-     }
+    $this->driver = new $driver_class($this);
 
-     if ($this->driver->undelete)
-        $this->driver->undelete = $this->rc->config->get('undo_timeout', 0) > 0;
+    if ($this->driver->undelete)
+      $this->driver->undelete = $this->rc->config->get('undo_timeout', 0) > 0;
   }
 
   /**
@@ -285,13 +284,14 @@ class calendar extends rcube_plugin
     $this->ui->addJS();
 
     $this->ui->init_templates();
-    $this->rc->output->add_label('lowest','low','normal','high','highest','delete','cancel','uploading','noemailwarning');
+    $this->rc->output->add_label('lowest','low','normal','high','highest','delete','cancel','uploading','noemailwarning','close');
 
     // initialize attendees autocompletion
     rcube_autocomplete_init();
 
     $this->rc->output->set_env('timezone', $this->timezone->getName());
     $this->rc->output->set_env('calendar_driver', $this->rc->config->get('calendar_driver'), false);
+    $this->rc->output->set_env('calendar_resources', (bool)$this->rc->config->get('calendar_resources_driver'));
     $this->rc->output->set_env('mscolors', $this->driver->get_color_values());
     $this->rc->output->set_env('identities-selector', $this->ui->identity_select(array('id' => 'edit-identities-list')));
 
@@ -1905,6 +1905,103 @@ class calendar extends rcube_plugin
       $diff[] = 'attachments';
     
     return $diff;
+  }
+
+
+  /****  Resource management functions  ****/
+
+  /**
+   * Getter for the configured implementation of the resource directory interface
+   */
+  private function resources_directory()
+  {
+    if (is_object($this->resources_dir)) {
+      return $this->resources_dir;
+    }
+
+    if ($driver_name = $this->rc->config->get('calendar_resources_driver')) {
+      $driver_class = 'resources_driver_' . $driver_name;
+
+      require_once($this->home . '/drivers/resources_driver.php');
+      require_once($this->home . '/drivers/' . $driver_name . '/' . $driver_class . '.php');
+
+      $this->resources_dir = new $driver_class($this);
+    }
+
+    return $this->resources_dir;
+  }
+
+  /**
+   * Handler for resoruce autocompletion requests
+   */
+  public function resources_autocomplete()
+  {
+    $search = rcube_utils::get_input_value('_search', rcube_utils::INPUT_GPC, true);
+    $sid    = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+    $maxnum = (int)$this->rc->config->get('autocomplete_max', 15);
+    $results = array();
+
+    if ($directory = $this->resources_directory()) {
+      foreach ($directory->load_resources($search, $maxnum) as $rec) {
+        $results[]  = array(
+            'name'  => $rec['name'],
+            'email' => $rec['email'],
+            'type'  => $rec['_type'],
+        );
+      }
+    }
+
+    $this->rc->output->command('ksearch_query_results', $results, $search, $sid);
+    $this->rc->output->send();
+  }
+
+  /**
+   * Handler for load-requests for resource data
+   */
+  function resources_list()
+  {
+    $data = array();
+
+    if ($directory = $this->resources_directory()) {
+      foreach ($directory->load_resources() as $rec) {
+        $data[] = $rec;
+      }
+    }
+
+    $this->rc->output->command('plugin.resource_data', $data);
+    $this->rc->output->send();
+  }
+
+  /**
+   * Handler for requests loading resource owner information
+   */
+  function resources_owner()
+  {
+    if ($directory = $this->resources_directory()) {
+      $id = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+      $data = $directory->get_resource_owner($id);
+    }
+
+    $this->rc->output->command('plugin.resource_owner', $data);
+    $this->rc->output->send();
+  }
+
+  /**
+   * Deliver event data for a resource's calendar
+   */
+  function resources_calendar()
+  {
+    $events = array();
+
+    if ($directory = $this->resources_directory()) {
+      $events = $directory->get_resource_calendar(
+        rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC),
+        rcube_utils::get_input_value('start', RCUBE_INPUT_GET),
+        rcube_utils::get_input_value('end', RCUBE_INPUT_GET));
+    }
+
+    echo $this->encode($events);
+    exit;
   }
 
 

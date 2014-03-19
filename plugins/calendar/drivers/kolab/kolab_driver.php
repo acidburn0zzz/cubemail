@@ -47,6 +47,8 @@ class kolab_driver extends calendar_driver
    */
   public function __construct($cal)
   {
+    $cal->require_plugin('libkolab');
+
     $this->cal = $cal;
     $this->rc = $cal->rc;
     $this->_read_calendars();

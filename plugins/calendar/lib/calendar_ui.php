@@ -84,6 +84,11 @@ class calendar_ui
     $this->cal->register_handler('plugin.filedroparea', array($this, 'file_drop_area'));
     $this->cal->register_handler('plugin.attendees_list', array($this, 'attendees_list'));
     $this->cal->register_handler('plugin.attendees_form', array($this, 'attendees_form'));
+    $this->cal->register_handler('plugin.resources_form', array($this, 'resources_form'));
+    $this->cal->register_handler('plugin.resources_list', array($this, 'resources_list'));
+    $this->cal->register_handler('plugin.resources_searchform', array($this, 'resources_search_form'));
+    $this->cal->register_handler('plugin.resource_info', array($this, 'resource_info'));
+    $this->cal->register_handler('plugin.resource_calendar', array($this, 'resource_calendar'));
     $this->cal->register_handler('plugin.attendees_freebusy_table', array($this, 'attendees_freebusy_table'));
     $this->cal->register_handler('plugin.edit_attendees_notify', array($this, 'edit_attendees_notify'));
     $this->cal->register_handler('plugin.edit_recurring_warning', array($this, 'recurring_event_warning'));
@@ -112,6 +117,7 @@ class calendar_ui
     $this->cal->include_script('calendar_ui.js');
     $this->cal->include_script('lib/js/fullcalendar.js');
     $this->cal->include_script('lib/js/jquery.miniColors.min.js');
+    $this->rc->output->include_script('treelist.js');
   }
 
   /**
@@ -740,7 +746,7 @@ class calendar_ui
   {
     $table = new html_table(array('cols' => 5, 'border' => 0, 'cellpadding' => 0, 'class' => 'rectable'));
     $table->add_header('role', $this->cal->gettext('role'));
-    $table->add_header('name', $this->cal->gettext('attendee'));
+    $table->add_header('name', $this->cal->gettext($attrib['coltitle'] ?: 'attendee'));
     $table->add_header('availability', $this->cal->gettext('availability'));
     $table->add_header('confirmstate', $this->cal->gettext('confirmstate'));
     $table->add_header('options', '');
@@ -763,7 +769,97 @@ class calendar_ui
       html::p('attendees-invitebox', html::label(null, $checkbox->show(1) . $this->cal->gettext('sendinvitations')))
       );
   }
-  
+
+  /**
+   *
+   */
+  function resources_form($attrib = array())
+  {
+    $input = new html_inputfield(array('name' => 'resource', 'id' => 'edit-resource-name', 'size' => 30));
+
+    return html::div($attrib,
+      html::div(null, $input->show() . " " .
+        html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-resource-add', 'value' => $this->cal->gettext('addresource'))) . " " .
+        html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-resource-find', 'value' => $this->cal->gettext('findresources').'...')))
+      );
+  }
+
+  /**
+   *
+   */
+  function resources_list($attrib = array())
+  {
+    $attrib += array('id' => 'calendar-resources-list');
+
+    $this->rc->output->add_gui_object('resourceslist', $attrib['id']);
+
+    return html::tag('ul', $attrib, '', html::$common_attrib);
+  }
+
+  /**
+   *
+   */
+  public function resource_info($attrib = array())
+  {
+    $attrib += array('id' => 'calendar-resources-info');
+
+    $this->rc->output->add_gui_object('resourceinfo', $attrib['id']);
+    $this->rc->output->add_gui_object('resourceownerinfo', $attrib['id'] . '-owner');
+
+    // copy address book labels for owner details to client
+    $this->rc->output->add_label('name','firstname','surname','department','jobtitle','email','phone','address');
+
+    $table_attrib = array('id','class','style','width','summary','cellpadding','cellspacing','border');
+
+    return html::tag('table', $attrib,
+        html::tag('tbody', null, ''), $table_attrib) .
+
+      html::tag('table', array('id' => $attrib['id'] . '-owner', 'style' => 'display:none') + $attrib,
+        html::tag('thead', null,
+          html::tag('tr', null,
+            html::tag('td', array('colspan' => 2), Q($this->cal->gettext('resourceowner')))
+          )
+        ) .
+        html::tag('tbody', null, ''),
+        $table_attrib);
+  }
+
+  /**
+   *
+   */
+  public function resource_calendar($attrib = array())
+  {
+    $attrib += array('id' => 'calendar-resources-calendar');
+
+    $this->rc->output->add_gui_object('resourceinfocalendar', $attrib['id']);
+
+    return html::div($attrib, '');
+  }
+
+  /**
+   * GUI object 'searchform' for the resource finder dialog
+   *
+   * @param array Named parameters
+   * @return string HTML code for the gui object
+   */
+  function resources_search_form($attrib)
+  {
+    $attrib += array('command' => 'search-resource', 'id' => 'rcmcalresqsearchbox', 'autocomplete' => 'off');
+    $attrib['name'] = '_q';
+
+    $input_q = new html_inputfield($attrib);
+    $out = $input_q->show();
+
+    // add form tag around text field
+    $out = $this->rc->output->form_tag(array(
+      'name' => "rcmcalresoursqsearchform",
+      'onsubmit' => rcmail_output::JS_OBJECT_NAME . ".command('" . $attrib['command'] . "'); return false",
+      'style' => "display:inline"),
+      $out);
+
+    return $out;
+  }
+
   /**
    *
    */
