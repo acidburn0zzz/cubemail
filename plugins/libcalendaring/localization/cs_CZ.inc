@@ -1,4 +1,7 @@
 <?php
+
+$labels = array();
+
 $labels['alarmemail'] = 'Poslat e-mail';
 $labels['alarmdisplay'] = 'Zobrazit zprávu';
 $labels['alarmdisplayoption'] = 'Zpráva';
@@ -12,6 +15,7 @@ $labels['trigger+M'] = 'minut po';
 $labels['trigger+H'] = 'hodin po';
 $labels['trigger+D'] = 'dnů po';
 $labels['addalarm'] = 'přidat upozornění';
+
 $labels['alarmtitle'] = 'Blížící se události';
 $labels['dismissall'] = 'Zrušit vše';
 $labels['dismiss'] = 'Zrušit';
@@ -21,4 +25,29 @@ $labels['repeatinhr'] = 'Zopakovat za 1 hodinu';
 $labels['repeatinhrs'] = 'Zopakovat za $hrs hodin';
 $labels['repeattomorrow'] = 'Zopakovat zítra';
 $labels['repeatinweek'] = 'Zopakovat za týden';
+
 $labels['showmore'] = 'Ukázat víc...';
+
+// itip related labels
+$labels['itipinvitation'] = 'Pozvání na událost';
+$labels['itipupdate'] = 'Aktualizace události';
+$labels['itipcancellation'] = 'Zrušeno:';
+$labels['itipreply'] = 'Odpověď na';
+$labels['itipaccepted'] = 'Potvrdit';
+$labels['itiptentative'] = 'Možná';
+$labels['itipdeclined'] = 'Odmítnout';
+
+$labels['itipsubjectaccepted'] = '$name potvrdil(a) účas na události "$title"';
+$labels['itipsubjecttentative'] = '$name nezávazně potvrdil(a) účast na události "$title"';
+$labels['itipsubjectdeclined'] = '$name odmítl(a) účast na události "$title"';
+
+$labels['importtocalendar'] = 'Uložit do kalendáře';
+$labels['removefromcalendar'] = 'Odstranit z kalendáře';
+$labels['updateattendeestatus'] = 'Aktualizovat stav účastníka';
+$labels['acceptinvitation'] = 'Chcete přijmout toto pozvání (potvrdit účast)?';
+$labels['youhaveaccepted'] = 'Přijal(a) jste toto pozvání';
+$labels['youhavetentative'] = 'Nezávazně jste přijal(a) toto pozvání';
+$labels['youhavedeclined'] = 'Odmítl(a) jste toto pozvání';
+$labels['notanattendee'] = 'Nejste na seznamu účastníků této události';
+
+$labels['savingdata'] = 'Ukládám data...';

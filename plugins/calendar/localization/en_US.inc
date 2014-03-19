@@ -66,6 +66,7 @@ $labels['public'] = 'public';
 $labels['private'] = 'private';
 $labels['confidential'] = 'confidential';
 $labels['alarms'] = 'Reminder';
+$labels['comment'] = 'Comment';
 $labels['generated'] = 'generated at';
 $labels['printdescriptions'] = 'Print descriptions';
 $labels['parentcalendar'] = 'Insert inside';
@@ -140,32 +141,19 @@ $labels['eventupdatemailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$atten
 $labels['eventcancelsubject'] = '"$title" has been canceled';
 $labels['eventcancelmailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nThe event has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated event details.";
 
-// invitation handling
-$labels['itipinvitation'] = 'Invitation to';
-$labels['itipupdate'] = 'Update of';
-$labels['itipcancellation'] = 'Cancelled:';
-$labels['itipreply'] = 'Reply to';
-$labels['itipaccepted'] = 'Accept';
-$labels['itiptentative'] = 'Maybe';
-$labels['itipdeclined'] = 'Decline';
-$labels['itipsubjectaccepted'] = '"$title" has been accepted by $name';
-$labels['itipsubjecttentative'] = '"$title" has been tentatively accepted by $name';
-$labels['itipsubjectdeclined'] = '"$title" has been declined by $name';
+// invitation handling (overrides labels from libcalendaring)
+$labels['itipobjectnotfound'] = 'The event referred by this message was not found in your calendar.';
+
 $labels['itipmailbodyaccepted'] = "\$sender has accepted the invitation to the following event:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender has tentatively accepted the invitation to the following event:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender has declined the invitation to the following event:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
 $labels['itipdeclineevent'] = 'Do you want to decline your invitation to this event?';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined event from your calendar?';
-$labels['importtocalendar'] = 'Save to my calendar';
-$labels['removefromcalendar'] = 'Remove from my calendar';
-$labels['updateattendeestatus'] = 'Update the participant\'s status';
-$labels['acceptinvitation'] = 'Do you accept this invitation?';
-$labels['youhaveaccepted'] = 'You have accepted this invitation';
-$labels['youhavetentative'] = 'You have tentatively accepted this invitation';
-$labels['youhavedeclined'] = 'You have declined this invitation';
+
 $labels['notanattendee'] = 'You\'re not listed as an attendee of this event';
 $labels['eventcancelled'] = 'The event has been cancelled';
 $labels['saveincalendar'] = 'save in';
+$labels['updatemycopy'] = 'Update in my calendar';
 
 // event dialog tabs
 $labels['tabsummary'] = 'Summary';
@@ -175,6 +163,7 @@ $labels['tabattachments'] = 'Attachments';
 $labels['tabsharing'] = 'Sharing';
 
 // messages
+$labels['deleteobjectconfirm'] = 'Do you really want to delete this event?';
 $labels['deleteventconfirm'] = 'Do you really want to delete this event?';
 $labels['deletecalendarconfirm'] = 'Do you really want to delete this calendar with all its events?';
 $labels['deletecalendarconfirmrecursive'] = 'Do you really want to delete this calendar with all its events and sub-calendars?';

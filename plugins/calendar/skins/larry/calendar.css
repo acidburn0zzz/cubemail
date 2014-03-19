@@ -1436,8 +1436,7 @@ div.calendar-invitebox td.label {
 }
 
 #event-rsvp .rsvp-buttons,
-div.calendar-invitebox .rsvp-status,
-div.calendar-invitebox .rsvp-buttons {
+div.calendar-invitebox .itip-buttons div {
 	margin-top: 0.5em;
 }
 
@@ -1447,9 +1446,13 @@ div.calendar-invitebox input.button {
 	margin-right: 0.5em;
 }
 
-div.calendar-invitebox .calendar-select {
+div.calendar-invitebox .folder-select {
 	font-weight: 10px;
 	margin-left: 1em;
+}
+
+div.calendar-invitebox .rsvp-status {
+	padding-left: 2px;
 }
 
 div.calendar-invitebox .rsvp-status.loading {
@@ -1458,9 +1461,16 @@ div.calendar-invitebox .rsvp-status.loading {
 	background: url(images/loading_blue.gif) top left no-repeat;
 }
 
+div.calendar-invitebox .rsvp-status.hint {
+	color: #666;
+	text-shadow: none;
+	font-style: italic;
+}
+
 div.calendar-invitebox .rsvp-status.declined,
 div.calendar-invitebox .rsvp-status.tentative,
-div.calendar-invitebox .rsvp-status.accepted {
+div.calendar-invitebox .rsvp-status.accepted,
+div.calendar-invitebox .rsvp-status.delegated  {
 	padding: 0 0 1px 22px;
 	background: url(images/attendee-status.gif) 2px -20px no-repeat;
 }
@@ -1471,6 +1481,10 @@ div.calendar-invitebox .rsvp-status.declined {
 
 div.calendar-invitebox .rsvp-status.tentative {
 	background-position: 2px -60px;
+}
+
+div.calendar-invitebox .rsvp-status.delegated {
+	background-position: 2px -160px;
 }
 
 /* iTIP attend reply page */

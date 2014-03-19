@@ -1248,8 +1248,7 @@ div.calendar-invitebox td.label {
 }
 
 #event-rsvp .rsvp-buttons,
-div.calendar-invitebox .rsvp-status,
-div.calendar-invitebox .rsvp-buttons {
+div.calendar-invitebox .itip-buttons div {
 	margin-top: 0.5em;
 }
 
@@ -1260,7 +1259,7 @@ div.calendar-invitebox select {
 	margin-right: 0.5em;
 }
 
-div.calendar-invitebox .calendar-select {
+div.calendar-invitebox .folder-select {
 	font-size: 11px;
 	margin-left: 1em;
 }

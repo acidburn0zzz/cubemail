@@ -1,4 +1,7 @@
 <?php
+
+$labels = array();
+
 $labels['alarmemail'] = 'Послать e-mail';
 $labels['alarmdisplay'] = 'Показать сообщение';
 $labels['alarmdisplayoption'] = 'Сообщение';
@@ -12,6 +15,7 @@ $labels['trigger+M'] = 'минут после';
 $labels['trigger+H'] = 'часов после';
 $labels['trigger+D'] = 'дней после';
 $labels['addalarm'] = 'добавить уведомление';
+
 $labels['alarmtitle'] = 'Предстоящие события';
 $labels['dismissall'] = 'Отменить все';
 $labels['dismiss'] = 'Отменить';
@@ -21,4 +25,29 @@ $labels['repeatinhr'] = 'Повторить через 1 час';
 $labels['repeatinhrs'] = 'Повторить через $hrs часов';
 $labels['repeattomorrow'] = 'Повторить завтра';
 $labels['repeatinweek'] = 'Повторить через неделю';
+
 $labels['showmore'] = 'Показать больше...';
+
+// itip related labels
+$labels['itipinvitation'] = 'Приглашение на';
+$labels['itipupdate'] = 'Обновление';
+$labels['itipcancellation'] = 'Отменённый:';
+$labels['itipreply'] = 'Ответить';
+$labels['itipaccepted'] = 'Принять';
+$labels['itiptentative'] = 'Может быть';
+$labels['itipdeclined'] = 'Отклонить';
+
+$labels['itipsubjectaccepted'] = '"$title" принято $name';
+$labels['itipsubjecttentative'] = '"$title" предварительно принято $name';
+$labels['itipsubjectdeclined'] = '"$title" отклонено $name';
+
+$labels['importtocalendar'] = 'Сохранить в мой календарь';
+$labels['removefromcalendar'] = 'Удалить из моего календаря';
+$labels['updateattendeestatus'] = 'Обновить статус участника';
+$labels['acceptinvitation'] = 'Вы принимаете это приглашение?';
+$labels['youhaveaccepted'] = 'Вы приняли это приглашение';
+$labels['youhavetentative'] = 'Вы предварительно приняли это приглашение';
+$labels['youhavedeclined'] = 'Вы отклонили это приглашение';
+
+$labels['savingdata'] = 'Сохранение данных...';
+

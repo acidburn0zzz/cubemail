@@ -1,4 +1,7 @@
 <?php
+
+$labels = array();
+
 $labels['alarmemail'] = 'Envoyer un email';
 $labels['alarmdisplay'] = 'Voir le message';
 $labels['alarmdisplayoption'] = 'Message';
@@ -12,6 +15,7 @@ $labels['trigger+M'] = 'minutes après';
 $labels['trigger+H'] = 'heures après';
 $labels['trigger+D'] = 'jours après';
 $labels['addalarm'] = 'ajouter alarme';
+
 $labels['alarmtitle'] = 'Evénements à venir';
 $labels['dismissall'] = 'Tout supprimer';
 $labels['dismiss'] = 'Abandonner';
@@ -21,4 +25,30 @@ $labels['repeatinhr'] = 'Répéter dans 1 heure';
 $labels['repeatinhrs'] = 'Répéter dans $hrs heures';
 $labels['repeattomorrow'] = 'Répéter demain';
 $labels['repeatinweek'] = 'Répéter dans une semaine';
+
 $labels['showmore'] = 'Afficher plus...';
+
+// itip related labels
+$labels['itipinvitation'] = 'Invitation à';
+$labels['itipupdate'] = 'Mise à jour de';
+$labels['itipcancellation'] = 'Annulation:';
+$labels['itipreply'] = 'Répondre à';
+$labels['itipaccepted'] = 'Accepter';
+$labels['itiptentative'] = 'Peut-être';
+$labels['itipdeclined'] = 'Refuser';
+
+$labels['itipsubjectaccepted'] = '"$title" a été accepté par $name';
+$labels['itipsubjecttentative'] = '"$title" a été accepté provisoirement par $name';
+$labels['itipsubjectdeclined'] = '"$title" a été refusé par $name';
+
+$labels['importtocalendar'] = 'Enregistrer mon agenda';
+$labels['removefromcalendar'] = 'Supprimer de mon agenda';
+$labels['updateattendeestatus'] = 'Modifier le statut des participants';
+$labels['acceptinvitation'] = 'Acceptez-vous cette invitation?';
+$labels['youhaveaccepted'] = 'Vous avez accepté cette invitation';
+$labels['youhavetentative'] = 'Vous avez accepté provisoirement cette invitation';
+$labels['youhavedeclined'] = 'Vous avez refusé cette invitation';
+$labels['notanattendee'] = 'Vous n\'êtes pas dans la liste des participants à cet évènement';
+
+$labels['savingdata'] = 'Enregistrer...';
+

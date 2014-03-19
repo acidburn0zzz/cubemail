@@ -786,31 +786,13 @@ class calendar_ui
   }
 
   /**
-   * Render event details in a table
-   */
-  function event_details_table($event, $title)
-  {
-    $table = new html_table(array('cols' => 2, 'border' => 0, 'class' => 'calendar-eventdetails'));
-    $table->add('ititle', $title);
-    $table->add('title', Q($event['title']));
-    $table->add('label', $this->cal->gettext('date'));
-    $table->add('location', Q($this->cal->lib->event_date_text($event)));
-    if ($event['location']) {
-      $table->add('label', $this->cal->gettext('location'));
-      $table->add('location', Q($event['location']));
-    }
-    
-    return $table->show();
-  }
-
-  /**
    *
    */
   function event_invitebox($attrib = array())
   {
     if ($this->cal->event) {
       return html::div($attrib,
-        $this->event_details_table($this->cal->event, $this->cal->gettext('itipinvitation')) .
+        $this->cal->load_itip()->itip_object_details_table($this->cal->event, $this->cal->gettext('itipinvitation')) .
         $this->cal->invitestatus
       );
     }

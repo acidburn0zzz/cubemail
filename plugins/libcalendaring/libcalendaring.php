@@ -113,7 +113,17 @@ class libcalendaring extends rcube_plugin
         require_once($self->home . '/libvcalendar.php');
         return new libvcalendar();
     }
-    
+
+    /**
+     * Load iTip functions
+     */
+    public static function get_itip($domain = 'libcalendaring')
+    {
+        $self = self::get_instance();
+        require_once($self->home . '/lib/libcalendaring_itip.php');
+        return new libcalendaring_itip($self, $domain);
+    }
+
     /**
      * Shift dates into user's current timezone
      *
@@ -302,6 +312,27 @@ class libcalendaring extends rcube_plugin
         #  $attrib['addicon'] ? html::img(array('src' => $attrib['addicon'], 'alt' => 'add')) : '(+)');
 
         return $html;
+    }
+
+    /**
+     * Get a list of email addresses of the current user (from login and identities)
+     */
+    public function get_user_emails()
+    {
+        $emails = array();
+        $plugin = $this->rc->plugins->exec_hook('calendar_user_emails', array('emails' => $emails));
+        $emails = array_map('strtolower', $plugin['emails']);
+
+        if ($plugin['abort']) {
+            return $emails;
+        }
+
+        $emails[] = $this->rc->user->get_username();
+        foreach ($this->rc->user->list_identities() as $identity) {
+            $emails[] = strtolower($identity['email']);
+        }
+
+        return array_unique($emails);
     }
 
 

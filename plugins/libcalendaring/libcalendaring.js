@@ -1,10 +1,9 @@
 /**
  * Basic Javascript utilities for calendar-related plugins
  *
- * @version @package_version@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -436,6 +435,88 @@ function rcube_libcalendaring(settings)
     };
 }
 
+//////  static methods
+
+/**
+ *
+ */
+rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status)
+{
+    // ask user to delete the declined event from the local calendar (#1670)
+    var del = false;
+    if (rcmail.env.rsvp_saved && status == 'declined') {
+        del = confirm(rcmail.gettext('itip.declinedeleteconfirm'));
+    }
+
+    rcmail.http_post(task + '/mailimportitip', {
+        '_uid': rcmail.env.uid,
+        '_mbox': rcmail.env.mailbox,
+        '_part': mime_id,
+        '_folder': $('#itip-saveto').val(),
+        '_status': status,
+        '_del': del?1:0
+      }, rcmail.set_busy(true, 'itip.savingdata'));
+
+    return false;
+};
+
+/**
+ *
+ */
+rcube_libcalendaring.remove_from_itip = function(uid, task, title)
+{
+  if (confirm(rcmail.gettext('itip.deleteobjectconfirm').replace('$title', title))) {
+    rcmail.http_post(task + '/itip-remove',
+      { uid: uid },
+      rcmail.set_busy(true, 'itip.savingdata'));
+  }
+};
+
+/**
+ *
+ */
+rcube_libcalendaring.decline_attendee_reply = function(mime_id)
+{
+  // TODO: show dialog for entering a comment and send to server
+
+  return false;
+};
+
+/**
+ *
+ */
+rcube_libcalendaring.fetch_itip_object_status = function(p)
+{
+  rcmail.http_post(p.task + '/itip-status', { data: p });
+};
+
+/**
+ *
+ */
+rcube_libcalendaring.update_itip_object_status = function(p)
+{
+  rcmail.env.rsvp_saved = p.saved;
+
+  // hide all elements first
+  $('#itip-buttons-'+p.id+' > div').hide();
+  $('#rsvp-'+p.id+' .folder-select').remove();
+
+  if (p.html) {
+    // append/replace rsvp status display
+    $('#loading-'+p.id).next('.rsvp-status').remove();
+    $('#loading-'+p.id).hide().after(p.html);
+  }
+
+  // enable/disable rsvp buttons
+  if (p.action == 'rsvp') {
+    $('#rsvp-'+p.id+' input.button').prop('disabled', false)
+      .filter('.'+String(p.status||'unknown').toLowerCase()).prop('disabled', p.latest);
+  }
+
+  // show rsvp/import buttons (with calendar selector)
+  $('#'+p.action+'-'+p.id).show().append(p.select);
+};
+
 
 // extend jQuery
 (function($){
@@ -455,4 +536,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     var libcal = new rcube_libcalendaring(rcmail.env.libcal_settings);
     rcmail.addEventListener('plugin.display_alarms', function(alarms){ libcal.display_alarms(alarms); });
   }
+
+  rcmail.addEventListener('plugin.update_itip_object_status', rcube_libcalendaring.update_itip_object_status);
+  rcmail.addEventListener('plugin.fetch_itip_object_status', rcube_libcalendaring.fetch_itip_object_status);
 });
