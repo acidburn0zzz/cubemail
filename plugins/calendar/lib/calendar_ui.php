@@ -905,12 +905,12 @@ class calendar_ui
         'name' => $attrib['iname'],
         'class' => 'button',
         'rel' => $method,
-        'value' => $this->cal->gettext('itip' . $method),
+        'value' => $this->rc->gettext('itip' . $method, 'libcalendaring'),
       ));
     }
     
     return html::div($attrib,
-      html::div('label', $this->cal->gettext('acceptinvitation')) .
+      html::div('label', $this->rc->gettext('acceptinvitation', 'libcalendaring')) .
       html::div('rsvp-buttons', $buttons));
   }
 
