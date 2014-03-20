@@ -115,9 +115,13 @@ class libcalendaring_itip
                 'attendees' => join(', ', $attendees_list),
                 'sender' => $this->sender['name'],
                 'organizer' => $this->sender['name'],
-                'comment' => $event['comment'],
             )
         ));
+
+        // append sender's comment
+        if (!empty($event['comment'])) {
+            $mailbody .= "\n\n" . $this->gettext('itipsendercomment') . $event['comment'];
+        }
 
         // append links for direct invitation replies
         if ($method == 'REQUEST' && ($token = $this->store_invitation($event, $recipient['email']))) {
@@ -398,7 +402,7 @@ class libcalendaring_itip
                 $rsvp_buttons .= html::tag('input', array(
                     'type' => 'button',
                     'class' => "button $method",
-                    'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . JQ($mime_id) . "', '$task', '$method')",
+                    'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . JQ($mime_id) . "', '$task', '$method', '$dom_id')",
                     'value' => $this->gettext('itip' . $method),
                 ));
             }
@@ -420,6 +424,12 @@ class libcalendaring_itip
                     break;
                 }
             }
+
+            // add input field for reply comment
+            $rsvp_buttons .= html::a(array('href' => '#toggle', 'class' => 'reply-comment-toggle'), $this->gettext('itipeditresponse'));
+            $rsvp_buttons .= html::div('itip-reply-comment',
+                html::tag('textarea', array('id' => 'reply-comment-'.$dom_id, 'cols' => 40, 'rows' => 6, 'style' => 'display:none', 'placeholder' => $this->gettext('itipcomment')), '')
+            );
 
             $buttons[] = html::div(array('id' => 'rsvp-'.$dom_id, 'class' => 'rsvp-buttons', 'style' => 'display:none'), $rsvp_buttons);
         }

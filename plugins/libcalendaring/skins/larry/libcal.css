@@ -53,6 +53,22 @@ span.edit-alarm-set {
 	height: 16px;
 }
 
+.itip-reply-comment {
+	padding-left: 2px;
+}
+
+a.reply-comment-toggle {
+	display: inline-block;
+	margin-left: 1em;
+	color: #333;
+}
+
+.itip-reply-comment textarea {
+	display: block;
+	width: 90%;
+	margin-top: 0.5em;
+}
+
 .itip-dialog-confirm-text {
 	margin-bottom: 1em;
 }

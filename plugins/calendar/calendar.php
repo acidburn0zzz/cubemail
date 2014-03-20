@@ -2403,6 +2403,7 @@ class calendar extends rcube_plugin
 
     // send iTip reply
     if ($this->ical->method == 'REQUEST' && $organizer && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
+      $event['comment'] = get_input_value('_comment', RCUBE_INPUT_POST);
       $itip = $this->load_itip();
       $itip->set_sender_email($reply_sender);
       if ($itip->send_itip_message($event, 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))

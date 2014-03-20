@@ -440,12 +440,17 @@ function rcube_libcalendaring(settings)
 /**
  *
  */
-rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status)
+rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status, dom_id)
 {
     // ask user to delete the declined event from the local calendar (#1670)
     var del = false;
     if (rcmail.env.rsvp_saved && status == 'declined') {
         del = confirm(rcmail.gettext('itip.declinedeleteconfirm'));
+    }
+
+    var comment = '';
+    if (dom_id) {
+      comment = $('#reply-comment-'+dom_id).val();
     }
 
     rcmail.http_post(task + '/mailimportitip', {
@@ -454,7 +459,8 @@ rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status)
         _part: mime_id,
         _folder: $('#itip-saveto').val(),
         _status: status,
-        _del: del?1:0
+        _del: del?1:0,
+        _comment: comment
       }, rcmail.set_busy(true, 'itip.savingdata'));
 
     return false;
@@ -544,9 +550,9 @@ rcube_libcalendaring.update_itip_object_status = function(p)
     $('#rsvp-'+p.id+' input.button').prop('disabled', false)
       .filter('.'+String(p.status||'unknown').toLowerCase()).prop('disabled', p.latest);
   }
-
+ 
   // show rsvp/import buttons (with calendar selector)
-  $('#'+p.action+'-'+p.id).show().append(p.select);
+  $('#'+p.action+'-'+p.id).show().find('input.button').last().after(p.select);
 };
 
 
@@ -571,4 +577,8 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
   rcmail.addEventListener('plugin.update_itip_object_status', rcube_libcalendaring.update_itip_object_status);
   rcmail.addEventListener('plugin.fetch_itip_object_status', rcube_libcalendaring.fetch_itip_object_status);
+
+  $('.rsvp-buttons').on('click', 'a.reply-comment-toggle', function(e){
+    $(this).hide().parent().find('textarea').show().focus();
+  });
 });
