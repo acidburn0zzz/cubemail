@@ -46,7 +46,7 @@ class libcalendaring_itip
         $this->plugin->add_hook('smtp_connect', array($this, 'smtp_connect_hook'));
     }
 
-    function set_sender_email($email)
+    public function set_sender_email($email)
     {
         if (!empty($email))
             $this->sender['email'] = $email;
@@ -58,7 +58,7 @@ class libcalendaring_itip
      *
      * @see rcube::gettext()
      */
-    protected function gettext($p)
+    public function gettext($p)
     {
         $label = is_array($p) ? $p['name'] : $p;
         $domain = $this->domain;
