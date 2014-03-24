@@ -130,7 +130,7 @@ class libcalendaring_itip
                 'vars' => array('url' => $this->plugin->get_url(array('action' => 'attend', 't' => $token))),
             ));
         }
-        else if ($method == 'CANCEL') {
+        else if ($method == 'CANCEL' && $event['cancelled']) {
             $this->cancel_itip_invitation($event);
         }
 

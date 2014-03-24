@@ -1675,7 +1675,7 @@ class calendar extends rcube_plugin
     // send to every attendee
     $sent = 0; $current = array();
     foreach ((array)$event['attendees'] as $attendee) {
-      $current[] = $attendee['email'];
+      $current[] = strtolower($attendee['email']);
       
       // skip myself for obvious reasons
       if (!$attendee['email'] || in_array(strtolower($attendee['email']), $emails))
@@ -2102,13 +2102,13 @@ class calendar extends rcube_plugin
 
         // show message about cancellation
         if ($invitation['cancelled']) {
-          $this->invitestatus = html::div('rsvp-status declined', $this->gettext('eventcancelled'));
+          $this->invitestatus = html::div('rsvp-status declined', $itip->gettext('eventcancelled'));
         }
         // save submitted RSVP status
         else if (!empty($_POST['rsvp'])) {
           $status = null;
           foreach (array('accepted','tentative','declined') as $method) {
-            if ($_POST['rsvp'] == $this->gettext('itip' . $method)) {
+            if ($_POST['rsvp'] == $itip->gettext('itip' . $method)) {
               $status = $method;
               break;
             }
@@ -2116,7 +2116,7 @@ class calendar extends rcube_plugin
 
           // send itip reply to organizer
           if ($status && $itip->update_invitation($invitation, $invitation['attendee'], strtoupper($status))) {
-            $this->invitestatus = html::div('rsvp-status ' . strtolower($status), $this->gettext('youhave'.strtolower($status)));
+            $this->invitestatus = html::div('rsvp-status ' . strtolower($status), $itip->gettext('youhave'.strtolower($status)));
           }
           else
             $this->rc->output->command('display_message', $this->gettext('errorsaving'), 'error', -1);
@@ -2141,7 +2141,7 @@ class calendar extends rcube_plugin
         if (!$this->invitestatus)
           $this->register_handler('plugin.event_rsvp_buttons', array($this->ui, 'event_rsvp_buttons'));
         
-        $this->rc->output->set_pagetitle($this->gettext('itipinvitation') . ' ' . $this->event['title']);
+        $this->rc->output->set_pagetitle($itip->gettext('itipinvitation') . ' ' . $this->event['title']);
       }
       else
         $this->rc->output->command('display_message', $this->gettext('itipinvalidrequest'), 'error', -1);
