@@ -38,7 +38,7 @@ $labels['itiptentative'] = 'Maybe';
 $labels['itipdeclined'] = 'Decline';
 $labels['itipcomment'] = 'Your response';
 $labels['itipeditresponse'] = 'Enter a response text';
-$labeöls['itipsendercomment'] = 'Sender\'s comment: ';
+$labels['itipsendercomment'] = 'Sender\'s comment: ';
 
 $labels['itipobjectnotfound'] = 'The object referred by this message was not found in your account.';
 $labels['itipsubjectaccepted'] = '"$title" has been accepted by $name';
