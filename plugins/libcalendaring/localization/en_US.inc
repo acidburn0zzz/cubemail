@@ -60,7 +60,7 @@ $labels['youhavedelegated'] = 'You have delegated this invitation';
 $labels['attendeeaccepted'] = 'Participant has accepted';
 $labels['attendeetentative'] = 'Participant has tentatively accepted';
 $labels['attendeedeclined'] = 'Participant has declined';
-$labels['attendeedelegated'] = 'Participant has delegated';
+$labels['attendeedelegated'] = 'Participant has delegated to $delegatedto';
 $labels['notanattendee'] = 'You\'re not listed as an attendee of this object';
 
 $labels['importtocalendar'] = 'Save to my calendar';

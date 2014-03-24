@@ -297,7 +297,12 @@ class libcalendaring_itip
           foreach ($existing['attendees'] as $attendee) {
             if ($attendee['role'] != 'ORGANIZER' && strcasecmp($attendee['email'], $event['attendee']) == 0) {
               if (in_array($status, array('ACCEPTED','TENTATIVE','DECLINED','DELEGATED'))) {
-                $html = html::div('rsvp-status ' . strtolower($status), $this->gettext('attendee'.strtolower($status)));
+                $html = html::div('rsvp-status ' . strtolower($status), $this->gettext(array(
+                    'name' => 'attendee'.strtolower($status),
+                    'vars' => array(
+                        'delegatedto' => Q($attendee['delegated-to'] ?: '?'),
+                    )
+                )));
               }
               $action = $attendee['status'] == $status ? '' : 'update';
               $listed = true;
