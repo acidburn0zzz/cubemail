@@ -888,7 +888,7 @@ class calendar_ui
   {
     if ($this->cal->event) {
       return html::div($attrib,
-        $this->cal->load_itip()->itip_object_details_table($this->cal->event, $this->cal->gettext('itipinvitation')) .
+        $this->cal->itip->itip_object_details_table($this->cal->event, $this->cal->itip->gettext('itipinvitation')) .
         $this->cal->invitestatus
       );
     }
@@ -905,12 +905,12 @@ class calendar_ui
         'name' => $attrib['iname'],
         'class' => 'button',
         'rel' => $method,
-        'value' => $this->rc->gettext('itip' . $method, 'libcalendaring'),
+        'value' => $this->cal->itip->gettext('itip' . $method),
       ));
     }
     
     return html::div($attrib,
-      html::div('label', $this->rc->gettext('acceptinvitation', 'libcalendaring')) .
+      html::div('label', $this->cal->itip->gettext('acceptinvitation')) .
       html::div('rsvp-buttons', $buttons));
   }
 

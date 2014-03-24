@@ -37,15 +37,12 @@ class calendar extends rcube_plugin
   public $task = '?(?!logout).*';
   public $rc;
   public $lib;
-  public $driver;
   public $resources_dir;
   public $home;  // declare public to be used in other classes
   public $urlbase;
   public $timezone;
   public $timezone_offset;
   public $gmt_offset;
-
-  public $ical;
   public $ui;
 
   public $defaults = array(
@@ -60,6 +57,9 @@ class calendar extends rcube_plugin
     'calendar_allow_invite_shared' => false,
   );
 
+  private $ical;
+  private $itip;
+  private $driver;
   private $ics_parts = array();
 
 
@@ -2239,12 +2239,11 @@ class calendar extends rcube_plugin
       if ($part->ctype_parameters['charset'])
         $charset = $part->ctype_parameters['charset'];
       $headers = $imap->get_message_headers($uid);
+
+      if ($part) {
+        $events = $this->get_ical()->import($part, $charset);
+      }
     }
-
-    $events = $this->get_ical()->import($part, $charset);
-
-    $error_msg = $this->gettext('errorimportingevent');
-    $success = false;
 
     // successfully parsed events?
     if (!empty($events) && ($event = $events[$index])) {
@@ -2567,6 +2566,26 @@ class calendar extends rcube_plugin
   public function ical_feed_hash($source)
   {
     return base64_encode($this->rc->user->get_username() . ':' . $source);
+  }
+
+  /**
+   * Magic getter for public access to protected members
+   */
+  public function __get($name)
+  {
+    switch ($name) {
+      case 'ical':
+        return $this->get_ical();
+
+      case 'itip':
+        return $this->load_itip();
+
+      case 'driver':
+        $this->load_driver();
+        return $this->driver;
+    }
+
+    return null;
   }
 
 }
