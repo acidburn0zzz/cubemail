@@ -1673,8 +1673,10 @@ class calendar extends rcube_plugin
     }
 
     // send to every attendee
-    $sent = 0;
+    $sent = 0; $current = array();
     foreach ((array)$event['attendees'] as $attendee) {
+      $current[] = $attendee['email'];
+      
       // skip myself for obvious reasons
       if (!$attendee['email'] || in_array(strtolower($attendee['email']), $emails))
         continue;
@@ -1690,9 +1692,21 @@ class calendar extends rcube_plugin
       else
         $sent = -100;
     }
-    
-    // TODO: send CANCEL message to remove attendees
-    
+
+    // send CANCEL message to removed attendees
+    foreach ((array)$old['attendees'] as $attendee) {
+      if ($attendee['ROLE'] == 'ORGANIZER' || !$attendee['email'] || in_array(strtolower($attendee['email']), $current))
+        continue;
+
+      $vevent = $old;
+      $vevent['cancelled'] = $is_cancelled;
+      $vevent['attendees'] = array($attendee);
+      if ($itip->send_itip_message($vevent, 'CANCEL', $attendee, 'eventcancelsubject', 'eventcancelmailbody'))
+        $sent++;
+      else
+        $sent = -100;
+    }
+
     return $sent;
   }
 
