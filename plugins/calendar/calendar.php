@@ -2222,7 +2222,9 @@ class calendar extends rcube_plugin
     return $p;
   }
 
-
+  /**
+   * Read the given mime message from IMAP and parse ical data
+   */
   private function mail_get_itip_event($mbox, $uid, $mime_id)
   {
     $charset = RCMAIL_CHARSET;
@@ -2246,8 +2248,14 @@ class calendar extends rcube_plugin
 
     // successfully parsed events?
     if (!empty($events) && ($event = $events[$index])) {
+      // store the message's sender address for comparisons
+      $event['_sender'] = preg_match('/([a-z0-9][a-z0-9\-\.\+\_]*@[^&@"\'.][^@&"\']*\\.([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}))/', $headers->from, $m) ? $m[1] : '';
+      $event['_sender_utf'] = rcube_idn_to_utf8($event['_sender']);
+
       return $event;
     }
+
+    return null;
   }
 
   /**
@@ -2321,19 +2329,16 @@ class calendar extends rcube_plugin
           // only update attendee status
           if ($this->ical->method == 'REPLY') {
             // try to identify the attendee using the email sender address
-            $sender = preg_match('/([a-z0-9][a-z0-9\-\.\+\_]*@[^&@"\'.][^@&"\']*\\.([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}))/', $headers->from, $m) ? $m[1] : '';
-            $sender_utf = rcube_idn_to_utf8($sender);
-            
             $existing_attendee = -1;
             foreach ($existing['attendees'] as $i => $attendee) {
-              if ($sender && ($attendee['email'] == $sender || $attendee['email'] == $sender_utf)) {
+              if ($event['_sender'] && ($attendee['email'] == $event['_sender'] || $attendee['email'] == $event['_sender_utf'])) {
                 $existing_attendee = $i;
                 break;
               }
             }
             $event_attendee = null;
             foreach ($event['attendees'] as $attendee) {
-              if ($sender && ($attendee['email'] == $sender || $attendee['email'] == $sender_utf)) {
+              if ($event['_sender'] && ($attendee['email'] == $event['_sender'] || $attendee['email'] == $event['_sender_utf'])) {
                 $event_attendee = $attendee;
                 $metadata['fallback'] = $attendee['status'];
                 $metadata['attendee'] = $attendee['email'];
