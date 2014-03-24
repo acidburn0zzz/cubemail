@@ -2304,6 +2304,7 @@ class calendar extends rcube_plugin
             'email' => $sender_identity['email'],
             'role' => 'OPT-PARTICIPANT',
             'status' => strtoupper($status),
+            'rsvp' => true,
           );
           $metadata['attendee'] = $sender_identity['email'];
         }
