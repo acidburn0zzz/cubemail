@@ -90,7 +90,7 @@ class kolab_format_event extends kolab_format_xcal
         $this->obj->setStatus($status);
 
         // save recurrence exceptions
-        if ($object['recurrence']['EXCEPTIONS']) {
+        if (is_array($object['recurrence']) && $object['recurrence']['EXCEPTIONS']) {
             $vexceptions = new vectorevent;
             foreach((array)$object['recurrence']['EXCEPTIONS'] as $exception) {
                 $exevent = new kolab_format_event;
