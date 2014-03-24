@@ -223,7 +223,7 @@ class calendar_ui
     }
 
     $this->rc->output->set_env('calendars', $jsenv);
-    $this->rc->output->add_gui_object('folderlist', $attrib['id']);
+    $this->rc->output->add_gui_object('calendarslist', $attrib['id']);
 
     return html::tag('ul', $attrib, $li, html::$common_attrib);
   }

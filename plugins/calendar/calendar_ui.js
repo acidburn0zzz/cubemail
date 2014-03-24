@@ -2376,7 +2376,7 @@ function rcube_calendar_ui(settings)
       for (var i=0; i < delete_ids.length; i++) {
         id = delete_ids[i];
         fc.fullCalendar('removeEventSource', this.calendars[id]);
-        $(rcmail.get_folder_li(id, 'rcmlical')).remove();
+        $('#rcmlical' + id).remove();
         $('#edit-calendar option[value="'+id+'"]').remove();
         delete this.calendars[id];
       }
@@ -2563,7 +2563,7 @@ function rcube_calendar_ui(settings)
         if (!source.active) {
           source.active = true;
           fc.fullCalendar('addEventSource', source);
-          $('#' + rcmail.get_folder_li(source.id, 'rcmlical').id + ' input').prop('checked', true);
+          $('#rcmlical' + source.id + ' input').prop('checked', true);
         }
         else
           fc.fullCalendar('refetchEvents', source);
@@ -2786,13 +2786,24 @@ function rcube_calendar_ui(settings)
       fc.fullCalendar('option', 'height', $('#calendar').height() - footer);
     };
 
+    // mark the given calendar folder as selected
+    this.select_calendar = function(id)
+    {
+      var prefix = 'rcmlical';
+
+      $(rcmail.gui_objects.calendarslist).find('li.selected')
+        .removeClass('selected').addClass('unfocused');
+      $('#' + prefix + id, rcmail.gui_objects.calendarslist)
+        .removeClass('unfocused').addClass('selected');
+
+      // trigger event hook
+      rcmail.triggerEvent('selectfolder', { folder:name, prefix:prefix });
+
+      this.selected_calendar = id;
+    };
+
 
     /***  startup code  ***/
-
-    // destroy wrongly configured treelist widget for the calendars list
-    if (rcmail.gui_objects.folderlist && rcmail.treelist) {
-      rcmail.treelist = null;
-    }
 
     // create list of event sources AKA calendars
     this.calendars = {};
@@ -2824,7 +2835,7 @@ function rcube_calendar_ui(settings)
       }
 
       // init event handler on calendar list checkbox
-      if ((li = rcmail.get_folder_li(id, 'rcmlical'))) {
+      if ((li = rcube_find_object('rcmlical' + id))) {
         $('#'+li.id+' input').click(function(e){
           var id = $(this).data('id');
           if (me.calendars[id]) {  // add or remove event source on click
@@ -2845,11 +2856,9 @@ function rcube_calendar_ui(settings)
         }).data('id', id).get(0).checked = active;
         
         $(li).click(function(e){
-          var id = $(this).data('id');
-          rcmail.select_folder(id, 'rcmlical');
+          me.select_calendar($(this).data('id'));
           rcmail.enable_command('calendar-edit', true);
           rcmail.enable_command('calendar-remove', 'calendar-showurl', true);
-          me.selected_calendar = id;
         })
         .dblclick(function(){ me.calendar_edit_dialog(me.calendars[me.selected_calendar]); })
         .data('id', id);
@@ -2866,7 +2875,7 @@ function rcube_calendar_ui(settings)
       this.selected_calendar = settings.default_calendar;
     
     if (this.selected_calendar)
-      rcmail.select_folder(this.selected_calendar, 'rcmlical');
+      this.select_calendar(this.selected_calendar);
     
     var viewdate = new Date();
     if (rcmail.env.date)
