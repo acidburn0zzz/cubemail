@@ -793,13 +793,12 @@ class database_driver extends calendar_driver
     $events = array();
     if (!empty($calendar_ids)) {
       $result = $this->rc->db->query(sprintf(
-        "SELECT e.*, (SELECT COUNT(attachment_id) FROM " . $this->db_attachments . " 
-           WHERE event_id = e.event_id OR event_id = e.recurrence_id) AS _attachments
-         FROM " . $this->db_events . " AS e
+        "SELECT e.*, (SELECT COUNT(attachment_id) FROM " . $this->db_attachments . "
+            WHERE event_id = e.event_id OR event_id = e.recurrence_id) AS _attachments
+         FROM " . $this->db_events . " e
          WHERE e.calendar_id IN (%s)
-         AND e.start <= %s AND e.end >= %s
-         %s
-         GROUP BY e.event_id",
+            AND e.start <= %s AND e.end >= %s
+            %s",
          join(',', $calendar_ids),
          $this->rc->db->fromunixtime($end),
          $this->rc->db->fromunixtime($start),
