@@ -425,7 +425,7 @@ class libcalendaring_itip
                 if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
                     $metadata['attendee'] = $attendee['email'];
                     $metadata['rsvp'] = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
-                    $rsvp_status = strtoupper($attendee['status']);
+                    $rsvp_status = !empty($attendee['status']) ? strtoupper($attendee['status']) : 'NEEDS-ACTION';
                     break;
                 }
             }
