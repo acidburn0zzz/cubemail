@@ -31,6 +31,7 @@ function rcube_calendar(settings)
     // member vars
     this.ui;
     this.ui_loaded = false;
+    this.selected_attachment = null;
 
     // private vars
     var me = this;
@@ -75,6 +76,20 @@ function rcube_calendar(settings)
         rcmail.message_list.blur();
       }
     };
+
+    // handler for attachment-save-calendar commands
+    this.save_to_calendar = function(p)
+    {
+      // TODO: show dialog to select the calendar for importing
+      if (this.selected_attachment && window.rcube_libcalendaring) {
+        rcmail.http_post('calendar/mailimportattach', {
+            _uid: rcmail.env.uid,
+            _mbox: rcmail.env.mailbox,
+            _part: this.selected_attachment,
+            // _calendar: $('#calendar-attachment-saveto').val(),
+          }, rcmail.set_busy(true, 'itip.savingdata'));
+      }
+    }
 }
 
 
@@ -86,6 +101,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     // register create-from-mail command to message_commands array
     if (rcmail.env.task == 'mail') {
       rcmail.register_command('calendar-create-from-mail', function() { cal.create_from_mail() });
+      rcmail.register_command('attachment-save-calendar', function() { cal.save_to_calendar() });
       rcmail.addEventListener('plugin.mail2event_dialog', function(p){ cal.mail2event_dialog(p) });
       rcmail.addEventListener('plugin.unlock_saving', function(p){ cal.ui && cal.ui.unlock_saving(); });
       
@@ -93,8 +109,17 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         rcmail.env.message_commands.push('calendar-create-from-mail');
         rcmail.add_element($('<a>'));
       }
-      else
+      else {
         rcmail.enable_command('calendar-create-from-mail', true);
+      }
+
+      rcmail.addEventListener('beforemenu-open', function(p) {
+        if (p.menu == 'attachmentmenu') {
+          cal.selected_attachment = p.id;
+          var mimetype = rcmail.env.attachments[p.id];
+          rcmail.enable_command('attachment-save-calendar', mimetype == 'text/calendar' || mimetype == 'text/x-vcalendar' || mimetype == 'application/ics');
+        }
+      });
 
       // add contextmenu item
       if (window.rcm_contextmenu_register_command) {

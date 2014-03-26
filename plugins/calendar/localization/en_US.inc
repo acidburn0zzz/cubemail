@@ -158,6 +158,7 @@ $labels['notanattendee'] = 'You\'re not listed as an attendee of this event';
 $labels['eventcancelled'] = 'The event has been cancelled';
 $labels['saveincalendar'] = 'save in';
 $labels['updatemycopy'] = 'Update in my calendar';
+$labels['savetocalendar'] = 'Save to calendar';
 
 // resources
 $labels['resource'] = 'Resource';
@@ -191,6 +192,7 @@ $labels['successremoval'] = 'The event has been deleted successfully.';
 $labels['successrestore'] = 'The event has been restored successfully.';
 $labels['errornotifying'] = 'Failed to send notifications to event participants';
 $labels['errorimportingevent'] = 'Failed to import the event';
+$labels['importwarningexists'] = 'A copy of this event already exists in your calendar.';
 $labels['newerversionexists'] = 'A newer version of this event already exists! Aborted.';
 $labels['nowritecalendarfound'] = 'No calendar found to save the event';
 $labels['importedsuccessfully'] = 'The event was successfully added to \'$calendar\'';

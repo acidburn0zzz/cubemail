@@ -112,7 +112,7 @@ class calendar extends rcube_plugin
         return;
 
     // load Calendar user interface
-    if (!$this->rc->output->ajax_call && !$this->rc->output->env['framed']) {
+    if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || $args['action'] == 'preview')) {
       $this->ui->init();
 
       // settings are required in (almost) every GUI step
@@ -138,7 +138,8 @@ class calendar extends rcube_plugin
       $this->register_action('freebusy-times', array($this, 'freebusy_times'));
       $this->register_action('randomdata', array($this, 'generate_randomdata'));
       $this->register_action('print', array($this,'print_view'));
-      $this->register_action('mailimportitip', array($this, 'mail_import_event'));
+      $this->register_action('mailimportitip', array($this, 'mail_import_itip'));
+      $this->register_action('mailimportattach', array($this, 'mail_import_attachment'));
       $this->register_action('mailtoevent', array($this, 'mail_message2event'));
       $this->register_action('inlineui', array($this, 'get_inline_ui'));
       $this->register_action('check-recent', array($this, 'check_recent'));
@@ -2190,9 +2191,9 @@ class calendar extends rcube_plugin
     // load iCalendar functions (if necessary)
     if (!empty($this->ics_parts)) {
       $this->get_ical();
+      $this->load_itip();
     }
 
-    $this->load_itip();
     $html = '';
     foreach ($this->ics_parts as $mime_id) {
       $part    = $this->message->mime_parts[$mime_id];
@@ -2231,6 +2232,21 @@ class calendar extends rcube_plugin
       $this->ui->init();
       $p['content'] = $html . $p['content'];
       $this->rc->output->add_label('calendar.savingdata','calendar.deleteventconfirm','calendar.declinedeleteconfirm');
+    }
+
+    // add "Save to calendar" button into attachment menu
+    if (!empty($this->ics_parts)) {
+      $this->add_button(array(
+        'id'         => 'attachmentsavecal',
+        'name'       => 'attachmentsavecal',
+        'type'       => 'link',
+        'wrapper'    => 'li',
+        'command'    => 'attachment-save-calendar',
+        'class'      => 'icon calendarlink',
+        'classact'   => 'icon calendarlink active',
+        'innerclass' => 'icon calendar',
+        'label'      => 'calendar.savetocalendar',
+        ), 'attachmentmenu');
     }
 
     return $p;
@@ -2274,7 +2290,7 @@ class calendar extends rcube_plugin
   /**
    * Handler for POST request to import an event attached to a mail message
    */
-  public function mail_import_event()
+  public function mail_import_itip()
   {
     $uid = get_input_value('_uid', RCUBE_INPUT_POST);
     $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
@@ -2465,6 +2481,66 @@ class calendar extends rcube_plugin
     }
   }
 
+  /**
+   * Import the full payload from a mail message attachment
+   */
+  public function mail_import_attachment()
+  {
+    $uid = get_input_value('_uid', RCUBE_INPUT_POST);
+    $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+    $mime_id = get_input_value('_part', RCUBE_INPUT_POST);
+    $charset = RCMAIL_CHARSET;
+
+    // establish imap connection
+    $imap = $this->rc->get_storage();
+    $imap->set_mailbox($mbox);
+
+    if ($uid && $mime_id) {
+      $part = $imap->get_message_part($uid, $mime_id);
+      if ($part->ctype_parameters['charset'])
+        $charset = $part->ctype_parameters['charset'];
+      $headers = $imap->get_message_headers($uid);
+
+      if ($part) {
+        $events = $this->get_ical()->import($part, $charset);
+      }
+    }
+
+    $success = $existing = 0;
+    if (!empty($events)) {
+      // find writeable calendar to store event
+      $cal_id = !empty($_REQUEST['_calendar']) ? get_input_value('_calendar', RCUBE_INPUT_POST) : null;
+      $calendars = $this->driver->list_calendars(false, true);
+      $calendar = $calendars[$cal_id] ?: $this->get_default_calendar(true);
+
+      foreach ($events as $event) {
+        // save to calendar
+        if ($calendar && !$calendar['readonly'] && $event['_type'] == 'event') {
+          $event['calendar'] = $calendar['id'];
+
+          if (!$this->driver->get_event($event['uid'], true, false)) {
+            $success += (bool)$this->driver->new_event($event);
+          }
+          else {
+            $existing++;
+          }
+        }
+      }
+    }
+
+    if ($success) {
+      $this->rc->output->command('display_message', $this->gettext(array(
+        'name' => 'importsuccess',
+        'vars' => array('nr' => $success),
+      )), 'confirmation');
+    }
+    else if ($existing) {
+      $this->rc->output->command('display_message', $this->gettext('importwarningexists'), 'warning');
+    }
+    else {
+      $this->rc->output->command('display_message', $this->gettext('errorimportingevent'), 'error');
+    }
+  }
 
   /**
    * Read email message and return contents for a new event based on that message

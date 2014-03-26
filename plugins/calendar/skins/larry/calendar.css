@@ -1535,7 +1535,8 @@ fieldset #calendarcategories div {
 
 /* Invitation UI in mail */
 
-#messagemenu li a.calendarlink span.calendar {
+#messagemenu li a.calendarlink span.calendar,
+#attachmentmenu li a.calendarlink span.calendar {
 	background-position: 0px -2197px;
 }
 
