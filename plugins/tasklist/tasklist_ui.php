@@ -81,6 +81,8 @@ class tasklist_ui
 
         $this->plugin->include_script('jquery.tagedit.js');
         $this->plugin->include_script('tasklist.js');
+
+        $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tagedit.css');
     }
 
     /**
