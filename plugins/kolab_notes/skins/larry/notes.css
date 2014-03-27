@@ -1,0 +1,227 @@
+/**
+ * Kolab Notes plugin styles for skin "Larry"
+ *
+ * Copyright (C) 2014, Kolab Systems AG <contact@kolabsys.com>
+ * Screendesign by FLINT / Büro für Gestaltung, bueroflint.com
+ *
+ * The contents are subject to the Creative Commons Attribution-ShareAlike
+ * License. It is allowed to copy, distribute, transmit and to adapt the work
+ * by keeping credits to the original autors in the README file.
+ * See http://creativecommons.org/licenses/by-sa/3.0/ for details.
+ */
+
+.notesview #sidebar {
+	position: absolute;
+	top: 42px;
+	left: 0;
+	bottom: 0;
+	width: 240px;
+}
+
+.notesview #notestoolbar {
+	position: absolute;
+	top: -6px;
+	left: 0;
+	width: 100%;
+	height: 40px;
+	white-space: nowrap;
+}
+
+.notesview #notestoolbar a.button.createnote {
+	
+}
+
+.notesview #taskbar a.button-notes span.button-inner {
+	
+}
+
+.notesview #taskbar a.button-notes.button-selected span.button-inner {
+	
+}
+
+.notesview #quicksearchbar {
+	top: 8px;
+}
+
+.notesview #searchmenulink {
+	width: 15px;
+}
+
+.notesview #mainview-right {
+	top: 42px;
+}
+
+.notesview #tagsbox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 242px;
+}
+
+.notesview #notebooksbox {
+	position: absolute;
+	top: 300px;
+	left: 0;
+	width: 100%;
+	bottom: 0px;
+}
+
+.notesview #noteslistbox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 240px;
+	bottom: 0px;
+}
+
+.notesview #kolabnoteslist .title {
+	display: block;
+	padding: 4px 8px;
+}
+
+.notesview #kolabnoteslist .date {
+	display: block;
+	padding: 0px 8px 4px 8px;
+	color: #777;
+	font-weight: normal;
+}
+
+.notesview #notedetailsbox {
+	position: absolute;
+	top: 0;
+	left: 256px;
+	right: 0;
+	bottom: 0px;
+}
+
+.notesview #notedetailsbox .formbuttons {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 8px 12px;
+	background: #f9f9f9;
+}
+
+.notesview #notecontent {
+	position: absolute;
+	top: 82px;
+	left: 0;
+	bottom: 41px;
+	width: 100%;
+	border: 0;
+	border-radius: 0;
+	padding: 8px 0 8px 8px;
+	resize: none;
+	font-family: monospace;
+	font-size: 9pt;
+	outline: none;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	        box-sizing: border-box;
+	-webkit-box-shadow: inset 0 0 2px 1px rgba(0,0,0, 0.2);
+	   -moz-box-shadow: inset 0 0 2px 1px rgba(0,0,0, 0.2);
+	     -o-box-shadow: inset 0 0 2px 1px rgba(0,0,0, 0.2);
+	        box-shadow: inset 0 0 2px 1px rgba(0,0,0, 0.2);
+}
+
+.notesview #notecontent:active,
+.notesview #notecontent:focus {
+	-webkit-box-shadow: inset 0 0 3px 2px rgba(71,135,177, 0.9);
+	   -moz-box-shadow: inset 0 0 3px 2px rgba(71,135,177, 0.9);
+	     -o-box-shadow: inset 0 0 3px 2px rgba(71,135,177, 0.9);
+	        box-shadow: inset 0 0 3px 2px rgba(71,135,177, 0.9);
+}
+
+.notesview #notedetailstitle {
+	height: 68px;
+}
+
+.notesview #notedetailstitle .tagedit-list,
+.notesview #notedetailstitle input.inline-edit,
+.notesview #notedetailstitle input.inline-edit:focus {
+	outline: none;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	background: rgba(255,255,255,0.01);
+	-webkit-box-shadow: none;
+	   -moz-box-shadow: none;
+	     -o-box-shadow: none;
+	        box-shadow: none;
+}
+
+.notesview #notedetailstitle input.notetitle,
+.notesview #notedetailstitle input.notetitle:focus {
+	width: 100%;
+	font-size: 14px;
+	font-weight: bold;
+	color: #777;
+}
+
+.notesview #notedetailstitle .dates,
+.notesview #notedetailstitle .tagline {
+	color: #999;
+	font-weight: normal;
+	font-size: 0.9em;
+	margin-top: 6px;
+}
+
+.notesview #notedetailstitle .dates {
+	margin-top: 0;
+}
+
+.notesview #notedetailstitle .tagline {
+	position: relative;
+	cursor: text;
+}
+
+.notesview #notedetailstitle .tagline .placeholder {
+	position: absolute;
+	top: 4px;
+	left: 0;
+	z-index: 1;
+}
+
+.notesview #notedetailstitle .tagedit-list {
+	position: relative;
+	z-index: 2;
+}
+
+.notesview #notedetailstitle #tagedit-input {
+	background: none;
+}
+
+.notesview #notedetailstitle .notecreated,
+.notesview #notedetailstitle .notechanged {
+	display: inline-block;
+	padding-left: 0.4em;
+	padding-right: 2em;
+	color: #777;
+}
+
+.notesview #notebooks li {
+	margin: 0;
+	height: 20px;
+	padding: 6px 8px 2px 6px;
+	display: block;
+	position: relative;
+	white-space: nowrap;
+}
+
+.notesview #notebooks li span.listname {
+	display: block;
+	position: absolute;
+	top: 7px;
+	left: 32px;
+	right: 26px;
+	cursor: default;
+	padding-bottom: 2px;
+	padding-right: 30px;
+	color: #004458;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

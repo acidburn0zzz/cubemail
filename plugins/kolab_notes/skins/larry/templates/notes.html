@@ -1,0 +1,97 @@
+<roundcube:object name="doctype" value="html5" />
+<html>
+<head>
+<title><roundcube:object name="pagetitle" /></title>
+<roundcube:include file="/includes/links.html" />
+</head>
+<body class="notesview noscroll">
+
+<roundcube:include file="/includes/header.html" />
+
+<div id="mainscreen">
+    <div id="notestoolbar" class="toolbar">
+        <roundcube:button command="createnote" type="link" class="button createnote disabled" classAct="button createnote" classSel="button createnote pressed" label="kolab_notes.create" title="kolab_notes.createnote" />
+        <roundcube:container name="toolbar" id="notestoolbar" />
+
+        <div id="quicksearchbar">
+            <roundcube:object name="plugin.searchform" id="quicksearchbox" />
+            <a id="searchmenulink" class="iconbutton searchoptions" > </a>
+            <roundcube:button command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" content=" " />
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <div id="tagsbox" class="uibox listbox">
+            <h2 class="boxtitle"><roundcube:label name="kolab_notes.tags" id="taglist" /></h2>
+            <div class="scroller">
+                <roundcube:object name="plugin.tagslist" id="tagslist" />
+            </div>
+        </div>
+
+        <div id="notebooksbox" class="uibox listbox">
+            <h2 class="boxtitle"><roundcube:label name="kolab_notes.lists" /></h2>
+            <div class="scroller withfooter">
+            <roundcube:object name="plugin.notebooks" id="notebooks" class="listing" />
+            </div>
+            <div class="boxfooter">
+                <roundcube:button command="list-create" type="link" title="kolab_notes.createlist" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="notesoptionslink" id="notesoptionsmenulink" type="link" title="kolab_notes.listactions" class="listbutton groupactions" onclick="UI.show_popup('notesoptionsmenu', undefined, { above:true });return false" innerClass="inner" content="&#9881;" />
+            </div>
+        </div>
+    </div>
+
+    <div id="mainview-right">
+        <div id="noteslistbox" class="uibox listbox">
+            <h2 class="boxtitle"><roundcube:label name="kolab_notes.notes" /></h2>
+            <div class="scroller withfooter">
+                <roundcube:object name="plugin.listing" id="kolabnoteslist" class="listing" />
+            </div>
+            <div class="boxfooter">
+                <roundcube:button command="delete" type="link" title="delete" class="listbutton delete disabled" classAct="listbutton delete" innerClass="inner" content="-" />
+                <roundcube:object name="plugin.recordsCountDisplay" class="countdisplay" label="fromtoshort" />
+            </div>
+        </div>
+
+        <div id="notedetailsbox" class="uibox contentbox">
+            <roundcube:object name="plugin.notetitle" id="notedetailstitle" class="boxtitle" />
+            <roundcube:object name="plugin.editform" id="noteform" />
+            <roundcube:object name="plugin.detailview" id="notedetails" class="scroller" />
+            <div class="footerleft formbuttons">
+                <roundcube:button command="save" type="input" class="button mainaction" label="save" />
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<roundcube:object name="message" id="messagestack" />
+
+<div id="notesoptionsmenu" class="popupmenu">
+    <ul class="toolbarmenu">
+        <li><roundcube:button command="list-edit" label="edit" classAct="active" /></li>
+        <li><roundcube:button command="list-remove" label="delete" classAct="active" /></li>
+        <li><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+    </ul>
+</div>
+
+
+<script type="text/javascript">
+
+// UI startup
+var UI = new rcube_mail_ui();
+
+$(document).ready(function(e){
+    UI.init();
+
+    new rcube_splitter({ id:'notesviewsplitter', p1:'#sidebar', p2:'#mainview-right',
+        orientation:'v', relative:true, start:240, min:180, size:16, offset:2 }).init();
+    new rcube_splitter({ id:'noteslistsplitter2', p1:'#noteslistbox', p2:'#notedetailsbox',
+        orientation:'v', relative:true, start:242, min:180, size:16, offset:2 }).init();
+    new rcube_splitter({ id:'notesviewsplitterv', p1:'#tagsbox', p2:'#notebooksbox',
+        orientation:'h', relative:true, start:242, min:120, size:16, offset:6 }).init();
+});
+
+</script>
+
+</body>
+</html>
