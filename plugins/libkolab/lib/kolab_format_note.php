@@ -24,7 +24,7 @@
 
 class kolab_format_note extends kolab_format
 {
-    public $CTYPE = 'application/x-vnd.kolab.note';
+    public $CTYPE = 'application/vnd.kolab+xml';
     public $CTYPEv2 = 'application/x-vnd.kolab.note';
 
     protected $objclass = 'Note';
