@@ -56,6 +56,22 @@ class kolab_notes_ui
 
         // TODO: load config options and user prefs relevant for the UI
         $settings = array();
+
+        // TinyMCE uses two-letter lang codes, with exception of Chinese
+        $lang = strtolower($_SESSION['language']);
+        $lang = strpos($lang, 'zh_') === 0 ? str_replace('_', '-', $lang) : substr($lang, 0, 2);
+
+        if (!file_exists(INSTALL_PATH . 'program/js/tiny_mce/langs/'.$lang.'.js')) {
+            $lang = 'en';
+        }
+
+        $settings['editor'] = array(
+            'lang'       => $lang,
+            'editor_css' => $this->plugin->url() . $this->plugin->local_skin_path() . '/editor.css',
+            'spellcheck' => intval($this->rc->config->get('enable_spellcheck')),
+            'spelldict'  => intval($this->rc->config->get('spellcheck_dictionary'))
+        );
+
         $this->rc->output->set_env('kolab_notes_settings', $settings);
     }
 
@@ -111,7 +127,9 @@ class kolab_notes_ui
     public function editform($attrib)
     {
         $attrib += array('action' => '#', 'id' => 'rcmkolabnoteseditform');
+
         $this->rc->output->add_gui_object('noteseditform', $attrib['id']);
+        $this->rc->output->include_script('tiny_mce/tiny_mce.js');
 
         $textarea = new html_textarea(array('name' => 'content', 'id' => 'notecontent', 'cols' => 60, 'rows' => 20, 'tabindex' => 3));
         return html::tag('form', $attrib, $textarea->show(), array_merge(html::$common_attrib, array('action')));

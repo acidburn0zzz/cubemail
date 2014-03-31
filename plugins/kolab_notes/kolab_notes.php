@@ -210,7 +210,7 @@ class kolab_notes extends rcube_plugin
         $list = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC);
 
         $data = $this->notes_data($this->list_notes($list, $search), $tags);
-        $this->rc->output->command('plugin.data_ready', array('list' => $list, 'search' => $search, 'data' => $data, 'tags' => array_values(array_unique($tags))));
+        $this->rc->output->command('plugin.data_ready', array('list' => $list, 'search' => $search, 'data' => $data, 'tags' => array_values($tags)));
     }
 
     /**
@@ -221,10 +221,10 @@ class kolab_notes extends rcube_plugin
         $tags = array();
 
         foreach ($records as $i => $rec) {
-            $this->_client_encode($records[$i]);
             unset($records[$i]['description']);
+            $this->_client_encode($records[$i]);
 
-            foreach ((array)$reg['categories'] as $tag) {
+            foreach ((array)$rec['categories'] as $tag) {
                 $tags[] = $tag;
             }
         }
@@ -311,7 +311,7 @@ class kolab_notes extends rcube_plugin
     private function _client_encode(&$note)
     {
         foreach ($note as $key => $prop) {
-            if ($key[0] == '_') {
+            if ($key[0] == '_' || $key == 'x-custom') {
                 unset($note[$key]);
             }
         }
@@ -323,6 +323,11 @@ class kolab_notes extends rcube_plugin
             }
         }
 
+        // clean HTML contents
+        if (!empty($note['description']) && preg_match('/<(html|body|div|p|span)(\s+[a-z]|>)/', $note['description'])) {
+            $note['html'] = $this->_wash_html($note['description']);
+        }
+
         return $note;
     }
 
@@ -331,12 +336,16 @@ class kolab_notes extends rcube_plugin
         $action = rcube_utils::get_input_value('_do', RCUBE_INPUT_POST);
         $note = rcube_utils::get_input_value('_data', RCUBE_INPUT_POST, true);
 
-        $success =false;
+        $success = false;
         switch ($action) {
-            case 'save':
-                console($action, $note);
-                sleep(3);
-                $success = true;
+            case 'new':
+                $temp_id = $rec['tempid'];
+
+            case 'edit':
+                if ($success = $this->save_note($note)) {
+                    $refresh = $this->get_note($note);
+                    $refresh['tempid'] = $temp_id;
+                }
                 break;
         }
 
@@ -350,8 +359,133 @@ class kolab_notes extends rcube_plugin
  
         // unlock client
         $this->rc->output->command('plugin.unlock_saving');
-        // $this->rc->output->command('plugin.update_note', $note);
+
+        if ($refresh) {
+            $this->rc->output->command('plugin.update_note', $this->_client_encode($refresh));
+        }
     }
 
+    /**
+     * Update an note record with the given data
+     *
+     * @param array Hash array with note properties
+     * @return boolean True on success, False on error
+     */
+    private function save_note($note)
+    {
+        $this->_read_lists();
+
+        $list_id = $note['list'];
+        if (!$list_id || !($folder = $this->folders[$list_id]))
+            return false;
+
+        // moved from another folder
+        if ($note['_fromlist'] && ($fromfolder = $this->folders[$note['_fromlist']])) {
+            if (!$fromfolder->move($note['id'], $folder->name))
+                return false;
+
+            unset($note['_fromlist']);
+        }
+
+        // load previous version of this record to merge
+        if ($note['uid']) {
+            $old = $folder->get_object($note['uid']);
+            if (!$old || PEAR::isError($old))
+                return false;
+
+            // merge existing properties if the update isn't complete
+            if (!isset($note['title']) || !isset($note['description']))
+                $note += $old;
+        }
+
+        // generate new note object from input
+        $object = $this->_write_preprocess($note, $old);
+        $saved = $folder->save($object, 'note', $note['uid']);
+
+        if (!$saved) {
+            raise_error(array(
+                'code' => 600, 'type' => 'php',
+                'file' => __FILE__, 'line' => __LINE__,
+                'message' => "Error saving note object to Kolab server"),
+                true, false);
+            $saved = false;
+        }
+        else {
+            $note = $object;
+            $note['list'] = $list_id;
+            // TODO: cache this in memory for later read
+        }
+
+        return $saved;
+    }
+
+
+    /**
+     * Process the given note data (submitted by the client) before saving it
+     */
+    private function _write_preprocess($note, $old = array())
+    {
+        $object = $note;
+
+        // TODO: handle attachments
+
+        // clean up HTML content
+        $object['description'] = $this->_wash_html($note['description']);
+
+        // try to be smart and convert to plain-text if no real formatting is detected
+        if (preg_match('!<body><pre>(.*)</pre></body>!ims', $object['description'], $m)) {
+            if (!preg_match('!<(a|b|i|strong|em|p|span|div|pre|li)(\s+[a-z]|>)!im', $m[1])) {
+                // $converter = new rcube_html2text($m[1], false, true, 0);
+                // $object['description'] = rtrim($converter->get_text());
+                $object['description'] = preg_replace('!<br(\s+/)>!', "\n", $m[1]);
+            }
+        }
+
+        // copy meta data (starting with _) from old object
+        foreach ((array)$old as $key => $val) {
+          if (!isset($object[$key]) && $key[0] == '_')
+            $object[$key] = $val;
+        }
+
+        unset($object['list'], $object['tempid'], $object['created'], $object['changed'], $object['created_'], $object['changed_']);
+        return $object;
+    }
+
+    /**
+     * Sanity checks/cleanups HTML content
+     */
+    private function _wash_html($html)
+    {
+        // Add header with charset spec., washtml cannot work without that
+        $html = '<html><head>'
+            . '<meta http-equiv="Content-Type" content="text/html; charset='.RCUBE_CHARSET.'" />'
+            . '</head><body>' . $html . '</body></html>';
+
+        // clean HTML with washhtml by Frederic Motte
+        $wash_opts = array(
+            'show_washed'   => false,
+            'allow_remote'  => 1,
+            'charset'       => RCUBE_CHARSET,
+            'html_elements' => array('html', 'body', 'link'),
+            'html_attribs'  => array('rel', 'type'),
+        );
+
+        // initialize HTML washer
+        $washer = new rcube_washtml($wash_opts);
+
+        //$washer->add_callback('form', 'rcmail_washtml_callback');
+        //$washer->add_callback('style', 'rcmail_washtml_callback');
+
+        // Remove non-UTF8 characters (#1487813)
+        $html = rcube_charset::clean($html);
+
+        $html = $washer->wash($html);
+
+        // remove unwanted comments (produced by washtml)
+        $html = preg_replace('/<!--[^>]+-->/', '', $html);
+
+        return $html;
+    }
+    
 }
 

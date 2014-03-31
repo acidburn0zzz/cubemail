@@ -24,7 +24,7 @@
         <div id="tagsbox" class="uibox listbox">
             <h2 class="boxtitle"><roundcube:label name="kolab_notes.tags" id="taglist" /></h2>
             <div class="scroller">
-                <roundcube:object name="plugin.tagslist" id="tagslist" />
+                <roundcube:object name="plugin.tagslist" id="tagslist" class="tagcloud" />
             </div>
         </div>
 
@@ -84,11 +84,32 @@ $(document).ready(function(e){
     UI.init();
 
     new rcube_splitter({ id:'notesviewsplitter', p1:'#sidebar', p2:'#mainview-right',
-        orientation:'v', relative:true, start:240, min:180, size:16, offset:2 }).init();
+        orientation:'v', relative:true, start:240, min:180, size:16, offset:2, render:layout_view }).init();
     new rcube_splitter({ id:'noteslistsplitter2', p1:'#noteslistbox', p2:'#notedetailsbox',
-        orientation:'v', relative:true, start:242, min:180, size:16, offset:2 }).init();
+        orientation:'v', relative:true, start:242, min:180, size:16, offset:2, render:layout_view }).init();
     new rcube_splitter({ id:'notesviewsplitterv', p1:'#tagsbox', p2:'#notebooksbox',
         orientation:'h', relative:true, start:242, min:120, size:16, offset:6 }).init();
+
+    function layout_view()
+    {
+        var form = $('#noteform'),
+            content = $('#notecontent'),
+            header = $('#notedetailstitle'),
+            w, h;
+
+        form.css('top', header.outerHeight()+'px');
+
+        w = form.outerWidth();
+        h = form.outerHeight();
+        content.width(w).height(h);
+
+        $('#notecontent_tbl').width(w+'px').height('').css('margin-top', '-1px');
+        $('#notecontent_ifr').width(w+'px').height((h-54)+'px');
+    }
+
+    $(window).resize(function(e){
+        layout_view();
+    });
 });
 
 </script>
