@@ -77,7 +77,7 @@ body.attachmentwin #topnav .topright {
 	padding-right: 0.3em;
 }
 
-#tagslist li,
+.tagcloud li,
 #taskselector li a {
 	display: inline-block;
 	color: #004458;
@@ -108,7 +108,7 @@ body.attachmentwin #topnav .topright {
 	color: #97b3bf;
 }
 
-#tagslist li.selected,
+.tagcloud li.selected,
 #taskselector li.selected a {
 	color: #fff;
 	background: #005d76;
@@ -171,13 +171,13 @@ body.attachmentwin #topnav .topright {
 	border-color: #ff3800 transparent;
 }
 
-#tagslist {
+.tagcloud {
 	padding: 0;
 	margin: 6px;
 	list-style: none;
 }
 
-#tagslist li {
+.tagcloud li {
 	display: inline-block;
 	color: #004458;
 	padding-right: 0.2em;
@@ -187,14 +187,14 @@ body.attachmentwin #topnav .topright {
 	cursor: pointer;
 }
 
-#tagslist li.inactive {
+.tagcloud li.inactive {
 	color: #89b3be;
 	padding-right: 0.6em;
 	font-size: 80%;
 /*	display: none; */
 }
 
-#tagslist li .count {
+.tagcloud li .count {
 	position: relative;
 	top: -1px;
 	margin-left: 5px;
@@ -212,7 +212,7 @@ body.attachmentwin #topnav .topright {
 }
 
 .tag-draghelper .tag .count,
-#tagslist li.inactive .count {
+.tagcloud li.inactive .count {
 	display: none;
 }
 

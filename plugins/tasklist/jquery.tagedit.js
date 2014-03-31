@@ -176,7 +176,7 @@
 						$(this).bind('transformToTag', function(event, id) {
 							var oldValue = (typeof id != 'undefined' && (id.length > 0 || id > 0));
 
-							var checkAutocomplete = oldValue == true? false : true;
+							var checkAutocomplete = oldValue == true || options.autocompleteOptions.noCheck ? false : true;
 							// check if the Value ist new
 							var isNewResult = isNew($(this).val(), checkAutocomplete);
 							if(isNewResult[0] === true || (isNewResult[0] === false && typeof isNewResult[1] == 'string')) {
