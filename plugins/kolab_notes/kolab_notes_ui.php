@@ -67,7 +67,7 @@ class kolab_notes_ui
 
         $settings['editor'] = array(
             'lang'       => $lang,
-            'editor_css' => $this->plugin->url() . $this->plugin->local_skin_path() . '/editor.css',
+            'editor_css' => $this->plugin->url($this->plugin->local_skin_path() . '/editor.css'),
             'spellcheck' => intval($this->rc->config->get('enable_spellcheck')),
             'spelldict'  => intval($this->rc->config->get('spellcheck_dictionary'))
         );

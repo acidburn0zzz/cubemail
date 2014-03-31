@@ -32,6 +32,7 @@ class kolab_notes extends rcube_plugin
     private $ui;
     private $lists;
     private $folders;
+    private $cache = array();
 
     /**
      * Required startup method of a Roundcube plugin
@@ -202,7 +203,7 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
-     * 
+     * Handler to retrieve note records for the given list and/or search query
      */
     public function notes_fetch()
     {
@@ -214,7 +215,7 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
-     *
+     * Convert the given note records for delivery to the client
      */
     protected function notes_data($records, &$tags)
     {
@@ -234,7 +235,7 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
-     *
+     * Read note records for the given list from the storage backend
      */
     protected function list_notes($list_id, $search = null)
     {
@@ -261,6 +262,9 @@ class kolab_notes extends rcube_plugin
         return $results;
     }
 
+    /**
+     * Handler for delivering a full note record to the client
+     */
     public function note_record()
     {
         $data = $this->get_note(array(
@@ -276,6 +280,9 @@ class kolab_notes extends rcube_plugin
         $this->rc->output->command('plugin.render_note', $data);
     }
 
+    /**
+     * Get the full note record identified by the given UID + Lolder identifier
+     */
     public function get_note($note)
     {
         if (is_array($note)) {
@@ -284,6 +291,12 @@ class kolab_notes extends rcube_plugin
         }
         else {
             $uid = $note;
+        }
+
+        // deliver from in-memory cache
+        $key = $list_id . ':' . $uid;
+        if ($this->cache[$key]) {
+            return $this->cache[$key];
         }
 
         $this->_read_lists();
@@ -306,7 +319,7 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
-     *
+     * Helper method to encode the given note record for use in the client
      */
     private function _client_encode(&$note)
     {
@@ -331,6 +344,9 @@ class kolab_notes extends rcube_plugin
         return $note;
     }
 
+    /**
+     * Handler for client-initiated actions on a single note record
+     */
     public function note_action()
     {
         $action = rcube_utils::get_input_value('_do', RCUBE_INPUT_POST);
@@ -347,6 +363,17 @@ class kolab_notes extends rcube_plugin
                     $refresh['tempid'] = $temp_id;
                 }
                 break;
+
+            case 'delete':
+                $uids = explode(',', $note['uid']);
+                foreach ($uids as $uid) {
+                    $note['uid'] = $uid;
+                    if (!($success = $this->delete_note($note))) {
+                        $refresh = $this->get_note($note);
+                        break;
+                    }
+                }
+                break;
         }
 
         // show confirmation/error message
@@ -354,7 +381,7 @@ class kolab_notes extends rcube_plugin
             $this->rc->output->show_message('successfullysaved', 'confirmation');
         }
         else {
-            $this->rc->output->show_message('kolab_notes.errorsaving', 'error');
+            $this->rc->output->show_message('errorsaving', 'error');
         }
  
         // unlock client
@@ -368,10 +395,10 @@ class kolab_notes extends rcube_plugin
     /**
      * Update an note record with the given data
      *
-     * @param array Hash array with note properties
+     * @param array Hash array with note properties (id, list)
      * @return boolean True on success, False on error
      */
-    private function save_note($note)
+    private function save_note(&$note)
     {
         $this->_read_lists();
 
@@ -413,10 +440,31 @@ class kolab_notes extends rcube_plugin
         else {
             $note = $object;
             $note['list'] = $list_id;
-            // TODO: cache this in memory for later read
+
+            // cache this in memory for later read
+            $key = $list_id . ':' . $note['uid'];
+            $this->cache[$key] = $note;
         }
 
         return $saved;
+    }
+
+    /**
+     * Remove a single note record from the backend
+     *
+     * @param array   Hash array with note properties (id, list)
+     * @param boolean Remove record irreversible (mark as deleted otherwise)
+     * @return boolean True on success, False on error
+     */
+    public function delete_note($note, $force = true)
+    {
+        $this->_read_lists();
+
+        $list_id = $note['list'];
+        if (!$list_id || !($folder = $this->folders[$list_id]))
+            return false;
+
+        return $folder->delete($note['uid'], $force);
     }
 
 
@@ -431,6 +479,7 @@ class kolab_notes extends rcube_plugin
 
         // clean up HTML content
         $object['description'] = $this->_wash_html($note['description']);
+        $is_html = true;
 
         // try to be smart and convert to plain-text if no real formatting is detected
         if (preg_match('!<body><pre>(.*)</pre></body>!ims', $object['description'], $m)) {
@@ -438,7 +487,14 @@ class kolab_notes extends rcube_plugin
                 // $converter = new rcube_html2text($m[1], false, true, 0);
                 // $object['description'] = rtrim($converter->get_text());
                 $object['description'] = preg_replace('!<br(\s+/)>!', "\n", $m[1]);
+                $is_html = false;
             }
+        }
+
+        // Add proper HTML header, otherwise Kontact renders it as plain text
+        if ($is_html) {
+            $object['description'] = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">'."\n" .
+                str_replace('<head>', '<head><meta name="qrichtext" content="1" />', $object['description']);
         }
 
         // copy meta data (starting with _) from old object
@@ -461,13 +517,13 @@ class kolab_notes extends rcube_plugin
             . '<meta http-equiv="Content-Type" content="text/html; charset='.RCUBE_CHARSET.'" />'
             . '</head><body>' . $html . '</body></html>';
 
-        // clean HTML with washhtml by Frederic Motte
+        // clean HTML with washtml by Frederic Motte
         $wash_opts = array(
             'show_washed'   => false,
             'allow_remote'  => 1,
             'charset'       => RCUBE_CHARSET,
-            'html_elements' => array('html', 'body', 'link'),
-            'html_attribs'  => array('rel', 'type'),
+            'html_elements' => array('html', 'head', 'meta', 'body', 'link'),
+            'html_attribs'  => array('rel', 'type', 'name', 'http-equiv'),
         );
 
         // initialize HTML washer
@@ -476,7 +532,7 @@ class kolab_notes extends rcube_plugin
         //$washer->add_callback('form', 'rcmail_washtml_callback');
         //$washer->add_callback('style', 'rcmail_washtml_callback');
 
-        // Remove non-UTF8 characters (#1487813)
+        // Remove non-UTF8 characters
         $html = rcube_charset::clean($html);
 
         $html = $washer->wash($html);
@@ -486,6 +542,6 @@ class kolab_notes extends rcube_plugin
 
         return $html;
     }
-    
+
 }
 

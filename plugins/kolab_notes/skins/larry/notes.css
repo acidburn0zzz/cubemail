@@ -10,6 +10,18 @@
  * See http://creativecommons.org/licenses/by-sa/3.0/ for details.
  */
 
+
+#taskbar a.button-notes span.button-inner {
+	background-image: url('sprites.png');
+	background-position: 0 0;
+}
+
+#taskbar a.button-notes:hover span.button-inner,
+#taskbar a.button-notes.button-selected span.button-inner {
+	background-image: url('sprites.png');
+	background-position: 0 -26px;
+}
+
 .notesview #sidebar {
 	position: absolute;
 	top: 42px;
@@ -28,15 +40,8 @@
 }
 
 .notesview #notestoolbar a.button.createnote {
-	
-}
-
-.notesview #taskbar a.button-notes span.button-inner {
-	
-}
-
-.notesview #taskbar a.button-notes.button-selected span.button-inner {
-	
+	background-image: url('sprites.png');
+	background-position: center -54px;
 }
 
 .notesview #quicksearchbar {
@@ -146,7 +151,7 @@
 }
 
 .notesview #notedetailstitle {
-	height: 68px;
+	height: auto;
 }
 
 .notesview #notedetailstitle .tagedit-list,
@@ -180,7 +185,8 @@
 }
 
 .notesview #notedetailstitle .dates {
-	margin-top: 0;
+	margin-top: 4px;
+	margin-bottom: 4px;
 }
 
 .notesview #notedetailstitle .tagline {

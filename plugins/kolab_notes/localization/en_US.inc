@@ -15,3 +15,4 @@ $labels['changed'] = 'Last Modified';
 $labels['savingdata'] = 'Saving data...';
 $labels['recordnotfound'] = 'Record not found';
 $labels['entertitle'] = 'Please enter a title for this note!';
+$labels['deletenotesconfirm'] = 'Do you really want to delete the selected notes?';
