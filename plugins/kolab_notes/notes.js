@@ -151,7 +151,6 @@ function rcube_kolab_notes_ui(settings)
             theme_advanced_toolbar_align: 'left',
             theme_advanced_buttons3: '',
             theme_advanced_statusbar_location: 'none',
-//            extended_valid_elements: 'font[face|size|color|style],span[id|class|align|style]',
             relative_urls: false,
             remove_script_host: false,
             gecko_spellcheck: true,
@@ -165,7 +164,8 @@ function rcube_kolab_notes_ui(settings)
                 ed.onClick.add(function(ed, e) {
                     var link = $(e.target).closest('a');
                     if (link.length && e.shiftKey) {
-                        window.open(link.get(0).href, '_blank');
+                        if (!bw.mz) window.open(link.get(0).href, '_blank');
+                        return false;
                     }
                 });
             }
@@ -187,9 +187,9 @@ function rcube_kolab_notes_ui(settings)
     /**
      * Quote HTML entities
      */
-    function Q(html)
+    function Q(str)
     {
-        return String(html).replace(/&/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     /**
@@ -223,6 +223,7 @@ function rcube_kolab_notes_ui(settings)
     function edit_note(uid, action)
     {
         if (!uid) {
+            noteslist.clear_selection();
             me.selected_note = { list:me.selected_list, uid:null, title:rcmail.gettext('newnote','kolab_notes'), description:'', categories:[] }
             render_note(me.selected_note);
         }
@@ -398,8 +399,11 @@ function rcube_kolab_notes_ui(settings)
         var html, node, editor = tinyMCE.get('notecontent');
         if (editor) {
             html = data.html || data.description;
-            if (!html.match(/<(html|body|p|div|span)/))
-                html = '<pre>' + Q(html) + '</pre>';
+
+            // convert plain text to HTML and make URLs clickable
+            if (!data.html || !html.match(/<(html|body)/)) {
+                html = text2html(html);
+            }
 
             editor.setContent(html);
             node = editor.getContentAreaContainer().childNodes[0];
@@ -409,6 +413,23 @@ function rcube_kolab_notes_ui(settings)
 
         // Trigger resize (needed for proper editor resizing)
         $(window).resize();
+    }
+
+    /**
+     * Convert the given plain text to HTML contents to be displayed in editor
+     */
+    function text2html(str)
+    {
+        // simple link parser (similar to rcube_string_replacer class in PHP)
+        var utf_domain = '[^?&@"\'/\\(\\)\\s\\r\\t\\n]+\\.([^\x00-\x2f\x3b-\x40\x5b-\x60\x7b-\x7f]{2,}|xn--[a-z0-9]{2,})',
+            url1 = '.:;,', url2 = 'a-z0-9%=#@+?&/_~\\[\\]-',
+            link_pattern = new RegExp('([hf]t+ps?://|www.)('+utf_domain+'(['+url1+']?['+url2+']+)*)?', 'ig'),
+            link_replace = function(matches, p1, p2) {
+                var url = (p1 == 'www.' ? 'http://' : '') + p1 + p2;
+                return '<a href="' + url + '" class="x-templink">' + p1 + p2 + '</a>';
+            };
+
+        return '<pre>' + Q(str).replace(link_pattern, link_replace) + '</pre>';
     }
 
     /**

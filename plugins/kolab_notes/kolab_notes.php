@@ -337,7 +337,7 @@ class kolab_notes extends rcube_plugin
         }
 
         // clean HTML contents
-        if (!empty($note['description']) && preg_match('/<(html|body|div|p|span)(\s+[a-z]|>)/', $note['description'])) {
+        if (!empty($note['description']) && preg_match('/<(html|body)(\s+[a-z]|>)/', $note['description'], $m) && strpos($note['description'], '</'.$m[1].'>') > 0) {
             $note['html'] = $this->_wash_html($note['description']);
         }
 
@@ -426,7 +426,7 @@ class kolab_notes extends rcube_plugin
         }
 
         // generate new note object from input
-        $object = $this->_write_preprocess($note, $old);
+        $object = $this->_write_preprocess($note, $old);# return false;
         $saved = $folder->save($object, 'note', $note['uid']);
 
         if (!$saved) {
@@ -483,10 +483,10 @@ class kolab_notes extends rcube_plugin
 
         // try to be smart and convert to plain-text if no real formatting is detected
         if (preg_match('!<body><pre>(.*)</pre></body>!ims', $object['description'], $m)) {
-            if (!preg_match('!<(a|b|i|strong|em|p|span|div|pre|li)(\s+[a-z]|>)!im', $m[1])) {
+            if (!preg_match('!<(a|b|i|strong|em|p|span|div|pre|li)(\s+[a-z]|>)!im', $m[1], $n) || !strpos($m[1], '</'.$n[1].'>')) {
                 // $converter = new rcube_html2text($m[1], false, true, 0);
                 // $object['description'] = rtrim($converter->get_text());
-                $object['description'] = preg_replace('!<br(\s+/)>!', "\n", $m[1]);
+                $object['description'] = html_entity_decode(preg_replace('!<br(\s+/)>!', "\n", $m[1]));
                 $is_html = false;
             }
         }
@@ -529,8 +529,8 @@ class kolab_notes extends rcube_plugin
         // initialize HTML washer
         $washer = new rcube_washtml($wash_opts);
 
-        //$washer->add_callback('form', 'rcmail_washtml_callback');
-        //$washer->add_callback('style', 'rcmail_washtml_callback');
+        $washer->add_callback('form', array($this, '_washtml_callback'));
+        $washer->add_callback('a',    array($this, '_washtml_callback'));
 
         // Remove non-UTF8 characters
         $html = rcube_charset::clean($html);
@@ -541,6 +541,37 @@ class kolab_notes extends rcube_plugin
         $html = preg_replace('/<!--[^>]+-->/', '', $html);
 
         return $html;
+    }
+
+    /**
+     * Callback function for washtml cleaning class
+     */
+    public function _washtml_callback($tagname, $attrib, $content, $washtml)
+    {
+        switch ($tagname) {
+        case 'form':
+            $out = html::div('form', $content);
+            break;
+
+        case 'a':
+            // strip temporary link tags from plain-text markup
+            $attrib = html::parse_attrib_string($attrib);
+            if (!empty($attrib['class']) && strpos($attrib['class'], 'x-templink') !== false) {
+                // remove link entirely
+                if (strpos($attrib['href'], html_entity_decode($content)) !== false) {
+                    $out = $content;
+                    break;
+                }
+                $attrib['class'] = trim(str_replace('x-templink', '', $attrib['class']));
+            }
+            $out = html::a($attrib, $content);
+            break;
+
+        default:
+            $out = '';
+        }
+
+        return $out;
     }
 
 }
