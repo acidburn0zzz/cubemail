@@ -136,7 +136,8 @@
 						html += '<li class="tagedit-listelement tagedit-listelement-old">';
 						html += '<span dir="'+options.direction+'">' + $(this).val() + '</span>';
 						html += '<input type="hidden" name="'+baseName+'['+elementId+']" value="'+$(this).val()+'" />';
-						html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'">x</a>';
+						if (options.allowDelete)
+							html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'">x</a>';
 						html += '</li>';
 					}
 				}
@@ -158,7 +159,8 @@
 			// put an input field at the End
 			// Put an empty element at the end
 			html = '<li class="tagedit-listelement tagedit-listelement-new">';
-			html += '<input type="text" name="'+baseName+'[]" value="" id="tagedit-input" disabled="disabled" class="tagedit-input-disabled" dir="'+options.direction+'"/>';
+			if (options.allowAdd)
+				html += '<input type="text" name="'+baseName+'[]" value="" id="tagedit-input" disabled="disabled" class="tagedit-input-disabled" dir="'+options.direction+'"/>';
 			html += '</li>';
 			html += '</ul>';
 
