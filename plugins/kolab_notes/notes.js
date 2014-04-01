@@ -31,6 +31,8 @@ function rcube_kolab_notes_ui(settings)
     var notesdata = {};
     var tagsfilter = [];
     var tags = [];
+    var search_request;
+    var search_query;
     var me = this;
 
     /*  public members  */
@@ -275,19 +277,39 @@ function rcube_kolab_notes_ui(settings)
     }
 
     /**
-     * 
+     * Execute search
      */
     function quicksearch()
     {
-        
+        var q;
+        if (rcmail.gui_objects.qsearchbox && (q = rcmail.gui_objects.qsearchbox.value)) {
+            var id = 'search-'+q;
+
+            // ignore if query didn't change
+            if (search_request == id)
+                return;
+
+            search_request = id;
+            search_query = q;
+
+            fetch_notes();
+        }
+        else {  // empty search input equals reset
+            reset_search();
+        }
     }
 
     /**
-     * 
+     * Reset search and get back to normal listing
      */
     function reset_search()
     {
-        
+        $(rcmail.gui_objects.qsearchbox).val('');
+
+        if (search_request) {
+            search_request = search_query = null;
+            fetch_notes();
+        }
     }
 
     /**
@@ -300,14 +322,13 @@ function rcube_kolab_notes_ui(settings)
 
         if (id && id != me.selected_list) {
             me.selected_list = id;
-            noteslist.clear_selection();
         }
 
         ui_loading = rcmail.set_busy(true, 'loading');
         rcmail.http_request('fetch', { _list:me.selected_list, _q:search_query }, true);
 
         reset_view();
-        noteslist.clear();
+        noteslist.clear(true);
         notesdata = {};
         tagsfilter = [];
     }
@@ -334,7 +355,6 @@ function rcube_kolab_notes_ui(settings)
 
             if (me.selected_note && me.selected_note.uid == note.uid && !match) {
                 noteslist.clear_selection();
-//                reset_view();
             }
         }
     }
@@ -363,8 +383,16 @@ function rcube_kolab_notes_ui(settings)
             notesdata[rec.id] = rec;
         }
 
-        render_tagslist(data.tags || [], true)
+        render_tagslist(data.tags || [], !data.search)
         rcmail.set_busy(false, 'loading', ui_loading);
+
+        // select the single result
+        if (data.data.length == 1) {
+            noteslist.select(data.data[0].id);
+        }
+        else if (me.selected_note && notesdata[me.selected_note.id]) {
+            noteslist.select(me.selected_note.id);
+        }
     }
 
     /**

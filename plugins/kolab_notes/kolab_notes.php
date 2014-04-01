@@ -207,7 +207,7 @@ class kolab_notes extends rcube_plugin
      */
     public function notes_fetch()
     {
-        $search = rcube_utils::get_input_value('_q', RCUBE_INPUT_GPC);
+        $search = rcube_utils::get_input_value('_q', RCUBE_INPUT_GPC, true);
         $list = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC);
 
         $data = $this->notes_data($this->list_notes($list, $search), $tags);
@@ -246,14 +246,36 @@ class kolab_notes extends rcube_plugin
 
         // full text search (only works with cache enabled)
         if (strlen($search)) {
-            foreach (rcube_utils::normalize_string(mb_strtolower($search), true) as $word) {
-                $query[] = array('words', '~', $word);
+            $words = array_filter(rcube_utils::normalize_string(mb_strtolower($search), true));
+            foreach ($words as $word) {
+                if (strlen($word) > 2) {  // only words > 3 chars are stored in DB
+                    $query[] = array('words', '~', $word);
+                }
             }
         }
 
         $this->_read_lists();
         if ($folder = $this->folders[$list_id]) {
             foreach ($folder->select($query) as $record) {
+                // post-filter search results
+                if (strlen($search)) {
+                    $matches = 0;
+                    $contents = mb_strtolower(
+                        $record['title'] .
+                        ($this->is_html($record) ? strip_tags($record['description']) : $record['description']) .
+                        join(' ', (array)$record['categories'])
+                    );
+                    foreach ($words as $word) {
+                        if (mb_strpos($contents, $word) !== false) {
+                            $matches++;
+                        }
+                    }
+
+                    // skip records not matching all search words
+                    if ($matches < count($words)) {
+                        continue;
+                    }
+                }
                 $record['list'] = $list_id;
                 $results[] = $record;
             }
@@ -337,7 +359,7 @@ class kolab_notes extends rcube_plugin
         }
 
         // clean HTML contents
-        if (!empty($note['description']) && preg_match('/<(html|body)(\s+[a-z]|>)/', $note['description'], $m) && strpos($note['description'], '</'.$m[1].'>') > 0) {
+        if (!empty($note['description']) && $this->is_html($note)) {
             $note['html'] = $this->_wash_html($note['description']);
         }
 
@@ -494,6 +516,14 @@ class kolab_notes extends rcube_plugin
         return $folder->delete($note['uid'], $force);
     }
 
+    /**
+     * Determine whether the given note is HTML formatted
+     */
+    private function is_html($note)
+    {
+        // check for opening and closing <html> or <body> tags
+        return (preg_match('/<(html|body)(\s+[a-z]|>)/', $note['description'], $m) && strpos($note['description'], '</'.$m[1].'>') > 0);
+    }
 
     /**
      * Process the given note data (submitted by the client) before saving it
