@@ -1,7 +1,7 @@
 /**
  * libkolab database schema
  *
- * @version 1.0
+ * @version 1.1
  * @author Thomas Bruederli
  * @licence GNU AGPL
  **/
@@ -41,7 +41,8 @@ CREATE TABLE `kolab_cache_contact` (
   CONSTRAINT `fk_kolab_cache_contact_folder` FOREIGN KEY (`folder_id`)
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY(`folder_id`,`msguid`),
-  INDEX `contact_type` (`folder_id`,`type`)
+  INDEX `contact_type` (`folder_id`,`type`),
+  INDEX `contact_uid2msguid` (`folder_id`,`uid`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 DROP TABLE IF EXISTS `kolab_cache_event`;
@@ -60,7 +61,8 @@ CREATE TABLE `kolab_cache_event` (
   `dtend` DATETIME,
   CONSTRAINT `fk_kolab_cache_event_folder` FOREIGN KEY (`folder_id`)
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  PRIMARY KEY(`folder_id`,`msguid`)
+  PRIMARY KEY(`folder_id`,`msguid`),
+  INDEX `event_uid2msguid` (`folder_id`,`uid`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 DROP TABLE IF EXISTS `kolab_cache_task`;
@@ -79,7 +81,8 @@ CREATE TABLE `kolab_cache_task` (
   `dtend` DATETIME,
   CONSTRAINT `fk_kolab_cache_task_folder` FOREIGN KEY (`folder_id`)
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  PRIMARY KEY(`folder_id`,`msguid`)
+  PRIMARY KEY(`folder_id`,`msguid`),
+  INDEX `task_uid2msguid` (`folder_id`,`uid`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 DROP TABLE IF EXISTS `kolab_cache_journal`;
@@ -98,7 +101,8 @@ CREATE TABLE `kolab_cache_journal` (
   `dtend` DATETIME,
   CONSTRAINT `fk_kolab_cache_journal_folder` FOREIGN KEY (`folder_id`)
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  PRIMARY KEY(`folder_id`,`msguid`)
+  PRIMARY KEY(`folder_id`,`msguid`),
+  INDEX `journal_uid2msguid` (`folder_id`,`uid`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 DROP TABLE IF EXISTS `kolab_cache_note`;
@@ -115,7 +119,8 @@ CREATE TABLE `kolab_cache_note` (
   `words` TEXT NOT NULL,
   CONSTRAINT `fk_kolab_cache_note_folder` FOREIGN KEY (`folder_id`)
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  PRIMARY KEY(`folder_id`,`msguid`)
+  PRIMARY KEY(`folder_id`,`msguid`),
+  INDEX `note_uid2msguid` (`folder_id`,`uid`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 DROP TABLE IF EXISTS `kolab_cache_file`;
@@ -134,7 +139,8 @@ CREATE TABLE `kolab_cache_file` (
   CONSTRAINT `fk_kolab_cache_file_folder` FOREIGN KEY (`folder_id`)
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY(`folder_id`,`msguid`),
-  INDEX `folder_filename` (`folder_id`, `filename`)
+  INDEX `folder_filename` (`folder_id`, `filename`),
+  INDEX `file_uid2msguid` (`folder_id`,`uid`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 DROP TABLE IF EXISTS `kolab_cache_configuration`;
@@ -153,7 +159,8 @@ CREATE TABLE `kolab_cache_configuration` (
   CONSTRAINT `fk_kolab_cache_configuration_folder` FOREIGN KEY (`folder_id`)
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY(`folder_id`,`msguid`),
-  INDEX `configuration_type` (`folder_id`,`type`)
+  INDEX `configuration_type` (`folder_id`,`type`),
+  INDEX `configuration_uid2msguid` (`folder_id`,`uid`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 DROP TABLE IF EXISTS `kolab_cache_freebusy`;
@@ -172,7 +179,8 @@ CREATE TABLE `kolab_cache_freebusy` (
   `dtend` DATETIME,
   CONSTRAINT `fk_kolab_cache_freebusy_folder` FOREIGN KEY (`folder_id`)
     REFERENCES `kolab_folders`(`folder_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  PRIMARY KEY(`folder_id`,`msguid`)
+  PRIMARY KEY(`folder_id`,`msguid`),
+  INDEX `freebusy_uid2msguid` (`folder_id`,`uid`,`msguid`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
 
