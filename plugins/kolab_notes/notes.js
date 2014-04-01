@@ -25,6 +25,8 @@ function rcube_kolab_notes_ui(settings)
     var ui_loading = false;
     var saving_lock;
     var search_query;
+    var folder_drop_target;
+    var notebookslist;
     var noteslist;
     var notesdata = {};
     var tagsfilter = [];
@@ -47,7 +49,7 @@ function rcube_kolab_notes_ui(settings)
         rcmail.register_command('list-edit', function(){ list_edit_dialog(me.selected_list); }, false);
         rcmail.register_command('list-remove', function(){ list_remove(me.selected_list); }, false);
         rcmail.register_command('save', save_note, true);
-        rcmail.register_command('delete', delete_note, false);
+        rcmail.register_command('delete', delete_notes, false);
         rcmail.register_command('search', quicksearch, true);
         rcmail.register_command('reset-search', reset_search, true);
 
@@ -67,17 +69,30 @@ function rcube_kolab_notes_ui(settings)
         // initialize folder selectors
         var li, id;
         for (id in me.notebooks) {
-            init_folder_li(id);
-
             if (me.notebooks[id].editable && (!me.selected_list || (me.notebooks[id].active && !me.notebooks[me.selected_list].active))) {
                 me.selected_list = id;
             }
         }
 
+        notebookslist = new rcube_treelist_widget(rcmail.gui_objects.notebooks, {
+          id_prefix: 'rcmliknb',
+          selectable: true,
+          check_droptarget: function(node) {
+              return !node.virtual && node.id != me.selected_list;
+          }
+        });
+        notebookslist.addEventListener('select', function(node) {
+            var id = node.id;
+            if (me.notebooks[id]) {
+                rcmail.enable_command('list-edit', 'list-remove', me.notebooks[id].editable);
+                fetch_notes(id);  // sets me.notebooks[id]
+            }
+        });
+
         // initialize notes list widget
         if (rcmail.gui_objects.noteslist) {
             noteslist = new rcube_list_widget(rcmail.gui_objects.noteslist,
-                { multiselect:true, draggable:false, keyboard:false });
+                { multiselect:true, draggable:true, keyboard:false });
             noteslist.addEventListener('select', function(list) {
                 var note;
                 if (list.selection.length == 1 && (note = notesdata[list.selection[0]])) {
@@ -89,6 +104,25 @@ function rcube_kolab_notes_ui(settings)
                 }
 
                 rcmail.enable_command('delete', me.notebooks[me.selected_list] && me.notebooks[me.selected_list].editable && list.selection.length > 0);
+            })
+            .addEventListener('dragstart', function(e) {
+                folder_drop_target = null;
+                notebookslist.drag_start();
+            })
+            .addEventListener('dragmove', function(e) {
+                folder_drop_target = notebookslist.intersects(rcube_event.get_mouse_pos(e), true);
+            })
+            .addEventListener('dragend', function(e) {
+                notebookslist.drag_end();
+
+                // move dragged notes to this folder
+                if (folder_drop_target) {
+                    noteslist.draglayer.hide();
+                    move_notes(folder_drop_target);
+                    noteslist.clear_selection();
+                    reset_view();
+                }
+                folder_drop_target = null;
             })
             .init();
         }
@@ -179,7 +213,7 @@ function rcube_kolab_notes_ui(settings)
 
         if (me.selected_list) {
             rcmail.enable_command('createnote', true);
-            $('#rcmliknb'+me.selected_list).click();
+            notebookslist.select(me.selected_list)
         }
     }
     this.init = init;
@@ -201,30 +235,21 @@ function rcube_kolab_notes_ui(settings)
     }
 
     /**
-     *
-     */
-    function init_folder_li(id)
-    {
-        $('#rcmliknb'+id).click(function(e){
-            var id = $(this).data('id');
-            rcmail.enable_command('list-edit', 'list-remove', me.notebooks[id].editable);
-            fetch_notes(id);
-            me.selected_list = id;
-        })
-        .dblclick(function(e){
-            // list_edit_dialog($(this).data('id'));
-        })
-        .data('id', id);
-    }
-
-    /**
      * 
      */
     function edit_note(uid, action)
     {
         if (!uid) {
             noteslist.clear_selection();
-            me.selected_note = { list:me.selected_list, uid:null, title:rcmail.gettext('newnote','kolab_notes'), description:'', categories:[] }
+            me.selected_note = {
+                list: me.selected_list,
+                uid: null,
+                title: rcmail.gettext('newnote','kolab_notes'),
+                description: '',
+                categories: [],
+                created: rcmail.gettext('now', 'kolab_notes'),
+                changed: rcmail.gettext('now', 'kolab_notes')
+            }
             render_note(me.selected_note);
         }
         else {
@@ -273,10 +298,9 @@ function rcube_kolab_notes_ui(settings)
         if (rcmail.busy)
             return;
 
-        if (id) {
+        if (id && id != me.selected_list) {
             me.selected_list = id;
-            $('li.selected', rcmail.gui_objects.notebooks).removeClass('selected')
-            $('#rcmliknb'+id).addClass('selected');
+            noteslist.clear_selection();
         }
 
         ui_loading = rcmail.set_busy(true, 'loading');
@@ -599,7 +623,10 @@ function rcube_kolab_notes_ui(settings)
         rcmail.http_post('action', { _data: savedata, _do: savedata.uid?'edit':'new' }, true);
     }
 
-    function delete_note()
+    /**
+     *
+     */
+    function delete_notes()
     {
         if (!noteslist.selection.length) {
             return false;
@@ -623,7 +650,28 @@ function rcube_kolab_notes_ui(settings)
             reset_view();
             update_tagcloud();
         }
+    }
 
+    /**
+     *
+     */
+    function move_notes(list_id)
+    {
+        var rec, id, uids = [];
+        for (var i=0; i < noteslist.selection.length; i++) {
+            id = noteslist.selection[i];
+            rec = notesdata[id];
+            if (rec) {
+                noteslist.remove_row(id);
+                uids.push(rec.uid);
+                delete notesdata[id];
+            }
+        }
+
+        if (uids.length) {
+            saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
+            rcmail.http_post('action', { _data: { uid: uids.join(','), list: me.selected_list, to: list_id }, _do: 'move' }, true);
+        }
     }
 
 }

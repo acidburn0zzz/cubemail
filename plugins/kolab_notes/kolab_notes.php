@@ -364,6 +364,17 @@ class kolab_notes extends rcube_plugin
                 }
                 break;
 
+            case 'move':
+                $uids = explode(',', $note['uid']);
+                foreach ($uids as $uid) {
+                    $note['uid'] = $uid;
+                    if (!($success = $this->move_note($note, $note['to']))) {
+                        $refresh = $this->get_note($note);
+                        break;
+                    }
+                }
+                break;
+
             case 'delete':
                 $uids = explode(',', $note['uid']);
                 foreach ($uids as $uid) {
@@ -408,7 +419,7 @@ class kolab_notes extends rcube_plugin
 
         // moved from another folder
         if ($note['_fromlist'] && ($fromfolder = $this->folders[$note['_fromlist']])) {
-            if (!$fromfolder->move($note['id'], $folder->name))
+            if (!$fromfolder->move($note['uid'], $folder->name))
                 return false;
 
             unset($note['_fromlist']);
@@ -447,6 +458,22 @@ class kolab_notes extends rcube_plugin
         }
 
         return $saved;
+    }
+
+    /**
+     * Move the given note to another folder
+     */
+    function move_note($note, $list_id)
+    {
+        $this->_read_lists();
+        $tofolder = $this->folders[$list_id];
+        $fromfolder = $this->folders[$note['list']];
+
+        if ($fromfolder && $tofolder) {
+            return $fromfolder->move($note['uid'], $tofolder->name);
+        }
+
+        return false;
     }
 
     /**

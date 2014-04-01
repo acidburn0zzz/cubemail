@@ -49,6 +49,7 @@ class kolab_notes_ui
         #$this->plugin->register_handler('plugin.detailview', array($this, 'detailview'));
 
         $this->rc->output->include_script('list.js');
+        $this->rc->output->include_script('treelist.js');
         $this->plugin->include_script('notes.js');
         $this->plugin->include_script('jquery.tagedit.js');
 
@@ -99,7 +100,7 @@ class kolab_notes_ui
                 $class .= ' '.$prop['class_name'];
 
             $items .= html::tag('li', array('id' => 'rcmliknb' . $html_id, 'class' => trim($class)),
-                html::span(array('class' => 'listname', 'title' => $title), Q($prop['listname'])) .
+                html::span(array('class' => 'listname', 'title' => $title), $prop['listname']) .
                 html::span(array('class' => 'count'), '')
             );
         }

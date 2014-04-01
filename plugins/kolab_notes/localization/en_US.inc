@@ -11,6 +11,7 @@ $labels['notags'] = 'No tags';
 $labels['removetag'] = 'Remove tag';
 $labels['created'] = 'Created';
 $labels['changed'] = 'Last Modified';
+$labels['now'] = 'Now';
 
 $labels['savingdata'] = 'Saving data...';
 $labels['recordnotfound'] = 'Record not found';
