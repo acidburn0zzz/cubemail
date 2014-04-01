@@ -27,6 +27,8 @@ class kolab_format_note extends kolab_format
     public $CTYPE = 'application/vnd.kolab+xml';
     public $CTYPEv2 = 'application/x-vnd.kolab.note';
 
+    public static $fulltext_cols = array('title', 'description', 'categories');
+
     protected $objclass = 'Note';
     protected $read_func = 'readNote';
     protected $write_func = 'writeNote';
@@ -112,6 +114,31 @@ class kolab_format_note extends kolab_format
         }
 
         return $tags;
+    }
+
+    /**
+     * Callback for kolab_storage_cache to get words to index for fulltext search
+     *
+     * @return array List of words to save in cache
+     */
+    public function get_words()
+    {
+        $data = '';
+        foreach (self::$fulltext_cols as $col) {
+            // convert HTML content to plain text
+            if ($col == 'description' && preg_match('/<(html|body)(\s[a-z]|>)/', $this->data[$col], $m) && strpos($this->data[$col], '</'.$m[1].'>')) {
+                $converter = new rcube_html2text($this->data[$col], false, false, 0);
+                $val = $converter->get_text();
+            }
+            else {
+                $val = is_array($this->data[$col]) ? join(' ', $this->data[$col]) : $this->data[$col];
+            }
+
+            if (strlen($val))
+                $data .= $val . ' ';
+        }
+
+        return array_filter(array_unique(rcube_utils::normalize_string($data, true)));
     }
 
 }
