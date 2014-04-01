@@ -86,7 +86,7 @@ function rcube_kolab_notes_ui(settings)
         notebookslist.addEventListener('select', function(node) {
             var id = node.id;
             if (me.notebooks[id]) {
-                rcmail.enable_command('list-edit', 'list-remove', me.notebooks[id].editable);
+                rcmail.enable_command('createnote', 'list-edit', 'list-remove', me.notebooks[id].editable);
                 fetch_notes(id);  // sets me.notebooks[id]
             }
         });
@@ -214,7 +214,6 @@ function rcube_kolab_notes_ui(settings)
         tinyMCE.init(editor_conf);
 
         if (me.selected_list) {
-            rcmail.enable_command('createnote', true);
             notebookslist.select(me.selected_list)
         }
     }
@@ -408,15 +407,14 @@ function rcube_kolab_notes_ui(settings)
         }
 
         var list = me.notebooks[data.list] || me.notebooks[me.selected_list];
-            content = $('#notecontent').val(data.description);
-        $('.notetitle', rcmail.gui_objects.noteviewtitle).val(data.title);
+            content = $('#notecontent').val(data.description),
+            readonly = data.readonly || !list.editable;
+        $('.notetitle', rcmail.gui_objects.noteviewtitle).val(data.title).prop('disabled', readonly);
         $('.dates .notecreated', rcmail.gui_objects.noteviewtitle).html(Q(data.created || ''));
         $('.dates .notechanged', rcmail.gui_objects.noteviewtitle).html(Q(data.changed || ''));
         if (data.created || data.changed) {
             $('.dates', rcmail.gui_objects.noteviewtitle).show();
         }
-
-        $(rcmail.gui_objects.noteseditform).show();
 
         // tag-edit line
         var tagline = $('.tagline', rcmail.gui_objects.noteviewtitle).empty().show();
@@ -436,31 +434,41 @@ function rcube_kolab_notes_ui(settings)
         $('.tagline input.tag', rcmail.gui_objects.noteviewtitle).tagedit({
             animSpeed: 100,
             allowEdit: false,
+            allowAdd: !readonly,
+            allowDelete: !readonly,
             checkNewEntriesCaseSensitive: false,
             autocompleteOptions: { source: tags, minLength: 0, noCheck: true },
             texts: { removeLinkTitle: rcmail.gettext('removetag', 'kolab_notes') }
         })
 
-        $('.tagedit-list', rcmail.gui_objects.noteviewtitle)
-            .on('click', function(){ $('.tagline .placeholder').hide(); });
+        if (!readonly) {
+            $('.tagedit-list', rcmail.gui_objects.noteviewtitle)
+                .on('click', function(){ $('.tagline .placeholder').hide(); });
+        }
 
         me.selected_note = data;
         me.selected_note.id = rcmail.html_identifier_encode(data.uid);
         rcmail.enable_command('save', list.editable && !data.readonly);
 
-        var html, node, editor = tinyMCE.get('notecontent');
-        if (editor) {
-            html = data.html || data.description;
+        var html = data.html || data.description;
 
-            // convert plain text to HTML and make URLs clickable
-            if (!data.html || !html.match(/<(html|body)/)) {
-                html = text2html(html);
-            }
+        // convert plain text to HTML and make URLs clickable
+        if (!data.html || !html.match(/<(html|body)/)) {
+            html = text2html(html);
+        }
 
+        var node, editor = tinyMCE.get('notecontent');
+        if (!readonly && editor) {
+            $(rcmail.gui_objects.notesdetailview).hide();
+            $(rcmail.gui_objects.noteseditform).show();
             editor.setContent(html);
             node = editor.getContentAreaContainer().childNodes[0];
             if (node) node.tabIndex = content.get(0).tabIndex;
             editor.getBody().focus();
+        }
+        else {
+            $(rcmail.gui_objects.noteseditform).hide();
+            $(rcmail.gui_objects.notesdetailview).html(html).show();
         }
 
         // Trigger resize (needed for proper editor resizing)
@@ -608,6 +616,7 @@ function rcube_kolab_notes_ui(settings)
         $('.notetitle', rcmail.gui_objects.noteviewtitle).val('');
         $('.tagline, .dates', rcmail.gui_objects.noteviewtitle).hide();
         $(rcmail.gui_objects.noteseditform).hide();
+        $(rcmail.gui_objects.notesdetailview).hide();
         rcmail.enable_command('save', false);
     }
 

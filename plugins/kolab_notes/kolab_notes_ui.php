@@ -46,7 +46,7 @@ class kolab_notes_ui
         $this->plugin->register_handler('plugin.listing', array($this, 'listing'));
         $this->plugin->register_handler('plugin.editform', array($this, 'editform'));
         $this->plugin->register_handler('plugin.notetitle', array($this, 'notetitle'));
-        #$this->plugin->register_handler('plugin.detailview', array($this, 'detailview'));
+        $this->plugin->register_handler('plugin.detailview', array($this, 'detailview'));
 
         $this->rc->output->include_script('list.js');
         $this->rc->output->include_script('treelist.js');
@@ -85,6 +85,7 @@ class kolab_notes_ui
         foreach ($this->plugin->get_lists() as $prop) {
             unset($prop['user_id']);
             $id = $prop['id'];
+            $class = '';
 
             if (!$prop['virtual'])
                 $jsenv[$id] = $prop;
@@ -134,6 +135,13 @@ class kolab_notes_ui
 
         $textarea = new html_textarea(array('name' => 'content', 'id' => 'notecontent', 'cols' => 60, 'rows' => 20, 'tabindex' => 3));
         return html::tag('form', $attrib, $textarea->show(), array_merge(html::$common_attrib, array('action')));
+    }
+
+    public function detailview($attrib)
+    {
+        $attrib += array('id' => 'rcmkolabnotesdetailview');
+        $this->rc->output->add_gui_object('notesdetailview', $attrib['id']);
+        return html::div($attrib, '');
     }
 
     public function notetitle($attrib)

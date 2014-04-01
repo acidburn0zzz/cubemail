@@ -109,12 +109,28 @@
 	background: #f9f9f9;
 }
 
-.notesview #noteform {
+.notesview #noteform,
+.notesview #notedetails {
+	display: none;
 	position: absolute;
 	top: 82px;
 	left: 0;
 	bottom: 41px;
 	width: 100%;
+}
+
+.notesview #notedetails {
+	padding: 8px;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.notesview #notedetails pre {
+	font-family: "Lucida Grande", Verdana,  Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	margin: 0;
 }
 
 .notesview #notecontent {
@@ -227,17 +243,63 @@
 	white-space: nowrap;
 }
 
+.notesview #notebooks li.virtual {
+	height: 12px;
+}
+
 .notesview #notebooks li span.listname {
 	display: block;
 	position: absolute;
 	top: 7px;
 	left: 9px;
-	right: 26px;
+	right: 6px;
 	cursor: default;
 	padding-bottom: 2px;
-	padding-right: 30px;
+	padding-right: 26px;
 	color: #004458;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.notesview #notebooks li.virtual span.listname {
+	color: #aaa;
+	top: 3px;
+}
+
+.notesview #notebooks li.readonly,
+.notesview #notebooks li.shared,
+.notesview #notebooks li.other {
+	background-image: url('folder_icons.png');
+	background-position: right -1000px;
+	background-repeat: no-repeat;
+}
+
+.notesview #notebooks li.readonly {
+	background-position: 98% -21px;
+}
+
+.notesview #notebooks li.other {
+	background-position: 98% -52px;
+}
+
+.notesview #notebooks li.other.readonly {
+	background-position: 98% -77px;
+}
+
+.notesview #notebooks li.shared {
+	background-position: 98% -103px;
+}
+
+.notesview #notebooks li.shared.readonly {
+	background-position: 98% -130px;
+}
+
+.notesview #notebooks li.other.readonly span.listname,
+.notesview #notebooks li.shared.readonly span.listname {
+	padding-right: 36px;
+}
+
+.notesview #notebooks li.selected > a {
+	background-color: transparent;
 }

@@ -160,7 +160,7 @@ class kolab_notes extends rcube_plugin
                 'name' => $fullname,
                 'listname' => $listname,
                 'editname' => $editname,
-                'editable' => !$readionly,
+                'editable' => !$readonly,
                 'norename' => $norename,
                 'parentfolder' => $path_imap,
                 'default' => $folder->default,
