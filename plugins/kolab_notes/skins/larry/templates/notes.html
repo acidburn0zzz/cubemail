@@ -74,6 +74,11 @@
     </ul>
 </div>
 
+<div id="notebookeditform" class="uidialog">
+    <roundcube:container name="notebookeditform" id="notebookeditform" />
+    <roundcube:label name="loading" />
+</div>
+
 
 <script type="text/javascript">
 
@@ -82,6 +87,10 @@ var UI = new rcube_mail_ui();
 
 $(document).ready(function(e){
     UI.init();
+
+    rcmail.addEventListener('kolab_notes_editform_load', function(e){
+        UI.init_tabs($('#notebookeditform > form').addClass('propform tabbed'));
+    })
 
     new rcube_splitter({ id:'notesviewsplitter', p1:'#sidebar', p2:'#mainview-right',
         orientation:'v', relative:true, start:240, min:180, size:16, offset:2, render:layout_view }).init();

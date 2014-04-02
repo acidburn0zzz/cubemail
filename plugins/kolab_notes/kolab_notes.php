@@ -71,14 +71,14 @@ class kolab_notes extends rcube_plugin
             $this->register_action('fetch', array($this, 'notes_fetch'));
             $this->register_action('get',   array($this, 'note_record'));
             $this->register_action('action', array($this, 'note_action'));
+            $this->register_action('list',  array($this, 'list_action'));
         }
 
-        if (!$this->rc->output->ajax_call && !$this->rc->output->env['framed']) {
+        if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || $args['action'] == 'folder-acl')) {
             require_once($this->home . '/kolab_notes_ui.php');
             $this->ui = new kolab_notes_ui($this);
             $this->ui->init();
         }
-        
     }
 
     /**
@@ -514,6 +514,89 @@ class kolab_notes extends rcube_plugin
             return false;
 
         return $folder->delete($note['uid'], $force);
+    }
+
+    /**
+     * Handler for client requests to list (aka folder) actions
+     */
+    public function list_action()
+    {
+        $action = rcube_utils::get_input_value('_do', RCUBE_INPUT_GPC);
+        $list = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC, true);
+        $success = $update_cmd = false;
+
+        switch ($action) {
+            case 'form-new':
+            case 'form-edit':
+                $this->_read_lists();
+                echo $this->ui->list_editform($action, $this->lists[$list['id']], $this->folders[$list['id']]);
+                exit;
+
+            case 'new':
+                $list['type'] = 'note';
+                $list['subscribed'] = true;
+                $folder = kolab_storage::folder_update($list);
+
+                if ($folder === false) {
+                    $save_error = $this->gettext(kolab_storage::$last_error);
+                }
+                else {
+                    $success = true;
+                    $update_cmd = 'plugin.update_list';
+                    $list['id'] = kolab_storage::folder_id($folder);
+                    $list['_reload'] = true;
+                }
+                break;
+
+            case 'edit':
+                $this->_read_lists();
+                $oldparent = $this->lists[$list['id']]['parentfolder'];
+                $newfolder = kolab_storage::folder_update($list);
+
+                if ($newfolder === false) {
+                  $save_error = $this->gettext(kolab_storage::$last_error);
+                }
+                else {
+                    $success = true;
+                    $update_cmd = 'plugin.update_list';
+                    $list['newid'] = kolab_storage::folder_id($newfolder);
+                    $list['_reload'] = $list['parent'] != $oldparent;
+
+                    // compose the new display name
+                    $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
+                    $path_imap = explode($delim, $newfolder);
+                    $list['name'] = kolab_storage::object_name($newfolder);
+                    $list['editname'] = rcube_charset::convert(array_pop($path_imap), 'UTF7-IMAP');
+                    $list['listname'] = str_repeat('&nbsp;&nbsp;&nbsp;', count($path_imap)) . '&raquo; ' . $list['editname'];
+                }
+                break;
+
+            case 'delete':
+                $this->_read_lists();
+                $folder = $this->folders[$list['id']];
+                if ($folder && kolab_storage::folder_delete($folder->name)) {
+                    $success = true;
+                    $update_cmd = 'plugin.destroy_list';
+                }
+                else {
+                    $save_error = $this->gettext(kolab_storage::$last_error);
+                }
+                break;
+        }
+
+        $this->rc->output->command('plugin.unlock_saving');
+
+        if ($success) {
+            $this->rc->output->show_message('successfullysaved', 'confirmation');
+
+            if ($update_cmd) {
+                $this->rc->output->command($update_cmd, $list);
+            }
+        }
+        else {
+            $error_msg = $this->gettext('errorsaving') . ($save_error ? ': ' . $save_error :'');
+            $this->rc->output->show_message($error_msg, 'error');
+        }
     }
 
     /**

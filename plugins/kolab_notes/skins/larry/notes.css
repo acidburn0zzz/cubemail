@@ -83,6 +83,8 @@
 .notesview #kolabnoteslist .title {
 	display: block;
 	padding: 4px 8px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .notesview #kolabnoteslist .date {
@@ -302,4 +304,20 @@
 
 .notesview #notebooks li.selected > a {
 	background-color: transparent;
+}
+
+.notesview .uidialog .tabbed {
+	margin-top: -12px;
+}
+
+.notesview .uidialog .propform fieldset.tab {
+	display: block;
+	background: #efefef;
+	margin-top: 0.5em;
+	padding: 0.5em 1em;
+	min-height: 290px;
+}
+
+.notesview .uidialog .propform #noteslist-name {
+	width: 20em;
 }

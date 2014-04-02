@@ -31,6 +31,8 @@ class kolab_notes_ui
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/notes.css');
 
+        $this->plugin->register_action('folder-acl', array($this, 'folder_acl'));
+
         $this->ready = true;
   }
 
@@ -58,6 +60,10 @@ class kolab_notes_ui
         // TODO: load config options and user prefs relevant for the UI
         $settings = array();
 
+        if (!empty($_REQUEST['_list'])) {
+            $settings['selected_list'] = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC);
+        }
+
         // TinyMCE uses two-letter lang codes, with exception of Chinese
         $lang = strtolower($_SESSION['language']);
         $lang = strpos($lang, 'zh_') === 0 ? str_replace('_', '-', $lang) : substr($lang, 0, 2);
@@ -74,6 +80,8 @@ class kolab_notes_ui
         );
 
         $this->rc->output->set_env('kolab_notes_settings', $settings);
+
+        $this->rc->output->add_label('save','cancel');
     }
 
     public function folders($attrib)
@@ -162,5 +170,138 @@ class kolab_notes_ui
 
         return html::div($attrib, $html);
     }
+
+    /**
+     * Render edit for notes lists (folders)
+     */
+    public function list_editform($action, $list, $folder)
+    {
+        if (is_object($folder)) {
+            $folder_name = $folder->name; // UTF7
+        }
+        else {
+            $folder_name = '';
+        }
+
+        $hidden_fields[] = array('name' => 'oldname', 'value' => $folder_name);
+
+        $storage = $this->rc->get_storage();
+        $delim   = $storage->get_hierarchy_delimiter();
+        $form   = array();
+
+        if (strlen($folder_name)) {
+            $options = $storage->folder_info($folder_name);
+
+            $path_imap = explode($delim, $folder_name);
+            array_pop($path_imap);  // pop off name part
+            $path_imap = implode($path_imap, $delim);
+        }
+        else {
+            $path_imap = '';
+            $options = array();
+        }
+
+        // General tab
+        $form['properties'] = array(
+            'name' => $this->rc->gettext('properties'),
+            'fields' => array(),
+        );
+
+        // folder name (default field)
+        $input_name = new html_inputfield(array('name' => 'name', 'id' => 'noteslist-name', 'size' => 20));
+        $form['properties']['fields']['name'] = array(
+            'label' => $this->plugin->gettext('listname'),
+            'value' => $input_name->show($list['editname'], array('disabled' => ($options['norename'] || $options['protected']))),
+            'id' => 'folder-name',
+        );
+
+        // prevent user from moving folder
+        if (!empty($options) && ($options['norename'] || $options['protected'])) {
+            $hidden_fields[] = array('name' => 'parent', 'value' => $path_imap);
+        }
+        else {
+            $select = kolab_storage::folder_selector('note', array('name' => 'parent'), $folder_name);
+            $form['properties']['fields']['path'] = array(
+                'label' => $this->plugin->gettext('parentfolder'),
+                'value' => $select->show(strlen($folder_name) ? $path_imap : ''),
+            );
+        }
+
+        // add folder ACL tab
+        if ($action != 'form-new') {
+            $form['sharing'] = array(
+                'name'    => Q($this->plugin->gettext('tabsharing')),
+                'content' => html::tag('iframe', array(
+                    'src' => $this->rc->url(array('_action' => 'folder-acl', '_folder' => $folder_name, 'framed' => 1)),
+                    'width' => '100%',
+                    'height' => 280,
+                    'border' => 0,
+                    'style' => 'border:0'),
+                '')
+            );
+        }
+
+        $form_html = '';
+        if (is_array($hidden_fields)) {
+            foreach ($hidden_fields as $field) {
+                $hiddenfield = new html_hiddenfield($field);
+                $form_html .= $hiddenfield->show() . "\n";
+            }
+        }
+
+        // create form output
+        foreach ($form as $tab) {
+            if (is_array($tab['fields']) && empty($tab['content'])) {
+                $table = new html_table(array('cols' => 2));
+                foreach ($tab['fields'] as $col => $colprop) {
+                    $colprop['id'] = '_'.$col;
+                    $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
+
+                    $table->add('title', html::label($colprop['id'], Q($label)));
+                    $table->add(null, $colprop['value']);
+                }
+                $content = $table->show();
+            }
+            else {
+                $content = $tab['content'];
+            }
+
+            if (!empty($content)) {
+                $form_html .= html::tag('fieldset', null, html::tag('legend', null, Q($tab['name'])) . $content) . "\n";
+            }
+        }
+
+        return html::tag('form', array('action' => "#", 'method' => "post", 'id' => "noteslistpropform"), $form_html);
+    }
+
+    /**
+     * Handler to render ACL form for a notes folder
+     */
+    public function folder_acl()
+    {
+        $this->plugin->require_plugin('acl');
+        $this->rc->output->add_handler('folderacl', array($this, 'folder_acl_form'));
+        $this->rc->output->send('kolab_notes.kolabacl');
+    }
+
+    /**
+     * Handler for ACL form template object
+     */
+    public function folder_acl_form()
+    {
+        $folder = rcube_utils::get_input_value('_folder', RCUBE_INPUT_GPC);
+
+        if (strlen($folder)) {
+            $storage = $this->rc->get_storage();
+            $options = $storage->folder_info($folder);
+
+            // get sharing UI from acl plugin
+            $acl = $this->rc->plugins->exec_hook('folder_form',
+                array('form' => array(), 'options' => $options, 'name' => $folder));
+        }
+
+        return $acl['form']['sharing']['content'] ?: html::div('hint', $this->plugin->gettext('aclnorights'));
+    }
+
 }
 
