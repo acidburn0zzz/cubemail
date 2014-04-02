@@ -36,8 +36,8 @@ function rcube_kolab_notes_ui(settings)
     var me = this;
 
     /*  public members  */
-    this.selected_list = settings.selected_list;
-    this.selected_note = settings.selected_id;
+    this.selected_list;
+    this.selected_note;
     this.notebooks = rcmail.env.kolab_notebooks || {};
 
     /**
@@ -46,7 +46,9 @@ function rcube_kolab_notes_ui(settings)
     function init()
     {
         // register button commands
-        rcmail.register_command('createnote', function(){ edit_note(null, 'new'); }, false);
+        rcmail.register_command('createnote', function(){
+            warn_unsaved_changes(function(){ edit_note(null, 'new'); })
+        }, false);
         rcmail.register_command('list-create', function(){ list_edit_dialog(null); }, true);
         rcmail.register_command('list-edit', function(){ list_edit_dialog(me.selected_list); }, false);
         rcmail.register_command('list-remove', function(){ list_remove(me.selected_list); }, false);
@@ -73,8 +75,8 @@ function rcube_kolab_notes_ui(settings)
         // initialize folder selectors
         var li, id;
         for (id in me.notebooks) {
-            if (me.notebooks[id].editable && (!me.selected_list || (me.notebooks[id].active && !me.notebooks[me.selected_list].active))) {
-                me.selected_list = id;
+            if (me.notebooks[id].editable && (!settings.selected_list || (me.notebooks[id].active && !me.notebooks[me.selected_list].active))) {
+                settings.selected_list = id;
             }
         }
 
@@ -88,9 +90,15 @@ function rcube_kolab_notes_ui(settings)
         });
         notebookslist.addEventListener('select', function(node) {
             var id = node.id;
-            if (me.notebooks[id]) {
-                rcmail.enable_command('createnote', 'list-edit', 'list-remove', me.notebooks[id].editable);
-                fetch_notes(id);  // sets me.notebooks[id]
+            if (me.notebooks[id] && id != me.selected_list) {
+                warn_unsaved_changes(function(){
+                    rcmail.enable_command('createnote', 'list-edit', 'list-remove', me.notebooks[id].editable);
+                    fetch_notes(id);  // sets me.selected_list
+                },
+                function(){
+                    // restore previous selection
+                    notebookslist.select(me.selected_list);
+                });
             }
         });
 
@@ -99,14 +107,20 @@ function rcube_kolab_notes_ui(settings)
             noteslist = new rcube_list_widget(rcmail.gui_objects.noteslist,
                 { multiselect:true, draggable:true, keyboard:false });
             noteslist.addEventListener('select', function(list) {
-                var note;
-                if (list.selection.length == 1 && (note = notesdata[list.selection[0]])) {
-                    // TODO: check for unsaved changes and warn
-                    edit_note(note.uid, 'edit');
-                }
-                else {
-                    reset_view();
-                }
+                var selection_changed = list.selection.length != 1 || !me.selected_note || list.selection[0] != me.selected_note.id;
+                selection_changed && warn_unsaved_changes(function(){
+                    var note;
+                    if (noteslist.selection.length == 1 && (note = notesdata[noteslist.selection[0]])) {
+                        edit_note(note.uid, 'edit');
+                    }
+                    else {
+                        reset_view();
+                    }
+                },
+                function(){
+                    // TODO: previous restore selection
+                    list.select(me.selected_note.id);
+                });
 
                 rcmail.enable_command('delete', me.notebooks[me.selected_list] && me.notebooks[me.selected_list].editable && list.selection.length > 0);
             })
@@ -216,8 +230,8 @@ function rcube_kolab_notes_ui(settings)
 
         tinyMCE.init(editor_conf);
 
-        if (me.selected_list) {
-            notebookslist.select(me.selected_list)
+        if (settings.selected_list) {
+            notebookslist.select(settings.selected_list)
         }
     }
     this.init = init;
@@ -497,7 +511,14 @@ function rcube_kolab_notes_ui(settings)
             }
 
             if (me.selected_note && me.selected_note.uid == note.uid && !match) {
-                noteslist.clear_selection();
+                warn_unsaved_changes(function(){
+                    me.selected_note = null;
+                    noteslist.clear_selection();
+                }, function(){
+                    tagsfilter = [];
+                    filter_notes();
+                    update_tagcloud();
+                });
             }
         }
     }
@@ -532,6 +553,10 @@ function rcube_kolab_notes_ui(settings)
         // select the single result
         if (data.data.length == 1) {
             noteslist.select(data.data[0].id);
+        }
+        else if (settings.selected_id) {
+            noteslist.select(settings.selected_id);
+            delete settings.selected_id;
         }
         else if (me.selected_note && notesdata[me.selected_note.id]) {
             noteslist.select(me.selected_note.id);
@@ -609,6 +634,9 @@ function rcube_kolab_notes_ui(settings)
             node = editor.getContentAreaContainer().childNodes[0];
             if (node) node.tabIndex = content.get(0).tabIndex;
             editor.getBody().focus();
+
+            // read possibly re-formatted content back from editor for later comparison
+            me.selected_note.description = editor.getContent({ format:'html' })
         }
         else {
             $(rcmail.gui_objects.noteseditform).hide();
@@ -715,6 +743,9 @@ function rcube_kolab_notes_ui(settings)
             if (tagsfilter && tagsfilter.length && $.inArray(tag, tagsfilter)) {
                 elem.addClass('selected');
             }
+            else {
+                elem.removeClass('selected');
+            }
         });
     }
 
@@ -727,7 +758,11 @@ function rcube_kolab_notes_ui(settings)
 
         var row, is_new = notesdata[data.id] == undefined
         notesdata[data.id] = data;
-        render_note(data);
+
+        if (is_new || me.selected_note && data.id == me.selected_note.id) {
+            render_note(data);
+            render_tagslist(data.categories || []);
+        }
 
         // add list item on top
         if (is_new) {
@@ -747,8 +782,6 @@ function rcube_kolab_notes_ui(settings)
             $('.date', row.obj).html(Q(data.changed || ''));
             // TODO: move to top
         }
-
-        render_tagslist(data.categories || []);
     }
 
     /**
@@ -773,6 +806,30 @@ function rcube_kolab_notes_ui(settings)
             return false;
         }
 
+        var savedata = get_save_data();
+
+        // do some input validation
+        if (savedata.title == '') {
+            alert(rcmail.gettext('entertitle', 'kolab_notes'));
+            $('.notetitle', rcmail.gui_objects.noteviewtitle).focus();
+            return false;
+        }
+
+        if (check_change_state(savedata)) {
+            rcmail.lock_form(rcmail.gui_objects.noteseditform, true);
+            saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
+            rcmail.http_post('action', { _data: savedata, _do: savedata.uid?'edit':'new' }, true);
+        }
+        else {
+            rcmail.display_message(rcmail.get_label('nochanges', 'kolab_notes'), 'info');
+        }
+    }
+
+    /**
+     * Collect updated note properties from edit form for saving
+     */
+    function get_save_data()
+    {
         var editor = tinyMCE.get('notecontent');
         var savedata = {
             title: trim($('.notetitle', rcmail.gui_objects.noteviewtitle).val()),
@@ -793,15 +850,90 @@ function rcube_kolab_notes_ui(settings)
             savedata.categories.push(newtag);
         }
 
-        // do some input validation
-        if (savedata.title == '') {
-            alert(rcmail.gettext('entertitle', 'kolab_notes'))
+        return savedata;
+    }
+
+    /**
+     * Check if the currently edited note record was changed
+     */
+    function check_change_state(data)
+    {
+        if (!me.selected_note || me.selected_note.readonly || !me.notebooks[me.selected_note.list || me.selected_list].editable) {
             return false;
         }
 
-        rcmail.lock_form(rcmail.gui_objects.noteseditform, true);
-        saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
-        rcmail.http_post('action', { _data: savedata, _do: savedata.uid?'edit':'new' }, true);
+        var savedata = data || get_save_data();
+
+        return savedata.title != me.selected_note.title
+            || savedata.description != me.selected_note.description
+            || savedata.categories.join(',') != (me.selected_note.categories || []).join(',');
+    }
+
+    /**
+     * Check for unsaved changes and warn the user
+     */
+    function warn_unsaved_changes(ok, nok)
+    {
+        if (typeof ok != 'function')
+            ok = function(){ };
+        if (typeof nok != 'function')
+            nok = function(){ };
+
+        if (check_change_state()) {
+            var dialog, buttons = [];
+
+            buttons.push({
+                text: rcmail.gettext('discard', 'kolab_notes'),
+                click: function() {
+                    dialog.dialog('close');
+                    ok();
+                }
+            });
+
+            buttons.push({
+                text: rcmail.gettext('save'),
+                click: function() {
+                    save_note();
+                    dialog.dialog('close');
+                    ok();
+                }
+            });
+
+            buttons.push({
+                text: rcmail.gettext('abort', 'kolab_notes'),
+                click: function() {
+                    dialog.dialog('close');
+                    nok();
+                }
+            });
+
+            var options = {
+                width: 460,
+                resizable: false,
+                closeOnEscape: false,
+                dialogClass: 'warning',
+                open: function(event, ui) {
+                    $(this).parent().find('.ui-dialog-titlebar-close').hide();
+                    $(this).parent().find('.ui-button').first().addClass('mainaction').focus();
+                }
+            };
+
+            // open jquery UI dialog
+            dialog = rcmail.show_popup_dialog(
+                rcmail.gettext('discardunsavedchanges', 'kolab_notes'),
+                rcmail.gettext('unsavedchanges', 'kolab_notes'),
+                buttons,
+                options
+            );
+
+            return false;
+        }
+
+        if (typeof ok == 'function') {
+            ok();
+        }
+
+        return true;
     }
 
     /**
