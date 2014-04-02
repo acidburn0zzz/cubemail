@@ -446,10 +446,15 @@ function rcube_kolab_notes_ui(settings)
             if (search_request == id)
                 return;
 
-            search_request = id;
-            search_query = q;
+            warn_unsaved_changes(function(){
+                search_request = id;
+                search_query = q;
 
-            fetch_notes();
+                fetch_notes();
+            },
+            function(){
+                reset_search();
+            });
         }
         else {  // empty search input equals reset
             reset_search();
