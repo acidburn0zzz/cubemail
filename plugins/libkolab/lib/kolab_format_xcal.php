@@ -222,7 +222,7 @@ abstract class kolab_format_xcal extends kolab_format
             $alarm = $valarms->get($i);
             $type = $alarm_types[$alarm->type()];
 
-            if ($type == 'DISPLAY' || $type == 'EMAIL') {  // only DISPLAY and EMAIL alarms are supported
+            if ($type == 'DISPLAY' || $type == 'EMAIL' || $type == 'AUDIO') {  // only some alarms are supported
                 $valarm = array(
                     'action' => $type,
                     'summary' => $alarm->summary(),
@@ -236,6 +236,10 @@ abstract class kolab_format_xcal extends kolab_format
                         $cr = $attvec->get($j);
                         $valarm['attendees'][] = $cr->email();
                     }
+                }
+                else if ($type == 'AUDIO') {
+                    $attach = $alarm->audioFile();
+                    $valarm['uri'] = $attach->uri();
                 }
 
                 if ($start = self::php_datetime($alarm->start())) {
@@ -451,7 +455,13 @@ abstract class kolab_format_xcal extends kolab_format
                         $recipients
                     );
                 }
+                else if ($valarm['action'] == 'AUDIO') {
+                    $attach = new Attachment;
+                    $attach->setUri($valarm['uri'] ?: 'null', 'unknown');
+                    $alarm = new Alarm($attach);
+                }
                 else {
+                    // action == DISPLAY
                     $alarm = new Alarm(strval($valarm['summary'] ?: $object['title']));
                 }
 

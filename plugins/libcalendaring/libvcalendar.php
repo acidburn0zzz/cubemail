@@ -615,6 +615,14 @@ class libvcalendar implements Iterator
                 case 'ATTENDEE':
                     $alarm['attendees'][] = preg_replace('/^mailto:/i', '', $prop->value);
                     break;
+
+                case 'ATTACH':
+                    $params = self::parameters_array($prop);
+                    if (strlen($prop->value) && (preg_match('/^[a-z]+:/', $prop->value) || strtoupper($params['VALUE']) == 'URI')) {
+                        // we only support URI-type of attachments here
+                        $alarm['uri'] = $prop->value;
+                    }
+                    break;
                 }
             }
 
@@ -1005,6 +1013,9 @@ class libvcalendar implements Iterator
                 if ($alarm['duration']) {
                     $va->add('DURATION', $alarm['duration']);
                     $va->add('REPEAT', intval($alarm['repeat']));
+                }
+                if ($alarm['uri']) {
+                    $va->add('ATTACH', $alarm['uri'], array('VALUE' => 'URI'));
                 }
                 $ve->add($va);
             }

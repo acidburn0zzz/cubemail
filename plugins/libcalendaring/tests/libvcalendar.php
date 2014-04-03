@@ -246,8 +246,9 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('-M', $alarm[1], "Alarm unit");
 
         $this->assertEquals(1, count($event['valarms']), "Ignore invalid alarm blocks");
-        $this->assertEquals('AUDIO', $event['valarms'][0]['action'],  "Full alarm item (action)");
+        $this->assertEquals('AUDIO', $event['valarms'][0]['action'],   "Full alarm item (action)");
         $this->assertEquals('-PT45M', $event['valarms'][0]['trigger'], "Full alarm item (trigger)");
+        $this->assertEquals('Basso',  $event['valarms'][0]['uri'],     "Full alarm item (attachment)");
     }
 
     /**
