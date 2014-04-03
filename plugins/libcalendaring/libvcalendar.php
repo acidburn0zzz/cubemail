@@ -588,7 +588,13 @@ class libvcalendar implements Iterator
                     }
                     if (!$trigger && ($values = libcalendaring::parse_alaram_value($prop->value))) {
                         $trigger = $values[2];
+                    }
+
+                    if (!$alarm['trigger']) {
                         $alarm['trigger'] = rtrim(preg_replace('/([A-Z])0[WDHMS]/', '\\1', $prop->value), 'T');
+                        // if all 0-values have been stripped, assume 'at time'
+                        if ($alarm['trigger'] == 'P')
+                            $alarm['trigger'] = 'PT0S';
                     }
                     break;
 
@@ -612,10 +618,12 @@ class libvcalendar implements Iterator
                 }
             }
 
-            if ($trigger && strtoupper($action) != 'NONE') {
-                if (!$event['alarms']) // store first alarm in legacy property
+            if ($action != 'NONE') {
+                if ($trigger && !$event['alarms']) // store first alarm in legacy property
                     $event['alarms'] = $trigger . ':' . $action;
-                $event['valarms'][] = $alarm;
+
+                if ($alarm['trigger'])
+                    $event['valarms'][] = $alarm;
             }
         }
 
