@@ -238,7 +238,12 @@ abstract class kolab_format_xcal extends kolab_format
                     else if ($h = $offset->hours())     $time  .= $h . 'H';
                     else if ($m = $offset->minutes())   $time  .= $m . 'M';
                     else if ($s = $offset->seconds())   $time  .= $s . 'S';
-                    else continue;
+
+                    // assume 'at event time'
+                    if (empty($value) && empty($time)) {
+                        $prefix = '';
+                        $time = '0S';
+                    }
 
                     $object['alarms'] = $prefix . $value . $time;
                     $valarm['trigger'] = $prefix . 'P' . $value . ($time ? 'T' . $time : '');
@@ -423,11 +428,11 @@ abstract class kolab_format_xcal extends kolab_format
         $valarms = new vectoralarm;
         if ($object['valarms']) {
             foreach ($object['valarms'] as $valarm) {
-                if (!array_key_exists($valarm['type'], $this->alarm_type_map)) {
+                if (!array_key_exists($valarm['action'], $this->alarm_type_map)) {
                     continue;  // skip unknown alarm types
                 }
 
-                if ($valarm['type'] == 'EMAIL') {
+                if ($valarm['action'] == 'EMAIL') {
                     $recipients = new vectorcontactref;
                     foreach (($valarm['attendees'] ?: array($object['_owner'])) as $email) {
                         $recipients->push(new ContactReference(ContactReference::EmailReference, $email));
@@ -448,11 +453,12 @@ abstract class kolab_format_xcal extends kolab_format
                 else {
                     try {
                         $prefix = $valarm['trigger'][0];
-                        $period = new DateInterval(preg_replace('/[0-9PTWDHMS]/', '', $valarm['trigger']));
+                        $period = new DateInterval(preg_replace('/[^0-9PTWDHMS]/', '', $valarm['trigger']));
                         $duration = new Duration($period->d, $period->h, $period->i, $period->s, $prefix == '-');
                     }
                     catch (Exception $e) {
                         // skip alarm with invalid trigger values
+                        rcube::raise_error($e, true);
                         continue;
                     }
 
