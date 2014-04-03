@@ -35,8 +35,16 @@ SUMMARY:Alarms test
 TRANSP:OPAQUE
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:This is an event reminder
+DESCRIPTION:This is the first event reminder
 TRIGGER:-P0DT0H30M0S
+END:VALARM
+BEGIN:VALARM
+ACTION:EMAIL
+DESCRIPTION:This is an event reminder
+TRIGGER:-P1D
+ATTENDEE:mailto:reminder-recipient@example.org
+SUMMARY:This is the reminder message
+DESCRIPTION:This is the second event reminder
 END:VALARM
 END:VEVENT
 

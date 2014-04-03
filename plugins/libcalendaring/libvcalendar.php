@@ -575,6 +575,7 @@ class libvcalendar implements Iterator
         foreach ($ve->select('VALARM') as $valarm) {
             $action = 'DISPLAY';
             $trigger = null;
+            $alarm = array();
 
             foreach ($valarm->children as $prop) {
                 switch ($prop->name) {
@@ -582,22 +583,39 @@ class libvcalendar implements Iterator
                     foreach ($prop->parameters as $param) {
                         if ($param->name == 'VALUE' && $param->value == 'DATE-TIME') {
                             $trigger = '@' . $prop->getDateTime()->format('U');
+                            $alarm['trigger'] = $prop->getDateTime();
                         }
                     }
                     if (!$trigger && ($values = libcalendaring::parse_alaram_value($prop->value))) {
                         $trigger = $values[2];
+                        $alarm['trigger'] = rtrim(preg_replace('/([A-Z])0[WDHMS]/', '\\1', $prop->value), 'T');
                     }
                     break;
 
                 case 'ACTION':
-                    $action = $prop->value;
+                    $action = $alarm['action'] = strtoupper($prop->value);
+                    break;
+
+                case 'SUMMARY':
+                case 'DESCRIPTION':
+                case 'DURATION':
+                    $alarm[strtolower($prop->name)] = self::convert_string($prop);
+                    break;
+
+                case 'REPEAT':
+                    $alarm['repeat'] = intval($prop->value);
+                    break;
+
+                case 'ATTENDEE':
+                    $alarm['attendees'][] = preg_replace('/^mailto:/i', '', $prop->value);
                     break;
                 }
             }
 
             if ($trigger && strtoupper($action) != 'NONE') {
-                $event['alarms'] = $trigger . ':' . $action;
-                break;
+                if (!$event['alarms']) // store first alarm in legacy property
+                    $event['alarms'] = $trigger . ':' . $action;
+                $event['valarms'][] = $alarm;
             }
         }
 
@@ -954,7 +972,37 @@ class libvcalendar implements Iterator
                 $ve->add(self::datetime_prop('COMPLETED', $event['changed'] ?: new DateTime('now - 1 hour'), true));
         }
 
-        if ($event['alarms']) {
+        if ($event['valarms']) {
+            foreach ($event['valarms'] as $alarm) {
+                $va = VObject\Component::create('VALARM');
+                $va->action = $alarm['action'];
+                if ($alarm['trigger'] instanceof DateTime) {
+                    $va->add(self::datetime_prop('TRIGGER', $alarm['trigger'], true));
+                }
+                else {
+                    $va->add('TRIGGER', $alarm['trigger']);
+                }
+
+                if ($alarm['action'] == 'EMAIL') {
+                    foreach ((array)$alarm['attendees'] as $attendee) {
+                        $va->add('ATTENDEE', 'mailto:' . $attendee);
+                    }
+                }
+                if ($alarm['description']) {
+                    $va->add('DESCRIPTION', $alarm['description'] ?: $event['title']);
+                }
+                if ($alarm['summary']) {
+                    $va->add('SUMMARY', $alarm['summary']);
+                }
+                if ($alarm['duration']) {
+                    $va->add('DURATION', $alarm['duration']);
+                    $va->add('REPEAT', intval($alarm['repeat']));
+                }
+                $ve->add($va);
+            }
+        }
+        // legacy support
+        else if ($event['alarms']) {
             $va = VObject\Component::create('VALARM');
             list($trigger, $va->action) = explode(':', $event['alarms']);
             $val = libcalendaring::parse_alaram_value($trigger);

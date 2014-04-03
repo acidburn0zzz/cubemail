@@ -217,27 +217,59 @@ abstract class kolab_format_xcal extends kolab_format
         // read alarm
         $valarms = $this->obj->alarms();
         $alarm_types = array_flip($this->alarm_type_map);
+        $object['valarms'] = array();
         for ($i=0; $i < $valarms->size(); $i++) {
             $alarm = $valarms->get($i);
             $type = $alarm_types[$alarm->type()];
 
             if ($type == 'DISPLAY' || $type == 'EMAIL') {  // only DISPLAY and EMAIL alarms are supported
+                $valarm = array(
+                    'action' => $type,
+                    'summary' => $alarm->summary(),
+                    'description' => $alarm->description(),
+                );
+
+                if ($type == 'EMAIL') {
+                    $valarm['attendees'] = array();
+                    $attvec = $this->obj->attendees();
+                    for ($j=0; $j < $attvec->size(); $j++) {
+                        $cr = $attvec->get($j);
+                        $valarm['attendees'][] = $cr->email();
+                    }
+                }
+
                 if ($start = self::php_datetime($alarm->start())) {
                     $object['alarms'] = '@' . $start->format('U');
+                    $valarm['trigger'] = $start;
                 }
                 else if ($offset = $alarm->relativeStart()) {
-                    $value = $alarm->relativeTo() == kolabformat::End ? '+' : '-';
+                    $prefix = $alarm->relativeTo() == kolabformat::End ? '+' : '-';
+                    $value = $time = '';
                     if      ($w = $offset->weeks())     $value .= $w . 'W';
                     else if ($d = $offset->days())      $value .= $d . 'D';
-                    else if ($h = $offset->hours())     $value .= $h . 'H';
-                    else if ($m = $offset->minutes())   $value .= $m . 'M';
-                    else if ($s = $offset->seconds())   $value .= $s . 'S';
+                    else if ($h = $offset->hours())     $time  .= $h . 'H';
+                    else if ($m = $offset->minutes())   $time  .= $m . 'M';
+                    else if ($s = $offset->seconds())   $time  .= $s . 'S';
                     else continue;
 
-                    $object['alarms'] = $value;
+                    $object['alarms'] = $prefix . $value . $time;
+                    $valarm['trigger'] = $prefix . 'P' . $value . ($time ? 'T' . $time : '');
                 }
-                $object['alarms']  .= ':' . $type;
-                break;
+
+                // read alarm duration and repeat properties
+                if (($duration = $alarm->duration()) && $duration->isValid()) {
+                    $value = $time = '';
+                    if      ($w = $duration->weeks())     $value .= $w . 'W';
+                    else if ($d = $duration->days())      $value .= $d . 'D';
+                    else if ($h = $duration->hours())     $time  .= $h . 'H';
+                    else if ($m = $duration->minutes())   $time  .= $m . 'M';
+                    else if ($s = $duration->seconds())   $time  .= $s . 'S';
+                    $valarm['duration'] = 'P' . $value . ($time ? 'T' . $time : '');
+                    $valarm['repeat'] = $alarm->numrepeat();
+                }
+
+                $object['alarms']  .= ':' . $type;  // legacy property
+                $object['valarms'][] = array_filter($valarm);
             }
         }
 
@@ -397,7 +429,60 @@ abstract class kolab_format_xcal extends kolab_format
 
         // save alarm
         $valarms = new vectoralarm;
-        if ($object['alarms']) {
+        if ($object['valarms']) {
+            foreach ($object['valarms'] as $valarm) {
+                if (!array_key_exists($valarm['type'], $this->alarm_type_map)) {
+                    continue;  // skip unknown alarm types
+                }
+
+                if ($valarm['type'] == 'EMAIL') {
+                    $recipients = new vectorcontactref;
+                    foreach (($valarm['attendees'] ?: array($object['_owner'])) as $email) {
+                        $recipients->push(new ContactReference(ContactReference::EmailReference, $email));
+                    }
+                    $alarm = new Alarm(
+                        strval($valarm['summary'] ?: $object['title']),
+                        strval($valarm['description'] ?: $object['description']),
+                        $recipients
+                    );
+                }
+                else {
+                    $alarm = new Alarm(strval($valarm['summary'] ?: $object['title']));
+                }
+
+                if (is_object($valarm['trigger']) && $valarm['trigger'] instanceof DateTime) {
+                    $alarm->setStart(self::get_datetime($valarm['trigger'], new DateTimeZone('UTC')));
+                }
+                else {
+                    try {
+                        $prefix = $valarm['trigger'][0];
+                        $period = new DateInterval(preg_replace('/[0-9PTWDHMS]/', '', $valarm['trigger']));
+                        $duration = new Duration($period->d, $period->h, $period->i, $period->s, $prefix == '-');
+                    }
+                    catch (Exception $e) {
+                        // skip alarm with invalid trigger values
+                        continue;
+                    }
+
+                    $alarm->setRelativeStart($duration, $prefix == '-' ? kolabformat::Start : kolabformat::End);
+                }
+
+                if ($valarm['duration']) {
+                    try {
+                        $d = new DateInterval($valarm['duration']);
+                        $duration = new Duration($d->d, $d->h, $d->i, $d->s);
+                        $alarm->setDuration($duration, intval($valarm['repeat']));
+                    }
+                    catch (Exception $e) {
+                        // ignore
+                    }
+                }
+
+                $valarms->push($alarm);
+            }
+        }
+        // legacy support
+        else if ($object['alarms']) {
             list($offset, $type) = explode(":", $object['alarms']);
 
             if ($type == 'EMAIL' && !empty($object['_owner'])) {  // email alarms implicitly go to event owner

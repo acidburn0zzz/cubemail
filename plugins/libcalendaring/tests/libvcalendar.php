@@ -167,7 +167,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @depends test_import_from_file
+     * 
      */
     function test_alarms()
     {
@@ -181,6 +181,9 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('12', $alarm[0], "Alarm value");
         $this->assertEquals('-H', $alarm[1], "Alarm unit");
 
+        $this->assertEquals('DISPLAY', $event['valarms'][0]['action'],  "Full alarm item (action)");
+        $this->assertEquals('-PT12H',   $event['valarms'][0]['trigger'], "Full alarm item (trigger)");
+
         // alarm trigger with 0 values
         $events = $ical->import_from_file(__DIR__ . '/resources/alarms.ics', 'UTF-8');
         $event = $events[0];
@@ -190,6 +193,25 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('30', $alarm[0], "Alarm value");
         $this->assertEquals('-M', $alarm[1], "Alarm unit");
         $this->assertEquals('-30M', $alarm[2], "Alarm string");
+
+        $this->assertEquals('DISPLAY', $event['valarms'][0]['action'],  "First alarm action");
+        $this->assertEquals('This is the first event reminder', $event['valarms'][0]['description'],  "First alarm text");
+
+        $this->assertEquals(2, count($event['valarms']), "List all VALARM blocks");
+
+        $valarm = $event['valarms'][1];
+        $this->assertEquals(1, count($valarm['attendees']), "Email alarm attendees");
+        $this->assertEquals('EMAIL', $valarm['action'],  "Second alarm item (action)");
+        $this->assertEquals('-P1D',  $valarm['trigger'], "Second alarm item (trigger)");
+        $this->assertEquals('This is the reminder message',  $valarm['summary'], "Email alarm text");
+
+        // test alarms export
+        $ics = $ical->export(array($event));
+        $this->assertContains('ACTION:DISPLAY',   $ics, "Display alarm block");
+        $this->assertContains('ACTION:EMAIL',     $ics, "Email alarm block");
+        $this->assertContains('DESCRIPTION:This is the first event reminder',    $ics, "Alarm description");
+        $this->assertContains('SUMMARY:This is the reminder message',            $ics, "Email alarm summary");
+        $this->assertContains('ATTENDEE:mailto:reminder-recipient@example.org',  $ics, "Email alarm recipient");
     }
 
     /**
@@ -222,6 +244,10 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $alarm = libcalendaring::parse_alaram_value($event['alarms']);
         $this->assertEquals('45', $alarm[0], "Alarm value");
         $this->assertEquals('-M', $alarm[1], "Alarm unit");
+
+        $this->assertEquals(1, count($event['valarms']), "Ignore invalid alarm blocks");
+        $this->assertEquals('AUDIO', $event['valarms'][0]['action'],  "Full alarm item (action)");
+        $this->assertEquals('-PT45M', $event['valarms'][0]['trigger'], "Full alarm item (trigger)");
     }
 
     /**
