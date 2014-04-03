@@ -331,16 +331,7 @@ class kolab_folders extends rcube_plugin
             return $args;
         }
 
-        // Load configuration
-        $this->load_config();
-
-        // Check that configuration is not disabled
-        $dont_override  = (array) $this->rc->config->get('dont_override', array());
-
-        // special handling for 'default_folders'
-        if (in_array('default_folders', $dont_override)) {
-            return $args;
-        }
+        $dont_override = (array) $this->rc->config->get('dont_override', array());
 
         // map config option name to kolab folder type annotation
         $opts = array(
@@ -354,7 +345,7 @@ class kolab_folders extends rcube_plugin
         foreach ($opts as $opt_name => $type) {
             $new = $args['prefs'][$opt_name];
             $old = $this->rc->config->get($opt_name);
-            if ($new === $old) {
+            if (!strlen($new) || $new === $old || in_array($opt_name, $dont_override)) {
                 unset($opts[$opt_name]);
             }
         }
@@ -371,24 +362,22 @@ class kolab_folders extends rcube_plugin
 
         foreach ($opts as $opt_name => $type) {
             $foldername = $args['prefs'][$opt_name];
-            if (strlen($foldername)) {
 
-                // get all folders of specified type
-                $folders = array_intersect($folderdata, array($type));
+            // get all folders of specified type
+            $folders = array_intersect($folderdata, array($type));
 
-                // folder already annotated with specified type
-                if (!empty($folders[$foldername])) {
-                    continue;
-                }
+            // folder already annotated with specified type
+            if (!empty($folders[$foldername])) {
+                continue;
+            }
 
-                // set type to the new folder
-                $this->set_folder_type($foldername, $type);
+            // set type to the new folder
+            $this->set_folder_type($foldername, $type);
 
-                // unset old folder(s) type annotation
-                list($maintype, $subtype) = explode('.', $type);
-                foreach (array_keys($folders) as $folder) {
-                    $this->set_folder_type($folder, $maintype);
-                }
+            // unset old folder(s) type annotation
+            list($maintype, $subtype) = explode('.', $type);
+            foreach (array_keys($folders) as $folder) {
+                $this->set_folder_type($folder, $maintype);
             }
         }
 
