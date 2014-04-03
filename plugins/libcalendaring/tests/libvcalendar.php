@@ -287,6 +287,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('DateTime', $task['start'],   "'start' property is DateTime object");
         $this->assertInstanceOf('DateTime', $task['due'],     "'due' property is DateTime object");
         $this->assertEquals('-1D:DISPLAY',  $task['alarms'],  "Taks alarm value");
+        $this->assertEquals('IN-PROCESS',   $task['status'],  "Task status property");
         $this->assertEquals(1, count($task['x-custom']),      "Custom properties");
     }
 

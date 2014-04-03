@@ -43,6 +43,13 @@ class kolab_format_task extends kolab_format_xcal
 
         $this->obj->setPercentComplete(intval($object['complete']));
 
+        $status = kolabformat::StatusUndefined;
+        if ($object['complete'] == 100)
+            $status = kolabformat::StatusCompleted;
+        else if ($object['status'] && array_key_exists($object['status'], $this->status_map))
+            $status = $this->status_map[$object['status']];
+        $this->obj->setStatus($status);
+
         if (isset($object['start']))
             $this->obj->setStart(self::get_datetime($object['start'], null, $object['start']->_dateonly));
 

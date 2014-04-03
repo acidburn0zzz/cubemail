@@ -81,6 +81,10 @@ abstract class kolab_format_xcal extends kolab_format
         'IN-PROCESS'   => kolabformat::StatusInProcess,
         'COMPLETED'    => kolabformat::StatusCompleted,
         'CANCELLED'    => kolabformat::StatusCancelled,
+        'TENTATIVE'    => kolabformat::StatusTentative,
+        'CONFIRMED'    => kolabformat::StatusConfirmed,
+        'DRAFT'        => kolabformat::StatusDraft,
+        'FINAL'        => kolabformat::StatusFinal,
     );
 
     protected $part_status_map = array(

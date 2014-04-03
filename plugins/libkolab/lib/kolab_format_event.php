@@ -87,6 +87,8 @@ class kolab_format_event extends kolab_format_xcal
             $status = kolabformat::StatusTentative;
         if ($object['cancelled'])
             $status = kolabformat::StatusCancelled;
+        else if ($object['status'] && array_key_exists($object['status'], $this->status_map))
+            $status = $this->status_map[$object['status']];
         $this->obj->setStatus($status);
 
         // save recurrence exceptions

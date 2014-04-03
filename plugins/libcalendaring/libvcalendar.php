@@ -412,6 +412,8 @@ class libvcalendar implements Iterator
                     $event['cancelled'] = true;
                 else if ($prop->value == 'COMPLETED')
                     $event['complete'] = 100;
+                else
+                    $event['status'] = strval($prop->value);
                 break;
 
             case 'PRIORITY':
@@ -939,6 +941,8 @@ class libvcalendar implements Iterator
             $ve->add('STATUS', 'TENTATIVE');
         else if ($event['complete'] == 100)
             $ve->add('STATUS', 'COMPLETED');
+        else if (!empty($event['status']))
+            $ve->add('STATUS', $event['status']);
 
         if (!empty($event['sensitivity']))
             $ve->add('CLASS', strtoupper($event['sensitivity']));
