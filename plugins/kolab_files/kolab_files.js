@@ -45,7 +45,7 @@ window.rcmail && rcmail.addEventListener('init', function() {
         var link = $('<a href="#" class="button filesaveall">')
           .text(rcmail.gettext('kolab_files.saveall'))
           .click(function() { kolab_directory_selector_dialog(); })
-          .appendTo(attachment_list);
+          .insertAfter(attachment_list);
       }
 
       rcmail.addEventListener('menu-open', kolab_files_attach_menu_open);
