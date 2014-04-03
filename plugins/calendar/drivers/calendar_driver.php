@@ -54,7 +54,18 @@
  *     'free_busy' => 'free|busy|outofoffice|tentative',  // Show time as
  *      'priority' => 0-9,     // Event priority (0=undefined, 1=highest, 9=lowest)
  *   'sensitivity' => 'public|private|confidential',   // Event sensitivity
- *        'alarms' => '-15M:DISPLAY',  // Reminder settings inspired by valarm definition (e.g. display alert 15 minutes before event)
+ *        'alarms' => '-15M:DISPLAY',  // DEPRECATED Reminder settings inspired by valarm definition (e.g. display alert 15 minutes before event)
+ *       'valarms' => array(           // List of reminders (new format), each represented as a hash array:
+ *                  array(
+ *                     'trigger' => '-PT90M',     // ISO 8601 period string prefixed with '+' or '-', or DateTime object
+ *                      'action' => 'DISPLAY|EMAIL|AUDIO',
+ *                    'duration' => 'PT15M',      // ISO 8601 period string
+ *                      'repeat' => 0,            // number of repetitions
+ *                 'description' => '',        // text to display for DISPLAY actions
+ *                     'summary' => '',        // message text for EMAIL actions
+ *                   'attendees' => array(),   // list of email addresses to receive alarm messages
+ *                  ),
+ *   ),
  *   'attachments' => array(   // List of attachments
  *            'name' => 'File name',
  *        'mimetype' => 'Content type',
