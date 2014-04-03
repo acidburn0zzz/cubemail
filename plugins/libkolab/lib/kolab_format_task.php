@@ -45,6 +45,13 @@ class kolab_format_task extends kolab_format_xcal
         $this->obj->setStart(self::get_datetime($object['start'], null, $object['start']->_dateonly));
         $this->obj->setDue(self::get_datetime($object['due'], null, $object['due']->_dateonly));
 
+        $status = kolabformat::StatusUndefined;
+        if ($object['complete'] == 100)
+            $status = kolabformat::StatusCompleted;
+        else if ($object['status'] && array_key_exists($object['status'], $this->status_map))
+            $status = $this->status_map[$object['status']];
+        $this->obj->setStatus($status);
+
         $related = new vectors;
         if (!empty($object['parent_id']))
             $related->push($object['parent_id']);
