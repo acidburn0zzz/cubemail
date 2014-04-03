@@ -37,6 +37,15 @@ body.attachmentwin #topnav .topright {
 	margin-top: 20px;
 }
 
+.tasklistview #mainscreen {
+	min-width: 1000px !important;
+	min-height: 520px !important;
+}
+
+.tasklistview #header {
+	min-width: 1020px !important;
+}
+
 #sidebar {
 	position: absolute;
 	top: 0;
