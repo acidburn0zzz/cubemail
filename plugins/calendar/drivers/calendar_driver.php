@@ -405,16 +405,6 @@ abstract class calendar_driver
   }
 
   /**
-   * Return a (limited) list of color values to be used for calendar and category coloring
-   *
-   * @return mixed List for colors as hex values or false if no presets should be shown
-   */
-  public function get_color_values()
-  {
-    return false;
-  }
-
-  /**
    * Compose a list of birthday events from the contact records in the user's address books.
    *
    * This is a default implementation using Roundcube's address book API.
