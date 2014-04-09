@@ -70,7 +70,6 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.category_select', array($this, 'category_select'));
         $this->plugin->register_handler('plugin.searchform', array($this->rc->output, 'search_form'));
         $this->plugin->register_handler('plugin.quickaddform', array($this, 'quickadd_form'));
-        $this->plugin->register_handler('plugin.tasklist_editform', array($this, 'tasklist_editform'));
         $this->plugin->register_handler('plugin.tasks', array($this, 'tasks_resultview'));
         $this->plugin->register_handler('plugin.tagslist', array($this, 'tagslist'));
         $this->plugin->register_handler('plugin.tags_editline', array($this, 'tags_editline'));
@@ -146,7 +145,7 @@ class tasklist_ui
     }
 
 
-    function tasklist_editform($attrib = array())
+    function tasklist_editform($action, $list = array())
     {
         $fields = array(
             'name' => array(
@@ -169,7 +168,7 @@ class tasklist_ui
         );
 
         return html::tag('form', array('action' => "#", 'method' => "post", 'id' => 'tasklisteditform'),
-            $this->plugin->driver->tasklist_edit_form($fields)
+            $this->plugin->driver->tasklist_edit_form($action, $list, $fields)
         );
     }
 

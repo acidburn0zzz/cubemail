@@ -1618,8 +1618,7 @@ function rcube_tasklist_ui(settings)
     function list_edit_dialog(id)
     {
         var list = me.tasklists[id],
-            $dialog = $('#tasklistform');
-            editform = $('#tasklisteditform');
+            $dialog = $(rcmail.gui_containers.tasklistform);
 
         if ($dialog.is(':ui-dialog'))
             $dialog.dialog('close');
@@ -1627,55 +1626,70 @@ function rcube_tasklist_ui(settings)
         if (!list)
             list = { name:'', editable:true, showalarms:true };
 
-        // fill edit form
-        var name = $('#taskedit-tasklistame').prop('disabled', list.norename||false).val(list.editname || list.name),
-            alarms = $('#taskedit-showalarms').prop('checked', list.showalarms).get(0),
-            parent = $('#taskedit-parentfolder').val(list.parentfolder);
+        var editform, name, alarms;
+
+        $dialog.html(rcmail.get_label('loading'));
+        $.ajax({
+            type: 'GET',
+            dataType: 'html',
+            url: rcmail.url('tasklist'),
+            data: { action:(list.id ? 'form-edit' : 'form-new'), l:{ id:list.id } },
+            success: function(data) {
+                $dialog.html(data);
+                rcmail.triggerEvent('tasklist_editform_load', list);
+
+                // resize and reposition dialog window
+                editform = $('#tasklisteditform');
+                me.dialog_resize(rcmail.gui_containers.tasklistform, editform.height(), editform.width());
+
+                name = $('#taskedit-tasklistame').prop('disabled', list.norename||false).val(list.editname || list.name);
+                alarms = $('#taskedit-showalarms').prop('checked', list.showalarms).get(0);
+                name.select();
+            }
+        });
 
         // dialog buttons
         var buttons = {};
 
         buttons[rcmail.gettext('save','tasklist')] = function() {
-          // do some input validation
-          if (!name.val() || name.val().length < 2) {
-            alert(rcmail.gettext('invalidlistproperties', 'tasklist'));
-            name.select();
-            return;
-          }
+            // do some input validation
+            if (!name.val() || name.val().length < 2) {
+                alert(rcmail.gettext('invalidlistproperties', 'tasklist'));
+                name.select();
+                return;
+            }
 
-          // post data to server
-          var data = editform.serializeJSON();
-          if (list.id)
-            data.id = list.id;
-          if (alarms)
-            data.showalarms = alarms.checked ? 1 : 0;
-        if (parent.length)
-            data.parentfolder = $('option:selected', parent).val();
+            // post data to server
+            var data = editform.serializeJSON();
+            if (list.id)
+                data.id = list.id;
+            if (alarms)
+                data.showalarms = alarms.checked ? 1 : 0;
 
-          saving_lock = rcmail.set_busy(true, 'tasklist.savingdata');
-          rcmail.http_post('tasklist', { action:(list.id ? 'edit' : 'new'), l:data });
-          $dialog.dialog('close');
+            saving_lock = rcmail.set_busy(true, 'tasklist.savingdata');
+            rcmail.http_post('tasklist', { action:(list.id ? 'edit' : 'new'), l:data });
+            $dialog.dialog('close');
         };
 
         buttons[rcmail.gettext('cancel','tasklist')] = function() {
-          $dialog.dialog('close');
+            $dialog.dialog('close');
         };
 
         // open jquery UI dialog
         $dialog.dialog({
-          modal: true,
-          resizable: true,
-          closeOnEscape: false,
-          title: rcmail.gettext((list.id ? 'editlist' : 'createlist'), 'tasklist'),
-          open: function() {
-            $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
-          },
-          close: function() {
-            $dialog.dialog('destroy').hide();
-          },
-          buttons: buttons,
-          minWidth: 400,
-          width: 420
+            modal: true,
+            resizable: true,
+            closeOnEscape: false,
+            title: rcmail.gettext((list.id ? 'editlist' : 'createlist'), 'tasklist'),
+            open: function() {
+                $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+            },
+            close: function() {
+                $dialog.dialog('destroy').hide();
+            },
+            buttons: buttons,
+            minWidth: 400,
+            width: 420
         }).show();
     }
 

@@ -53,3 +53,4 @@ $labels['invalidstartduedates'] = 'Das Anfangsdatum muss vor dem Fälligkeitsdat
 $labels['deletetasktconfirm'] = 'Diese Aufgabe wirklich löschen?';
 $labels['deleteparenttasktconfirm'] = 'Diese Aufgabe wirklich mit allen Teilaufgaben löschen?';
 $labels['deletelistconfirm'] = 'Diese Aufgabenliste wirklich mit allen Aufgaben löschen?';
+$labels['aclnorights'] = 'Der Zugriff auf diese Liste erfordert Administrator-Rechte.';
