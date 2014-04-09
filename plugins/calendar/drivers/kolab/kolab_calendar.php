@@ -597,6 +597,10 @@ class kolab_calendar
     if (is_array($record['categories']))
       $record['categories'] = $record['categories'][0];
 
+    // the cancelled flag transltes into status=CANCELLED
+    if ($record['cancelled'])
+      $record['status'] = 'CANCELLED';
+
     // The web client only supports DISPLAY type of alarms
     if (!empty($record['alarms']))
       $record['alarms'] = preg_replace('/:[A-Z]+$/', ':DISPLAY', $record['alarms']);

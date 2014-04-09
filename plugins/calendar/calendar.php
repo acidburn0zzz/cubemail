@@ -1652,11 +1652,11 @@ class calendar extends rcube_plugin
    */
   private function notify_attendees($event, $old, $action = 'edit')
   {
-    if ($action == 'remove') {
+    if ($action == 'remove' || ($event['status'] == 'CANCELLED' && $old['status'] != $event['status'])) {
       $event['cancelled'] = true;
       $is_cancelled = true;
     }
-    
+
     $itip = $this->load_itip();
     $emails = $this->get_user_emails();
 

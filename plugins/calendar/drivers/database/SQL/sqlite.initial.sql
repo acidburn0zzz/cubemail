@@ -43,6 +43,7 @@ CREATE TABLE events (
   free_busy tinyint(1) NOT NULL default '0',
   priority tinyint(1) NOT NULL default '0',
   sensitivity tinyint(1) NOT NULL default '0',
+  status varchar(32) NOT NULL default '',
   alarms varchar(255) default NULL,
   attendees text default NULL,
   notifyat datetime default NULL,

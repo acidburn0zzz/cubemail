@@ -52,6 +52,7 @@
  * 'recurrence_id' => 'ID of the recurrence group',   // usually the ID of the starting event
  *    'categories' => 'Event category',
  *     'free_busy' => 'free|busy|outofoffice|tentative',  // Show time as
+ *        'status' => 'TENTATIVE|CONFIRMED|CANCELLED',    // event status according to RFC 2445
  *      'priority' => 0-9,     // Event priority (0=undefined, 1=highest, 9=lowest)
  *   'sensitivity' => 'public|private|confidential',   // Event sensitivity
  *        'alarms' => '-15M:DISPLAY',  // DEPRECATED Reminder settings inspired by valarm definition (e.g. display alert 15 minutes before event)

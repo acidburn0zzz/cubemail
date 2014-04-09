@@ -400,7 +400,7 @@ class libcalendaring extends rcube_plugin
      */
     public static function get_next_alarm($rec, $type = 'event')
     {
-        if (!$rec['alarms'])
+        if (!$rec['alarms'] || $rec['cancelled'] || $rec['status'] == 'CANCELLED')
             return null;
 
         if ($type == 'task') {

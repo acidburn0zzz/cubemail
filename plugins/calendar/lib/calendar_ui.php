@@ -74,6 +74,7 @@ class calendar_ui
     $this->cal->register_handler('plugin.calendar_select', array($this, 'calendar_select'));
     $this->cal->register_handler('plugin.identity_select', array($this, 'identity_select'));
     $this->cal->register_handler('plugin.category_select', array($this, 'category_select'));
+    $this->cal->register_handler('plugin.status_select', array($this, 'status_select'));
     $this->cal->register_handler('plugin.freebusy_select', array($this, 'freebusy_select'));
     $this->cal->register_handler('plugin.priority_select', array($this, 'priority_select'));
     $this->cal->register_handler('plugin.sensitivity_select', array($this, 'sensitivity_select'));
@@ -300,6 +301,20 @@ class calendar_ui
       $select->add($cat, $cat);
     }
 
+    return $select->show(null);
+  }
+
+  /**
+   * Render a HTML select box for status property
+   */
+  function status_select($attrib = array())
+  {
+    $attrib['name'] = 'status';
+    $select = new html_select($attrib);
+    $select->add('---', '');
+    $select->add($this->cal->gettext('confirmed'), 'CONFIRMED');
+    $select->add($this->cal->gettext('cancelled'), 'CANCELLED');
+    //$select->add($this->cal->gettext('tentative'), 'TENTATIVE');
     return $select->show(null);
   }
 

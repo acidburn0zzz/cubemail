@@ -536,6 +536,10 @@ a.miniColors-trigger {
 	margin: 0 -0.2em;
 }
 
+#eventshow.status-cancelled {
+	background: url(images/badge_cancelled.png) top right no-repeat;
+}
+
 #eventshow.sensitivity-private {
 	background: url(images/badge_private.png) top right no-repeat;
 }
@@ -1393,6 +1397,10 @@ a.dropdown-link:after {
 
 .fc-event-title {
 	font-weight: bold;
+}
+
+.cal-event-status-cancelled .fc-event-title {
+	text-decoration: line-through;
 }
 
 .fc-event-hori .fc-event-title {

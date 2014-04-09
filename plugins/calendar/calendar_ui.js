@@ -325,6 +325,11 @@ function rcube_calendar_ui(settings)
         $('#event-priority').show().children('.event-text').html(Q(event.priority+' '+priolabels[event.priority]));
       }
 
+      if (event.status) {
+        var status_lc = String(event.status).toLowerCase();
+        $('#event-status').show().children('.event-text').html(Q(rcmail.gettext(status_lc,'calendar')));
+        $dialog.addClass('status-'+status_lc);
+      }
       if (event.sensitivity && event.sensitivity != 'public') {
         $('#event-sensitivity').show().children('.event-text').html(Q(sensitivitylabels[event.sensitivity]));
         $dialog.addClass('sensitivity-'+event.sensitivity);
@@ -491,6 +496,7 @@ function rcube_calendar_ui(settings)
       var vurl = $('#edit-url').val(event.vurl || '');
       var categories = $('#edit-categories').val(event.categories);
       var calendars = $('#edit-calendar').val(event.calendar);
+      var eventstatus = $('#edit-event-status').val(event.status);
       var freebusy = $('#edit-free-busy').val(event.free_busy);
       var priority = $('#edit-priority').val(event.priority);
       var sensitivity = $('#edit-sensitivity').val(event.sensitivity);
@@ -682,6 +688,7 @@ function rcube_calendar_ui(settings)
           free_busy: freebusy.val(),
           priority: priority.val(),
           sensitivity: sensitivity.val(),
+          status: eventstatus.val(),
           recurrence: '',
           alarms: '',
           attendees: event_attendees,
@@ -2145,6 +2152,9 @@ function rcube_calendar_ui(settings)
           element.find('div.fc-event-time').append('<i class="fc-icon-recurring"></i>');
         if (event.alarms)
           element.find('div.fc-event-time').append('<i class="fc-icon-alarms"></i>');
+      }
+      if (event.status) {
+        element.addClass('cal-event-status-' + String(event.status).toLowerCase());
       }
     };
 

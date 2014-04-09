@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `events` (
   `free_busy` tinyint(1) NOT NULL DEFAULT '0',
   `priority` tinyint(1) NOT NULL DEFAULT '0',
   `sensitivity` tinyint(1) NOT NULL DEFAULT '0',
+  `status` varchar(32) NOT NULL DEFAULT '',
   `alarms` varchar(255) DEFAULT NULL,
   `attendees` text DEFAULT NULL,
   `notifyat` datetime DEFAULT NULL,
