@@ -260,10 +260,12 @@ abstract class tasklist_driver
      * Build the edit/create form for lists.
      * This gives the drivers the opportunity to add more list properties
      *
-     * @param array List with form fields to be rendered
+     * @param string  The action called this form
+     * @param array   Tasklist properties
+     * @param array   List with form fields to be rendered
      * @return string HTML content of the form
      */
-    public function tasklist_edit_form($formfields)
+    public function tasklist_edit_form($action, $list, $formfields)
     {
         $html = '';
         foreach ($formfields as $field) {

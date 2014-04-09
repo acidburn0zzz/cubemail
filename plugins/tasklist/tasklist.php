@@ -478,13 +478,18 @@ class tasklist extends rcube_plugin
     public function tasklist_action()
     {
         $action = get_input_value('action', RCUBE_INPUT_GPC);
-        $list  = get_input_value('l', RCUBE_INPUT_POST, true);
+        $list  = get_input_value('l', RCUBE_INPUT_GPC, true);
         $success = false;
 
         if (isset($list['showalarms']))
           $list['showalarms'] = intval($list['showalarms']);
 
         switch ($action) {
+        case 'form-new':
+        case 'form-edit':
+            echo $this->ui->tasklist_editform($action, $list);
+            exit;
+
         case 'new':
             $list += array('showalarms' => true, 'active' => true, 'editable' => true);
             if ($insert_id = $this->driver->create_list($list)) {

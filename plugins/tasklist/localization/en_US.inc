@@ -69,3 +69,4 @@ $labels['deletetasktconfirm'] = 'Do you really want to delete this task?';
 $labels['deleteparenttasktconfirm'] = 'Do you really want to delete this task and all its subtasks?';
 $labels['deletelistconfirm'] = 'Do you really want to delete this list with all its tasks?';
 $labels['deletelistconfirmrecursive'] = 'Do you really want to delete this list with all its sub-lists and tasks?';
+$labels['aclnorights'] = 'You do not have administrator rights on this task list.';
