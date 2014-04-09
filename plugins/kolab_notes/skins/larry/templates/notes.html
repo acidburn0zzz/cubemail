@@ -11,6 +11,7 @@
 <div id="mainscreen">
     <div id="notestoolbar" class="toolbar">
         <roundcube:button command="createnote" type="link" class="button createnote disabled" classAct="button createnote" classSel="button createnote pressed" label="kolab_notes.create" title="kolab_notes.createnote" />
+        <roundcube:button command="print" type="link" class="button print disabled" classAct="button print" classSel="button print pressed" label="print" />
         <roundcube:container name="toolbar" id="notestoolbar" />
 
         <div id="quicksearchbar">
@@ -49,6 +50,9 @@
                 <roundcube:button command="delete" type="link" title="delete" class="listbutton delete disabled" classAct="listbutton delete" innerClass="inner" content="-" />
                 <roundcube:object name="plugin.recordsCountDisplay" class="countdisplay" label="fromtoshort" />
             </div>
+            <div class="boxpagenav">
+                <roundcube:button name="notessortmenulink" id="notessortmenulink" type="link" title="kolab_notes.sortby" class="icon sortoptions" onclick="UI.show_popup('notessortmenu');return false" innerClass="inner" content="v" />
+            </div>
         </div>
 
         <div id="notedetailsbox" class="uibox contentbox">
@@ -59,7 +63,6 @@
                 <roundcube:button command="save" type="input" class="button mainaction" label="save" />
             </div>
         </div>
-
     </div>
 
 </div>
@@ -71,6 +74,13 @@
         <li><roundcube:button command="list-edit" label="edit" classAct="active" /></li>
         <li><roundcube:button command="list-remove" label="delete" classAct="active" /></li>
         <li><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+    </ul>
+</div>
+
+<div id="notessortmenu" class="popupmenu">
+    <ul class="toolbarmenu iconized">
+        <li><roundcube:button command="list-sort" prop="changed" type="link" label="kolab_notes.changed" class="icon active by-changed" innerclass="icon" /></li>
+        <li><roundcube:button command="list-sort" prop="title" type="link" label="kolab_notes.title" class="icon active by-title" innerclass="icon" /></li>
     </ul>
 </div>
 

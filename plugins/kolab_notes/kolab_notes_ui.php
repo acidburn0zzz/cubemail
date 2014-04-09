@@ -57,8 +57,10 @@ class kolab_notes_ui
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tagedit.css');
 
-        // TODO: load config options and user prefs relevant for the UI
-        $settings = array();
+        // load config options and user prefs relevant for the UI
+        $settings = array(
+            'sort_col' => $this->rc->config->get('kolab_notes_sort_col', 'changed'),
+        );
 
         if (!empty($_REQUEST['_list'])) {
             $settings['selected_list'] = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC);

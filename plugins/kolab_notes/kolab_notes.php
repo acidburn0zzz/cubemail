@@ -27,6 +27,7 @@
 class kolab_notes extends rcube_plugin
 {
     public $task = '?(?!login|logout).*';
+    public $allowed_prefs = array('kolab_notes_sort_col');
     public $rc;
 
     private $ui;

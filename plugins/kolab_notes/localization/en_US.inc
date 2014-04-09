@@ -11,6 +11,7 @@ $labels['notags'] = 'No tags';
 $labels['removetag'] = 'Remove tag';
 $labels['created'] = 'Created';
 $labels['changed'] = 'Last Modified';
+$labels['title'] = 'Title';
 $labels['now'] = 'Now';
 $labels['createlist'] = 'New Notebook';
 $labels['editlist'] = 'Edit Notebook';

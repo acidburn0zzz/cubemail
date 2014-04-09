@@ -53,6 +53,7 @@ function rcube_kolab_notes_ui(settings)
         rcmail.register_command('list-create', function(){ list_edit_dialog(null); }, true);
         rcmail.register_command('list-edit', function(){ list_edit_dialog(me.selected_list); }, false);
         rcmail.register_command('list-remove', function(){ list_remove(me.selected_list); }, false);
+        rcmail.register_command('list-sort', list_set_sort, true);
         rcmail.register_command('save', save_note, true);
         rcmail.register_command('delete', delete_notes, false);
         rcmail.register_command('search', quicksearch, true);
@@ -145,6 +146,10 @@ function rcube_kolab_notes_ui(settings)
                 folder_drop_target = null;
             })
             .init();
+        }
+
+        if (settings.sort_col) {
+            $('#notessortmenu a.by-' + settings.sort_col).addClass('selected');
         }
 
         // click-handler on tags list
@@ -435,6 +440,36 @@ function rcube_kolab_notes_ui(settings)
     }
 
     /**
+     * Change notes list sort order
+     */
+    function list_set_sort(col)
+    {
+        if (settings.sort_col != col) {
+            settings.sort_col = col;
+            $('#notessortmenu a').removeClass('selected').filter('.by-' + col).addClass('selected');
+            rcmail.save_pref({ name: 'kolab_notes_sort_col', value: col });
+
+            // re-sort table in DOM
+            $(noteslist.tbody).children().sortElements(function(la, lb){
+                var a_id = String(la.id).replace(/^rcmrow/, ''),
+                    b_id = String(lb.id).replace(/^rcmrow/, ''),
+                    a = notesdata[a_id],
+                    b = notesdata[b_id];
+
+                if (!a || !b) {
+                    return 0;
+                }
+                else if (settings.sort_col == 'title') {
+                    return String(a.title).toLowerCase() > String(b.title).toLowerCase() ? 1 : -1;
+                }
+                else {
+                    return b.changed_ - a.changed_;
+                }
+            });
+        }
+    }
+
+    /**
      * Execute search
      */
     function quicksearch()
@@ -535,7 +570,12 @@ function rcube_kolab_notes_ui(settings)
     function data_ready(data)
     {
         data.data.sort(function(a,b){
-            return b.changed_ - a.changed_;
+            if (settings.sort_col == 'title') {
+                return String(a.title).toLowerCase() > String(b.title).toLowerCase() ? 1 : -1;
+            }
+            else {
+                return b.changed_ - a.changed_;
+            }
         });
 
         var i, id, rec;
@@ -639,7 +679,11 @@ function rcube_kolab_notes_ui(settings)
             editor.setContent(html);
             node = editor.getContentAreaContainer().childNodes[0];
             if (node) node.tabIndex = content.get(0).tabIndex;
-            editor.getBody().focus();
+
+            if (me.selected_note.uid)
+                editor.getBody().focus();
+            else
+                $('.notetitle', rcmail.gui_objects.noteviewtitle).focus().select();
 
             // read possibly re-formatted content back from editor for later comparison
             me.selected_note.description = editor.getContent({ format:'html' })
@@ -1067,6 +1111,27 @@ function rcube_kolab_notes_ui(settings)
     }
 
 }
+
+
+// extend jQuery
+// from http://james.padolsey.com/javascript/sorting-elements-with-jquery/
+jQuery.fn.sortElements = (function(){
+    var sort = [].sort;
+
+    return function(comparator, getSortable) {
+        getSortable = getSortable || function(){ return this };
+
+        var last = null;
+        return sort.call(this, comparator).each(function(i){
+            // at this point the array is sorted, so we can just detach each one from wherever it is, and add it after the last
+            var node = $(getSortable.call(this));
+            var parent = node.parent();
+            if (last) last.after(node);
+            else      parent.prepend(node);
+            last = node;
+        });
+    };
+})();
 
 
 /* notes plugin UI initialization */
