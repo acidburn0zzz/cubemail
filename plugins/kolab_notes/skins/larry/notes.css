@@ -228,6 +228,10 @@
 	background: none;
 }
 
+.notesview .tag-draghelper {
+	z-index: 1000;
+}
+
 .notesview #notedetailstitle .notecreated,
 .notesview #notedetailstitle .notechanged {
 	display: inline-block;

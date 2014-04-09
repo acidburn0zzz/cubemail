@@ -308,7 +308,7 @@ class kolab_notes extends rcube_plugin
     public function get_note($note)
     {
         if (is_array($note)) {
-            $uid = $note['id'] ?: $note['uid'];
+            $uid = $note['uid'] ?: $note['id'];
             $list_id = $note['list'];
         }
         else {
@@ -459,7 +459,7 @@ class kolab_notes extends rcube_plugin
         }
 
         // generate new note object from input
-        $object = $this->_write_preprocess($note, $old);# return false;
+        $object = $this->_write_preprocess($note, $old);
         $saved = $folder->save($object, 'note', $note['uid']);
 
         if (!$saved) {
@@ -639,8 +639,13 @@ class kolab_notes extends rcube_plugin
 
         // copy meta data (starting with _) from old object
         foreach ((array)$old as $key => $val) {
-          if (!isset($object[$key]) && $key[0] == '_')
-            $object[$key] = $val;
+            if (!isset($object[$key]) && $key[0] == '_')
+                $object[$key] = $val;
+        }
+
+        // make list of categories unique
+        if (is_array($object['categories'])) {
+            $object['categories'] = array_unique(array_filter($object['categories']));
         }
 
         unset($object['list'], $object['tempid'], $object['created'], $object['changed'], $object['created_'], $object['changed_']);

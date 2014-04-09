@@ -33,6 +33,7 @@ function rcube_kolab_notes_ui(settings)
     var tags = [];
     var search_request;
     var search_query;
+    var tag_draghelper;
     var me = this;
 
     /*  public members  */
@@ -702,7 +703,6 @@ function rcube_kolab_notes_ui(settings)
             li = $('<li>').attr('rel', tag).data('value', tag)
                 .html(Q(tag) + '<span class="count"></span>')
                 .appendTo(widget)
-/*
                 .draggable({
                     addClasses: false,
                     revert: 'invalid',
@@ -712,7 +712,6 @@ function rcube_kolab_notes_ui(settings)
                     appendTo: 'body',
                     cursor: 'pointer'
                 });
-*/
         });
 
         update_tagcloud();
@@ -767,6 +766,9 @@ function rcube_kolab_notes_ui(settings)
         if (is_new || me.selected_note && data.id == me.selected_note.id) {
             render_note(data);
             render_tagslist(data.categories || []);
+        }
+        else if (data.categories) {
+            render_tagslist(data.categories);
         }
 
         // add list item on top
@@ -989,6 +991,78 @@ function rcube_kolab_notes_ui(settings)
         if (uids.length) {
             saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
             rcmail.http_post('action', { _data: { uid: uids.join(','), list: me.selected_list, to: list_id }, _do: 'move' }, true);
+        }
+    }
+
+    /*  Helper functions for drag & drop functionality of tags  */
+    
+    function tag_draggable_helper()
+    {
+        if (!tag_draghelper)
+            tag_draghelper = $('<div class="tag-draghelper"></div>');
+        else
+            tag_draghelper.html('');
+
+        $(this).clone().addClass('tag').appendTo(tag_draghelper);
+        return tag_draghelper;
+    }
+
+    function tag_draggable_start(event, ui)
+    {
+        // register notes list to receive drop events
+        $('li', rcmail.gui_objects.noteslist).droppable({
+            hoverClass: 'droptarget',
+            accept: tag_droppable_accept,
+            drop: tag_draggable_dropped,
+            addClasses: false
+        });
+
+        // allow to drop tags onto edit form title
+        $(rcmail.gui_objects.noteviewtitle).droppable({
+            drop: function(event, ui){
+                $('#tagedit-input').val(ui.draggable.data('value')).trigger('transformToTag');
+            },
+            addClasses: false
+        })
+    }
+
+    function tag_droppable_accept(draggable)
+    {
+        if (rcmail.busy)
+            return false;
+
+        var tag = draggable.data('value'),
+            drop_id = $(this).attr('id').replace(/^rcmrow/, ''),
+            drop_rec = notesdata[drop_id];
+
+        // target already has this tag assigned
+        if (!drop_rec || (drop_rec.categories && $.inArray(tag, drop_rec.categories) >= 0)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function tag_draggable_dropped(event, ui)
+    {
+        var drop_id = $(this).attr('id').replace(/^rcmrow/, ''),
+            tag = ui.draggable.data('value'),
+            rec = notesdata[drop_id],
+            savedata;
+
+        if (rec && rec.id) {
+            savedata = me.selected_note && rec.uid == me.selected_note.uid ? get_save_data() : $.extend({}, rec);
+
+            if (savedata.id)   delete savedata.id;
+            if (savedata.html) delete savedata.html;
+
+            if (!savedata.categories)
+                savedata.categories = [];
+            savedata.categories.push(tag);
+
+            rcmail.lock_form(rcmail.gui_objects.noteseditform, true);
+            saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
+            rcmail.http_post('action', { _data: savedata, _do: 'edit' }, true);
         }
     }
 
