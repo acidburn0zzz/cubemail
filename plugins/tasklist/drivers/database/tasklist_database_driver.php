@@ -103,7 +103,7 @@ class tasklist_database_driver extends tasklist_driver
      * @return mixed ID of the new list on success, False on error
      * @see tasklist_driver::create_list()
      */
-    public function create_list($prop)
+    public function create_list(&$prop)
     {
         $result = $this->rc->db->query(
             "INSERT INTO " . $this->db_lists . "
@@ -128,7 +128,7 @@ class tasklist_database_driver extends tasklist_driver
      * @return boolean True on success, Fales on failure
      * @see tasklist_driver::edit_list()
      */
-    public function edit_list($prop)
+    public function edit_list(&$prop)
     {
         $query = $this->rc->db->query(
             "UPDATE " . $this->db_lists . "

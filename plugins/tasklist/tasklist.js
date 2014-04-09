@@ -1749,6 +1749,11 @@ function rcube_tasklist_ui(settings)
      */
     function insert_list(prop)
     {
+        if (prop._reload) {
+            rcmail.redirect(rcmail.url(''));
+            return;
+        }
+
         var li = $('<li>').attr('id', 'rcmlitasklist'+prop.id)
             .append('<input type="checkbox" name="_list[]" value="'+prop.id+'" checked="checked" />')
             .append('<span class="handle">&nbsp;</span>')
@@ -1766,11 +1771,17 @@ function rcube_tasklist_ui(settings)
         var id = prop.oldid || prop.id,
             li = rcmail.get_folder_li(id, 'rcmlitasklist');
 
+        if (prop._reload) {
+            rcmail.redirect(rcmail.url(''));
+            return;
+        }
+
         if (me.tasklists[id] && li) {
             delete me.tasklists[id];
             me.tasklists[prop.id] = prop;
-            $(li).data('id', prop.id);
-            $('#'+li.id+' input').data('id', prop.id);
+            $(li).data('id', prop.id)
+                .attr('id', 'rcmlitasklist'+prop.id)
+                .find('input').data('id', prop.id);
             $('.listname', li).html(Q(prop.name));
         }
     }

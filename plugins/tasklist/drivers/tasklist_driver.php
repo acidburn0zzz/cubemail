@@ -75,7 +75,7 @@ abstract class tasklist_driver
      *  showalarms: True if alarms are enabled
      * @return mixed ID of the new list on success, False on error
      */
-    abstract function create_list($prop);
+    abstract function create_list(&$prop);
 
     /**
      * Update properties of an existing tasklist
@@ -87,7 +87,7 @@ abstract class tasklist_driver
      *  showalarms: True if alarms are enabled (if supported)
      * @return boolean True on success, Fales on failure
      */
-    abstract function edit_list($prop);
+    abstract function edit_list(&$prop);
 
     /**
      * Set active/subscribed state of a list

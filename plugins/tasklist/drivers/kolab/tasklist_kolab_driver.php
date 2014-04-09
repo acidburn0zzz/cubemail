@@ -173,7 +173,7 @@ class tasklist_kolab_driver extends tasklist_driver
      *  showalarms: True if alarms are enabled
      * @return mixed ID of the new list on success, False on error
      */
-    public function create_list($prop)
+    public function create_list(&$prop)
     {
         $prop['type'] = 'task' . ($prop['default'] ? '.default' : '');
         $prop['active'] = true; // activate folder by default
@@ -196,6 +196,10 @@ class tasklist_kolab_driver extends tasklist_driver
         if ($prefs['kolab_tasklists'][$id])
             $this->rc->user->save_prefs($prefs);
 
+        // force page reload to properly render folder hierarchy
+        if (!empty($prop['parent']))
+            $prop['_reload'] = true;
+
         return $id;
     }
 
@@ -209,7 +213,7 @@ class tasklist_kolab_driver extends tasklist_driver
      *  showalarms: True if alarms are enabled (if supported)
      * @return boolean True on success, Fales on failure
      */
-    public function edit_list($prop)
+    public function edit_list(&$prop)
     {
         if ($prop['id'] && ($folder = $this->folders[$prop['id']])) {
             $prop['oldname'] = $folder->name;
@@ -233,6 +237,10 @@ class tasklist_kolab_driver extends tasklist_driver
 
             if ($prefs['kolab_tasklists'][$id])
                 $this->rc->user->save_prefs($prefs);
+
+            // force page reload if folder name/hierarchy changed
+            if ($newfolder != $prop['oldname'])
+                $prop['_reload'] = true;
 
             return $id;
         }
