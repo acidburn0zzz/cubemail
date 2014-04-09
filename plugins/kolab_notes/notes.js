@@ -277,6 +277,7 @@ function rcube_kolab_notes_ui(settings)
                 changed: rcmail.gettext('now', 'kolab_notes')
             }
             render_note(me.selected_note);
+            rcmail.enable_command('print', true);
         }
         else {
             ui_loading = rcmail.set_busy(true, 'loading');
@@ -728,7 +729,7 @@ function rcube_kolab_notes_ui(settings)
                 printwin.document.title = data.title;
                 $('#notetitle', printwin.document).html(Q(data.title));
                 $('#notebody',  printwin.document).html(data.description);
-                $('#notetags',  printwin.document).html('<span class="tag">' + data.categories.join('</span>, <span class="tag">') + '</span>');
+                $('#notetags',  printwin.document).html('<span class="tag">' + data.categories.join('</span><span class="tag">') + '</span>');
                 $('#notecreated', printwin.document).html(Q(me.selected_note.created));
                 $('#notechanged', printwin.document).html(Q(me.selected_note.changed));
                 printwin.print();

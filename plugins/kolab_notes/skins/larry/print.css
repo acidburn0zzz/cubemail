@@ -24,6 +24,10 @@ body {
 	color: #666;
 }
 
+#notedetailstitle #notetags .tag {
+	margin-right: 0.8em;
+}
+
 #notedetailstitle .dates {
 	margin-bottom: 0.2em;
 	color: #999;
