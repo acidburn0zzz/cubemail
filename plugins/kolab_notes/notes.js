@@ -58,6 +58,7 @@ function rcube_kolab_notes_ui(settings)
         rcmail.register_command('delete', delete_notes, false);
         rcmail.register_command('search', quicksearch, true);
         rcmail.register_command('reset-search', reset_search, true);
+        rcmail.register_command('print', print_note, false);
 
         // register server callbacks
         rcmail.addEventListener('plugin.data_ready', data_ready);
@@ -125,6 +126,7 @@ function rcube_kolab_notes_ui(settings)
                 });
 
                 rcmail.enable_command('delete', me.notebooks[me.selected_list] && me.notebooks[me.selected_list].editable && list.selection.length > 0);
+                rcmail.enable_command('print', list.selection.length == 1);
             })
             .addEventListener('dragstart', function(e) {
                 folder_drop_target = null;
@@ -712,6 +714,26 @@ function rcube_kolab_notes_ui(settings)
             };
 
         return '<pre>' + Q(str).replace(link_pattern, link_replace) + '</pre>';
+    }
+
+    /**
+     * Open a new window to print the currently selected note
+     */
+    function print_note()
+    {
+        var printwin, data;
+        if (me.selected_note && (printwin = rcmail.open_window(settings.print_template))) {
+            data = get_save_data();
+            $(printwin).load(function(){
+                printwin.document.title = data.title;
+                $('#notetitle', printwin.document).html(Q(data.title));
+                $('#notebody',  printwin.document).html(data.description);
+                $('#notetags',  printwin.document).html('<span class="tag">' + data.categories.join('</span>, <span class="tag">') + '</span>');
+                $('#notecreated', printwin.document).html(Q(me.selected_note.created));
+                $('#notechanged', printwin.document).html(Q(me.selected_note.changed));
+                printwin.print();
+            });
+        }
     }
 
     /**

@@ -13,6 +13,7 @@ $labels['created'] = 'Created';
 $labels['changed'] = 'Last Modified';
 $labels['title'] = 'Title';
 $labels['now'] = 'Now';
+$labels['sortby'] = 'Sort by';
 $labels['createlist'] = 'New Notebook';
 $labels['editlist'] = 'Edit Notebook';
 $labels['listname'] = 'Name';

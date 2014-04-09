@@ -31,6 +31,7 @@ class kolab_notes_ui
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/notes.css');
 
+        $this->plugin->register_action('print', array($this, 'print_template'));
         $this->plugin->register_action('folder-acl', array($this, 'folder_acl'));
 
         $this->ready = true;
@@ -60,6 +61,7 @@ class kolab_notes_ui
         // load config options and user prefs relevant for the UI
         $settings = array(
             'sort_col' => $this->rc->config->get('kolab_notes_sort_col', 'changed'),
+            'print_template' => $this->rc->url('print'),
         );
 
         if (!empty($_REQUEST['_list'])) {
@@ -303,6 +305,16 @@ class kolab_notes_ui
         }
 
         return $acl['form']['sharing']['content'] ?: html::div('hint', $this->plugin->gettext('aclnorights'));
+    }
+
+    /**
+     * Render the template for printing with placeholders
+     */
+    public function print_template()
+    {
+        $this->rc->output->reset(true);
+        echo $this->rc->output->parse('kolab_notes.print', false, false);
+        exit;
     }
 
 }
