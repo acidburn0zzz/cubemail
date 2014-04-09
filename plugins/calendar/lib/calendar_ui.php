@@ -106,7 +106,6 @@ class calendar_ui
   {
     $skin_path = $this->cal->local_skin_path();
     $this->cal->include_stylesheet($skin_path . '/fullcalendar.css');
-    $this->cal->include_stylesheet($skin_path . '/jquery.miniColors.css');
   }
 
   /**
@@ -116,8 +115,8 @@ class calendar_ui
   {
     $this->cal->include_script('calendar_ui.js');
     $this->cal->include_script('lib/js/fullcalendar.js');
-    $this->cal->include_script('lib/js/jquery.miniColors.min.js');
     $this->rc->output->include_script('treelist.js');
+    jqueryui::miniColors();
   }
 
   /**
