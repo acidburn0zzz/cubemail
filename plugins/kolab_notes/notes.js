@@ -106,6 +106,26 @@ function rcube_kolab_notes_ui(settings)
             }
         });
 
+        // register dbl-click handler to open list edit dialog
+        $(rcmail.gui_objects.notebooks).on('dblclick', 'li:not(.virtual)', function(e){
+            var id = String(this.id).replace(/^rcmliknb/, '');
+            if (me.notebooks[id] && me.notebooks[id].editable) {
+                list_edit_dialog(id);
+            }
+
+            // clear text selection (from dbl-clicking)
+            var sel = window.getSelection ? window.getSelection() : document.selection;
+            if (sel && sel.removeAllRanges) {
+                sel.removeAllRanges();
+            }
+            else if (sel && sel.empty) {
+                sel.empty();
+            }
+
+            e.preventDefault();
+            return false;
+        });
+
         // initialize notes list widget
         if (rcmail.gui_objects.noteslist) {
             noteslist = new rcube_list_widget(rcmail.gui_objects.noteslist,
