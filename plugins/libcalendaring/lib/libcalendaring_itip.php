@@ -451,14 +451,12 @@ class libcalendaring_itip
             ));
 
             // 2. update our copy with status=cancelled
-            /* TODO: implement CANCELLED status in calendar UI first
             $button_update = html::tag('input', array(
               'type' => 'button',
               'class' => 'button',
-              'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . JQ($mime_id) . "')",
+              'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . JQ($mime_id) . "', '$task')",
               'value' => $this->gettext('updatemycopy'),
             ));
-            */
 
             $buttons[] = html::div(array('id' => 'rsvp-'.$dom_id, 'style' => 'display:none'), $button_remove . $button_update);
 

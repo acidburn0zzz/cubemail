@@ -199,6 +199,7 @@ $labels['importwarningexists'] = 'A copy of this event already exists in your ca
 $labels['newerversionexists'] = 'A newer version of this event already exists! Aborted.';
 $labels['nowritecalendarfound'] = 'No calendar found to save the event';
 $labels['importedsuccessfully'] = 'The event was successfully added to \'$calendar\'';
+$labels['updatedsuccessfully'] = 'The event was successfully updated in \'$calendar\'';
 $labels['attendeupdateesuccess'] = 'Successfully updated the participant\'s status';
 $labels['itipsendsuccess'] = 'Invitation sent to participants.';
 $labels['itipresponseerror'] = 'Failed to send the response to this event invitation';

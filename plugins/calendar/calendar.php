@@ -2396,8 +2396,14 @@ class calendar extends rcube_plugin
           else if ($event['sequence'] >= $existing['sequence'] || $event['changed'] >= $existing['changed']) {
             $event['id'] = $existing['id'];
             $event['calendar'] = $existing['calendar'];
-            if ($status == 'declined' || $event['status'] == 'CANCELLED')  // show me as free when declined (#1670)
+
+            // set status=CANCELLED on CANCEL messages
+            if ($this->ical->method == 'CANCEL')
+              $event['status'] = 'CANCELLED';
+            // show me as free when declined (#1670)
+            if ($status == 'declined' || $event['status'] == 'CANCELLED')
               $event['free_busy'] = 'free';
+
             $success = $this->driver->edit_event($event);
           }
           else if (!empty($status)) {
@@ -2422,7 +2428,7 @@ class calendar extends rcube_plugin
     }
 
     if ($success) {
-      $message = $this->ical->method == 'REPLY' ? 'attendeupdateesuccess' : ($deleted ? 'successremoval' : 'importedsuccessfully');
+      $message = $this->ical->method == 'REPLY' ? 'attendeupdateesuccess' : ($deleted ? 'successremoval' : ($existing ? 'updatedsuccessfully' : 'importedsuccessfully'));
       $this->rc->output->command('display_message', $this->gettext(array('name' => $message, 'vars' => array('calendar' => $calendar['name']))), 'confirmation');
 
       $metadata['rsvp'] = intval($metadata['rsvp']);
