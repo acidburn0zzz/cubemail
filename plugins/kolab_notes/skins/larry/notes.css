@@ -44,6 +44,10 @@
 	background-position: center -54px;
 }
 
+.notesview #notestoolbar a.button.sendnote {
+	background-position: left -650px;
+}
+
 .notesview #quicksearchbar {
 	top: 8px;
 }

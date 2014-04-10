@@ -58,6 +58,7 @@ function rcube_kolab_notes_ui(settings)
         rcmail.register_command('delete', delete_notes, false);
         rcmail.register_command('search', quicksearch, true);
         rcmail.register_command('reset-search', reset_search, true);
+        rcmail.register_command('sendnote', send_note, false);
         rcmail.register_command('print', print_note, false);
 
         // register server callbacks
@@ -126,6 +127,7 @@ function rcube_kolab_notes_ui(settings)
                 });
 
                 rcmail.enable_command('delete', me.notebooks[me.selected_list] && me.notebooks[me.selected_list].editable && list.selection.length > 0);
+                rcmail.enable_command('sendnote', list.selection.length > 0);
                 rcmail.enable_command('print', list.selection.length == 1);
             })
             .addEventListener('dragstart', function(e) {
@@ -734,6 +736,24 @@ function rcube_kolab_notes_ui(settings)
                 $('#notechanged', printwin.document).html(Q(me.selected_note.changed));
                 printwin.print();
             });
+        }
+    }
+
+    /**
+     * Redirect to message compose screen with UIDs of notes to be appended
+     */
+    function send_note()
+    {
+        var uids = [];
+        for (var rec, i=0; i < noteslist.selection.length; i++) {
+            if (rec = notesdata[noteslist.selection[i]]) {
+                uids.push(rec.uid);
+                // TODO: check if rec.uid == me.selected_note.uid and unsaved changes
+            }
+        }
+
+        if (uids.length) {
+            rcmail.goto_url('mail/compose', { _with_notes: uids.join(','), _notes_list: me.selected_list }, true);
         }
     }
 

@@ -65,6 +65,7 @@ class kolab_notes extends rcube_plugin
 
         // load localizations
         $this->add_texts('localization/', $args['task'] == 'notes' && !$args['action']);
+        $this->rc->load_language($_SESSION['language'], array('notes.notes' => $this->gettext('navtitle')));  // add label for task title
 
         if ($args['task'] == 'notes') {
             // register task actions
@@ -73,6 +74,9 @@ class kolab_notes extends rcube_plugin
             $this->register_action('get',   array($this, 'note_record'));
             $this->register_action('action', array($this, 'note_action'));
             $this->register_action('list',  array($this, 'list_action'));
+        }
+        else if ($args['task'] == 'mail') {
+            $this->add_hook('message_compose', array($this, 'mail_message_compose'));
         }
 
         if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || $args['action'] == 'folder-acl')) {
@@ -601,12 +605,81 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
+     * Hook to add note attachments to message compose if the according parameter is present.
+     * This completes the 'send note by mail' feature.
+     */
+    public function mail_message_compose($args)
+    {
+        if (!empty($args['param']['with_notes'])) {
+            $uids = explode(',', $args['param']['with_notes']);
+            $list = $args['param']['notes_list'];
+            $attachments = array();
+            foreach ($uids as $uid) {
+                if ($note = $this->get_note(array('uid' => $uid, 'list' => $list))) {
+                    $args['attachments'][] = array(
+                        'name'     => abbreviate_string($note['title'], 50, ''),
+                        'mimetype' => 'message/rfc822',
+                        'data'     => $this->note2message($note),
+                    );
+
+                    if (empty($args['param']['subject'])) {
+                        $args['param']['subject'] = $note['title'];
+                    }
+                }
+            }
+
+            unset($args['param']['with_notes'], $args['param']['notes_list']);
+        }
+
+        return $args;
+    }
+
+    /**
      * Determine whether the given note is HTML formatted
      */
     private function is_html($note)
     {
         // check for opening and closing <html> or <body> tags
         return (preg_match('/<(html|body)(\s+[a-z]|>)/', $note['description'], $m) && strpos($note['description'], '</'.$m[1].'>') > 0);
+    }
+
+    /**
+     * Build an RFC 822 message from the given note
+     */
+    private function note2message($note)
+    {
+        $message = new Mail_mime("\r\n");
+
+        $message->setParam('text_encoding', '8bit');
+        $message->setParam('html_encoding', 'quoted-printable');
+        $message->setParam('head_encoding', 'quoted-printable');
+        $message->setParam('head_charset', RCUBE_CHARSET);
+        $message->setParam('html_charset', RCUBE_CHARSET);
+        $message->setParam('text_charset', RCUBE_CHARSET);
+
+        $message->headers(array(
+            'Subject' => $note['title'],
+            'Date' => $note['changed']->format('r'),
+        ));
+        console($note);
+        if ($this->is_html($note)) {
+            $message->setHTMLBody($note['description']);
+
+            // add a plain text version of the note content as an alternative part.
+            $h2t = new rcube_html2text($note['description'], false, true, 0, RCUBE_CHARSET);
+            $plain_part = rcube_mime::wordwrap($h2t->get_text(), $this->rc->config->get('line_length', 72), "\r\n", false, RCUBE_CHARSET);
+            $plain_part = trim(wordwrap($plain_part, 998, "\r\n", true));
+
+            // make sure all line endings are CRLF
+            $plain_part = preg_replace('/\r?\n/', "\r\n", $plain_part);
+
+            $message->setTXTBody($plain_part);
+        }
+        else {
+            $message->setTXTBody($note['description']);
+        }
+
+        return $message->getMessage();
     }
 
     /**
@@ -623,7 +696,7 @@ class kolab_notes extends rcube_plugin
         $is_html = true;
 
         // try to be smart and convert to plain-text if no real formatting is detected
-        if (preg_match('!<body><pre>(.*)</pre></body>!ims', $object['description'], $m)) {
+        if (preg_match('!<body><(?:p|pre)>(.*)</(?:p|pre)></body>!Uims', $object['description'], $m)) {
             if (!preg_match('!<(a|b|i|strong|em|p|span|div|pre|li)(\s+[a-z]|>)!im', $m[1], $n) || !strpos($m[1], '</'.$n[1].'>')) {
                 // $converter = new rcube_html2text($m[1], false, true, 0);
                 // $object['description'] = rtrim($converter->get_text());
