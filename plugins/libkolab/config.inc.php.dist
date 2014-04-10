@@ -30,3 +30,4 @@ $rcmail_config['kolab_http_request'] = array();
 // 2 - bypass messages/indexes cache completely
 // 1 - bypass only messages, but use index cache
 $rcmail_config['kolab_messages_cache_bypass'] = 0;
+
