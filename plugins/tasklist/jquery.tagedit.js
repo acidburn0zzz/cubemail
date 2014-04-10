@@ -5,13 +5,14 @@
 * Examples and documentation at: tagedit.webwork-albrecht.de
 *
 * Copyright (c) 2010 Oliver Albrecht <info@webwork-albrecht.de>
+* Copyright (c) 2012 Thomas Brüderli <thomas@roundcube.net>
 *
 * License:
 * This work is licensed under a MIT License
 * http://www.opensource.org/licenses/mit-license.php
 *
 * @author Oliver Albrecht Mial: info@webwork-albrecht.de Twitter: @webworka
-* @version 1.2.1 (11/2011)
+* @version 1.5.1 (10/2013)
 * Requires: jQuery v1.4+, jQueryUI v1.8+, jQuerry.autoGrowInput
 *
 * Example of usage:
@@ -52,6 +53,7 @@
 		options = $.extend(true, {
 			// default options here
 			autocompleteURL: null,
+			checkToDeleteURL: null,
 			deletedPostfix: '-d',
 			addedPostfix: '-a',
 			additionalListClass: '',
@@ -67,14 +69,15 @@
 				}
 			},
 			breakKeyCodes: [ 13, 44 ],
-            checkNewEntriesCaseSensitive: false,
+			checkNewEntriesCaseSensitive: false,
 			texts: {
 				removeLinkTitle: 'Remove from list.',
 				saveEditLinkTitle: 'Save changes.',
 				deleteLinkTitle: 'Delete this tag from database.',
 				deleteConfirmation: 'Are you sure to delete this entry?',
 				deletedElementTitle: 'This Element will be deleted.',
-				breakEditLinkTitle: 'Cancel'
+				breakEditLinkTitle: 'Cancel',
+                forceDeleteConfirmation: 'There are more records using this tag, are you sure do you want to remove it?'
 			},
 			tabindex: false
 		}, options || {});
@@ -133,7 +136,8 @@
 						html += '<li class="tagedit-listelement tagedit-listelement-old">';
 						html += '<span dir="'+options.direction+'">' + $(this).val() + '</span>';
 						html += '<input type="hidden" name="'+baseName+'['+elementId+']" value="'+$(this).val()+'" />';
-						html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'">x</a>';
+						if (options.allowDelete)
+							html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'">x</a>';
 						html += '</li>';
 					}
 				}
@@ -155,7 +159,8 @@
 			// put an input field at the End
 			// Put an empty element at the end
 			html = '<li class="tagedit-listelement tagedit-listelement-new">';
-			html += '<input type="text" name="'+baseName+'[]" value="" id="tagedit-input" disabled="disabled" class="tagedit-input-disabled" dir="'+options.direction+'"/>';
+			if (options.allowAdd)
+				html += '<input type="text" name="'+baseName+'[]" value="" id="tagedit-input" disabled="disabled" class="tagedit-input-disabled" dir="'+options.direction+'"/>';
 			html += '</li>';
 			html += '</ul>';
 
@@ -169,16 +174,16 @@
 					.each(function() {
 						$(this).autoGrowInput({comfortZone: 15, minWidth: 15, maxWidth: 20000});
 
-						// Event ist triggert in case of choosing an item from the autocomplete, or finish the input
+						// Event is triggert in case of choosing an item from the autocomplete, or finish the input
 						$(this).bind('transformToTag', function(event, id) {
-							var oldValue = (typeof id != 'undefined' && id.length > 0);
+							var oldValue = (typeof id != 'undefined' && (id.length > 0 || id > 0));
 
-							var checkAutocomplete = oldValue == true? false : true;
+							var checkAutocomplete = oldValue == true || options.autocompleteOptions.noCheck ? false : true;
 							// check if the Value ist new
 							var isNewResult = isNew($(this).val(), checkAutocomplete);
-							if(isNewResult[0] === true || isNewResult[1] != null) {
+							if(isNewResult[0] === true || (isNewResult[0] === false && typeof isNewResult[1] == 'string')) {
 
-								if(oldValue == false && isNewResult[1] != null) {
+								if(oldValue == false && typeof isNewResult[1] == 'string') {
 									oldValue = true;
 									id = isNewResult[1];
 								}
@@ -199,7 +204,8 @@
 
 							// close autocomplete
 							if(options.autocompleteOptions.source) {
-								$(this).autocomplete( "close" );
+								if($(this).is(':ui-autocomplete'))
+									$(this).autocomplete( "close" );
 							}
 
 						})
@@ -288,7 +294,7 @@
 					}
 					return false;
 				})
-				// forward focus event
+				// forward focus event (on tabbing through the form)
 				.focus(function(e){ $(this).click(); })
 		}
 
@@ -321,7 +327,7 @@
 				}
 
 				textfield.remove();
-				$(this).find('a.tagedit-save, a.tagedit-break, a.tagedit-delete, tester').remove(); // Workaround. This normaly has to be done by autogrow Plugin
+				$(this).find('a.tagedit-save, a.tagedit-break, a.tagedit-delete').remove(); // Workaround. This normaly has to be done by autogrow Plugin
 				$(this).removeClass('tagedit-listelement-edit').unbind('finishEdit');
 				return false;
 			});
@@ -356,7 +362,16 @@
 					.click(function() {
                         window.clearTimeout(closeTimer);
 						if(confirm(options.texts.deleteConfirmation)) {
-							markAsDeleted($(this).parent());
+                            var canDelete = checkToDelete($(this).parent());
+                            if (!canDelete && confirm(options.texts.forceDeleteConfirmation)) {
+                                markAsDeleted($(this).parent());
+                            }
+
+                            if(canDelete) {
+                                markAsDeleted($(this).parent());
+                            }
+
+                            $(this).parent().find(':text').trigger('finishEdit', [true]);
 						}
                         else {
                             $(this).parent().find(':text').trigger('finishEdit', [true]);
@@ -385,6 +400,42 @@
 						closeTimer = window.setTimeout(function() {that.parent().trigger('finishEdit', [true])}, 500);
 					});
 		}
+
+        /**
+         * Verifies if the tag select to be deleted is used by other records using an Ajax request.
+         *
+         * @param element
+         * @returns {boolean}
+         */
+        function checkToDelete(element) {
+            // if no URL is provide will not verify
+            if(options.checkToDeleteURL === null) {
+                return false;
+            }
+
+            var inputName = element.find('input:hidden').attr('name');
+            var idPattern = new RegExp('\\d');
+            var tagId = inputName.match(idPattern);
+            var checkResult = false;
+
+            $.ajax({
+                async   : false,
+                url     : options.checkToDeleteURL,
+                dataType: 'json',
+                type    : 'POST',
+                data    : { 'tagId' : tagId},
+                complete: function (XMLHttpRequest, textStatus) {
+
+                    // Expected JSON Object: { "success": Boolean, "allowDelete": Boolean}
+                    var result = $.parseJSON(XMLHttpRequest.responseText);
+                    if(result.success === true){
+                        checkResult = result.allowDelete;
+                    }
+                }
+            });
+
+            return checkResult;
+        }
 
 		/**
 		* Marks a single Tag as deleted.
@@ -451,12 +502,11 @@
 						}
 					});
 				}
-
+                
 				// If there is an entry for that already in the autocomplete, don't use it (Check could be case sensitive or not)
 				for (var i = 0; i < result.length; i++) {
-					var label = typeof result[i] == 'string' ? result[i] : result[i].label;
-					if (options.checkNewEntriesCaseSensitive == false)
-						label = label.toLowerCase();
+					var resultValue = result[i].label? result[i].label : result[i];
+					var label = options.checkNewEntriesCaseSensitive == true? resultValue : resultValue.toLowerCase();
 					if (label == compareValue) {
 						isNew = false;
 						autoCompleteId = typeof result[i] == 'string' ? i : result[i].id;
@@ -476,59 +526,59 @@
 // See related thread: http://stackoverflow.com/questions/931207/is-there-a-jquery-autogrow-plugin-for-text-fields
         
 $.fn.autoGrowInput = function(o) {
-	
-	o = $.extend({
-		maxWidth: 1000,
-		minWidth: 0,
-		comfortZone: 70
-	}, o);
-	
-	this.filter('input:text').each(function(){
-		
-		var minWidth = o.minWidth || $(this).width(),
-			val = '',
-			input = $(this),
-			testSubject = $('<tester/>').css({
-				position: 'absolute',
-				top: -9999,
-				left: -9999,
-				width: 'auto',
-				fontSize: input.css('fontSize'),
-				fontFamily: input.css('fontFamily'),
-				fontWeight: input.css('fontWeight'),
-				letterSpacing: input.css('letterSpacing'),
-				whiteSpace: 'nowrap'
-			}),
-			check = function() {
-				
-				if (val === (val = input.val())) {return;}
-				
-				// Enter new content into testSubject
-				var escaped = val.replace(/&/g, '&amp;').replace(/\s/g,'&nbsp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-				testSubject.html(escaped);
-				
-				// Calculate new width + whether to change
-				var testerWidth = testSubject.width(),
-					newWidth = (testerWidth + o.comfortZone) >= minWidth ? testerWidth + o.comfortZone : minWidth,
-					currentWidth = input.width(),
-					isValidWidthChange = (newWidth < currentWidth && newWidth >= minWidth)
-										 || (newWidth > minWidth && newWidth < o.maxWidth);
-				
-				// Animate width
-				if (isValidWidthChange) {
-					input.width(newWidth);
-				}
-				
-			};
-			
-		testSubject.insertAfter(input);
-		
-		$(this).bind('keyup keydown blur update', check);
-		
-		check();
-	});
-	
-	return this;
+    
+    o = $.extend({
+        maxWidth: 1000,
+        minWidth: 0,
+        comfortZone: 70
+    }, o);
+    
+    this.filter('input:text').each(function(){
+        
+        var minWidth = o.minWidth || $(this).width(),
+            val = '',
+            input = $(this),
+            testSubject = $('<tester/>').css({
+                position: 'absolute',
+                top: -9999,
+                left: -9999,
+                width: 'auto',
+                fontSize: input.css('fontSize'),
+                fontFamily: input.css('fontFamily'),
+                fontWeight: input.css('fontWeight'),
+                letterSpacing: input.css('letterSpacing'),
+                whiteSpace: 'nowrap'
+            }),
+            check = function() {
+                
+                if (val === (val = input.val())) {return;}
+                
+                // Enter new content into testSubject
+                var escaped = val.replace(/&/g, '&amp;').replace(/\s/g,'&nbsp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                testSubject.html(escaped);
+                
+                // Calculate new width + whether to change
+                var testerWidth = testSubject.width(),
+                    newWidth = (testerWidth + o.comfortZone) >= minWidth ? testerWidth + o.comfortZone : minWidth,
+                    currentWidth = input.width(),
+                    isValidWidthChange = (newWidth < currentWidth && newWidth >= minWidth)
+                                         || (newWidth > minWidth && newWidth < o.maxWidth);
+                
+                // Animate width
+                if (isValidWidthChange) {
+                    input.width(newWidth);
+                }
+                
+            };
+            
+        testSubject.insertAfter(input);
+        
+        $(this).bind('keyup keydown blur update', check);
+        
+        check();
+    });
+    
+    return this;
 
 };
 

@@ -911,6 +911,22 @@ class kolab_storage_cache
      */
     public function uid2msguid($uid, $deleted = false)
     {
+        // query local database if available
+        if (!isset($this->uid2msg[$uid]) && $this->ready) {
+            $this->_read_folder_data();
+
+            $sql_result = $this->db->query(
+                "SELECT msguid FROM $this->cache_table ".
+                "WHERE folder_id=? AND uid=?",
+                $this->folder_id,
+                $uid
+            );
+
+            if ($sql_arr = $this->db->fetch_assoc($sql_result)) {
+                $this->uid2msg[$uid] = $sql_arr['msguid'];
+            }
+        }
+
         if (!isset($this->uid2msg[$uid])) {
             // use IMAP SEARCH to get the right message
             $index = $this->imap->search_once($this->folder->name, ($deleted ? '' : 'UNDELETED ') .

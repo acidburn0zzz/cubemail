@@ -782,11 +782,9 @@ class tasklist extends rcube_plugin
 
         $this->ui->init_templates();
         echo $this->api->output->parse('tasklist.taskedit', false, false);
+        echo html::tag('link', array('rel' => 'stylesheet', 'type' => 'text/css', 'href' => $this->url($this->local_skin_path() . '/tagedit.css'), 'nl' => true));
         echo html::tag('script', array('type' => 'text/javascript'),
             "rcmail.set_env('tasklists', " . json_encode($this->api->output->env['tasklists']) . ");\n".
-//            "rcmail.set_env('deleteicon', '" . $this->api->output->env['deleteicon'] . "');\n".
-//            "rcmail.set_env('cancelicon', '" . $this->api->output->env['cancelicon'] . "');\n".
-//            "rcmail.set_env('loadingicon', '" . $this->api->output->env['loadingicon'] . "');\n".
             "rcmail.add_label(" . json_encode($texts) . ");\n"
         );
         exit;
