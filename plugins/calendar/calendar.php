@@ -190,6 +190,8 @@ class calendar extends rcube_plugin
 
         $this->api->output->add_label('calendar.createfrommail');
       }
+
+      $this->add_hook('messages_list', array($this, 'mail_messages_list'));
     }
     else if ($args['task'] == 'addressbook') {
       if ($this->rc->config->get('calendar_contact_birthdays')) {
@@ -2155,6 +2157,35 @@ class calendar extends rcube_plugin
   {
     $hidden = new html_hiddenfield(array('name' => "_t", 'value' => $this->token));
     return html::tag('form', array('action' => $this->rc->url(array('task' => 'calendar', 'action' => 'attend')), 'method' => 'post', 'noclose' => true) + $attrib) . $hidden->show();
+  }
+  
+  /**
+   * 
+   */
+  public function mail_messages_list($p)
+  {
+    if (in_array('attachment', (array)$p['cols'])) {
+      foreach ($p['messages'] as $i => $header) {
+        $part = new StdClass;
+        $part->mimetype = $header->ctype;
+        $part->filename = '';
+        if ($this->is_vcalendar($part)) {
+          $header->list_flags['attachmentClass'] = 'ical';
+        }
+        else if (in_array($header->ctype, array('multipart/alternative', 'multipart/mixed'))) {
+          // TODO: fetch bodystructure and search for ical parts. Maybe too expensive?
+
+          if (!empty($header->structure) && is_array($header->structure->parts)) {
+            foreach ($header->structure->parts as $part) {
+              if ($this->is_vcalendar($part) && !empty($part->ctype_parameters['method'])) {
+                $header->list_flags['attachmentClass'] = 'ical';
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
   }
   
   /**

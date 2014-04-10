@@ -1559,6 +1559,15 @@ fieldset #calendarcategories div {
 
 /* Invitation UI in mail */
 
+.messagelist tbody .attachment span.ical {
+	display: inline-block;
+	vertical-align: middle;
+	height: 18px;
+	width: 20px;
+	padding: 0;
+	background: url(images/ical-attachment.png) 2px 1px no-repeat;
+}
+
 #messagemenu li a.calendarlink span.calendar,
 #attachmentmenu li a.calendarlink span.calendar {
 	background-position: 0px -2197px;
