@@ -83,7 +83,6 @@ class kolab_storage
                 'skip_deleted' => true,
                 'threading' => false,
             ));
-            self::$imap->set_pagesize(9999);
         }
         else if (!class_exists('kolabformat')) {
             rcube::raise_error(array(
