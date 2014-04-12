@@ -2168,7 +2168,6 @@ class calendar extends rcube_plugin
       foreach ($p['messages'] as $i => $header) {
         $part = new StdClass;
         $part->mimetype = $header->ctype;
-        $part->filename = '';
         if ($this->is_vcalendar($part)) {
           $header->list_flags['attachmentClass'] = 'ical';
         }

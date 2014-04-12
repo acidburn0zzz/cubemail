@@ -50,6 +50,7 @@ class kolab_notes_ui
         $this->plugin->register_handler('plugin.editform', array($this, 'editform'));
         $this->plugin->register_handler('plugin.notetitle', array($this, 'notetitle'));
         $this->plugin->register_handler('plugin.detailview', array($this, 'detailview'));
+        $this->plugin->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
 
         $this->rc->output->include_script('list.js');
         $this->rc->output->include_script('treelist.js');
@@ -64,8 +65,11 @@ class kolab_notes_ui
             'print_template' => $this->rc->url('print'),
         );
 
-        if (!empty($_REQUEST['_list'])) {
-            $settings['selected_list'] = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC);
+        if ($list = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC)) {
+            $settings['selected_list'] = $list;
+        }
+        if ($uid = rcube_utils::get_input_value('_id', RCUBE_INPUT_GPC)) {
+            $settings['selected_uid'] = $uid;
         }
 
         // TinyMCE uses two-letter lang codes, with exception of Chinese
@@ -92,6 +96,10 @@ class kolab_notes_ui
     {
         $attrib += array('id' => 'rcmkolabnotebooks');
 
+        if ($attrib['type'] == 'select') {
+            $select = new html_select($attrib);
+        }
+
         $jsenv = array();
         $items = '';
         foreach ($this->plugin->get_lists() as $prop) {
@@ -102,26 +110,33 @@ class kolab_notes_ui
             if (!$prop['virtual'])
                 $jsenv[$id] = $prop;
 
-            $html_id = rcube_utils::html_identifier($id);
-            $title = $prop['name'] != $prop['listname'] ? html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
+            if ($attrib['type'] == 'select') {
+                if ($prop['editable']) {
+                    $select->add($prop['name'], $prop['id']);
+                }
+            }
+            else {
+                $html_id = rcube_utils::html_identifier($id);
+                $title = $prop['name'] != $prop['listname'] ? html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
 
-            if ($prop['virtual'])
-                $class .= ' virtual';
-            else if (!$prop['editable'])
-                $class .= ' readonly';
-            if ($prop['class_name'])
-                $class .= ' '.$prop['class_name'];
+                if ($prop['virtual'])
+                    $class .= ' virtual';
+                else if (!$prop['editable'])
+                    $class .= ' readonly';
+                if ($prop['class_name'])
+                    $class .= ' '.$prop['class_name'];
 
-            $items .= html::tag('li', array('id' => 'rcmliknb' . $html_id, 'class' => trim($class)),
-                html::span(array('class' => 'listname', 'title' => $title), $prop['listname']) .
-                html::span(array('class' => 'count'), '')
-            );
+                $items .= html::tag('li', array('id' => 'rcmliknb' . $html_id, 'class' => trim($class)),
+                    html::span(array('class' => 'listname', 'title' => $title), $prop['listname']) .
+                    html::span(array('class' => 'count'), '')
+                );
+            }
         }
 
         $this->rc->output->set_env('kolab_notebooks', $jsenv);
         $this->rc->output->add_gui_object('notebooks', $attrib['id']);
 
-        return html::tag('ul', $attrib, $items, html::$common_attrib);
+        return $attrib['type'] == 'select' ? $select->show() : html::tag('ul', $attrib, $items, html::$common_attrib);
     }
 
     public function listing($attrib)
@@ -173,6 +188,13 @@ class kolab_notes_ui
         );
 
         return html::div($attrib, $html);
+    }
+
+    public function attachments_list($attrib)
+    {
+        $attrib += array('id' => 'rcmkolabnotesattachmentslist');
+        $this->rc->output->add_gui_object('notesattachmentslist', $attrib['id']);
+        return html::tag('ul', $attrib, '', html::$common_attrib);
     }
 
     /**

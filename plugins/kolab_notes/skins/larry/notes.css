@@ -114,6 +114,10 @@
 	bottom: 0px;
 }
 
+.notesdialog #notedetailsbox {
+	left: 0;
+}
+
 .notesview #notedetailsbox .formbuttons {
 	position: absolute;
 	bottom: 0;
@@ -131,6 +135,10 @@
 	left: 0;
 	bottom: 41px;
 	width: 100%;
+}
+
+.notesdialog #noteform {
+	bottom: 30px;
 }
 
 .notesview #notedetails {
@@ -207,14 +215,16 @@
 }
 
 .notesview #notedetailstitle .dates,
-.notesview #notedetailstitle .tagline {
+.notesview #notedetailstitle .tagline,
+.notesdialog .notebookselect label {
 	color: #999;
 	font-weight: normal;
 	font-size: 0.9em;
 	margin-top: 6px;
 }
 
-.notesview #notedetailstitle .dates {
+.notesview #notedetailstitle .dates,
+.notesview #notedetailstitle .notebookselect {
 	margin-top: 4px;
 	margin-bottom: 4px;
 }
@@ -250,6 +260,16 @@
 	padding-left: 0.4em;
 	padding-right: 2em;
 	color: #777;
+}
+
+.notesview #notereferences {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 27px;
+	background: #fff;
+	padding-left: 10px;
 }
 
 .notesview #notebooks li {
@@ -336,4 +356,17 @@
 
 .notesview .uidialog .propform #noteslist-name {
 	width: 20em;
+}
+
+.notesdialog #notesdialogheader {
+	height: auto;
+}
+
+#kolabnotesinlinegui {
+	border: 0;
+	padding: 0;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	        box-sizing: border-box;
 }

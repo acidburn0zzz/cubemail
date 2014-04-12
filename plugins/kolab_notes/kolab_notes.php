@@ -64,7 +64,7 @@ class kolab_notes extends rcube_plugin
         }
 
         // load localizations
-        $this->add_texts('localization/', $args['task'] == 'notes' && !$args['action']);
+        $this->add_texts('localization/', $args['task'] == 'notes' && (!$args['action'] || $args['action'] == 'dialog-ui'));
         $this->rc->load_language($_SESSION['language'], array('notes.notes' => $this->gettext('navtitle')));  // add label for task title
 
         if ($args['task'] == 'notes') {
@@ -74,12 +74,31 @@ class kolab_notes extends rcube_plugin
             $this->register_action('get',   array($this, 'note_record'));
             $this->register_action('action', array($this, 'note_action'));
             $this->register_action('list',  array($this, 'list_action'));
+            $this->register_action('dialog-ui', array($this, 'dialog_view'));
         }
         else if ($args['task'] == 'mail') {
             $this->add_hook('message_compose', array($this, 'mail_message_compose'));
+            $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
+
+            // add 'Append note' item to message menu
+            if ($this->api->output->type == 'html' && $_REQUEST['_rel'] != 'note') {
+                $this->api->add_content(html::tag('li', null, 
+                    $this->api->output->button(array(
+                      'command'  => 'append-kolab-note',
+                      'label'    => 'kolab_notes.appendnote',
+                      'type'     => 'link',
+                      'classact' => 'icon appendnote active',
+                      'class'    => 'icon appendnote',
+                      'innerclass' => 'icon note',
+                    ))),
+                    'messagemenu');
+
+                $this->api->output->add_label('kolab_notes.appendnote', 'save', 'cancel');
+                $this->include_script('notes_mail.js');
+            }
         }
 
-        if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || $args['action'] == 'folder-acl')) {
+        if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || in_array($args['action'], array('folder-acl','dialog-ui')))) {
             require_once($this->home . '/kolab_notes_ui.php');
             $this->ui = new kolab_notes_ui($this);
             $this->ui->init();
@@ -205,6 +224,32 @@ class kolab_notes extends rcube_plugin
         $this->ui->init_templates();
         $this->rc->output->set_pagetitle($this->gettext('navtitle'));
         $this->rc->output->send('kolab_notes.notes');
+    }
+
+    /**
+     * Deliver a rediced UI for inline (dialog)
+     */
+    public function dialog_view()
+    {
+        // resolve message reference
+        if ($msgref = rcube_utils::get_input_value('_msg', RCUBE_INPUT_GPC, true)) {
+            $storage = $this->rc->get_storage();
+            $storage->set_options(array('all_headers' => true));
+            list($uid, $folder) = explode('-', $msgref, 2);
+            if ($message = $storage->get_message_headers($msgref)) {
+                $this->rc->output->set_env('kolab_notes_template', array(
+                    'title' => $message->get('subject'),
+                    'links' => array(array(
+                        'uri' => $this->get_message_uri($message, $folder),
+                        'message_id' => $message->get('message-id'),
+                        'subject' => $message->get('subject'),
+                    )),
+                ));
+            }
+        }
+
+        $this->ui->init_templates();
+        $this->rc->output->send('kolab_notes.dialogview');
     }
 
     /**
@@ -635,6 +680,14 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
+     * Handler for 'messagebody_html' hooks
+     */
+    public function mail_messagebody_html($args)
+    {
+      
+    }
+
+    /**
      * Determine whether the given note is HTML formatted
      */
     private function is_html($note)
@@ -680,6 +733,11 @@ class kolab_notes extends rcube_plugin
         }
 
         return $message->getMessage();
+    }
+
+    private function get_message_uri($headers, $folder)
+    {
+      return sprintf('imap://%s/%s#%s', $headers->folder ?: $folder, $headers->uid, urlencode($headers->messageID));
     }
 
     /**
