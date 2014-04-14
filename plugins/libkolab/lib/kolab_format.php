@@ -502,6 +502,11 @@ abstract class kolab_format
         return array();
     }
 
+    /**
+     * Utility function to extract object attachment data
+     *
+     * @param array Hash array reference to append attachment data into
+     */
     protected function get_attachments(&$object)
     {
         // handle attachments
@@ -520,13 +525,19 @@ abstract class kolab_format
                     'content'  => $content,
                 );
             }
-            else if (substr($attach->uri(), 0, 4) == 'http') {
+            else if (in_array(substr($attach->uri(), 0, 4), array('http','imap'))) {
                 $object['links'][] = $attach->uri();
             }
         }
     }
 
-    protected function set_attachments($object)
+    /**
+     * Utility function to set attachment properties to the kolabformat object
+     *
+     * @param array  Object data as hash array
+     * @param boolean True to always overwrite attachment information
+     */
+    protected function set_attachments($object, $write = true)
     {
         // save attachments
         $vattach = new vectorattachment;
@@ -537,16 +548,17 @@ abstract class kolab_format
             $attach->setLabel((string)$attr['name']);
             $attach->setUri('cid:' . $cid, $attr['mimetype'] ?: 'application/octet-stream');
             if ($attach->isValid()) {
-              $vattach->push($attach);
+                $vattach->push($attach);
+                $write = true;
             }
             else {
-              rcube::raise_error(array(
-                  'code' => 660,
-                  'type' => 'php',
-                  'file' => __FILE__,
-                  'line' => __LINE__,
-                  'message' => "Invalid attributes for attachment $cid: " . var_export($attr, true),
-              ), true);
+                rcube::raise_error(array(
+                    'code' => 660,
+                    'type' => 'php',
+                    'file' => __FILE__,
+                    'line' => __LINE__,
+                    'message' => "Invalid attributes for attachment $cid: " . var_export($attr, true),
+                ), true);
             }
         }
 
@@ -554,8 +566,11 @@ abstract class kolab_format
             $attach = new Attachment;
             $attach->setUri($link, 'unknown');
             $vattach->push($attach);
+            $write = true;
         }
 
-        $this->obj->setAttachments($vattach);
+        if ($write) {
+            $this->obj->setAttachments($vattach);
+        }
     }
 }

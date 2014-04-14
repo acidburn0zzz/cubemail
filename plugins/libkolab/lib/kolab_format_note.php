@@ -109,8 +109,17 @@ class kolab_format_note extends kolab_format
     {
         $tags = array();
 
-        foreach ((array) $this->data['categories'] as $cat) {
+        foreach ((array)$this->data['categories'] as $cat) {
             $tags[] = rcube_utils::normalize_string($cat);
+        }
+
+        // add tag for message references
+        foreach ((array)$this->data['links'] as $link) {
+            $url = parse_url($link);
+            if ($url['scheme'] == 'imap') {
+                parse_str($url['query'], $param);
+                $tags[] = 'ref:' . trim($param['message-id'] ?: urldecode($url['fragment']), '<> ');
+            }
         }
 
         return $tags;
