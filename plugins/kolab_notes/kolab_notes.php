@@ -34,6 +34,7 @@ class kolab_notes extends rcube_plugin
     private $lists;
     private $folders;
     private $cache = array();
+    private $message_notes = array();
 
     /**
      * Required startup method of a Roundcube plugin
@@ -68,6 +69,8 @@ class kolab_notes extends rcube_plugin
         $this->rc->load_language($_SESSION['language'], array('notes.notes' => $this->gettext('navtitle')));  // add label for task title
 
         if ($args['task'] == 'notes') {
+            $this->add_hook('storage_init', array($this, 'storage_init'));
+
             // register task actions
             $this->register_action('index', array($this, 'notes_view'));
             $this->register_action('fetch', array($this, 'notes_fetch'));
@@ -77,6 +80,8 @@ class kolab_notes extends rcube_plugin
             $this->register_action('dialog-ui', array($this, 'dialog_view'));
         }
         else if ($args['task'] == 'mail') {
+            $this->add_hook('storage_init', array($this, 'storage_init'));
+            $this->add_hook('message_load', array($this, 'mail_message_load'));
             $this->add_hook('message_compose', array($this, 'mail_message_compose'));
             $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
 
@@ -93,16 +98,33 @@ class kolab_notes extends rcube_plugin
                     ))),
                     'messagemenu');
 
-                $this->api->output->add_label('kolab_notes.appendnote', 'save', 'cancel');
+                $this->api->output->add_label('kolab_notes.appendnote', 'kolab_notes.editnote', 'kolab_notes.deletenotesconfirm', 'kolab_notes.entertitle', 'save', 'delete', 'cancel', 'close');
                 $this->include_script('notes_mail.js');
             }
         }
 
         if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || in_array($args['action'], array('folder-acl','dialog-ui')))) {
-            require_once($this->home . '/kolab_notes_ui.php');
-            $this->ui = new kolab_notes_ui($this);
-            $this->ui->init();
+            $this->load_ui();
         }
+    }
+
+    /**
+     * Hook into IMAP FETCH HEADER.FIELDS command and request MESSAGE-ID
+     */
+    public function storage_init($p)
+    {
+        $p['fetch_headers'] = trim($p['fetch_headers'] . ' MESSAGE-ID');
+        return $p;
+    }
+
+    /**
+     * Load and initialize UI class
+     */
+    private function load_ui()
+    {
+        require_once($this->home . '/kolab_notes_ui.php');
+        $this->ui = new kolab_notes_ui($this);
+        $this->ui->init();
     }
 
     /**
@@ -205,8 +227,8 @@ class kolab_notes extends rcube_plugin
 
         // attempt to create a default folder for this user
         if (empty($this->lists)) {
-            #if ($this->create_list(array('name' => 'Tasks', 'color' => '0000CC', 'default' => true)))
-            #    $this->_read_lists(true);
+            $folder = kolab_storage::folder_update(array('name' => 'Notes', 'type' => 'note', 'default' => true, 'subscribed' => true));
+            $this->_read_lists(true);
         }
 
         return $this->lists;
@@ -234,10 +256,10 @@ class kolab_notes extends rcube_plugin
         // resolve message reference
         if ($msgref = rcube_utils::get_input_value('_msg', RCUBE_INPUT_GPC, true)) {
             $storage = $this->rc->get_storage();
-            $storage->set_options(array('all_headers' => true));
             list($uid, $folder) = explode('-', $msgref, 2);
             if ($message = $storage->get_message_headers($msgref)) {
                 $this->rc->output->set_env('kolab_notes_template', array(
+                    '_from_mail' => true,
                     'title' => $message->get('subject'),
                     'links' => array(array(
                         'uri' => $this->get_message_uri($message, $folder),
@@ -346,7 +368,7 @@ class kolab_notes extends rcube_plugin
 
         // encode for client use
         if (is_array($data)) {
-            $this->_client_encode($data);
+            $this->_client_encode($data, true);
         }
 
         $this->rc->output->command('plugin.render_note', $data);
@@ -393,7 +415,7 @@ class kolab_notes extends rcube_plugin
     /**
      * Helper method to encode the given note record for use in the client
      */
-    private function _client_encode(&$note)
+    private function _client_encode(&$note, $resolve = false)
     {
         foreach ($note as $key => $prop) {
             if ($key[0] == '_' || $key == 'x-custom') {
@@ -411,6 +433,14 @@ class kolab_notes extends rcube_plugin
         // clean HTML contents
         if (!empty($note['description']) && $this->is_html($note)) {
             $note['html'] = $this->_wash_html($note['description']);
+        }
+
+        // resolve message links
+        if (is_array($note['links'])) {
+            $me = $this;
+            $note['links'] = array_map(function($link) use ($me, $resolve){
+                return $me->get_message_reference($link, $resolve) ?: array('uri' => $link);
+            }, $note['links']);
         }
 
         return $note;
@@ -680,11 +710,47 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
-     * Handler for 'messagebody_html' hooks
+     * Lookup backend storage and find notes tagged with the given message-ID
+     */
+    public function mail_message_load($p)
+    {
+        $this->message = $p['object'];
+        $this->message_notes = array();
+
+        // TODO: only query for notes if message was flagged with $KolabNotes ?
+
+        $message_id = trim($p['object']->headers->messageID, '<> ');
+        if ($message_id && $p['object']->uid) {
+            $query = array(array('tags','=','ref:' . $message_id));
+            foreach (kolab_storage::select($query, 'note') as $record) {
+                $record['list'] = kolab_storage::folder_id($record['_mailbox']);
+                $this->message_notes[] = $record;
+            }
+        }
+    }
+
+    /**
+     * Handler for 'messagebody_html' hook
      */
     public function mail_messagebody_html($args)
     {
-      
+        $html = '';
+        foreach ($this->message_notes as $note) {
+            $html .= html::a(array(
+                'href' => $this->rc->url(array('task' => 'notes', '_list' => $note['list'], '_id' => $note['uid'])),
+                'class' => 'kolabnotesref',
+                'rel' => $note['uid'] . '@' . $note['list'],
+                'target' => '_blank',
+            ), Q($note['title']));
+        }
+
+        // prepend note links to message body
+        if ($html) {
+            $this->load_ui();
+            $args['content'] = html::div('kolabmessagenotes', $html) . $args['content'];
+        }
+
+        return $args;
     }
 
     /**
@@ -714,7 +780,7 @@ class kolab_notes extends rcube_plugin
             'Subject' => $note['title'],
             'Date' => $note['changed']->format('r'),
         ));
-        console($note);
+
         if ($this->is_html($note)) {
             $message->setHTMLBody($note['description']);
 
@@ -735,9 +801,79 @@ class kolab_notes extends rcube_plugin
         return $message->getMessage();
     }
 
+    /**
+     * Build a URI representing the given message reference
+     */
     private function get_message_uri($headers, $folder)
     {
-      return sprintf('imap://%s/%s#%s', $headers->folder ?: $folder, $headers->uid, urlencode($headers->messageID));
+        return sprintf('imap://%s/%s?message-id=%s&subject=%s',
+            $headers->folder ?: $folder,
+            $headers->uid,
+            urlencode($headers->messageID),
+            urlencode($headers->get('subject'))
+        );
+    }
+
+    /**
+     * Extract message reference components from the given URI
+     */
+    private function parse_message_uri($uri)
+    {
+        $url = parse_url($uri);
+        if ($url['scheme'] == 'imap') {
+            parse_str($url['query'], $param);
+            $linkref = array(
+                'uri' => $uri,
+                'message_id' => $param['message-id'] ?: urldecode($url['fragment']),
+                'subject' => $param['subject'],
+            );
+
+            $path = explode('/', $url['host'] . $url['path']);
+            $linkref['msguid'] = array_pop($path);
+            $linkref['folder'] = join('/', $path);
+
+            return $linkref;
+        }
+
+        return false;
+    }
+
+    /**
+     * Resolve the email message reference from the given URI
+     */
+    public function get_message_reference($uri, $resolve = false)
+    {
+        if ($linkref = $this->parse_message_uri($uri)) {
+            // fetch message subject
+            if ($resolve || empty($linkref['subject'])) {
+                $imap = $this->rc->get_storage();
+                if (!($message = $imap->get_message_headers($linrkef['msguid'], $linkref['folder']))) {
+                    // try to find message using the message_id fragment
+                    $index = $imap->search_once($imap->list_folders_subscribed('', '*', 'mail', null, true), 'HEADER MESSAGE-ID ' . $linkref['message_id']);
+                    if ($index->count()) {
+                        $uid = reset($index->get());
+                        $folder = $index->get_parameters('MAILBOX');
+                        if ($message = $imap->get_message_headers($uid, $folder)) {
+                            // replace metadata
+                            $linkref['subject'] = $message->get('subject');
+                            $linkref['msguid'] = $message->uid;
+                            $linkref['folder'] = $message->folder;
+                            $linkref['uri'] = $this->get_message_uri($message, $folder);
+                        }
+                    }
+                }
+            }
+
+            $linkref['mailurl'] = $this->rc->url(array(
+                'task' => 'mail',
+                'action' => 'show',
+                'mbox' => $linkref['folder'],
+                'uid' => $linkref['msguid'],
+                'rel' => 'note',
+            ));
+        }
+
+        return $linkref;
     }
 
     /**
@@ -748,6 +884,14 @@ class kolab_notes extends rcube_plugin
         $object = $note;
 
         // TODO: handle attachments
+
+        // convert link references into simple URIs
+        if (array_key_exists('links', $note)) {
+            $object['links'] = array_map(function($link){ return is_array($link) ? $link['uri'] : strval($link); }, $note['links']);
+        }
+        else {
+            $object['links'] = $old['links'];
+        }
 
         // clean up HTML content
         $object['description'] = $this->_wash_html($note['description']);

@@ -60,6 +60,9 @@
             <roundcube:object name="plugin.notetitle" id="notedetailstitle" class="boxtitle" />
             <roundcube:object name="plugin.editform" id="noteform" />
             <roundcube:object name="plugin.detailview" id="notedetails" class="scroller" />
+            <div id="notereferences">
+                <roundcube:object name="plugin.attachments_list" id="attachment-list" class="attachmentslist" />
+            </div>
             <div class="footerleft formbuttons">
                 <roundcube:button command="save" type="input" class="button mainaction" label="save" />
             </div>
@@ -115,9 +118,16 @@ $(document).ready(function(e){
         var form = $('#noteform, #notedetails'),
             content = $('#notecontent'),
             header = $('#notedetailstitle'),
+            footer = $('#notereferences'),
             w, h;
 
+        if ($('#attachment-list li').length)
+            footer.show();
+        else
+            footer.hide();
+
         form.css('top', header.outerHeight()+'px');
+        form.css('bottom', ((footer.is(':visible') ? footer.outerHeight()+4 : 0) + 41) + 'px');
 
         w = form.outerWidth();
         h = form.outerHeight();

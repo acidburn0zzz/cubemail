@@ -24,7 +24,8 @@ $labels['tabsharing'] = 'Sharing';
 $labels['discard'] = 'Discard';
 $labels['abort'] = 'Abort';
 $labels['unsavedchanges'] = 'Unsaved Changes!';
-$labels['appendnote'] = 'Add a note';
+$labels['appendnote'] = 'Add a Note';
+$labels['editnote'] = 'Edit Note';
 $labels['savein'] = 'Save in';
 
 $labels['savingdata'] = 'Saving data...';

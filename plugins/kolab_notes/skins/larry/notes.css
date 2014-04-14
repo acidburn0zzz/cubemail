@@ -103,7 +103,7 @@
 }
 
 .notesview .toolbarmenu.iconized .selected span.icon {
-	background: url(sprites.png) -5px -109px no-repeat;
+	background: url(sprites.png) -4px -110px no-repeat;
 }
 
 .notesview #notedetailsbox {
@@ -137,16 +137,18 @@
 	width: 100%;
 }
 
-.notesdialog #noteform {
-	bottom: 30px;
-}
-
 .notesview #notedetails {
 	padding: 8px;
 	-webkit-box-sizing: border-box;
 	   -moz-box-sizing: border-box;
 	    -ms-box-sizing: border-box;
 	        box-sizing: border-box;
+	border-bottom: 1px solid #dfdfdf;
+}
+
+.notesdialog #noteform,
+.notesdialog #notedetails {
+	bottom: 30px;
 }
 
 .notesview #notedetails pre {
@@ -266,10 +268,14 @@
 	position: absolute;
 	left: 0;
 	right: 0;
-	bottom: 0;
+	bottom: 41px;
 	height: 27px;
 	background: #fff;
 	padding-left: 10px;
+}
+
+.notesdialog #notereferences {
+	bottom: 0;
 }
 
 .notesview #notebooks li {
@@ -369,4 +375,42 @@
 	   -moz-box-sizing: border-box;
 	    -ms-box-sizing: border-box;
 	        box-sizing: border-box;
+}
+
+.notesview .attachmentslist li.message.eml {
+	display: inline-block;
+	background-image: url(sprites.png);
+	background-position: -6px -128px;
+	margin-right: 1em;
+}
+
+.notesview .attachmentslist li.message a.messagelink {
+	padding-left: 24px;
+}
+
+ul.toolbarmenu li .appendnote span.icon {
+	background-image: url(sprites.png);
+	background-position: -4px -170px;
+}
+
+div.kolabmessagenotes {
+	margin: 8px 8px;
+	padding: 4px 8px;
+	border: 1px solid #dfdfdf;
+	background: #fafafa;
+	border-radius: 4px;
+}
+
+div.kolabmessagenotes a.kolabnotesref {
+	display: inline-block;
+	color: #333;
+	font-weight: bold;
+	padding: 3px 15px 2px 22px;
+	text-shadow: 0px 1px 1px #fff;
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 12em;
+	background: url(sprites.png) -6px -151px no-repeat;
 }
