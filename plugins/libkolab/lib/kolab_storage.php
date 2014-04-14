@@ -177,6 +177,33 @@ class kolab_storage
         return false;
     }
 
+    /**
+     * Execute cross-folder searches with the given query.
+     *
+     * @param array  Pseudo-SQL query as list of filter parameter triplets
+     * @param string Object type (contact,event,task,journal,file,note,configuration)
+     * @return array List of Kolab data objects (each represented as hash array)
+     * @see kolab_storage_format::select()
+     */
+    public static function select($query, $type)
+    {
+        self::setup();
+        $folder = null;
+        $result = array();
+
+        foreach ((array)self::list_folders('', '*', $type) as $foldername) {
+            if (!$folder)
+                $folder = new kolab_storage_folder($foldername);
+            else
+                $folder->set_folder($foldername);
+
+            foreach ($folder->select($query, '*') as $object) {
+                $result[] = $object;
+            }
+        }
+
+        return $result;
+    }
 
     /**
      *
