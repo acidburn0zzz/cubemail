@@ -376,10 +376,10 @@ class kolab_delegation extends rcube_plugin
         // Delegate autocompletion
         else if ($this->rc->action == 'plugin.delegation-autocomplete') {
             $search = get_input_value('_search', RCUBE_INPUT_GPC, true);
-            $sid    = get_input_value('_id', RCUBE_INPUT_GPC);
+            $reqid  = get_input_value('_reqid', RCUBE_INPUT_GPC);
             $users  = $engine->list_users($search);
 
-            $this->rc->output->command('ksearch_query_results', $users, $search, $sid);
+            $this->rc->output->command('ksearch_query_results', $users, $search, $reqid);
         }
 
         $this->rc->output->send();
