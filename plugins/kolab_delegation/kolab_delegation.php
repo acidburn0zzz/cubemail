@@ -320,7 +320,7 @@ class kolab_delegation extends rcube_plugin
      */
     public function controller_action()
     {
-        $this->add_texts('localization/', true);
+        $this->add_texts('localization/');
 
         $engine = $this->engine();
 
