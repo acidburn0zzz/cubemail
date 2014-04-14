@@ -427,6 +427,11 @@ class kolab_delegation_engine
         $result = $ldap->search($fields, $search, $mode, (array)$this->ldap_login_field, $max);
 
         foreach ($result as $record) {
+            // skip self
+            if ($record['dn'] == $_SESSION['kolab_dn']) {
+                continue;
+            }
+
             $user = $this->parse_ldap_record($record);
 
             if ($user['name']) {
