@@ -26,9 +26,16 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
      */
     function kolab_note_dialog(url)
     {
-        var frame, name, mywin = window, edit = url && url._id;
+        var frame, name, mywin = window, edit = url && url._id,
+            $dialog = $('#kolabnotesinlinegui');
 
-        var $dialog = $('#kolabnotesinlinegui');
+        function dialog_render(p)
+        {
+            $dialog.parent().find('.ui-dialog-buttonset .ui-button')
+                .prop('disabled', p.readonly)
+                .last().prop('disabled', false);
+        }
+
         // create dialog if not exists
         if (!$dialog.length) {
             $dialog = $('<iframe>')
@@ -40,14 +47,12 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                 .bind('load', function(e){
                     frame = rcmail.get_frame_window('kolabnotesinlinegui');
                     name = $('.notetitle', frame.rcmail.gui_objects.noteviewtitle);
-
                     frame.rcmail.addEventListener('responseafteraction', refresh_mailview);
-                    frame.rcmail.addEventListener('kolab_notes_render', function(p){
-                        $dialog.parent().find('.ui-dialog-buttonset .ui-button')
-                            .prop('disabled', p.readonly)
-                            .last().prop('disabled', false);
-                    })
                 });
+
+            // subscribe event in parent window which is also triggered from iframe
+            // (probably before the 'load' event from above)
+            rcmail.addEventListener('kolab_notes_render', dialog_render);
         }
         // close show dialog first
         else if ($dialog.is(':ui-dialog')) {
@@ -101,6 +106,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
             },
             close: function() {
                 $dialog.dialog('destroy').remove();
+                rcmail.removeEventListener('kolab_notes_render', dialog_render);
             },
             buttons: buttons,
             minWidth: 480,

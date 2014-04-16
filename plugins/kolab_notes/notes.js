@@ -815,6 +815,8 @@ function rcube_kolab_notes_ui(settings)
 
         // notify subscribers
         rcmail.triggerEvent('kolab_notes_render', { data:data, readonly:readonly, html:is_html });
+        if (rcmail.is_framed())
+            parent.rcmail.triggerEvent('kolab_notes_render', { data:data, readonly:readonly, html:is_html });
 
         // Trigger resize (needed for proper editor resizing)
         $(window).resize();
