@@ -1186,6 +1186,7 @@ function rcube_kolab_notes_ui(settings)
 
             reset_view();
             update_tagcloud();
+            noteslist.clear_selection();
         }
     }
 
