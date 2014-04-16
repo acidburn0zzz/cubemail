@@ -97,6 +97,7 @@ class kolab_notes_ui
         $attrib += array('id' => 'rcmkolabnotebooks');
 
         if ($attrib['type'] == 'select') {
+            $attrib['is_escaped'] = true;
             $select = new html_select($attrib);
         }
 

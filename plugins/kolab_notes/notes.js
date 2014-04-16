@@ -1006,6 +1006,7 @@ function rcube_kolab_notes_ui(settings)
         $('.tagline, .dates', rcmail.gui_objects.noteviewtitle).hide();
         $(rcmail.gui_objects.noteseditform).hide();
         $(rcmail.gui_objects.notesdetailview).hide();
+        $(rcmail.gui_objects.notesattachmentslist).html('');
         rcmail.enable_command('save', false);
     }
 

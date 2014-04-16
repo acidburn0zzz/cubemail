@@ -261,11 +261,7 @@ class kolab_notes extends rcube_plugin
                 $this->rc->output->set_env('kolab_notes_template', array(
                     '_from_mail' => true,
                     'title' => $message->get('subject'),
-                    'links' => array(array(
-                        'uri' => $this->get_message_uri($message, $folder),
-                        'message_id' => $message->get('message-id'),
-                        'subject' => $message->get('subject'),
-                    )),
+                    'links' => array($this->get_message_reference($this->get_message_uri($message, $folder))),
                 ));
             }
         }
