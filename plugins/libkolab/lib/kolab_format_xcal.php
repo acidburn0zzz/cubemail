@@ -76,7 +76,7 @@ abstract class kolab_format_xcal extends kolab_format
         'AUDIO' => Alarm::AudioAlarm,
     );
 
-    private $status_map = array(
+    protected $status_map = array(
         'NEEDS-ACTION' => kolabformat::StatusNeedsAction,
         'IN-PROCESS'   => kolabformat::StatusInProcess,
         'COMPLETED'    => kolabformat::StatusCompleted,
