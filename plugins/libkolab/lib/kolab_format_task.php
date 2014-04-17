@@ -42,10 +42,7 @@ class kolab_format_task extends kolab_format_xcal
         parent::set($object);
 
         $this->obj->setPercentComplete(intval($object['complete']));
-
-        if (isset($object['start']))
-            $this->obj->setStart(self::get_datetime($object['start'], null, $object['start']->_dateonly));
-
+        $this->obj->setStart(self::get_datetime($object['start'], null, $object['start']->_dateonly));
         $this->obj->setDue(self::get_datetime($object['due'], null, $object['due']->_dateonly));
 
         $related = new vectors;
