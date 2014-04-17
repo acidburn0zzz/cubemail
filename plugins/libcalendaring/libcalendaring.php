@@ -345,25 +345,89 @@ class libcalendaring extends rcube_plugin
     public static function parse_alaram_value($val)
     {
         if ($val[0] == '@') {
-            return array(substr($val, 1));
+            return array(new DateTime($val));
         }
-        else if (preg_match('/([+-])P?(T?\d+[HMSDW])+/', $val, $m) && preg_match_all('/T?(\d+)([HMSDW])/', $val, $m2, PREG_SET_ORDER)) {
+        else if (preg_match('/([+-]?)P?(T?\d+[HMSDW])+/', $val, $m) && preg_match_all('/T?(\d+)([HMSDW])/', $val, $m2, PREG_SET_ORDER)) {
+            if ($m[1] == '')
+                $m[1] = '+';
             foreach ($m2 as $seg) {
+                $prefix = $seg[2] == 'D' || $seg[2] == 'W' ? 'P' : 'PT';
                 if ($seg[1] > 0) {  // ignore zero values
-                    return array($seg[1], $m[1].$seg[2], $m[1].$seg[1].$seg[2]);
+                    return array($seg[1], $m[1].$seg[2], $m[1].$seg[1].$seg[2], $m[1].$prefix.$seg[1].$seg[2]);
                 }
             }
+
+            // return zero value nevertheless
+            return array($seg[1], $m[1].$seg[2], $m[1].$seg[1].$seg[2], $m[1].$prefix.$seg[1].$seg[2]);
         }
 
         return false;
     }
 
     /**
+     * Convert the alarms list items to be processed on the client
+     */
+    public static function to_client_alarms($valarms)
+    {
+        return array_map(function($alarm){
+            if ($alarm['trigger'] instanceof DateTime) {
+                $alarm['trigger'] = '@' . $alarm['trigger']->format('U');
+            }
+            else if ($trigger = self::parse_alaram_value($alarm['trigger'])) {
+                $alarm['trigger'] = $trigger[2];
+            }
+            return $alarm;
+        }, (array)$valarms);
+    }
+
+    /**
+     * Process the alarms values submitted by the client
+     */
+    public static function from_client_alarms($valarms)
+    {
+        return array_map(function($alarm){
+            if ($alarm['trigger'][0] == '@') {
+                try { $alarm['trigger'] = new DateTime($alarm['trigger']); }
+                catch (Exception $e) { /* handle this ? */ }
+            }
+            else if ($trigger = libcalendaring::parse_alaram_value($alarm['trigger'])) {
+                $alarm['trigger'] = $trigger[3];
+            }
+            return $alarm;
+        }, (array)$valarms);
+    }
+
+    /**
      * Render localized text for alarm settings
      */
-    public static function alarms_text($alarm)
+    public static function alarms_text($alarms)
     {
-        list($trigger, $action) = explode(':', $alarm);
+        if (is_array($alarms) && is_array($alarms[0])) {
+            $texts = array();
+            foreach ($alarms as $alarm) {
+                if ($text = self::alarm_text($alarm))
+                    $texts[] = $text;
+            }
+
+            return join(', ', $texts);
+        }
+        else {
+            return self::alarm_text($alarms);
+        }
+    }
+
+    /**
+     * Render localized text for a single alarm property
+     */
+    public static function alarm_text($alarm)
+    {
+        if (is_string($alarm)) {
+            list($trigger, $action) = explode(':', $alarm);
+        }
+        else {
+            $trigger = $alarm['trigger'];
+            $action = $alarm['action'];
+        }
 
         $text = '';
         $rcube = rcube::get_instance();
@@ -375,19 +439,33 @@ class libcalendaring extends rcube_plugin
         case 'DISPLAY':
             $text = $rcube->gettext('libcalendaring.alarmdisplay');
             break;
+        case 'AUDIO':
+            $text = $rcube->gettext('libcalendaring.alarmaudio');
+            break;
         }
 
-        if (preg_match('/@(\d+)/', $trigger, $m)) {
+        if ($trigger instanceof DateTime) {
+            $text .= ' ' . $rcube->gettext(array(
+                'name' => 'libcalendaring.alarmat',
+                'vars' => array('datetime' => $rcube->format_date($trigger))
+            ));
+        }
+        else if (preg_match('/@(\d+)/', $trigger, $m)) {
             $text .= ' ' . $rcube->gettext(array(
                 'name' => 'libcalendaring.alarmat',
                 'vars' => array('datetime' => $rcube->format_date($m[1]))
             ));
         }
         else if ($val = self::parse_alaram_value($trigger)) {
-            $text .= ' ' . intval($val[0]) . ' ' . $rcube->gettext('libcalendaring.trigger' . $val[1]);
+            // TODO: for all-day events say 'on date of event at XX' ?
+            if ($val[0] == 0)
+                $text .= ' ' . $rcube->gettext('libcalendaring.triggerattime');
+            else
+                $text .= ' ' . intval($val[0]) . ' ' . $rcube->gettext('libcalendaring.trigger' . $val[1]);
         }
-        else
+        else {
             return false;
+        }
 
         return $text;
     }
@@ -400,53 +478,78 @@ class libcalendaring extends rcube_plugin
      */
     public static function get_next_alarm($rec, $type = 'event')
     {
-        if (!$rec['alarms'] || $rec['cancelled'] || $rec['status'] == 'CANCELLED')
+        if (!($rec['valarms'] || $rec['alarms']) || $rec['cancelled'] || $rec['status'] == 'CANCELLED')
             return null;
 
         if ($type == 'task') {
             $timezone = self::get_instance()->timezone;
-            if ($rec['date'])
-                $rec['start'] = new DateTime($rec['date'] . ' ' . ($rec['time'] ?: '12:00'), $timezone);
             if ($rec['startdate'])
-                $rec['end'] = new DateTime($rec['startdate'] . ' ' . ($rec['starttime'] ?: '12:00'), $timezone);
+                $rec['start'] = new DateTime($rec['startdate'] . ' ' . ($rec['starttime'] ?: '12:00'), $timezone);
+            if ($rec['date'])
+                $rec[($rec['start'] ? 'end' : 'start')] = new DateTime($rec['date'] . ' ' . ($rec['time'] ?: '12:00'), $timezone);
         }
 
         if (!$rec['end'])
             $rec['end'] = $rec['start'];
 
-
-        // TODO: handle multiple alarms (currently not supported)
-        list($trigger, $action) = explode(':', $rec['alarms'], 2);
-
-        $notify = self::parse_alaram_value($trigger);
-        if (!empty($notify[1])){  // offset
-            $mult = 1;
-            switch ($notify[1]) {
-                case '-S': $mult =     -1; break;
-                case '+S': $mult =      1; break;
-                case '-M': $mult =    -60; break;
-                case '+M': $mult =     60; break;
-                case '-H': $mult =  -3600; break;
-                case '+H': $mult =   3600; break;
-                case '-D': $mult = -86400; break;
-                case '+D': $mult =  86400; break;
-                case '-W': $mult = -604800; break;
-                case '+W': $mult =  604800; break;
+        // support legacy format
+        if (!$rec['valarms']) {
+            list($trigger, $action) = explode(':', $rec['alarms'], 2);
+            if ($alarm = self::parse_alaram_value($trigger)) {
+                $rec['valarms'] = array(array('action' => $action, 'trigger' => $alarm[3] ?: $alarm[0]));
             }
-            $offset = $notify[0] * $mult;
-            $refdate = $mult > 0 ? $rec['end'] : $rec['start'];
-
-            // abort of no reference date is available to compute notification time
-            if (!is_a($refdate, 'DateTime'))
-                return null;
-
-            $notify_at = $refdate->format('U') + $offset;
-        }
-        else {  // absolute timestamp
-            $notify_at = $notify[0];
         }
 
-        return array('time' => $notify_at, 'action' => $action ? strtoupper($action) : 'DISPLAY');
+        $expires = new DateTime('now - 12 hours');
+        $alarm_id = $rec['id'];  // alarm ID eq. record ID by default to keep backwards compatibility
+
+        // handle multiple alarms
+        $notify_at = null;
+        foreach ($rec['valarms'] as $alarm) {
+            $notify_time = null;
+
+            if ($alarm['trigger'] instanceof DateTime) {
+                $notify_time = $alarm['trigger'];
+            }
+            else if (is_string($alarm['trigger'])) {
+                $refdate = $alarm['trigger'][0] == '+' ? $rec['end'] : $rec['start'];
+
+                // abort if no reference date is available to compute notification time
+                if (!is_a($refdate, 'DateTime'))
+                    continue;
+
+                // TODO: for all-day events, take start @ 00:00 as reference date ?
+
+                try {
+                    $interval = new DateInterval(trim($alarm['trigger'], '+-'));
+                    $interval->invert = $alarm['trigger'][0] != '+';
+                    $notify_time = clone $refdate;
+                    $notify_time->add($interval);
+                }
+                catch (Exception $e) {
+                    rcube::raise_error($e, true);
+                    continue;
+                }
+            }
+
+            if ($notify_time && (!$notify_at || ($notify_time < $notify_at && $notify_time > $expires))) {
+                $notify_at = $notify_time;
+                $action = $alarm['action'];
+                $alarm_prop = $alarm;
+
+                // generate a unique alarm ID if multiple alarms are set
+                if (count($rec['valarms']) > 1) {
+                    $alarm_id = substr(md5($rec['id']), 0, 16) . '-' . $notify_at->format('Ymd\THis');
+                }
+            }
+        }
+
+        return !$notify_at ? null : array(
+            'time'   => $notify_at->format('U'),
+            'action' => $action ? strtoupper($action) : 'DISPLAY',
+            'id'     => $alarm_id,
+            'prop'   => $alarm_prop,
+        );
     }
 
     /**

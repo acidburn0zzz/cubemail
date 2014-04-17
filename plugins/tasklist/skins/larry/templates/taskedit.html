@@ -32,8 +32,14 @@
 				<a href="#nodate" style="margin-left:1em" class="edit-nodate" rel="#taskedit-date,#taskedit-time"><roundcube:label name="tasklist.nodate" /></a>
 			</div>
 			<div class="form-section" id="taskedit-alarms">
-				<label for="taskedit-alarm"><roundcube:label name="tasklist.alarms" /></label>
-				<roundcube:object name="plugin.alarm_select" />
+				<div class="edit-alarm-item first">
+					<label><roundcube:label name="tasklist.alarms" /></label>
+					<roundcube:object name="plugin.alarm_select" />
+					<span class="edit-alarm-buttons">
+						<a href="#add" class="iconlink add add-alarm">+</a>
+						<a href="#delete" class="iconlink delete delete-alarm">-</a>
+					</span>
+				</div>
 			</div>
 			<div class="form-section">
 				<label for="taskedit-completeness"><roundcube:label name="tasklist.complete" /></label>

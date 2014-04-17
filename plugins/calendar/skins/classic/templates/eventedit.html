@@ -41,8 +41,14 @@
         <input type="text" name="endtime" size="6"  id="edit-endtime" />
       </div>
       <div class="event-section" id="edit-alarms">
-        <label for="edit-alarm"><roundcube:label name="calendar.alarms" /></label>
-        <roundcube:object name="plugin.alarm_select" />
+        <div class="edit-alarm-item first">
+          <label for="edit-alarm"><roundcube:label name="calendar.alarms" /></label>
+          <roundcube:object name="plugin.alarm_select" />
+          <span class="edit-alarm-buttons">
+            <a href="#add" class="iconlink add add-alarm">+</a>
+            <a href="#delete" class="iconlink delete delete-alarm">-</a>
+          </span>
+        </div>
       </div>
       <div class="event-section" id="calendar-select">
         <label for="edit-calendar"><roundcube:label name="calendar.calendar" /></label>

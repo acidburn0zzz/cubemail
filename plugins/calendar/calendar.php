@@ -763,7 +763,7 @@ class calendar extends rcube_plugin
       case "new":
         // create UID for new event
         $event['uid'] = $this->generate_uid();
-        $this->prepare_event($event, $action);
+        $this->write_preprocess($event, $action);
         if ($success = $this->driver->new_event($event)) {
           $event['id'] = $event['uid'];
           $this->cleanup_event($event);
@@ -772,20 +772,20 @@ class calendar extends rcube_plugin
         break;
         
       case "edit":
-        $this->prepare_event($event, $action);
+        $this->write_preprocess($event, $action);
         if ($success = $this->driver->edit_event($event))
             $this->cleanup_event($event);
         $reload =  $success && ($event['recurrence'] || $event['_savemode'] || $event['_fromcalendar']) ? 2 : 1;
         break;
       
       case "resize":
-        $this->prepare_event($event, $action);
+        $this->write_preprocess($event, $action);
         $success = $this->driver->resize_event($event);
         $reload = $event['_savemode'] ? 2 : 1;
         break;
       
       case "move":
-        $this->prepare_event($event, $action);
+        $this->write_preprocess($event, $action);
         $success = $this->driver->move_event($event);
         $reload  = $success && $event['_savemode'] ? 2 : 1;
         break;
@@ -1327,8 +1327,10 @@ class calendar extends rcube_plugin
   private function _client_event($event, $addcss = false)
   {
     // compose a human readable strings for alarms_text and recurrence_text
-    if ($event['alarms'])
-      $event['alarms_text'] = libcalendaring::alarms_text($event['alarms']);
+    if ($event['valarms']) {
+      $event['alarms_text'] = libcalendaring::alarms_text($event['valarms']);
+      $event['valarms'] = libcalendaring::to_client_alarms($event['valarms']);
+    }
     if ($event['recurrence']) {
       $event['recurrence_text'] = $this->_recurrence_text($event['recurrence']);
       if ($event['recurrence']['UNTIL'])
@@ -1555,7 +1557,7 @@ class calendar extends rcube_plugin
   /**
    * Prepares new/edited event properties before save
    */
-  private function prepare_event(&$event, $action)
+  private function write_preprocess(&$event, $action)
   {
     // convert dates into DateTime objects in user's current timezone
     $event['start'] = new DateTime($event['start'], $this->timezone);
@@ -1582,6 +1584,11 @@ class calendar extends rcube_plugin
           return null;
         }
       }, $event['recurrence']['RDATE']);
+    }
+
+    // convert the submitted alarm values
+    if ($event['valarms']) {
+      $event['valarms'] = libcalendaring::from_client_alarms($event['valarms']);
     }
 
     $attachments = array();

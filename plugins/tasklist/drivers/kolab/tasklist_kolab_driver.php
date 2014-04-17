@@ -28,7 +28,7 @@ class tasklist_kolab_driver extends tasklist_driver
     public $alarms = false;
     public $attachments = true;
     public $undelete = false; // task undelete action
-    public $alarm_types = array('DISPLAY');
+    public $alarm_types = array('DISPLAY','AUDIO');
 
     private $rc;
     private $plugin;
@@ -477,7 +477,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         $time = $slot + $interval;
 
-        $tasks = array();
+        $candidates = array();
         $query = array(array('tags', '=', 'x-has-alarms'), array('tags', '!=', 'x-complete'));
         foreach ($this->lists as $lid => $list) {
             // skip lists with alarms disabled
@@ -486,40 +486,46 @@ class tasklist_kolab_driver extends tasklist_driver
 
             $folder = $this->folders[$lid];
             foreach ($folder->select($query) as $record) {
-                if (!$record['alarms'] || $record['status'] == 'COMPLETED' || $record['complete'] == 100)  // don't trust query :-)
+                if (!($record['valarms'] || $record['alarms']) || $record['status'] == 'COMPLETED' || $record['complete'] == 100)  // don't trust query :-)
                     continue;
 
                 $task = $this->_to_rcube_task($record);
 
                 // add to list if alarm is set
                 $alarm = libcalendaring::get_next_alarm($task, 'task');
-                if ($alarm && $alarm['time'] && $alarm['time'] <= $time && $alarm['action'] == 'DISPLAY') {
-                    $id = $task['id'];
-                    $tasks[$id] = $task;
-                    $tasks[$id]['notifyat'] = $alarm['time'];
+                if ($alarm && $alarm['time'] && $alarm['time'] <= $time && in_array($alarm['action'], $this->alarm_types)) {
+                    $id = $alarm['id'];  // use alarm-id as primary identifier
+                    $candidates[$id] = array(
+                        'id'       => $id,
+                        'title'    => $task['title'],
+                        'date'     => $task['date'],
+                        'time'     => $task['time'],
+                        'notifyat' => $alarm['time'],
+                        'action'   => $alarm['action'],
+                    );
                 }
             }
         }
 
         // get alarm information stored in local database
-        if (!empty($tasks)) {
-            $task_ids = array_map(array($this->rc->db, 'quote'), array_keys($tasks));
+        if (!empty($candidates)) {
+            $alarm_ids = array_map(array($this->rc->db, 'quote'), array_keys($candidates));
             $result = $this->rc->db->query(sprintf(
                 "SELECT * FROM kolab_alarms
-                 WHERE event_id IN (%s) AND user_id=?",
-                 join(',', $task_ids),
+                 WHERE alarm_id IN (%s) AND user_id=?",
+                 join(',', $alarm_ids),
                  $this->rc->db->now()
                 ),
                 $this->rc->user->ID
             );
 
             while ($result && ($rec = $this->rc->db->fetch_assoc($result))) {
-                $dbdata[$rec['event_id']] = $rec;
+                $dbdata[$rec['alarm_id']] = $rec;
             }
         }
 
         $alarms = array();
-        foreach ($tasks as $id => $task) {
+        foreach ($candidates as $id => $task) {
           // skip dismissed
           if ($dbdata[$id]['dismissed'])
               continue;
@@ -545,7 +551,7 @@ class tasklist_kolab_driver extends tasklist_driver
         // delete old alarm entry
         $this->rc->db->query(
             "DELETE FROM kolab_alarms
-             WHERE event_id=? AND user_id=?",
+             WHERE alarm_id=? AND user_id=?",
             $id,
             $this->rc->user->ID
         );
@@ -555,7 +561,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         $query = $this->rc->db->query(
             "INSERT INTO kolab_alarms
-             (event_id, user_id, dismissed, notifyat)
+             (alarm_id, user_id, dismissed, notifyat)
              VALUES(?, ?, ?, ?)",
             $id,
             $this->rc->user->ID,
@@ -599,7 +605,10 @@ class tasklist_kolab_driver extends tasklist_driver
             $task['changed'] = $record['dtstamp'];
         }
 
-        if ($record['alarms']) {
+        if ($record['valarms']) {
+            $task['valarms'] = $record['valarms'];
+        }
+        else if ($record['alarms']) {
             $task['alarms'] = $record['alarms'];
         }
 

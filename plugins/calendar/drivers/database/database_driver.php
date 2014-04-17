@@ -459,10 +459,14 @@ class database_driver extends calendar_driver
     if (isset($event['allday'])) {
       $event['all_day'] = $event['allday'] ? 1 : 0;
     }
-    
+
     // compute absolute time to notify the user
     $event['notifyat'] = $this->_get_notification($event);
-    
+
+    if (is_array($event['valarms'])) {
+        $event['alarms'] = $this->serialize_alarms($event['valarms']);
+    }
+
     // process event attendees
     $_attendees = '';
     foreach ((array)$event['attendees'] as $attendee) {
@@ -484,10 +488,10 @@ class database_driver extends calendar_driver
    */
   private function _get_notification($event)
   {
-    if ($event['alarms'] && $event['start'] > new DateTime()) {
+    if ($event['valarms'] && $event['start'] > new DateTime()) {
       $alarm = libcalendaring::get_next_alarm($event);
 
-      if ($alarm['time'] && $alarm['action'] == 'DISPLAY')
+      if ($alarm['time'] && in_array($alarm['action'], $this->alarm_types))
         return date('Y-m-d H:i:s', $alarm['time']);
     }
 
@@ -877,7 +881,12 @@ class database_driver extends calendar_driver
     else {
       $event['attendees'] = array();
     }
-
+    
+    // decode serialized alarms
+    if ($event['alarms']) {
+      $event['valarms'] = $this->unserialize_alarms($event['alarms']);
+    }
+    
     unset($event['event_id'], $event['calendar_id'], $event['notifyat'], $event['all_day'], $event['_attachments']);
     return $event;
   }
@@ -1086,6 +1095,50 @@ class database_driver extends calendar_driver
     );
     
     return $this->rc->db->affected_rows($query);
+  }
+
+  /**
+   * Helper method to serialize the list of alarms into a string
+   */
+  private function serialize_alarms($valarms)
+  {
+      foreach ((array)$valarms as $i => $alarm) {
+          if ($alarm['trigger'] instanceof DateTime) {
+              $valarms[$i]['trigger'] = '@' . $alarm['trigger']->format('c');
+          }
+      }
+
+      return $valarms ? json_encode($valarms) : null;
+  }
+
+  /**
+   * Helper method to decode a serialized list of alarms
+   */
+  private function unserialize_alarms($alarms)
+  {
+      // decode json serialized alarms
+      if ($alarms && $alarms[0] == '[') {
+          $valarms = json_decode($alarms, true);
+          foreach ($valarms as $i => $alarm) {
+              if ($alarm['trigger'][0] == '@') {
+                  try {
+                      $valarms[$i]['trigger'] = new DateTime(substr($alarm['trigger'], 1));
+                  }
+                  catch (Exception $e) {
+                      unset($valarms[$i]);
+                  }
+              }
+          }
+      }
+      // convert legacy alarms data
+      else if (strlen($alarms)) {
+          list($trigger, $action) = explode(':', $alarms, 2);
+          if ($trigger = libcalendaring::parse_alaram_value($trigger)) {
+              $valarms = array(array('action' => $action, 'trigger' => $trigger[3] ?: $trigger[0]));
+          }
+      }
+
+      return $valarms;
   }
 
 }

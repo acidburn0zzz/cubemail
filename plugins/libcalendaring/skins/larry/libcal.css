@@ -1,7 +1,7 @@
 /**
  * Roundcube libcalendaring plugin styles for skin "Larry"
  *
- * Copyright (c) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (c) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * The contents are subject to the Creative Commons Attribution-ShareAlike
  * License. It is allowed to copy, distribute, transmit and to adapt the work
@@ -76,3 +76,38 @@ a.reply-comment-toggle {
 .popup textarea.itip-comment {
 	width: 98%;
 }
+
+.edit-alarm-item {
+	position: relative;
+	padding-right: 30px;
+	margin-bottom: 0.2em;
+}
+
+.edit-alarm-buttons {
+	position: absolute;
+	top: 1px;
+	right: 0;
+}
+
+.edit-alarm-buttons a.iconlink {
+	display: none;
+	width: 18px;
+	height: 17px;
+	padding: 1px;
+	text-indent: -5000px;
+	overflow: hidden;
+}
+
+.edit-alarm-buttons a.delete-alarm {
+	background-position: -7px -377px;
+}
+
+.edit-alarm-buttons a.delete-alarm,
+.edit-alarm-item.first .edit-alarm-buttons a.add-alarm {
+	display: inline-block;
+}
+
+.edit-alarm-item.first .edit-alarm-buttons a.delete-alarm {
+	display: none;
+}
+

@@ -107,7 +107,6 @@ function rcube_tasklist_ui(settings)
     var parse_datetime = this.parse_datetime;
     var date2unixtime = this.date2unixtime;
     var fromunixtime = this.fromunixtime;
-    var init_alarms_edit = this.init_alarms_edit;
 
     /**
      * initialize the tasks UI
@@ -380,7 +379,7 @@ function rcube_tasklist_ui(settings)
         });
 
         // register events on alarm fields
-        init_alarms_edit('#taskedit');
+        me.init_alarms_edit('#taskedit-alarms');
 
         $('#taskedit-date, #taskedit-startdate').datepicker(datepicker_settings);
 
@@ -1169,7 +1168,7 @@ function rcube_tasklist_ui(settings)
         if (rcmail.busy || !list.editable || (action == 'edit' && (!rec || rec.readonly)))
             return false;
 
-        me.selected_task = $.extend({ alarms:'' }, rec);  // clone task object
+        me.selected_task = $.extend({ valarms:[] }, rec);  // clone task object
         rec =  me.selected_task;
 
         // assign temporary id
@@ -1210,29 +1209,7 @@ function rcube_tasklist_ui(settings)
         });
 
         // set alarm(s)
-        if (rec.alarms || action != 'new') {
-          var valarms = (typeof rec.alarms == 'string' ? rec.alarms.split(';') : rec.alarms) || [''];
-          for (var alarm, i=0; i < valarms.length; i++) {
-              alarm = String(valarms[i]).split(':');
-              if (!alarm[1] && alarm[0]) alarm[1] = 'DISPLAY';
-              $('#taskedit select.edit-alarm-type').val(alarm[1]);
-
-              if (alarm[0].match(/@(\d+)/)) {
-                  var ondate = fromunixtime(parseInt(RegExp.$1));
-                  $('#taskedit select.edit-alarm-offset').val('@');
-                  $('#taskedit input.edit-alarm-date').val(me.format_datetime(ondate, 1));
-                  $('#taskedit input.edit-alarm-time').val(me.format_datetime(ondate, 2));
-              }
-              else if (alarm[0].match(/([-+])(\d+)([MHD])/)) {
-                  $('#taskedit input.edit-alarm-value').val(RegExp.$2);
-                  $('#taskedit select.edit-alarm-offset').val(''+RegExp.$1+RegExp.$3);
-              }
-
-              break; // only one alarm is currently supported
-          }
-        }
-        // set correct visibility by triggering onchange handlers
-        $('#taskedit select.edit-alarm-type, #taskedit select.edit-alarm-offset').change();
+        me.set_alarms_edit('#taskedit-alarms', action != 'new' && rec.valarms ? rec.valarms : []);
 
         // attachments
         rcmail.enable_command('remove-attachment', list.editable);
@@ -1263,6 +1240,7 @@ function rcube_tasklist_ui(settings)
             });
             me.selected_task.tags = [];
             me.selected_task.attachments = [];
+            me.selected_task.valarms = me.serialize_alarms('#taskedit-alarms');
 
             // do some basic input validation
             if (!me.selected_task.title || !me.selected_task.title.length) {
@@ -1287,16 +1265,6 @@ function rcube_tasklist_ui(settings)
             var newtag = $('#tagedit-input').val();
             if (newtag != '') {
                 me.selected_task.tags.push(newtag);
-            }
-
-            // serialize alarm settings
-            var alarm = $('#taskedit select.edit-alarm-type').val();
-            if (alarm) {
-                var val, offset = $('#taskedit select.edit-alarm-offset').val();
-                if (offset == '@')
-                    me.selected_task.alarms = '@' + date2unixtime(parse_datetime($('#taskedit input.edit-alarm-time').val(), $('#taskedit input.edit-alarm-date').val())) + ':' + alarm;
-              else if ((val = parseInt($('#taskedit input.edit-alarm-value').val())) && !isNaN(val) && val >= 0)
-                    me.selected_task.alarms = offset[0] + val + offset[1] + ':' + alarm;
             }
 
             // uploaded attachments list

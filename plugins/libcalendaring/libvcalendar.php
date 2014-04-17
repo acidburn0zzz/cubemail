@@ -1025,9 +1025,10 @@ class libvcalendar implements Iterator
             $va = VObject\Component::create('VALARM');
             list($trigger, $va->action) = explode(':', $event['alarms']);
             $val = libcalendaring::parse_alaram_value($trigger);
-            $period = $val[1] && preg_match('/[HMS]$/', $val[1]) ? 'PT' : 'P';
-            if ($val[1]) $va->add('TRIGGER', preg_replace('/^([-+])P?T?(.+)/', "\\1$period\\2", $trigger));
-            else         $va->add('TRIGGER', gmdate('Ymd\THis\Z', $val[0]), array('VALUE' => 'DATE-TIME'));
+            if ($val[3])
+                $va->add('TRIGGER', $val[3]);
+            else if ($val[0] instanceof DateTime)
+                $va->add(self::datetime_prop('TRIGGER', $val[0]));
             $ve->add($va);
         }
 

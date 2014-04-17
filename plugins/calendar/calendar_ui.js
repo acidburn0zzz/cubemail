@@ -81,7 +81,6 @@ function rcube_calendar_ui(settings)
     var date2unixtime = this.date2unixtime;
     var fromunixtime = this.fromunixtime;
     var parseISO8601 = this.parseISO8601;
-    var init_alarms_edit = this.init_alarms_edit;
 
 
     /***  private methods  ***/
@@ -311,7 +310,7 @@ function rcube_calendar_ui(settings)
       if (event.recurrence && event.recurrence_text)
         $('#event-repeat').show().children('.event-text').html(Q(event.recurrence_text));
       
-      if (event.alarms && event.alarms_text)
+      if (event.valarms && event.alarms_text)
         $('#event-alarm').show().children('.event-text').html(Q(event.alarms_text));
       
       if (calendar.name)
@@ -519,34 +518,10 @@ function rcube_calendar_ui(settings)
       else {
         allday.checked = false;
       }
-      
+
       // set alarm(s)
-      // TODO: support multiple alarm entries
-      if (event.alarms || action != 'new') {
-        if (typeof event.alarms == 'string')
-          event.alarms = event.alarms.split(';');
-        
-        var valarms = event.alarms || [''];
-        for (var alarm, i=0; i < valarms.length; i++) {
-          alarm = String(valarms[i]).split(':');
-          if (!alarm[1] && alarm[0]) alarm[1] = 'DISPLAY';
-          $('#eventedit select.edit-alarm-type').val(alarm[1]);
-          
-          if (alarm[0].match(/@(\d+)/)) {
-            var ondate = fromunixtime(parseInt(RegExp.$1));
-            $('#eventedit select.edit-alarm-offset').val('@');
-            $('#eventedit input.edit-alarm-date').val($.fullCalendar.formatDate(ondate, settings['date_format']));
-            $('#eventedit input.edit-alarm-time').val($.fullCalendar.formatDate(ondate, settings['time_format']));
-          }
-          else if (alarm[0].match(/([-+])(\d+)([MHD])/)) {
-            $('#eventedit input.edit-alarm-value').val(RegExp.$2);
-            $('#eventedit select.edit-alarm-offset').val(''+RegExp.$1+RegExp.$3);
-          }
-        }
-      }
-      // set correct visibility by triggering onchange handlers
-      $('#eventedit select.edit-alarm-type, #eventedit select.edit-alarm-offset').change();
-      
+      me.set_alarms_edit('#edit-alarms', action != 'new' && event.valarms && calendar.alarms ? event.valarms : []);
+
       // enable/disable alarm property according to backend support
       $('#edit-alarms')[(calendar.alarms ? 'show' : 'hide')]();
 
@@ -690,22 +665,11 @@ function rcube_calendar_ui(settings)
           sensitivity: sensitivity.val(),
           status: eventstatus.val(),
           recurrence: '',
-          alarms: '',
+          valarms: me.serialize_alarms('#edit-alarms'),
           attendees: event_attendees,
           deleted_attachments: rcmail.env.deleted_attachments,
           attachments: []
         };
-
-        // serialize alarm settings
-        // TODO: support multiple alarm entries
-        var alarm = $('#eventedit select.edit-alarm-type').val();
-        if (alarm) {
-          var val, offset = $('#eventedit select.edit-alarm-offset').val();
-          if (offset == '@')
-            data.alarms = '@' + date2unixtime(parse_datetime($('#eventedit input.edit-alarm-time').val(), $('#eventedit input.edit-alarm-date').val())) + ':' + alarm;
-          else if ((val = parseInt($('#eventedit input.edit-alarm-value').val())) && !isNaN(val) && val >= 0)
-            data.alarms = offset[0] + val + offset[1] + ':' + alarm;
-        }
 
         // uploaded attachments list
         for (var i in rcmail.env.attachments)
@@ -3260,7 +3224,7 @@ function rcube_calendar_ui(settings)
         });
 
       // register events on alarm fields
-      init_alarms_edit('#eventedit');
+      me.init_alarms_edit('#edit-alarms');
 
       // toggle recurrence frequency forms
       $('#edit-recurrence-frequency').change(function(e){

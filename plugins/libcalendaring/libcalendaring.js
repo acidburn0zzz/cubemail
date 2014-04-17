@@ -311,8 +311,86 @@ function rcube_libcalendaring(settings)
             $(this).parent().find('.edit-alarm-value').prop('disabled', mode == 'show');
         });
 
-        $(prefix+' .edit-alarm-date').datepicker(datepicker_settings);
+        $(prefix+' .edit-alarm-date').removeClass('hasDatepicker').removeAttr('id').datepicker(datepicker_settings);
+
+        $(prefix).on('click', 'a.delete-alarm', function(e){
+            if ($(this).closest('.edit-alarm-item').siblings().length > 0) {
+                $(this).closest('.edit-alarm-item').remove();
+            }
+            return false;
+        });
+
+        $(prefix).on('click', 'a.add-alarm', function(e){
+            var i = $(this).closest('.edit-alarm-item').siblings().length + 1;
+            var item = $(this).closest('.edit-alarm-item').clone(false)
+              .removeClass('first')
+              .appendTo(prefix);
+
+              me.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')');
+              $('select.edit-alarm-type, select.edit-alarm-offset', item).change();
+              return false;
+        });
     }
+
+    this.set_alarms_edit = function(prefix, valarms)
+    {
+        $(prefix + ' .edit-alarm-item:gt(0)').remove();
+
+        var i, alarm, domnode, val, offset;
+        for (i=0; i < valarms.length; i++) {
+          alarm = valarms[i];
+          if (!alarm.action)
+              alarm.action = 'DISPLAY';
+
+          if (i == 0) {
+              domnode = $(prefix + ' .edit-alarm-item').eq(0);
+          }
+          else {
+              domnode = $(prefix + ' .edit-alarm-item').eq(0).clone(false).removeClass('first').appendTo(prefix);
+              this.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')');
+          }
+
+          $('select.edit-alarm-type', domnode).val(alarm.action);
+
+          if (String(alarm.trigger).match(/@(\d+)/)) {
+              var ondate = this.fromunixtime(parseInt(RegExp.$1));
+              $('select.edit-alarm-offset', domnode).val('@');
+              $('input.edit-alarm-value', domnode).val('');
+              $('input.edit-alarm-date', domnode).val(this.format_datetime(ondate, 1));
+              $('input.edit-alarm-time', domnode).val(this.format_datetime(ondate, 2));
+          }
+          else if (String(alarm.trigger).match(/([-+])(\d+)([MHDS])/)) {
+              val = RegExp.$2; offset = ''+RegExp.$1+RegExp.$3;
+              $('input.edit-alarm-value', domnode).val(val);
+              $('select.edit-alarm-offset', domnode).val(offset);
+          }
+        }
+
+        // set correct visibility by triggering onchange handlers
+        $(prefix + ' select.edit-alarm-type, ' + prefix + ' select.edit-alarm-offset').change();
+    };
+
+    this.serialize_alarms = function(prefix)
+    {
+        var valarms = [];
+
+        $(prefix + ':visible .edit-alarm-item').each(function(i, elem){
+            var val, offset, alarm = { action: $('select.edit-alarm-type', elem).val() };
+            if (alarm.action) {
+                offset = $('select.edit-alarm-offset', elem).val();
+                if (offset == '@') {
+                    alarm.trigger = '@' + me.date2unixtime(me.parse_datetime($('input.edit-alarm-time', elem).val(), $('input.edit-alarm-date', elem).val()));
+                }
+                else if (!isNaN((val = parseInt($('input.edit-alarm-value', elem).val()))) && val >= 0) {
+                    alarm.trigger = offset[0] + val + offset[1];
+                }
+
+                valarms.push(alarm);
+            }
+        });
+
+        return valarms;
+    };
 
 
     /*****  Alarms handling  *****/

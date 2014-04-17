@@ -182,7 +182,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('-H', $alarm[1], "Alarm unit");
 
         $this->assertEquals('DISPLAY', $event['valarms'][0]['action'],  "Full alarm item (action)");
-        $this->assertEquals('-PT12H',   $event['valarms'][0]['trigger'], "Full alarm item (trigger)");
+        $this->assertEquals('-PT12H',  $event['valarms'][0]['trigger'], "Full alarm item (trigger)");
 
         // alarm trigger with 0 values
         $events = $ical->import_from_file(__DIR__ . '/resources/alarms.ics', 'UTF-8');
@@ -193,6 +193,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('30', $alarm[0], "Alarm value");
         $this->assertEquals('-M', $alarm[1], "Alarm unit");
         $this->assertEquals('-30M', $alarm[2], "Alarm string");
+        $this->assertEquals('-PT30M', $alarm[3], "Unified alarm string (stripped zero-values)");
 
         $this->assertEquals('DISPLAY', $event['valarms'][0]['action'],  "First alarm action");
         $this->assertEquals('This is the first event reminder', $event['valarms'][0]['description'],  "First alarm text");

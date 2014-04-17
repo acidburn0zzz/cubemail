@@ -535,6 +535,44 @@ td.topalign {
 	vertical-align: top;
 }
 
+#eventedit .edit-alarm-item {
+	position: relative;
+	padding-right: 30px;
+	margin-bottom: 2px;
+}
+
+#eventedit .edit-alarm-buttons {
+	position: absolute;
+	top: 2px;
+	right: 0;
+}
+
+#eventedit .edit-alarm-buttons a.iconlink {
+	display: none;
+	width: 18px;
+	height: 17px;
+	padding: 1px;
+	text-indent: -5000px;
+	overflow: hidden;
+}
+
+#eventedit .edit-alarm-buttons a.add-alarm {
+	background: url(images/plus.png) 1px 1px no-repeat;
+}
+
+#eventedit .edit-alarm-buttons a.delete-alarm {
+	background: url(images/delete.png) 1px 1px no-repeat;
+}
+
+#eventedit .edit-alarm-buttons a.delete-alarm,
+#eventedit .first .edit-alarm-buttons a.add-alarm {
+	display: inline-block;
+}
+
+#eventedit .first .edit-alarm-buttons a.delete-alarm {
+	display: none;
+}
+
 #eventedit label.weekday,
 #eventedit label.monthday {
 	min-width: 3em;

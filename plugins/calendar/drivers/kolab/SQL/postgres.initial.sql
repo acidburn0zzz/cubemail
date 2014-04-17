@@ -6,7 +6,7 @@
  **/
 
 CREATE TABLE IF NOT EXISTS kolab_alarms (
-  event_id character varying(255) NOT NULL,
+  alarm_id character varying(255) NOT NULL,
   user_id integer NOT NULL
         REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
   notifyat timestamp without time zone DEFAULT NULL,

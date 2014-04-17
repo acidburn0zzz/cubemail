@@ -482,6 +482,12 @@ class tasklist_database_driver extends tasklist_driver
         if (!$rec['parent_id'])
             unset($rec['parent_id']);
 
+        // decode serialized alarms
+        if ($rec['alarms']) {
+            $rec['valarms'] = $this->unserialize_alarms($rec['alarms']);
+            unset($rec['alarms']);
+        }
+
         unset($rec['task_id'], $rec['tasklist_id'], $rec['created']);
         return $rec;
     }
@@ -499,6 +505,10 @@ class tasklist_database_driver extends tasklist_driver
         $list_id = $prop['list'] ? $prop['list'] : reset(array_keys($this->lists));
         if (!$this->lists[$list_id] || $this->lists[$list_id]['readonly'])
             return false;
+
+        if (is_array($prop['valarms'])) {
+            $prop['alarms'] = $this->serialize_alarms($prop['valarms']);
+        }
 
         foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms') as $col) {
             if (empty($prop[$col]))
@@ -542,6 +552,10 @@ class tasklist_database_driver extends tasklist_driver
      */
     public function edit_task($prop)
     {
+        if (is_array($prop['valarms'])) {
+            $prop['alarms'] = $this->serialize_alarms($prop['valarms']);
+        }
+
         $sql_set = array();
         foreach (array('title', 'description', 'flagged', 'complete') as $col) {
             if (isset($prop[$col]))
@@ -655,14 +669,58 @@ class tasklist_database_driver extends tasklist_driver
      */
     private function _get_notification($task)
     {
-        if ($task['alarms'] && $task['complete'] < 1 || strpos($task['alarms'], '@') !== false) {
+        if ($task['valarms'] && $task['complete'] < 1) {
             $alarm = libcalendaring::get_next_alarm($task, 'task');
 
-        if ($alarm['time'] && $alarm['action'] == 'DISPLAY')
+        if ($alarm['time'] && in_array($alarm['action'], $this->alarm_types))
           return date('Y-m-d H:i:s', $alarm['time']);
       }
 
       return null;
+    }
+
+    /**
+     * Helper method to serialize the list of alarms into a string
+     */
+    private function serialize_alarms($valarms)
+    {
+        foreach ((array)$valarms as $i => $alarm) {
+            if ($alarm['trigger'] instanceof DateTime) {
+                $valarms[$i]['trigger'] = '@' . $alarm['trigger']->format('c');
+            }
+        }
+
+        return $valarms ? json_encode($valarms) : null;
+    }
+
+    /**
+     * Helper method to decode a serialized list of alarms
+     */
+    private function unserialize_alarms($alarms)
+    {
+        // decode json serialized alarms
+        if ($alarms && $alarms[0] == '[') {
+            $valarms = json_decode($alarms, true);
+            foreach ($valarms as $i => $alarm) {
+                if ($alarm['trigger'][0] == '@') {
+                    try {
+                        $valarms[$i]['trigger'] = new DateTime(substr($alarm['trigger'], 1));
+                    }
+                    catch (Exception $e) {
+                        unset($valarms[$i]);
+                    }
+                }
+            }
+        }
+        // convert legacy alarms data
+        else if (strlen($alarms)) {
+            list($trigger, $action) = explode(':', $alarms, 2);
+            if ($trigger = libcalendaring::parse_alaram_value($trigger)) {
+                $valarms = array(array('action' => $action, 'trigger' => $trigger[3] ?: $trigger[0]));
+            }
+        }
+
+        return $valarms;
     }
 
 }

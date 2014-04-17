@@ -3,13 +3,12 @@
  *
  * Plugin to add a calendar to RoundCube.
  *
- * @version @package_version@
  * @author Lazlo Westerhof
  * @author Albert Lee
  * @author Aleksander Machniak <machniak@kolabsys.com>
- * @url http://rc-calendar.lazlo.me
  * @licence GNU AGPL
  * @copyright (c) 2010 Lazlo Westerhof - Netherlands
+ * @copyright (c) 2014 Kolab Systems AG
  *
  **/
 

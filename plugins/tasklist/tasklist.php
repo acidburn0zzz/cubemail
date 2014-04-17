@@ -406,9 +406,16 @@ class tasklist extends rcube_plugin
             $rec['tags'] = array_filter((array)$rec['tags']);
         }
 
-        // alarms cannot work without a date
-        if ($rec['alarms'] && !$rec['date'] && !$rec['startdate'] && strpos($rec['alarms'], '@') === false)
-            $rec['alarms'] = '';
+        // convert the submitted alarm values
+        if ($rec['valarms']) {
+            $valarms = array();
+            foreach (libcalendaring::from_client_alarms($rec['valarms']) as $alarm) {
+                // alarms can only work with a date (either task start, due or absolute alarm date)
+                if (is_a($alarm['trigger'], 'DateTime') || $rec['date'] || $rec['startdate'])
+                    $valarms[] = $alarm;
+            }
+            $rec['valarms'] = $valarms;
+        }
 
         $attachments = array();
         $taskid = $rec['id'];
@@ -663,8 +670,10 @@ class tasklist extends rcube_plugin
             }
         }
 
-        if ($rec['alarms'])
-            $rec['alarms_text'] = libcalendaring::alarms_text($rec['alarms']);
+        if ($rec['valarms']) {
+            $rec['alarms_text'] = libcalendaring::alarms_text($rec['valarms']);
+            $rec['valarms'] = libcalendaring::to_client_alarms($rec['valarms']);
+        }
 
         foreach ((array)$rec['attachments'] as $k => $attachment) {
             $rec['attachments'][$k]['classname'] = rcube_utils::file2class($attachment['mimetype'], $attachment['name']);

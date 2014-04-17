@@ -33,7 +33,7 @@ class kolab_driver extends calendar_driver
   public $freebusy = true;
   public $attachments = true;
   public $undelete = true;
-  public $alarm_types = array('DISPLAY');
+  public $alarm_types = array('DISPLAY','AUDIO');
   public $categoriesimmutable = true;
 
   private $rc;
@@ -834,7 +834,7 @@ class kolab_driver extends calendar_driver
     
     $time = $slot + $interval;
     
-    $events = array();
+    $candidates = array();
     $query = array(array('tags', '=', 'x-has-alarms'));
     foreach ($this->calendars as $cid => $calendar) {
       // skip calendars with alarms disabled
@@ -844,41 +844,48 @@ class kolab_driver extends calendar_driver
       foreach ($calendar->list_events($time, $time + 86400 * 365, null, 1, $query) as $e) {
         // add to list if alarm is set
         $alarm = libcalendaring::get_next_alarm($e);
-        if ($alarm && $alarm['time'] && $alarm['time'] <= $time && $alarm['action'] == 'DISPLAY') {
-          $id = $e['id'];
-          $events[$id] = $e;
-          $events[$id]['notifyat'] = $alarm['time'];
+        if ($alarm && $alarm['time'] && $alarm['time'] <= $time && in_array($alarm['action'], $this->alarm_types)) {
+          $id = $alarm['id'];  // use alarm-id as primary identifier
+          $candidates[$id] = array(
+            'id'       => $id,
+            'title'    => $e['title'],
+            'location' => $e['location'],
+            'start'    => $e['start'],
+            'end'      => $e['end'],
+            'notifyat' => $alarm['time'],
+            'action'   => $alarm['action'],
+          );
         }
       }
     }
 
     // get alarm information stored in local database
-    if (!empty($events)) {
-      $event_ids = array_map(array($this->rc->db, 'quote'), array_keys($events));
+    if (!empty($candidates)) {
+      $alarm_ids = array_map(array($this->rc->db, 'quote'), array_keys($candidates));
       $result = $this->rc->db->query(sprintf(
           "SELECT * FROM kolab_alarms
-           WHERE event_id IN (%s) AND user_id=?",
-           join(',', $event_ids),
+           WHERE alarm_id IN (%s) AND user_id=?",
+           join(',', $alarm_ids),
            $this->rc->db->now()
           ),
           $this->rc->user->ID
        );
 
       while ($result && ($e = $this->rc->db->fetch_assoc($result))) {
-        $dbdata[$e['event_id']] = $e;
+        $dbdata[$e['alarm_id']] = $e;
       }
     }
     
     $alarms = array();
-    foreach ($events as $id => $e) {
-      // skip dismissed
+    foreach ($candidates as $id => $alarm) {
+      // skip dismissed alarms
       if ($dbdata[$id]['dismissed'])
         continue;
       
       // snooze function may have shifted alarm time
-      $notifyat = $dbdata[$id]['notifyat'] ? strtotime($dbdata[$id]['notifyat']) : $e['notifyat'];
+      $notifyat = $dbdata[$id]['notifyat'] ? strtotime($dbdata[$id]['notifyat']) : $alarm['notifyat'];
       if ($notifyat <= $time)
-        $alarms[] = $e;
+        $alarms[] = $alarm;
     }
     
     return $alarms;
@@ -889,13 +896,13 @@ class kolab_driver extends calendar_driver
    *
    * @see calendar_driver::dismiss_alarm()
    */
-  public function dismiss_alarm($event_id, $snooze = 0)
+  public function dismiss_alarm($alarm_id, $snooze = 0)
   {
     // delete old alarm entry
     $this->rc->db->query(
       "DELETE FROM kolab_alarms
-       WHERE event_id=? AND user_id=?",
-       $event_id,
+       WHERE alarm_id=? AND user_id=?",
+       $alarm_id,
        $this->rc->user->ID
     );
 
@@ -904,9 +911,9 @@ class kolab_driver extends calendar_driver
 
     $query = $this->rc->db->query(
       "INSERT INTO kolab_alarms
-       (event_id, user_id, dismissed, notifyat)
+       (alarm_id, user_id, dismissed, notifyat)
        VALUES(?, ?, ?, ?)",
-      $event_id,
+      $alarm_id,
       $this->rc->user->ID,
       $snooze > 0 ? 0 : 1,
       $notifyat
