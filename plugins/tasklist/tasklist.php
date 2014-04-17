@@ -756,9 +756,9 @@ class tasklist extends rcube_plugin
             $mask |= self::FILTER_MASK_TODAY;
         if ($duedate <= $tomorrow || ($rec['startdate'] && $start <= $tomorrow))
             $mask |= self::FILTER_MASK_TOMORROW;
-        if ($start > $tomorrow || ($duedate > $tomorrow && $duedate <= $weeklimit))
+        if (($start > $tomorrow && $start <= $weeklimit) || ($duedate > $tomorrow && $duedate <= $weeklimit))
             $mask |= self::FILTER_MASK_WEEK;
-        if ($start > $weeklimit || ($rec['date'] && $duedate > $weeklimit))
+        else if ($start > $weeklimit || ($rec['date'] && $duedate > $weeklimit))
             $mask |= self::FILTER_MASK_LATER;
 
         return $mask;
