@@ -199,7 +199,7 @@ class kolab_format_event extends kolab_format_xcal
             $tags[] = rcube_utils::normalize_string($cat);
         }
 
-        if (!empty($this->data['alarms'])) {
+        if (!empty($this->data['valarms'])) {
             $tags[] = 'x-has-alarms';
         }
 

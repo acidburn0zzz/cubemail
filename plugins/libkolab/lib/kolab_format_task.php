@@ -121,7 +121,7 @@ class kolab_format_task extends kolab_format_xcal
         if ($this->data['priority'] == 1)
             $tags[] = 'x-flagged';
 
-        if (!empty($this->data['alarms']))
+        if (!empty($this->data['valarms']))
             $tags[] = 'x-has-alarms';
 
         if ($this->data['parent_id'])
