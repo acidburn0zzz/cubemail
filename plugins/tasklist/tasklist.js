@@ -67,6 +67,13 @@ function rcube_tasklist_ui(settings)
     var completeness_slider;
     var task_draghelper;
     var tag_draghelper;
+    var task_drag_active = false;
+    var list_scroll_top = 0;
+    var scroll_delay = 400;
+    var scroll_step = 5;
+    var scroll_speed = 20;
+    var scroll_sensitivity = 40;
+    var scroll_timer;
     var me = this;
 
     // general datepicker settings
@@ -819,6 +826,7 @@ function rcube_tasklist_ui(settings)
                 appendTo: 'body',
                 start: task_draggable_start,
                 stop: task_draggable_stop,
+                drag: task_draggable_move,
                 revertDuration: 300
             });
 
@@ -981,12 +989,45 @@ function rcube_tasklist_ui(settings)
 
         $(this).parent().addClass('dragging');
         $('#rootdroppable').show();
+
+        // enable auto-scrolling of list container
+        var container = $(rcmail.gui_objects.resultlist);
+        if (container.height() > container.parent().height()) {
+            task_drag_active = true;
+            list_scroll_top = container.parent().scrollTop();
+        }
+    }
+
+    function task_draggable_move(event, ui)
+    {
+        var scroll = 0,
+            mouse = rcube_event.get_mouse_pos(event),
+            container = $(rcmail.gui_objects.resultlist);
+
+        mouse.y -= container.parent().offset().top;
+
+        if (mouse.y < scroll_sensitivity && list_scroll_top > 0) {
+            scroll = -1; // up
+        }
+        else if (mouse.y > container.parent().height() - scroll_sensitivity) {
+            scroll = 1; // down
+        }
+
+        if (task_drag_active && scroll != 0) {
+            if (!scroll_timer)
+                scroll_timer = window.setTimeout(function(){ tasklist_drag_scroll(container, scroll); }, scroll_delay);
+        }
+        else if (scroll_timer) {
+            window.clearTimeout(scroll_timer);
+            scroll_timer = null;
+        }
     }
 
     function task_draggable_stop(event, ui)
     {
         $(this).parent().removeClass('dragging');
         $('#rootdroppable').hide();
+        task_drag_active = false;
     }
 
     function task_droppable_accept(draggable)
@@ -1056,6 +1097,22 @@ function rcube_tasklist_ui(settings)
         }
     }
 
+    /**
+     * Scroll list container in the given direction
+     */
+    function tasklist_drag_scroll(container, dir)
+    {
+        if (!task_drag_active)
+            return;
+
+        var old_top = list_scroll_top;
+        container.parent().get(0).scrollTop += scroll_step * dir;
+        list_scroll_top = container.parent().scrollTop();
+        scroll_timer = null;
+
+        if (list_scroll_top != old_top)
+            scroll_timer = window.setTimeout(function(){ tasklist_drag_scroll(container, dir); }, scroll_speed);
+    }
 
     /**
      * Show task details in a dialog
