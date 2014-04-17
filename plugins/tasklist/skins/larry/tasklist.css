@@ -680,7 +680,7 @@ ul.toolbarmenu li span.delete {
 #rootdroppable {
 	display: none;
 	position: absolute;
-	top: 36px;
+	top: 2px;
 	left: 1em;
 	right: 1em;
 	height: 5px;
