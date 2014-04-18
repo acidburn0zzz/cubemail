@@ -227,8 +227,10 @@ class kolab_notes extends rcube_plugin
 
         // attempt to create a default folder for this user
         if (empty($this->lists)) {
-            $folder = kolab_storage::folder_update(array('name' => 'Notes', 'type' => 'note', 'default' => true, 'subscribed' => true));
-            $this->_read_lists(true);
+            $folder = array('name' => 'Notes', 'type' => 'note', 'default' => true, 'subscribed' => true);
+            if (kolab_storage::folder_update($folder)) {
+                $this->_read_lists(true);
+            }
         }
 
         return $this->lists;
