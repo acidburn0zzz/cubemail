@@ -1810,6 +1810,9 @@ function rcube_tasklist_ui(settings)
         $(rcmail.gui_objects.folderlist).append(li);
         me.tasklists[prop.id] = prop;
         init_tasklist_li(li.get(0), prop.id);
+
+        // append to list selector in task edit dialog, too (#2985)
+        $('<option>').attr('value', prop.id).html(Q(prop.name)).appendTo('#taskedit-tasklist');
     }
 
     /**
