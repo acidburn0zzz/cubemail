@@ -1737,7 +1737,7 @@ function rcube_tasklist_ui(settings)
         var li, delete_ids = [],
             list = me.tasklists[prop.id];
 
-            // find sub-lists
+        // find sub-lists
         if (list && list.children) {
             for (var child_id in me.tasklists) {
                 if (String(child_id).indexOf(prop.id) == 0)
@@ -1763,6 +1763,7 @@ function rcube_tasklist_ui(settings)
                 unlock_saving();
                 remove_tasks(list.id);
             }
+            $("#taskedit-tasklist option[value='"+id+"']").remove();
         }
     }
 
