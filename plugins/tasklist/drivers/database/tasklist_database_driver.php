@@ -89,7 +89,8 @@ class tasklist_database_driver extends tasklist_driver
     {
       // attempt to create a default list for this user
       if (empty($this->lists)) {
-        if ($this->create_list(array('name' => 'Default', 'color' => '000000')))
+        $prop = array('name' => 'Default', 'color' => '000000');
+        if ($this->create_list($prop))
           $this->_read_lists();
       }
 
@@ -723,4 +724,22 @@ class tasklist_database_driver extends tasklist_driver
         return $valarms;
     }
 
+    /**
+     * Handler for user_delete plugin hook
+     */
+    public function user_delete($args)
+    {
+        $db = $this->rc->db;
+        $list_ids = array();
+        $lists = $db->query("SELECT tasklist_id FROM " . $this->db_lists . " WHERE user_id=?", $args['user']->ID);
+        while ($row = $db->fetch_assoc($lists)) {
+            $list_ids[] = $row['tasklist_id'];
+        }
+
+        if (!empty($list_ids)) {
+            foreach (array($this->db_tasks, $this->db_lists) as $table) {
+                $db->query(sprintf("DELETE FROM $table WHERE tasklist_id IN (%s)", join(',', $list_ids)));
+            }
+        }
+    }
 }

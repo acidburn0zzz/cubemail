@@ -277,4 +277,15 @@ abstract class tasklist_driver
         return $html;
     }
 
+    /**
+     * Handler for user_delete plugin hook
+     *
+     * @param array Hash array with hook arguments
+     * @return array Return arguments for plugin hooks
+     */
+    public function user_delete($args)
+    {
+        // TO BE OVERRIDDEN
+        return $args;
+    }
 }

@@ -100,6 +100,8 @@ class calendar extends rcube_plugin
       // default startup routine
       $this->add_hook('startup', array($this, 'startup'));
     }
+
+    $this->add_hook('user_delete', array($this, 'user_delete'));
   }
 
   /**
@@ -2696,6 +2698,15 @@ class calendar extends rcube_plugin
   public function ical_feed_hash($source)
   {
     return base64_encode($this->rc->user->get_username() . ':' . $source);
+  }
+
+  /**
+   * Handler for user_delete plugin hook
+   */
+  public function user_delete($args)
+  {
+     $this->load_driver();
+     return $this->driver->user_delete($args);
   }
 
   /**

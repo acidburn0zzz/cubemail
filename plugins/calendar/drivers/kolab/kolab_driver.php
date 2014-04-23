@@ -1299,4 +1299,15 @@ class kolab_driver extends calendar_driver
 
     return $plugin['form']['sharing']['content'];
   }
+
+  /**
+   * Handler for user_delete plugin hook
+   */
+  public function user_delete($args)
+  {
+    $db = $this->rc->get_dbh();
+    foreach (array('kolab_alarms', 'itipinvitations') as $table) {
+      $db->query("DELETE FROM $table WHERE user_id=?", $args['user']->ID);
+    }
+  }
 }

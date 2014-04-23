@@ -75,6 +75,8 @@ class tasklist extends rcube_plugin
 
         // proceed initialization in startup hook
         $this->add_hook('startup', array($this, 'startup'));
+
+        $this->add_hook('user_delete', array($this, 'user_delete'));
     }
 
     /**
@@ -984,5 +986,13 @@ class tasklist extends rcube_plugin
       return strtoupper(md5(time() . uniqid(rand())) . '-' . substr(md5($this->rc->user->get_username()), 0, 16));
     }
 
+    /**
+     * Handler for user_delete plugin hook
+     */
+    public function user_delete($args)
+    {
+       $this->load_driver();
+       return $this->driver->user_delete($args);
+    }
 }
 

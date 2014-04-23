@@ -531,4 +531,15 @@ abstract class calendar_driver
     return $events;
   }
 
+  /**
+   * Handler for user_delete plugin hook
+   *
+   * @param array Hash array with hook arguments
+   * @return array Return arguments for plugin hooks
+   */
+  public function user_delete($args)
+  {
+    // TO BE OVERRIDDEN
+    return $args;
+  }
 }

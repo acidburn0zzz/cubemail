@@ -1141,4 +1141,34 @@ class database_driver extends calendar_driver
       return $valarms;
   }
 
+  /**
+   * Handler for user_delete plugin hook
+   */
+  public function user_delete($args)
+  {
+      $db = $this->rc->db;
+      $user = $args['user'];
+      $event_ids = array();
+
+      $events = $db->query(
+          "SELECT event_id FROM " . $this->db_events . " AS ev" .
+          " LEFT JOIN " . $this->db_calendars . " cal ON (ev.calendar_id = cal.calendar_id)".
+          " WHERE user_id=?",
+          $user->ID);
+
+      while ($row = $db->fetch_assoc($calendars)) {
+          $event_ids[] = $row['event_id'];
+      }
+
+      if (!empty($event_ids)) {
+          foreach (array($this->db_attachments, $this->db_events) as $table) {
+              $db->query(sprintf("DELETE FROM $table WHERE event_id IN (%s)", join(',', $event_ids)));
+          }
+      }
+
+      foreach (array($this->db_calendars, 'itipinvitations') as $table) {
+          $db->query("DELETE FROM $table WHERE user_id=?", $user->ID);
+      }
+  }
+
 }
