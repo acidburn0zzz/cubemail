@@ -1141,6 +1141,18 @@ class kolab_storage
         }
     }
 
+    /**
+     * Handler for user_delete plugin hooks
+     *
+     * Remove all cache data from the local database related to the given user.
+     */
+    public static function delete_user_folders($args)
+    {
+        $db = rcmail::get_instance()->get_dbh();
+        $prefix = 'imap://' . urlencode($args['username']) . '@' . $args['host'] . '/%';
+        $db->query("DELETE FROM " . $db->table_name('kolab_folders') . " WHERE resource LIKE ?", $prefix);
+    }
+
 }
 
 /**
