@@ -471,6 +471,16 @@ class tasklist_database_driver extends tasklist_driver
     }
 
     /**
+     * Remove alarm dismissal or snooze state
+     *
+     * @param  string  Task identifier
+     */
+    public function clear_alarms($id)
+    {
+        // Nothing to do here. Alarms are reset in edit_task()
+    }
+
+    /**
      * Map some internal database values to match the generic "API"
      */
     private function _read_postprocess($rec)

@@ -153,6 +153,13 @@ abstract class tasklist_driver
     abstract function dismiss_alarm($id, $snooze = 0);
 
     /**
+     * Remove alarm dismissal or snooze state
+     *
+     * @param  string  Task identifier
+     */
+    abstract public function clear_alarms($id);
+
+    /**
      * Return data of a specific task
      *
      * @param mixed  Hash array with task properties or task UID

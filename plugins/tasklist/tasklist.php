@@ -205,6 +205,7 @@ class tasklist extends rcube_plugin
                 // add clone from recurring task
                 if ($clone && $this->driver->create_task($clone)) {
                     $refresh[] = $this->driver->get_task($clone);
+                    $this->driver->clear_alarms($rec['id']);
                 }
 
                 // move all childs if list assignment was changed
@@ -526,13 +527,15 @@ class tasklist extends rcube_plugin
         if ($rec['complete'] == 1.0 && $old && $old['complete'] < 1.0 && is_array($rec['recurrence'])) {
             $engine = libcalendaring::get_recurrence();
             $rrule = $rec['recurrence'];
-            $engine->init($rrule);
             $updates = array();
 
             // compute the next occurrence of date attributes
             foreach (array('date'=>'time', 'startdate'=>'starttime') as $date_key => $time_key) {
+                if (empty($rec[$date_key]))
+                    continue;
+
                 $date = new DateTime($rec[$date_key] . ' ' . $rec[$time_key], $this->timezone);
-                $engine->set_start($date);
+                $engine->init($rrule, $date);
                 if ($next = $engine->next()) {
                     $updates[$date_key] = $next->format('Y-m-d');
                     if (!empty($rec[$time_key]))
@@ -544,11 +547,10 @@ class tasklist extends rcube_plugin
             if (!empty($updates) && is_array($rec['valarms'])) {
                 $updates['valarms'] = array();
                 unset($rrule['UNTIL'], $rrule['COUNT']);  // make recurrence rule unlimited
-                $engine->init($rrule);
 
                 foreach ($rec['valarms'] as $i => $alarm) {
                     if ($alarm['trigger'] instanceof DateTime) {
-                        $engine->set_start($alarm['trigger']);
+                        $engine->init($rrule, $alarm['trigger']);
                         if ($next = $engine->next()) {
                             $alarm['trigger'] = $next;
                         }

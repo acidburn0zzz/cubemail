@@ -573,6 +573,24 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
+     * Remove alarm dismissal or snooze state
+     *
+     * @param  string  Task identifier
+     */
+    public function clear_alarms($id)
+    {
+        // delete alarm entry
+        $this->rc->db->query(
+            "DELETE FROM kolab_alarms
+             WHERE alarm_id=? AND user_id=?",
+            $id,
+            $this->rc->user->ID
+        );
+
+        return true;
+    }
+
+    /**
      * Convert from Kolab_Format to internal representation
      */
     private function _to_rcube_task($record)
