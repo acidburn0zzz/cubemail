@@ -22,6 +22,34 @@ $labels['repeatinhrs'] = '$hrs で繰返し';
 $labels['repeattomorrow'] = '明日繰返し';
 $labels['repeatinweek'] = '1週間で繰返し';
 $labels['showmore'] = 'さらに表示…';
+
+// recurrence related labels
+$labels['frequency'] = '繰返し';
+$labels['never'] = '繰返さない';
+$labels['daily'] = '毎日';
+$labels['weekly'] = '毎週';
+$labels['monthly'] = '毎月';
+$labels['yearly'] = '毎年';
+$labels['every'] = 'いつでも';
+$labels['days'] = '日(s)';
+$labels['weeks'] = '週(s)';
+$labels['months'] = '月(s)';
+$labels['years'] = '年(s):';
+$labels['bydays'] = '上';
+$labels['untildate'] = 'その';
+$labels['each'] = 'いずれも';
+$labels['onevery'] = '各';
+$labels['onsamedate'] = 'いつか';
+$labels['forever'] = 'ずっと';
+$labels['recurrencend'] = 'まで';
+$labels['forntimes'] = '$nr まで(s)';
+$labels['first'] = '第1週';
+$labels['second'] = '第2週';
+$labels['third'] = '第3週';
+$labels['fourth'] = '第4週';
+$labels['last'] = '最終週';
+$labels['dayofmonth'] = '日';
+
 // itip related labels
 $labels['itipinvitation'] = '招待する';
 $labels['itipupdate'] = '更新';

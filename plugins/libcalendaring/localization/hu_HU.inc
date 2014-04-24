@@ -22,6 +22,36 @@ $labels['repeatinhrs'] = 'Emlékeztessen újra $hrs óra múlva';
 $labels['repeattomorrow'] = 'Emlékeztessen újra holnap';
 $labels['repeatinweek'] = 'Emlékeztessen újra egy hét múlva';
 $labels['showmore'] = 'Tovább...';
+
+// recurrence related labels
+$labels['frequency'] = 'Ismétlődik';
+$labels['never'] = 'soha';
+$labels['daily'] = 'naponta';
+$labels['weekly'] = 'hetente';
+$labels['monthly'] = 'havonta';
+$labels['yearly'] = 'évente';
+$labels['rdate'] = 'adott időpontokban';
+$labels['every'] = 'Minden';
+$labels['days'] = 'napon';
+$labels['weeks'] = 'héten';
+$labels['months'] = 'hónapban';
+$labels['years'] = 'évben ekkor:';
+$labels['bydays'] = 'napon';
+$labels['untildate'] = 'dátumig';
+$labels['each'] = 'napon';
+$labels['onevery'] = 'minden';
+$labels['onsamedate'] = 'Ugyanazon a dátumon';
+$labels['forever'] = 'örökké';
+$labels['recurrencend'] = 'Eddig';
+$labels['forntimes'] = '$nr alkalommal';
+$labels['first'] = 'első';
+$labels['second'] = 'második';
+$labels['third'] = 'harmadik';
+$labels['fourth'] = 'negyedik';
+$labels['last'] = 'utolsó';
+$labels['dayofmonth'] = 'hónap napja';
+$labels['addrdate'] = 'Ismétlési dátum hozzáadása';
+
 // itip related labels
 $labels['itipinvitation'] = 'Új esemény:';
 $labels['itipupdate'] = 'Módosítva:';

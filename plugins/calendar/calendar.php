@@ -1334,18 +1334,8 @@ class calendar extends rcube_plugin
       $event['valarms'] = libcalendaring::to_client_alarms($event['valarms']);
     }
     if ($event['recurrence']) {
-      $event['recurrence_text'] = $this->_recurrence_text($event['recurrence']);
-      if ($event['recurrence']['UNTIL'])
-        $event['recurrence']['UNTIL'] = $this->lib->adjust_timezone($event['recurrence']['UNTIL'], $event['allday'])->format('c');
-      unset($event['recurrence']['EXCEPTIONS']);
-
-      // format RDATE values
-      if (is_array($event['recurrence']['RDATE'])) {
-        $libcal = $this->lib;
-        $event['recurrence']['RDATE'] = array_map(function($rdate) use ($libcal) {
-          return $libcal->adjust_timezone($rdate, true)->format('c');
-        }, $event['recurrence']['RDATE']);
-      }
+      $event['recurrence_text'] = $this->lib->recurrence_text($event['recurrence']);
+      $event['recurrence'] = $this->lib->to_client_recurrence($event['recurrence'], $event['allday']);
     }
 
     foreach ((array)$event['attachments'] as $k => $attachment) {
@@ -1388,70 +1378,6 @@ class calendar extends rcube_plugin
     ) + $event;
   }
 
-
-  /**
-   * Render localized text describing the recurrence rule of an event
-   */
-  private function _recurrence_text($rrule)
-  {
-    // derive missing FREQ and INTERVAL from RDATE list
-    if (empty($rrule['FREQ']) && !empty($rrule['RDATE'])) {
-      $first = $rrule['RDATE'][0];
-      $second = $rrule['RDATE'][1];
-      $third  = $rrule['RDATE'][2];
-      if (is_a($first, 'DateTime') && is_a($second, 'DateTime')) {
-        $diff = $first->diff($second);
-        foreach (array('y' => 'YEARLY', 'm' => 'MONTHLY', 'd' => 'DAILY') as $k => $freq) {
-          if ($diff->$k != 0) {
-            $rrule['FREQ'] = $freq;
-            $rrule['INTERVAL'] = $diff->$k;
-
-            // verify interval with next item
-            if (is_a($third, 'DateTime')) {
-              $diff2 = $second->diff($third);
-              if ($diff2->$k != $diff->$k) {
-                unset($rrule['INTERVAL']);
-              }
-            }
-            break;
-          }
-        }
-      }
-      if (!$rrule['INTERVAL'])
-        $rrule['FREQ'] = 'RDATE';
-      $rrule['UNTIL'] = end($rrule['RDATE']);
-    }
-
-    // TODO: finish this
-    $freq = sprintf('%s %d ', $this->gettext('every'), $rrule['INTERVAL']);
-    $details = '';
-    switch ($rrule['FREQ']) {
-      case 'DAILY':
-        $freq .= $this->gettext('days');
-        break;
-      case 'WEEKLY':
-        $freq .= $this->gettext('weeks');
-        break;
-      case 'MONTHLY':
-        $freq .= $this->gettext('months');
-        break;
-      case 'YEARLY':
-        $freq .= $this->gettext('years');
-        break;
-    }
-    
-    if ($rrule['INTERVAL'] <= 1)
-      $freq = $this->gettext(strtolower($rrule['FREQ']));
-      
-    if ($rrule['COUNT'])
-      $until =  $this->gettext(array('name' => 'forntimes', 'vars' => array('nr' => $rrule['COUNT'])));
-    else if ($rrule['UNTIL'])
-      $until = $this->gettext('recurrencend') . ' ' . format_date($rrule['UNTIL'], libcalendaring::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format'])));
-    else
-      $until = $this->gettext('forever');
-    
-    return rtrim($freq . $details . ', ' . $until);
-  }
 
   /**
    * Generate a unique identifier for an event
@@ -1570,22 +1496,9 @@ class calendar extends rcube_plugin
       return;
     }
 
-    if (is_array($event['recurrence']) && !empty($event['recurrence']['UNTIL']))
-      $event['recurrence']['UNTIL'] = new DateTime($event['recurrence']['UNTIL'], $this->timezone);
-
-    if (is_array($event['recurrence']) && is_array($event['recurrence']['RDATE'])) {
-      $tz = $this->timezone;
-      $start = $event['start'];
-      $event['recurrence']['RDATE'] = array_map(function($rdate) use ($tz, $start) {
-        try {
-          $dt = new DateTime($rdate, $tz);
-          $dt->setTime($start->format('G'), $start->format('i'));
-          return $dt;
-        }
-        catch (Exception $e) {
-          return null;
-        }
-      }, $event['recurrence']['RDATE']);
+    // convert the submitted recurrence settings
+    if (is_array($event['recurrence'])) {
+      $event['recurrence'] = $this->lib->from_client_recurrence($event['recurrence'], $event['start']);
     }
 
     // convert the submitted alarm values

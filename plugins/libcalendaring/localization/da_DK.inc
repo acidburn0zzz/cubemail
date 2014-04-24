@@ -22,6 +22,34 @@ $labels['repeatinhrs'] = 'Gentag om $hrs timer';
 $labels['repeattomorrow'] = 'Gentag i morgen';
 $labels['repeatinweek'] = 'Gentag om en uge';
 $labels['showmore'] = 'Vis mere ...';
+
+// recurrence related labels
+$labels['frequency'] = 'Gentag';
+$labels['never'] = 'aldrig';
+$labels['daily'] = 'dagligt';
+$labels['weekly'] = 'ugentligt';
+$labels['monthly'] = 'månedligt';
+$labels['yearly'] = 'årligt';
+$labels['every'] = 'Hver';
+$labels['days'] = 'dag(e)';
+$labels['weeks'] = 'uge(r)';
+$labels['months'] = 'måned(er)';
+$labels['years'] = 'år i:';
+$labels['bydays'] = 'Per';
+$labels['untildate'] = 'den';
+$labels['each'] = 'Hver';
+$labels['onevery'] = 'På hver';
+$labels['onsamedate'] = 'På samme dato';
+$labels['forever'] = 'for altid';
+$labels['recurrencend'] = 'indtil';
+$labels['forntimes'] = 'for $nr gang(e)';
+$labels['first'] = 'første';
+$labels['second'] = 'anden';
+$labels['third'] = 'tredje';
+$labels['fourth'] = 'fjerde';
+$labels['last'] = 'sidste';
+$labels['dayofmonth'] = 'Dag på måneden';
+
 // itip related labels
 $labels['itipinvitation'] = 'Invitation til';
 $labels['itipupdate'] = 'Opdatering per';

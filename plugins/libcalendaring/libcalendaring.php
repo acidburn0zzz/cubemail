@@ -637,6 +637,284 @@ class libcalendaring extends rcube_plugin
     }
 
 
+    /*********  Recurrence rules handling ********/
+
+    /**
+     * Render localized text describing the recurrence rule of an event
+     */
+    public function recurrence_text($rrule)
+    {
+        // derive missing FREQ and INTERVAL from RDATE list
+        if (empty($rrule['FREQ']) && !empty($rrule['RDATE'])) {
+            $first = $rrule['RDATE'][0];
+            $second = $rrule['RDATE'][1];
+            $third  = $rrule['RDATE'][2];
+            if (is_a($first, 'DateTime') && is_a($second, 'DateTime')) {
+                $diff = $first->diff($second);
+                foreach (array('y' => 'YEARLY', 'm' => 'MONTHLY', 'd' => 'DAILY') as $k => $freq) {
+                    if ($diff->$k != 0) {
+                        $rrule['FREQ'] = $freq;
+                        $rrule['INTERVAL'] = $diff->$k;
+
+                        // verify interval with next item
+                        if (is_a($third, 'DateTime')) {
+                            $diff2 = $second->diff($third);
+                            if ($diff2->$k != $diff->$k) {
+                                unset($rrule['INTERVAL']);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            if (!$rrule['INTERVAL']) {
+                $rrule['FREQ'] = 'RDATE';
+            }
+            $rrule['UNTIL'] = end($rrule['RDATE']);
+        }
+
+        $freq = sprintf('%s %d ', $this->gettext('every'), $rrule['INTERVAL']);
+        $details = '';
+        switch ($rrule['FREQ']) {
+            case 'DAILY':
+                $freq .= $this->gettext('days');
+                break;
+            case 'WEEKLY':
+                $freq .= $this->gettext('weeks');
+                break;
+            case 'MONTHLY':
+                $freq .= $this->gettext('months');
+                break;
+            case 'YEARLY':
+                $freq .= $this->gettext('years');
+                break;
+        }
+
+        if ($rrule['INTERVAL'] <= 1) {
+            $freq = $this->gettext(strtolower($rrule['FREQ']));
+        }
+
+        if ($rrule['COUNT']) {
+            $until =  $this->gettext(array('name' => 'forntimes', 'vars' => array('nr' => $rrule['COUNT'])));
+        }
+        else if ($rrule['UNTIL']) {
+            $until = $this->gettext('recurrencend') . ' ' . format_date($rrule['UNTIL'], self::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format'])));
+        }
+        else {
+            $until = $this->gettext('forever');
+        }
+
+        return rtrim($freq . $details . ', ' . $until);
+    }
+
+    /**
+     * Generate the form for recurrence settings
+     */
+    public function recurrence_form($attrib = array())
+    {
+        switch ($attrib['part']) {
+            // frequency selector
+            case 'frequency':
+                $select = new html_select(array('name' => 'frequency', 'id' => 'edit-recurrence-frequency'));
+                $select->add($this->gettext('never'),   '');
+                $select->add($this->gettext('daily'),   'DAILY');
+                $select->add($this->gettext('weekly'),  'WEEKLY');
+                $select->add($this->gettext('monthly'), 'MONTHLY');
+                $select->add($this->gettext('yearly'),  'YEARLY');
+                $select->add($this->gettext('rdate'),   'RDATE');
+                $html = html::label('edit-frequency', $this->gettext('frequency')) . $select->show('');
+                break;
+
+            // daily recurrence
+            case 'daily':
+                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-daily'));
+                $html = html::div($attrib, html::label(null, $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('days')));
+                break;
+
+            // weekly recurrence form
+            case 'weekly':
+                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-weekly'));
+                $html = html::div($attrib, html::label(null, $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('weeks')));
+                // weekday selection
+                $daymap = array('sun','mon','tue','wed','thu','fri','sat');
+                $checkbox = new html_checkbox(array('name' => 'byday', 'class' => 'edit-recurrence-weekly-byday'));
+                $first = $this->rc->config->get('calendar_first_day', 1);
+                for ($weekdays = '', $j = $first; $j <= $first+6; $j++) {
+                    $d = $j % 7;
+                    $weekdays .= html::label(array('class' => 'weekday'),
+                        $checkbox->show('', array('value' => strtoupper(substr($daymap[$d], 0, 2)))) .
+                        $this->gettext($daymap[$d])
+                    ) . ' ';
+                }
+                $html .= html::div($attrib, html::label(null, $this->gettext('bydays')) . $weekdays);
+                break;
+
+            // monthly recurrence form
+            case 'monthly':
+                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-monthly'));
+                $html = html::div($attrib, html::label(null, $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('months')));
+
+                $checkbox = new html_checkbox(array('name' => 'bymonthday', 'class' => 'edit-recurrence-monthly-bymonthday'));
+                for ($monthdays = '', $d = 1; $d <= 31; $d++) {
+                    $monthdays .= html::label(array('class' => 'monthday'), $checkbox->show('', array('value' => $d)) . $d);
+                    $monthdays .= $d % 7 ? ' ' : html::br();
+                }
+
+                // rule selectors
+                $radio = new html_radiobutton(array('name' => 'repeatmode', 'class' => 'edit-recurrence-monthly-mode'));
+                $table = new html_table(array('cols' => 2, 'border' => 0, 'cellpadding' => 0, 'class' => 'formtable'));
+                $table->add('label', html::label(null, $radio->show('BYMONTHDAY', array('value' => 'BYMONTHDAY')) . ' ' . $this->gettext('each')));
+                $table->add(null, $monthdays);
+                $table->add('label', html::label(null, $radio->show('', array('value' => 'BYDAY')) . ' ' . $this->gettext('onevery')));
+                $table->add(null, $this->rrule_selectors($attrib['part']));
+
+                $html .= html::div($attrib, $table->show());
+                break;
+
+            // annually recurrence form
+            case 'yearly':
+                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-yearly'));
+                $html = html::div($attrib, html::label(null, $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('years')));
+                // month selector
+                $monthmap = array('','jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec');
+                $checkbox = new html_checkbox(array('name' => 'bymonth', 'class' => 'edit-recurrence-yearly-bymonth'));
+                for ($months = '', $m = 1; $m <= 12; $m++) {
+                    $months .= html::label(array('class' => 'month'), $checkbox->show(null, array('value' => $m)) . $this->gettext($monthmap[$m]));
+                    $months .= $m % 4 ? ' ' : html::br();
+                }
+                $html .= html::div($attrib + array('id' => 'edit-recurrence-yearly-bymonthblock'), $months);
+
+                // day rule selection
+                $html .= html::div($attrib, html::label(null, $this->gettext('onevery')) . $this->rrule_selectors($attrib['part'], '---'));
+                break;
+
+            // end of recurrence form
+            case 'until':
+                $radio = new html_radiobutton(array('name' => 'repeat', 'class' => 'edit-recurrence-until'));
+                $select = $this->interval_selector(array('name' => 'times', 'id' => 'edit-recurrence-repeat-times'));
+                $input = new html_inputfield(array('name' => 'untildate', 'id' => 'edit-recurrence-enddate', 'size' => "10"));
+
+                $html = html::div('line first',
+                    html::label(null, $radio->show('', array('value' => '', 'id' => 'edit-recurrence-repeat-forever')) . ' ' .
+                        $this->gettext('forever'))
+                );
+
+                $html .= html::div('line',
+                    $radio->show('', array('value' => 'count', 'id' => 'edit-recurrence-repeat-count')) . ' ' .
+                        $this->gettext(array(
+                            'name' => 'forntimes',
+                            'vars' => array('nr' => $select->show(1)))
+                        )
+                );
+
+                $html .= html::div('line',
+                    $radio->show('', array('value' => 'until', 'id' => 'edit-recurrence-repeat-until')) . ' ' .
+                        $this->gettext('untildate') . ' ' . $input->show('')
+                );
+
+                $html = html::div($attrib, html::label(null, ucfirst($this->gettext('recurrencend'))) . $html);
+                break;
+
+            case 'rdate':
+                $ul = html::tag('ul', array('id' => 'edit-recurrence-rdates'), '');
+                $input = new html_inputfield(array('name' => 'rdate', 'id' => 'edit-recurrence-rdate-input', 'size' => "10"));
+                $button = new html_inputfield(array('type' => 'button', 'class' => 'button add', 'value' => $this->gettext('addrdate')));
+                $html .= html::div($attrib, $ul . html::div('inputform', $input->show() . $button->show()));
+                break;
+        }
+
+        return $html;
+    }
+
+    /**
+     * Input field for interval selection
+     */
+    private function interval_selector($attrib)
+    {
+        $select = new html_select($attrib);
+        $select->add(range(1,30), range(1,30));
+        return $select;
+    }
+
+    /**
+     * Drop-down menus for recurrence rules like "each last sunday of"
+     */
+    private function rrule_selectors($part, $noselect = null)
+    {
+        // rule selectors
+        $select_prefix = new html_select(array('name' => 'bydayprefix', 'id' => "edit-recurrence-$part-prefix"));
+        if ($noselect) $select_prefix->add($noselect, '');
+        $select_prefix->add(array(
+                $this->gettext('first'),
+                $this->gettext('second'),
+                $this->gettext('third'),
+                $this->gettext('fourth'),
+                $this->gettext('last')
+            ),
+            array(1, 2, 3, 4, -1));
+
+        $select_wday = new html_select(array('name' => 'byday', 'id' => "edit-recurrence-$part-byday"));
+        if ($noselect) $select_wday->add($noselect, '');
+
+        $daymap = array('sunday','monday','tuesday','wednesday','thursday','friday','saturday');
+        $first = $this->rc->config->get('calendar_first_day', 1);
+        for ($j = $first; $j <= $first+6; $j++) {
+            $d = $j % 7;
+            $select_wday->add($this->gettext($daymap[$d]), strtoupper(substr($daymap[$d], 0, 2)));
+        }
+
+        return $select_prefix->show() . '&nbsp;' . $select_wday->show();
+    }
+
+    /**
+     * Convert the recurrence settings to be processed on the client
+     */
+    public function to_client_recurrence($recurrence, $allday = false)
+    {
+        if ($recurrence['UNTIL'])
+            $recurrence['UNTIL'] = $this->adjust_timezone($recurrence['UNTIL'], $allday)->format('c');
+
+        // format RDATE values
+        if (is_array($recurrence['RDATE'])) {
+            $libcal = $this;
+            $recurrence['RDATE'] = array_map(function($rdate) use ($libcal) {
+                return $libcal->adjust_timezone($rdate, true)->format('c');
+            }, $recurrence['RDATE']);
+        }
+
+        unset($recurrence['EXCEPTIONS']);
+
+        return $recurrence;
+    }
+
+    /**
+     * Process the alarms values submitted by the client
+     */
+    public function from_client_recurrence($recurrence, $start = null)
+    {
+        if (is_array($recurrence) && !empty($recurrence['UNTIL'])) {
+            $recurrence['UNTIL'] = new DateTime($recurrence['UNTIL'], $this->timezone);
+        }
+
+        if (is_array($recurrence) && is_array($recurrence['RDATE'])) {
+            $tz = $this->timezone;
+            $recurrence['RDATE'] = array_map(function($rdate) use ($tz, $start) {
+                try {
+                    $dt = new DateTime($rdate, $tz);
+                    if (is_a($start, 'DateTime'))
+                        $dt->setTime($start->format('G'), $start->format('i'));
+                    return $dt;
+                }
+                catch (Exception $e) {
+                    return null;
+                }
+            }, $recurrence['RDATE']);
+        }
+
+        return $recurrence;
+    }
+
+
     /*********  Attachments handling  *********/
 
     /**

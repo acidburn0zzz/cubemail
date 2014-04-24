@@ -22,6 +22,36 @@ $labels['repeatinhrs'] = 'Wiederholung in $hrs Stunden';
 $labels['repeattomorrow'] = 'Wiederholung morgen';
 $labels['repeatinweek'] = 'Wiederholung in einer Woche';
 $labels['showmore'] = 'Mehr anzeigen...';
+
+// recurrence related labels
+$labels['frequency'] = 'Wiederholung';
+$labels['never'] = 'nie';
+$labels['daily'] = 'täglich';
+$labels['weekly'] = 'wöchentlich';
+$labels['monthly'] = 'monatlich';
+$labels['yearly'] = 'jährlich';
+$labels['rdate'] = 'on dates';
+$labels['every'] = 'Alle';
+$labels['days'] = 'Tag(e)';
+$labels['weeks'] = 'Woche(n)';
+$labels['months'] = 'Monat(e)';
+$labels['years'] = 'Jahre(e) im:';
+$labels['bydays'] = 'Am';
+$labels['untildate'] = 'am';
+$labels['each'] = 'Jeden';
+$labels['onevery'] = 'An jedem';
+$labels['onsamedate'] = 'Am gleichen Tag';
+$labels['forever'] = 'unendlich';
+$labels['recurrencend'] = 'bis';
+$labels['forntimes'] = '$nr Wiederholungen';
+$labels['first'] = 'erster';
+$labels['second'] = 'zweiter';
+$labels['third'] = 'dritter';
+$labels['fourth'] = 'vierter';
+$labels['last'] = 'letzter';
+$labels['dayofmonth'] = 'Tag des Montats';
+$labels['addrdate'] = 'Datum hinzufügen';
+
 // itip related labels
 $labels['itipinvitation'] = 'Einladung zu';
 $labels['itipupdate'] = 'Aktialisiert:';

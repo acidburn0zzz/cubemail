@@ -22,6 +22,36 @@ $labels['repeatinhrs'] = 'Herhaal over $hrs uur';
 $labels['repeattomorrow'] = 'Herhaal morgen';
 $labels['repeatinweek'] = 'Herhaal over een week';
 $labels['showmore'] = 'Toon meer...';
+
+// recurrence related labels
+$labels['frequency'] = 'Herhaal';
+$labels['never'] = 'nooit';
+$labels['daily'] = 'dagelijks';
+$labels['weekly'] = 'wekelijks';
+$labels['monthly'] = 'maandelijks';
+$labels['yearly'] = 'jaarlijks';
+$labels['rdate'] = 'op datums';
+$labels['every'] = 'Elke';
+$labels['days'] = 'dag(en)';
+$labels['weeks'] = 'week / weken';
+$labels['months'] = 'maand(en)';
+$labels['years'] = 'ja(a)r(en) in:';
+$labels['bydays'] = 'Op';
+$labels['untildate'] = 'de';
+$labels['each'] = 'Elke';
+$labels['onevery'] = 'Op elke';
+$labels['onsamedate'] = 'Op dezelfde datum';
+$labels['forever'] = 'oneindig';
+$labels['recurrencend'] = 'tot';
+$labels['forntimes'] = 'voor $nr keer';
+$labels['first'] = 'eerste';
+$labels['second'] = 'tweede';
+$labels['third'] = 'derde';
+$labels['fourth'] = 'vierde';
+$labels['last'] = 'laatste';
+$labels['dayofmonth'] = 'Dag van de maand';
+$labels['addrdate'] = 'Voeg herhaal datum toe';
+
 // itip related labels
 $labels['itipinvitation'] = 'Uitnodiging voor';
 $labels['itipupdate'] = 'Update van';

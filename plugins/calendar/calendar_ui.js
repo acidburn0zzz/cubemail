@@ -81,6 +81,7 @@ function rcube_calendar_ui(settings)
     var date2unixtime = this.date2unixtime;
     var fromunixtime = this.fromunixtime;
     var parseISO8601 = this.parseISO8601;
+    var date2servertime = this.date2ISO8601;
 
 
     /***  private methods  ***/
@@ -142,21 +143,9 @@ function rcube_calendar_ui(settings)
         date.setHours(0);
     };
 
-    // turn the given date into an ISO 8601 date string understandable by PHPs strtotime()
-    var date2servertime = function(date)
-    {
-      return date.getFullYear()+'-'+zeropad(date.getMonth()+1)+'-'+zeropad(date.getDate())
-          + 'T'+zeropad(date.getHours())+':'+zeropad(date.getMinutes())+':'+zeropad(date.getSeconds());
-    }
-
     var date2timestring = function(date, dateonly)
     {
       return date2servertime(date).replace(/[^0-9]/g, '').substr(0, (dateonly ? 8 : 14));
-    }
-
-    var zeropad = function(num)
-    {
-      return (num < 10 ? '0' : '') + num;
     }
 
     var render_link = function(url)
@@ -530,55 +519,6 @@ function rcube_calendar_ui(settings)
         $('<option>').attr('value', event.categories).text(event.categories).appendTo(categories).prop('selected', true);
       }
 
-      // set recurrence form
-      var recurrence, interval, rrtimes, rrenddate;
-      var load_recurrence_tab = function()
-      {
-        recurrence = $('#edit-recurrence-frequency').val(event.recurrence ? event.recurrence.FREQ || (event.recurrence.RDATE ? 'RDATE' : '') : '').change();
-        interval = $('#eventedit select.edit-recurrence-interval').val(event.recurrence ? event.recurrence.INTERVAL : 1);
-        rrtimes = $('#edit-recurrence-repeat-times').val(event.recurrence ? event.recurrence.COUNT : 1);
-        rrenddate = $('#edit-recurrence-enddate').val(event.recurrence && event.recurrence.UNTIL ? $.fullCalendar.formatDate(parseISO8601(event.recurrence.UNTIL), settings['date_format']) : '');
-        $('#eventedit input.edit-recurrence-until:checked').prop('checked', false);
-        $('#edit-recurrence-rdates').html('');
-      
-        var weekdays = ['SU','MO','TU','WE','TH','FR','SA'];
-        var rrepeat_id = '#edit-recurrence-repeat-forever';
-        if (event.recurrence && event.recurrence.COUNT)      rrepeat_id = '#edit-recurrence-repeat-count';
-        else if (event.recurrence && event.recurrence.UNTIL) rrepeat_id = '#edit-recurrence-repeat-until';
-        $(rrepeat_id).prop('checked', true);
-      
-        if (event.recurrence && event.recurrence.BYDAY && event.recurrence.FREQ == 'WEEKLY') {
-          var wdays = event.recurrence.BYDAY.split(',');
-          $('input.edit-recurrence-weekly-byday').val(wdays);
-        }
-        if (event.recurrence && event.recurrence.BYMONTHDAY) {
-          $('input.edit-recurrence-monthly-bymonthday').val(String(event.recurrence.BYMONTHDAY).split(','));
-          $('input.edit-recurrence-monthly-mode').val(['BYMONTHDAY']);
-        }
-        if (event.recurrence && event.recurrence.BYDAY && (event.recurrence.FREQ == 'MONTHLY' || event.recurrence.FREQ == 'YEARLY')) {
-          var byday, section = event.recurrence.FREQ.toLowerCase();
-          if ((byday = String(event.recurrence.BYDAY).match(/(-?[1-4])([A-Z]+)/))) {
-            $('#edit-recurrence-'+section+'-prefix').val(byday[1]);
-            $('#edit-recurrence-'+section+'-byday').val(byday[2]);
-          }
-          $('input.edit-recurrence-'+section+'-mode').val(['BYDAY']);
-        }
-        else if (event.start) {
-          $('#edit-recurrence-monthly-byday').val(weekdays[event.start.getDay()]);
-        }
-        if (event.recurrence && event.recurrence.BYMONTH) {
-          $('input.edit-recurrence-yearly-bymonth').val(String(event.recurrence.BYMONTH).split(','));
-        }
-        else if (event.start) {
-          $('input.edit-recurrence-yearly-bymonth').val([String(event.start.getMonth()+1)]);
-        }
-        if (event.recurrence && event.recurrence.RDATE) {
-          $.each(event.recurrence.RDATE, function(i,rdate){
-            add_rdate(parseISO8601(rdate));
-          });
-        }
-      };
-      
       // show warning if editing a recurring event
       if (event.id && event.recurrence) {
         var sel = event.thisandfuture ? 'future' : (event.isexception ? 'current' : 'all');
@@ -664,7 +604,7 @@ function rcube_calendar_ui(settings)
           priority: priority.val(),
           sensitivity: sensitivity.val(),
           status: eventstatus.val(),
-          recurrence: '',
+          recurrence: me.serialize_recurrence(),
           valarms: me.serialize_alarms('#edit-alarms'),
           attendees: event_attendees,
           deleted_attachments: rcmail.env.deleted_attachments,
@@ -692,56 +632,6 @@ function rcube_calendar_ui(settings)
         // tell server to send notifications
         if ((data.attendees.length || (event.id && event.attendees.length)) && allow_invitations && (notify.checked || invite.checked)) {
           data._notify = 1;
-        }
-
-        // gather recurrence settings
-        var freq;
-        if ((freq = recurrence.val()) != '') {
-          data.recurrence = {
-            FREQ: freq,
-            INTERVAL: $('#edit-recurrence-interval-'+freq.toLowerCase()).val()
-          };
-          
-          var until = $('input.edit-recurrence-until:checked').val();
-          if (until == 'count')
-            data.recurrence.COUNT = rrtimes.val();
-          else if (until == 'until')
-            data.recurrence.UNTIL = date2servertime(parse_datetime(endtime.val(), rrenddate.val()));
-          
-          if (freq == 'WEEKLY') {
-            var byday = [];
-            $('input.edit-recurrence-weekly-byday:checked').each(function(){ byday.push(this.value); });
-            if (byday.length)
-              data.recurrence.BYDAY = byday.join(',');
-          }
-          else if (freq == 'MONTHLY') {
-            var mode = $('input.edit-recurrence-monthly-mode:checked').val(), bymonday = [];
-            if (mode == 'BYMONTHDAY') {
-              $('input.edit-recurrence-monthly-bymonthday:checked').each(function(){ bymonday.push(this.value); });
-              if (bymonday.length)
-                data.recurrence.BYMONTHDAY = bymonday.join(',');
-            }
-            else
-              data.recurrence.BYDAY = $('#edit-recurrence-monthly-prefix').val() + $('#edit-recurrence-monthly-byday').val();
-          }
-          else if (freq == 'YEARLY') {
-            var byday, bymonth = [];
-            $('input.edit-recurrence-yearly-bymonth:checked').each(function(){ bymonth.push(this.value); });
-            if (bymonth.length)
-              data.recurrence.BYMONTH = bymonth.join(',');
-            if ((byday = $('#edit-recurrence-yearly-byday').val()))
-              data.recurrence.BYDAY = $('#edit-recurrence-yearly-prefix').val() + byday;
-          }
-          else if (freq == 'RDATE') {
-            data.recurrence = { RDATE:[] };
-            // take selected but not yet added date into account
-            if ($('#edit-recurrence-rdate-input').val() != '') {
-              $('#recurrence-form-rdate input.button.add').click();
-            }
-            $('#edit-recurrence-rdates li').each(function(i, li){
-              data.recurrence.RDATE.push($(li).attr('data-value'));
-            });
-          }
         }
 
         data.calendar = calendars.val();
@@ -811,7 +701,7 @@ function rcube_calendar_ui(settings)
       title.select();
 
       // init other tabs asynchronously
-      window.setTimeout(load_recurrence_tab, exec_deferred);
+      window.setTimeout(function(){ me.set_recurrence_edit(event); }, exec_deferred);
       if (calendar.attendees)
         window.setTimeout(load_attendees_tab, exec_deferred);
       if (calendar.attachments)
@@ -3223,38 +3113,11 @@ function rcube_calendar_ui(settings)
             };
         });
 
-      // register events on alarm fields
+      // register events on alarms and recurrence fields
       me.init_alarms_edit('#edit-alarms');
+      me.init_recurrence_edit('#eventedit');
 
-      // toggle recurrence frequency forms
-      $('#edit-recurrence-frequency').change(function(e){
-        var freq = $(this).val().toLowerCase();
-        $('.recurrence-form').hide();
-        if (freq) {
-          $('#recurrence-form-'+freq).show();
-          if (freq != 'rdate')
-            $('#recurrence-form-until').show();
-        }
-      });
-      $('#recurrence-form-rdate input.button.add').click(function(e){
-        var dt, dv = $('#edit-recurrence-rdate-input').val();
-        if (dv && (dt = parse_datetime('12:00', dv))) {
-          add_rdate(dt);
-          sort_rdates();
-          $('#edit-recurrence-rdate-input').val('')
-        }
-        else {
-          $('#edit-recurrence-rdate-input').select();
-        }
-      });
-      $('#edit-recurrence-rdates').on('click', 'a.delete', function(e){
-        $(this).closest('li').remove();
-        return false;
-      });
-      $('#edit-recurrence-enddate').datepicker(datepicker_settings).click(function(){ $("#edit-recurrence-repeat-until").prop('checked', true) });
-      $('#edit-recurrence-repeat-times').change(function(e){ $('#edit-recurrence-repeat-count').prop('checked', true); });
-
-      $('#edit-recurrence-rdate-input, #event-export-startdate').datepicker(datepicker_settings);
+      $('#event-export-startdate').datepicker(datepicker_settings);
 
       // init attendees autocompletion
       var ac_props;

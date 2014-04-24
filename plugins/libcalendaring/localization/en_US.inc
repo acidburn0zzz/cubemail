@@ -2,6 +2,7 @@
 
 $labels = array();
 
+// alarms related labels
 $labels['alarmemail'] = 'Send Email';
 $labels['alarmdisplay'] = 'Show message';
 $labels['alarmaudio'] = 'Play sound';
@@ -30,6 +31,35 @@ $labels['repeattomorrow'] = 'Repeat tomorrow';
 $labels['repeatinweek'] = 'Repeat in a week';
 
 $labels['showmore'] = 'Show more...';
+
+// recurrence related labels
+$labels['frequency'] = 'Repeat';
+$labels['never'] = 'never';
+$labels['daily'] = 'daily';
+$labels['weekly'] = 'weekly';
+$labels['monthly'] = 'monthly';
+$labels['yearly'] = 'annually';
+$labels['rdate'] = 'on dates';
+$labels['every'] = 'Every';
+$labels['days'] = 'day(s)';
+$labels['weeks'] = 'week(s)';
+$labels['months'] = 'month(s)';
+$labels['years'] = 'year(s)';
+$labels['bydays'] = 'On';
+$labels['untildate'] = 'the';
+$labels['each'] = 'Each';
+$labels['onevery'] = 'On every';
+$labels['onsamedate'] = 'On the same date';
+$labels['forever'] = 'forever';
+$labels['recurrencend'] = 'until';
+$labels['forntimes'] = 'for $nr time(s)';
+$labels['first'] = 'first';
+$labels['second'] = 'second';
+$labels['third'] = 'third';
+$labels['fourth'] = 'fourth';
+$labels['last'] = 'last';
+$labels['dayofmonth'] = 'Day of month';
+$labels['addrdate'] = 'Add repeat date';
 
 // itip related labels
 $labels['itipinvitation'] = 'Invitation to';

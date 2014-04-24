@@ -22,6 +22,35 @@ $labels['repeatinhrs'] = 'Повторить через $hrs часов';
 $labels['repeattomorrow'] = 'Повторить завтра';
 $labels['repeatinweek'] = 'Повторить через неделю';
 $labels['showmore'] = 'Показать больше...';
+
+// recurrence related labels
+$labels['frequency'] = 'Повторить';
+$labels['never'] = 'никогда';
+$labels['daily'] = 'ежедневно';
+$labels['weekly'] = 'еженедельно';
+$labels['monthly'] = 'ежемесячно';
+$labels['yearly'] = 'ежегодно';
+$labels['rdate'] = 'on dates';
+$labels['every'] = 'Каждый(ую)';
+$labels['days'] = 'день';
+$labels['weeks'] = 'неделю';
+$labels['months'] = 'месяц';
+$labels['years'] = 'год в:';
+$labels['bydays'] = 'В';
+$labels['untildate'] = 'до';
+$labels['each'] = 'Каждого';
+$labels['onevery'] = 'В';
+$labels['onsamedate'] = 'В ту же самую дату';
+$labels['forever'] = 'всегда';
+$labels['recurrencend'] = 'Повторять';
+$labels['forntimes'] = '$nr раз(а)';
+$labels['first'] = 'первый(ую)';
+$labels['second'] = 'вторый(ую)';
+$labels['third'] = 'третий(ую)';
+$labels['fourth'] = 'четвертый(ую)';
+$labels['last'] = 'последний(ую)';
+$labels['dayofmonth'] = 'День месяца';
+
 // itip related labels
 $labels['itipinvitation'] = 'Приглашение на';
 $labels['itipupdate'] = 'Обновление';

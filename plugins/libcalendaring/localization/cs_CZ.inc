@@ -22,6 +22,35 @@ $labels['repeatinhrs'] = 'Zopakovat za $hrs hodin';
 $labels['repeattomorrow'] = 'Zopakovat zítra';
 $labels['repeatinweek'] = 'Zopakovat za týden';
 $labels['showmore'] = 'Ukázat víc...';
+
+// recurrence related labels
+$labels['frequency'] = 'Opakovat';
+$labels['never'] = 'nikdy';
+$labels['daily'] = 'denně';
+$labels['weekly'] = 'týdně';
+$labels['monthly'] = 'měsíčně';
+$labels['yearly'] = 'ročně';
+$labels['rdate'] = 'on dates';
+$labels['every'] = 'Každý';
+$labels['days'] = 'den (dny)';
+$labels['weeks'] = 'týden (týdny)';
+$labels['months'] = 'měsíc(e/ů)';
+$labels['years'] = 'rok(y/ů) v:';
+$labels['bydays'] = 'On';
+$labels['untildate'] = 'do';
+$labels['each'] = 'Každý';
+$labels['onevery'] = 'Vždy v';
+$labels['onsamedate'] = 'Ve stejné datum';
+$labels['forever'] = 'trvale';
+$labels['recurrencend'] = 'do';
+$labels['forntimes'] = 'jen $nrkrát';
+$labels['first'] = 'první';
+$labels['second'] = 'druhý';
+$labels['third'] = 'třetí';
+$labels['fourth'] = 'čtvrtý';
+$labels['last'] = 'poslední';
+$labels['dayofmonth'] = 'Den v měsíci';
+
 // itip related labels
 $labels['itipinvitation'] = 'Pozvání na událost';
 $labels['itipupdate'] = 'Aktualizace události';

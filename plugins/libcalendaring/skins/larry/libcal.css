@@ -111,3 +111,54 @@ a.reply-comment-toggle {
 	display: none;
 }
 
+.recurrence-form {
+	display: none;
+}
+
+.recurrence-form label.weekday,
+.recurrence-form label.monthday {
+	min-width: 3em;
+}
+
+.recurrence-form label.month {
+	min-width: 5em;
+}
+
+#edit-recurrence-yearly-bymonthblock {
+	margin-left: 7.5em;
+}
+
+#edit-recurrence-rdates {
+	display: block;
+	list-style: none;
+	margin: 0 0 0.8em 0;
+	padding: 0;
+	max-height: 300px;
+	overflow: auto;
+}
+
+#edit-recurrence-rdates li {
+	display: block;
+	position: relative;
+	width: 12em;
+	padding: 4px 0 4px 0;
+}
+
+#edit-recurrence-rdates li a.delete {
+	position: absolute;
+	top: 2px;
+	right: 0;
+	width: 20px;
+	height: 18px;
+	background-position: -7px -337px;
+}
+
+#recurrence-form-until div.line {
+	margin-left: 7.5em;
+	margin-bottom: 0.3em;
+}
+
+#recurrence-form-until div.line.first {
+	margin-top: -1.4em;
+}
+

@@ -159,6 +159,17 @@ function rcube_libcalendaring(settings)
     }
 
     /**
+     * Turn the given date into an ISO 8601 date string understandable by PHPs strtotime()
+     */
+    this.date2ISO8601 = function(date)
+    {
+        var zeropad = function(num) { return (num < 10 ? '0' : '') + num; };
+
+        return date.getFullYear() + '-' + zeropad(date.getMonth()+1) + '-' + zeropad(date.getDate())
+            + 'T' + zeropad(date.getHours()) + ':' + zeropad(date.getMinutes()) + ':' + zeropad(date.getSeconds());
+    };
+
+    /**
      * Format the given date object according to user's prefs
      */
     this.format_datetime = function(date, mode)
@@ -511,6 +522,183 @@ function rcube_libcalendaring(settings)
 
         this.dismiss_link = null;
     };
+
+
+    /*****  Recurrence form handling  *****/
+
+    /**
+     * Install event handlers on recurrence form elements
+     */
+    this.init_recurrence_edit = function(prefix)
+    {
+        // toggle recurrence frequency forms
+        $('#edit-recurrence-frequency').change(function(e){
+            var freq = $(this).val().toLowerCase();
+            $('.recurrence-form').hide();
+            if (freq) {
+              $('#recurrence-form-'+freq).show();
+              if (freq != 'rdate')
+                $('#recurrence-form-until').show();
+            }
+        });
+        $('#recurrence-form-rdate input.button.add').click(function(e){
+            var dt, dv = $('#edit-recurrence-rdate-input').val();
+            if (dv && (dt = me.parse_datetime('12:00', dv))) {
+                me.add_rdate(dt);
+                me.sort_rdates();
+                $('#edit-recurrence-rdate-input').val('')
+            }
+            else {
+                $('#edit-recurrence-rdate-input').select();
+            }
+        });
+        $('#edit-recurrence-rdates').on('click', 'a.delete', function(e){
+            $(this).closest('li').remove();
+            return false;
+        });
+
+        $('#edit-recurrence-enddate').datepicker(datepicker_settings).click(function(){ $("#edit-recurrence-repeat-until").prop('checked', true) });
+        $('#edit-recurrence-repeat-times').change(function(e){ $('#edit-recurrence-repeat-count').prop('checked', true); });
+        $('#edit-recurrence-rdate-input').datepicker(datepicker_settings);
+    };
+
+    /**
+     * Set recurrence form according to the given event/task record
+     */
+    this.set_recurrence_edit = function(rec)
+    {
+        var recurrence = $('#edit-recurrence-frequency').val(rec.recurrence ? rec.recurrence.FREQ || (rec.recurrence.RDATE ? 'RDATE' : '') : '').change(),
+            interval = $('.recurrence-form select.edit-recurrence-interval').val(rec.recurrence ? rec.recurrence.INTERVAL || 1 : 1),
+            rrtimes = $('#edit-recurrence-repeat-times').val(rec.recurrence ? rec.recurrence.COUNT || 1 : 1),
+            rrenddate = $('#edit-recurrence-enddate').val(rec.recurrence && rec.recurrence.UNTIL ? this.format_datetime(this.parseISO8601(rec.recurrence.UNTIL), 1) : '');
+        $('.recurrence-form input.edit-recurrence-until:checked').prop('checked', false);
+        $('#edit-recurrence-rdates').html('');
+
+        var weekdays = ['SU','MO','TU','WE','TH','FR','SA'],
+            rrepeat_id = '#edit-recurrence-repeat-forever';
+        if      (rec.recurrence && rec.recurrence.COUNT) rrepeat_id = '#edit-recurrence-repeat-count';
+        else if (rec.recurrence && rec.recurrence.UNTIL) rrepeat_id = '#edit-recurrence-repeat-until';
+        $(rrepeat_id).prop('checked', true);
+
+        if (rec.recurrence && rec.recurrence.BYDAY && rec.recurrence.FREQ == 'WEEKLY') {
+            var wdays = rec.recurrence.BYDAY.split(',');
+            $('input.edit-recurrence-weekly-byday').val(wdays);
+        }
+        if (rec.recurrence && rec.recurrence.BYMONTHDAY) {
+            $('input.edit-recurrence-monthly-bymonthday').val(String(rec.recurrence.BYMONTHDAY).split(','));
+            $('input.edit-recurrence-monthly-mode').val(['BYMONTHDAY']);
+        }
+        if (rec.recurrence && rec.recurrence.BYDAY && (rec.recurrence.FREQ == 'MONTHLY' || rec.recurrence.FREQ == 'YEARLY')) {
+            var byday, section = rec.recurrence.FREQ.toLowerCase();
+            if ((byday = String(rec.recurrence.BYDAY).match(/(-?[1-4])([A-Z]+)/))) {
+                $('#edit-recurrence-'+section+'-prefix').val(byday[1]);
+                $('#edit-recurrence-'+section+'-byday').val(byday[2]);
+            }
+            $('input.edit-recurrence-'+section+'-mode').val(['BYDAY']);
+        }
+        else if (rec.start) {
+            $('#edit-recurrence-monthly-byday').val(weekdays[rec.start.getDay()]);
+        }
+        if (rec.recurrence && rec.recurrence.BYMONTH) {
+            $('input.edit-recurrence-yearly-bymonth').val(String(rec.recurrence.BYMONTH).split(','));
+        }
+        else if (rec.start) {
+            $('input.edit-recurrence-yearly-bymonth').val([String(rec.start.getMonth()+1)]);
+        }
+        if (rec.recurrence && rec.recurrence.RDATE) {
+            $.each(rec.recurrence.RDATE, function(i,rdate){
+                me.add_rdate(me.parseISO8601(rdate));
+            });
+        }
+    };
+
+    /**
+     * Gather recurrence settings from form
+     */
+    this.serialize_recurrence = function()
+    {
+        var recurrence = '',
+            freq = $('#edit-recurrence-frequency').val();
+
+        if (freq != '') {
+            recurrence = {
+                FREQ: freq,
+                INTERVAL: $('#edit-recurrence-interval-'+freq.toLowerCase()).val()
+            };
+
+            var until = $('input.edit-recurrence-until:checked').val();
+            if (until == 'count')
+                recurrence.COUNT = $('#edit-recurrence-repeat-times').val();
+            else if (until == 'until')
+                recurrence.UNTIL = me.date2ISO8601(me.parse_datetime(endtime.val(), $('#edit-recurrence-enddate').val()));
+
+            if (freq == 'WEEKLY') {
+                var byday = [];
+                $('input.edit-recurrence-weekly-byday:checked').each(function(){ byday.push(this.value); });
+                if (byday.length)
+                    recurrence.BYDAY = byday.join(',');
+            }
+            else if (freq == 'MONTHLY') {
+                var mode = $('input.edit-recurrence-monthly-mode:checked').val(), bymonday = [];
+                if (mode == 'BYMONTHDAY') {
+                    $('input.edit-recurrence-monthly-bymonthday:checked').each(function(){ bymonday.push(this.value); });
+                    if (bymonday.length)
+                        recurrence.BYMONTHDAY = bymonday.join(',');
+                }
+                else
+                    recurrence.BYDAY = $('#edit-recurrence-monthly-prefix').val() + $('#edit-recurrence-monthly-byday').val();
+            }
+            else if (freq == 'YEARLY') {
+                var byday, bymonth = [];
+                $('input.edit-recurrence-yearly-bymonth:checked').each(function(){ bymonth.push(this.value); });
+                if (bymonth.length)
+                    recurrence.BYMONTH = bymonth.join(',');
+                if ((byday = $('#edit-recurrence-yearly-byday').val()))
+                    recurrence.BYDAY = $('#edit-recurrence-yearly-prefix').val() + byday;
+            }
+            else if (freq == 'RDATE') {
+                recurrence = { RDATE:[] };
+                // take selected but not yet added date into account
+                if ($('#edit-recurrence-rdate-input').val() != '') {
+                    $('#recurrence-form-rdate input.button.add').click();
+                }
+                $('#edit-recurrence-rdates li').each(function(i, li){
+                    recurrence.RDATE.push($(li).attr('data-value'));
+                });
+            }
+        }
+
+        return recurrence;
+    };
+
+    // add the given date to the RDATE list
+    this.add_rdate = function(date)
+    {
+        var li = $('<li>')
+            .attr('data-value', this.date2ISO8601(date))
+            .html('<span>' + Q(this.format_datetime(date, 1)) + '</span>')
+            .appendTo('#edit-recurrence-rdates');
+
+        $('<a>').attr('href', '#del')
+            .addClass('iconbutton delete')
+            .html(rcmail.get_label('delete', 'libcalendaring'))
+            .attr('title', rcmail.get_label('delete', 'libcalendaring'))
+            .appendTo(li);
+    };
+
+    // re-sort the list items by their 'data-value' attribute
+    this.sort_rdates = function()
+    {
+        var mylist = $('#edit-recurrence-rdates'),
+            listitems = mylist.children('li').get();
+        listitems.sort(function(a, b) {
+            var compA = $(a).attr('data-value');
+            var compB = $(b).attr('data-value');
+            return (compA < compB) ? -1 : (compA > compB) ? 1 : 0;
+        })
+        $.each(listitems, function(idx, item) { mylist.append(item); });
+    };
+
 }
 
 //////  static methods
