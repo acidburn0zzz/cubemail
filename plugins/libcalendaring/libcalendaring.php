@@ -125,6 +125,16 @@ class libcalendaring extends rcube_plugin
     }
 
     /**
+     * Load recurrence computation engine
+     */
+    public static function get_recurrence()
+    {
+        $self = self::get_instance();
+        require_once($self->home . '/lib/libcalendaring_recurrence.php');
+        return new libcalendaring_recurrence($self);
+    }
+
+    /**
      * Shift dates into user's current timezone
      *
      * @param mixed Any kind of a date representation (DateTime object, string or unix timestamp)

@@ -56,26 +56,15 @@
 				<tasks:replace from="@name@" to="name" type="package-info"/>
 				<tasks:replace from="@package_version@" to="version" type="package-info"/>
 			</file>
-			<file name="lib/calendar_recurrence.php" role="php">
-				<tasks:replace from="@name@" to="name" type="package-info"/>
-				<tasks:replace from="@package_version@" to="version" type="package-info"/>
-			</file>
 			<file name="lib/calendar_ui.php" role="php">
 				<tasks:replace from="@name@" to="name" type="package-info"/>
 				<tasks:replace from="@package_version@" to="version" type="package-info"/>
 			</file>
-			<file name="lib/Horde_Date.php" role="php"></file>
-			<file name="lib/Horde_Date_Recurrence.php" role="php"></file>
-			<file name="lib/Horde_iCalendar.php" role="php"></file>
 			<file name="lib/fullcalendar-rc.patch" role="data">
 				<tasks:replace from="@name@" to="name" type="package-info"/>
 				<tasks:replace from="@package_version@" to="version" type="package-info"/>
 			</file>
 			<file name="lib/js/fullcalendar.js" role="data">
-				<tasks:replace from="@name@" to="name" type="package-info"/>
-				<tasks:replace from="@package_version@" to="version" type="package-info"/>
-			</file>
-			<file name="lib/jquery.miniColors.min.js" role="data">
 				<tasks:replace from="@name@" to="name" type="package-info"/>
 				<tasks:replace from="@package_version@" to="version" type="package-info"/>
 			</file>
