@@ -74,6 +74,7 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.tagslist', array($this, 'tagslist'));
         $this->plugin->register_handler('plugin.tags_editline', array($this, 'tags_editline'));
         $this->plugin->register_handler('plugin.alarm_select', array($this, 'alarm_select'));
+        $this->plugin->register_handler('plugin.recurrence_form', array($this->plugin->lib, 'recurrence_form'));
         $this->plugin->register_handler('plugin.attachments_form', array($this, 'attachments_form'));
         $this->plugin->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
         $this->plugin->register_handler('plugin.filedroparea', array($this, 'file_drop_area'));

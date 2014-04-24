@@ -18,6 +18,7 @@ $labels['description'] = 'Description';
 $labels['datetime'] = 'Due';
 $labels['start'] = 'Start';
 $labels['alarms'] = 'Reminder';
+$labels['repeat'] = 'Repeat';
 
 $labels['all'] = 'All';
 $labels['flagged'] = 'Flagged';

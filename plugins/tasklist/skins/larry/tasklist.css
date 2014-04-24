@@ -748,6 +748,12 @@ a.morelink:hover {
 	margin: 0.5em 0;
 }
 
+#taskedit .border-after {
+	padding-bottom: 0.8em;
+	margin-bottom: 0.8em;
+	border-bottom: 2px solid #fafafa;
+}
+
 #taskedit-attachments {
 	margin: 0.6em 0;
 }

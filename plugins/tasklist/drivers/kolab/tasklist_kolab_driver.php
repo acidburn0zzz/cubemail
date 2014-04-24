@@ -587,19 +587,22 @@ class tasklist_kolab_driver extends tasklist_driver
             'flagged' => $record['priority'] == 1,
             'complete' => $record['status'] == 'COMPLETED' ? 1 : floatval($record['complete'] / 100),
             'parent_id' => $record['parent_id'],
+            'recurrence' => $record['recurrence'],
         );
 
         // convert from DateTime to internal date format
         if (is_a($record['due'], 'DateTime')) {
-            $task['date'] = $record['due']->format('Y-m-d');
+            $due = $this->plugin->lib->adjust_timezone($record['due']);
+            $task['date'] = $due->format('Y-m-d');
             if (!$record['due']->_dateonly)
-                $task['time'] = $record['due']->format('H:i');
+                $task['time'] = $due->format('H:i');
         }
         // convert from DateTime to internal date format
         if (is_a($record['start'], 'DateTime')) {
-            $task['startdate'] = $record['start']->format('Y-m-d');
+            $start = $this->plugin->lib->adjust_timezone($record['start']);
+            $task['startdate'] = $start->format('Y-m-d');
             if (!$record['start']->_dateonly)
-                $task['starttime'] = $record['start']->format('H:i');
+                $task['starttime'] = $start->format('H:i');
         }
         if (is_a($record['dtstamp'], 'DateTime')) {
             $task['changed'] = $record['dtstamp'];
@@ -661,13 +664,12 @@ class tasklist_kolab_driver extends tasklist_driver
 
         // copy meta data (starting with _) from old object
         foreach ((array)$old as $key => $val) {
-          if (!isset($object[$key]) && $key[0] == '_')
-            $object[$key] = $val;
+            if (!isset($object[$key]) && $key[0] == '_')
+                $object[$key] = $val;
         }
 
-        // copy recurrence rules as long as the web client doesn't support it.
-        // that way it doesn't get removed when saving through the web client (#2713)
-        if ($old['recurrence']) {
+        // copy recurrence rules if the client didn't submit it (#2713)
+        if (!array_key_exists('recurrence', $object) && $old['recurrence']) {
             $object['recurrence'] = $old['recurrence'];
         }
 

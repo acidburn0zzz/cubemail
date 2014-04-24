@@ -197,9 +197,15 @@ class tasklist extends rcube_plugin
 
         case 'edit':
             $rec = $this->prepare_task($rec);
+            $clone = $this->handle_recurrence($rec, $this->driver->get_task($rec));
             if ($success = $this->driver->edit_task($rec)) {
                 $refresh[] = $this->driver->get_task($rec);
                 $this->cleanup_task($rec);
+
+                // add clone from recurring task
+                if ($clone && $this->driver->create_task($clone)) {
+                    $refresh[] = $this->driver->get_task($clone);
+                }
 
                 // move all childs if list assignment was changed
                 if (!empty($rec['_fromlist']) && !empty($rec['list']) && $rec['_fromlist'] != $rec['list']) {
@@ -419,6 +425,36 @@ class tasklist extends rcube_plugin
             $rec['valarms'] = $valarms;
         }
 
+        // convert the submitted recurrence settings
+        if (is_array($rec['recurrence'])) {
+            $refdate = null;
+            if (!empty($rec['date'])) {
+                $refdate = new DateTime($rec['date'] . ' ' . $rec['time'], $this->timezone);
+            }
+            else if (!empty($rec['startdate'])) {
+                $refdate = new DateTime($rec['startdate'] . ' ' . $rec['starttime'], $this->timezone);
+            }
+
+            if ($refdate) {
+                $rec['recurrence'] = $this->lib->from_client_recurrence($rec['recurrence'], $refdate);
+
+                // translate count into an absolute end date.
+                // why? because when shifting completed tasks to the next recurrence,
+                // the initial start date to count from gets lost.
+                if ($rec['recurrence']['COUNT']) {
+                    $engine = libcalendaring::get_recurrence();
+                    $engine->init($rec['recurrence'], $refdate);
+                    if ($until = $engine->end()) {
+                        $rec['recurrence']['UNTIL'] = $until;
+                        unset($rec['recurrence']['COUNT']);
+                    }
+                }
+            }
+            else {  // recurrence requires a reference date
+                $rec['recurrence'] = '';
+            }
+        }
+
         $attachments = array();
         $taskid = $rec['id'];
         if (is_array($_SESSION[self::SESSION_KEY]) && $_SESSION[self::SESSION_KEY]['id'] == $taskid) {
@@ -480,6 +516,62 @@ class tasklist extends rcube_plugin
         }
     }
 
+    /**
+     * When flagging a recurring task as complete,
+     * clone it and shift dates to the next occurrence
+     */
+    private function handle_recurrence(&$rec, $old)
+    {
+        $clone = null;
+        if ($rec['complete'] == 1.0 && $old && $old['complete'] < 1.0 && is_array($rec['recurrence'])) {
+            $engine = libcalendaring::get_recurrence();
+            $rrule = $rec['recurrence'];
+            $engine->init($rrule);
+            $updates = array();
+
+            // compute the next occurrence of date attributes
+            foreach (array('date'=>'time', 'startdate'=>'starttime') as $date_key => $time_key) {
+                $date = new DateTime($rec[$date_key] . ' ' . $rec[$time_key], $this->timezone);
+                $engine->set_start($date);
+                if ($next = $engine->next()) {
+                    $updates[$date_key] = $next->format('Y-m-d');
+                    if (!empty($rec[$time_key]))
+                        $updates[$time_key] = $next->format('H:i');
+                }
+            }
+
+            // shift absolute alarm dates
+            if (!empty($updates) && is_array($rec['valarms'])) {
+                $updates['valarms'] = array();
+                unset($rrule['UNTIL'], $rrule['COUNT']);  // make recurrence rule unlimited
+                $engine->init($rrule);
+
+                foreach ($rec['valarms'] as $i => $alarm) {
+                    if ($alarm['trigger'] instanceof DateTime) {
+                        $engine->set_start($alarm['trigger']);
+                        if ($next = $engine->next()) {
+                            $alarm['trigger'] = $next;
+                        }
+                    }
+                    $updates['valarms'][$i] = $alarm;
+                }
+            }
+
+            if (!empty($updates)) {
+                // clone task to save a completed copy
+                $clone = $rec;
+                $clone['uid'] = $this->generate_uid();
+                $clone['parent_id'] = $rec['id'];
+                unset($clone['id'], $clone['recurrence'], $clone['attachments']);
+
+                // update the task but unset completed flag
+                $rec = array_merge($rec, $updates);
+                $rec['complete'] = $old['complete'];
+            }
+        }
+
+        return $clone;
+    }
 
     /**
      * Dispatcher for tasklist actions initiated by the client
@@ -675,6 +767,11 @@ class tasklist extends rcube_plugin
         if ($rec['valarms']) {
             $rec['alarms_text'] = libcalendaring::alarms_text($rec['valarms']);
             $rec['valarms'] = libcalendaring::to_client_alarms($rec['valarms']);
+        }
+
+        if ($rec['recurrence']) {
+            $rec['recurrence_text'] = $this->lib->recurrence_text($rec['recurrence']);
+            $rec['recurrence'] = $this->lib->to_client_recurrence($rec['recurrence'], $rec['time'] || $rec['starttime']);
         }
 
         foreach ((array)$rec['attachments'] as $k => $attachment) {

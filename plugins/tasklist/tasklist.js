@@ -385,8 +385,9 @@ function rcube_tasklist_ui(settings)
             completeness_slider.slider('value', parseInt(this.value))
         });
 
-        // register events on alarm fields
+        // register events on alarms and recurrence fields
         me.init_alarms_edit('#taskedit-alarms');
+        me.init_recurrence_edit('#eventedit');
 
         $('#taskedit-date, #taskedit-startdate').datepicker(datepicker_settings);
 
@@ -1160,13 +1161,20 @@ function rcube_tasklist_ui(settings)
             });
         }
 
+        if (rec.recurrence && rec.recurrence_text) {
+            $('#task-recurrence').show().children('.task-text').html(Q(rec.recurrence_text));
+        }
+        else {
+            $('#task-recurrence').hide();
+        }
+
         // build attachments list
         $('#task-attachments').hide();
         if ($.isArray(rec.attachments)) {
             task_show_attachments(rec.attachments || [], $('#task-attachments').children('.task-text'), rec);
             if (rec.attachments.length > 0) {
                 $('#task-attachments').show();
-          }
+            }
         }
 
         // define dialog buttons
@@ -1268,6 +1276,9 @@ function rcube_tasklist_ui(settings)
         // set alarm(s)
         me.set_alarms_edit('#taskedit-alarms', action != 'new' && rec.valarms ? rec.valarms : []);
 
+        // set recurrence
+        me.set_recurrence_edit(rec);
+
         // attachments
         rcmail.enable_command('remove-attachment', list.editable);
         me.selected_task.deleted_attachments = [];
@@ -1298,6 +1309,7 @@ function rcube_tasklist_ui(settings)
             me.selected_task.tags = [];
             me.selected_task.attachments = [];
             me.selected_task.valarms = me.serialize_alarms('#taskedit-alarms');
+            me.selected_task.recurrence = me.serialize_recurrence(rectime.val());
 
             // do some basic input validation
             if (!me.selected_task.title || !me.selected_task.title.length) {
