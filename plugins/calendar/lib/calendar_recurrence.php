@@ -49,13 +49,23 @@ class calendar_recurrence extends libcalendaring_recurrence
   }
 
   /**
+   * Alias of libcalendaring_recurrence::next()
+   *
+   * @return mixed DateTime object or False if recurrence ended
+   */
+  public function next_start()
+  {
+    return $this->next();
+  }
+
+  /**
    * Get the next recurring instance of this event
    *
    * @return mixed Array with event properties or False if recurrence ended
    */
   public function next_instance()
   {
-    if ($next_start = $this->next_start()) {
+    if ($next_start = $this->next()) {
       $next = $this->event;
       $next['recurrence_id'] = $next_start->format('Y-m-d');
       $next['start'] = $next_start;

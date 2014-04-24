@@ -604,7 +604,7 @@ function rcube_calendar_ui(settings)
           priority: priority.val(),
           sensitivity: sensitivity.val(),
           status: eventstatus.val(),
-          recurrence: me.serialize_recurrence(),
+          recurrence: me.serialize_recurrence(endtime.val()),
           valarms: me.serialize_alarms('#edit-alarms'),
           attendees: event_attendees,
           deleted_attachments: rcmail.env.deleted_attachments,

@@ -615,7 +615,7 @@ function rcube_libcalendaring(settings)
     /**
      * Gather recurrence settings from form
      */
-    this.serialize_recurrence = function()
+    this.serialize_recurrence = function(timestr)
     {
         var recurrence = '',
             freq = $('#edit-recurrence-frequency').val();
@@ -630,7 +630,7 @@ function rcube_libcalendaring(settings)
             if (until == 'count')
                 recurrence.COUNT = $('#edit-recurrence-repeat-times').val();
             else if (until == 'until')
-                recurrence.UNTIL = me.date2ISO8601(me.parse_datetime(endtime.val(), $('#edit-recurrence-enddate').val()));
+                recurrence.UNTIL = me.date2ISO8601(me.parse_datetime(timestr || '00:00', $('#edit-recurrence-enddate').val()));
 
             if (freq == 'WEEKLY') {
                 var byday = [];

@@ -52,16 +52,14 @@ class libcalendaring_recurrence
      * @param array  The recurrence properties
      * @param object DateTime The recurrence start date
      */
-    public function init($recurrence, $start)
+    public function init($recurrence, $start = null)
     {
-        $this->start = $start;
         $this->recurrence = $recurrence;
-        $this->dateonly = $start->_dateonly;
-        $this->next = new Horde_Date($start, $this->lib->timezone->getName());
-        $this->hour = $this->next->hour;
 
         $this->engine = new Horde_Date_Recurrence($start);
         $this->engine->fromRRule20(libcalendaring::to_rrule($recurrence));
+
+        $this->set_start($start);
 
         if (is_array($recurrence['EXDATE'])) {
             foreach ($recurrence['EXDATE'] as $exdate) {
@@ -80,11 +78,25 @@ class libcalendaring_recurrence
     }
 
     /**
+     * Setter for (new) recurrence start date
+     *
+     * @param object DateTime The recurrence start date
+     */
+    public function set_start($start)
+    {
+        $this->start = $start;
+        $this->dateonly = $start->_dateonly;
+        $this->next = new Horde_Date($start, $this->lib->timezone->getName());
+        $this->hour = $this->next->hour;
+        $this->engine->setRecurStart($this->next);
+    }
+
+    /**
      * Get date/time of the next occurence of this event
      *
      * @return mixed DateTime object or False if recurrence ended
      */
-    public function next_start()
+    public function next()
     {
         $time = false;
         $after = clone $this->next;
@@ -131,7 +143,7 @@ class libcalendaring_recurrence
         if ($this->recurrence['COUNT']) {
             $last = $this->start;
             $this->next = new Horde_Date($this->start, $this->lib->timezone->getName());
-            while (($next = $this->next_start()) && $c < 1000) {
+            while (($next = $this->next()) && $c < 1000) {
                 $last = $next;
                 $c++;
             }

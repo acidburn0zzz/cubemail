@@ -397,7 +397,10 @@ class libcalendaring extends rcube_plugin
     {
         return array_map(function($alarm){
             if ($alarm['trigger'][0] == '@') {
-                try { $alarm['trigger'] = new DateTime($alarm['trigger']); }
+                try {
+                    $alarm['trigger'] = new DateTime($alarm['trigger']);
+                    $alarm['trigger']->setTimezone(new DateTimeZone('UTC'));
+                }
                 catch (Exception $e) { /* handle this ? */ }
             }
             else if ($trigger = libcalendaring::parse_alaram_value($alarm['trigger'])) {
