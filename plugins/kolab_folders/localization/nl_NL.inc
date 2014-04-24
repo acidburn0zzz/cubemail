@@ -1,14 +1,14 @@
 <?php
 $labels['folderctype'] = 'Inhoudstype';
 $labels['foldertypemail'] = 'Mail';
-$labels['foldertypeevent'] = 'Agenda'; // Events?
+$labels['foldertypeevent'] = 'Agenda';
 $labels['foldertypejournal'] = 'Dagboek';
 $labels['foldertypetask'] = 'Taken';
 $labels['foldertypenote'] = 'Notities';
 $labels['foldertypecontact'] = 'Adresboek';
 $labels['foldertypeconfiguration'] = 'Configuratie';
 $labels['foldertypefile'] = 'Bestanden';
-$labels['foldertypefreebusy'] = 'Free/Busy';
+$labels['foldertypefreebusy'] = 'Vrij/Bezet';
 $labels['default'] = 'Standaard';
 $labels['inbox'] = 'Inbox';
 $labels['drafts'] = 'Concepten';

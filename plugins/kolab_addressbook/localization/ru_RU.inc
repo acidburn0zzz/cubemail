@@ -22,6 +22,8 @@ $labels['bookdelete'] = 'Удалить адресную книгу';
 $labels['bookproperties'] = 'Параметры адресной книги';
 $labels['bookname'] = 'Название книги';
 $labels['parentbook'] = 'Родительская книга';
+$labels['bookshowurl'] = 'Показать URL CardDAV';
+$labels['carddavurldescription'] = 'Скопируйте этот адрес в клиент, <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">поддерживающий CardDAV</a> для полной синхронизации данной адресной книги со своим компьютером или мобильным устройством.';
 $labels['addressbookprio'] = 'Поведение/отображение адресных книг';
 $labels['personalfirst'] = 'Персональные адресные книги в начале';
 $labels['globalfirst'] = 'Глобальные адресные книги в начале';

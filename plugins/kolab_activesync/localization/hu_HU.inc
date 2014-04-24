@@ -1,0 +1,31 @@
+<?php
+$labels['tabtitle'] = 'Activesync';
+$labels['devices'] = 'Készülékek';
+$labels['devicealias'] = 'Készülék neve';
+$labels['synchronize'] = 'Szinkronizálás';
+$labels['withalarms'] = 'Riasztásokkal-értesítésekkel';
+$labels['syncsettings'] = 'Szinkronizációs beállítások';
+$labels['deviceconfig'] = 'Készülék jellemzői';
+$labels['folderstosync'] = 'Szinkronizálandó mappák';
+$labels['mail'] = 'E-mail';
+$labels['contact'] = 'Címjegyzékek';
+$labels['event'] = 'Naptárak';
+$labels['task'] = 'Feladatok';
+$labels['note'] = 'Jegyzetek';
+$labels['configuration'] = 'Konfiguráció';
+$labels['deletedevice'] = 'Készülék törlése';
+$labels['nodevices'] = 'A fiókjához nincs társítva egyetlen készülék sem.<br/><br/>Csatlakozzon a szerverhez, ezáltal társítva egy készüléket a fiókjához, mint ahogy a <a href="http://wiki.kolab.org/Setup_ActiveSync">Wiki-ben</a> lévő leírásban is szerepel. Azt követően itt meg fog jelenni a társított készülék, melynek testreszabhatja a beállításait.';
+$labels['savingdata'] = 'Adatok mentése...';
+$labels['savingerror'] = 'Az adatok mentése nem sikerült';
+$labels['notsupported'] = 'A szerver nem támogat metaadatokat/megjegyzéseket';
+$labels['devicedeleteconfirm'] = 'Biztos benne, hogy törölni szeretné ezt a készüléket?';
+$labels['successfullydeleted'] = 'A készülék konfigurációja sikeresen törölve lett';
+$labels['devicenotfound'] = 'A készülék konfigurációja nem olvasható be';
+$labels['devicetype'] = 'Készülék típusa';
+$labels['acsversion'] = 'Protokoll verziószáma';
+$labels['useragent'] = 'Felhasználókliens (user agent)';
+$labels['friendlyname'] = 'Elnevezés';
+$labels['os'] = 'Operációs rendszer';
+$labels['oslanguage'] = 'Készülék nyelve';
+$labels['phonenumber'] = 'Telefonszám';
+?>

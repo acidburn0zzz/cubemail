@@ -1,7 +1,4 @@
 <?php
-
-$labels = array();
-
 // preferences
 $labels['default_view'] = 'Standardansicht';
 $labels['time_format'] = 'Zeitformatierung';
@@ -17,7 +14,6 @@ $labels['coloringmode0'] = 'Farbe des Kalenders';
 $labels['coloringmode1'] = 'Farbe der Kategorie';
 $labels['coloringmode2'] = 'Kalenderfarbe außen, Kategoriefarbe innen';
 $labels['coloringmode3'] = 'Kategoriefarbe außen, Kalenderfarbe innen';
-
 // calendar
 $labels['calendar'] = 'Kalender';
 $labels['calendars'] = 'Kalender';
@@ -60,12 +56,16 @@ $labels['free'] = 'Frei';
 $labels['busy'] = 'Gebucht';
 $labels['outofoffice'] = 'Abwesend';
 $labels['tentative'] = 'Mit Vorbehalt';
+$labels['status'] = 'Status';
+$labels['confirmed'] = 'Bestätigt';
+$labels['cancelled'] = 'Gekündigt';
 $labels['priority'] = 'Priorität';
 $labels['sensitivity'] = 'Sichtbarkeit';
 $labels['public'] = 'öffentlich';
 $labels['private'] = 'privat';
 $labels['confidential'] = 'vertraulich';
 $labels['alarms'] = 'Erinnerung';
+$labels['comment'] = 'Kommentar';
 $labels['generated'] = 'erstellt am';
 $labels['printdescriptions'] = 'Beschreibung drucken';
 $labels['parentcalendar'] = 'Erstellen in';
@@ -81,7 +81,6 @@ $labels['nmonthsback'] = '$nr Monate zurück';
 $labels['showurl'] = 'URL anzeigen';
 $labels['showurldescription'] = 'Über die folgende Adresse können Sie mit einem beliebigen Kalenderprogramm Ihren Kalender abrufen (nur lesend), sofern dieses das iCal-Format unterstützt.';
 $labels['caldavurldescription'] = 'Diese Adresse in einen <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a>-Klienten (z.B. Evolution oder Mozilla Thunderbird) kopieren, um den Kalender in Gänze mit einem mobilen Gerät zu synchronisieren.';
-
 // agenda view
 $labels['listrange'] = 'Angezeigter Bereich:';
 $labels['listsections'] = 'Unterteilung:';
@@ -96,11 +95,10 @@ $labels['nextmonth'] = 'Nächsten Monat';
 $labels['weekofyear'] = 'Woche';
 $labels['pastevents'] = 'Vergangene';
 $labels['futureevents'] = 'Zukünftige';
-
 // alarm/reminder settings
+$labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'Standard-Erinnerungseinstellung';
 $labels['defaultalarmoffset'] = 'Standard-Erinnerungszeit';
-
 // attendees
 $labels['attendee'] = 'Teilnehmer';
 $labels['role'] = 'Rolle';
@@ -138,8 +136,7 @@ $labels['eventupdatesubjectempty'] = 'Termin wurde aktualisiert';
 $labels['eventupdatemailbody'] = "*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees\n\nIm Anhang finden Sie eine iCalendar-Datei mit den aktualisiereten Termindaten. Diese können Sie in Ihre Kalenderanwendung importieren.";
 $labels['eventcancelsubject'] = '"$title" wurde abgesagt';
 $labels['eventcancelmailbody'] = "*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees\n\nDer Termin wurde von \$organizer abgesagt.\n\nIm Anhang finden Sie eine iCalendar-Datei mit den Termindaten.";
-
-// invitation handling
+// invitation handling (overrides labels from libcalendaring)
 $labels['itipmailbodyaccepted'] = "\$sender hat die Einladung zum folgenden Termin angenommen:\n\n*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender hat die Einladung mit Vorbehalt zum folgenden Termin angenommen:\n\n*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender hat die Einladung zum folgenden Termin abgelehnt:\n\n*\$title*\n\nWann: \$date\n\nTeilnehmer: \$attendees";
@@ -148,15 +145,18 @@ $labels['declinedeleteconfirm'] = 'Soll der abgelehnte Termin zusätzlich aus de
 $labels['notanattendee'] = 'Sie sind nicht in der Liste der Teilnehmer aufgeführt';
 $labels['eventcancelled'] = 'Der Termin wurde vom Organisator abgesagt';
 $labels['saveincalendar'] = 'speichern in';
-
+// resources
+$labels['resource'] = 'Ressource';
+$labels['resourcedetails'] = 'Details';
 // event dialog tabs
 $labels['tabsummary'] = 'Übersicht';
 $labels['tabrecurrence'] = 'Wiederholung';
 $labels['tabattendees'] = 'Teilnehmer';
+$labels['tabresources'] = 'Ressourcen';
 $labels['tabattachments'] = 'Anhänge';
 $labels['tabsharing'] = 'Freigabe';
-
 // messages
+$labels['deleteobjectconfirm'] = 'Möchten Sie diesen Termin wirklich löschen?';
 $labels['deleteventconfirm'] = 'Möchten Sie diesen Termin wirklich löschen?';
 $labels['deletecalendarconfirm'] = 'Möchten Sie diesen Kalender mit allen Terminen wirklich löschen?';
 $labels['deletecalendarconfirmrecursive'] = 'Soll dieser Kalender wirklich mit allen Terminen und Unterkalendern gelöscht werden?';
@@ -183,7 +183,6 @@ $labels['importsuccess'] = 'Es wurden $nr Termine erfolgreich importiert';
 $labels['importnone'] = 'Keine Termine zum Importieren gefunden';
 $labels['importerror'] = 'Fehler beim Importieren';
 $labels['aclnorights'] = 'Der Zugriff auf diesen Kalender erfordert Administrator-Rechte.';
-
 // recurrence form
 $labels['repeat'] = 'Wiederholung';
 $labels['frequency'] = 'Wiederholung';
@@ -192,6 +191,7 @@ $labels['daily'] = 'täglich';
 $labels['weekly'] = 'wöchentlich';
 $labels['monthly'] = 'monatlich';
 $labels['yearly'] = 'jährlich';
+$labels['rdate'] = 'on dates';
 $labels['every'] = 'Alle';
 $labels['days'] = 'Tag(e)';
 $labels['weeks'] = 'Woche(n)';
@@ -211,7 +211,7 @@ $labels['third'] = 'dritter';
 $labels['fourth'] = 'vierter';
 $labels['last'] = 'letzter';
 $labels['dayofmonth'] = 'Tag des Montats';
-
+$labels['addrdate'] = 'Add repeat date';
 $labels['changeeventconfirm'] = 'Termin ändern';
 $labels['removeeventconfirm'] = 'Termin löschen';
 $labels['changerecurringeventwarning'] = 'Dies ist eine Terminreihe. Möchten Sie nur den aktuellen, diesen und alle zukünftigen oder alle Termine bearbeiten oder die Änderungen als neuen Termin speichern?';
@@ -220,7 +220,6 @@ $labels['currentevent'] = 'Aktuellen';
 $labels['futurevents'] = 'Zukünftige';
 $labels['allevents'] = 'Alle';
 $labels['saveasnew'] = 'Als neu speichern';
-
 // birthdays calendar
 $labels['birthdays'] = 'Geburtstage';
 $labels['birthdayscalendar'] = 'Geburtstags-Kalender';
@@ -228,5 +227,4 @@ $labels['displaybirthdayscalendar'] = 'Geburtstags-Kalender anzeigen';
 $labels['birthdayscalendarsources'] = 'Für diese Adressbücher';
 $labels['birthdayeventtitle'] = '$names Geburtstag';
 $labels['birthdayage'] = 'Alter $age';
-
 ?>

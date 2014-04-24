@@ -1,7 +1,7 @@
 <?php
 $labels['folderctype'] = 'Tipo de conteúdo';
 $labels['foldertypemail'] = 'Correio';
-$labels['foldertypeevent'] = 'Calendário'; // Events?
+$labels['foldertypeevent'] = 'Calendário';
 $labels['foldertypejournal'] = 'Journal';
 $labels['foldertypetask'] = 'Tarefas';
 $labels['foldertypenote'] = 'Notas';

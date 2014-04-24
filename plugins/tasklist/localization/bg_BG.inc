@@ -4,12 +4,18 @@ $labels['edit'] = 'Промяна';
 $labels['description'] = 'Описание';
 $labels['start'] = 'Начало';
 $labels['alarms'] = 'Напомняне';
+$labels['all'] = 'All';
 $labels['today'] = 'Днес';
 $labels['tomorrow'] = 'Утре';
 $labels['removetag'] = 'Изтриване';
 $labels['save'] = 'Запис';
 $labels['cancel'] = 'Отказ';
 $labels['tabsummary'] = 'Заглавие';
+$labels['tabrecurrence'] = 'Recurrence';
+$labels['tabattachments'] = 'Прикрепени файлове';
+$labels['tabsharing'] = 'Споделяне';
 $labels['listname'] = 'Име';
-$labels['showalarms'] = 'Показване на аларми';
+$labels['showalarms'] = 'Show reminders';
+// date words
+// mesages
 $labels['savingdata'] = 'Запазване на данни...';

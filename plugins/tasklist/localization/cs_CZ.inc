@@ -14,5 +14,7 @@ $labels['tabrecurrence'] = 'Opakování';
 $labels['tabattachments'] = 'Přílohy';
 $labels['tabsharing'] = 'Sdílení';
 $labels['listname'] = 'Název';
-$labels['showalarms'] = 'Zobrazit upozornění';
+$labels['showalarms'] = 'Show reminders';
+// date words
+// mesages
 $labels['savingdata'] = 'Ukládám data...';

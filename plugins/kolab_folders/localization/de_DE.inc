@@ -1,7 +1,7 @@
 <?php
 $labels['folderctype'] = 'Ordnerinhalt';
 $labels['foldertypemail'] = 'E-Mail';
-$labels['foldertypeevent'] = 'Kalender'; // Events?
+$labels['foldertypeevent'] = 'Kalender';
 $labels['foldertypejournal'] = 'Journal';
 $labels['foldertypetask'] = 'Aufgaben';
 $labels['foldertypenote'] = 'Notizen';

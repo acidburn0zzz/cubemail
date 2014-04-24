@@ -41,12 +41,14 @@ $labels['editlist'] = 'Editar lista';
 $labels['createlist'] = 'Adicionar lista';
 $labels['listactions'] = 'Opções da lista...';
 $labels['listname'] = 'Nome';
-$labels['showalarms'] = 'Mostrar alarmes';
+$labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'Importar';
+// date words
 $labels['on'] = 'em';
 $labels['at'] = 'no';
 $labels['this'] = 'este';
 $labels['next'] = 'próximo';
+// mesages
 $labels['savingdata'] = 'Salvando dados...';
 $labels['errorsaving'] = 'Falha ao salvar dados.';
 $labels['notasksfound'] = 'Nenhuma tarefa encontrada com estes critérios';

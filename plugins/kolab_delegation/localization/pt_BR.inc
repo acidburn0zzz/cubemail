@@ -9,6 +9,7 @@ $labels['task'] = 'Tarefas';
 $labels['note'] = 'Notas';
 $labels['yes'] = 'SIm';
 $labels['no'] = 'Não';
+$labels['read'] = 'Somente leitura';
 $labels['adddelegate'] = 'Adicionar delegado';
 $labels['deletedelegate'] = 'Remover delegado';
 $labels['savingdata'] = 'Salvando dados...';

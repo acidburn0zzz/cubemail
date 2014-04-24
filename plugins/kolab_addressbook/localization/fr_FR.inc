@@ -22,6 +22,8 @@ $labels['bookdelete'] = 'Supprimer un carnet d\'adresse';
 $labels['bookproperties'] = 'Propriétés du carnet d\'adresse';
 $labels['bookname'] = 'Nom du carnet';
 $labels['parentbook'] = 'Carnet parent';
+$labels['bookshowurl'] = 'Afficher l\'URL CardDAV';
+$labels['carddavurldescription'] = 'Copiez cette adresse vers une application client compatible <a href="http://fr.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a> pour synchroniser ce carnet d\'adresse avec votre ordinateur ou votre smartphone.';
 $labels['addressbookprio'] = 'Sélection du(des) carnet(s) d\'adresses/comportement';
 $labels['personalfirst'] = 'Carnet(s) d\'adresse personnel en premier';
 $labels['globalfirst'] = 'Carnet(s) d\'adresse global(aux) en premier';

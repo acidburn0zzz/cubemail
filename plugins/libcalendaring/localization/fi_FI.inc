@@ -1,0 +1,34 @@
+<?php
+$labels['alarmemail'] = 'Lähetä sähköposti';
+$labels['alarmdisplay'] = 'Näytä viesti';
+$labels['alarmdisplayoption'] = 'Viesti';
+$labels['alarmemailoption'] = 'Sähköposti';
+$labels['trigger-M'] = 'minuuttia ennen';
+$labels['trigger-H'] = 'tuntia ennen';
+$labels['trigger-D'] = 'päivää ennen';
+$labels['addalarm'] = 'lisää hälytys';
+$labels['alarmtitle'] = 'Tulevat tapahtumat';
+$labels['dismissall'] = 'Hylkää kaikki';
+$labels['dismiss'] = 'Hylkää';
+$labels['snooze'] = 'Torkuta';
+$labels['repeatinmin'] = 'Toista $min minuutin päästä';
+$labels['repeatinhr'] = 'Toista 1 tunnin päästä';
+$labels['repeatinhrs'] = 'Toista $hrs tunnin päästä';
+$labels['repeattomorrow'] = 'Toista huomenna';
+$labels['repeatinweek'] = 'Toista viikon päästä';
+$labels['showmore'] = 'Näytä lisää...';
+// itip related labels
+$labels['itipcancellation'] = 'Peruttu:';
+$labels['itipaccepted'] = 'Hyväksy';
+$labels['itiptentative'] = 'Ehkä';
+$labels['itipdeclined'] = 'Kieltäydy';
+$labels['itipsubjectaccepted'] = '$name on hyväksynyt tapahtuman "$title"';
+$labels['itipsubjecttentative'] = '$name on alustavasti hyväkstynyt tapahtuman "$title"';
+$labels['itipsubjectdeclined'] = '$name on kieltäytynyt osallistumasta tapahtumaan "$title"';
+$labels['acceptinvitation'] = 'Hyväksytkö tämän kutsun?';
+$labels['youhaveaccepted'] = 'Olet hyväksynyt tämän kutsun';
+$labels['youhavetentative'] = 'Olet hyväksynyt tämän kutsun alustavasti';
+$labels['youhavedeclined'] = 'Olet kieltäytynyt tästä kutsusta';
+$labels['importtocalendar'] = 'Tallenna omaan kalenteriin';
+$labels['removefromcalendar'] = 'Poista omasta kalenterista';
+$labels['savingdata'] = 'Tallennetaan tietoja...';

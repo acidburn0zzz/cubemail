@@ -6,4 +6,5 @@ $labels['task'] = 'Tareas';
 $labels['note'] = 'Notas';
 $labels['configuration'] = 'Configuración';
 $labels['savingdata'] = 'Guardando datos...';
+$labels['phonenumber'] = 'Número de teléfono';
 ?>

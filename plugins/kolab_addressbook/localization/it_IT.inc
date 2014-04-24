@@ -1,0 +1,37 @@
+<?php
+$labels['initials'] = 'Iniziali';
+$labels['profession'] = 'Professione';
+$labels['officelocation'] = 'Office location';
+$labels['children'] = 'Figli';
+$labels['pgppublickey'] = 'Chiave pubblica PGP';
+$labels['pkcs7publickey'] = 'Chiave pubblica S/MIME';
+$labels['freebusyurl'] = 'URL Free-busy';
+$labels['typebusiness'] = 'Lavoro';
+$labels['typebusinessfax'] = 'Fax Ufficio';
+$labels['typecompany'] = 'Azienda';
+$labels['typeprimary'] = 'Principale';
+$labels['settings'] = 'Impostazioni';
+$labels['bookcreate'] = 'Crea rubrica';
+$labels['bookedit'] = 'Modifica rubrica';
+$labels['bookdelete'] = 'Elimina rubrica';
+$labels['bookproperties'] = 'Proprietà rubrica';
+$labels['bookname'] = 'Nome rubrica';
+$labels['parentbook'] = 'Rubrica genitore';
+$labels['bookshowurl'] = 'Mostra URL CardDAV';
+$labels['addressbookprio'] = 'Selezione/comportamento rubrica/che';
+$labels['personalfirst'] = 'Usa prima rubrica/che personale/i';
+$labels['globalfirst'] = 'Usa prima rubrica/che globale/i';
+$labels['personalonly'] = 'Usa solo rubrica/che personale/i';
+$labels['globalonly'] = 'Usa solo rubrica/che globale/i';
+$messages['bookdeleteconfirm']  = 'Vuoi veramente eliminare la rubrica selezionata con tutti i contatti attualmente presenti?';
+$messages['bookdeleting'] = 'Eliminazione rubrica...';
+$messages['booksaving'] = 'Salvataggio rubrica...';
+$messages['bookdeleted'] = 'Rubrica eliminata con successo.';
+$messages['bookupdated'] = 'Rubrica aggiornata con successo.';
+$messages['bookcreated'] = 'Rubrica creata con successo.';
+$messages['bookdeleteerror'] = 'Si è verificato un errore durante l\'eliminazione della rubrica.';
+$messages['bookupdateerror'] = 'Si è verificato un errore durante l\'aggiornamento della rubrica.';
+$messages['bookcreateerror'] = 'Si è verificato un errore durante la creazione della rubrica.';
+$messages['nobooknamewarning'] = 'Inserire il nome della rubrica.';
+$messages['noemailnamewarning'] = 'Inserire l\'indirizzo email o il nome del contatto.';
+?>

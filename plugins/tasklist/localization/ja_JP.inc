@@ -41,12 +41,14 @@ $labels['editlist'] = '一覧編集';
 $labels['createlist'] = '一覧追加';
 $labels['listactions'] = '一覧オプション';
 $labels['listname'] = '名前';
-$labels['showalarms'] = 'アラーム表示';
+$labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'インポート';
+// date words
 $labels['on'] = '上';
 $labels['at'] = 'の';
 $labels['this'] = 'この';
 $labels['next'] = '次';
+// mesages
 $labels['savingdata'] = 'データを保存中…';
 $labels['errorsaving'] = 'データが保存できませんでした。';
 $labels['notasksfound'] = '条件に該当するタスクは見つかりません';

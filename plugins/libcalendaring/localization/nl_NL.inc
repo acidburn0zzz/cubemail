@@ -1,7 +1,4 @@
 <?php
-
-$labels = array();
-
 $labels['alarmemail'] = 'Verzend E-mail';
 $labels['alarmdisplay'] = 'Bericht weergeven';
 $labels['alarmdisplayoption'] = 'Bericht';
@@ -15,7 +12,6 @@ $labels['trigger+M'] = 'minuten na';
 $labels['trigger+H'] = 'uren na';
 $labels['trigger+D'] = 'dagen na';
 $labels['addalarm'] = 'alarm toevoegen';
-
 $labels['alarmtitle'] = 'Aankomende evenementen';
 $labels['dismissall'] = 'Dismiss all';
 $labels['dismiss'] = 'Dismiss';
@@ -25,9 +21,7 @@ $labels['repeatinhr'] = 'Herhaal over 1 uur';
 $labels['repeatinhrs'] = 'Herhaal over $hrs uur';
 $labels['repeattomorrow'] = 'Herhaal morgen';
 $labels['repeatinweek'] = 'Herhaal over een week';
-
 $labels['showmore'] = 'Toon meer...';
-
 // itip related labels
 $labels['itipinvitation'] = 'Uitnodiging voor';
 $labels['itipupdate'] = 'Update van';
@@ -36,18 +30,32 @@ $labels['itipreply'] = 'Reply to';
 $labels['itipaccepted'] = 'Accepteer';
 $labels['itiptentative'] = 'Misschien';
 $labels['itipdeclined'] = 'Afwijzen';
-
+$labels['itipcomment'] = 'Uw antwoord';
+$labels['itipeditresponse'] = 'Voeg een antwoord tekst toe';
+$labels['itipsendercomment'] = 'Opmerking van verzender:';
+$labels['itipobjectnotfound'] = 'Het object waaraan in dit bericht wordt gerefereerd is niet gevonden in uw account.';
 $labels['itipsubjectaccepted'] = '"$title" is geaccepteerd door $name';
 $labels['itipsubjecttentative'] = '"$title" has been tentatively accepted by $name';
 $labels['itipsubjectdeclined'] = '"$title" has been declined by $name';
-
-$labels['importtocalendar'] = 'Bewaar in mijn kalender';
-$labels['removefromcalendar'] = 'Verwijder van mijn kalender';
+$labels['itipsubjectcancel'] = 'Uw deelname aan "$title" is geannuleerd';
+$labels['itipnewattendee'] = 'Dit is een antwoord van een nieuwe deelnemer';
 $labels['updateattendeestatus'] = 'Update status van deelnemer';
 $labels['acceptinvitation'] = 'Accepteer je deze uitnodiging?';
+$labels['acceptattendee'] = 'Accepteer deelnemer';
+$labels['declineattendee'] = 'Afwijzen deelnemer';
+$labels['declineattendeeconfirm'] = 'Voeg een bericht toe voor de afgewezen deelnemer (optioneel):';
 $labels['youhaveaccepted'] = 'Je hebt de uitnodiging geaccepteerd';
 $labels['youhavetentative'] = 'You have tentatively accepted this invitation';
 $labels['youhavedeclined'] = 'Je hebt deze uitnodiging afgewezen';
+$labels['youhavedelegated'] = 'U heeft deze uitnodiging gedelegeerd';
+$labels['attendeeaccepted'] = 'Deelnemer heeft geaccepteerd';
+$labels['attendeetentative'] = 'Deelnemer heeft voorwaardelijk geaccepteerd';
+$labels['attendeedeclined'] = 'Deelnemer heeft afgewezen ';
+$labels['attendeedelegated'] = 'Deelnemer heeft gedelegeerd aan ';
 $labels['notanattendee'] = 'You\'re not listed as an attendee of this event';
-
+$labels['importtocalendar'] = 'Bewaar in mijn kalender';
+$labels['removefromcalendar'] = 'Verwijder van mijn kalender';
+$labels['updatemycopy'] = 'Wijzig mijn kopie';
+$labels['deleteobjectconfirm'] = 'Wilt u echt dit object verwijderen?';
+$labels['declinedeleteconfirm'] = 'Wilt u tevens deze afgewezen object verwijderen uit uw kalender?';
 $labels['savingdata'] = 'Data wordt opgeslagen...';

@@ -1,5 +1,5 @@
 <?php
-$labels['foldertypeevent'] = ''; // Events?
+$labels['foldertypeevent'] = 'Calendar';
 $labels['foldertypetask'] = 'Tareas';
 $labels['foldertypenote'] = 'Notas';
 $labels['foldertypecontact'] = 'Contactos';

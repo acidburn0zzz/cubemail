@@ -1,5 +1,6 @@
 <?php
 $labels['files'] = 'Arquivos';
+$labels['create'] = 'Criar';
 $labels['save'] = 'Salvar';
 $labels['cancel'] = 'Cancelar';
 $labels['folderinside'] = 'Inserir dentro';

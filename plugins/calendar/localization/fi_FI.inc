@@ -1,7 +1,4 @@
 <?php
-
-$labels = array();
-
 // preferences
 $labels['default_view'] = 'Oletusnäkymä';
 $labels['time_format'] = 'Aikamuoto';
@@ -14,7 +11,6 @@ $labels['defaultcalendar'] = 'Luo uudet tapahtumat kohteeseen';
 $labels['eventcoloring'] = 'Tapahtuman väritys';
 $labels['coloringmode0'] = 'Kalenterin mukaan';
 $labels['coloringmode1'] = 'Luokan mukaan';
-
 // calendar
 $labels['calendar'] = 'Kalenteri';
 $labels['calendars'] = 'Kalenterit';
@@ -53,6 +49,9 @@ $labels['selectdate'] = 'Valitse päiväys';
 $labels['freebusy'] = 'Aseta tilakseni';
 $labels['free'] = 'Vapaa';
 $labels['busy'] = 'Varattu';
+$labels['status'] = 'Tila';
+$labels['confirmed'] = 'Vahvistettu';
+$labels['cancelled'] = 'Peruttu';
 $labels['priority'] = 'Tärkeys';
 $labels['sensitivity'] = 'Yksityisyys';
 $labels['public'] = 'julkinen';
@@ -72,7 +71,6 @@ $labels['nmonthsback'] = '$nr kuukauden ajalta';
 $labels['showurl'] = 'Näytä kalenterin osoite';
 $labels['showurldescription'] = 'Käytä seuraavia osoitteita avataksesi kalenterisi pelkässä lukumuodossa muissa sovelluksissa. Voit kopioida ja liittää osoitteen mihin tahansa iCal-muotoa tukevaan kalenterisovellukseen.';
 $labels['caldavurldescription'] = 'Kopioi tämä osoite <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a-asiakassovellukseen (esim. Evolution tai Mozilla Thunderbird) synkronoidaksesi tämän kalenterin tietokoneesi tai mobiililaitteesi kanssa.';
-
 // agenda view
 $labels['until'] = 'kunnes';
 $labels['today'] = 'Tänään';
@@ -82,11 +80,9 @@ $labels['nextweek'] = 'Ensi viikolla';
 $labels['thismonth'] = 'Tässä kuussa';
 $labels['nextmonth'] = 'Ensi kuussa';
 $labels['weekofyear'] = 'Viikko';
-
 // alarm/reminder settings
 $labels['defaultalarmtype'] = 'Muistutuksen oletusasetus';
 $labels['defaultalarmoffset'] = 'Muistutuksen oletusaika';
-
 // attendees
 $labels['role'] = 'Rooli';
 $labels['confirmstate'] = 'Tila';
@@ -111,20 +107,20 @@ $labels['invitationsubject'] = 'Sinut on kutsuttu tapahtumaan "$title"';
 $labels['eventupdatesubject'] = '"$title" on päivitetty';
 $labels['eventupdatesubjectempty'] = 'Sinua koskeva tapahtuma on päivitetty';
 $labels['eventcancelsubject'] = '"$title" on peruttu';
-
 // invitation handling (overrides labels from libcalendaring)
 $labels['declinedeleteconfirm'] = 'Haluatko poistaa tämän hylätyn tapahtuman kalenteristasi?';
-
 $labels['notanattendee'] = 'Sinua ei ole määritetty tapahtuman osanottajaksi';
 $labels['eventcancelled'] = 'Tapahtuma on peruttu';
-
+// resources
+$labels['resource'] = 'Resurssi';
+$labels['resourcedetails'] = 'Tiedot';
 // event dialog tabs
 $labels['tabsummary'] = 'Yhteenveto';
 $labels['tabrecurrence'] = 'Toistuminen';
 $labels['tabattendees'] = 'Osallistujat';
+$labels['tabresources'] = 'Resurssit';
 $labels['tabattachments'] = 'Liitteet';
 $labels['tabsharing'] = 'Jakaminen';
-
 // messages
 $labels['deleteobjectconfirm'] = 'Haluatko varmasti poistaa tämän tapahtuman?';
 $labels['deleteventconfirm'] = 'Haluatko varmasti poistaa tämän tapahtuman?';
@@ -149,7 +145,6 @@ $labels['importsuccess'] = '$nr tapahtumaa tuotiin onnistuneesti';
 $labels['importnone'] = 'Tuotavaksi tarkoitettuja tapahtumia ei löytynyt';
 $labels['importerror'] = 'Tuotaessa tapahtui virhe';
 $labels['aclnorights'] = 'Sinulla ei ole ylläpitäjän oikeuksia tähän kalenteriin.';
-
 // recurrence form
 $labels['daily'] = 'päivittäin';
 $labels['weekly'] = 'viikottain';
@@ -157,9 +152,8 @@ $labels['monthly'] = 'kuukausittain';
 $labels['yearly'] = 'vuosittain';
 $labels['forever'] = 'ikuisesti';
 $labels['recurrencend'] = 'kunnes';
-
 $labels['removeeventconfirm'] = 'Poista tapahtuma';
 $labels['allevents'] = 'Kaikki';
 $labels['saveasnew'] = 'Tallenna uutena';
-
+// birthdays calendar
 ?>

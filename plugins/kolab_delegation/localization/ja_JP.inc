@@ -9,6 +9,7 @@ $labels['task'] = 'タスク';
 $labels['note'] = 'ノート';
 $labels['yes'] = 'はい';
 $labels['no'] = 'いいえ';
+$labels['read'] = '読込のみ';
 $labels['adddelegate'] = '委任者を追加';
 $labels['deletedelegate'] = '委任者を削除';
 $labels['savingdata'] = 'データを保存中…';

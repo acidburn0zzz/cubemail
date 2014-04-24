@@ -1,0 +1,31 @@
+<?php
+$labels['tabtitle'] = 'Activesync';
+$labels['devices'] = 'Enheder';
+$labels['devicealias'] = 'Enhedsnavn';
+$labels['synchronize'] = 'Synkronisér';
+$labels['withalarms'] = 'Med alarmer';
+$labels['syncsettings'] = 'Indstillinger for synkronisering';
+$labels['deviceconfig'] = 'Konfiguration af enhed';
+$labels['folderstosync'] = 'Mapper som skal synkroniseres';
+$labels['mail'] = 'E-post';
+$labels['contact'] = 'Adressebøger';
+$labels['event'] = 'Kalendere';
+$labels['task'] = 'Opgaver';
+$labels['note'] = 'Noter';
+$labels['configuration'] = 'Konfiguration';
+$labels['deletedevice'] = 'Slet enhed';
+$labels['nodevices'] = 'Der er i øjeblikket ingen registrerede enheder.<br/><br/>For at registrere en enhed, så skal den først tilsluttes til serveren, med anvendelse af <a href="http://wiki.kolab.org/Setup_ActiveSync">instrukserne i wiki\'en</a>. Bagefter bør enheden være tilgængelig til konfigurationen her.';
+$labels['savingdata'] = 'Gemmer data...';
+$labels['savingerror'] = 'Kunne ikke gemme konfiguration';
+$labels['notsupported'] = 'Din server understøtter ikke metadata/annotationer';
+$labels['devicedeleteconfirm'] = 'Vil du virkelig slette denne enheds konfiguration?';
+$labels['successfullydeleted'] = 'Fjernelse af enhedskonfigurationen blev gennemført ';
+$labels['devicenotfound'] = 'Kunne ikke læse enhedskonfiguration';
+$labels['devicetype'] = 'Enhedstype';
+$labels['acsversion'] = 'Protokolversion';
+$labels['useragent'] = 'Brugeragent';
+$labels['friendlyname'] = 'Letlæseligt navn';
+$labels['os'] = 'Operativsystem';
+$labels['oslanguage'] = 'Sprog for OS';
+$labels['phonenumber'] = 'Telefonnummer';
+?>

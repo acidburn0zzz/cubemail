@@ -1,3 +1,3 @@
 <?php
-$labels['foldertypeevent'] = 'Kalendář'; // Events?
+$labels['foldertypeevent'] = 'Kalendář';
 ?>

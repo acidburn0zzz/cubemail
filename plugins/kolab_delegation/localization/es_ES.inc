@@ -6,5 +6,6 @@ $labels['event'] = 'Calendarios';
 $labels['task'] = 'Tareas';
 $labels['note'] = 'Notas';
 $labels['yes'] = 'Sí';
+$labels['read'] = 'Solo-lectura';
 $labels['savingdata'] = 'Guardando datos...';
 ?>

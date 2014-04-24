@@ -41,12 +41,14 @@ $labels['editlist'] = 'Liste bearbeiten';
 $labels['createlist'] = 'Neue Liste';
 $labels['listactions'] = 'Listenoptionen...';
 $labels['listname'] = 'Name';
-$labels['showalarms'] = 'Erinnerungen anzeigen';
+$labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'Importieren';
+// date words
 $labels['on'] = 'am';
 $labels['at'] = 'um';
 $labels['this'] = 'diesen';
 $labels['next'] = 'nächsten';
+// mesages
 $labels['savingdata'] = 'Daten werden gespeichert...';
 $labels['errorsaving'] = 'Fehler beim Speichern.';
 $labels['notasksfound'] = 'Für die aktuellen Kriterien wurden keine Aufgaben gefunden.';
@@ -54,4 +56,3 @@ $labels['invalidstartduedates'] = 'Beginn der Aufgabe darf nicht grösser als da
 $labels['deletetasktconfirm'] = 'Möchten Sie diese Aufgabe wirklich löschen?';
 $labels['deleteparenttasktconfirm'] = 'Möchten Sie diese Aufgabe inklusive aller Teilaufgaben wirklich löschen?';
 $labels['deletelistconfirm'] = 'Möchten Sie diese Liste mit allen Aufgaben wirklich löschen?';
-$labels['aclnorights'] = 'Der Zugriff auf diese Liste erfordert Administrator-Rechte.';

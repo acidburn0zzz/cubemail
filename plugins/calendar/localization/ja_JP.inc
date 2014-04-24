@@ -1,7 +1,4 @@
 <?php
-
-$labels = array();
-
 // preferences
 $labels['default_view'] = 'デフォルトビュー';
 $labels['time_format'] = '時刻表示形式';
@@ -16,7 +13,6 @@ $labels['coloringmode0'] = 'カレンダーの説明';
 $labels['coloringmode1'] = 'カテゴリの説明';
 $labels['coloringmode2'] = 'アウトライン用カレンダー、コンテンツ用カテゴリ';
 $labels['coloringmode3'] = 'アウトライン用カレンダー、コンテンツ用カテゴリ';
-
 // calendar
 $labels['calendar'] = 'カレンダー';
 $labels['calendars'] = 'カレンダー';
@@ -57,6 +53,7 @@ $labels['free'] = '空';
 $labels['busy'] = 'ビジー';
 $labels['outofoffice'] = '外出';
 $labels['tentative'] = '仮';
+$labels['status'] = '状態';
 $labels['priority'] = '優先度';
 $labels['sensitivity'] = 'プライバシー';
 $labels['public'] = 'パブリック';
@@ -77,7 +74,6 @@ $labels['onemonthback'] = '1 ヶ月戻る';
 $labels['nmonthsback'] = '$nr ヶ月戻る';
 $labels['showurl'] = 'カレンダーURL表示';
 $labels['showurldescription'] = '以下のアドレスを使用して他のアプリケーションからカレンダーにアクセス(読込のみ)できます。iCal形式をサポートしたカレンダーソフトウェアへコピーアンドペーストができます。';
-
 // agenda view
 $labels['listrange'] = '表示範囲:';
 $labels['listsections'] = '分割:';
@@ -92,11 +88,9 @@ $labels['nextmonth'] = '来月';
 $labels['weekofyear'] = '週';
 $labels['pastevents'] = '以前';
 $labels['futureevents'] = '以降';
-
 // alarm/reminder settings
 $labels['defaultalarmtype'] = 'デフォルト通知設定';
 $labels['defaultalarmoffset'] = 'デフォルト通知時間';
-
 // attendees
 $labels['attendee'] = '参加者';
 $labels['role'] = 'ロール';
@@ -130,23 +124,25 @@ $labels['eventupdatesubjectempty'] = 'あなたに関連するイベントが更
 $labels['eventupdatemailbody'] = "*\$title*\n\nいつ: \$date\n\n招待者: \$attendees\n\nあなたのカレンダーアプリケーションにインポートできるアップデートされた全イベントの詳細が添付されたiカレンダーファイルを見つけてください。";
 $labels['eventcancelsubject'] = '"$title" は変更されました';
 $labels['eventcancelmailbody'] = "*\$title*\n\nいつ: \$date\n\n招待者: \$attendees\n\nイベントが \$organizer によってキャンセルされました。\n\n更新されたイベントの詳細とともに添付されたiカレンダーファイルを見つけてください。";
-
-// invitation handling
+// invitation handling (overrides labels from libcalendaring)
 $labels['itipmailbodyaccepted'] = "\$sender は以下のイベントへの招待を承諾しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender は以下のイベントへの招待を仮承諾しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender は以下のイベントへの招待を辞退しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipdeclineevent'] = 'このイベントへの招待を辞退しますか?';
 $labels['eventcancelled'] = 'このイベントはキャンセルされました';
 $labels['saveincalendar'] = '保存';
-
+// resources
+$labels['resource'] = 'リソース';
+$labels['resourcedetails'] = '詳細';
 // event dialog tabs
 $labels['tabsummary'] = '要約';
 $labels['tabrecurrence'] = '繰返し';
 $labels['tabattendees'] = '参加者';
+$labels['tabresources'] = 'リソース';
 $labels['tabattachments'] = '添付';
 $labels['tabsharing'] = '共有';
-
 // messages
+$labels['deleteobjectconfirm'] = '本当にこのイベントを削除しますか?';
 $labels['deleteventconfirm'] = '本当にこのイベントを削除しますか?';
 $labels['deletecalendarconfirm'] = '本当にこのカレンダーを全イベントとともに削除しますか?';
 $labels['savingdata'] = 'データを保存中…';
@@ -171,7 +167,6 @@ $labels['importsuccess'] = '$nr イベントをインポートしました';
 $labels['importnone'] = 'インポートされたイベントはありません';
 $labels['importerror'] = 'インポート中にエラーが発生しました。';
 $labels['aclnorights'] = 'このカレンダーの管理権限がありません。';
-
 // recurrence form
 $labels['repeat'] = '繰返し';
 $labels['frequency'] = '繰返し';
@@ -199,7 +194,6 @@ $labels['third'] = '第3週';
 $labels['fourth'] = '第4週';
 $labels['last'] = '最終週';
 $labels['dayofmonth'] = '日';
-
 $labels['changeeventconfirm'] = 'イベント変更';
 $labels['removeeventconfirm'] = 'イベント削除';
 $labels['changerecurringeventwarning'] = 'これは繰返しイベントです。現在のイベントのみ、このイベントと今後の全イベント、全イベント、編集したい、もしくは新しいイベントとして保存したい?';
@@ -208,5 +202,5 @@ $labels['currentevent'] = '現在';
 $labels['futurevents'] = '今後';
 $labels['allevents'] = '全て';
 $labels['saveasnew'] = '新規保存';
-
+// birthdays calendar
 ?>
