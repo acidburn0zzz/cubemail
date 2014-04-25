@@ -623,7 +623,7 @@ class kolab_files_engine
     {
         $this->plugin->add_label(
             'folderdeleting', 'folderdeleteconfirm', 'folderdeletenotice',
-            'uploading', 'attaching',
+            'uploading', 'attaching', 'uploadsizeerror',
             'filedeleting', 'filedeletenotice', 'filedeleteconfirm',
             'filemoving', 'filemovenotice', 'filemoveconfirm', 'filecopying', 'filecopynotice',
             'collection_audio', 'collection_video', 'collection_image', 'collection_document',
@@ -633,6 +633,7 @@ class kolab_files_engine
         $this->rc->output->set_pagetitle($this->plugin->gettext('files'));
         $this->rc->output->set_env('file_mimetypes', $this->get_mimetypes());
         $this->rc->output->set_env('files_quota', $_SESSION['kolab_files_caps']['QUOTA']);
+        $this->rc->output->set_env('files_max_upload', $_SESSION['kolab_files_caps']['MAX_UPLOAD']);
         $this->rc->output->send('kolab_files.files');
     }
 
