@@ -59,9 +59,6 @@ class database_driver extends calendar_driver
     $this->rc = $cal->rc;
     $this->server_timezone = new DateTimeZone(date_default_timezone_get());
     
-    // load library classes
-    require_once($this->cal->home . '/lib/Horde_Date_Recurrence.php');
-    
     // read database config
     $db = $this->rc->get_dbh();
     $this->db_events = $this->rc->config->get('db_table_events', $db->table_name($this->db_events));
