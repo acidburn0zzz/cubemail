@@ -1,8 +1,10 @@
 /**
  * Client script for the Kolab folder management/listing extension
  *
- * @version @package_version@
  * @author Aleksander Machniak <machniak@kolabsys.com>
+ *
+ * @licstart  The following is the entire license notice for the
+ * JavaScript code in this file.
  *
  * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
  *
@@ -18,6 +20,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @licend  The above is the entire license notice
+ * for the JavaScript code in this file.
  */
 
 $(document).ready(function() {

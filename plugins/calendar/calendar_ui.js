@@ -1,9 +1,11 @@
 /**
  * Client UI Javascript for the Calendar plugin
  *
- * @version @package_version@
  * @author Lazlo Westerhof <hello@lazlo.me>
  * @author Thomas Bruederli <bruederli@kolabsys.com>
+ *
+ * @licstart  The following is the entire license notice for the
+ * JavaScript code in this file.
  *
  * Copyright (C) 2010, Lazlo Westerhof <hello@lazlo.me>
  * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
@@ -20,6 +22,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @licend  The above is the entire license notice
+ * for the JavaScript code in this file.
  */
 
 // Roundcube calendar UI client class

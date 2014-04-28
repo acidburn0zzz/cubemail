@@ -3,6 +3,9 @@
  *
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
+ * @licstart  The following is the entire license notice for the
+ * JavaScript code in this file.
+ *
  * Copyright (C) 2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,6 +20,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @licend  The above is the entire license notice
+ * for the JavaScript code in this file.
  */
 
 function rcube_kolab_notes_ui(settings)
