@@ -58,6 +58,7 @@ $labels['filedeleteconfirm'] = 'Are you sure you want to delete selected files?'
 $labels['filedeletenotice'] = 'File(s) deleted successfully.';
 $labels['filemovenotice'] = 'File(s) moved successfully.';
 $labels['filecopynotice'] = 'File(s) copied successfully.';
+$labels['uploadsizeerror'] = 'Maximum file size ($size) exceeded!';
 
 $labels['allfolders'] = 'search in all folders';
 $labels['fileskip'] = 'Skip';

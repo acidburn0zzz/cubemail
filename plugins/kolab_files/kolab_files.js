@@ -1462,11 +1462,23 @@ function kolab_files_ui()
   // file upload request
   this.file_upload = function(form)
   {
-    var form = $(form),
+    var i, size = 0, maxsize = rcmail.env.files_max_upload,
+      form = $(form),
       field = $('input[type=file]', form).get(0),
       files = field.files ? field.files.length : field.value ? 1 : 0;
 
     if (files) {
+      // check upload max size
+      if (field.files && maxsize) {
+        for (i=0; i < files; i++)
+          size += field.files[i].size;
+
+        if (size > maxsize) {
+          alert(rcmail.get_label('kolab_files.uploadsizeerror').replace('$size', this.file_size(maxsize)));
+          return;
+        }
+      }
+
       // submit form and read server response
       this.file_upload_form(form, 'file_upload', function(event) {
         var doc, response;
