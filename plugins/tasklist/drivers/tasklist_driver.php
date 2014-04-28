@@ -42,7 +42,24 @@
   *       'flagged' => 'Boolean value whether this record is flagged',
   *      'complete' => 'Float value representing the completeness state (range 0..1)',
   *   'sensitivity' => 0|1|2,   // Event sensitivity (0=public, 1=private, 2=confidential)
-  *        'alarms' => '-15M:DISPLAY',  // Reminder settings inspired by valarm definition (e.g. display alert 15 minutes before due time)
+  *       'valarms' => array(           // List of reminders (new format), each represented as a hash array:
+  *                array(
+  *                   'trigger' => '-PT90M',     // ISO 8601 period string prefixed with '+' or '-', or DateTime object
+  *                    'action' => 'DISPLAY|EMAIL|AUDIO',
+  *                  'duration' => 'PT15M',      // ISO 8601 period string
+  *                    'repeat' => 0,            // number of repetitions
+  *               'description' => '',           // text to display for DISPLAY actions
+  *                   'summary' => '',           // message text for EMAIL actions
+  *                 'attendees' => array(),      // list of email addresses to receive alarm messages
+  *                ),
+  *    ),
+  *    'recurrence' => array(   // Recurrence definition according to iCalendar (RFC 2445) specification as list of key-value pairs
+  *              'FREQ' => 'DAILY|WEEKLY|MONTHLY|YEARLY',
+  *          'INTERVAL' => 1...n,
+  *             'UNTIL' => DateTime,
+  *             'COUNT' => 1..n,     // number of times
+  *             'RDATE' => array(),  // complete list of DateTime objects denoting individual repeat dates
+  *     ),
   *     '_fromlist' => 'List identifier where the task was stored before',
   *  );
   */

@@ -499,6 +499,11 @@ class tasklist_database_driver extends tasklist_driver
             unset($rec['alarms']);
         }
 
+        // decode serialze recurrence rules
+        if ($rec['recurrence']) {
+            $rec['recurrence'] = $this->unserialize_recurrence($rec['recurrence']);
+        }
+
         unset($rec['task_id'], $rec['tasklist_id'], $rec['created']);
         return $rec;
     }
@@ -520,8 +525,11 @@ class tasklist_database_driver extends tasklist_driver
         if (is_array($prop['valarms'])) {
             $prop['alarms'] = $this->serialize_alarms($prop['valarms']);
         }
+        if (is_array($prop['recurrence'])) {
+            $prop['recurrence'] = $this->serialize_recurrence($prop['recurrence']);
+        }
 
-        foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms') as $col) {
+        foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms', 'recurrence') as $col) {
             if (empty($prop[$col]))
                 $prop[$col] = null;
         }
@@ -529,8 +537,8 @@ class tasklist_database_driver extends tasklist_driver
         $notify_at = $this->_get_notification($prop);
         $result = $this->rc->db->query(sprintf(
             "INSERT INTO " . $this->db_tasks . "
-             (tasklist_id, uid, parent_id, created, changed, title, date, time, startdate, starttime, description, tags, alarms, notify)
-             VALUES (?, ?, ?, %s, %s, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (tasklist_id, uid, parent_id, created, changed, title, date, time, startdate, starttime, description, tags, flagged, complete, alarms, recurrence, notify)
+             VALUES (?, ?, ?, %s, %s, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
              $this->rc->db->now(),
              $this->rc->db->now()
             ),
@@ -544,7 +552,10 @@ class tasklist_database_driver extends tasklist_driver
             $prop['starttime'],
             strval($prop['description']),
             join(',', (array)$prop['tags']),
+            $prop['flagged'] ? 1 : 0,
+            intval($prop['complete']),
             $prop['alarms'],
+            $prop['recurrence'],
             $notify_at
         );
 
@@ -566,13 +577,16 @@ class tasklist_database_driver extends tasklist_driver
         if (is_array($prop['valarms'])) {
             $prop['alarms'] = $this->serialize_alarms($prop['valarms']);
         }
+        if (is_array($prop['recurrence'])) {
+            $prop['recurrence'] = $this->serialize_recurrence($prop['recurrence']);
+        }
 
         $sql_set = array();
         foreach (array('title', 'description', 'flagged', 'complete') as $col) {
             if (isset($prop[$col]))
                 $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . $this->rc->db->quote($prop[$col]);
         }
-        foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms') as $col) {
+        foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms', 'recurrence') as $col) {
             if (isset($prop[$col]))
                 $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . (empty($prop[$col]) ? 'NULL' : $this->rc->db->quote($prop[$col]));
         }
@@ -732,6 +746,45 @@ class tasklist_database_driver extends tasklist_driver
         }
 
         return $valarms;
+    }
+
+    /**
+     * Helper method to serialize task recurrence properties
+     */
+    private function serialize_recurrence($recurrence)
+    {
+        foreach ((array)$recurrence as $k => $val) {
+            if ($val instanceof DateTime) {
+                $recurrence[$k] = '@' . $val->format('c');
+            }
+        }
+
+        return $recurrence ? json_encode($recurrence) : null;
+    }
+
+    /**
+     * Helper method to decode a serialized task recurrence struct
+     */
+    private function unserialize_recurrence($ser)
+    {
+        if (strlen($ser)) {
+            $recurrence = json_decode($ser, true);
+            foreach ((array)$recurrence as $k => $val) {
+                if ($val[0] == '@') {
+                    try {
+                        $recurrence[$k] = new DateTime(substr($val, 1));
+                    }
+                    catch (Exception $e) {
+                        unset($recurrence[$k]);
+                    }
+                }
+            }
+        }
+        else {
+            $recurrence = '';
+        }
+
+        return $recurrence;
     }
 
     /**
