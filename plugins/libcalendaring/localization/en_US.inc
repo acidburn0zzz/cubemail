@@ -6,6 +6,7 @@ $labels['alarmemail'] = 'Send Email';
 $labels['alarmdisplay'] = 'Show message';
 $labels['alarmdisplayoption'] = 'Message';
 $labels['alarmemailoption'] = 'Email';
+$labels['alarmaudiooption'] = 'Sound';
 $labels['alarmat'] = 'at $datetime';
 $labels['trigger@'] = 'on date';
 $labels['trigger-M'] = 'minutes before';

@@ -28,7 +28,7 @@ class tasklist_kolab_driver extends tasklist_driver
     public $alarms = false;
     public $attachments = true;
     public $undelete = false; // task undelete action
-    public $alarm_types = array('DISPLAY');
+    public $alarm_types = array('DISPLAY','AUDIO');
 
     private $rc;
     private $plugin;

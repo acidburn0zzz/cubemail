@@ -227,7 +227,7 @@ abstract class kolab_format_xcal extends kolab_format
                 }
 
                 if ($start = self::php_datetime($alarm->start())) {
-                    $object['alarms'] = '@' . $start->format('U');
+                    $trigger = '@' . $start->format('U');
                     $valarm['trigger'] = $start;
                 }
                 else if ($offset = $alarm->relativeStart()) {
@@ -245,7 +245,7 @@ abstract class kolab_format_xcal extends kolab_format
                         $time = '0S';
                     }
 
-                    $object['alarms'] = $prefix . $value . $time;
+                    $trigger = $prefix . $value . $time;
                     $valarm['trigger'] = $prefix . 'P' . $value . ($time ? 'T' . $time : '');
                 }
 
@@ -261,8 +261,11 @@ abstract class kolab_format_xcal extends kolab_format
                     $valarm['repeat'] = $alarm->numrepeat();
                 }
 
-                $object['alarms']  .= ':' . $type;  // legacy property
                 $object['valarms'][] = array_filter($valarm);
+
+                if (!$object['alarms']) {
+                    $object['alarms'] = $trigger . ':' . $type;  // legacy property
+                }
             }
         }
 
@@ -508,6 +511,19 @@ abstract class kolab_format_xcal extends kolab_format
             }
 
             $valarms->push($alarm);
+
+            // preserve additional alarm entries
+            $oldvalarms = $this->obj->alarms();
+            for ($i=1; $i < $oldvalarms->size(); $i++) {
+                $valarms->push($oldvalarms->get($i));
+            }
+
+            // HACK: set and read back alarms to store the correct 'valarms' value in cache
+            if ($i > 1) {
+                $this->obj->setAlarms($valarms);
+                $update = $this->to_array();
+                $object['valarms'] = $update['valarms'];
+            }
         }
         $this->obj->setAlarms($valarms);
 
