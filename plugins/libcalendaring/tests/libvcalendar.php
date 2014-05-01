@@ -186,6 +186,10 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
 
         // alarm trigger with 0 values
         $events = $ical->import_from_file(__DIR__ . '/resources/alarms.ics', 'UTF-8');
+        $event = $events[0];
+
+        $this->assertEquals('-30M:DISPLAY', $event['alarms'], "Stripped alarm string");
+        $alarm = libcalendaring::parse_alaram_value($event['alarms']);
         $this->assertEquals('-30M', $alarm[2], "Alarm string");
 
         $this->assertEquals('DISPLAY', $event['valarms'][0]['action'],  "First alarm action");
