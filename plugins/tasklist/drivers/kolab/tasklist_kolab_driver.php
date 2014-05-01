@@ -156,7 +156,8 @@ class tasklist_kolab_driver extends tasklist_driver
     {
         // attempt to create a default list for this user
         if (empty($this->lists)) {
-            if ($this->create_list(array('name' => 'Tasks', 'color' => '0000CC', 'default' => true)))
+            $prop = array('name' => 'Tasks', 'color' => '0000CC', 'default' => true);
+            if ($this->create_list($prop))
                 $this->_read_lists(true);
         }
 

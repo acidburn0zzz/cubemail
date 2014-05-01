@@ -89,7 +89,8 @@ class tasklist_database_driver extends tasklist_driver
     {
       // attempt to create a default list for this user
       if (empty($this->lists)) {
-        if ($this->create_list(array('name' => 'Default', 'color' => '000000')))
+        $prop = array('name' => 'Default', 'color' => '000000');
+        if ($this->create_list($prop))
           $this->_read_lists();
       }
 
