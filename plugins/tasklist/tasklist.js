@@ -308,8 +308,8 @@ function rcube_tasklist_ui(settings)
                     }
                     else {
                         pos = ref.offset();
-                        pos.top += ref.outerHeight();
                         pos.left += ref.width() - menu.outerWidth();
+                        pos.top += (pos.top + ref.outerHeight() + menu.height() > $(window).height() ? -menu.height() : ref.outerHeight());
                         menu.css({ top:pos.top+'px', left:pos.left+'px' }).show();
                         menu.data('refid', id);
                         me.selected_task = rec;
