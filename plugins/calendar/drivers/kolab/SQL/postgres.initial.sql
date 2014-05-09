@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS kolab_alarms (
         REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
   notifyat timestamp without time zone DEFAULT NULL,
   dismissed smallint NOT NULL DEFAULT 0,
-  PRIMARY KEY(event_id)
+  PRIMARY KEY(alarm_id)
 );
 
 CREATE TABLE IF NOT EXISTS itipinvitations (
@@ -27,4 +27,4 @@ CREATE TABLE IF NOT EXISTS itipinvitations (
 
 CREATE INDEX itipinvitations_event_uid_user_id_idx ON itipinvitations (event_uid, user_id);
 
-INSERT INTO system (name, value) VALUES ('calendar-kolab-version', '2013011000');
+INSERT INTO system (name, value) VALUES ('calendar-kolab-version', '2014041700');
