@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS kolab_alarms (
   PRIMARY KEY(alarm_id)
 );
 
+CREATE INDEX kolab_alarms_user_id_idx ON kolab_alarms (user_id);
+
 CREATE TABLE IF NOT EXISTS itipinvitations (
   token character varying(64) NOT NULL,
   event_uid character varying(255) NOT NULL,
@@ -25,6 +27,6 @@ CREATE TABLE IF NOT EXISTS itipinvitations (
   PRIMARY KEY(token)
 );
 
-CREATE INDEX itipinvitations_event_uid_user_id_idx ON itipinvitations (event_uid, user_id);
+CREATE INDEX itipinvitations_user_id_event_uid_idx ON itipinvitations (user_id, event_uid);
 
 INSERT INTO system (name, value) VALUES ('calendar-kolab-version', '2014041700');
