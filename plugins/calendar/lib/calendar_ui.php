@@ -187,45 +187,108 @@ class calendar_ui
    */
   function calendar_list($attrib = array())
   {
-    $calendars = $this->cal->driver->list_calendars();
+    $html = '';
+    $jsenv = array();
+    $calendars = $this->cal->driver->list_calendars(false, false, $tree);
 
-    $li = '';
+    // walk folder tree
+    if (is_object($tree)) {
+      $html = $this->list_tree_html($tree, $calendars, $jsenv, $attrib);
+
+      // append birthdays calendar which isn't part of $tree
+      if ($bdaycal = $calendars[calendar_driver::BIRTHDAY_CALENDAR_ID]) {
+        $calendars = array(calendar_driver::BIRTHDAY_CALENDAR_ID => $bdaycal);
+      }
+      else {
+        $calendars = array();  // clear array for flat listing
+      }
+    }
+    else {
+      // fall-back to flat folder listing
+      $attrib['class'] .= ' flat';
+    }
+
     foreach ((array)$calendars as $id => $prop) {
       if ($attrib['activeonly'] && !$prop['active'])
         continue;
-      
-      unset($prop['user_id']);
-      $prop['alarms'] = $this->cal->driver->alarms;
-      $prop['attendees'] = $this->cal->driver->attendees;
-      $prop['freebusy'] = $this->cal->driver->freebusy;
-      $prop['attachments'] = $this->cal->driver->attachments;
-      $prop['undelete'] = $this->cal->driver->undelete;
-      $prop['feedurl'] = $this->cal->get_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics', 'action' => 'feed'));
 
-      if (!$prop['virtual'])
-        $jsenv[$id] = $prop;
-
-      $html_id = html_identifier($id);
-      $class = 'cal-'  . asciiwords($id, true);
-      $title = $prop['name'] != $prop['listname'] ? html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
-
-      if ($prop['virtual'])
-        $class .= ' virtual';
-      else if ($prop['readonly'])
-        $class .= ' readonly';
-      if ($prop['class_name'])
-        $class .= ' '.$prop['class_name'];
-
-      $li .= html::tag('li', array('id' => 'rcmlical' . $html_id, 'class' => $class),
-        ($prop['virtual'] ? '' : html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
-        html::span('handle', '&nbsp;')) .
-        html::span(array('class' => 'calname', 'title' => $title), $prop['listname']));
+      $html .= html::tag('li', array('id' => 'rcmlical' . rcube_utils::html_identifier($id)),
+        $content = $this->calendar_list_item($id, $prop, $jsenv)
+      );
     }
 
     $this->rc->output->set_env('calendars', $jsenv);
     $this->rc->output->add_gui_object('calendarslist', $attrib['id']);
 
-    return html::tag('ul', $attrib, $li, html::$common_attrib);
+    return html::tag('ul', $attrib, $html, html::$common_attrib);
+  }
+  
+  /**
+   * Return html for a structured list &lt;ul&gt; for the mailbox tree
+   */
+  public function list_tree_html(&$node, &$data, &$jsenv, $attrib)
+  {
+    $out = '';
+    foreach ($node->children as $folder) {
+      $id = $folder->id;
+      $prop = $data[$id];
+
+      $content = $this->calendar_list_item($id, $prop, $jsenv);
+
+      if (!empty($folder->children)) {
+        $content .= html::tag('ul', array('style' => ($is_collapsed ? "display:none;" : null)),
+          $this->list_tree_html($folder, $data, $jsenv, $attrib));
+      }
+
+      if (strlen($content)) {
+        $out .= html::tag('li', array(
+            'id' => 'rcmlical' . rcube_utils::html_identifier($id),
+            'class' => $prop['virtual'] ? 'virtual' : '',
+          ),
+          $content);
+      }
+    }
+
+    return $out;
+  }
+
+  /**
+   * Helper method to build a calendar list item (HTML content and js data)
+   */
+  protected function calendar_list_item($id, $prop, &$jsenv)
+  {
+    unset($prop['user_id']);
+    $prop['alarms']      = $this->cal->driver->alarms;
+    $prop['attendees']   = $this->cal->driver->attendees;
+    $prop['freebusy']    = $this->cal->driver->freebusy;
+    $prop['attachments'] = $this->cal->driver->attachments;
+    $prop['undelete']    = $this->cal->driver->undelete;
+    $prop['feedurl']     = $this->cal->get_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics', 'action' => 'feed'));
+
+    if (!$prop['virtual'])
+      $jsenv[$id] = $prop;
+
+    $class = 'calendar cal-'  . asciiwords($id, true);
+    $title = $prop['name'] != $prop['listname'] ? html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
+    $is_collapsed = false; // TODO: determine this somehow?
+
+    if ($prop['virtual'])
+      $class = 'folder virtual';
+    else if ($prop['readonly'])
+      $class .= ' readonly';
+    if ($prop['class_name'])
+      $class .= ' '.$prop['class_name'];
+
+    $content = '';
+    if (!$attrib['activeonly'] || $prop['active']) {
+      $content = html::div($class,
+        ($prop['virtual'] ? '' : html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
+        html::span('handle', '&nbsp;')) .
+        html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname'])
+      );
+    }
+
+    return $content;
   }
 
   /**

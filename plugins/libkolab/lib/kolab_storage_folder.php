@@ -47,6 +47,12 @@ class kolab_storage_folder
      * @var object
      */
     public $cache;
+    
+    /**
+     * List of direct child folders
+     * @var array
+     */
+    public $children = array();
 
     private $type_annotation;
     private $namespace;
@@ -214,6 +220,18 @@ class kolab_storage_folder
     public function get_name()
     {
         return kolab_storage::object_name($this->name, $this->namespace);
+    }
+
+
+    /**
+     * Getter for the top-end folder name (not the entire path)
+     *
+     * @return string Name of this folder
+     */
+    public function get_foldername()
+    {
+        $parts = explode('/', $this->name);
+        return rcube_charset::convert(end($parts), 'UTF7-IMAP');
     }
 
 

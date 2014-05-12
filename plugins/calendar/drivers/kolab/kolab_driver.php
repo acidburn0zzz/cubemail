@@ -88,16 +88,16 @@ class kolab_driver extends calendar_driver
     return $this->calendars;
   }
 
-
   /**
    * Get a list of available calendars from this source
    *
    * @param bool $active   Return only active calendars
    * @param bool $personal Return only personal calendars
+   * @param object $tree   Reference to hierarchical folder tree object
    *
    * @return array List of calendars
    */
-  public function list_calendars($active = false, $personal = false)
+  public function list_calendars($active = false, $personal = false, &$tree = null)
   {
     // attempt to create a default calendar for this user
     if (!$this->has_writeable) {
@@ -112,7 +112,7 @@ class kolab_driver extends calendar_driver
 
     // include virtual folders for a full folder tree
     if (!$active && !$personal && !$this->rc->output->ajax_call && in_array($this->rc->action, array('index','')))
-      $folders = kolab_storage::folder_hierarchy($folders);
+      $folders = kolab_storage::folder_hierarchy($folders, $tree);
 
     foreach ($folders as $id => $cal) {
       $fullname = $cal->get_name();
@@ -124,6 +124,7 @@ class kolab_driver extends calendar_driver
           'id' => $cal->id,
           'name' => $fullname,
           'listname' => $listname,
+          'editname' => $cal->get_foldername(),
           'virtual' => true,
           'readonly' => true,
         );
@@ -1106,6 +1107,11 @@ class kolab_driver extends calendar_driver
    */
   public function calendar_form($action, $calendar, $formfields)
   {
+    // show default dialog for birthday calendar
+    if ($calendar['id'] == self::BIRTHDAY_CALENDAR_ID) {
+      return parent::calendar_form($action, $calendar, $formfields);
+    }
+
     if ($calendar['id'] && ($cal = $this->calendars[$calendar['id']])) {
       $folder = $cal->get_realname(); // UTF7
       $color  = $cal->get_color();

@@ -756,43 +756,54 @@ class kolab_storage
      * Check the folder tree and add the missing parents as virtual folders
      *
      * @param array $folders Folders list
+     * @param object $tree   Reference to the root node of the folder tree
      *
-     * @return array Folders list
+     * @return array Flat folders list
      */
-    public static function folder_hierarchy($folders)
+    public static function folder_hierarchy($folders, &$tree)
     {
         $_folders = array();
-        $existing = array_map(function($folder){ return $folder->get_name(); }, $folders);
         $delim    = rcube::get_instance()->get_storage()->get_hierarchy_delimiter();
+        $tree     = new virtual_kolab_storage_folder('', '<root>', '');  // create tree root
+        $refs     = array('' => $tree);
 
         foreach ($folders as $idx => $folder) {
             $path = explode($delim, $folder->name);
             array_pop($path);
+            $folder->parent = join($delim, $path);
+            $folder->children = array();  // reset list
 
             // skip top folders or ones with a custom displayname
-            if (count($path) <= 1 || kolab_storage::custom_displayname($folder->name)) {
+            if (count($path) < 1 || kolab_storage::custom_displayname($folder->name)) {
+                $tree->children[] = $folder;
             }
             else {
                 $parents = array();
+                $depth = $folder->get_namespace() == 'personal' ? 1 : 2;
 
-                while (count($path) > 1 && ($parent = join($delim, $path))) {
-                    $name = kolab_storage::object_name($parent, $folder->get_namespace());
-                    if (!in_array($name, $existing)) {
-                        $parents[$parent] = new virtual_kolab_storage_folder($parent, $name, $folder->get_namespace());
-                        $existing[] = $name;
-                    }
-
+                while (count($path) >= $depth && ($parent = join($delim, $path))) {
                     array_pop($path);
+                    $name = kolab_storage::object_name($parent, $folder->get_namespace());
+                    if (!$refs[$parent]) {
+                        $refs[$parent] = new virtual_kolab_storage_folder($parent, $name, $folder->get_namespace(), join($delim, $path));
+                        $parents[] = $refs[$parent];
+                    }
                 }
 
                 if (!empty($parents)) {
-                    $parents = array_reverse(array_values($parents));
+                    $parents = array_reverse($parents);
                     foreach ($parents as $parent) {
+                        $parent_node = $refs[$parent->parent] ?: $tree;
+                        $parent_node->children[] = $parent;
                         $_folders[] = $parent;
                     }
                 }
+
+                $parent_node = $refs[$folder->parent] ?: $tree;
+                $parent_node->children[] = $folder;
             }
 
+            $refs[$folder->name] = $folder;
             $_folders[] = $folder;
             unset($folders[$idx]);
         }
@@ -1164,13 +1175,18 @@ class virtual_kolab_storage_folder
     public $id;
     public $name;
     public $namespace;
+    public $parent = '';
+    public $children = array();
     public $virtual = true;
+    protected $displayname;
 
-    public function __construct($realname, $name, $ns)
+    public function __construct($name, $dispname, $ns, $parent = '')
     {
-        $this->id        = kolab_storage::folder_id($realname);
+        $this->id        = kolab_storage::folder_id($name);
         $this->name      = $name;
         $this->namespace = $ns;
+        $this->parent    = $parent;
+        $this->displayname = $dispname;
     }
 
     public function get_namespace()
@@ -1181,6 +1197,12 @@ class virtual_kolab_storage_folder
     public function get_name()
     {
         // this is already kolab_storage::object_name() result
-        return $this->name;
+        return $this->displayname;
+    }
+
+    public function get_foldername()
+    {
+        $parts = explode('/', $this->name);
+        return rcube_charset::convert(end($parts), 'UTF7-IMAP');
     }
 }
