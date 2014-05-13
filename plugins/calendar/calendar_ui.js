@@ -39,6 +39,7 @@ function rcube_calendar_ui(settings)
     this.selected_calendar = null;
     this.search_request = null;
     this.saving_lock;
+    this.calendars = {};
 
 
     /***  private vars  ***/
@@ -52,6 +53,9 @@ function rcube_calendar_ui(settings)
     var event_defaults = { free_busy:'busy', alarms:'' };
     var event_attendees = [];
     var calendars_list;
+    var calenders_search_list;
+    var calenders_search_container;
+    var search_calendars = {};
     var attendees_list;
     var resources_list;
     var resources_treelist;
@@ -2667,16 +2671,79 @@ function rcube_calendar_ui(settings)
       this.selected_calendar = id;
     };
 
+    // render the results for calendar list search
+    var calendar_search_results = function(results)
+    {
+      if (results.length) {
+        // create treelist widget to present the search results
+        if (!calenders_search_list) {
+          calenders_search_container = $('<div class="searchresults"></div>')
+            .html('<h2 class="boxtitle">' + rcmail.gettext('calsearchresults','calendar') + '</h2>')
+            .insertAfter(rcmail.gui_objects.calendarslist);
 
-    /***  startup code  ***/
+          calenders_search_list = new rcube_treelist_widget('<ul class="treelist listing"></ul>', {
+            id_prefix: 'rcmlical',
+            selectable: false
+          });
 
-    // create list of event sources AKA calendars
-    this.calendars = {};
-    var id, li, cal, active, color, brightness, event_sources = [];
-    for (id in rcmail.env.calendars) {
-      cal = rcmail.env.calendars[id];
-      this.calendars[id] = $.extend({
-        url: "./?_task=calendar&_action=load_events&source="+escape(id),
+          // register click handler on search result's checkboxes to select the given calendar for listing
+          calenders_search_list.container
+            .appendTo(calenders_search_container)
+            .on('click', 'input[type=checkbox]', function(e){
+              var li = $(this).closest('li'),
+                id = li.attr('id').replace(/^rcmlical/, ''),
+                prop = search_calendars[id],
+                parent_id = prop.parent || null;
+
+              if (!this.checked)
+                return;
+
+              // find parent node and insert at the right place
+              if (parent_id && $('#rcmlical'+parent_id, rcmail.gui_objects.calendarslist).length) {
+                prop.listname = prop.editname;
+                li.children().first().find('.calname').html(Q(prop.listname));
+              }
+
+              // move this calendar to the calendars_list widget
+              calendars_list.insert({
+                id: id,
+                classes: [],
+                html: li.children().first()
+              }, parent_id, parent_id ? true : false);
+
+              search_calendars[id].active = true;
+              add_calendar_source(prop);
+              li.remove();
+
+              // add css classes related to this calendar to document
+              if (cal.css) {
+                $('<style type="text/css"></style>')
+                  .html(cal.css)
+                  .appendTo('head');
+              }
+            });
+        }
+
+        for (var cal, i=0; i < results.length; i++) {
+          cal = results[i];
+          search_calendars[cal.id] = cal;
+          $('<li>')
+            .attr('id', 'rcmlical' + cal.id)
+            .html(cal.html)
+            .appendTo(calenders_search_list.container);
+        }
+
+        calenders_search_container.show();
+      }
+    };
+
+    // register the given calendar to the current view
+    var add_calendar_source = function(cal)
+    {
+      var color, brightness, select, id = cal.id;
+
+      me.calendars[id] = $.extend({
+        url: rcmail.url('calendar/load_events', { source: id }),
         editable: !cal.readonly,
         className: 'fc-event-cal-'+id,
         id: id
@@ -2689,18 +2756,40 @@ function rcube_calendar_ui(settings)
           // http://javascriptrules.com/2009/08/05/css-color-brightness-contrast-using-javascript/
           brightness = (parseInt(RegExp.$1, 16) * 299 + parseInt(RegExp.$2, 16) * 587 + parseInt(RegExp.$3, 16) * 114) / 1000;
           if (brightness > 125)
-            this.calendars[id].textColor = 'black';
+            me.calendars[id].textColor = 'black';
         }
+
+        me.calendars[id].color = color;
       }
 
-      this.calendars[id].color = color;
-
-      if ((active = cal.active || false)) {
-        event_sources.push(this.calendars[id]);
+      if (fc && cal.active) {
+        fc.fullCalendar('addEventSource', me.calendars[id]);
+        rcmail.http_post('calendar', { action:'subscribe', c:{ id:id, active:cal.active?1:0 } });
       }
+
+      // insert to #calendar-select options if writeable
+      select = $('#edit-calendar');
+      if (fc && !cal.readonly && select.length && !select.find('option[value="'+id+'"]').length) {
+        $('<option>').attr('value', id).text(Q(cal.name)).appendTo(select);
+      }
+    }
+
+
+    /***  startup code  ***/
+
+    // create list of event sources AKA calendars
+    var id, cal, active, event_sources = [];
+    for (id in rcmail.env.calendars) {
+      cal = rcmail.env.calendars[id];
+      active = cal.active || false;
+      add_calendar_source(cal);
 
       // check active calendars
-      $('#rcmlical'+id+' > .calendar input').data('id', id).get(0).checked = active;
+      $('#rcmlical'+id+' > .calendar input').get(0).checked = active;
+
+      if (active) {
+        event_sources.push(this.calendars[id]);
+      }
 
       if (!cal.readonly && !this.selected_calendar) {
         this.selected_calendar = id;
@@ -2720,12 +2809,32 @@ function rcube_calendar_ui(settings)
       rcmail.enable_command('calendar-remove', !me.calendars[node.id].readonly);
     });
     calendars_list.addEventListener('search', function(search){
-      console.log(search);
+      // hide search results
+      if (calenders_search_list) {
+        calenders_search_container.hide();
+        calenders_search_list.reset();
+      }
+      search_calendars = {};
+
+      // send search request(s) to server
+      if (search.query && search.execute) {
+        var sources = [ 'folders' /*, 'users'*/ ];
+        var reqid = rcmail.multi_thread_http_request({
+          items: sources,
+          threads: rcmail.env.autocomplete_threads || 1,
+          action:  'calendar/calendar',
+          postdata: { action:'search', q:search.query, source:'%s' },
+          lock: rcmail.display_message(rcmail.get_label('searching'), 'loading'),
+          onresponse: calendar_search_results
+        });
+
+        listsearch_data = { id:reqid, sources:sources.slice(), num:sources.length };
+      }
     });
 
     // init (delegate) event handler on calendar list checkboxes
     $(rcmail.gui_objects.calendarslist).on('click', 'input[type=checkbox]', function(e){
-      var id = $(this).data('id');
+      var id = this.value;
       if (me.calendars[id]) {  // add or remove event source on click
         var action;
         if (this.checked) {

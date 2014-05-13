@@ -248,6 +248,19 @@ class database_driver extends calendar_driver
   }
 
   /**
+   * Search for shared or otherwise not listed calendars the user has access
+   *
+   * @param string Search string
+   * @param string Section/source to search
+   * @return array List of calendars
+   */
+  public function search_calendars($query, $source)
+  {
+    // not implemented
+    return array();
+  }
+
+  /**
    * Add a single event to the database
    *
    * @param array Hash array with event properties

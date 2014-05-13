@@ -52,11 +52,12 @@ class kolab_calendar
       $this->imap_folder = $this->name = $imap_folder;
 
     // ID is derrived from folder name
-    $this->id = kolab_storage::folder_id($this->imap_folder);
+    $this->id = kolab_storage::folder_id($this->imap_folder, true);
+    $old_id   = kolab_storage::folder_id($this->imap_folder, false);
 
     // fetch objects from the given IMAP folder
     $this->storage = kolab_storage::get_folder($this->imap_folder);
-    $this->ready = $this->storage && !PEAR::isError($this->storage);
+    $this->ready = $this->storage && !PEAR::isError($this->storage) && $this->storage->type !== null;
 
     // Set readonly and alarms flags according to folder permissions
     if ($this->ready) {
@@ -76,6 +77,8 @@ class kolab_calendar
       $prefs = $this->cal->rc->config->get('kolab_calendars', array());
       if (isset($prefs[$this->id]['showalarms']))
         $this->alarms = $prefs[$this->id]['showalarms'];
+      else if (isset($prefs[$old_id]['showalarms']))
+        $this->alarms = $prefs[$old_id]['showalarms'];
     }
   }
 

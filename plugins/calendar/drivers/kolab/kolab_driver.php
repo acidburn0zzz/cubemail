@@ -62,6 +62,9 @@ class kolab_driver extends calendar_driver
         $this->alarm_types = array('DISPLAY');
         $this->alarm_absolute = false;
     }
+
+    // calendar uses fully encoded identifiers
+    kolab_storage::$encode_ids = true;
   }
 
 
@@ -117,6 +120,9 @@ class kolab_driver extends calendar_driver
     foreach ($folders as $id => $cal) {
       $fullname = $cal->get_name();
       $listname = kolab_storage::folder_displayname($fullname, $names);
+      $imap_path = explode('/', $cal->name);
+      $topname = array_pop($imap_path);
+      $parent_id = kolab_storage::folder_id(join('/', $imap_path), true);
 
       // special handling for virtual folders
       if ($cal->virtual) {
@@ -143,6 +149,7 @@ class kolab_driver extends calendar_driver
           'active'   => $cal->storage->is_active(),
           'owner'    => $cal->get_owner(),
           'children' => true,  // TODO: determine if that folder indeed has child folders
+          'parent'   => $parent_id,
           'caldavurl' => $cal->get_caldav_url(),
         );
       }
@@ -212,6 +219,26 @@ class kolab_driver extends calendar_driver
     return $calendars;
   }
 
+
+  /**
+   * Get the kolab_calendar instance for the given calendar ID
+   *
+   * @param string Calendar identifier (encoded imap folder name)
+   * @return object kolab_calendar Object nor null if calendar doesn't exist
+   */
+  protected function get_calendar($id)
+  {
+    // create calendar object if necesary
+    if (!$this->calendars[$id] && $id !== self::BIRTHDAY_CALENDAR_ID) {
+      $foldername = kolab_storage::id_decode($id);
+      $calendar = new kolab_calendar($foldername, $this->cal);
+      if ($calendar->ready)
+        $this->calendars[$calendar->id] = $calendar;
+    }
+
+    return $this->calendars[$id];
+  }
+
   /**
    * Create a new calendar assigned to the current user
    *
@@ -257,7 +284,7 @@ class kolab_driver extends calendar_driver
    */
   public function edit_calendar($prop)
   {
-    if ($prop['id'] && ($cal = $this->calendars[$prop['id']])) {
+    if ($prop['id'] && ($cal = $this->get_calendar($prop['id']))) {
       $prop['oldname'] = $cal->get_realname();
       $newfolder = kolab_storage::folder_update($prop);
 
@@ -297,9 +324,10 @@ class kolab_driver extends calendar_driver
    *
    * @see calendar_driver::subscribe_calendar()
    */
-  public function subscribe_calendar($prop)
+  public function subscribe_calendar($prop, $permanent = false)
   {
-    if ($prop['id'] && ($cal = $this->calendars[$prop['id']])) {
+    if ($prop['id'] && ($cal = $this->get_calendar($prop['id']))) {
+      if ($permanent) $cal->storage->subscribe($prop['active']);
       return $cal->storage->activate($prop['active']);
     }
     else {
@@ -321,8 +349,9 @@ class kolab_driver extends calendar_driver
    */
   public function remove_calendar($prop)
   {
-    if ($prop['id'] && ($cal = $this->calendars[$prop['id']])) {
+    if ($prop['id'] && ($cal = $this->get_calendar($prop['id']))) {
       $folder = $cal->get_realname();
+      // TODO: unsubscribe if no admin rights
       if (kolab_storage::folder_delete($folder)) {
         // remove color in user prefs (temp. solution)
         $prefs['kolab_calendars'] = $this->rc->config->get('kolab_calendars', array());
@@ -336,6 +365,51 @@ class kolab_driver extends calendar_driver
     }
 
     return false;
+  }
+
+
+  /**
+   * Search for shared or otherwise not listed calendars the user has access
+   *
+   * @param string Search string
+   * @param string Section/source to search
+   * @return array List of calendars
+   */
+  public function search_calendars($query, $source)
+  {
+    if (!kolab_storage::setup())
+      return array();
+
+    $this->calendars = array();
+    $imap = $this->rc->get_storage();
+
+    // find unsubscribed IMAP folders that have "event" type
+    if ($source == 'folders') {
+      $folders = array();
+      foreach ((array)kolab_storage::list_folders('', '*', 'event', false, $folderdata) as $foldername) {
+        // FIXME: only consider the last part of the folder path for searching?
+        $realname = strtolower(rcube_charset::convert($foldername, 'UTF7-IMAP'));
+        if (strpos($realname, $query) !== false &&
+            !kolab_storage::folder_is_subscribed($foldername, true) &&
+            $imap->folder_namespace($foldername) != 'other'
+          ) {
+          $folders[$foldername] = new kolab_storage_folder($foldername, $folderdata[$foldername]);
+        }
+      }
+
+      foreach ($folders as $folder) {
+        $calendar = new kolab_calendar($folder->name, $this->cal);
+        $this->calendars[$calendar->id] = $calendar;
+      }
+    }
+    else if ($source == 'users') {
+      // TODO: implement this
+    }
+
+    // don't list the birthday calendar
+    $this->rc->config->set('calendar_contact_birthdays', false);
+
+    return $this->list_calendars();
   }
 
 
@@ -356,7 +430,7 @@ class kolab_driver extends calendar_driver
     }
 
     if ($cal) {
-      if ($storage = $this->calendars[$cal]) {
+      if ($storage = $this->get_calendar($cal)) {
         return $storage->get_event($id);
       }
     }
@@ -383,7 +457,7 @@ class kolab_driver extends calendar_driver
       return false;
 
     $cid = $event['calendar'] ? $event['calendar'] : reset(array_keys($this->calendars));
-    if ($storage = $this->calendars[$cid]) {
+    if ($storage = $this->get_calendar($cid)) {
       // handle attachments to add
       if (!empty($event['attachments'])) {
         foreach ($event['attachments'] as $idx => $attachment) {
@@ -425,7 +499,7 @@ class kolab_driver extends calendar_driver
    */
   public function move_event($event)
   {
-    if (($storage = $this->calendars[$event['calendar']]) && ($ev = $storage->get_event($event['id']))) {
+    if (($storage = $this->get_calendar($event['calendar'])) && ($ev = $storage->get_event($event['id']))) {
       unset($ev['sequence']);
       return $this->update_event($event + $ev);
     }
@@ -441,7 +515,7 @@ class kolab_driver extends calendar_driver
    */
   public function resize_event($event)
   {
-    if (($storage = $this->calendars[$event['calendar']]) && ($ev = $storage->get_event($event['id']))) {
+    if (($storage = $this->get_calendar($event['calendar'])) && ($ev = $storage->get_event($event['id']))) {
       unset($ev['sequence']);
       return $this->update_event($event + $ev);
     }
@@ -463,7 +537,7 @@ class kolab_driver extends calendar_driver
     $success = false;
     $savemode = $event['_savemode'];
 
-    if (($storage = $this->calendars[$event['calendar']]) && ($event = $storage->get_event($event['id']))) {
+    if (($storage = $this->get_calendar($event['calendar'])) && ($event = $storage->get_event($event['id']))) {
       $event['_savemode'] = $savemode;
       $savemode = 'all';
       $master = $event;
@@ -566,7 +640,7 @@ class kolab_driver extends calendar_driver
    */
   public function restore_event($event)
   {
-    if ($storage = $this->calendars[$event['calendar']]) {
+    if ($storage = $this->get_calendar($event['calendar'])) {
       if (!empty($_SESSION['calendar_restore_event_data']))
         $success = $storage->update_event($_SESSION['calendar_restore_event_data']);
       else
@@ -586,12 +660,12 @@ class kolab_driver extends calendar_driver
    */
   private function update_event($event)
   {
-    if (!($storage = $this->calendars[$event['calendar']]))
+    if (!($storage = $this->get_calendar($event['calendar'])))
       return false;
 
     // move event to another folder/calendar
     if ($event['_fromcalendar'] && $event['_fromcalendar'] != $event['calendar']) {
-      if (!($fromcalendar = $this->calendars[$event['_fromcalendar']]))
+      if (!($fromcalendar = $this->get_calendar($event['_fromcalendar'])))
         return false;
 
       if ($event['_savemode'] != 'new') {
@@ -780,18 +854,19 @@ class kolab_driver extends calendar_driver
   {
     if ($calendars && is_string($calendars))
       $calendars = explode(',', $calendars);
+    else if (!$calendars)
+      $calendars = array_keys($this->calendars);
 
     $query = array();
     if ($modifiedsince)
       $query[] = array('changed', '>=', $modifiedsince);
 
     $events = $categories = array();
-    foreach (array_keys($this->calendars) as $cid) {
-      if ($calendars && !in_array($cid, $calendars))
-        continue;
-
-      $events = array_merge($events, $this->calendars[$cid]->list_events($start, $end, $search, $virtual, $query));
-      $categories += $this->calendars[$cid]->categories;
+    foreach ($calendars as $cid) {
+      if ($storage = $this->get_calendar($cid)) {
+        $events = array_merge($events, $storage->list_events($start, $end, $search, $virtual, $query));
+        $categories += $storage->categories;
+      }
     }
 
     // add events from the address books birthday calendar
@@ -928,7 +1003,7 @@ class kolab_driver extends calendar_driver
    */
   public function list_attachments($event)
   {
-    if (!($storage = $this->calendars[$event['calendar']]))
+    if (!($storage = $this->get_calendar($event['calendar'])))
       return false;
 
     $event = $storage->get_event($event['id']);
@@ -941,7 +1016,7 @@ class kolab_driver extends calendar_driver
    */
   public function get_attachment($id, $event)
   {
-    if (!($storage = $this->calendars[$event['calendar']]))
+    if (!($storage = $this->get_calendar($event['calendar'])))
       return false;
 
     $event = $storage->get_event($event['id']);
@@ -963,7 +1038,7 @@ class kolab_driver extends calendar_driver
    */
   public function get_attachment_body($id, $event)
   {
-    if (!($cal = $this->calendars[$event['calendar']]))
+    if (!($cal = $this->get_calendar($event['calendar'])))
       return false;
 
     return $cal->storage->get_attachment($event['id'], $id);
@@ -1080,7 +1155,7 @@ class kolab_driver extends calendar_driver
     ignore_user_abort(true);
 
     $cal = get_input_value('source', RCUBE_INPUT_GPC);
-    if (!($cal = $this->calendars[$cal]))
+    if (!($cal = $this->get_calendar($cal)))
       return false;
 
     // trigger updates on folder
@@ -1275,7 +1350,7 @@ class kolab_driver extends calendar_driver
   public function calendar_acl_form()
   {
     $calid = get_input_value('_id', RCUBE_INPUT_GPC);
-    if ($calid && ($cal = $this->calendars[$calid])) {
+    if ($calid && ($cal = $this->get_calendar($calid))) {
       $folder = $cal->get_realname(); // UTF7
       $color  = $cal->get_color();
     }

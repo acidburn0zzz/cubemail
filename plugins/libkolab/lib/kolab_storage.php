@@ -7,7 +7,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -37,6 +37,7 @@ class kolab_storage
 
     public static $version = '3.0';
     public static $last_error;
+    public static $encode_ids = false;
 
     private static $ready = false;
     private static $subscriptions;
@@ -226,13 +227,39 @@ class kolab_storage
     /**
      * Creates folder ID from folder name
      *
-     * @param string $folder Folder name (UTF7-IMAP)
-     *
+     * @param string  $folder Folder name (UTF7-IMAP)
+     * @param boolean $enc    Use lossless encoding
      * @return string Folder ID string
      */
-    public static function folder_id($folder)
+    public static function folder_id($folder, $enc = null)
     {
-        return asciiwords(strtr($folder, '/.-', '___'));
+        return $enc == true || ($enc === null && self::$encode_ids) ?
+            self::id_encode($folder) :
+            asciiwords(strtr($folder, '/.-', '___'));
+    }
+
+
+    /**
+     * Encode the given ID to a safe ascii representation
+     *
+     * @param string $id Arbitrary identifier string
+     *
+     * @return string Ascii representation
+     */
+    public static function id_encode($id)
+    {
+        return rtrim(strtr(base64_encode($id), '+/', '-_'), '=');
+    }
+
+    /**
+     * Convert the given identifier back to it's raw value
+     *
+     * @param string $id Ascii identifier
+     * @return string Raw identifier string
+     */
+    public static function id_decode($id)
+    {
+      return base64_decode(str_pad(strtr($id, '-_', '+/'), strlen($id) % 4, '=', STR_PAD_RIGHT));
     }
 
 
@@ -665,11 +692,16 @@ class kolab_storage
         if (!$filter) {
             // Get ALL folders list, standard way
             if ($subscribed) {
-                return self::$imap->list_folders_subscribed($root, $mbox);
+                $folders = self::$imap->list_folders_subscribed($root, $mbox);
+                // add temporarily subscribed folders
+                if (is_array($_SESSION['kolab_subscribed_folders']))
+                    $folders = array_unique(array_merge($folders, $_SESSION['kolab_subscribed_folders']));
             }
             else {
-                return self::$imap->list_folders($root, $mbox);
+                $folders = self::$imap->list_folders($root, $mbox);
             }
+
+            return $folders;
         }
 
         $prefix = $root . $mbox;
@@ -696,6 +728,10 @@ class kolab_storage
         // Get folders list
         if ($subscribed) {
             $folders = self::$imap->list_folders_subscribed($root, $mbox);
+
+            // add temporarily subscribed folders
+            if (is_array($_SESSION['kolab_subscribed_folders']))
+                $folders = array_unique(array_merge($folders, $_SESSION['kolab_subscribed_folders']));
         }
         else {
             $folders = self::$imap->list_folders($root, $mbox);
@@ -903,17 +939,19 @@ class kolab_storage
      * Check subscription status of this folder
      *
      * @param string $folder Folder name
+     * @param boolean $temp  Include temporary/session subscriptions
      *
      * @return boolean True if subscribed, false if not
      */
-    public static function folder_is_subscribed($folder)
+    public static function folder_is_subscribed($folder, $temp = false)
     {
         if (self::$subscriptions === null) {
             self::setup();
             self::$subscriptions = self::$imap->list_folders_subscribed();
         }
 
-        return in_array($folder, self::$subscriptions);
+        return in_array($folder, self::$subscriptions) ||
+            ($temp && in_array($folder, (array)$_SESSION['kolab_subscribed_folders']));
     }
 
 
@@ -921,14 +959,25 @@ class kolab_storage
      * Change subscription status of this folder
      *
      * @param string $folder Folder name
+     * @param boolean $temp  Only subscribe temporarily for the current session
      *
      * @return True on success, false on error
      */
-    public static function folder_subscribe($folder)
+    public static function folder_subscribe($folder, $temp = false)
     {
         self::setup();
 
-        if (self::$imap->subscribe($folder)) {
+        // temporary/session subscription
+        if ($temp) {
+            if (self::folder_is_subscribed($folder)) {
+                return true;
+            }
+            else if (!is_array($_SESSION['kolab_subscribed_folders']) || !in_array($folder, $_SESSION['kolab_subscribed_folders'])) {
+                $_SESSION['kolab_subscribed_folders'][] = $folder;
+                return true;
+            }
+        }
+        else if (self::$imap->subscribe($folder)) {
             self::$subscriptions === null;
             return true;
         }
@@ -981,6 +1030,8 @@ class kolab_storage
      */
     public static function folder_activate($folder)
     {
+        // activation implies temporary subscription
+        self::folder_subscribe($folder, true);
         return self::set_state($folder, true);
     }
 
@@ -994,6 +1045,11 @@ class kolab_storage
      */
     public static function folder_deactivate($folder)
     {
+        // remove from temp subscriptions
+        if (is_array($_SESSION['kolab_subscribed_folders']) && ($i = array_search($folder, $_SESSION['kolab_subscribed_folders'])) !== false) {
+            unset($_SESSION['kolab_subscribed_folders'][$i]);
+        }
+
         return self::set_state($folder, false);
     }
 

@@ -157,29 +157,39 @@ class calendar_ui
     foreach ((array)$calendars as $id => $prop) {
       if (!$prop['color'])
         continue;
-      $color = $prop['color'];
-      $class = 'cal-' . asciiwords($id, true);
-      $css .= "li.$class, #eventshow .$class { color: #$color }\n";
-      if ($mode != 1) {
-        if ($mode == 3) {
-          $css .= ".fc-event-$class .fc-event-bg {";
-          $css .= " opacity: 0.9;";
-          $css .= " filter: alpha(opacity=90);";
-        }
-        else {
-          $css .= ".fc-event-$class, ";
-          $css .= ".fc-event-$class .fc-event-inner {";
-        }
-        if (!$attrib['printmode'])
-          $css .= " background-color: #$color;";
-        if ($mode % 2 == 0)
-        $css .= " border-color: #$color;";
-        $css .= "}\n";
-      }
-      $css .= ".$class .handle { background-color: #$color; }";
+      $css .= $this->calendar_css_classes($id, $prop, $mode);
     }
     
     return html::tag('style', array('type' => 'text/css'), $css);
+  }
+
+  /**
+   *
+   */
+  public function calendar_css_classes($id, $prop, $mode)
+  {
+    $color = $prop['color'];
+    $class = 'cal-' . asciiwords($id, true);
+    $css .= "li.$class, #eventshow .$class { color: #$color }\n";
+
+    if ($mode != 1) {
+      if ($mode == 3) {
+        $css .= ".fc-event-$class .fc-event-bg {";
+        $css .= " opacity: 0.9;";
+        $css .= " filter: alpha(opacity=90);";
+      }
+      else {
+        $css .= ".fc-event-$class, ";
+        $css .= ".fc-event-$class .fc-event-inner {";
+      }
+      if (!$attrib['printmode'])
+        $css .= " background-color: #$color;";
+      if ($mode % 2 == 0)
+      $css .= " border-color: #$color;";
+      $css .= "}\n";
+    }
+
+    return $css . ".$class .handle { background-color: #$color; }\n";
   }
 
   /**
@@ -222,9 +232,9 @@ class calendar_ui
 
     return html::tag('ul', $attrib, $html, html::$common_attrib);
   }
-  
+
   /**
-   * Return html for a structured list &lt;ul&gt; for the mailbox tree
+   * Return html for a structured list <ul> for the folder tree
    */
   public function list_tree_html(&$node, &$data, &$jsenv, $attrib)
   {
@@ -255,7 +265,7 @@ class calendar_ui
   /**
    * Helper method to build a calendar list item (HTML content and js data)
    */
-  protected function calendar_list_item($id, $prop, &$jsenv)
+  public function calendar_list_item($id, $prop, &$jsenv)
   {
     unset($prop['user_id']);
     $prop['alarms']      = $this->cal->driver->alarms;
@@ -283,7 +293,7 @@ class calendar_ui
     if (!$attrib['activeonly'] || $prop['active']) {
       $content = html::div($class,
         ($prop['virtual'] ? '' : html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
-        html::span('handle', '&nbsp;')) .
+        html::span(array('class' => 'handle', 'style' => "background-color: #" . ($prop['color'] ?: 'f00')), '&nbsp;')) .
         html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname'])
       );
     }

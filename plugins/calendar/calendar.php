@@ -725,8 +725,28 @@ class calendar extends rcube_plugin
           $this->rc->output->command('plugin.destroy_source', array('id' => $cal['id']));
         break;
       case "subscribe":
-        if (!$this->driver->subscribe_calendar($cal))
+        if (!$this->driver->subscribe_calendar($cal, intval(get_input_value('perm', RCUBE_INPUT_GPC))))
           $this->rc->output->show_message($this->gettext('errorsaving'), 'error');
+        return;
+      case "search":
+        $results = array();
+        $color_mode = $this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring']);
+        foreach ((array)$this->driver->search_calendars(get_input_value('q', RCUBE_INPUT_GPC), get_input_value('source', RCUBE_INPUT_GPC)) as $id => $prop) {
+          $editname = $prop['editname'];
+          unset($prop['editname']);  // force full name to be displayed
+          $prop['active'] = false;
+
+          // let the UI generate HTML and CSS representation for this calendar
+          $html = $this->ui->calendar_list_item($id, $prop, $jsenv);
+          $cal = $jsenv[$id];
+          $cal['editname'] = $editname;
+          $cal['html'] = $html;
+          if (!empty($prop['color']))
+            $cal['css'] = $this->ui->calendar_css_classes($id, $prop, $color_mode);
+
+          $results[] = $cal;
+        }
+        $this->rc->output->command('multi_thread_http_response', $results, get_input_value('_reqid', RCUBE_INPUT_GPC));
         return;
     }
     

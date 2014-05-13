@@ -166,6 +166,15 @@ abstract class calendar_driver
   abstract function remove_calendar($prop);
 
   /**
+   * Search for shared or otherwise not listed calendars the user has access
+   *
+   * @param string Search string
+   * @param string Section/source to search
+   * @return array List of calendars
+   */
+  abstract function search_calendars($query, $source);
+
+  /**
    * Add a single event to the database
    *
    * @param array Hash array with event properties (see header of this file)
