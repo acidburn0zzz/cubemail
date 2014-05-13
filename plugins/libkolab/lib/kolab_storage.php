@@ -759,6 +759,39 @@ class kolab_storage
 
 
     /**
+     * Search for shared or otherwise not listed groupware folders the user has access
+     *
+     * @param string Folder type of folders to search for
+     * @param string Search string
+     * @param array  Namespace(s) to exclude results from
+     *
+     * @return array List of matching kolab_storage_folder objects
+     */
+    public static function search_folders($type, $query, $exclude_ns = array())
+    {
+        if (!self::setup()) {
+            return array();
+        }
+
+        $folders = array();
+
+        // find unsubscribed IMAP folders of the given type
+        foreach ((array)self::list_folders('', '*', $type, false, $folderdata) as $foldername) {
+            // FIXME: only consider the last part of the folder path for searching?
+            $realname = strtolower(rcube_charset::convert($foldername, 'UTF7-IMAP'));
+            if (strpos($realname, $query) !== false &&
+                !self::folder_is_subscribed($foldername, true) &&
+                !in_array(self::$imap->folder_namespace($foldername), (array)$exclude_ns)
+              ) {
+                $folders[] = new kolab_storage_folder($foldername, $folderdata[$foldername]);
+            }
+        }
+
+        return $folders;
+    }
+
+
+    /**
      * Sort the given list of kolab folders by namespace/name
      *
      * @param array List of kolab_storage_folder objects

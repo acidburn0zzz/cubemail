@@ -1548,7 +1548,8 @@ function rcube_calendar_ui(settings)
           id_prefix: 'rcres',
           id_encode: rcmail.html_identifier_encode,
           id_decode: rcmail.html_identifier_decode,
-          selectable: true
+          selectable: true,
+          save_state: true
         });
         resources_treelist.addEventListener('select', function(node) {
           if (resources_data[node.id]) {
@@ -2671,72 +2672,6 @@ function rcube_calendar_ui(settings)
       this.selected_calendar = id;
     };
 
-    // render the results for calendar list search
-    var calendar_search_results = function(results)
-    {
-      if (results.length) {
-        // create treelist widget to present the search results
-        if (!calenders_search_list) {
-          calenders_search_container = $('<div class="searchresults"></div>')
-            .html('<h2 class="boxtitle">' + rcmail.gettext('calsearchresults','calendar') + '</h2>')
-            .insertAfter(rcmail.gui_objects.calendarslist);
-
-          calenders_search_list = new rcube_treelist_widget('<ul class="treelist listing"></ul>', {
-            id_prefix: 'rcmlical',
-            selectable: false
-          });
-
-          // register click handler on search result's checkboxes to select the given calendar for listing
-          calenders_search_list.container
-            .appendTo(calenders_search_container)
-            .on('click', 'input[type=checkbox]', function(e){
-              var li = $(this).closest('li'),
-                id = li.attr('id').replace(/^rcmlical/, ''),
-                prop = search_calendars[id],
-                parent_id = prop.parent || null;
-
-              if (!this.checked)
-                return;
-
-              // find parent node and insert at the right place
-              if (parent_id && $('#rcmlical'+parent_id, rcmail.gui_objects.calendarslist).length) {
-                prop.listname = prop.editname;
-                li.children().first().find('.calname').html(Q(prop.listname));
-              }
-
-              // move this calendar to the calendars_list widget
-              calendars_list.insert({
-                id: id,
-                classes: [],
-                html: li.children().first()
-              }, parent_id, parent_id ? true : false);
-
-              search_calendars[id].active = true;
-              add_calendar_source(prop);
-              li.remove();
-
-              // add css classes related to this calendar to document
-              if (cal.css) {
-                $('<style type="text/css"></style>')
-                  .html(cal.css)
-                  .appendTo('head');
-              }
-            });
-        }
-
-        for (var cal, i=0; i < results.length; i++) {
-          cal = results[i];
-          search_calendars[cal.id] = cal;
-          $('<li>')
-            .attr('id', 'rcmlical' + cal.id)
-            .html(cal.html)
-            .appendTo(calenders_search_list.container);
-        }
-
-        calenders_search_container.show();
-      }
-    };
-
     // register the given calendar to the current view
     var add_calendar_source = function(cal)
     {
@@ -2798,37 +2733,31 @@ function rcube_calendar_ui(settings)
     }
 
     // initialize treelist widget that controls the calendars list
-    calendars_list = new rcube_treelist_widget(rcmail.gui_objects.calendarslist, {
+    var widget_class = window.kolab_folderlist || rcube_treelist_widget;
+    calendars_list = new widget_class(rcmail.gui_objects.calendarslist, {
       id_prefix: 'rcmlical',
       selectable: true,
-      searchbox: '#calendarlistsearch'
+      save_state: true,
+      searchbox: '#calendarlistsearch',
+      search_action: 'calendar/calendar'
     });
-    calendars_list.addEventListener('select', function(node){
+    calendars_list.addEventListener('select', function(node) {
       me.select_calendar(node.id);
       rcmail.enable_command('calendar-edit', 'calendar-showurl', true);
       rcmail.enable_command('calendar-remove', !me.calendars[node.id].readonly);
     });
-    calendars_list.addEventListener('search', function(search){
-      // hide search results
-      if (calenders_search_list) {
-        calenders_search_container.hide();
-        calenders_search_list.reset();
-      }
-      search_calendars = {};
+    calendars_list.addEventListener('insert-item', function(p) {
+      var cal = p.data;
+      if (cal && cal.id) {
+        cal.active = true;
+        add_calendar_source(cal);
 
-      // send search request(s) to server
-      if (search.query && search.execute) {
-        var sources = [ 'folders' /*, 'users'*/ ];
-        var reqid = rcmail.multi_thread_http_request({
-          items: sources,
-          threads: rcmail.env.autocomplete_threads || 1,
-          action:  'calendar/calendar',
-          postdata: { action:'search', q:search.query, source:'%s' },
-          lock: rcmail.display_message(rcmail.get_label('searching'), 'loading'),
-          onresponse: calendar_search_results
-        });
-
-        listsearch_data = { id:reqid, sources:sources.slice(), num:sources.length };
+        // add css classes related to this calendar to document
+        if (cal.css) {
+          $('<style type="text/css"></style>')
+            .html(cal.css)
+            .appendTo('head');
+        }
       }
     });
 

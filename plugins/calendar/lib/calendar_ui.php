@@ -117,6 +117,12 @@ class calendar_ui
     $this->cal->include_script('calendar_ui.js');
     $this->cal->include_script('lib/js/fullcalendar.js');
     $this->rc->output->include_script('treelist.js');
+
+    // include kolab folderlist widget if available
+    if (is_readable($this->cal->home . '/lib/js/folderlist.js')) {
+      $this->cal->include_script('lib/js/folderlist.js');
+    }
+
     jqueryui::miniColors();
   }
 
@@ -292,9 +298,9 @@ class calendar_ui
     $content = '';
     if (!$attrib['activeonly'] || $prop['active']) {
       $content = html::div($class,
+        html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' : html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
-        html::span(array('class' => 'handle', 'style' => "background-color: #" . ($prop['color'] ?: 'f00')), '&nbsp;')) .
-        html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname'])
+        html::span(array('class' => 'handle', 'style' => "background-color: #" . ($prop['color'] ?: 'f00')), '&nbsp;'))
       );
     }
 

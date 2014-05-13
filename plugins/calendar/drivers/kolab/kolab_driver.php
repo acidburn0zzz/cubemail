@@ -381,23 +381,10 @@ class kolab_driver extends calendar_driver
       return array();
 
     $this->calendars = array();
-    $imap = $this->rc->get_storage();
 
     // find unsubscribed IMAP folders that have "event" type
     if ($source == 'folders') {
-      $folders = array();
-      foreach ((array)kolab_storage::list_folders('', '*', 'event', false, $folderdata) as $foldername) {
-        // FIXME: only consider the last part of the folder path for searching?
-        $realname = strtolower(rcube_charset::convert($foldername, 'UTF7-IMAP'));
-        if (strpos($realname, $query) !== false &&
-            !kolab_storage::folder_is_subscribed($foldername, true) &&
-            $imap->folder_namespace($foldername) != 'other'
-          ) {
-          $folders[$foldername] = new kolab_storage_folder($foldername, $folderdata[$foldername]);
-        }
-      }
-
-      foreach ($folders as $folder) {
+      foreach ((array)kolab_storage::search_folders('event', $query, array('other')) as $folder) {
         $calendar = new kolab_calendar($folder->name, $this->cal);
         $this->calendars[$calendar->id] = $calendar;
       }
