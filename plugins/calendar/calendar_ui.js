@@ -2739,7 +2739,9 @@ function rcube_calendar_ui(settings)
       selectable: true,
       save_state: true,
       searchbox: '#calendarlistsearch',
-      search_action: 'calendar/calendar'
+      search_action: 'calendar/calendar',
+      search_sources: [ 'folders', 'users' ],
+      search_title: rcmail.gettext('calsearchresults','calendar')
     });
     calendars_list.addEventListener('select', function(node) {
       me.select_calendar(node.id);

@@ -205,6 +205,7 @@ class calendar_ui
   {
     $html = '';
     $jsenv = array();
+    $tree = true;
     $calendars = $this->cal->driver->list_calendars(false, false, $tree);
 
     // walk folder tree
@@ -273,19 +274,22 @@ class calendar_ui
    */
   public function calendar_list_item($id, $prop, &$jsenv)
   {
-    unset($prop['user_id']);
-    $prop['alarms']      = $this->cal->driver->alarms;
-    $prop['attendees']   = $this->cal->driver->attendees;
-    $prop['freebusy']    = $this->cal->driver->freebusy;
-    $prop['attachments'] = $this->cal->driver->attachments;
-    $prop['undelete']    = $this->cal->driver->undelete;
-    $prop['feedurl']     = $this->cal->get_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics', 'action' => 'feed'));
+    // enrich calendar properties with settings from the driver
+    if (!$prop['virtual']) {
+      unset($prop['user_id']);
+      $prop['alarms']      = $this->cal->driver->alarms;
+      $prop['attendees']   = $this->cal->driver->attendees;
+      $prop['freebusy']    = $this->cal->driver->freebusy;
+      $prop['attachments'] = $this->cal->driver->attachments;
+      $prop['undelete']    = $this->cal->driver->undelete;
+      $prop['feedurl']     = $this->cal->get_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics', 'action' => 'feed'));
 
-    if (!$prop['virtual'])
       $jsenv[$id] = $prop;
+    }
 
     $class = 'calendar cal-'  . asciiwords($id, true);
-    $title = $prop['name'] != $prop['listname'] ? html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
+    $title = $prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
+      html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
     $is_collapsed = false; // TODO: determine this somehow?
 
     if ($prop['virtual'])

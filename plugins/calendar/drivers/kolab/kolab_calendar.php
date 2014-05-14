@@ -7,7 +7,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -35,11 +35,30 @@ class kolab_calendar
   public $storage;
   public $name;
 
-  private $cal;
-  private $events = array();
-  private $imap_folder = 'INBOX/Calendar';
-  private $search_fields = array('title', 'description', 'location', 'attendees');
+  protected $cal;
+  protected $events = array();
+  protected $imap_folder = 'INBOX/Calendar';
+  protected $search_fields = array('title', 'description', 'location', 'attendees');
 
+  /**
+   * Factory method to instantiate a kolab_calendar object
+   *
+   * @param string  Calendar ID (encoded IMAP folder name)
+   * @param object  calendar plugin object
+   * @return object kolab_calendar instance
+   */
+  public static function factory($id, $calendar)
+  {
+    $imap = $calendar->rc->get_storage();
+    $imap_folder = kolab_storage::id_decode($id);
+    $info = $imap->folder_info($imap_folder, true);
+    if (empty($info) || $info['noselect'] || kolab_storage::folder_type($imap_folder) != 'event') {
+      return new kolab_user_calendar($imap_folder, $calendar);
+    }
+    else {
+      return new kolab_calendar($imap_folder, $calendar);
+    }
+  }
 
   /**
    * Default constructor
@@ -175,14 +194,6 @@ class kolab_calendar
     }
 
     return false;
-  }
-
-  /**
-   * Return the corresponding kolab_storage_folder instance
-   */
-  public function get_folder()
-  {
-    return $this->storage;
   }
 
 

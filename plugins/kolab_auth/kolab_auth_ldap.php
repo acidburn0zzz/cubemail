@@ -213,7 +213,6 @@ class kolab_auth_ldap extends rcube_ldap_generic
      *                          0 - partial (*abc*),
      *                          1 - strict (=),
      *                          2 - prefix (abc*)
-     * @param boolean $select   True if results are requested, False if count only
      * @param array   $required List of fields that cannot be empty
      * @param int     $limit    Number of records
      *

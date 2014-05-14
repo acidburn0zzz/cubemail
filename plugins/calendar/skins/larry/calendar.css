@@ -269,12 +269,12 @@ pre {
 #calendars .treelist div.readonly span.calname {
 	background-position: right -20px;
 }
-/*
-#calendars .treelist div.other span.calname {
+
+#calendars .treelist div.user span.calname {
 	background-position: right -38px;
 }
-
-#calendars .treelist div.other.readonly span.calname {
+/*
+#calendars .treelist div.user.readonly span.calname {
 	background-position: right -56px;
 }
 

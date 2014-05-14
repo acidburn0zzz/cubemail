@@ -46,7 +46,7 @@ function kolab_folderlist(node, p)
           // create treelist widget to present the search results
           if (!search_results_widget) {
               search_results_container = $('<div class="searchresults"></div>')
-                  .html('<h2 class="boxtitle">' + rcmail.gettext('calsearchresults','calendar') + '</h2>')
+                  .html(p.search_title ? '<h2 class="boxtitle">' + p.search_title + '</h2>' : '')
                   .insertAfter(me.container);
 
               search_results_widget = new rcube_treelist_widget('<ul class="treelist listing"></ul>', {
@@ -63,36 +63,64 @@ function kolab_folderlist(node, p)
 
                       var li = $(this).closest('li'),
                           id = li.attr('id').replace(new RegExp('^'+p.id_prefix), ''),
+                          node = search_results_widget.get_node(id),
                           prop = search_results[id],
-                          parent_id = prop.parent || null;
+                          parent_id = prop.parent || null,
+                          has_children = node.children && node.children.length,
+                          dom_node = has_children ? li.children().first().clone(true, true) : li.children().first();
 
                       // find parent node and insert at the right place
                       if (parent_id && $('#' + p.id_prefix + parent_id, me.container).length) {
                           prop.listname = prop.editname;
-                          li.children().first().children('span,a').first().html(Q(prop.listname));
+                          dom_node.children('span,a').first().html(Q(prop.listname));
                       }
 
-                      // move this result item to the main list widget
-                      me.insert({
-                          id: id,
-                          classes: [],
-                          html: li.children().first()
-                      }, parent_id, parent_id ? true : false);
+                      // TODO: copy parent tree too
+
+                      // replace virtual node with a real one
+                      if (me.get_node(id)) {
+                          $(me.get_item(id, true)).children().first()
+                              .replaceWith(dom_node)
+                              .removeClass('virtual');
+                      }
+                      else {
+                          // move this result item to the main list widget
+                          me.insert({
+                              id: id,
+                              classes: [],
+                              virtual: prop.virtual,
+                              html: dom_node,
+                          }, parent_id, parent_id ? true : false);
+                      }
 
                       delete prop.html;
                       me.triggerEvent('insert-item', { id: id, data: prop, item: li });
-                      li.remove();
+
+                      if (has_children) {
+                          li.find('input[type=checkbox]').first().prop('disabled', true).get(0).checked = true;
+                      }
+                      else {
+                          li.remove();
+                      }
                   });
           }
 
           // add results to list
-          for (var prop, i=0; i < results.length; i++) {
+          for (var prop, item, i=0; i < results.length; i++) {
               prop = results[i];
+              item = $(prop.html);
               search_results[prop.id] = prop;
-              $('<li>')
-                  .attr('id', p.id_prefix + prop.id)
-                  .html(prop.html)
-                  .appendTo(search_results_widget.container);
+              search_results_widget.insert({
+                  id: prop.id,
+                  classes: prop.class_name ? String(prop.class_name).split(' ') : [],
+                  html: item,
+                  collapsed: true
+              }, prop.parent);
+
+              // disable checkbox if item already exists in main list
+              if (me.get_node(prop.id) && !me.get_node(prop.id).virtual) {
+                  item.find('input[type=checkbox]').first().prop('disabled', true).get(0).checked = true;
+              }
           }
 
           search_results_container.show();
@@ -110,7 +138,7 @@ function kolab_folderlist(node, p)
 
         // send search request(s) to server
         if (search.query && search.execute) {
-            var sources = [ 'folders' /*, 'users'*/ ];
+            var sources = p.search_sources || [ 'folders' ];
             var reqid = rcmail.multi_thread_http_request({
                 items: sources,
                 threads: rcmail.env.autocomplete_threads || 1,

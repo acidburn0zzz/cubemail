@@ -24,6 +24,7 @@
  */
 
 require_once(dirname(__FILE__) . '/kolab_calendar.php');
+require_once(dirname(__FILE__) . '/kolab_user_calendar.php');
 
 class kolab_driver extends calendar_driver
 {
@@ -78,14 +79,20 @@ class kolab_driver extends calendar_driver
       return $this->calendars;
 
     // get all folders that have "event" type, sorted by namespace/name
-    $folders = kolab_storage::sort_folders(kolab_storage::get_folders('event'));
+    $folders = kolab_storage::sort_folders(kolab_storage::get_folders('event') + kolab_storage::get_user_folders(true));
     $this->calendars = array();
 
     foreach ($folders as $folder) {
-      $calendar = new kolab_calendar($folder->name, $this->cal);
-      $this->calendars[$calendar->id] = $calendar;
-      if (!$calendar->readonly)
-        $this->has_writeable = true;
+      if ($folder instanceof kolab_storage_user_folder)
+        $calendar = new kolab_user_calendar($folder->name, $this->cal);
+      else
+        $calendar = new kolab_calendar($folder->name, $this->cal);
+
+      if ($calendar->ready) {
+        $this->calendars[$calendar->id] = $calendar;
+        if (!$calendar->readonly)
+          $this->has_writeable = true;
+      }
     }
 
     return $this->calendars;
@@ -114,18 +121,32 @@ class kolab_driver extends calendar_driver
     $calendars = $names = array();
 
     // include virtual folders for a full folder tree
-    if (!$active && !$personal && !$this->rc->output->ajax_call && in_array($this->rc->action, array('index','')))
+    if (!is_null($tree))
       $folders = kolab_storage::folder_hierarchy($folders, $tree);
 
     foreach ($folders as $id => $cal) {
       $fullname = $cal->get_name();
-      $listname = kolab_storage::folder_displayname($fullname, $names);
+      $listname = $cal->get_foldername();
       $imap_path = explode('/', $cal->name);
       $topname = array_pop($imap_path);
       $parent_id = kolab_storage::folder_id(join('/', $imap_path), true);
 
-      // special handling for virtual folders
-      if ($cal->virtual) {
+      // special handling for user or virtual folders
+      if ($cal instanceof kolab_storage_user_folder) {
+        $calendars[$cal->id] = array(
+          'id' => $cal->id,
+          'name' => kolab_storage::object_name($fullname),
+          'listname' => $listname,
+          'editname' => $cal->get_foldername(),
+          'color'    => $cal->get_color(),
+          'active'   => $cal->is_active(),
+          'owner'    => $cal->get_owner(),
+          'virtual' => false,
+          'readonly' => true,
+          'class_name' => 'user',
+        );
+      }
+      else if ($cal->virtual) {
         $calendars[$cal->id] = array(
           'id' => $cal->id,
           'name' => $fullname,
@@ -230,8 +251,8 @@ class kolab_driver extends calendar_driver
   {
     // create calendar object if necesary
     if (!$this->calendars[$id] && $id !== self::BIRTHDAY_CALENDAR_ID) {
-      $foldername = kolab_storage::id_decode($id);
-      $calendar = new kolab_calendar($foldername, $this->cal);
+      $calendar = kolab_calendar::factory($id, $this->cal);
+      console($id, $calendar->id, $calendar->ready);
       if ($calendar->ready)
         $this->calendars[$calendar->id] = $calendar;
     }
@@ -389,8 +410,20 @@ class kolab_driver extends calendar_driver
         $this->calendars[$calendar->id] = $calendar;
       }
     }
+    // find other user's virtual calendars
     else if ($source == 'users') {
-      // TODO: implement this
+      foreach (kolab_storage::search_users($query, 0) as $user) {
+        $calendar = new kolab_user_calendar($user, $this->cal);
+        $this->calendars[$calendar->id] = $calendar;
+
+        // search for calendar folders shared by this user
+        foreach (kolab_storage::list_user_folders($user, 'event', false) as $foldername) {
+          if (1 || !kolab_storage::folder_is_subscribed($foldername, true)) {
+            $cal = new kolab_calendar($foldername, $this->cal);
+            $this->calendars[$cal->id] = $cal;
+          }
+        }
+      }
     }
 
     // don't list the birthday calendar
