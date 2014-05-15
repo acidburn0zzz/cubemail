@@ -43,8 +43,7 @@ class kolab_storage_folder_virtual extends kolab_storage_folder_api
      */
     public function get_name()
     {
-        // this is already kolab_storage::object_name() result
-        return $this->displayname;
+        return $this->displayname ?: parent::get_name();
     }
 
     /**

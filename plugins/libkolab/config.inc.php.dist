@@ -31,3 +31,20 @@ $rcmail_config['kolab_http_request'] = array();
 // 1 - bypass only messages, but use index cache
 $rcmail_config['kolab_messages_cache_bypass'] = 0;
 
+// LDAP directory to find avilable users for folder sharing.
+// Either contains an array with LDAP addressbook configuration or refers to entry in $config['ldap_public'].
+// If not specified, the configuraton from 'kolab_auth_addressbook' will be used.
+$rcmail_config['kolab_users_directory'] = null;
+
+// Filter to be used for resolving user folders in LDAP.
+// Defaults to the 'kolab_auth_filter' configuration option.
+$rcmail_config['kolab_users_filter'] = '(&(objectclass=kolabInetOrgPerson)(|(uid=%u)(mail=%fu)))';
+
+// Which property of the LDAP user record to use for user folder mapping in IMAP.
+// Defaults to the 'kolab_auth_login' configuration option.
+$rcmail_config['kolab_users_id_attrib'] = null;
+
+// Use these attributes when searching users in LDAP
+$rcmail_config['kolab_users_search_attrib'] = array('cn','mail','alias');
+
+

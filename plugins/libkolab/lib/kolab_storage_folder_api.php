@@ -134,7 +134,7 @@ abstract class kolab_storage_folder_api
      */
     public function get_name()
     {
-        return kolab_storage::object_name($this->name, $this->namespace);
+        return kolab_storage::object_name($this->name, $this->get_namespace());
     }
 
 

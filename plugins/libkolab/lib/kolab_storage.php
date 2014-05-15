@@ -111,11 +111,12 @@ class kolab_storage
             return self::$ldap;
         }
 
-        $rcmail = rcube::get_instance();
-        $config = $rcmail->config->get('kolab_users_directory', $rcmail->config->get('kolab_auth_addressbook'));
+        self::setup();
+
+        $config = self::$config->get('kolab_users_directory', self::$config->get('kolab_auth_addressbook'));
 
         if (!is_array($config)) {
-            $ldap_config = (array)$rcmail->config->get('ldap_public');
+            $ldap_config = (array)self::$config->get('ldap_public');
             $config = $ldap_config[$config];
         }
 
@@ -124,8 +125,8 @@ class kolab_storage
         }
 
         // overwrite filter option
-        if ($filter = $rcmail->config->get('kolab_users_filter')) {
-            $rcmail->config->set('kolab_auth_filter', $filter);
+        if ($filter = self::$config->get('kolab_users_filter')) {
+            self::$config->set('kolab_auth_filter', $filter);
         }
 
         // re-use the LDAP wrapper class from kolab_auth plugin
@@ -1328,12 +1329,12 @@ class kolab_storage
             return array();
         }
 
-        // FIXME: make search attributes configurable
-        $results = self::$ldap->search(array('cn','mail','alias'), $query, $mode, $required, $limit);
+        // search users using the configured attributes
+        $results = self::$ldap->search(self::$config->get('kolab_users_search_attrib', array('cn','mail','alias')), $query, $mode, $required, $limit);
 
         // resolve to IMAP folder name
         $root = self::namespace_root('other');
-        $user_attrib = rcube::get_instance()->config->get('kolab_auth_login', 'mail');
+        $user_attrib = self::$config->get('kolab_auth_login', 'mail');
 
         array_walk($results, function(&$user, $dn) use ($root, $user_attrib) {
             list($localpart, $domain) = explode('@', $user[$user_attrib]);
@@ -1356,10 +1357,12 @@ class kolab_storage
      */
     public static function list_user_folders($user, $type, $subscribed = null, &$folderdata = array())
     {
+        self::setup();
+
         $folders = array();
 
         // use localpart of user attribute as root for folder listing
-        $user_attrib = rcube::get_instance()->config->get('kolab_auth_login', 'mail');
+        $user_attrib = self::$config->get('kolab_auth_login', 'mail');
         if (!empty($user[$user_attrib])) {
             list($mbox) = explode('@', $user[$user_attrib]);
 
