@@ -83,7 +83,7 @@ class kolab_driver extends calendar_driver
     $this->calendars = array();
 
     foreach ($folders as $folder) {
-      if ($folder instanceof kolab_storage_user_folder)
+      if ($folder instanceof kolab_storage_folder_user)
         $calendar = new kolab_user_calendar($folder->name, $this->cal);
       else
         $calendar = new kolab_calendar($folder->name, $this->cal);
@@ -138,7 +138,7 @@ class kolab_driver extends calendar_driver
       }
 
       // special handling for user or virtual folders
-      if ($cal instanceof kolab_storage_user_folder) {
+      if ($cal instanceof kolab_storage_folder_user) {
         $calendars[$cal->id] = array(
           'id' => $cal->id,
           'name' => kolab_storage::object_name($fullname),
@@ -172,8 +172,8 @@ class kolab_driver extends calendar_driver
           'readonly' => $cal->readonly,
           'showalarms' => $cal->alarms,
           'class_name' => $cal->get_namespace(),
-          'default'  => $cal->storage->default,
-          'active'   => $cal->storage->is_active(),
+          'default'  => $cal->default,
+          'active'   => $cal->is_active(),
           'owner'    => $cal->get_owner(),
           'children' => true,  // TODO: determine if that folder indeed has child folders
           'parent'   => $parent_id,
@@ -234,7 +234,7 @@ class kolab_driver extends calendar_driver
       if ($writeable && $cal->readonly) {
         continue;
       }
-      if ($active && !$cal->storage->is_active()) {
+      if ($active && !$cal->is_active()) {
         continue;
       }
       if ($personal && $cal->get_namespace() != 'personal') {

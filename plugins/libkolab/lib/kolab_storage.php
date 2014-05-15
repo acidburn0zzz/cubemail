@@ -887,7 +887,7 @@ class kolab_storage
         $_folders = array();
         $delim    = self::$imap->get_hierarchy_delimiter();
         $other_ns = rtrim(self::namespace_root('other'), $delim);
-        $tree     = new kolab_storage_virtual_folder('', '<root>', '');  // create tree root
+        $tree     = new kolab_storage_folder_virtual('', '<root>', '');  // create tree root
         $refs     = array('' => $tree);
 
         foreach ($folders as $idx => $folder) {
@@ -913,11 +913,11 @@ class kolab_storage
                             $refs[$parent]->parent = $parent_parent;
                         }
                         else if ($parent_parent == $other_ns) {
-                            $refs[$parent] = new kolab_storage_user_folder($parent, $parent_parent);
+                            $refs[$parent] = new kolab_storage_folder_user($parent, $parent_parent);
                         }
                         else {
                             $name = kolab_storage::object_name($parent, $folder->get_namespace());
-                            $refs[$parent] = new kolab_storage_virtual_folder($parent, $name, $folder->get_namespace(), $parent_parent);
+                            $refs[$parent] = new kolab_storage_folder_virtual($parent, $name, $folder->get_namespace(), $parent_parent);
                         }
                         $parents[] = $refs[$parent];
                     }
@@ -1376,7 +1376,7 @@ class kolab_storage
      *
      * @param boolean Enable to return subscribed folders only (null to use configured subscription mode)
      *
-     * @return array List of kolab_storage_user_folder objects
+     * @return array List of kolab_storage_folder_user objects
      */
     public static function get_user_folders($subscribed)
     {
@@ -1393,7 +1393,7 @@ class kolab_storage
                 $foldername = join($delimiter, array_slice($path, 0, $path_len + 1));
 
                 if (!$folders[$foldername]) {
-                    $folders[$foldername] = new kolab_storage_user_folder($foldername, $other_ns);
+                    $folders[$foldername] = new kolab_storage_folder_user($foldername, $other_ns);
                 }
             }
         }

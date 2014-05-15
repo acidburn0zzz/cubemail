@@ -27,7 +27,6 @@ class kolab_user_calendar extends kolab_calendar
   public $ready = false;
   public $readonly = true;
   public $attachments = false;
-  public $name;
 
   protected $userdata = array();
 
@@ -42,10 +41,10 @@ class kolab_user_calendar extends kolab_calendar
     // full user record is provided
     if (is_array($user_or_folder)) {
       $this->userdata = $user_or_folder;
-      $this->storage = new kolab_storage_user_folder($this->userdata['kolabtargetfolder'], '', $this->userdata);
+      $this->storage = new kolab_storage_folder_user($this->userdata['kolabtargetfolder'], '', $this->userdata);
     }
     else {  // get user record from LDAP
-      $this->storage = new kolab_storage_user_folder($user_or_folder);
+      $this->storage = new kolab_storage_folder_user($user_or_folder);
       $this->userdata = $this->storage->ldaprec;
     }
 

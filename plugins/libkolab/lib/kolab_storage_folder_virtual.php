@@ -21,34 +21,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-class kolab_storage_virtual_folder
+class kolab_storage_folder_virtual extends kolab_storage_folder_api
 {
-    public $id;
-    public $name;
-    public $namespace;
-    public $parent = '';
-    public $children = array();
     public $virtual = true;
 
     protected $displayname;
 
     public function __construct($name, $dispname, $ns, $parent = '')
     {
-        $this->id        = kolab_storage::folder_id($name);
-        $this->name      = $name;
+        parent::__construct($name);
+
         $this->namespace = $ns;
         $this->parent    = $parent;
         $this->displayname = $dispname;
-    }
-
-    /**
-     * Getter for the name of the namespace to which the IMAP folder belongs
-     *
-     * @return string Name of the namespace (personal, other, shared)
-     */
-    public function get_namespace()
-    {
-        return $this->namespace;
     }
 
     /**
@@ -60,17 +45,6 @@ class kolab_storage_virtual_folder
     {
         // this is already kolab_storage::object_name() result
         return $this->displayname;
-    }
-
-    /**
-     * Getter for the top-end folder name (not the entire path)
-     *
-     * @return string Name of this folder
-     */
-    public function get_foldername()
-    {
-        $parts = explode('/', $this->name);
-        return rcube_charset::convert(end($parts), 'UTF7-IMAP');
     }
 
     /**

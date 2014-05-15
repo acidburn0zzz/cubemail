@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-class kolab_storage_user_folder extends kolab_storage_virtual_folder
+class kolab_storage_folder_user extends kolab_storage_folder_virtual
 {
     protected static $ldapcache = array();
 
@@ -72,28 +72,6 @@ class kolab_storage_user_folder extends kolab_storage_virtual_folder
     public function get_owner()
     {
         return $this->ldaprec['mail'];
-    }
-
-    /**
-     * Check activation status of this folder
-     *
-     * @return boolean True if enabled, false if not
-     */
-    public function is_active()
-    {
-        return kolab_storage::folder_is_active($this->name);
-    }
-
-    /**
-     * Change activation status of this folder
-     *
-     * @param boolean The desired subscription status: true = active, false = not active
-     *
-     * @return True on success, false on error
-     */
-    public function activate($active)
-    {
-        return $active ? kolab_storage::folder_activate($this->name) : kolab_storage::folder_deactivate($this->name);
     }
 
     /**
