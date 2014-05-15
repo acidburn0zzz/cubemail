@@ -25,6 +25,12 @@
 class kolab_storage_folder
 {
     /**
+     * Folder identifier
+     * @var string
+     */
+    public $id;
+
+    /**
      * The folder name.
      * @var string
      */
@@ -89,6 +95,7 @@ class kolab_storage_folder
         $this->default      = $suffix == 'default';
         $this->name         = $name;
         $this->resource_uri = null;
+        $this->id           = kolab_storage::folder_id($name);
 
         // get a new cache instance of folder type changed
         if (!$this->cache || $type != $oldtype)

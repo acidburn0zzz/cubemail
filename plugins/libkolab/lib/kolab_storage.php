@@ -299,6 +299,24 @@ class kolab_storage
 
 
     /**
+     * Return the (first) path of the requested IMAP namespace
+     *
+     * @param string  Namespace name (personal, shared, other)
+     * @return string IMAP root path for that namespace
+     */
+    public static function namespace_root($name)
+    {
+        foreach ((array)self::$imap->get_namespace($name) as $paths) {
+            if (strlen($paths[0]) > 1) {
+                return $paths[0];
+            }
+        }
+
+        return '/';
+    }
+
+
+    /**
      * Deletes IMAP folder
      *
      * @param string $name Folder name (UTF7-IMAP)
@@ -868,13 +886,9 @@ class kolab_storage
     {
         $_folders = array();
         $delim    = self::$imap->get_hierarchy_delimiter();
-        $other_ns = self::$imap->get_namespace('other');
+        $other_ns = rtrim(self::namespace_root('other'), $delim);
         $tree     = new kolab_storage_virtual_folder('', '<root>', '');  // create tree root
         $refs     = array('' => $tree);
-
-        if (is_array($other_ns)) {
-            $other_ns = rtrim($other_ns[0][0], '/');
-        }
 
         foreach ($folders as $idx => $folder) {
             $path = explode($delim, $folder->name);
@@ -894,7 +908,11 @@ class kolab_storage
                     array_pop($path);
                     $parent_parent = join($delim, $path);
                     if (!$refs[$parent]) {
-                        if ($parent_parent == $other_ns) {
+                        if ($folder->type && self::folder_type($parent) == $folder->type) {
+                            $refs[$parent] = new kolab_storage_folder($parent, $folder->type);
+                            $refs[$parent]->parent = $parent_parent;
+                        }
+                        else if ($parent_parent == $other_ns) {
                             $refs[$parent] = new kolab_storage_user_folder($parent, $parent_parent);
                         }
                         else {
@@ -1314,12 +1332,11 @@ class kolab_storage
         $results = self::$ldap->search(array('cn','mail','alias'), $query, $mode, $required, $limit);
 
         // resolve to IMAP folder name
-        $other_ns = self::$imap->get_namespace('other');
+        $root = self::namespace_root('other');
         $user_attrib = rcube::get_instance()->config->get('kolab_auth_login', 'mail');
 
-        array_walk($results, function(&$user, $dn) use ($other_ns, $user_attrib) {
+        array_walk($results, function(&$user, $dn) use ($root, $user_attrib) {
             list($localpart, $domain) = explode('@', $user[$user_attrib]);
-            $root = $other_ns[0][0];
             $user['kolabtargetfolder'] = $root . $localpart;
         });
 
@@ -1346,11 +1363,7 @@ class kolab_storage
         if (!empty($user[$user_attrib])) {
             list($mbox) = explode('@', $user[$user_attrib]);
 
-            $other_ns = self::$imap->get_namespace('other');
-            if (is_array($other_ns)) {
-                $other_ns = $other_ns[0][0];
-            }
-
+            $other_ns = self::namespace_root('other');
             $folders = self::list_folders($other_ns . $mbox, '*', $type, $subscribed, $folderdata);
         }
 
@@ -1363,7 +1376,7 @@ class kolab_storage
      *
      * @param boolean Enable to return subscribed folders only (null to use configured subscription mode)
      *
-     * @return array List of Kolab_Folder objects (folder names in UTF7-IMAP)
+     * @return array List of kolab_storage_user_folder objects
      */
     public static function get_user_folders($subscribed)
     {
@@ -1371,19 +1384,15 @@ class kolab_storage
 
         if (self::setup()) {
             $delimiter = self::$imap->get_hierarchy_delimiter();
-            $other_ns = self::$imap->get_namespace('other');
-            if (is_array($other_ns)) {
-                $other_ns = rtrim($other_ns[0][0], $delimiter);
-                $other_depth = count(explode($delimiter, $other_ns));
-            }
+            $other_ns = rtrim(self::namespace_root('other'), $delimiter);
+            $path_len = count(explode($delimiter, $other_ns));
 
             foreach ((array)self::list_folders($other_ns, '*', '', $subscribed) as $foldername) {
+                // truncate folder path to top-level folders of the 'other' namespace
                 $path = explode($delimiter, $foldername);
-                $depth = count($path) - $other_depth;
-                array_pop($path);
+                $foldername = join($delimiter, array_slice($path, 0, $path_len + 1));
 
-                // only list top-level folders of the 'other' namespace
-                if ($depth == 1) {
+                if (!$folders[$foldername]) {
                     $folders[$foldername] = new kolab_storage_user_folder($foldername, $other_ns);
                 }
             }
