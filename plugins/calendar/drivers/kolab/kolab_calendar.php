@@ -33,6 +33,8 @@ class kolab_calendar
   public $alarms = false;
   public $categories = array();
   public $storage;
+
+  public $type = 'event';
   public $name;
 
   protected $cal;
@@ -196,6 +198,25 @@ class kolab_calendar
     return false;
   }
 
+
+  /**
+   * Update properties of this calendar folder
+   *
+   * @see calendar_driver::edit_calendar()
+   */
+  public function update(&$prop)
+  {
+    $prop['oldname'] = $this->get_realname();
+    $newfolder = kolab_storage::folder_update($prop);
+
+    if ($newfolder === false) {
+      $this->cal->last_error = $this->cal->gettext(kolab_storage::$last_error);
+      return false;
+    }
+
+    // create ID
+    return kolab_storage::folder_id($newfolder);
+  }
 
   /**
    * Getter for a single event object

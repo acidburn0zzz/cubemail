@@ -229,7 +229,7 @@ class calendar_ui
       if ($attrib['activeonly'] && !$prop['active'])
         continue;
 
-      $html .= html::tag('li', array('id' => 'rcmlical' . rcube_utils::html_identifier($id)),
+      $html .= html::tag('li', array('id' => 'rcmlical' . $id),
         $content = $this->calendar_list_item($id, $prop, $jsenv)
       );
     }
@@ -243,7 +243,7 @@ class calendar_ui
   /**
    * Return html for a structured list <ul> for the folder tree
    */
-  public function list_tree_html(&$node, &$data, &$jsenv, $attrib)
+  public function list_tree_html($node, $data, &$jsenv, $attrib)
   {
     $out = '';
     foreach ($node->children as $folder) {

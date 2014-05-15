@@ -297,6 +297,10 @@ pre {
 	padding: 2px 8px 2px 8px;
 }
 
+#calendars .searchresults .listing li {
+	background-color: #c7e3ef;
+}
+
 #calfeedurl,
 #caldavurl {
 	width: 98%;

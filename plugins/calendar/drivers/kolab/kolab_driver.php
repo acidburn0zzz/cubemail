@@ -129,7 +129,13 @@ class kolab_driver extends calendar_driver
       $listname = $cal->get_foldername();
       $imap_path = explode('/', $cal->name);
       $topname = array_pop($imap_path);
-      $parent_id = kolab_storage::folder_id(join('/', $imap_path), true);
+      $parent_id = kolab_storage::folder_id(join('/', $imap_path));
+
+      // turn a kolab_storage_folder object into a kolab_calendar
+      if ($cal instanceof kolab_storage_folder) {
+          $cal = new kolab_calendar($cal->name, $this->cal);
+          $this->calendars[$cal->id] = $cal;
+      }
 
       // special handling for user or virtual folders
       if ($cal instanceof kolab_storage_user_folder) {
@@ -141,7 +147,7 @@ class kolab_driver extends calendar_driver
           'color'    => $cal->get_color(),
           'active'   => $cal->is_active(),
           'owner'    => $cal->get_owner(),
-          'virtual' => false,
+          'virtual'  => false,
           'readonly' => true,
           'class_name' => 'user',
         );
@@ -306,16 +312,7 @@ class kolab_driver extends calendar_driver
   public function edit_calendar($prop)
   {
     if ($prop['id'] && ($cal = $this->get_calendar($prop['id']))) {
-      $prop['oldname'] = $cal->get_realname();
-      $newfolder = kolab_storage::folder_update($prop);
-
-      if ($newfolder === false) {
-        $this->last_error = $this->cal->gettext(kolab_storage::$last_error);
-        return false;
-      }
-
-      // create ID
-      $id = kolab_storage::folder_id($newfolder);
+      $id = $cal->update($prop);
     }
     else {
       $id = $prop['id'];

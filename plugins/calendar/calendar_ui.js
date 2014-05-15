@@ -2705,7 +2705,7 @@ function rcube_calendar_ui(settings)
       // insert to #calendar-select options if writeable
       select = $('#edit-calendar');
       if (fc && !cal.readonly && select.length && !select.find('option[value="'+id+'"]').length) {
-        $('<option>').attr('value', id).text(Q(cal.name)).appendTo(select);
+        $('<option>').attr('value', id).html(cal.name).appendTo(select);
       }
     }
 
@@ -2751,7 +2751,6 @@ function rcube_calendar_ui(settings)
     calendars_list.addEventListener('insert-item', function(p) {
       var cal = p.data;
       if (cal && cal.id) {
-        cal.active = true;
         add_calendar_source(cal);
 
         // add css classes related to this calendar to document

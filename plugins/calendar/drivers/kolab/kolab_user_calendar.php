@@ -130,6 +130,20 @@ class kolab_user_calendar extends kolab_calendar
     return false;
   }
 
+
+  /**
+   * Update properties of this calendar folder
+   *
+   * @see calendar_driver::edit_calendar()
+   */
+  public function update(&$prop)
+  {
+    // don't change anything.
+    // let kolab_driver save props in local prefs
+    return $prop['id'];
+  }
+
+
   /**
    * Getter for a single event object
    */

@@ -62,39 +62,12 @@ function kolab_folderlist(node, p)
                           return;
 
                       var li = $(this).closest('li'),
-                          id = li.attr('id').replace(new RegExp('^'+p.id_prefix), ''),
+                          id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '')
                           node = search_results_widget.get_node(id),
-                          prop = search_results[id],
-                          parent_id = prop.parent || null,
-                          has_children = node.children && node.children.length,
-                          dom_node = has_children ? li.children().first().clone(true, true) : li.children().first();
+                          has_children = node.children && node.children.length;
 
-                      // find parent node and insert at the right place
-                      if (parent_id && $('#' + p.id_prefix + parent_id, me.container).length) {
-                          prop.listname = prop.editname;
-                          dom_node.children('span,a').first().html(Q(prop.listname));
-                      }
-
-                      // TODO: copy parent tree too
-
-                      // replace virtual node with a real one
-                      if (me.get_node(id)) {
-                          $(me.get_item(id, true)).children().first()
-                              .replaceWith(dom_node)
-                              .removeClass('virtual');
-                      }
-                      else {
-                          // move this result item to the main list widget
-                          me.insert({
-                              id: id,
-                              classes: [],
-                              virtual: prop.virtual,
-                              html: dom_node,
-                          }, parent_id, parent_id ? true : false);
-                      }
-
-                      delete prop.html;
-                      me.triggerEvent('insert-item', { id: id, data: prop, item: li });
+                      // copy item to the main list
+                      add_result2list(id, li, true);
 
                       if (has_children) {
                           li.find('input[type=checkbox]').first().prop('disabled', true).get(0).checked = true;
@@ -125,6 +98,49 @@ function kolab_folderlist(node, p)
 
           search_results_container.show();
         }
+    }
+
+    // helper method to (recursively) add a search result item to the main list widget
+    function add_result2list(id, li, active)
+    {
+        var node = search_results_widget.get_node(id),
+            prop = search_results[id],
+            parent_id = prop.parent || null,
+            has_children = node.children && node.children.length,
+            dom_node = has_children ? li.children().first().clone(true, true) : li.children().first();
+
+        // find parent node and insert at the right place
+        if (parent_id && me.get_node(parent_id)) {
+            dom_node.children('span,a').first().html(Q(prop.editname));
+        }
+        else if (parent_id && search_results[parent_id]) {
+            // copy parent tree from search results
+            add_result2list(parent_id, $(search_results_widget.get_item(parent_id)), false);
+        }
+        else if (parent_id) {
+            // use full name for list display
+            dom_node.children('span,a').first().html(Q(prop.name));
+        }
+
+        // replace virtual node with a real one
+        if (me.get_node(id)) {
+            $(me.get_item(id, true)).children().first()
+                .replaceWith(dom_node)
+                .removeClass('virtual');
+        }
+        else {
+            // move this result item to the main list widget
+            me.insert({
+                id: id,
+                classes: [],
+                virtual: prop.virtual,
+                html: dom_node,
+            }, parent_id, parent_id ? true : false);
+        }
+
+        delete prop.html;
+        prop.active = active;
+        me.triggerEvent('insert-item', { id: id, data: prop, item: li });
     }
 
     // do some magic when search is performed on the widget
