@@ -49,10 +49,12 @@ function kolab_folderlist(node, p)
                   .html(p.search_title ? '<h2 class="boxtitle">' + p.search_title + '</h2>' : '')
                   .insertAfter(me.container);
 
-              search_results_widget = new rcube_treelist_widget('<ul class="treelist listing"></ul>', {
+              search_results_widget = new rcube_treelist_widget('<ul>', {
                   id_prefix: p.id_prefix,
                   selectable: false
               });
+              // copy classes from main list
+              search_results_widget.container.addClass(me.container.attr('class'));
 
               // register click handler on search result's checkboxes to select the given item for listing
               search_results_widget.container
@@ -94,7 +96,7 @@ function kolab_folderlist(node, p)
               search_results[prop.id] = prop;
               search_results_widget.insert({
                   id: prop.id,
-                  classes: prop.class_name ? String(prop.class_name).split(' ') : [],
+                  classes: [ prop.group || '' ],
                   html: item,
                   collapsed: true
               }, prop.parent);
@@ -142,10 +144,10 @@ function kolab_folderlist(node, p)
             // move this result item to the main list widget
             me.insert({
                 id: id,
-                classes: [],
+                classes: [ prop.group || '' ],
                 virtual: prop.virtual,
                 html: dom_node,
-            }, parent_id, parent_id ? true : false);
+            }, parent_id, prop.group);
         }
 
         delete prop.html;

@@ -138,7 +138,7 @@ class database_driver extends calendar_driver
           'color'      => $prefs['color'],
           'showalarms' => (bool)$this->rc->config->get('calendar_birthdays_alarm_type'),
           'active'     => !in_array($id, $hidden),
-          'class_name' => 'birthdays',
+          'group'      => 'birthdays',
           'readonly'   => true,
           'default'    => false,
           'children'   => false,

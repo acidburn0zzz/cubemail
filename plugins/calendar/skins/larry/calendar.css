@@ -293,7 +293,7 @@ pre {
 	background-position: right -20px;
 }
 
-#calendars .treelist div.user span.calname {
+#calendars .treelist li.user > div > span.calname {
 	background-position: right -38px;
 }
 /*

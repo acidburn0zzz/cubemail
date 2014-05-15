@@ -149,7 +149,8 @@ class kolab_driver extends calendar_driver
           'owner'    => $cal->get_owner(),
           'virtual'  => false,
           'readonly' => true,
-          'class_name' => 'user',
+          'group'    => 'other',
+          'class'    => 'user',
         );
       }
       else if ($cal->virtual) {
@@ -160,6 +161,8 @@ class kolab_driver extends calendar_driver
           'editname' => $cal->get_foldername(),
           'virtual' => true,
           'readonly' => true,
+          'group'    => $cal->get_namespace(),
+          'class'    => 'folder',
         );
       }
       else {
@@ -171,7 +174,7 @@ class kolab_driver extends calendar_driver
           'color'    => $cal->get_color(),
           'readonly' => $cal->readonly,
           'showalarms' => $cal->alarms,
-          'class_name' => $cal->get_namespace(),
+          'group'    => $cal->get_namespace(),
           'default'  => $cal->default,
           'active'   => $cal->is_active(),
           'owner'    => $cal->get_owner(),
@@ -198,7 +201,7 @@ class kolab_driver extends calendar_driver
           'color'      => $prefs[$id]['color'],
           'active'     => $prefs[$id]['active'],
           'showalarms' => (bool)$this->rc->config->get('calendar_birthdays_alarm_type'),
-          'class_name' => 'birthdays',
+          'group'      => 'birthdays',
           'readonly'   => true,
           'default'    => false,
           'children'   => false,

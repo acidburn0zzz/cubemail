@@ -229,7 +229,7 @@ class calendar_ui
       if ($attrib['activeonly'] && !$prop['active'])
         continue;
 
-      $html .= html::tag('li', array('id' => 'rcmlical' . $id),
+      $html .= html::tag('li', array('id' => 'rcmlical' . $id, 'class' => $prop['group']),
         $content = $this->calendar_list_item($id, $prop, $jsenv)
       );
     }
@@ -260,7 +260,7 @@ class calendar_ui
       if (strlen($content)) {
         $out .= html::tag('li', array(
             'id' => 'rcmlical' . rcube_utils::html_identifier($id),
-            'class' => $prop['virtual'] ? 'virtual' : '',
+            'class' => $prop['group'] . ($prop['virtual'] ? ' virtual' : ''),
           ),
           $content);
       }
@@ -287,23 +287,23 @@ class calendar_ui
       $jsenv[$id] = $prop;
     }
 
-    $class = 'calendar cal-'  . asciiwords($id, true);
+    $classes = array('calendar', 'cal-'  . asciiwords($id, true));
     $title = $prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
       html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
     $is_collapsed = false; // TODO: determine this somehow?
 
     if ($prop['virtual'])
-      $class = 'folder virtual';
+      $classes[] = 'virtual';
     else if ($prop['readonly'])
-      $class .= ' readonly';
+      $classes[] = 'readonly';
     if ($prop['subscribed'])
-      $class .= ' subscribed';
-    if ($prop['class_name'])
-      $class .= ' '.$prop['class_name'];
+      $classes[] = ' subscribed';
+    if ($prop['class'])
+      $classes[] = $prop['class'];
 
     $content = '';
     if (!$attrib['activeonly'] || $prop['active']) {
-      $content = html::div($class,
+      $content = html::div(join(' ', $classes),
         html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' :
           html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
