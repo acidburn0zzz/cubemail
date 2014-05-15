@@ -422,7 +422,7 @@ class libvcalendar implements Iterator
                 break;
 
             case 'RRULE':
-                $params = array();
+                $params = is_array($event['recurrence']) ? $event['recurrence'] : array();
                 // parse recurrence rule attributes
                 foreach (explode(';', $prop->value) as $par) {
                     list($k, $v) = explode('=', $par);
