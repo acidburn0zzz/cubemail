@@ -30,6 +30,7 @@ class kolab_calendar extends kolab_storage_folder_api
   public $readonly = true;
   public $attachments = true;
   public $alarms = false;
+  public $subscriptions = true;
   public $categories = array();
   public $storage;
 
@@ -99,19 +100,6 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     $this->default = $this->storage->default;
-  }
-
-
-  /**
-   * Getter for a nice and human readable name for this calendar
-   * See http://wiki.kolab.org/UI-Concepts/Folder-Listing for reference
-   *
-   * @return string Name of this calendar
-   */
-  public function get_name()
-  {
-    $folder = kolab_storage::object_name($this->name, $this->namespace);
-    return $folder;
   }
 
 

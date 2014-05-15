@@ -190,7 +190,7 @@ pre {
 	position: absolute;
 	top: 7px;
 	left: 38px;
-	right: 22px;
+	right: 40px;
 	cursor: default;
 	background: url(images/calendars.png) right 20px no-repeat;
 	overflow: hidden;
@@ -207,6 +207,7 @@ pre {
 
 #calendars .treelist.flat li span.calname {
 	left: 24px;
+	right: 22px;
 }
 
 #calendars .treelist li span.handle {
@@ -223,6 +224,28 @@ pre {
 	-webkit-box-shadow: inset 0px 0 1px 1px rgba(0, 0, 0, 0.3);
 	-moz-box-shadow: inset 0px 0 1px 1px rgba(0, 0, 0, 0.3);
 	box-shadow: inset 0px 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+#calendars .treelist li a.subscribed {
+	display: inline-block;
+	position: absolute;
+	top: 7px;
+	right: 24px;
+	height: 16px;
+	width: 16px;
+	padding: 0;
+	background: url(images/calendars.png) -100px 0 no-repeat;
+	overflow: hidden;
+	text-indent: -5000px;
+	cursor: pointer;
+}
+
+#calendars .treelist div:hover > a.subscribed {
+	background-position: 1px -110px;
+}
+
+#calendars .treelist div.subscribed a.subscribed {
+	background-position: -15px -110px;
 }
 
 #calendars .treelist li input {

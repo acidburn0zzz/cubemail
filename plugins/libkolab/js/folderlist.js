@@ -57,20 +57,29 @@ function kolab_folderlist(node, p)
               // register click handler on search result's checkboxes to select the given item for listing
               search_results_widget.container
                   .appendTo(search_results_container)
-                  .on('click', 'input[type=checkbox]', function(e) {
-                      if (!this.checked)
-                          return;
-
+                  .on('click', 'input[type=checkbox], a.subscribed', function(e) {
                       var li = $(this).closest('li'),
                           id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '')
                           node = search_results_widget.get_node(id),
                           has_children = node.children && node.children.length;
+
+                      // activate + subscribe
+                      if ($(e.target).hasClass('subscribed')) {
+                          search_results[id].subscribed = true;
+                          li.children().first()
+                              .toggleClass('subscribed')
+                              .find('input[type=checkbox]').get(0).checked = true;
+                      }
+                      else if (!this.checked) {
+                          return;
+                      }
 
                       // copy item to the main list
                       add_result2list(id, li, true);
 
                       if (has_children) {
                           li.find('input[type=checkbox]').first().prop('disabled', true).get(0).checked = true;
+                          li.find('a.subscribed').first().hide();
                       }
                       else {
                           li.remove();
@@ -93,6 +102,7 @@ function kolab_folderlist(node, p)
               // disable checkbox if item already exists in main list
               if (me.get_node(prop.id) && !me.get_node(prop.id).virtual) {
                   item.find('input[type=checkbox]').first().prop('disabled', true).get(0).checked = true;
+                  item.find('a.subscribed').hide();
               }
           }
 
@@ -167,6 +177,18 @@ function kolab_folderlist(node, p)
             listsearch_request = { id:reqid, sources:sources.slice(), num:sources.length };
         }
     });
+
+    this.container.on('click', 'a.subscribed', function(e){
+        var li = $(this).closest('li'),
+            id = li.attr('id').replace(new RegExp('^'+p.id_prefix), ''),
+            div = li.children().first();
+
+        div.toggleClass('subscribed');
+        me.triggerEvent('subscribe', { id: id, subscribed: div.hasClass('subscribed'), item: li });
+
+        e.stopPropagation();
+        return false;
+    })
 
 }
 

@@ -180,6 +180,10 @@ class kolab_driver extends calendar_driver
           'caldavurl' => $cal->get_caldav_url(),
         );
       }
+
+      if ($cal->subscriptions) {
+        $calendars[$cal->id]['subscribed'] = (bool)$cal->is_subscribed();
+      }
     }
 
     // append the virtual birthdays calendar
@@ -258,7 +262,6 @@ class kolab_driver extends calendar_driver
     // create calendar object if necesary
     if (!$this->calendars[$id] && $id !== self::BIRTHDAY_CALENDAR_ID) {
       $calendar = kolab_calendar::factory($id, $this->cal);
-      console($id, $calendar->id, $calendar->ready);
       if ($calendar->ready)
         $this->calendars[$calendar->id] = $calendar;
     }
@@ -342,11 +345,15 @@ class kolab_driver extends calendar_driver
    *
    * @see calendar_driver::subscribe_calendar()
    */
-  public function subscribe_calendar($prop, $permanent = false)
+  public function subscribe_calendar($prop)
   {
     if ($prop['id'] && ($cal = $this->get_calendar($prop['id']))) {
-      if ($permanent) $cal->storage->subscribe($prop['active']);
-      return $cal->storage->activate($prop['active']);
+      $ret = false;
+      if (isset($prop['permanent']))
+        $ret |= $cal->storage->subscribe($prop['permanent']);
+      if (isset($prop['active']))
+        $ret |= $cal->storage->activate($prop['active']);
+      return $ret;
     }
     else {
       // save state in local prefs

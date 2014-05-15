@@ -27,6 +27,7 @@ class kolab_user_calendar extends kolab_calendar
   public $ready = false;
   public $readonly = true;
   public $attachments = false;
+  public $subscriptions = false;
 
   protected $userdata = array();
 

@@ -2697,9 +2697,14 @@ function rcube_calendar_ui(settings)
         me.calendars[id].color = color;
       }
 
-      if (fc && cal.active) {
-        fc.fullCalendar('addEventSource', me.calendars[id]);
-        rcmail.http_post('calendar', { action:'subscribe', c:{ id:id, active:cal.active?1:0 } });
+      if (fc && (cal.active || cal.subscribed)) {
+        if (cal.active)
+          fc.fullCalendar('addEventSource', me.calendars[id]);
+
+        var submit = { id: id, active: cal.active ? 1 : 0 };
+        if (cal.subscribed !== undefined)
+            submit.permanent = cal.subscribed ? 1 : 0;
+        rcmail.http_post('calendar', { action:'subscribe', c:submit });
       }
 
       // insert to #calendar-select options if writeable
@@ -2759,6 +2764,13 @@ function rcube_calendar_ui(settings)
             .html(cal.css)
             .appendTo('head');
         }
+      }
+    });
+    calendars_list.addEventListener('subscribe', function(p) {
+      var cal;
+      if ((cal = me.calendars[p.id])) {
+        cal.subscribed = p.subscribed || false;
+        rcmail.http_post('calendar', { action:'subscribe', c:{ id:p.id, active:cal.active?1:0, permanent:cal.subscribed?1:0 } });
       }
     });
 

@@ -725,7 +725,7 @@ class calendar extends rcube_plugin
           $this->rc->output->command('plugin.destroy_source', array('id' => $cal['id']));
         break;
       case "subscribe":
-        if (!$this->driver->subscribe_calendar($cal, intval(get_input_value('perm', RCUBE_INPUT_GPC))))
+        if (!$this->driver->subscribe_calendar($cal))
           $this->rc->output->show_message($this->gettext('errorsaving'), 'error');
         return;
       case "search":

@@ -296,6 +296,8 @@ class calendar_ui
       $class = 'folder virtual';
     else if ($prop['readonly'])
       $class .= ' readonly';
+    if ($prop['subscribed'])
+      $class .= ' subscribed';
     if ($prop['class_name'])
       $class .= ' '.$prop['class_name'];
 
@@ -303,8 +305,11 @@ class calendar_ui
     if (!$attrib['activeonly'] || $prop['active']) {
       $content = html::div($class,
         html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
-        ($prop['virtual'] ? '' : html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
-        html::span(array('class' => 'handle', 'style' => "background-color: #" . ($prop['color'] ?: 'f00')), '&nbsp;'))
+        ($prop['virtual'] ? '' :
+          html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
+          (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->cal->gettext('calendarsubscribe')), $this->cal->gettext('subscribed')) : '') .
+          html::span(array('class' => 'handle', 'style' => "background-color: #" . ($prop['color'] ?: 'f00')), '&nbsp;')
+        )
       );
     }
 
