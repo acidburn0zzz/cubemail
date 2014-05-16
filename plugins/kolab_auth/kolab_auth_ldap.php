@@ -215,10 +215,11 @@ class kolab_auth_ldap extends rcube_ldap_generic
      *                          2 - prefix (abc*)
      * @param array   $required List of fields that cannot be empty
      * @param int     $limit    Number of records
+     * @param int     $count    Returns the number of records found
      *
      * @return array List or false on error
      */
-    function search($fields, $value, $mode=1, $required = array(), $limit = 0)
+    function dosearch($fields, $value, $mode=1, $required = array(), $limit = 0, &$count = 0)
     {
         if (empty($fields)) {
             return array();
@@ -295,7 +296,8 @@ class kolab_auth_ldap extends rcube_ldap_generic
         $attrs   = array_values($this->fieldmap);
         $list    = array();
 
-        if ($result = parent::search($base_dn, $filter, $scope, $attrs)) {
+        if ($result = $this->search($base_dn, $filter, $scope, $attrs)) {
+            $count = $result->count();
             $i = 0;
             foreach ($result as $entry) {
                 if ($limit && $limit <= $i) {
