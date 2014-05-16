@@ -36,6 +36,7 @@ function kolab_folderlist(node, p)
     var search_results_widget;
     var search_results_container;
     var listsearch_request;
+    var search_messagebox;
 
     var Q = rcmail.quote_html;
 
@@ -164,8 +165,29 @@ function kolab_folderlist(node, p)
         }
         search_results = {};
 
+        if (search_messagebox)
+            rcmail.hide_message(search_messagebox);
+
         // send search request(s) to server
         if (search.query && search.execute) {
+            // require a minimum length for the search string
+            if (rcmail.env.autocomplete_min_length && search.query.length < rcmail.env.autocomplete_min_length) {
+                search_messagebox = rcmail.display_message(
+                    rcmail.get_label('autocompletechars').replace('$min', rcmail.env.autocomplete_min_length));
+                return;
+            }
+
+            if (listsearch_request) {
+                // ignore, let the currently runnung sequest finish
+                if (listsearch_request.query == search.query) {
+                    return;
+                }
+                else { // cancel previous search request
+                    rcmail.multi_thread_request_abort(listsearch_request.id);
+                    listsearch_request = null;
+                }
+            }
+
             var sources = p.search_sources || [ 'folders' ];
             var reqid = rcmail.multi_thread_http_request({
                 items: sources,
@@ -173,10 +195,15 @@ function kolab_folderlist(node, p)
                 action:  p.search_action || 'listsearch',
                 postdata: { action:'search', q:search.query, source:'%s' },
                 lock: rcmail.display_message(rcmail.get_label('searching'), 'loading'),
-                onresponse: render_search_results
+                onresponse: render_search_results,
+                whendone: function(e){ listsearch_request = null; }
             });
 
-            listsearch_request = { id:reqid, sources:sources.slice(), num:sources.length };
+            listsearch_request = { id:reqid, query:search.query };
+        }
+        else if (!search.query && listsearch_request) {
+            rcmail.multi_thread_request_abort(listsearch_request.id);
+            listsearch_request = null;
         }
     });
 

@@ -1318,11 +1318,12 @@ class kolab_storage
      * @param mixed   $query    Search value (or array of field => value pairs)
      * @param int     $mode     Matching mode: 0 - partial (*abc*), 1 - strict (=), 2 - prefix (abc*)
      * @param array   $required List of fields that shall ot be empty
-     * @param int     $limit    Number of records
+     * @param int     $limit    Maximum number of records
+     * @param int     $count    Returns the number of records found
      *
      * @return array List or false on error
      */
-    public static function search_users($query, $mode = 1, $required = array(), $limit = 0)
+    public static function search_users($query, $mode = 1, $required = array(), $limit = 0, &$count = 0)
     {
         // requires a working LDAP setup
         if (!self::ldap()) {
@@ -1330,7 +1331,12 @@ class kolab_storage
         }
 
         // search users using the configured attributes
-        $results = self::$ldap->search(self::$config->get('kolab_users_search_attrib', array('cn','mail','alias')), $query, $mode, $required, $limit);
+        $results = self::$ldap->dosearch(self::$config->get('kolab_users_search_attrib', array('cn','mail','alias')), $query, $mode, $required, $limit, $count);
+
+        // exclude myself
+        if ($_SESSION['kolab_dn']) {
+            unset($results[$_SESSION['kolab_dn']]);
+        }
 
         // resolve to IMAP folder name
         $root = self::namespace_root('other');
@@ -1391,6 +1397,9 @@ class kolab_storage
             $path_len = count(explode($delimiter, $other_ns));
 
             foreach ((array)self::list_folders($other_ns, '*', '', $subscribed) as $foldername) {
+                if ($foldername == 'INBOX')  // skip INBOX which is added by default
+                    continue;
+
                 // truncate folder path to top-level folders of the 'other' namespace
                 $path = explode($delimiter, $foldername);
                 $foldername = join($delimiter, array_slice($path, 0, $path_len + 1));
