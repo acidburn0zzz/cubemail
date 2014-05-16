@@ -746,6 +746,10 @@ class calendar extends rcube_plugin
 
           $results[] = $cal;
         }
+        // report more results available
+        if ($this->driver->search_more_results)
+          $this->rc->output->show_message('autocompletemore', 'info');
+
         $this->rc->output->command('multi_thread_http_response', $results, get_input_value('_reqid', RCUBE_INPUT_GPC));
         return;
     }

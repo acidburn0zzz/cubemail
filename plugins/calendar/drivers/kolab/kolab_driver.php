@@ -409,6 +409,7 @@ class kolab_driver extends calendar_driver
       return array();
 
     $this->calendars = array();
+    $this->search_more_results = false;
 
     // find unsubscribed IMAP folders that have "event" type
     if ($source == 'folders') {
@@ -419,7 +420,8 @@ class kolab_driver extends calendar_driver
     }
     // find other user's virtual calendars
     else if ($source == 'users') {
-      foreach (kolab_storage::search_users($query, 0) as $user) {
+      $limit = $this->rc->config->get('autocomplete_max', 15) * 2;  // we have slightly more space, so display twice the number
+      foreach (kolab_storage::search_users($query, 0, array(), $limit, $count) as $user) {
         $calendar = new kolab_user_calendar($user, $this->cal);
         $this->calendars[$calendar->id] = $calendar;
 
@@ -430,6 +432,10 @@ class kolab_driver extends calendar_driver
             $this->calendars[$cal->id] = $cal;
           }
         }
+      }
+
+      if ($count > $limit) {
+        $this->search_more_results = true;
       }
     }
 
