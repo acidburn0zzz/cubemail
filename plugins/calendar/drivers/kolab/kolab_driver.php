@@ -128,8 +128,13 @@ class kolab_driver extends calendar_driver
       $fullname = $cal->get_name();
       $listname = $cal->get_foldername();
       $imap_path = explode('/', $cal->name);
-      $topname = array_pop($imap_path);
-      $parent_id = kolab_storage::folder_id(join('/', $imap_path));
+
+      // find parent
+      do {
+        array_pop($imap_path);
+        $parent_id = kolab_storage::folder_id(join('/', $imap_path));
+      }
+      while (count($imap_path) > 0 && !$this->calendars[$parent_id]);
 
       // turn a kolab_storage_folder object into a kolab_calendar
       if ($cal instanceof kolab_storage_folder) {
