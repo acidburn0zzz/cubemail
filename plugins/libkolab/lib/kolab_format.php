@@ -174,7 +174,7 @@ abstract class kolab_format
      * Convert a libkolabxml vector to a PHP array
      *
      * @param object vector Object
-     * @return array Indexed array contaning vector elements
+     * @return array Indexed array containing vector elements
      */
     public static function vector2array($vec, $max = PHP_INT_MAX)
     {
