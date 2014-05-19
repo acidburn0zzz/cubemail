@@ -1340,7 +1340,7 @@ class kolab_storage
 
         // resolve to IMAP folder name
         $root = self::namespace_root('other');
-        $user_attrib = self::$config->get('kolab_auth_login', 'mail');
+        $user_attrib = self::$config->get('kolab_users_id_attrib', self::$config->get('kolab_auth_login', 'mail'));
 
         array_walk($results, function(&$user, $dn) use ($root, $user_attrib) {
             list($localpart, $domain) = explode('@', $user[$user_attrib]);
@@ -1368,7 +1368,7 @@ class kolab_storage
         $folders = array();
 
         // use localpart of user attribute as root for folder listing
-        $user_attrib = self::$config->get('kolab_auth_login', 'mail');
+        $user_attrib = self::$config->get('kolab_users_id_attrib', self::$config->get('kolab_auth_login', 'mail'));
         if (!empty($user[$user_attrib])) {
             list($mbox) = explode('@', $user[$user_attrib]);
 
