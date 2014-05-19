@@ -49,6 +49,7 @@ CREATE TABLE tasks (
     starttime varchar(5) DEFAULT NULL,
     flagged smallint NOT NULL DEFAULT 0,
     complete float NOT NULL DEFAULT 0,
+    status varchar(16) NOT NULL DEFAULT '',
     alarms varchar(255) DEFAULT NULL,
     recurrence varchar(255) DEFAULT NULL,
     organizer varchar(255) DEFAULT NULL,
@@ -60,4 +61,4 @@ CREATE TABLE tasks (
 CREATE INDEX tasks_tasklisting_idx ON tasks (tasklist_id, del, date);
 CREATE INDEX tasks_uid_idx ON tasks (uid);
 
-INSERT INTO system (name, value) VALUES ('tasklist-database-version', '2013011000');
+INSERT INTO system (name, value) VALUES ('tasklist-database-version', '2014051900');

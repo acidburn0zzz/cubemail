@@ -264,7 +264,7 @@ function rcube_tasklist_ui(settings)
                     if (rcmail.busy)
                         return false;
 
-                    rec.complete = e.target.checked ? 1 : 0;
+                    rec.status = e.target.checked ? 'COMPLETED' : (rec.complete == 1 ? 'NEEDS-ACTION' : '');
                     li.toggleClass('complete');
                     save_task(rec, 'edit');
                     return true;
@@ -815,7 +815,7 @@ function rcube_tasklist_ui(settings)
 
         var div = $('<div>').addClass('taskhead').html(
             '<div class="progressbar"><div class="progressvalue" style="width:' + (rec.complete * 100) + '%"></div></div>' +
-            '<input type="checkbox" name="completed[]" value="1" class="complete" ' + (rec.complete == 1.0 ? 'checked="checked" ' : '') + '/>' + 
+            '<input type="checkbox" name="completed[]" value="1" class="complete" ' + (is_complete(rec) ? 'checked="checked" ' : '') + '/>' + 
             '<span class="flagged"></span>' +
             '<span class="title">' + text2html(Q(rec.title)) + '</span>' +
             '<span class="tags">' + tags_html + '</span>' +
@@ -835,7 +835,7 @@ function rcube_tasklist_ui(settings)
                 revertDuration: 300
             });
 
-        if (rec.complete == 1.0)
+        if (is_complete(rec))
             div.addClass('complete');
         if (rec.flagged)
             div.addClass('flagged');
@@ -951,10 +951,18 @@ function rcube_tasklist_ui(settings)
      */
     function task_cmp(a, b)
     {
-        var d = Math.floor(a.complete) - Math.floor(b.complete);
+        var d = is_complete(a) - is_complete(b);
         if (!d) d = (b._hasdate-0) - (a._hasdate-0);
         if (!d) d = (a.datetime||99999999999) - (b.datetime||99999999999);
         return d;
+    }
+
+    /**
+     * Determine whether the given task should be displayed as "complete"
+     */
+    function is_complete(rec)
+    {
+        return ((rec.complete == 1.0 && !rec.status) || rec.status === 'COMPLETED') ? 1 : 0;
     }
 
     /**
@@ -1144,6 +1152,7 @@ function rcube_tasklist_ui(settings)
         $('#task-starttime').html(Q(rec.starttime || ''));
         $('#task-alarm')[(rec.alarms_text ? 'show' : 'hide')]().children('.task-text').html(Q(rec.alarms_text));
         $('#task-completeness .task-text').html(((rec.complete || 0) * 100) + '%');
+        $('#task-status')[(rec.status ? 'show' : 'hide')]().children('.task-text').html(rcmail.gettext('status-'+String(rec.status).toLowerCase(),'tasklist'));
         $('#task-list .task-text').html(Q(me.tasklists[rec.list] ? me.tasklists[rec.list].name : ''));
 
         var itags = get_inherited_tags(rec);
@@ -1257,6 +1266,7 @@ function rcube_tasklist_ui(settings)
         var recstarttime = $('#taskedit-starttime').val(rec.starttime || '');
         var complete = $('#taskedit-completeness').val((rec.complete || 0) * 100);
         completeness_slider.slider('value', complete.val());
+        var taskstatus = $('#taskedit-status').val(rec.status || '');
         var tasklist = $('#taskedit-tasklist').val(rec.list || me.selected_list).prop('disabled', rec.parent_id ? true : false);
 
         // tag-edit line
@@ -1308,7 +1318,7 @@ function rcube_tasklist_ui(settings)
         var buttons = {};
         buttons[rcmail.gettext('save', 'tasklist')] = function() {
             // copy form field contents into task object to save
-            $.each({ title:title, description:description, date:recdate, time:rectime, startdate:recstartdate, starttime:recstarttime, list:tasklist }, function(key,input){
+            $.each({ title:title, description:description, date:recdate, time:rectime, startdate:recstartdate, starttime:recstarttime, status:taskstatus, list:tasklist }, function(key,input){
                 me.selected_task[key] = input.val();
             });
             me.selected_task.tags = [];

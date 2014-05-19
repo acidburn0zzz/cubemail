@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
   `starttime` varchar(5) DEFAULT NULL,
   `flagged` tinyint(4) NOT NULL DEFAULT '0',
   `complete` float NOT NULL DEFAULT '0',
+  `status` enum('','NEEDS-ACTION','IN-PROCESS','COMPLETED','CANCELLED') NOT NULL DEFAULT '',
   `alarms` varchar(255) DEFAULT NULL,
   `recurrence` varchar(255) DEFAULT NULL,
   `organizer` varchar(255) DEFAULT NULL,
@@ -48,4 +49,4 @@ CREATE TABLE IF NOT EXISTS `tasks` (
     REFERENCES `tasklists`(`tasklist_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) /*!40000 ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci */;
 
-REPLACE INTO `system` (`name`, `value`) VALUES ('tasklist-database-version', '2013011000');
+REPLACE INTO `system` (`name`, `value`) VALUES ('tasklist-database-version', '2014051900');

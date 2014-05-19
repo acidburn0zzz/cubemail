@@ -67,7 +67,7 @@ class tasklist_ui
     {
         $this->plugin->register_handler('plugin.tasklists', array($this, 'tasklists'));
         $this->plugin->register_handler('plugin.tasklist_select', array($this, 'tasklist_select'));
-        $this->plugin->register_handler('plugin.category_select', array($this, 'category_select'));
+        $this->plugin->register_handler('plugin.status_select', array($this, 'status_select'));
         $this->plugin->register_handler('plugin.searchform', array($this->rc->output, 'search_form'));
         $this->plugin->register_handler('plugin.quickaddform', array($this, 'quickadd_form'));
         $this->plugin->register_handler('plugin.tasks', array($this, 'tasks_resultview'));
@@ -129,6 +129,21 @@ class tasklist_ui
         return html::tag('ul', $attrib, $li, html::$common_attrib);
     }
 
+    /**
+     * Render HTML form for task status selector
+     */
+    function status_select($attrib = array())
+    {
+        $attrib['name'] = 'status';
+        $select = new html_select($attrib);
+        $select->add('---', '');
+        $select->add($this->plugin->gettext('status-needs-action'), 'NEEDS-ACTION');
+        $select->add($this->plugin->gettext('status-in-process'),   'IN-PROCESS');
+        $select->add($this->plugin->gettext('status-completed'),    'COMPLETED');
+        $select->add($this->plugin->gettext('status-cancelled'),    'CANCELLED');
+
+        return $select->show(null);
+    }
 
     /**
      * Render a HTML select box for list selection

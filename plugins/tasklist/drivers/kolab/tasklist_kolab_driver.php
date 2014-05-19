@@ -307,7 +307,7 @@ class tasklist_kolab_driver extends tasklist_driver
             foreach ($folder->select(array(array('tags','!~','x-complete'))) as $record) {
                 $rec = $this->_to_rcube_task($record);
 
-                if ($rec['complete'] >= 1.0)  // don't count complete tasks
+                if ($this->is_complete($rec))  // don't count complete tasks
                     continue;
 
                 $counts['all']++;
@@ -603,7 +603,8 @@ class tasklist_kolab_driver extends tasklist_driver
             'description' => $record['description'],
             'tags' => array_filter((array)$record['categories']),
             'flagged' => $record['priority'] == 1,
-            'complete' => $record['status'] == 'COMPLETED' ? 1 : floatval($record['complete'] / 100),
+            'complete' => floatval($record['complete'] / 100),
+            'status' => $record['status'],
             'parent_id' => $record['parent_id'],
             'recurrence' => $record['recurrence'],
         );
@@ -672,7 +673,7 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         $object['complete'] = $task['complete'] * 100;
-        if ($task['complete'] == 1.0)
+        if ($task['complete'] == 1.0 && empty($task['complete']))
             $object['status'] = 'COMPLETED';
 
         if ($task['flagged'])

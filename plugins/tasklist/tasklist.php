@@ -214,7 +214,7 @@ class tasklist extends rcube_plugin
                         $child = array('id' => $cid, 'list' => $rec['list'], '_fromlist' => $rec['_fromlist']);
                         if ($this->driver->move_task($child)) {
                             $r = $this->driver->get_task($child);
-                            if ((bool)($filter & self::FILTER_MASK_COMPLETE) == ($r['complete'] == 1.0)) {
+                            if ((bool)($filter & self::FILTER_MASK_COMPLETE) == $this->driver->is_complete($r)) {
                                 $refresh[] = $r;
                             }
                         }
@@ -237,7 +237,7 @@ class tasklist extends rcube_plugin
                           $child['id'] = $cid;
                           if ($this->driver->move_task($child)) {
                               $r = $this->driver->get_task($child);
-                              if ((bool)($filter & self::FILTER_MASK_COMPLETE) == ($r['complete'] == 1.0)) {
+                              if ((bool)($filter & self::FILTER_MASK_COMPLETE) == $this->driver->is_complete($r)) {
                                   $refresh[] = $r;
                               }
                           }
@@ -524,7 +524,7 @@ class tasklist extends rcube_plugin
     private function handle_recurrence(&$rec, $old)
     {
         $clone = null;
-        if ($rec['complete'] == 1.0 && $old && $old['complete'] < 1.0 && is_array($rec['recurrence'])) {
+        if ($this->driver->is_complete($rec) && $old && $this->driver->is_complete($old) && is_array($rec['recurrence'])) {
             $engine = libcalendaring::get_recurrence();
             $rrule = $rec['recurrence'];
             $updates = array();
@@ -569,6 +569,7 @@ class tasklist extends rcube_plugin
                 // update the task but unset completed flag
                 $rec = array_merge($rec, $updates);
                 $rec['complete'] = $old['complete'];
+                $rec['satus'] = $old['satus'];
             }
         }
 
@@ -718,7 +719,7 @@ class tasklist extends rcube_plugin
                 $tags = array_merge($tags, (array)$rec['tags']);
 
             // apply filter; don't trust the driver on this :-)
-            if ((!$f && $rec['complete'] < 1.0) || ($rec['mask'] & $f))
+            if ((!$f && !$this->driver->is_complete($rec)) || ($rec['mask'] & $f))
                 $data[] = $rec;
         }
 
@@ -845,7 +846,7 @@ class tasklist extends rcube_plugin
 
         if ($rec['flagged'])
             $mask |= self::FILTER_MASK_FLAGGED;
-        if ($rec['complete'] == 1.0)
+        if ($this->driver->is_complete($rec))
             $mask |= self::FILTER_MASK_COMPLETE;
 
         if (empty($rec['date']))

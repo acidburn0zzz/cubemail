@@ -44,7 +44,7 @@ class kolab_format_task extends kolab_format_xcal
         $this->obj->setPercentComplete(intval($object['complete']));
 
         $status = kolabformat::StatusUndefined;
-        if ($object['complete'] == 100)
+        if ($object['complete'] == 100 && !array_key_exists('status', $object))
             $status = kolabformat::StatusCompleted;
         else if ($object['status'] && array_key_exists($object['status'], $this->status_map))
             $status = $this->status_map[$object['status']];
@@ -113,7 +113,7 @@ class kolab_format_task extends kolab_format_xcal
     {
         $tags = array();
 
-        if ($this->data['status'] == 'COMPLETED' || $this->data['complete'] == 100)
+        if ($this->data['status'] == 'COMPLETED' || ($this->data['complete'] == 100 && empty($this->data['status'])))
             $tags[] = 'x-complete';
 
         if ($this->data['priority'] == 1)

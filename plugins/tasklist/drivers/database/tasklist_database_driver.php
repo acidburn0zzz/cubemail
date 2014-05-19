@@ -24,6 +24,8 @@
 
 class tasklist_database_driver extends tasklist_driver
 {
+    const IS_COMPLETE_SQL = "(status='COMPLETED' OR (complete=1 AND status=''))";
+
     public $undelete = true; // yes, we can
     public $sortable = false;
     public $alarm_types = array('DISPLAY');
@@ -224,7 +226,7 @@ class tasklist_database_driver extends tasklist_driver
         $result = $this->rc->db->query(sprintf(
             "SELECT task_id, flagged, date FROM " . $this->db_tasks . "
              WHERE tasklist_id IN (%s)
-             AND del=0 AND complete<1",
+             AND del=0 AND NOT " . self::IS_COMPLETE_SQL,
             join(',', $list_ids)
         ));
 
@@ -286,9 +288,9 @@ class tasklist_database_driver extends tasklist_driver
             $sql_add = ' AND date IS NULL';
 
         if ($filter['mask'] & tasklist::FILTER_MASK_COMPLETE)
-            $sql_add .= ' AND complete=1';
+            $sql_add .= ' AND ' . self::IS_COMPLETE_SQL;
         else if (empty($filter['since']))  // don't show complete tasks by default
-            $sql_add .= ' AND complete<1';
+            $sql_add .= ' AND NOT ' . self::IS_COMPLETE_SQL;
 
         if ($filter['mask'] & tasklist::FILTER_MASK_FLAGGED)
             $sql_add .= ' AND flagged=1';
@@ -435,7 +437,7 @@ class tasklist_database_driver extends tasklist_driver
             $result = $this->rc->db->query(sprintf(
                 "SELECT * FROM " . $this->db_tasks . "
                  WHERE tasklist_id IN (%s)
-                 AND notify <= %s AND complete < 1",
+                 AND notify <= %s AND NOT " . self::IS_COMPLETE_SQL,
                 join(',', $list_ids),
                 $this->rc->db->fromunixtime($time)
             ));
@@ -529,7 +531,7 @@ class tasklist_database_driver extends tasklist_driver
             $prop['recurrence'] = $this->serialize_recurrence($prop['recurrence']);
         }
 
-        foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms', 'recurrence') as $col) {
+        foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms', 'recurrence', 'status') as $col) {
             if (empty($prop[$col]))
                 $prop[$col] = null;
         }
@@ -537,8 +539,8 @@ class tasklist_database_driver extends tasklist_driver
         $notify_at = $this->_get_notification($prop);
         $result = $this->rc->db->query(sprintf(
             "INSERT INTO " . $this->db_tasks . "
-             (tasklist_id, uid, parent_id, created, changed, title, date, time, startdate, starttime, description, tags, flagged, complete, alarms, recurrence, notify)
-             VALUES (?, ?, ?, %s, %s, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (tasklist_id, uid, parent_id, created, changed, title, date, time, startdate, starttime, description, tags, flagged, complete, status, alarms, recurrence, notify)
+             VALUES (?, ?, ?, %s, %s, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
              $this->rc->db->now(),
              $this->rc->db->now()
             ),
@@ -554,6 +556,7 @@ class tasklist_database_driver extends tasklist_driver
             join(',', (array)$prop['tags']),
             $prop['flagged'] ? 1 : 0,
             intval($prop['complete']),
+            $prop['status'],
             $prop['alarms'],
             $prop['recurrence'],
             $notify_at
@@ -586,7 +589,7 @@ class tasklist_database_driver extends tasklist_driver
             if (isset($prop[$col]))
                 $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . $this->rc->db->quote($prop[$col]);
         }
-        foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms', 'recurrence') as $col) {
+        foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms', 'recurrence', 'status') as $col) {
             if (isset($prop[$col]))
                 $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . (empty($prop[$col]) ? 'NULL' : $this->rc->db->quote($prop[$col]));
         }
@@ -694,7 +697,7 @@ class tasklist_database_driver extends tasklist_driver
      */
     private function _get_notification($task)
     {
-        if ($task['valarms'] && $task['complete'] < 1) {
+        if ($task['valarms'] && !$this->is_complete($task)) {
             $alarm = libcalendaring::get_next_alarm($task, 'task');
 
         if ($alarm['time'] && in_array($alarm['action'], $this->alarm_types))

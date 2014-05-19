@@ -41,7 +41,7 @@
   *    'categories' => 'Task category',
   *       'flagged' => 'Boolean value whether this record is flagged',
   *      'complete' => 'Float value representing the completeness state (range 0..1)',
-  *   'sensitivity' => 0|1|2,   // Event sensitivity (0=public, 1=private, 2=confidential)
+  *      'status'   => 'Task status string according to (NEEDS-ACTION, IN-PROCESS, COMPLETED, CANCELLED) RFC 2445',
   *       'valarms' => array(           // List of reminders (new format), each represented as a hash array:
   *                array(
   *                   'trigger' => '-PT90M',     // ISO 8601 period string prefixed with '+' or '-', or DateTime object
@@ -269,6 +269,17 @@ abstract class tasklist_driver
      * @return string Attachment body
      */
     public function get_attachment_body($id, $task) { }
+
+    /**
+     * Helper method to determine whether the given task is considered "complete"
+     *
+     * @param array  $task  Hash array with event properties:
+     * @return boolean True if complete, False otherwiese
+     */
+    public function is_complete($task)
+    {
+        return ($task['complete'] >= 1.0 && empty($task['status'])) || $task['status'] === 'COMPLETED';
+    }
 
     /**
      * List availabale categories

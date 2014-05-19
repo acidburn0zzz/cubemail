@@ -19,6 +19,11 @@ $labels['datetime'] = 'Due';
 $labels['start'] = 'Start';
 $labels['alarms'] = 'Reminder';
 $labels['repeat'] = 'Repeat';
+$labels['status'] = 'Status';
+$labels['status-needs-action'] = 'Needs action';
+$labels['status-in-process'] = 'In process';
+$labels['status-completed'] = 'Completed';
+$labels['status-cancelled'] = 'Cancelled';
 
 $labels['all'] = 'All';
 $labels['flagged'] = 'Flagged';
