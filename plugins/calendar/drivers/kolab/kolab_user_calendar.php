@@ -30,6 +30,7 @@ class kolab_user_calendar extends kolab_calendar
   public $subscriptions = false;
 
   protected $userdata = array();
+  protected $timeindex = array();
 
 
   /**
@@ -165,9 +166,158 @@ class kolab_user_calendar extends kolab_calendar
    */
   public function list_events($start, $end, $search = null, $virtual = 1, $query = array())
   {
-    // TODO: implement this
-    console('kolab_user_calendar::list_events()');
-    return array();
+    // convert to DateTime for comparisons
+    try {
+      $start_dt = new DateTime('@'.$start);
+    }
+    catch (Exception $e) {
+      $start_dt = new DateTime('@0');
+    }
+    try {
+      $end_dt = new DateTime('@'.$end);
+    }
+    catch (Exception $e) {
+      $end_dt = new DateTime('today +10 years');
+    }
+
+    $limit_changed = null;
+    if (!empty($query)) {
+      foreach ($query as $q) {
+        if ($q[0] == 'changed' && $q[1] == '>=') {
+          try { $limit_changed = new DateTime('@'.$q[2]); }
+          catch (Exception $e) { /* ignore */ }
+        }
+      }
+    }
+
+    // aggregate all calendar folders the user shares (but are not subscribed)
+    foreach (kolab_storage::list_user_folders($this->userdata, 'event', false) as $foldername) {
+      if (!kolab_storage::folder_is_subscribed($foldername, true)) {
+        $cal = new kolab_calendar($foldername, $this->cal);
+        foreach ($cal->list_events($start, $end, $search, 1) as $event) {
+          $this->events[$event['id']] = $event;
+          $this->timeindex[$this->time_key($event)] = $event['id'];
+        }
+      }
+    }
+
+    // get events from the user's free/busy feed
+    $this->fetch_freebusy($limit_changed);
+
+    $events = array();
+    foreach ($this->events as $id => $event) {
+      // list events in requested time window
+      if ($event['start'] <= $end_dt && $event['end'] >= $start_dt &&
+           (!$limit_changed || !$event['changed'] || $event['changed'] >= $limit_changed)) {
+        $events[] = $event;
+      }
+    }
+
+    return $events;
+  }
+
+  /**
+   * Helper method to fetch free/busy data for the user and turn it into calendar data
+   */
+  private function fetch_freebusy($limit_changed = null)
+  {
+    // ask kolab server first
+    try {
+      $request_config = array(
+        'store_body'       => true,
+        'follow_redirects' => true,
+      );
+      $request  = libkolab::http_request(kolab_storage::get_freebusy_url($this->userdata['mail']), 'GET', $request_config);
+      $response = $request->send();
+
+      // authentication required
+      if ($response->getStatus() == 401) {
+        $request->setAuth($this->rc->user->get_username(), $this->rc->decrypt($_SESSION['password']));
+        $response = $request->send();
+      }
+
+      if ($response->getStatus() == 200)
+        $fbdata = $response->getBody();
+
+      unset($request, $response);
+    }
+    catch (Exception $e) {
+      rcube::raise_error(array(
+        'code' => 900,
+        'type' => 'php',
+        'file' => __FILE__,
+        'line' => __LINE__,
+        'message' => "Error fetching free/busy information: " . $e->getMessage()),
+        true, false);
+
+      return false;
+    }
+
+    $statusmap = array(
+      'FREE' => 'free',
+      'BUSY' => 'busy',
+      'BUSY-TENTATIVE' => 'tentative',
+      'X-OUT-OF-OFFICE' => 'outofoffice',
+      'OOF' => 'outofoffice',
+    );
+    $titlemap = array(
+      'FREE' => $this->cal->gettext('availfree'),
+      'BUSY' => $this->cal->gettext('availbusy'),
+      'BUSY-TENTATIVE' => $this->cal->gettext('availtentative'),
+      'X-OUT-OF-OFFICE' => $this->cal->gettext('availoutofoffice'),
+    );
+
+    // console('_fetch_freebusy', kolab_storage::get_freebusy_url($this->userdata['mail']), $fbdata);
+
+    // parse free-busy information using Horde classes
+    $count = 0;
+    if ($fbdata) {
+      $ical = $this->cal->get_ical();
+      $ical->import($fbdata);
+      if ($fb = $ical->freebusy) {
+        $result = array();
+
+        // consider 'changed >= X' queries
+        if ($limit_changed && $fb['created'] && $fb['created'] < $limit_changed) {
+          return 0;
+        }
+
+        foreach ($fb['periods'] as $tuple) {
+          list($from, $to, $type) = $tuple;
+          $event = array(
+            'id'        => md5($this->id . $from->format('U') . '/' . $to->format('U')),
+            'calendar'  => $this->id,
+            'changed'   => $fb['created'] ?: new DateTime(),
+            'title'     => $titlemap[$type] ?: $type,
+            'start'     => $from,
+            'end'       => $to,
+            'free_busy' => $statusmap[$type] ?: 'busy',
+            'organizer' => array(
+              'email' => $this->userdata['mail'],
+              'name'  => $this->userdata['displayname'],
+            ),
+          );
+
+          // avoid duplicate entries
+          $key = $this->time_key($event);
+          if (!$this->timeindex[$key]) {
+            $this->events[$event['id']] = $event;
+            $this->timeindex[$key] = $event['id'];
+            $count++;
+          }
+        }
+      }
+    }
+
+    return $count;
+  }
+
+  /**
+   * Helper to build a key for the absolute time slot the given event convers
+   */
+  private function time_key($event)
+  {
+    return sprintf('%s/%s', $event['start']->format('U'), is_object($event['end']->format('U')) ?: '0');
   }
 
 
