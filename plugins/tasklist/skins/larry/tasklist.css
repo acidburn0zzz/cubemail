@@ -75,7 +75,7 @@ body.attachmentwin #topnav .topright {
 }
 
 #taskselector {
-	margin: -4px 40px 0 0;
+	margin: -1px 40px 0 0;
 	padding: 0;
 }
 
@@ -90,13 +90,19 @@ body.attachmentwin #topnav .topright {
 #taskselector li a {
 	display: inline-block;
 	color: #004458;
-	min-width: 4em;
-	padding: 0.2em 0.6em 0.3em 0.6em;
+	min-width: 3.5em;
+	padding: 0.2em 0.6em 0.2em 0.6em;
 	text-align: center;
 	text-decoration: none;
 	border: 1px solid #eee;
 	border-color: transparent;
 }
+
+.webkit .tagcloud li,
+.webkit #taskselector li a {
+	padding-bottom: 0.25em;
+}
+
 
 #taskselector li:first-child {
 	border-top: 0;
@@ -131,7 +137,7 @@ body.attachmentwin #topnav .topright {
 	-webkit-box-shadow: inset 0 1px 1px 0 #003645;
 	-moz-box-shadow: inset 0 1px 1px 0 #003645;
 	border-color: #003645;
-	border-radius: 9px;
+	border-radius: 10px;
 	text-shadow: none;
 	outline: none;
 }
@@ -397,6 +403,8 @@ body.attachmentwin #topnav .topright {
 	background: linear-gradient(top, #eee 0%, #dfdfdf 100%);
 	border-bottom: 1px solid #ccc;
 	position: relative;
+	line-height: 13px;
+	height: 20px;
 }
 
 #tasksview .buttonbar .buttonbar-right {
