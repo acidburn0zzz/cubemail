@@ -24,8 +24,15 @@
     <div id="datepicker"></div>
     <div id="calendars" style="visibility:hidden">
       <div class="boxtitle"><roundcube:label name="calendar.calendars" /></div>
+      <div class="listsearchbox">
+        <div class="searchbox">
+          <input type="text" name="q" id="calendarlistsearch" placeholder="<roundcube:label name='calendar.findcalendars' />" />
+          <a class="iconbutton searchicon"></a>
+          <roundcube:button command="reset-listsearch" id="calendarlistsearch-reset" class="reset searchreset" title="resetsearch" content="x" />
+        </div>
+      </div>
       <div class="boxlistcontent">
-      <roundcube:object name="plugin.calendar_list" id="calendarslist" />
+      <roundcube:object name="plugin.calendar_list" id="calendarslist" class="treelist" />
       </div>
       <div class="boxfooter">
         <roundcube:button command="calendar-create" type="link" title="calendar.createcalendar" class="buttonPas addgroup" classAct="button addgroup" content=" " />
