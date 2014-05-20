@@ -113,6 +113,14 @@ class kolab_calendar extends kolab_storage_folder_api
     return $this->name;
   }
 
+  /**
+   *
+   */
+  public function get_title()
+  {
+    return null;
+  }
+
 
   /**
    * Return color to display this calendar

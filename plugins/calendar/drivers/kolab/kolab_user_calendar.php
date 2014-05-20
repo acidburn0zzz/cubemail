@@ -90,6 +90,15 @@ class kolab_user_calendar extends kolab_calendar
 
 
   /**
+   *
+   */
+  public function get_title()
+  {
+    return $this->userdata['mail'];
+  }
+
+
+  /**
    * Getter for the name of the namespace to which the IMAP folder belongs
    *
    * @return string Name of the namespace (personal, other, shared)

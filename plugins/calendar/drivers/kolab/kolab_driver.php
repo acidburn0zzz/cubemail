@@ -151,6 +151,7 @@ class kolab_driver extends calendar_driver
           'editname' => $cal->get_foldername(),
           'color'    => $cal->get_color(),
           'active'   => $cal->is_active(),
+          'title'    => $cal->get_owner(),
           'owner'    => $cal->get_owner(),
           'virtual'  => false,
           'readonly' => true,
@@ -176,6 +177,7 @@ class kolab_driver extends calendar_driver
           'name'     => $fullname,
           'listname' => $listname,
           'editname' => $cal->get_foldername(),
+          'title'    => $cal->get_title(),
           'color'    => $cal->get_color(),
           'readonly' => $cal->readonly,
           'showalarms' => $cal->alarms,
@@ -432,10 +434,8 @@ class kolab_driver extends calendar_driver
 
         // search for calendar folders shared by this user
         foreach (kolab_storage::list_user_folders($user, 'event', false) as $foldername) {
-          if (1 || !kolab_storage::folder_is_subscribed($foldername, true)) {
-            $cal = new kolab_calendar($foldername, $this->cal);
-            $this->calendars[$cal->id] = $cal;
-          }
+          $cal = new kolab_calendar($foldername, $this->cal);
+          $this->calendars[$cal->id] = $cal;
         }
       }
 

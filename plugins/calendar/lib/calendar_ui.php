@@ -288,8 +288,8 @@ class calendar_ui
     }
 
     $classes = array('calendar', 'cal-'  . asciiwords($id, true));
-    $title = $prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
-      html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
+    $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
+      html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '');
     $is_collapsed = false; // TODO: determine this somehow?
 
     if ($prop['virtual'])
