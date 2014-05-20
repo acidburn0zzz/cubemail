@@ -230,7 +230,7 @@ class calendar_ui
         continue;
 
       $html .= html::tag('li', array('id' => 'rcmlical' . $id, 'class' => $prop['group']),
-        $content = $this->calendar_list_item($id, $prop, $jsenv)
+        $content = $this->calendar_list_item($id, $prop, $jsenv, $attrib['activeonly'])
       );
     }
 
@@ -249,8 +249,9 @@ class calendar_ui
     foreach ($node->children as $folder) {
       $id = $folder->id;
       $prop = $data[$id];
+      $is_collapsed = false; // TODO: determine this somehow?
 
-      $content = $this->calendar_list_item($id, $prop, $jsenv);
+      $content = $this->calendar_list_item($id, $prop, $jsenv, $attrib['activeonly']);
 
       if (!empty($folder->children)) {
         $content .= html::tag('ul', array('style' => ($is_collapsed ? "display:none;" : null)),
@@ -272,7 +273,7 @@ class calendar_ui
   /**
    * Helper method to build a calendar list item (HTML content and js data)
    */
-  public function calendar_list_item($id, $prop, &$jsenv)
+  public function calendar_list_item($id, $prop, &$jsenv, $activeonly)
   {
     // enrich calendar properties with settings from the driver
     if (!$prop['virtual']) {
@@ -290,19 +291,18 @@ class calendar_ui
     $classes = array('calendar', 'cal-'  . asciiwords($id, true));
     $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
       html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '');
-    $is_collapsed = false; // TODO: determine this somehow?
 
     if ($prop['virtual'])
       $classes[] = 'virtual';
     else if ($prop['readonly'])
       $classes[] = 'readonly';
     if ($prop['subscribed'])
-      $classes[] = ' subscribed';
+      $classes[] = 'subscribed';
     if ($prop['class'])
       $classes[] = $prop['class'];
 
     $content = '';
-    if (!$attrib['activeonly'] || $prop['active']) {
+    if (!$activeonly || $prop['active']) {
       $content = html::div(join(' ', $classes),
         html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' :
