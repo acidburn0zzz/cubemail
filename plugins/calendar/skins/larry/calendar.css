@@ -164,7 +164,32 @@ pre {
 	right: 0;
 }
 
+#calendars .boxtitle {
+	position: relative;
+}
+
+#calendars .boxtitle a.iconbutton.search {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 16px;
+	cursor: pointer;
+	background-position: -2px -317px;
+}
+
+#calendars .listsearchbox {
+	display: none;
+}
+
+#calendars .listsearchbox.expanded {
+	display: block;
+}
+
 #calendars .scroller {
+	top: 34px;
+}
+
+#calendars .listsearchbox.expanded + .scroller {
 	top: 68px;
 }
 

@@ -22,7 +22,9 @@
 		<div id="datepicker" class="uibox"></div>
 
 		<div id="calendars" class="uibox listbox" style="visibility:hidden">
-			<h2 class="boxtitle"><roundcube:label name="calendar.calendars" /></h2>
+			<h2 class="boxtitle"><roundcube:label name="calendar.calendars" />
+				<a class="iconbutton search" title="<roundcube:label name='calendar.findcalendars' />"></a>
+			</h2>
 			<div class="listsearchbox">
 				<div class="searchbox">
 					<input type="text" name="q" id="calendarlistsearch" placeholder="<roundcube:label name='calendar.findcalendars' />" />
@@ -252,6 +254,27 @@ $(document).ready(function(e){
 	})
 	.data('offset', $('#calendarsidebartoggle').position().left)
 	.data('sidebarwidth', $('#calendarsidebar').width() + $('#calendarsidebar').position().left);
+
+	// animation to unfold list search box
+	$('#calendars .boxtitle a.search').click(function(e){
+		var box = $('#calendars .listsearchbox'),
+			dir = box.is(':visible') ? -1 : 1;
+
+		box.slideToggle({
+			duration: 160,
+			progress: function(animation, progress) {
+				if (dir < 0) progress = 1 - progress;
+				$('#calendars .scroller').css('top', (34 + 34 * progress) + 'px');
+			},
+			complete: function() {
+				box.toggleClass('expanded');
+				if (box.is(':visible')) {
+					box.find('input[type=text]').focus();
+				}
+				// TODO: save state in localStorage
+			}
+		});
+	});
 
 	new rcube_splitter({ id:'calresourceviewsplitter', p1:'#resource-dialog-left', p2:'#resource-dialog-right',
 		orientation:'v', relative:true, start:380, min:220, size:10, offset:-3 }).init();
