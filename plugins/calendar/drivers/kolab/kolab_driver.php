@@ -844,7 +844,7 @@ class kolab_driver extends calendar_driver
       foreach ($calendar->list_events($time, $time + 86400 * 365, null, 1, $query) as $e) {
         // add to list if alarm is set
         $alarm = libcalendaring::get_next_alarm($e);
-        if ($alarm && $alarm['time'] && $alarm['time'] <= $time && in_array($alarm['action'], $this->alarm_types)) {
+        if ($alarm && $alarm['time'] && $alarm['time'] >= $last && in_array($alarm['action'], $this->alarm_types)) {
           $id = $alarm['id'];  // use alarm-id as primary identifier
           $candidates[$id] = array(
             'id'       => $id,
