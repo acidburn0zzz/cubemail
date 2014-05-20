@@ -109,21 +109,21 @@ body.attachmentwin #topnav .topright {
 	top: 4px;
 }
 
-#calendarsidebartoggle {
+#calsidebarsplitter {
 	position: absolute;
 	left: 264px;
-	width: 8px;
-	top: 40px;
+	width: 6px;
+	top: 40px !important;
 	bottom: 0;
-	background: url(images/toggle.gif) 0 48% no-repeat transparent;
-	cursor: pointer;
+	background: url(images/toggle.gif) -1px 48% no-repeat transparent;
 }
 
 div.sidebarclosed {
 	background-position: -8px 48% !important;
+	cursor: pointer;
 }
 
-#calendarsidebartoggle:hover {
+#calsidebarsplitter:hover {
 	background-color: #ddd;
 }
 
