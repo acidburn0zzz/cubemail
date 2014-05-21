@@ -126,6 +126,15 @@ abstract class tasklist_driver
     abstract function remove_list($prop);
 
     /**
+     * Search for shared or otherwise not listed tasklists the user has access
+     *
+     * @param string Search string
+     * @param string Section/source to search
+     * @return array List of tasklists
+     */
+    abstract function search_lists($query, $source);
+
+    /**
      * Get number of tasks matching the given filter
      *
      * @param array List of lists to count tasks of

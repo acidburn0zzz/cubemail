@@ -74,6 +74,32 @@ body.attachmentwin #topnav .topright {
 	bottom: 0px;
 }
 
+#tasklistsbox .boxtitle a.iconbutton.search {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 16px;
+	cursor: pointer;
+	background-position: -2px -317px;
+}
+
+#tasklistsbox .listsearchbox {
+	display: none;
+}
+
+#tasklistsbox .listsearchbox.expanded {
+	display: block;
+}
+
+#tasklistsbox .scroller {
+	top: 34px;
+}
+
+#tasklistsbox .listsearchbox.expanded + .scroller {
+	top: 68px;
+}
+
+
 #taskselector {
 	margin: -4px 40px 0 0;
 	padding: 0;
@@ -225,32 +251,48 @@ body.attachmentwin #topnav .topright {
 	display: none;
 }
 
-#tasklists li {
+#tasklistsbox .treelist li {
+	margin: 0;
+	display: block;
+	position: relative;
+}
+
+#tasklistsbox .treelist li div.tasklist {
 	margin: 0;
 	height: 20px;
 	padding: 6px 8px 2px 6px;
-	display: block;
 	position: relative;
 	white-space: nowrap;
 }
 
-#tasklists li.virtual {
-	height: 12px;
+#tasklistsbox .treelist li.virtual > div.tasklist {
+	height: 14px;
 }
 
-#tasklists li label {
+#tasklistsbox .treelist ul li > div.tasklist {
+	margin-left: 16px;
+}
+
+#tasklistsbox .treelist ul ul li > div.tasklist {
+	margin-left: 32px;
+}
+
+#tasklistsbox .treelist ul ul ul li > div.tasklist {
+	margin-left: 48px;
+}
+
+#tasklistsbox .treelist li label {
 	display: block;
 }
 
-#tasklists li span.listname {
+#tasklistsbox .treelist li span.listname {
 	display: block;
 	position: absolute;
 	top: 7px;
-	left: 26px;
-	right: 26px;
+	left: 38px;
+	right: 40px;
 	cursor: default;
-	padding-bottom: 2px;
-	padding-right: 30px;
+	padding: 0px 30px 2px 2px;
 	color: #004458;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -258,8 +300,11 @@ body.attachmentwin #topnav .topright {
 	background: url(sprites.png) right 20px no-repeat;
 }
 
-#tasklists li span.handle {
+#tasklistsbox .treelist li span.quickview {
 	display: inline-block;
+	position: absolute;
+	top: 6px;
+	right: 20px;
 	width: 16px;
 	height: 16px;
 	margin-right: 4px;
@@ -267,52 +312,76 @@ body.attachmentwin #topnav .topright {
 	cursor: pointer;
 }
 
-#tasklists li:hover span.handle {
+#tasklistsbox .treelist li a.subscribed {
+	display: inline-block;
+	position: absolute;
+	top: 6px;
+	right: 5px;
+	height: 16px;
+	width: 16px;
+	padding: 0;
+	background: url(sprites.png) -100px 0 no-repeat;
+	overflow: hidden;
+	text-indent: -5000px;
+	cursor: pointer;
+}
+
+#tasklistsbox .treelist div:hover > a.subscribed {
+	background-position: -2px -215px;
+}
+
+#tasklistsbox .treelist div.subscribed a.subscribed {
+	background-position: -20px -215px;
+}
+
+#tasklistsbox .treelist li div:hover > span.quickview {
 	background-position: -20px -101px;
 }
 
-#tasklists li.focusview span.handle {
+#tasklistsbox .treelist li div.focusview > span.quickview {
 	background-position: -2px -101px;
 }
 
-#tasklists li.selected span.listname {
+#tasklistsbox .searchresults .treelist li span.quickview {
+	display: none;
+}
+
+#tasklistsbox .treelist li.selected > div > span.listname {
 	font-weight: bold;
 }
 
-#tasklists li.readonly span.listname {
+#tasklistsbox .treelist .readonly > span.listname {
 	background-position: right -142px;
 }
 
-#tasklists li.other span.listname {
+#tasklistsbox .treelist .user > span.listname {
 	background-position: right -160px;
 }
 
-#tasklists li.other.readonly span.listname {
-	background-position: right -178px;
-}
-
-#tasklists li.shared span.listname {
-	background-position: right -196px;
-}
-
-#tasklists li.shared.readonly span.listname {
-	background-position: right -214px;
-}
-
-#tasklists li.virtual span.listname {
+#tasklistsbox .treelist .virtual > span.listname {
 	color: #aaa;
-	top: 2px;
+	top: 4px;
+	left: 20px;
+	right: 5px;
 }
 
-#tasklists li.virtual span.handle {
-	background: none;
-	cursor: default;
+#tasklistsbox .treelist.flat li span.calname {
+	left: 24px;
+	right: 22px;
 }
 
-#tasklists li input {
+#tasklistsbox .treelist li input {
 	position: absolute;
 	top: 5px;
-	right: 5px;
+	left: 18px;
+}
+
+#tasklistsbox .treelist li .treetoggle {
+	top: 8px;
+}
+
+#tasklistsbox .treelist li.virtual > .treetoggle {
+	top: 6px;
 }
 
 #mainview-right {

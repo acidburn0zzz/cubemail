@@ -52,6 +52,7 @@ class tasklist extends rcube_plugin
     public $driver;
     public $timezone;
     public $ui;
+    public $home;  // declare public to be used in other classes
 
     private $collapsed_tasks = array();
 
@@ -134,8 +135,7 @@ class tasklist extends rcube_plugin
         }
 
         if (!$this->rc->output->ajax_call && !$this->rc->output->env['framed']) {
-            require_once($this->home . '/tasklist_ui.php');
-            $this->ui = new tasklist_ui($this);
+            $this->load_ui();
             $this->ui->init();
         }
 
@@ -144,6 +144,16 @@ class tasklist extends rcube_plugin
         $this->add_hook('dismiss_alarms', array($this, 'dismiss_alarms'));
     }
 
+    /**
+     *
+     */
+    private function load_ui()
+    {
+        if (!$this->ui) {
+            require_once($this->home . '/tasklist_ui.php');
+            $this->ui = new tasklist_ui($this);
+        }
+    }
 
     /**
      * Helper method to load the backend driver according to local config
@@ -619,6 +629,30 @@ class tasklist extends rcube_plugin
             if (($success = $this->driver->remove_list($list)))
                 $this->rc->output->command('plugin.destroy_tasklist', $list);
             break;
+
+        case 'search':
+            $this->load_ui();
+            $results = array();
+            foreach ((array)$this->driver->search_lists(get_input_value('q', RCUBE_INPUT_GPC), get_input_value('source', RCUBE_INPUT_GPC)) as $id => $prop) {
+                $editname = $prop['editname'];
+                unset($prop['editname']);  // force full name to be displayed
+                $prop['active'] = false;
+
+                // let the UI generate HTML and CSS representation for this calendar
+                $html = $this->ui->tasklist_list_item($id, $prop, $jsenv);
+                $prop += (array)$jsenv[$id];
+                $prop['editname'] = $editname;
+                $prop['html'] = $html;
+
+                $results[] = $prop;
+            }
+            // report more results available
+            if ($this->driver->search_more_results) {
+                $this->rc->output->show_message('autocompletemore', 'info');
+            }
+
+            $this->rc->output->command('multi_thread_http_response', $results, get_input_value('_reqid', RCUBE_INPUT_GPC));
+            return;
         }
 
         if ($success)
@@ -875,6 +909,13 @@ class tasklist extends rcube_plugin
     {
         $this->ui->init();
         $this->ui->init_templates();
+
+        // set autocompletion env
+        $this->rc->output->set_env('autocomplete_threads', (int)$this->rc->config->get('autocomplete_threads', 0));
+        $this->rc->output->set_env('autocomplete_max', (int)$this->rc->config->get('autocomplete_max', 15));
+        $this->rc->output->set_env('autocomplete_min_length', $this->rc->config->get('autocomplete_min_length'));
+        $this->rc->output->add_label('autocompletechars', 'autocompletemore');
+
         $this->rc->output->set_pagetitle($this->gettext('navtitle'));
         $this->rc->output->send('tasklist.mainview');
     }

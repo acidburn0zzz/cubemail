@@ -81,6 +81,12 @@ class tasklist_ui
 
         $this->plugin->include_script('jquery.tagedit.js');
         $this->plugin->include_script('tasklist.js');
+        $this->rc->output->include_script('treelist.js');
+
+        // include kolab folderlist widget if available
+        if (is_readable($this->plugin->api->dir . 'libkolab/js/folderlist.js')) {
+            $this->plugin->api->include_script('libkolab/js/folderlist.js');
+        }
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tagedit.css');
     }
@@ -88,45 +94,110 @@ class tasklist_ui
     /**
      *
      */
-    function tasklists($attrib = array())
+    public function tasklists($attrib = array())
     {
-        $lists = $this->plugin->driver->get_lists();
+        $tree = true;
+        $jsenv = array();
+        $lists = $this->plugin->driver->get_lists($tree);
 
-        $li = '';
-        foreach ((array)$lists as $id => $prop) {
-            if ($attrib['activeonly'] && !$prop['active'])
-              continue;
+        // walk folder tree
+        if (is_object($tree)) {
+            $html = $this->list_tree_html($tree, $lists, $jsenv, $attrib);
+        }
+        else {
+            // fall-back to flat folder listing
+            $attrib['class'] .= ' flat';
 
+            $html = '';
+            foreach ((array)$lists as $id => $prop) {
+                if ($attrib['activeonly'] && !$prop['active'])
+                  continue;
+
+                $html .= html::tag('li', array(
+                        'id' => 'rcmlitasklist' . rcube_utils::html_identifier($id),
+                        'class' => $prop['group'],
+                    ),
+                    $this->tasklist_list_item($id, $prop, $jsenv, $attrib['activeonly'])
+                );
+            }
+        }
+
+        $this->rc->output->set_env('tasklists', $jsenv);
+        $this->rc->output->add_gui_object('tasklistslist', $attrib['id']);
+
+        return html::tag('ul', $attrib, $html, html::$common_attrib);
+    }
+
+    /**
+     * Return html for a structured list <ul> for the folder tree
+     */
+    public function list_tree_html($node, $data, &$jsenv, $attrib)
+    {
+        $out = '';
+        foreach ($node->children as $folder) {
+            $id = $folder->id;
+            $prop = $data[$id];
+            $is_collapsed = false; // TODO: determine this somehow?
+
+            $content = $this->tasklist_list_item($id, $prop, $jsenv, $attrib['activeonly']);
+
+            if (!empty($folder->children)) {
+                $content .= html::tag('ul', array('style' => ($is_collapsed ? "display:none;" : null)),
+                    $this->list_tree_html($folder, $data, $jsenv, $attrib));
+            }
+
+            if (strlen($content)) {
+                $out .= html::tag('li', array(
+                      'id' => 'rcmlitasklist' . rcube_utils::html_identifier($id),
+                      'class' => $prop['group'] . ($prop['virtual'] ? ' virtual' : ''),
+                    ),
+                    $content);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Helper method to build a tasklist item (HTML content and js data)
+     */
+    public function tasklist_list_item($id, $prop, &$jsenv, $activeonly = false)
+    {
+        // enrich list properties with settings from the driver
+        if (!$prop['virtual']) {
             unset($prop['user_id']);
             $prop['alarms'] = $this->plugin->driver->alarms;
             $prop['undelete'] = $this->plugin->driver->undelete;
             $prop['sortable'] = $this->plugin->driver->sortable;
             $prop['attachments'] = $this->plugin->driver->attachments;
-
-            if (!$prop['virtual'])
-                $jsenv[$id] = $prop;
-
-            $html_id = html_identifier($id);
-            $class = 'tasks-'  . asciiwords($id, true);
-            $title = $prop['name'] != $prop['listname'] ? html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
-
-            if ($prop['virtual'])
-                $class .= ' virtual';
-            else if (!$prop['editable'])
-                $class .= ' readonly';
-            if ($prop['class_name'])
-                $class .= ' '.$prop['class_name'];
-
-            $li .= html::tag('li', array('id' => 'rcmlitasklist' . $html_id, 'class' => $class),
-                ($prop['virtual'] ? '' : html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active']))) .
-                html::span(array('class' => 'handle', 'title' => $this->plugin->gettext('focusview')), '&nbsp;') .
-                html::span(array('class' => 'listname', 'title' => $title), $prop['listname']));
+            $jsenv[$id] = $prop;
         }
 
-        $this->rc->output->set_env('tasklists', $jsenv);
-        $this->rc->output->add_gui_object('folderlist', $attrib['id']);
+        $classes = array('tasklist');
+        $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
+          html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '');
 
-        return html::tag('ul', $attrib, $li, html::$common_attrib);
+        if ($prop['virtual'])
+            $classes[] = 'virtual';
+        else if (!$prop['editable'])
+            $classes[] = 'readonly';
+        if ($prop['subscribed'])
+            $classes[] = 'subscribed';
+        if ($prop['class'])
+            $classes[] = $prop['class'];
+
+        if (!$activeonly || $prop['active']) {
+            return html::div(join(' ', $classes),
+                html::span(array('class' => 'listname', 'title' => $title), $prop['listname']) .
+                  ($prop['virtual'] ? '' :
+                    html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'])) .
+                    html::span(array('class' => 'quickview', 'title' => $this->plugin->gettext('focusview')), '&nbsp;') .
+                    (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('tasklistsubscribe')), ' ') : '')
+                )
+            );
+        }
+
+        return '';
     }
 
 

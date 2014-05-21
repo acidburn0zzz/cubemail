@@ -5,6 +5,9 @@ $labels['navtitle'] = 'Tasks';
 $labels['lists'] = 'Tasklists';
 $labels['list'] = 'Tasklist';
 $labels['tags'] = 'Tags';
+$labels['tasklistsubscribe'] = 'List permanently';
+$labels['listsearchresults'] = 'Available Tasklists';
+$labels['findlists'] = 'Find tasklists...';
 
 $labels['newtask'] = 'New Task';
 $labels['createnewtask'] = 'Create new Task (e.g. Saturday, Mow the lawn)';

@@ -149,6 +149,24 @@ abstract class kolab_storage_folder_api
         return rcube_charset::convert(end($parts), 'UTF7-IMAP');
     }
 
+    /**
+     * Getter for parent folder path
+     *
+     * @return string Full path to parent folder
+     */
+    public function get_parent()
+    {
+        $path = explode('/', $this->name);
+        array_pop($path);
+
+        // don't list top-level namespace folder
+        if (count($path) == 1 && in_array($this->get_namespace(), array('other', 'shared'))) {
+            $path = array();
+        }
+
+        return join('/', $path);
+    }
+
 
     /**
      * Get the color value stored in metadata

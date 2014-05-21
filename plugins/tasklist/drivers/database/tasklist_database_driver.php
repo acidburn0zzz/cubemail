@@ -200,6 +200,18 @@ class tasklist_database_driver extends tasklist_driver
     }
 
     /**
+     * Search for shared or otherwise not listed tasklists the user has access
+     *
+     * @param string Search string
+     * @param string Section/source to search
+     * @return array List of tasklists
+     */
+    public function search_lists($query, $source)
+    {
+        return array();
+    }
+
+    /**
      * Get number of tasks matching the given filter
      *
      * @param array List of lists to count tasks of
