@@ -117,8 +117,9 @@ class kolab_driver extends calendar_driver
       }
     }
 
+    $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
     $folders = $this->filter_calendars(false, $active, $personal);
-    $calendars = $names = array();
+    $calendars = array();
 
     // include virtual folders for a full folder tree
     if (!is_null($tree))
@@ -127,14 +128,19 @@ class kolab_driver extends calendar_driver
     foreach ($folders as $id => $cal) {
       $fullname = $cal->get_name();
       $listname = $cal->get_foldername();
-      $imap_path = explode('/', $cal->name);
+      $imap_path = explode($delim, $cal->name);
 
       // find parent
       do {
         array_pop($imap_path);
-        $parent_id = kolab_storage::folder_id(join('/', $imap_path));
+        $parent_id = kolab_storage::folder_id(join($delim, $imap_path));
       }
-      while (count($imap_path) > 0 && !$this->calendars[$parent_id]);
+      while (count($imap_path) > 1 && !$this->calendars[$parent_id]);
+
+      // restore "real" parent ID
+      if ($parent_id && !$this->calendars[$parent_id]) {
+          $parent_id = kolab_storage::folder_id($cal->get_parent());
+      }
 
       // turn a kolab_storage_folder object into a kolab_calendar
       if ($cal instanceof kolab_storage_folder) {
@@ -360,9 +366,9 @@ class kolab_driver extends calendar_driver
     if ($prop['id'] && ($cal = $this->get_calendar($prop['id']))) {
       $ret = false;
       if (isset($prop['permanent']))
-        $ret |= $cal->storage->subscribe($prop['permanent']);
+        $ret |= $cal->storage->subscribe(intval($prop['permanent']));
       if (isset($prop['active']))
-        $ret |= $cal->storage->activate($prop['active']);
+        $ret |= $cal->storage->activate(intval($prop['active']));
       return $ret;
     }
     else {

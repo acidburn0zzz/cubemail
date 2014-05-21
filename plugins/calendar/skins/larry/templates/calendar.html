@@ -256,6 +256,9 @@ $(document).ready(function(e){
 				if (box.is(':visible')) {
 					box.find('input[type=text]').focus();
 				}
+				else {
+					$('#calendarlistsearch-reset').click();
+				}
 				// TODO: save state in localStorage
 			}
 		});

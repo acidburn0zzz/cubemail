@@ -52,7 +52,7 @@ class kolab_calendar extends kolab_storage_folder_api
     $imap = $calendar->rc->get_storage();
     $imap_folder = kolab_storage::id_decode($id);
     $info = $imap->folder_info($imap_folder, true);
-    if (empty($info) || $info['noselect'] || kolab_storage::folder_type($imap_folder) != 'event') {
+    if (empty($info) || $info['noselect'] || strpos(kolab_storage::folder_type($imap_folder), 'event') !== 0) {
       return new kolab_user_calendar($imap_folder, $calendar);
     }
     else {

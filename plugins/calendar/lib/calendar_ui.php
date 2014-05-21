@@ -273,7 +273,7 @@ class calendar_ui
   /**
    * Helper method to build a calendar list item (HTML content and js data)
    */
-  public function calendar_list_item($id, $prop, &$jsenv, $activeonly)
+  public function calendar_list_item($id, $prop, &$jsenv, $activeonly = false)
   {
     // enrich calendar properties with settings from the driver
     if (!$prop['virtual']) {
