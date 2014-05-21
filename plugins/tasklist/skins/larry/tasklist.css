@@ -384,6 +384,20 @@ body.attachmentwin #topnav .topright {
 	top: 6px;
 }
 
+#tasklistsbox .searchresults {
+	background: #b0ccd7;
+	margin-top: 8px;
+}
+
+#tasklistsbox .searchresults .boxtitle {
+	background: none;
+	padding: 2px 8px 2px 8px;
+}
+
+#tasklistsbox .searchresults .listing li {
+	background-color: #c7e3ef;
+}
+
 #mainview-right {
 	position: absolute;
 	top: 0;
