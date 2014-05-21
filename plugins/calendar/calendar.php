@@ -2110,7 +2110,7 @@ class calendar extends rcube_plugin
    */
   public function mail_messages_list($p)
   {
-    if (in_array('attachment', (array)$p['cols'])) {
+    if (in_array('attachment', (array)$p['cols']) && !empty($p['messages'])) {
       foreach ($p['messages'] as $i => $header) {
         $part = new StdClass;
         $part->mimetype = $header->ctype;
