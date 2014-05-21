@@ -139,7 +139,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'virtual' => $folder->virtual,
             'children' => true,  // TODO: determine if that folder indeed has child folders
             'subscribed' => (bool)$folder->is_subscribed(),
-            'group'    => $folder->get_namespace(),
+            'group'    => $folder->default ? 'default' : $folder->get_namespace(),
             'class' => trim($folder->get_namespace() . ($folder->default ? ' default' : '')),
         );
     }
@@ -284,8 +284,13 @@ class tasklist_kolab_driver extends tasklist_driver
             $this->rc->user->save_prefs($prefs);
 
         // force page reload to properly render folder hierarchy
-        if (!empty($prop['parent']))
+        if (!empty($prop['parent'])) {
             $prop['_reload'] = true;
+        }
+        else {
+            $folder = kolab_storage::get_folder($folder);
+            $prop += $this->folder_props($folder, $this->rc->get_storage()->get_hierarchy_delimiter(), array());
+        }
 
         return $id;
     }

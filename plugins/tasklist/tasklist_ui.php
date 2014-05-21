@@ -188,7 +188,7 @@ class tasklist_ui
 
         if (!$activeonly || $prop['active']) {
             return html::div(join(' ', $classes),
-                html::span(array('class' => 'listname', 'title' => $title), $prop['listname']) .
+                html::span(array('class' => 'listname', 'title' => $title), $prop['listname'] ?: $prop['name']) .
                   ($prop['virtual'] ? '' :
                     html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'])) .
                     html::span(array('class' => 'quickview', 'title' => $this->plugin->gettext('focusview')), '&nbsp;') .

@@ -164,7 +164,7 @@ function rcube_tasklist_ui(settings)
                 var prop = { id:p.id, active:list.active?1:0 };
                 if (list.subscribed) prop.permanent = 1;
                 rcmail.http_post('tasklist', { action:'subscribe', l:prop });
-                list_tasks();
+                setTimeout(function(){ list_tasks(); }, 500);
             }
         });
 
@@ -737,10 +737,11 @@ function rcube_tasklist_ui(settings)
 
         var tag = draggable.data('value'),
             drop_id = $(this).data('id'),
-            drop_rec = listdata[drop_id];
+            drop_rec = listdata[drop_id],
+            list = drop_rec && me.tasklists[drop_rec.list] ? me.tasklists[drop_rec.list] : { editable:true };
 
-        // target already has this tag assigned
-        if (!drop_rec || (drop_rec.tags && $.inArray(tag, drop_rec.tags) >= 0)) {
+        // target is not writeable or already has this tag assigned
+        if (!drop_rec || drop_rec.readonly || !list.editable || (drop_rec.tags && $.inArray(tag, drop_rec.tags) >= 0)) {
             return false;
         }
 
@@ -1048,7 +1049,7 @@ function rcube_tasklist_ui(settings)
 
     function task_draggable_start(event, ui)
     {
-        $('.taskhead, #rootdroppable, #'+rcmail.gui_objects.folderlist.id+' li').droppable({
+        $('.taskhead, #rootdroppable, #'+rcmail.gui_objects.tasklistslist.id+' li').droppable({
             hoverClass: 'droptarget',
             accept: task_droppable_accept,
             drop: task_draggable_dropped,
@@ -1187,7 +1188,7 @@ function rcube_tasklist_ui(settings)
      */
     function task_show_dialog(id)
     {
-        var $dialog = $('#taskshow'), rec;
+        var $dialog = $('#taskshow'), rec, list;
 
         if ($dialog.is(':ui-dialog'))
           $dialog.dialog('close');
@@ -1196,6 +1197,7 @@ function rcube_tasklist_ui(settings)
             return;
 
         me.selected_task = rec;
+        list = rec.list && me.tasklists[rec.list] ? me.tasklists[rec.list] : {};
 
         // fill dialog data
         $('#task-parent-title').html(Q(rec.parent_title || '')+' &raquo;').css('display', rec.parent_title ? 'block' : 'none');
@@ -1247,22 +1249,24 @@ function rcube_tasklist_ui(settings)
 
         // define dialog buttons
         var buttons = [];
-        buttons.push({
-            text: rcmail.gettext('edit','tasklist'),
-            click: function() {
-                task_edit_dialog(me.selected_task.id, 'edit');
-            },
-            disabled: rcmail.busy
-        });
+        if (list.editable && !rec.readonly) {
+              buttons.push({
+                text: rcmail.gettext('edit','tasklist'),
+                click: function() {
+                    task_edit_dialog(me.selected_task.id, 'edit');
+                },
+                disabled: rcmail.busy
+            });
 
-        buttons.push({
-            text: rcmail.gettext('delete','tasklist'),
-            click: function() {
-                if (delete_task(me.selected_task.id))
-                    $dialog.dialog('close');
-            },
-            disabled: rcmail.busy
-        });
+            buttons.push({
+                text: rcmail.gettext('delete','tasklist'),
+                click: function() {
+                    if (delete_task(me.selected_task.id))
+                        $dialog.dialog('close');
+                },
+                disabled: rcmail.busy
+            });
+        }
 
         // open jquery UI dialog
         $dialog.dialog({
@@ -1828,15 +1832,12 @@ function rcube_tasklist_ui(settings)
             delete_ids.push(prop.id);
         }
 
-        // delete all calendars in the list
+        // delete all subfolders in the list
         for (var i=0; i < delete_ids.length; i++) {
             id = delete_ids[i];
             list = me.tasklists[id];
-            li = rcmail.get_folder_li(id, 'rcmlitasklist');
+            tasklists_widget.remove(id);
 
-            if (li) {
-                $(li).remove();
-            }
             if (list) {
                 list.active = false;
                 // delete me.tasklists[prop.id];
@@ -1857,13 +1858,15 @@ function rcube_tasklist_ui(settings)
             return;
         }
 
-        var li = $('<li>').attr('id', 'rcmlitasklist'+prop.id)
-            .append('<input type="checkbox" name="_list[]" value="'+prop.id+'" checked="checked" />')
-            .append('<span class="handle">&nbsp;</span>')
-            .append('<span class="listname">'+Q(prop.name)+'</span>');
-        $(rcmail.gui_objects.folderlist).append(li);
+        tasklists_widget.insert({
+            id: prop.id,
+            classes: [ prop.group || '' ],
+            virtual: prop.virtual,
+            html: prop.html
+        }, prop.parent || null, prop.group);
+
+        delete prop.html;
         me.tasklists[prop.id] = prop;
-        init_tasklist_li(li.get(0), prop.id);
 
         // append to list selector in task edit dialog, too (#2985)
         $('<option>').attr('value', prop.id).html(Q(prop.name)).appendTo('#taskedit-tasklist');
@@ -1875,7 +1878,7 @@ function rcube_tasklist_ui(settings)
     function update_list(prop)
     {
         var id = prop.oldid || prop.id,
-            li = rcmail.get_folder_li(id, 'rcmlitasklist');
+            li = tasklists_widget.get_item(id);
 
         if (prop._reload) {
             rcmail.redirect(rcmail.url(''));
@@ -1885,10 +1888,9 @@ function rcube_tasklist_ui(settings)
         if (me.tasklists[id] && li) {
             delete me.tasklists[id];
             me.tasklists[prop.id] = prop;
-            $(li).data('id', prop.id)
-                .attr('id', 'rcmlitasklist'+prop.id)
-                .find('input').data('id', prop.id);
-            $('.listname', li).html(Q(prop.name));
+            $(li).find('input').first().val(prop.id);
+            $(li).find('.listname').first().html(Q(prop.name));
+            tasklists_widget.update(id, { id:prop.id, html:li.children().first() });
         }
     }
 

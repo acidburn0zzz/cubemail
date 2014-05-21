@@ -607,6 +607,11 @@ class tasklist extends rcube_plugin
             $list += array('showalarms' => true, 'active' => true, 'editable' => true);
             if ($insert_id = $this->driver->create_list($list)) {
                 $list['id'] = $insert_id;
+                if (!$list['_reload']) {
+                    $this->load_ui();
+                    $list['html'] = $this->ui->tasklist_list_item($insert_id, $list, $jsenv);
+                    $list += (array)$jsenv[$insert_id];
+                }
                 $this->rc->output->command('plugin.insert_tasklist', $list);
                 $success = true;
             }
