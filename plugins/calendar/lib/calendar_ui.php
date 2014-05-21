@@ -307,7 +307,7 @@ class calendar_ui
         html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' :
           html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
-          (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->cal->gettext('calendarsubscribe')), $this->cal->gettext('subscribed')) : '') .
+          (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->cal->gettext('calendarsubscribe')), ' ') : '') .
           html::span(array('class' => 'handle', 'style' => "background-color: #" . ($prop['color'] ?: 'f00')), '&nbsp;')
         )
       );
