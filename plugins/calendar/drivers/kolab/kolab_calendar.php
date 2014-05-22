@@ -302,6 +302,9 @@ class kolab_calendar extends kolab_storage_folder_api
       }
     }
 
+    // avoid session race conditions that will loose temporary subscriptions
+    $this->cal->rc->session->nowrite();
+
     return $events;
   }
 

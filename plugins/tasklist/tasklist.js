@@ -164,7 +164,7 @@ function rcube_tasklist_ui(settings)
                 var prop = { id:p.id, active:list.active?1:0 };
                 if (list.subscribed) prop.permanent = 1;
                 rcmail.http_post('tasklist', { action:'subscribe', l:prop });
-                setTimeout(function(){ list_tasks(); }, 500);
+                list_tasks();
             }
         });
 
