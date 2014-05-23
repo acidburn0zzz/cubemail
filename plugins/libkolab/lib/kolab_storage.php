@@ -760,12 +760,17 @@ class kolab_storage
 
             return $folders;
         }
-
         $prefix = $root . $mbox;
         $regexp = '/^' . preg_quote($filter, '/') . '(\..+)?$/';
 
-        // get folders types
-        $folderdata = self::folders_typedata($prefix);
+        // get folders types for all folders
+        if (!$subscribed || $prefix == '*' || !self::$config->get('kolab_skip_namespace')) {
+            $folderdata = self::folders_typedata($prefix);
+        }
+        else {
+            // fetch folder types for the effective list of (subscribed) folders when post-filtering
+            $folderdata = array();
+        }
 
         if (!is_array($folderdata)) {
             return array();
@@ -1489,7 +1494,7 @@ class kolab_storage
             $other_ns = rtrim(self::namespace_root('other'), $delimiter);
             $path_len = count(explode($delimiter, $other_ns));
 
-            foreach ((array)self::list_folders($other_ns, '*', $type, $subscribed) as $foldername) {
+            foreach ((array)self::list_folders($other_ns . $delimiter, '*', $type, $subscribed) as $foldername) {
                 if ($foldername == 'INBOX')  // skip INBOX which is added by default
                     continue;
 
