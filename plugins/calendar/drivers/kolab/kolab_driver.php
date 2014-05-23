@@ -79,7 +79,7 @@ class kolab_driver extends calendar_driver
       return $this->calendars;
 
     // get all folders that have "event" type, sorted by namespace/name
-    $folders = kolab_storage::sort_folders(kolab_storage::get_folders('event') + kolab_storage::get_user_folders(true));
+    $folders = kolab_storage::sort_folders(kolab_storage::get_folders('event') + kolab_storage::get_user_folders('event', true));
     $this->calendars = array();
 
     foreach ($folders as $folder) {

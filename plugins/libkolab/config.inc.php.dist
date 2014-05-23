@@ -16,6 +16,10 @@ $rcmail_config['kolab_freebusy_server'] = 'https://<some-host>/<freebusy-path>';
 // folders in calendar view or available addressbooks
 $rcmail_config['kolab_use_subscriptions'] = false;
 
+// List any of 'personal','shared','other' namespaces to be excluded from groupware folder listing
+// example: array('other');
+$rcmail_config['kolab_skip_namespace'] = null;
+
 // Enables the use of displayname folder annotations as introduced in KEP:?
 // for displaying resource folder names (experimental!)
 $rcmail_config['kolab_custom_display_names'] = false;
