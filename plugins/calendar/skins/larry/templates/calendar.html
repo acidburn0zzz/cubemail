@@ -22,16 +22,24 @@
 		<div id="datepicker" class="uibox"></div>
 
 		<div id="calendars" class="uibox listbox" style="visibility:hidden">
-			<h2 class="boxtitle"><roundcube:label name="calendar.calendars" /></h2>
+			<h2 class="boxtitle"><roundcube:label name="calendar.calendars" />
+				<a class="iconbutton search" title="<roundcube:label name='calendar.findcalendars' />"></a>
+			</h2>
+			<div class="listsearchbox">
+				<div class="searchbox">
+					<input type="text" name="q" id="calendarlistsearch" placeholder="<roundcube:label name='calendar.findcalendars' />" />
+					<a class="iconbutton searchicon"></a>
+					<roundcube:button command="reset-listsearch" id="calendarlistsearch-reset" class="iconbutton reset" title="resetsearch" content="x" />
+				</div>
+			</div>
 			<div class="scroller withfooter">
-			<roundcube:object name="plugin.calendar_list" id="calendarslist" class="listing" />
+			<roundcube:object name="plugin.calendar_list" id="calendarslist" class="treelist listing" />
 			</div>
 			<div class="boxfooter">
 				<roundcube:button command="calendar-create" type="link" title="calendar.createcalendar" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="calendaroptionslink" id="calendaroptionsmenulink" type="link" title="moreactions" class="listbutton groupactions" onclick="UI.show_popup('calendaroptionsmenu', undefined, { above:true });return false" innerClass="inner" content="&#9881;" />
 			</div>
 		</div>
 	</div>
-	<div id="calendarsidebartoggle"></div>
 
 	<div id="quicksearchbar">
 		<roundcube:object name="plugin.searchform" id="quicksearchbox" />
@@ -226,29 +234,152 @@ var UI = new rcube_mail_ui();
 $(document).ready(function(e){
 	UI.init();
 
-	// initialize sidebar toggle
-	$('#calendarsidebartoggle').click(function() {
-		var width = $(this).data('sidebarwidth');
-		var offset = $(this).data('offset');
-		var $sidebar = $('#calendarsidebar'), time = 250;
-		
-		if ($sidebar.is(':visible')) {
-			$sidebar.animate({ left:'-'+(width+10)+'px' }, time, function(){ $('#calendarsidebar').hide(); });
-			$(this).animate({ left:'8px'}, time, function(){ $('#calendarsidebartoggle').addClass('sidebarclosed') });
-			$('#calendar').animate({ left:'20px'}, time, function(){ $(this).fullCalendar('render'); });
-		}
-		else {
-			$sidebar.show().animate({ left:'10px' }, time);
-			$(this).animate({ left:offset+'px'}, time, function(){ $('#calendarsidebartoggle').removeClass('sidebarclosed'); });
-			$('#calendar').animate({ left:(width+16)+'px'}, time, function(){ $(this).fullCalendar('render'); });
-		}
-	})
-	.data('offset', $('#calendarsidebartoggle').position().left)
-	.data('sidebarwidth', $('#calendarsidebar').width() + $('#calendarsidebar').position().left);
+	new calendarview_splitter({ id:'calsidebarsplitter', p1:'#calendarsidebar', p2:'#calendar',
+		orientation:'v', relative:true, start:270, min:240, size:12, offset:0 });
 
 	new rcube_splitter({ id:'calresourceviewsplitter', p1:'#resource-dialog-left', p2:'#resource-dialog-right',
 		orientation:'v', relative:true, start:380, min:220, size:10, offset:-3 }).init();
+
+	// animation to unfold list search box
+	$('#calendars .boxtitle a.search').click(function(e){
+		var box = $('#calendars .listsearchbox'),
+			dir = box.is(':visible') ? -1 : 1;
+
+		box.slideToggle({
+			duration: 160,
+			progress: function(animation, progress) {
+				if (dir < 0) progress = 1 - progress;
+				$('#calendars .scroller').css('top', (34 + 34 * progress) + 'px');
+			},
+			complete: function() {
+				box.toggleClass('expanded');
+				if (box.is(':visible')) {
+					box.find('input[type=text]').focus();
+				}
+				else {
+					$('#calendarlistsearch-reset').click();
+				}
+				// TODO: save state in localStorage
+			}
+		});
+	});
+
 });
+
+
+/**
+ * Extended rcube_splitter class that entirely collapses the calendar sidebar
+ */
+function calendarview_splitter(p)
+{
+	this.collapsed = false;
+	this.dragging = false;
+	this.threshold = 80;
+	this.lastpos = 0;
+	this._lastpos = 0;
+	this._min = p.min;
+
+	var me = this;
+	p.callback = function(e){
+		if (me.lastpos != me._lastpos) {
+			me.dragging = true;
+			setTimeout(function(){ me.dragging = false; }, 50);
+			me._lastpos = me.lastpos;
+		}
+	};
+
+	// extend base class
+	p.min = 20;
+	rcube_splitter.call(this, p);
+
+	// @override
+	this.resize = function()
+	{
+		if (this.pos < this.threshold) {
+			if (!this.collapsed)
+				this.collapse();
+		}
+		else if (this.pos < this._min && this.pos > this._min / 2) {
+			if (this.collapsed)
+				this.expand();
+		}
+		else if (this.pos >= this._min) {
+			this.p1.css('width', Math.floor(this.pos - this.p1pos.left - this.halfsize) + 'px');
+			this.p2.css('left', Math.ceil(this.pos + this.halfsize) + 'px');
+			this.handle.css('left', Math.round(this.pos - this.halfsize + this.offset + 3)+'px');
+			if (bw.ie) {
+				var new_width = parseInt(this.parent.outerWidth(), 10) - parseInt(this.p2.css('left'), 10) ;
+				this.p2.css('width', (new_width > 0 ? new_width : 0) + 'px');
+			}
+
+			this.p2.resize();
+			this.p1.resize();
+			this.lastpos = this.pos;
+
+			// also resize iframe covers
+			if (this.drag_active) {
+				$('iframe').each(function(i, elem) {
+					var pos = $(this).offset();
+					$('#iframe-splitter-fix-'+i).css({ top: pos.top+'px', left: pos.left+'px', width:elem.offsetWidth+'px', height: elem.offsetHeight+'px' });
+				});
+			}
+
+			if (typeof this.render == 'function')
+				this.render(this);
+		}
+	}
+
+	this.collapse = function(animated)
+	{
+		var me = this, time = 250;
+		if (animated) {
+			this.p1.animate({ left:'0px' }, time, function(){ $(this).hide(); });
+			this.p2.animate({ left:this.p.size + 'px' }, time, function(){ $(this).resize(); });
+			this.handle.animate({ left:'3px'}, time, function(){ $(this).addClass('sidebarclosed') });
+		}
+		else {
+			this.p1.css('left', 0).hide();
+			this.p2.css('left', this.p.size + 'px');
+			this.handle.css('left', '3px').addClass('sidebarclosed');
+			this.p2.resize();
+		}
+
+		// stop dragging
+		if (this.drag_active) {
+			this.drag_active = false;
+			$(document).unbind('.'+this.id);
+			$('div.iframe-splitter-fix').remove();
+		}
+
+		this.pos = 10;
+		this.collapsed = true;
+		this.set_cookie();
+	}
+
+	this.expand = function()
+	{
+		var me = this, time = 250;
+		this.handle.removeClass('sidebarclosed');
+		this.pos = this.lastpos || this._min;
+		this.p1pos.left = 10;
+		this.p1.show().animate({ left:'10px', width:(this.pos - this.p1pos.left - this.halfsize) + 'px' }, time);
+		this.p2.animate({ left:(this.pos + this.halfsize) + 'px' }, time, function(){ me.resize(); });
+		this.handle.animate({ left:(this.pos - this.halfsize + this.offset + 3) + 'px' }, time);
+
+		this.collapsed = false;
+		this.set_cookie();
+	}
+
+	this.init();
+
+	var me = this;
+	this.handle.bind('click', function(e){
+		if (!me.collapsed && !me.dragging)
+			me.collapse(true);
+		else if (!me.dragging)
+			me.expand();
+	});
+}
 
 </script>
 

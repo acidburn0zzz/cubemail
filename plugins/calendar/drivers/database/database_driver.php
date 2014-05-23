@@ -138,7 +138,7 @@ class database_driver extends calendar_driver
           'color'      => $prefs['color'],
           'showalarms' => (bool)$this->rc->config->get('calendar_birthdays_alarm_type'),
           'active'     => !in_array($id, $hidden),
-          'class_name' => 'birthdays',
+          'group'      => 'birthdays',
           'readonly'   => true,
           'default'    => false,
           'children'   => false,
@@ -245,6 +245,19 @@ class database_driver extends calendar_driver
     );
 
     return $this->rc->db->affected_rows($query);
+  }
+
+  /**
+   * Search for shared or otherwise not listed calendars the user has access
+   *
+   * @param string Search string
+   * @param string Section/source to search
+   * @return array List of calendars
+   */
+  public function search_calendars($query, $source)
+  {
+    // not implemented
+    return array();
   }
 
   /**

@@ -45,11 +45,14 @@ class tasklist_kolab_driver extends tasklist_driver
         $this->rc = $plugin->rc;
         $this->plugin = $plugin;
 
-        $this->_read_lists();
-
         if (kolab_storage::$version == '2.0') {
             $this->alarm_absolute = false;
         }
+
+        // tasklist use fully encoded identifiers
+        kolab_storage::$encode_ids = true;
+
+        $this->_read_lists();
 
         $this->plugin->register_action('folder-acl', array($this, 'folder_acl'));
     }
@@ -83,67 +86,10 @@ class tasklist_kolab_driver extends tasklist_driver
 
         $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
         $prefs = $this->rc->config->get('kolab_tasklists', array());
-        $listnames = array();
-
-        // include virtual folders for a full folder tree
-        if (!$this->rc->output->ajax_call && in_array($this->rc->action, array('index','')))
-            $folders = kolab_storage::folder_hierarchy($folders);
 
         foreach ($folders as $folder) {
-            $utf7name = $folder->name;
+            $tasklist = $this->folder_props($folder, $delim, $prefs);
 
-            $path_imap = explode($delim, $utf7name);
-            $editname = rcube_charset::convert(array_pop($path_imap), 'UTF7-IMAP');  // pop off raw name part
-            $path_imap = join($delim, $path_imap);
-
-            $fullname = $folder->get_name();
-            $listname = kolab_storage::folder_displayname($fullname, $listnames);
-
-            // special handling for virtual folders
-            if ($folder->virtual) {
-                $list_id = kolab_storage::folder_id($utf7name);
-                $this->lists[$list_id] = array(
-                    'id' => $list_id,
-                    'name' => $fullname,
-                    'listname' => $listname,
-                    'virtual' => true,
-                    'editable' => false,
-                );
-                continue;
-            }
-
-            if ($folder->get_namespace() == 'personal') {
-                $norename = false;
-                $readonly = false;
-                $alarms = true;
-            }
-            else {
-                $alarms = false;
-                $readonly = true;
-                if (($rights = $folder->get_myrights()) && !PEAR::isError($rights)) {
-                    if (strpos($rights, 'i') !== false)
-                      $readonly = false;
-                }
-                $info = $folder->get_folder_info();
-                $norename = $readonly || $info['norename'] || $info['protected'];
-            }
-
-            $list_id = kolab_storage::folder_id($utf7name);
-            $tasklist = array(
-                'id' => $list_id,
-                'name' => $fullname,
-                'listname' => $listname,
-                'editname' => $editname,
-                'color' => $folder->get_color('0000CC'),
-                'showalarms' => isset($prefs[$list_id]['showalarms']) ? $prefs[$list_id]['showalarms'] : $alarms,
-                'editable' => !$readionly,
-                'norename' => $norename,
-                'active' => $folder->is_active(),
-                'parentfolder' => $path_imap,
-                'default' => $folder->default,
-                'children' => true,  // TODO: determine if that folder indeed has child folders
-                'class_name' => trim($folder->get_namespace() . ($folder->default ? ' default' : '')),
-            );
             $this->lists[$tasklist['id']] = $tasklist;
             $this->folders[$tasklist['id']] = $folder;
             $this->folders[$folder->name] = $folder;
@@ -151,18 +97,159 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
+     * Derive list properties from the given kolab_storage_folder object
+     */
+    protected function folder_props($folder, $delim, $prefs)
+    {
+        if ($folder->get_namespace() == 'personal') {
+            $norename = false;
+            $readonly = false;
+            $alarms = true;
+        }
+        else {
+            $alarms = false;
+            $readonly = true;
+            if (($rights = $folder->get_myrights()) && !PEAR::isError($rights)) {
+                if (strpos($rights, 'i') !== false)
+                  $readonly = false;
+            }
+            $info = $folder->get_folder_info();
+            $norename = $readonly || $info['norename'] || $info['protected'];
+        }
+
+        $list_id = $folder->id; #kolab_storage::folder_id($folder->name);
+        $old_id = kolab_storage::folder_id($folder->name, false);
+
+        if (!isset($prefs[$list_id]['showalarms']) && isset($prefs[$old_id]['showalarms'])) {
+            $prefs[$list_id]['showalarms'] = $prefs[$old_id]['showalarms'];
+        }
+
+        return array(
+            'id' => $list_id,
+            'name' => $folder->get_name(),
+            'listname' => $folder->get_foldername(),
+            'editname' => $folder->get_foldername(),
+            'color' => $folder->get_color('0000CC'),
+            'showalarms' => isset($prefs[$list_id]['showalarms']) ? $prefs[$list_id]['showalarms'] : $alarms,
+            'editable' => !$readonly,
+            'norename' => $norename,
+            'active' => $folder->is_active(),
+            'parentfolder' => $folder->get_parent(),
+            'default' => $folder->default,
+            'virtual' => $folder->virtual,
+            'children' => true,  // TODO: determine if that folder indeed has child folders
+            'subscribed' => (bool)$folder->is_subscribed(),
+            'group'    => $folder->default ? 'default' : $folder->get_namespace(),
+            'class' => trim($folder->get_namespace() . ($folder->default ? ' default' : '')),
+        );
+    }
+
+    /**
      * Get a list of available task lists from this source
      */
-    public function get_lists()
+    public function get_lists(&$tree = null)
     {
         // attempt to create a default list for this user
         if (empty($this->lists)) {
-            if ($this->create_list(array('name' => 'Tasks', 'color' => '0000CC', 'default' => true)))
+            $prop = array('name' => 'Tasks', 'color' => '0000CC', 'default' => true);
+            if ($this->create_list($prop))
                 $this->_read_lists(true);
         }
 
-        return $this->lists;
+        $folders = array();
+        foreach ($this->lists as $id => $list) {
+            if (!empty($this->folders[$id])) {
+                $folders[] = $this->folders[$id];
+            }
+        }
+
+        // include virtual folders for a full folder tree
+        if (!is_null($tree)) {
+            $folders = kolab_storage::folder_hierarchy($folders, $tree);
+        }
+
+        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
+        $prefs = $this->rc->config->get('kolab_tasklists', array());
+
+        $lists = array();
+        foreach ($folders as $folder) {
+            $list_id = $folder->id; #kolab_storage::folder_id($folder->name);
+            $imap_path = explode($delim, $folder->name);
+
+            // find parent
+            do {
+              array_pop($imap_path);
+              $parent_id = kolab_storage::folder_id(join($delim, $imap_path));
+            }
+            while (count($imap_path) > 1 && !$this->folders[$parent_id]);
+
+            // restore "real" parent ID
+            if ($parent_id && !$this->folders[$parent_id]) {
+                $parent_id = kolab_storage::folder_id($folder->get_parent());
+            }
+
+            $fullname = $folder->get_name();
+            $listname = $folder->get_foldername();
+
+            // special handling for virtual folders
+            if ($folder instanceof kolab_storage_folder_user) {
+                $lists[$list_id] = array(
+                    'id'       => $list_id,
+                    'name'     => $folder->get_name(),
+                    'listname' => $listname,
+                    'title'    => $folder->get_owner(),
+                    'virtual'  => true,
+                    'editable' => false,
+                    'group'    => 'other virtual',
+                    'class'    => 'user',
+                    'parent'   => $parent_id,
+                );
+            }
+            else if ($folder->virtual) {
+                $lists[$list_id] = array(
+                    'id'       => $list_id,
+                    'name'     => kolab_storage::object_name($fullname),
+                    'listname' => $listname,
+                    'virtual'  => true,
+                    'editable' => false,
+                    'group'    => $folder->get_namespace(),
+                    'class'    => 'folder',
+                    'parent'   => $parent_id,
+                );
+            }
+            else {
+                if (!$this->lists[$list_id]) {
+                    $this->lists[$list_id] = $this->folder_props($folder, $delim, $prefs);
+                    $this->folders[$list_id] = $folder;
+                }
+                $this->lists[$list_id]['parent'] = $parent_id;
+                $lists[$list_id] = $this->lists[$list_id];
+            }
+        }
+
+        return $lists;
     }
+
+    /**
+     * Get the kolab_calendar instance for the given calendar ID
+     *
+     * @param string List identifier (encoded imap folder name)
+     * @return object kolab_storage_folder Object nor null if list doesn't exist
+     */
+    protected function get_folder($id)
+    {
+        // create list and folder instance if necesary
+        if (!$this->lists[$id]) {
+            $folder = kolab_storage::get_folder(kolab_storage::id_decode($id));
+            if ($folder->type) {
+                $this->folders[$id] = $folder;
+                $this->lists[$id] = $this->folder_props($folder, $this->rc->get_storage()->get_hierarchy_delimiter(), $this->rc->config->get('kolab_tasklists', array()));
+            }
+        }
+
+        return $this->folders[$id];
+    }
+
 
     /**
      * Create a new list assigned to the current user
@@ -197,8 +284,13 @@ class tasklist_kolab_driver extends tasklist_driver
             $this->rc->user->save_prefs($prefs);
 
         // force page reload to properly render folder hierarchy
-        if (!empty($prop['parent']))
+        if (!empty($prop['parent'])) {
             $prop['_reload'] = true;
+        }
+        else {
+            $folder = kolab_storage::get_folder($folder);
+            $prop += $this->folder_props($folder, $this->rc->get_storage()->get_hierarchy_delimiter(), array());
+        }
 
         return $id;
     }
@@ -215,7 +307,7 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function edit_list(&$prop)
     {
-        if ($prop['id'] && ($folder = $this->folders[$prop['id']])) {
+        if ($prop['id'] && ($folder = $this->get_folder($prop['id']))) {
             $prop['oldname'] = $folder->name;
             $prop['type'] = 'task';
             $newfolder = kolab_storage::folder_update($prop);
@@ -254,12 +346,18 @@ class tasklist_kolab_driver extends tasklist_driver
      * @param array Hash array with list properties
      *          id: List Identifier
      *      active: True if list is active, false if not
+     *   permanent: True if list is to be subscribed permanently
      * @return boolean True on success, Fales on failure
      */
     public function subscribe_list($prop)
     {
-        if ($prop['id'] && ($folder = $this->folders[$prop['id']])) {
-            return $folder->activate($prop['active']);
+        if ($prop['id'] && ($folder = $this->get_folder($prop['id']))) {
+            $ret = false;
+            if (isset($prop['permanent']))
+                $ret |= $folder->subscribe(intval($prop['permanent']));
+            if (isset($prop['active']))
+                $ret |= $folder->activate(intval($prop['active']));
+            return $ret;
         }
         return false;
     }
@@ -273,7 +371,7 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function remove_list($prop)
     {
-        if ($prop['id'] && ($folder = $this->folders[$prop['id']])) {
+        if ($prop['id'] && ($folder = $this->get_folder($prop['id']))) {
           if (kolab_storage::folder_delete($folder->name))
               return true;
           else
@@ -281,6 +379,63 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         return false;
+    }
+
+    /**
+     * Search for shared or otherwise not listed tasklists the user has access
+     *
+     * @param string Search string
+     * @param string Section/source to search
+     * @return array List of tasklists
+     */
+    public function search_lists($query, $source)
+    {
+        if (!kolab_storage::setup()) {
+            return array();
+        }
+
+        $this->search_more_results = false;
+        $this->lists = $this->folders = array();
+
+        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
+
+        // find unsubscribed IMAP folders that have "event" type
+        if ($source == 'folders') {
+            foreach ((array)kolab_storage::search_folders('task', $query, array('other')) as $folder) {
+                $this->folders[$folder->id] = $folder;
+                $this->lists[$folder->id] = $this->folder_props($folder, $delim, array());
+            }
+        }
+        // search other user's namespace via LDAP
+        else if ($source == 'users') {
+            $limit = $this->rc->config->get('autocomplete_max', 15) * 2;  // we have slightly more space, so display twice the number
+            foreach (kolab_storage::search_users($query, 0, array(), $limit * 10) as $user) {
+                $folders = array();
+                // search for tasks folders shared by this user
+                foreach (kolab_storage::list_user_folders($user, 'task', false) as $foldername) {
+                    $folders[] = new kolab_storage_folder($foldername, 'task');
+                }
+
+                if (count($folders)) {
+                    $userfolder = new kolab_storage_folder_user($user['kolabtargetfolder'], '', $user);
+                    $this->folders[$userfolder->id] = $userfolder;
+                    $this->lists[$userfolder->id] = $this->folder_props($userfolder, $delim, array());
+
+                    foreach ($folders as $folder) {
+                        $this->folders[$folder->id] = $folder;
+                        $this->lists[$folder->id] = $this->folder_props($folder, $delim, array());
+                        $count++;
+                    }
+                }
+
+                if ($count >= $limit) {
+                    $this->search_more_results = true;
+                    break;
+                }
+            }
+        }
+
+        return $this->get_lists();
     }
 
     /**
@@ -303,7 +458,9 @@ class tasklist_kolab_driver extends tasklist_driver
 
         $counts = array('all' => 0, 'flagged' => 0, 'today' => 0, 'tomorrow' => 0, 'overdue' => 0, 'nodate' => 0);
         foreach ($lists as $list_id) {
-            $folder = $this->folders[$list_id];
+            if (!$folder = $this->get_folder($list_id)) {
+                continue;
+            }
             foreach ($folder->select(array(array('tags','!~','x-complete'))) as $record) {
                 $rec = $this->_to_rcube_task($record);
 
@@ -323,6 +480,9 @@ class tasklist_kolab_driver extends tasklist_driver
                     $counts['overdue']++;
             }
         }
+
+        // avoid session race conditions that will loose temporary subscriptions
+        $this->plugin->rc->session->nowrite();
 
         return $counts;
     }
@@ -367,7 +527,9 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         foreach ($lists as $list_id) {
-            $folder = $this->folders[$list_id];
+            if (!$folder = $this->get_folder($list_id)) {
+                continue;
+            }
             foreach ($folder->select($query) as $record) {
                 $task = $this->_to_rcube_task($record);
                 $task['list'] = $list_id;
@@ -377,6 +539,9 @@ class tasklist_kolab_driver extends tasklist_driver
                 $results[] = $task;
             }
         }
+
+        // avoid session race conditions that will loose temporary subscriptions
+        $this->plugin->rc->session->nowrite();
 
         return $results;
     }
@@ -391,11 +556,11 @@ class tasklist_kolab_driver extends tasklist_driver
     {
         $id = is_array($prop) ? ($prop['uid'] ?: $prop['id']) : $prop;
         $list_id = is_array($prop) ? $prop['list'] : null;
-        $folders = $list_id ? array($list_id => $this->folders[$list_id]) : $this->folders;
+        $folders = $list_id ? array($list_id => $this->get_folder($list_id)) : $this->folders;
 
         // find task in the available folders
         foreach ($folders as $list_id => $folder) {
-            if (is_numeric($list_id))
+            if (is_numeric($list_id) || !$folder)
                 continue;
             if (!$this->tasks[$id] && ($object = $folder->get_object($id))) {
                 $this->tasks[$id] = $this->_to_rcube_task($object);
@@ -424,7 +589,7 @@ class tasklist_kolab_driver extends tasklist_driver
         $childs = array();
         $list_id = $prop['list'];
         $task_ids = array($prop['id']);
-        $folder = $this->folders[$list_id];
+        $folder = $this->get_folder($list_id);
 
         // query for childs (recursively)
         while ($folder && !empty($task_ids)) {
@@ -484,7 +649,7 @@ class tasklist_kolab_driver extends tasklist_driver
             if (!$list['showalarms'] || ($lists && !in_array($lid, $lists)))
                 continue;
 
-            $folder = $this->folders[$lid];
+            $folder = $this->get_folder($lid);
             foreach ($folder->select($query) as $record) {
                 if (!($record['valarms'] || $record['alarms']) || $record['status'] == 'COMPLETED' || $record['complete'] == 100)  // don't trust query :-)
                     continue;
@@ -757,11 +922,11 @@ class tasklist_kolab_driver extends tasklist_driver
     public function edit_task($task)
     {
         $list_id = $task['list'];
-        if (!$list_id || !($folder = $this->folders[$list_id]))
+        if (!$list_id || !($folder = $this->get_folder($list_id)))
             return false;
 
         // moved from another folder
-        if ($task['_fromlist'] && ($fromfolder = $this->folders[$task['_fromlist']])) {
+        if ($task['_fromlist'] && ($fromfolder = $this->get_folder($task['_fromlist']))) {
             if (!$fromfolder->move($task['id'], $folder->name))
                 return false;
 
@@ -810,11 +975,11 @@ class tasklist_kolab_driver extends tasklist_driver
     public function move_task($task)
     {
         $list_id = $task['list'];
-        if (!$list_id || !($folder = $this->folders[$list_id]))
+        if (!$list_id || !($folder = $this->get_folder($list_id)))
             return false;
 
         // execute move command
-        if ($task['_fromlist'] && ($fromfolder = $this->folders[$task['_fromlist']])) {
+        if ($task['_fromlist'] && ($fromfolder = $this->get_folder($task['_fromlist']))) {
             return $fromfolder->move($task['id'], $folder->name);
         }
 
@@ -832,7 +997,7 @@ class tasklist_kolab_driver extends tasklist_driver
     public function delete_task($task, $force = true)
     {
         $list_id = $task['list'];
-        if (!$list_id || !($folder = $this->folders[$list_id]))
+        if (!$list_id || !($folder = $this->get_folder($list_id)))
             return false;
 
         return $folder->delete($task['id']);
@@ -893,7 +1058,7 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function get_attachment_body($id, $task)
     {
-        if ($storage = $this->folders[$task['list']]) {
+        if ($storage = $this->get_folder($task['list'])) {
             return $storage->get_attachment($task['id'], $id);
         }
 
@@ -906,7 +1071,7 @@ class tasklist_kolab_driver extends tasklist_driver
     public function tasklist_edit_form($action, $list, $fieldprop)
     {
         if ($list['id'] && ($list = $this->lists[$list['id']])) {
-            $folder_name = $this->folders[$list['id']]->name; // UTF7
+            $folder_name = $this->get_folder($list['id'])->name; // UTF7
         }
         else {
             $folder_name = '';

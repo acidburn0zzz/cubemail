@@ -109,21 +109,21 @@ body.attachmentwin #topnav .topright {
 	top: 4px;
 }
 
-#calendarsidebartoggle {
+#calsidebarsplitter {
 	position: absolute;
 	left: 264px;
-	width: 8px;
-	top: 40px;
+	width: 6px;
+	top: 40px !important;
 	bottom: 0;
-	background: url(images/toggle.gif) 0 48% no-repeat transparent;
-	cursor: pointer;
+	background: url(images/toggle.gif) -1px 48% no-repeat transparent;
 }
 
 div.sidebarclosed {
 	background-position: -8px 48% !important;
+	cursor: pointer;
 }
 
-#calendarsidebartoggle:hover {
+#calsidebarsplitter:hover {
 	background-color: #ddd;
 }
 
@@ -164,45 +164,86 @@ pre {
 	right: 0;
 }
 
-#calendarslist li {
-	margin: 0;
-	height: 20px;
-	padding: 6px 8px 2px;
-	display: block;
+#calendars .boxtitle {
 	position: relative;
 }
 
-#calendarslist li.virtual {
-	height: 12px;
-}
-
-#calendarslist li label {
-	display: block;
-}
-
-#calendarslist li span.calname {
-	display: block;
+#calendars .boxtitle a.iconbutton.search {
 	position: absolute;
-	top: 6px;
-	left: 26px;
-	right: 24px;
+	top: 8px;
+	right: 8px;
+	width: 16px;
+	cursor: pointer;
+	background-position: -2px -317px;
+}
+
+#calendars .listsearchbox {
+	display: none;
+}
+
+#calendars .listsearchbox.expanded {
+	display: block;
+}
+
+#calendars .scroller {
+	top: 34px;
+}
+
+#calendars .listsearchbox.expanded + .scroller {
+	top: 68px;
+}
+
+#calendars .treelist li {
+	margin: 0;
+	position: relative;
+}
+
+#calendars .treelist li div.folder,
+#calendars .treelist li div.calendar {
+	position: relative;
+	height: 28px;
+}
+
+#calendars .treelist li div.virtual {
+	height: 22px;
+}
+
+
+#calendars .treelist li span.calname {
+	display: block;
+	padding: 0px 30px 2px 2px;
+	position: absolute;
+	top: 7px;
+	left: 38px;
+	right: 40px;
 	cursor: default;
 	background: url(images/calendars.png) right 20px no-repeat;
-	padding-bottom: 2px;
-	padding-right: 30px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	color: #004458;
 }
 
-#calendarslist li span.handle {
+#calendars .treelist li div.virtual > span.calname {
+	color: #aaa;
+	top: 4px;
+	left: 20px;
+}
+
+#calendars .treelist.flat li span.calname {
+	left: 24px;
+	right: 22px;
+}
+
+#calendars .treelist li span.handle {
 	display: inline-block;
+	position: absolute;
+	top: 8px;
+	right: 6px;
 	padding: 0;
-	border-radius: 7px;
-	margin-right: 6px;
 	width: 10px;
 	height: 10px;
+	border-radius: 7px;
 	font-size: 0.8em;
 	border: 1px solid rgba(0, 0, 0, 0.5);
 	-webkit-box-shadow: inset 0px 0 1px 1px rgba(0, 0, 0, 0.3);
@@ -210,43 +251,102 @@ pre {
 	box-shadow: inset 0px 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-#calendarslist li input {
+#calendars .treelist li a.subscribed {
+	display: inline-block;
 	position: absolute;
-	top: 4px;
-	right: 5px;
+	top: 7px;
+	right: 24px;
+	height: 16px;
+	width: 16px;
+	padding: 0;
+	background: url(images/calendars.png) -100px 0 no-repeat;
+	overflow: hidden;
+	text-indent: -5000px;
+	cursor: pointer;
 }
 
-#calendarslist li.selected {
+#calendars .treelist div:hover > a.subscribed {
+	background-position: 1px -110px;
+}
+
+#calendars .treelist div.subscribed a.subscribed {
+	background-position: -15px -110px;
+}
+
+#calendars .treelist li input {
+	position: absolute;
+	top: 5px;
+	left: 18px;
+}
+
+#calendars .treelist li div.treetoggle {
+	top: 8px;
+}
+
+#calendars .treelist li.virtual div.treetoggle {
+	top: 6px;
+}
+
+#calendars .treelist.flat li input {
+	left: 4px;
+}
+
+#calendars .treelist ul li div.folder,
+#calendars .treelist ul li div.calendar {
+	margin-left: 16px;
+}
+
+#calendars .treelist ul ul li div.folder,
+#calendars .treelist ul ul li div.calendar {
+	margin-left: 32px;
+}
+
+#calendars .treelist ul ul ul li div.folder,
+#calendars .treelist ul ul ul li div.calendar {
+	margin-left: 48px;
+}
+
+#calendars .treelist li.selected {
 	background-color: #c7e3ef;
 }
 
-#calendarslist li.selected span.calname {
+#calendars .treelist li.selected > span.calname {
 	font-weight: bold;
 }
 
-#calendarslist li.readonly span.calname {
+#calendars .treelist div.readonly span.calname {
 	background-position: right -20px;
 }
 
-#calendarslist li.other span.calname {
+#calendars .treelist li.user > div > span.calname {
 	background-position: right -38px;
 }
-
-#calendarslist li.other.readonly span.calname {
+/*
+#calendars .treelist div.user.readonly span.calname {
 	background-position: right -56px;
 }
 
-#calendarslist li.shared span.calname {
+#calendars .treelist div.shared span.calname {
 	background-position: right -74px;
 }
 
-#calendarslist li.shared.readonly span.calname {
+#calendars .treelist div.shared.readonly span.calname {
 	background-position: right -92px;
 }
+*/
 
-#calendarslist li.virtual span.calname {
-	color: #aaa;
-	top: 2px;
+#calendars .searchresults {
+	background: #b0ccd7;
+	margin-top: 8px;
+}
+
+#calendars .searchresults .boxtitle {
+	background: none;
+	padding: 2px 8px 2px 8px;
+}
+
+#calendars .searchresults .listing li {
+	background-color: #c7e3ef;
 }
 
 #calfeedurl,

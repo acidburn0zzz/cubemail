@@ -39,6 +39,7 @@ function rcube_calendar_ui(settings)
     this.selected_calendar = null;
     this.search_request = null;
     this.saving_lock;
+    this.calendars = {};
 
 
     /***  private vars  ***/
@@ -51,6 +52,10 @@ function rcube_calendar_ui(settings)
     var ignore_click = false;
     var event_defaults = { free_busy:'busy', alarms:'' };
     var event_attendees = [];
+    var calendars_list;
+    var calenders_search_list;
+    var calenders_search_container;
+    var search_calendars = {};
     var attendees_list;
     var resources_list;
     var resources_treelist;
@@ -1543,7 +1548,8 @@ function rcube_calendar_ui(settings)
           id_prefix: 'rcres',
           id_encode: rcmail.html_identifier_encode,
           id_decode: rcmail.html_identifier_decode,
-          selectable: true
+          selectable: true,
+          save_state: true
         });
         resources_treelist.addEventListener('select', function(node) {
           if (resources_data[node.id]) {
@@ -2658,29 +2664,21 @@ function rcube_calendar_ui(settings)
     // mark the given calendar folder as selected
     this.select_calendar = function(id)
     {
-      var prefix = 'rcmlical';
-
-      $(rcmail.gui_objects.calendarslist).find('li.selected')
-        .removeClass('selected').addClass('unfocused');
-      $('#' + prefix + id, rcmail.gui_objects.calendarslist)
-        .removeClass('unfocused').addClass('selected');
+      calendars_list.select(id);
 
       // trigger event hook
-      rcmail.triggerEvent('selectfolder', { folder:name, prefix:prefix });
+      rcmail.triggerEvent('selectfolder', { folder:id, prefix:'rcmlical' });
 
       this.selected_calendar = id;
     };
 
+    // register the given calendar to the current view
+    var add_calendar_source = function(cal)
+    {
+      var color, brightness, select, id = cal.id;
 
-    /***  startup code  ***/
-
-    // create list of event sources AKA calendars
-    this.calendars = {};
-    var id, li, cal, active, color, brightness, event_sources = [];
-    for (id in rcmail.env.calendars) {
-      cal = rcmail.env.calendars[id];
-      this.calendars[id] = $.extend({
-        url: "./?_task=calendar&_action=load_events&source="+escape(id),
+      me.calendars[id] = $.extend({
+        url: rcmail.url('calendar/load_events', { source: id }),
         editable: !cal.readonly,
         className: 'fc-event-cal-'+id,
         id: id
@@ -2693,52 +2691,117 @@ function rcube_calendar_ui(settings)
           // http://javascriptrules.com/2009/08/05/css-color-brightness-contrast-using-javascript/
           brightness = (parseInt(RegExp.$1, 16) * 299 + parseInt(RegExp.$2, 16) * 587 + parseInt(RegExp.$3, 16) * 114) / 1000;
           if (brightness > 125)
-            this.calendars[id].textColor = 'black';
+            me.calendars[id].textColor = 'black';
         }
+
+        me.calendars[id].color = color;
       }
 
-      this.calendars[id].color = color;
+      if (fc && (cal.active || cal.subscribed)) {
+        if (cal.active)
+          fc.fullCalendar('addEventSource', me.calendars[id]);
 
-      if ((active = cal.active || false)) {
+        var submit = { id: id, active: cal.active ? 1 : 0 };
+        if (cal.subscribed !== undefined)
+            submit.permanent = cal.subscribed ? 1 : 0;
+        rcmail.http_post('calendar', { action:'subscribe', c:submit });
+      }
+
+      // insert to #calendar-select options if writeable
+      select = $('#edit-calendar');
+      if (fc && !cal.readonly && select.length && !select.find('option[value="'+id+'"]').length) {
+        $('<option>').attr('value', id).html(cal.name).appendTo(select);
+      }
+    }
+
+
+    /***  startup code  ***/
+
+    // create list of event sources AKA calendars
+    var id, cal, active, event_sources = [];
+    for (id in rcmail.env.calendars) {
+      cal = rcmail.env.calendars[id];
+      active = cal.active || false;
+      add_calendar_source(cal);
+
+      // check active calendars
+      $('#rcmlical'+id+' > .calendar input').get(0).checked = active;
+
+      if (active) {
         event_sources.push(this.calendars[id]);
       }
 
-      // init event handler on calendar list checkbox
-      if ((li = rcube_find_object('rcmlical' + id))) {
-        $('#'+li.id+' input').click(function(e){
-          var id = $(this).data('id');
-          if (me.calendars[id]) {  // add or remove event source on click
-            var action;
-            if (this.checked) {
-              action = 'addEventSource';
-              me.calendars[id].active = true;
-            }
-            else {
-              action = 'removeEventSource';
-              me.calendars[id].active = false;
-            }
-            
-            // add/remove event source
-            fc.fullCalendar(action, me.calendars[id]);
-            rcmail.http_post('calendar', { action:'subscribe', c:{ id:id, active:me.calendars[id].active?1:0 } });
-          }
-        }).data('id', id).get(0).checked = active;
-        
-        $(li).click(function(e){
-          me.select_calendar($(this).data('id'));
-          rcmail.enable_command('calendar-edit', true);
-          rcmail.enable_command('calendar-remove', 'calendar-showurl', true);
-        })
-        .dblclick(function(){ me.calendar_edit_dialog(me.calendars[me.selected_calendar]); })
-        .data('id', id);
-      }
-      
       if (!cal.readonly && !this.selected_calendar) {
         this.selected_calendar = id;
         rcmail.enable_command('addevent', true);
       }
     }
-    
+
+    // initialize treelist widget that controls the calendars list
+    var widget_class = window.kolab_folderlist || rcube_treelist_widget;
+    calendars_list = new widget_class(rcmail.gui_objects.calendarslist, {
+      id_prefix: 'rcmlical',
+      selectable: true,
+      save_state: true,
+      searchbox: '#calendarlistsearch',
+      search_action: 'calendar/calendar',
+      search_sources: [ 'folders', 'users' ],
+      search_title: rcmail.gettext('calsearchresults','calendar')
+    });
+    calendars_list.addEventListener('select', function(node) {
+      me.select_calendar(node.id);
+      rcmail.enable_command('calendar-edit', 'calendar-showurl', true);
+      rcmail.enable_command('calendar-remove', !me.calendars[node.id].readonly);
+    });
+    calendars_list.addEventListener('insert-item', function(p) {
+      var cal = p.data;
+      if (cal && cal.id) {
+        add_calendar_source(cal);
+
+        // add css classes related to this calendar to document
+        if (cal.css) {
+          $('<style type="text/css"></style>')
+            .html(cal.css)
+            .appendTo('head');
+        }
+      }
+    });
+    calendars_list.addEventListener('subscribe', function(p) {
+      var cal;
+      if ((cal = me.calendars[p.id])) {
+        cal.subscribed = p.subscribed || false;
+        rcmail.http_post('calendar', { action:'subscribe', c:{ id:p.id, active:cal.active?1:0, permanent:cal.subscribed?1:0 } });
+      }
+    });
+
+    // init (delegate) event handler on calendar list checkboxes
+    $(rcmail.gui_objects.calendarslist).on('click', 'input[type=checkbox]', function(e){
+      var id = this.value;
+      if (me.calendars[id]) {  // add or remove event source on click
+        var action;
+        if (this.checked) {
+          action = 'addEventSource';
+          me.calendars[id].active = true;
+        }
+        else {
+          action = 'removeEventSource';
+          me.calendars[id].active = false;
+        }
+
+        // add/remove event source
+        fc.fullCalendar(action, me.calendars[id]);
+        rcmail.http_post('calendar', { action:'subscribe', c:{ id:id, active:me.calendars[id].active?1:0 } });
+
+        e.stopPropagation();
+      }
+    });
+
+    // register dbl-click handler to open calendar edit dialog
+    $(rcmail.gui_objects.calendarslist).on('dblclick', ':not(.virtual) > .calname', function(e){
+      var id = $(this).closest('li').attr('id').replace(/^rcmlical/, '');
+      me.calendar_edit_dialog(me.calendars[id]);
+    });
+
     // select default calendar
     if (settings.default_calendar && this.calendars[settings.default_calendar] && !this.calendars[settings.default_calendar].readonly)
       this.selected_calendar = settings.default_calendar;

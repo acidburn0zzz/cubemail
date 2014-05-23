@@ -7,7 +7,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,22 +24,41 @@
  */
 
 
-class kolab_calendar
+class kolab_calendar extends kolab_storage_folder_api
 {
-  public $id;
   public $ready = false;
   public $readonly = true;
   public $attachments = true;
   public $alarms = false;
+  public $subscriptions = true;
   public $categories = array();
   public $storage;
-  public $name;
 
-  private $cal;
-  private $events = array();
-  private $imap_folder = 'INBOX/Calendar';
-  private $search_fields = array('title', 'description', 'location', 'attendees');
+  public $type = 'event';
 
+  protected $cal;
+  protected $events = array();
+  protected $search_fields = array('title', 'description', 'location', 'attendees');
+
+  /**
+   * Factory method to instantiate a kolab_calendar object
+   *
+   * @param string  Calendar ID (encoded IMAP folder name)
+   * @param object  calendar plugin object
+   * @return object kolab_calendar instance
+   */
+  public static function factory($id, $calendar)
+  {
+    $imap = $calendar->rc->get_storage();
+    $imap_folder = kolab_storage::id_decode($id);
+    $info = $imap->folder_info($imap_folder, true);
+    if (empty($info) || $info['noselect'] || strpos(kolab_storage::folder_type($imap_folder), 'event') !== 0) {
+      return new kolab_user_calendar($imap_folder, $calendar);
+    }
+    else {
+      return new kolab_calendar($imap_folder, $calendar);
+    }
+  }
 
   /**
    * Default constructor
@@ -47,16 +66,16 @@ class kolab_calendar
   public function __construct($imap_folder, $calendar)
   {
     $this->cal = $calendar;
-
-    if (strlen($imap_folder))
-      $this->imap_folder = $this->name = $imap_folder;
+    $this->imap = $calendar->rc->get_storage();
+    $this->name = $imap_folder;
 
     // ID is derrived from folder name
-    $this->id = kolab_storage::folder_id($this->imap_folder);
+    $this->id = kolab_storage::folder_id($this->name, true);
+    $old_id   = kolab_storage::folder_id($this->name, false);
 
     // fetch objects from the given IMAP folder
-    $this->storage = kolab_storage::get_folder($this->imap_folder);
-    $this->ready = $this->storage && !PEAR::isError($this->storage);
+    $this->storage = kolab_storage::get_folder($this->name);
+    $this->ready = $this->storage && !PEAR::isError($this->storage) && $this->storage->type !== null;
 
     // Set readonly and alarms flags according to folder permissions
     if ($this->ready) {
@@ -76,20 +95,11 @@ class kolab_calendar
       $prefs = $this->cal->rc->config->get('kolab_calendars', array());
       if (isset($prefs[$this->id]['showalarms']))
         $this->alarms = $prefs[$this->id]['showalarms'];
+      else if (isset($prefs[$old_id]['showalarms']))
+        $this->alarms = $prefs[$old_id]['showalarms'];
     }
-  }
 
-
-  /**
-   * Getter for a nice and human readable name for this calendar
-   * See http://wiki.kolab.org/UI-Concepts/Folder-Listing for reference
-   *
-   * @return string Name of this calendar
-   */
-  public function get_name()
-  {
-    $folder = kolab_storage::object_name($this->imap_folder, $this->namespace);
-    return $folder;
+    $this->default = $this->storage->default;
   }
 
 
@@ -100,42 +110,17 @@ class kolab_calendar
    */
   public function get_realname()
   {
-    return $this->imap_folder;
+    return $this->name;
   }
-
 
   /**
-   * Getter for the IMAP folder owner
    *
-   * @return string Name of the folder owner
    */
-  public function get_owner()
+  public function get_title()
   {
-    return $this->storage->get_owner();
+    return null;
   }
 
-
-  /**
-   * Getter for the name of the namespace to which the IMAP folder belongs
-   *
-   * @return string Name of the namespace (personal, other, shared)
-   */
-  public function get_namespace()
-  {
-    return $this->storage->get_namespace();
-  }
-
-
-  /**
-   * Getter for the top-end calendar folder name (not the entire path)
-   *
-   * @return string Name of this calendar
-   */
-  public function get_foldername()
-  {
-    $parts = explode('/', $this->imap_folder);
-    return rcube_charset::convert(end($parts), 'UTF7-IMAP');
-  }
 
   /**
    * Return color to display this calendar
@@ -167,21 +152,32 @@ class kolab_calendar
         '%h' => $_SERVER['HTTP_HOST'],
         '%u' => urlencode($this->cal->rc->get_user_name()),
         '%i' => urlencode($this->storage->get_uid()),
-        '%n' => urlencode($this->imap_folder),
+        '%n' => urlencode($this->name),
       ));
     }
 
     return false;
   }
 
-  /**
-   * Return the corresponding kolab_storage_folder instance
-   */
-  public function get_folder()
-  {
-    return $this->storage;
-  }
 
+  /**
+   * Update properties of this calendar folder
+   *
+   * @see calendar_driver::edit_calendar()
+   */
+  public function update(&$prop)
+  {
+    $prop['oldname'] = $this->get_realname();
+    $newfolder = kolab_storage::folder_update($prop);
+
+    if ($newfolder === false) {
+      $this->cal->last_error = $this->cal->gettext(kolab_storage::$last_error);
+      return false;
+    }
+
+    // create ID
+    return kolab_storage::folder_id($newfolder);
+  }
 
   /**
    * Getter for a single event object
@@ -305,6 +301,9 @@ class kolab_calendar
         $events = array_merge($events, $this->_get_recurring_events($record, $start, $end));
       }
     }
+
+    // avoid session race conditions that will loose temporary subscriptions
+    $this->cal->rc->session->nowrite();
 
     return $events;
   }

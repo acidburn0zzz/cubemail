@@ -673,9 +673,12 @@ class libvcalendar implements Iterator
                 continue;
 
             switch ($prop->name) {
+            case 'CREATED':
+            case 'LAST-MODIFIED':
+            case 'DTSTAMP':
             case 'DTSTART':
             case 'DTEND':
-                $propmap = array('DTSTART' => 'start', 'DTEND' => 'end');
+                $propmap = array('DTSTART' => 'start', 'DTEND' => 'end', 'CREATED' => 'created', 'LAST-MODIFIED' => 'changed', 'DTSTAMP' => 'changed');
                 $this->freebusy[$propmap[$prop->name]] =  self::convert_datetime($prop);
                 break;
 

@@ -24,9 +24,18 @@
 		</div>
 
 		<div id="tasklistsbox" class="uibox listbox">
-			<h2 class="boxtitle"><roundcube:label name="tasklist.lists" /></h2>
+			<h2 class="boxtitle"><roundcube:label name="tasklist.lists" />
+				<a class="iconbutton search" title="<roundcube:label name='tasklist.findlists' />"></a>
+			</h2>
+			<div class="listsearchbox">
+				<div class="searchbox">
+					<input type="text" name="q" id="tasklistsearch" placeholder="<roundcube:label name='tasklist.findlists' />" />
+					<a class="iconbutton searchicon"></a>
+					<roundcube:button command="reset-listsearch" id="tasklistsearch-reset" class="iconbutton reset" title="resetsearch" content="x" />
+				</div>
+			</div>
 			<div class="scroller withfooter">
-			<roundcube:object name="plugin.tasklists" id="tasklists" class="listing" />
+			<roundcube:object name="plugin.tasklists" id="tasklists" class="treelist listing" />
 			</div>
 			<div class="boxfooter">
 				<roundcube:button command="list-create" type="link" title="tasklist.createlist" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="tasklistoptionslink" id="tasklistoptionsmenulink" type="link" title="tasklist.listactions" class="listbutton groupactions" onclick="UI.show_popup('tasklistoptionsmenu', undefined, { above:true });return false" innerClass="inner" content="&#9881;" />
@@ -175,6 +184,30 @@ $(document).ready(function(e){
 		orientation:'v', relative:true, start:240, min:180, size:12 }).init();
 	new rcube_splitter({ id:'taskviewsplitterv', p1:'#tagsbox', p2:'#tasklistsbox',
 		orientation:'h', relative:true, start:242, min:120, size:12, offset:4 }).init();
+
+	// animation to unfold list search box
+	$('#tasklistsbox .boxtitle a.search').click(function(e){
+		var box = $('#tasklistsbox .listsearchbox'),
+			dir = box.is(':visible') ? -1 : 1;
+
+		box.slideToggle({
+			duration: 160,
+			progress: function(animation, progress) {
+				if (dir < 0) progress = 1 - progress;
+				$('#tasklistsbox .scroller').css('top', (34 + 34 * progress) + 'px');
+			},
+			complete: function() {
+				box.toggleClass('expanded');
+				if (box.is(':visible')) {
+					box.find('input[type=text]').focus();
+				}
+				else {
+					$('#tasklistsearch-reset').click();
+				}
+				// TODO: save state in localStorage
+			}
+		});
+	});
 });
 
 </script>

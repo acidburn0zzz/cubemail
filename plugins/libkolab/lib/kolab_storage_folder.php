@@ -22,26 +22,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-class kolab_storage_folder
+class kolab_storage_folder extends kolab_storage_folder_api
 {
-    /**
-     * The folder name.
-     * @var string
-     */
-    public $name;
-
-    /**
-     * The type of this folder.
-     * @var string
-     */
-    public $type;
-
-    /**
-     * Is this folder set to be the default for its type
-     * @var boolean
-     */
-    public $default = false;
-
     /**
      * The kolab_storage_cache instance for caching operations
      * @var object
@@ -49,11 +31,6 @@ class kolab_storage_folder
     public $cache;
 
     private $type_annotation;
-    private $namespace;
-    private $imap;
-    private $info;
-    private $idata;
-    private $owner;
     private $resource_uri;
 
 
@@ -62,7 +39,7 @@ class kolab_storage_folder
      */
     function __construct($name, $type = null)
     {
-        $this->imap = rcube::get_instance()->get_storage();
+        parent::__construct($name);
         $this->imap->set_options(array('skip_deleted' => true));
         $this->set_folder($name, $type);
     }
@@ -83,6 +60,7 @@ class kolab_storage_folder
         $this->default      = $suffix == 'default';
         $this->name         = $name;
         $this->resource_uri = null;
+        $this->id           = kolab_storage::folder_id($name);
 
         // get a new cache instance of folder type changed
         if (!$this->cache || $type != $oldtype)
@@ -90,148 +68,6 @@ class kolab_storage_folder
 
         $this->imap->set_folder($this->name);
         $this->cache->set_folder($this);
-    }
-
-    /**
-     *
-     */
-    public function get_folder_info()
-    {
-        if (!isset($this->info))
-            $this->info = $this->imap->folder_info($this->name);
-
-        return $this->info;
-    }
-
-    /**
-     * Make IMAP folder data available for this folder
-     */
-    public function get_imap_data()
-    {
-        if (!isset($this->idata))
-            $this->idata = $this->imap->folder_data($this->name);
-
-        return $this->idata;
-    }
-
-    /**
-     * Returns IMAP metadata/annotations (GETMETADATA/GETANNOTATION)
-     *
-     * @param array List of metadata keys to read
-     * @return array Metadata entry-value hash array on success, NULL on error
-     */
-    public function get_metadata($keys)
-    {
-        $metadata = $this->imap->get_metadata($this->name, (array)$keys);
-        return $metadata[$this->name];
-    }
-
-
-    /**
-     * Sets IMAP metadata/annotations (SETMETADATA/SETANNOTATION)
-     *
-     * @param array  $entries Entry-value array (use NULL value as NIL)
-     * @return boolean True on success, False on failure
-     */
-    public function set_metadata($entries)
-    {
-        return $this->imap->set_metadata($this->name, $entries);
-    }
-
-
-    /**
-     * Returns the owner of the folder.
-     *
-     * @return string  The owner of this folder.
-     */
-    public function get_owner()
-    {
-        // return cached value
-        if (isset($this->owner))
-            return $this->owner;
-
-        $info = $this->get_folder_info();
-        $rcmail = rcube::get_instance();
-
-        switch ($info['namespace']) {
-        case 'personal':
-            $this->owner = $rcmail->get_user_name();
-            break;
-
-        case 'shared':
-            $this->owner = 'anonymous';
-            break;
-
-        default:
-            list($prefix, $user) = explode($this->imap->get_hierarchy_delimiter(), $info['name']);
-            if (strpos($user, '@') === false) {
-                $domain = strstr($rcmail->get_user_name(), '@');
-                if (!empty($domain))
-                    $user .= $domain;
-            }
-            $this->owner = $user;
-            break;
-        }
-
-        return $this->owner;
-    }
-
-
-    /**
-     * Getter for the name of the namespace to which the IMAP folder belongs
-     *
-     * @return string Name of the namespace (personal, other, shared)
-     */
-    public function get_namespace()
-    {
-        if (!isset($this->namespace))
-            $this->namespace = $this->imap->folder_namespace($this->name);
-        return $this->namespace;
-    }
-
-
-    /**
-     * Get IMAP ACL information for this folder
-     *
-     * @return string  Permissions as string
-     */
-    public function get_myrights()
-    {
-        $rights = $this->info['rights'];
-
-        if (!is_array($rights))
-            $rights = $this->imap->my_rights($this->name);
-
-        return join('', (array)$rights);
-    }
-
-
-    /**
-     * Get the display name value of this folder
-     *
-     * @return string Folder name
-     */
-    public function get_name()
-    {
-        return kolab_storage::object_name($this->name, $this->namespace);
-    }
-
-
-    /**
-     * Get the color value stored in metadata
-     *
-     * @param string Default color value to return if not set
-     * @return mixed Color value from IMAP metadata or $default is not set
-     */
-    public function get_color($default = null)
-    {
-        // color is defined in folder METADATA
-        $metadata = $this->get_metadata(array(kolab_storage::COLOR_KEY_PRIVATE, kolab_storage::COLOR_KEY_SHARED));
-        if (($color = $metadata[kolab_storage::COLOR_KEY_PRIVATE]) || ($color = $metadata[kolab_storage::COLOR_KEY_SHARED])) {
-            return $color;
-        }
-
-        return $default;
     }
 
 

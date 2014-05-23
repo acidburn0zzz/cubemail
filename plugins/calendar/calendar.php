@@ -728,6 +728,30 @@ class calendar extends rcube_plugin
         if (!$this->driver->subscribe_calendar($cal))
           $this->rc->output->show_message($this->gettext('errorsaving'), 'error');
         return;
+      case "search":
+        $results = array();
+        $color_mode = $this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring']);
+        foreach ((array)$this->driver->search_calendars(get_input_value('q', RCUBE_INPUT_GPC), get_input_value('source', RCUBE_INPUT_GPC)) as $id => $prop) {
+          $editname = $prop['editname'];
+          unset($prop['editname']);  // force full name to be displayed
+          $prop['active'] = false;
+
+          // let the UI generate HTML and CSS representation for this calendar
+          $html = $this->ui->calendar_list_item($id, $prop, $jsenv);
+          $cal = $jsenv[$id];
+          $cal['editname'] = $editname;
+          $cal['html'] = $html;
+          if (!empty($prop['color']))
+            $cal['css'] = $this->ui->calendar_css_classes($id, $prop, $color_mode);
+
+          $results[] = $cal;
+        }
+        // report more results available
+        if ($this->driver->search_more_results)
+          $this->rc->output->show_message('autocompletemore', 'info');
+
+        $this->rc->output->command('multi_thread_http_response', $results, get_input_value('_reqid', RCUBE_INPUT_GPC));
+        return;
     }
     
     if ($success)
@@ -2086,7 +2110,7 @@ class calendar extends rcube_plugin
    */
   public function mail_messages_list($p)
   {
-    if (in_array('attachment', (array)$p['cols'])) {
+    if (in_array('attachment', (array)$p['cols']) && !empty($p['messages'])) {
       foreach ($p['messages'] as $i => $header) {
         $part = new StdClass;
         $part->mimetype = $header->ctype;

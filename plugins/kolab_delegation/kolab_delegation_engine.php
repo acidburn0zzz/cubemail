@@ -202,7 +202,7 @@ class kolab_delegation_engine
             return array();
         }
 
-        $list = $ldap->search($this->ldap_login_field, $login, 1);
+        $list = $ldap->dosearch($this->ldap_login_field, $login, 1);
 
         if (count($list) == 1) {
             $dn   = key($list);
@@ -288,7 +288,7 @@ class kolab_delegation_engine
             return array();
         }
 
-        $list = $ldap->search($this->ldap_delegate_field, $this->ldap_dn, 1);
+        $list = $ldap->dosearch($this->ldap_delegate_field, $this->ldap_dn, 1);
 
         foreach ($list as $dn => $delegator) {
             $delegator = $this->parse_ldap_record($delegator, $dn);
@@ -424,7 +424,7 @@ class kolab_delegation_engine
         $fields = array_unique(array_filter(array_merge((array)$this->ldap_name_field, (array)$this->ldap_login_field)));
         $users  = array();
 
-        $result = $ldap->search($fields, $search, $mode, (array)$this->ldap_login_field, $max);
+        $result = $ldap->dosearch($fields, $search, $mode, (array)$this->ldap_login_field, $max);
 
         foreach ($result as $record) {
             // skip self
