@@ -792,8 +792,9 @@ class kolab_storage
             $folders = self::$imap->list_folders_subscribed($root, $mbox);
 
             // add temporarily subscribed folders
-            if (self::$with_tempsubs && is_array($_SESSION['kolab_subscribed_folders']))
+            if (self::$with_tempsubs && is_array($_SESSION['kolab_subscribed_folders'])) {
                 $folders = array_unique(array_merge($folders, $_SESSION['kolab_subscribed_folders']));
+            }
         }
         else {
             $folders = self::_imap_list_folders($root, $mbox);
@@ -1494,12 +1495,18 @@ class kolab_storage
             $other_ns = rtrim(self::namespace_root('other'), $delimiter);
             $path_len = count(explode($delimiter, $other_ns));
 
-            foreach ((array)self::list_folders($other_ns . $delimiter, '*', $type, $subscribed) as $foldername) {
+            foreach ((array)self::list_folders($other_ns . $delimiter, '*', '', $subscribed) as $foldername) {
                 if ($foldername == 'INBOX')  // skip INBOX which is added by default
                     continue;
 
-                // truncate folder path to top-level folders of the 'other' namespace
                 $path = explode($delimiter, $foldername);
+
+                // compare folder type if a subfolder is listed
+                if ($type && count($path) > $path_len + 1 && $type != self::folder_type($foldername)) {
+                    continue;
+                }
+
+                // truncate folder path to top-level folders of the 'other' namespace
                 $foldername = join($delimiter, array_slice($path, 0, $path_len + 1));
 
                 if (!$folders[$foldername]) {
