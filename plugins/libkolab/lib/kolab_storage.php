@@ -1023,14 +1023,15 @@ class kolab_storage
                     // GETMETADATA "%" doesn't list shared or other namespace folders but "*" would
                     if ($ns_root == '') {
                         foreach ((array)self::$imap->get_metadata('%', $type_keys) as $folder => $metadata) {
-                            if (!in_array($folder, $blacklist)) {
+                            if (!in_array($folder, $blacklist) &&
+                                ($data = self::$imap->get_metadata($folder.$delimiter.'*', $type_keys))) {
                                 $folderdata[$folder] = $metadata;
-                                $folderdata += self::$imap->get_metadata($folder.$delimiter.'*', $type_keys);
+                                $folderdata += $data;
                             }
                         }
                     }
-                    else {
-                        $folderdata += self::$imap->get_metadata($ns_root.$delimiter.'*', $type_keys);
+                    else if ($data = self::$imap->get_metadata($ns_root.$delimiter.'*', $type_keys)) {
+                        $folderdata += $data;
                     }
                 }
             }
@@ -1324,7 +1325,7 @@ class kolab_storage
 
         // check if we have any folder in personal namespace
         // folder(s) may exist but not subscribed
-        foreach ($folders as $f => $data) {
+        foreach ((array)$folders as $f => $data) {
             if (strpos($data[self::CTYPE_KEY_PRIVATE], $type) === 0) {
                 $folder = $f;
                 break;
