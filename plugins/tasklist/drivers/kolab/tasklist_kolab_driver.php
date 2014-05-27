@@ -482,7 +482,7 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         // avoid session race conditions that will loose temporary subscriptions
-        $this->plugin->rc->session->nowrite();
+        $this->plugin->rc->session->nowrite = true;
 
         return $counts;
     }
@@ -541,7 +541,7 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         // avoid session race conditions that will loose temporary subscriptions
-        $this->plugin->rc->session->nowrite();
+        $this->plugin->rc->session->nowrite = true;
 
         return $results;
     }

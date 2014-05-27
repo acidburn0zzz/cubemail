@@ -223,7 +223,7 @@ class kolab_user_calendar extends kolab_calendar
     }
 
     // avoid session race conditions that will loose temporary subscriptions
-    $this->cal->rc->session->nowrite();
+    $this->cal->rc->session->nowrite = true;
 
     return $events;
   }
