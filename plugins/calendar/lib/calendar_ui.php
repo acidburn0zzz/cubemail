@@ -325,9 +325,9 @@ class calendar_ui
     $attrib['style'] .= 'display:none';
     
     $select_range = new html_select(array('name' => 'listrange', 'id' => 'agenda-listrange'));
-    $select_range->add(1 . ' ' . preg_replace('/\(.+\)/', '', $this->cal->gettext('days')), $days);
+    $select_range->add(1 . ' ' . preg_replace('/\(.+\)/', '', $this->cal->lib->gettext('days')), $days);
     foreach (array(2,5,7,14,30,60,90) as $days)
-      $select_range->add($days . ' ' . preg_replace('/\(|\)/', '', $this->cal->gettext('days')), $days);
+      $select_range->add($days . ' ' . preg_replace('/\(|\)/', '', $this->cal->lib->gettext('days')), $days);
     
     $html .= html::label('agenda-listrange', $this->cal->gettext('listrange'));
     $html .= $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']));
