@@ -126,7 +126,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     // event rendering
     eventRender: function(event, element, view) {
       if (view.name != 'month') {
-        var cont = element.find('div.fc-event-title');
+        var cont = element.find('.fc-event-title');
         if (event.location) {
           cont.after('<div class="fc-event-location">@&nbsp;' + Q(event.location) + '</div>');
           cont = cont.next();
@@ -136,9 +136,9 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         }
 /* TODO: create icons black on white
         if (event.recurrence)
-          element.find('div.fc-event-time').append('<i class="fc-icon-recurring"></i>');
+          element.find('.fc-event-time').append('<i class="fc-icon-recurring"></i>');
         if (event.alarms)
-          element.find('div.fc-event-time').append('<i class="fc-icon-alarms"></i>');
+          element.find('.fc-event-time').append('<i class="fc-icon-alarms"></i>');
 */
       }
       if (view.name == 'table' && event.description && showdesc) {

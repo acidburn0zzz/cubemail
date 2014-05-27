@@ -369,7 +369,7 @@ pre {
 }
 
 .calendarmain #quicksearchbar {
-	top: 82px;
+	top: 80px;
 	right: 4px;
 }
 
@@ -1380,7 +1380,7 @@ span.spacer {
 
 #calendar .fc-header-right {
 	padding-right: 200px;
-	padding-top: 4px;
+	padding-top: 0;
 }
 
 .rcube-fc-content {
@@ -1421,7 +1421,7 @@ span.spacer {
 	font-style:italic; 
 }
 
-div.fc-event-location {
+.fc-event-location {
 	font-size: 90%;
 }
 
@@ -1464,6 +1464,14 @@ div.fc-event-location {
 
 .fc-list-section .fc-event {
 	cursor: pointer;
+}
+
+#calendar .fc-event-vert .fc-event-head,
+#calendar .fc-event-vert .fc-event-content {
+	position: relative;
+	z-index: 2;
+	width: 100%;
+	overflow: hidden;
 }
 
 .fc-view-list div.fc-list-header,
