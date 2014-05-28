@@ -165,6 +165,7 @@ function rcube_tasklist_ui(settings)
                 if (list.subscribed) prop.permanent = 1;
                 rcmail.http_post('tasklist', { action:'subscribe', l:prop });
                 list_tasks();
+                $(p.item).data('type', 'tasklist');
             }
         });
 
@@ -184,7 +185,8 @@ function rcube_tasklist_ui(settings)
                 }
             }
             e.stopPropagation();
-        });
+        })
+        .find('li:not(.virtual)').data('type', 'tasklist');
 
         // handler for clicks on quickview buttons
         tasklists_widget.container.on('click', '.quickview', function(e){
@@ -1057,12 +1059,15 @@ function rcube_tasklist_ui(settings)
 
     function task_draggable_start(event, ui)
     {
-        $('.taskhead, #rootdroppable, #'+rcmail.gui_objects.tasklistslist.id+' li').droppable({
+        var opts = {
             hoverClass: 'droptarget',
             accept: task_droppable_accept,
             drop: task_draggable_dropped,
             addClasses: false
-        });
+        };
+
+        $('.taskhead, #rootdroppable').droppable(opts);
+        tasklists_widget.droppable(opts);
 
         $(this).parent().addClass('dragging');
         $('#rootdroppable').show();
@@ -1875,6 +1880,9 @@ function rcube_tasklist_ui(settings)
             html: prop.html
         }, prop.parent || null, prop.group);
 
+        // flag as tasklist for drag & drop
+        $(tasklists_widget.get_item(prop.id)).data('type', 'tasklist');
+
         delete prop.html;
         me.tasklists[prop.id] = prop;
 
@@ -2018,50 +2026,6 @@ function rcube_tasklist_ui(settings)
             $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
                 .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
     };
-
-    /**
-     * Register event handlers on a tasklist (folder) item
-     */
-    function init_tasklist_li(li, id)
-    {
-        $('#'+li.id+' input').click(function(e){
-            var id = $(this).data('id');
-            if (me.tasklists[id]) {  // add or remove event source on click
-                me.tasklists[id].active = this.checked;
-                fetch_counts();
-                if (!this.checked) remove_tasks(id);
-                else               list_tasks(null);
-                rcmail.http_post('tasklist', { action:'subscribe', l:{ id:id, active:me.tasklists[id].active?1:0 } });
-
-                // disable focusview
-                if (!this.checked && focusview == id) {
-                    set_focusview(null);
-                }
-            }
-        }).data('id', id).get(0).checked = me.tasklists[id].active || false;
-
-        $(li).click(function(e){
-            var id = $(this).data('id');
-            rcmail.select_folder(id, 'rcmlitasklist');
-            rcmail.enable_command('list-edit', 'list-remove', 'list-import', me.tasklists[id].editable);
-            me.selected_list = id;
-
-            // click on handle icon toggles focusview
-            if (e.target.className == 'quickview') {
-                set_focusview(focusview == id ? null : id)
-            }
-            // disable focusview when selecting another list
-            else if (focusview && id != focusview) {
-                set_focusview(null);
-            }
-        })
-        .dblclick(function(e){
-            list_edit_dialog($(this).data('id'));
-        })
-        .data('id', id)
-        .data('type', 'tasklist')
-        .addClass(me.tasklists[id].editable ? null : 'readonly');
-    }
 
     /**
      * Enable/disable focusview mode for the given list
