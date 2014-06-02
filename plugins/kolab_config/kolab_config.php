@@ -160,7 +160,7 @@ class kolab_config extends rcube_plugin
         if (isset($this->dicts[$lang]))
             return $this->dicts[$lang];
 
-        $query = array(array('type','=','configuration.dictionary'), array('tags','=',$lang));
+        $query = array(array('type','=','dictionary'), array('tags','=',$lang));
 
         foreach ($this->folders as $folder) {
             // we only want to read from default folder
