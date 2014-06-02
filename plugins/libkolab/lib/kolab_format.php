@@ -414,7 +414,7 @@ abstract class kolab_format
         $this->obj->setLastModified(self::get_datetime($object['changed']));
 
         // Save custom properties of the given object
-        if (isset($object['x-custom'])) {
+        if (isset($object['x-custom']) && method_exists($this->obj, 'setCustomProperties')) {
             $vcustom = new vectorcs;
             foreach ((array)$object['x-custom'] as $cp) {
                 if (is_array($cp))
@@ -422,7 +422,8 @@ abstract class kolab_format
             }
             $this->obj->setCustomProperties($vcustom);
         }
-        else {  // load custom properties from XML for caching (#2238)
+        // load custom properties from XML for caching (#2238) if method exists (#3125)
+        else if (method_exists($this->obj, 'customProperties')) {
             $object['x-custom'] = array();
             $vcustom = $this->obj->customProperties();
             for ($i=0; $i < $vcustom->size(); $i++) {
@@ -455,10 +456,12 @@ abstract class kolab_format
         }
 
         // read custom properties
-        $vcustom = $this->obj->customProperties();
-        for ($i=0; $i < $vcustom->size(); $i++) {
-            $cp = $vcustom->get($i);
-            $object['x-custom'][] = array($cp->identifier, $cp->value);
+        if (method_exists($this->obj, 'customProperties')) {
+            $vcustom = $this->obj->customProperties();
+            for ($i=0; $i < $vcustom->size(); $i++) {
+                $cp = $vcustom->get($i);
+                $object['x-custom'][] = array($cp->identifier, $cp->value);
+            }
         }
 
         // merge with additional data, e.g. attachments from the message
