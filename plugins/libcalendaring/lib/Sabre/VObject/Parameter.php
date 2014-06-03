@@ -72,17 +72,19 @@ class Parameter extends Node {
         $src = array(
             '\\',
             "\n",
-            ';',
-            ',',
         );
         $out = array(
             '\\\\',
             '\n',
-            '\;',
-            '\,',
         );
 
-        return $this->name . '=' . str_replace($src, $out, $this->value);
+        // quote parameters according to RFC 5545, Section 3.2
+        $quotes = '';
+        if (preg_match('/[:;,]/', $this->value)) {
+            $quotes = '"';
+        }
+
+        return $this->name . '=' . $quotes . str_replace($src, $out, $this->value) . $quotes;
 
     }
 

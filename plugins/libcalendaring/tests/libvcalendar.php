@@ -259,6 +259,10 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
 
         $this->assertEquals("House, Street, Zip Place", $event['location'], "Decode escaped commas in location value");
         $this->assertEquals("Me, meets Them\nThem, meet Me", $event['description'], "Decode description value");
+        $this->assertEquals("Kolab, Thomas", $event['attendees'][3]['name'], "Unescaped");
+
+        $ics = $ical->export($events);
+        $this->assertContains('ATTENDEE;CN="Kolab, Thomas";PARTSTAT=', $ics, "Quoted attendee parameters");
     }
 
     /**
