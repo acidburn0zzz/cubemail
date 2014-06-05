@@ -1,10 +1,10 @@
 /* Stylesheets for the Kolab Delegation configuration UI */
 
-#settings-sections span.listitem.delegation a {
+#settings-sections .listitem.delegation a {
   background: url(delegation.png) 6px 1px no-repeat;
 }
 
-#settings-sections span.listitem.delegation.selected a {
+#settings-sections .listitem.delegation.selected a {
   background-position: 6px -23px;
 }
 

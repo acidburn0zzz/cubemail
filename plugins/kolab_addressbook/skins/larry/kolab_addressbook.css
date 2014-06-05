@@ -1,8 +1,4 @@
 
-#directorylist li.addressbook.selected {
-	background-color: #c7e3ef;
-}
-
 #directorylist li.addressbook.readonly,
 #directorylist li.addressbook.shared,
 #directorylist li.addressbook.other {
@@ -40,9 +36,5 @@
 #directorylist li.addressbook.other.readonly a,
 #directorylist li.addressbook.shared.readonly a {
 	padding-right: 36px;
-}
-
-#directorylist li.addressbook.selected > a {
-	background-color: transparent;
 }
 
