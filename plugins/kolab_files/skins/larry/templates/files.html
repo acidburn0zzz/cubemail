@@ -11,7 +11,10 @@
 
 <div id="mainscreen">
 
-<div id="filestoolbar" class="toolbar">
+<h1 class="voice"><roundcube:label name="kolab_files.files" /></h1>
+
+<div id="filestoolbar" class="toolbar" role="toolbar" aria-labelledby="aria-label-toolbar">
+    <h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
     <form id="filesuploadform">
         <roundcube:button command="files-upload" type="link" class="button upload disabled" classAct="button upload" classSel="button upload pressed" label="kolab_files.upload" title="kolab_files.uploadfile" />
     </form>
@@ -20,50 +23,59 @@
     <roundcube:button command="files-delete" type="link" class="button delete disabled" classAct="button delete" classSel="button delete pressed" label="delete" title="kolab_files.deletefile" />
 </div>
 
-<div id="quicksearchbar" class="quicksearchbox">
+<div id="quicksearchbar" class="quicksearchbox" role="search" aria-labelledby="aria-label-searchform">
+    <h2 id="aria-label-searchform" class="voice"><roundcube:label name="kolab_files.arialabelsearchform" /></h2>
+    <label for="quicksearchbox" class="voice"><roundcube:label name="arialabelquicksearchbox" /></label>
+    <roundcube:button name="filesearchmenulink" id="filesearchmenulink" class="iconbutton searchoptions" onclick="return UI.toggle_popup('filesearchmenu', event)" title="searchmod" label="options" aria-haspopup="true" aria-expanded="false" aria-owns="filesearchmenu-menu" />
     <roundcube:object name="file-search-form" id="quicksearchbox" />
-    <roundcube:button name="filesearchmenulink" id="filesearchmenulink" class="iconbutton searchoptions" onclick="UI.show_popup('filesearchmenu');return false" title="searchmod" content=" " />
-    <roundcube:button command="files-search-reset" id="searchreset" class="iconbutton reset" title="resetsearch" content=" " />
+    <roundcube:button command="files-search-reset" id="searchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 </div>
 
-<div id="folderlistbox" class="uibox listbox">
+<div id="folderlistbox" class="uibox listbox" role="navigation" aria-labelledby="aria-label-folderlist">
+    <h2 id="aria-label-folderlist" class="voice"><roundcube:label name="kolab_files.arialabelfolderlist" /></h2>
     <div id="files-folder-list" class="scroller withfooter">
     </div>
     <div id="folderlist-footer" class="boxfooter">
-        <roundcube:button name="folder-create" type="link" title="kolab_files.foldercreate" class="listbutton add" classAct="listbutton add" innerClass="inner" content="+" onclick="kolab_files_folder_create_dialog()" /><roundcube:button name="folderoptions" id="folderoptionslink" type="link" title="moreactions" class="listbutton groupactions" onclick="UI.show_popup('folderoptions', undefined, {above: 1});return false" innerClass="inner" content="&#9881;" />
+        <roundcube:button command="folder-create" type="link" title="kolab_files.foldercreate" class="listbutton add" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="folderoptions" id="folderoptionslink" type="link" title="moreactions" class="listbutton groupactions" onclick="return UI.toggle_popup('folderoptions', event)" innerClass="inner" content="&#9881;" aria-haspopup="true" aria-expanded="false" aria-owns="folderoptionsmenu" />
         <roundcube:if condition="env:files_quota" />
+            <span class="voice"><roundcube:label name="quota"></span>
             <roundcube:object name="filequotadisplay" id="quotadisplay" class="countdisplay" display="text" />
         <roundcube:endif />
     </div>
 </div>
 
 <div id="filelistcontainer" class="uibox">
+    <h2 id="aria-label-filelist" class="voice"><roundcube:label name="arialabelfilelist" /></h2>
     <div id="filelistbox" class="boxlistcontent">
-        <roundcube:object name="filelist" id="filelist" class="records-table filelist sortheader fixedheader" optionsmenuIcon="true" />
+        <roundcube:object name="filelist" id="filelist" class="records-table filelist sortheader fixedheader" optionsmenuIcon="true" aria-labelledby="aria-label-filelist" />
     </div>
 </div>
 
 </div>
 
-<div id="folderoptions" class="popupmenu">
-    <ul id="folderoptionsmenu" class="toolbarmenu">
+<div id="folderoptions" class="popupmenu" data-editable="true" aria-hidden="true">
+    <h3 id="aria-label-folderoptions" class="voice"><roundcube:label name="kolab_files.folderoptions" /></h3>
+    <ul id="folderoptionsmenu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-folderoptions">
 <!--
-        <li><roundcube:button command="files-folder-edit" label="edit" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button command="files-folder-edit" label="edit" classAct="active" /></li>
 -->
-        <li><roundcube:button command="files-folder-delete" label="delete" classAct="active" /></li>
-        <li><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button command="files-folder-delete" label="delete" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
         <roundcube:container name="filesfolderoptions" id="folderoptionsmenu" />
     </ul>
 </div>
 
-<div id="files-folder-create-dialog">
+<div id="files-folder-create-dialog" role="dialog" aria-labelledby="aria-label-foldercreateform" aria-hidden="true">
+    <h3 id="aria-label-foldercreateform" class="voice"><roundcube:label name="kolab_files.arialabelfoldercreateform" /></h3>
     <roundcube:object name="folder-create-form" />
 </div>
-<div id="files-file-edit-dialog">
+<div id="files-file-edit-dialog" role="dialog" aria-labelledby="aria-label-fileeditform" aria-hidden="true">
+    <h3 id="aria-label-fileeditform" class="voice"><roundcube:label name="kolab_files.arialabelfileeditform" /></h3>
     <roundcube:object name="file-edit-form" />
 </div>
 
-<div id="listoptions" class="propform popupdialog">
+<div id="listoptions" class="propform popupdialog" data-editable="true" role="dialog" aria-labelledby="aria-label-listoptions" aria-hidden="true">
+    <h3 id="aria-label-listoptions" class="voice"><roundcube:label name="kolab_files.arialabellistoptions" /></h3>
 <roundcube:if condition="!in_array('kolab_files_list_cols', (array)config:dont_override)" />
     <fieldset class="floating">
         <legend><roundcube:label name="listcolumns" /></legend>
@@ -97,20 +109,21 @@
     <br style="clear:both" />
     <div class="formbuttons">
         <roundcube:button command="menu-save" id="listmenusave" type="input" class="button mainaction" label="save" />
-        <roundcube:button command="menu-open" id="listmenucancel" type="input" class="button" label="cancel" />
+        <roundcube:button command="menu-close" prop="filelistmenu" id="listmenucancel" type="input" class="button" label="cancel" />
     </div>
 </div>
 
-<div id="dragfilemenu" class="popupmenu">
-    <ul class="toolbarmenu">
-        <li><roundcube:button command="files-move" onclick="return kolab_files_drag_menu_action('files-move')" label="move" classAct="active" /></li>
-        <li><roundcube:button command="files-copy" onclick="return kolab_files_drag_menu_action('files-copy')" label="copy" classAct="active" /></li>
+<div id="dragfilemenu" class="popupmenu" aria-hidden="true">
+    <ul class="toolbarmenu" role="menu">
+        <li role="menuitem"><roundcube:button command="files-move" onclick="return kolab_files_drag_menu_action('files-move')" label="move" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button command="files-copy" onclick="return kolab_files_drag_menu_action('files-copy')" label="copy" classAct="active" /></li>
     </ul>
 </div>
 
-<div id="filesearchmenu" class="popupmenu">
-    <ul class="toolbarmenu">
-        <li><label><input type="checkbox" name="all_folders" value="1" id="search_all_folders" /> <span><roundcube:label name="kolab_files.allfolders" /></span></label></li>
+<div id="filesearchmenu" class="popupmenu" data-editable="true" aria-hidden="true">
+    <h3 id="aria-label-searchmenu" class="voice"><roundcube:label name="searchmod" /></h3>
+    <ul id="filesearchmenu-menu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-searchmenu">
+        <li role="menuitem"><label><input type="checkbox" name="all_folders" value="1" id="search_all_folders" /> <span><roundcube:label name="kolab_files.allfolders" /></span></label></li>
     </ul>
 </div>
 

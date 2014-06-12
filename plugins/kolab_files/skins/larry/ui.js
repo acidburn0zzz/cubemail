@@ -13,6 +13,7 @@ function kolab_files_ui_init()
   $(document).ready(function() {
     rcmail.addEventListener('menu-open', kolab_files_show_listoptions);
     rcmail.addEventListener('menu-save', kolab_files_save_listoptions);
+    rcmail.addEventListener('menu-close', kolab_files_show_listoptions);
     rcmail.addEventListener('setquota', kolab_files_update_quota);
 
     var menu = $('#dragfilemenu');
@@ -24,7 +25,6 @@ function kolab_files_ui_init()
     menu = $('#filesearchmenu');
     if (menu.length) {
       rcmail.gui_object('file_searchmenu', 'filesearchmenu');
-      UI.add_popup('filesearchmenu', {sticky: 1});
     }
   });
 
@@ -45,8 +45,12 @@ function kolab_files_update_quota(p)
     return UI.update_quota(p);
 };
 
-function kolab_files_show_listoptions()
+function kolab_files_show_listoptions(p)
 {
+  if (!p || p.name != 'filelistmenu') {
+    return;
+  }
+
   var $dialog = $('#listoptions');
 
   // close the dialog
@@ -69,10 +73,8 @@ function kolab_files_show_listoptions()
     modal: true,
     resizable: false,
     closeOnEscape: true,
+    close: function() { rcmail.file_list.focus(); },
     title: null,
-    close: function() {
-      $dialog.dialog('destroy').hide();
-    },
     minWidth: 400,
     width: $dialog.width()+20
   }).show();

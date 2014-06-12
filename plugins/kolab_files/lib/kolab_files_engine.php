@@ -298,7 +298,7 @@ class kolab_files_engine
 
         $thead = '';
         foreach ($this->file_list_head($attrib, $a_show_cols) as $cell) {
-            $thead .= html::tag('td', array('class' => $cell['className'], 'id' => $cell['id']), $cell['html']);
+            $thead .= html::tag('th', array('class' => $cell['className'], 'id' => $cell['id']), $cell['html']);
         }
 
         return html::tag('table', $attrib,
@@ -332,14 +332,21 @@ class kolab_files_engine
             $a_sort_cols = $this->sort_cols;
 
         if (!empty($attrib['optionsmenuicon'])) {
-            $onclick = 'return ' . JS_OBJECT_NAME . ".command('menu-open', 'filelistmenu')";
-            if ($attrib['optionsmenuicon'] === true || $attrib['optionsmenuicon'] == 'true')
-                $list_menu = html::div(array('onclick' => $onclick, 'class' => 'listmenu',
-                    'id' => 'listmenulink', 'title' => $this->rc->gettext('listoptions')));
-            else
-                $list_menu = html::a(array('href' => '#', 'onclick' => $onclick),
-                    html::img(array('src' => $skin_path . $attrib['optionsmenuicon'],
-                        'id' => 'listmenulink', 'title' => $this->rc->gettext('listoptions'))));
+            $onclick = 'return ' . JS_OBJECT_NAME . ".command('menu-open', 'filelistmenu', this, event)";
+            $inner   = $this->rc->gettext('listoptions');
+
+            if (is_string($attrib['optionsmenuicon']) && $attrib['optionsmenuicon'] != 'true') {
+                $inner = html::img(array('src' => $skin_path . $attrib['optionsmenuicon'], 'alt' => $RCMAIL->gettext('listoptions')));
+            }
+
+            $list_menu = html::a(array(
+                'href'     => '#list-options',
+                'onclick'  => $onclick,
+                'class'    => 'listmenu',
+                'id'       => 'listmenulink',
+                'title'    => $this->rc->gettext('listoptions'),
+                'tabindex' => '0',
+            ), $inner);
         }
         else {
             $list_menu = '';

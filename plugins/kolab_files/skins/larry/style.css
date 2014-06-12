@@ -53,7 +53,9 @@
 }
 
 #filestoolbar a.button.print {
-  background:  url(../../../../skins/larry/images/buttons.png) center -810px no-repeat;
+  background-image: url(../../../../skins/larry/images/buttons.png);
+  background-position: center -810px;
+  background-repeat: no-repeat;
 }
 
 #filestoolbar form {
@@ -152,7 +154,7 @@
   color: #aaa;
 }
 
-.filelist thead tr td {
+.filelist thead tr th {
   padding: 0;
 }
 
@@ -161,50 +163,52 @@
   height: 18px;
 }
 
-.filelist tr td.size {
+.filelist tr > .size {
   width: 80px;
   text-align: right;
 }
 
-.filelist thead tr td.size {
+.filelist thead tr > .size {
   text-align: left;
 }
 
-.filelist tr td.mtime {
+.filelist tr > .mtime {
   width: 125px;
 }
 
-.filelist tr td.options {
-  width: 26px;
+.filelist tr > .options {
+  width: 32px;
   cursor: pointer;
 }
 
-.filelist thead tr td.filename,
+.filelist thead tr th.filename,
 .filelist tbody tr td.filename {
   width: 99%;
   white-space: nowrap;
 }
 
-.filelist thead tr td.sortedASC a,
-.filelist thead tr td.sortedDESC a {
+.filelist thead tr th.sortedASC a,
+.filelist thead tr th.sortedDESC a {
   color: #004458;
   text-decoration: underline;
-  background: url(../../../../skins/larry/images/listicons.png) right -912px no-repeat;
+  background-image: url(../../../../skins/larry/images/listicons.png);
+  background-position: right -912px;
+  background-repeat: no-repeat;
 }
 
-.filelist thead tr td.sortedASC a {
+.filelist thead tr th.sortedASC a {
   background-position: right -944px;
 }
 
-.filelist td img {
+.filelist img {
   vertical-align: middle;
   display: inline-block;
 }
 
-.filelist tr td.options div.listmenu,
-.filelist tr td.flag span.flagged,
-.filelist tr td.flag span.unflagged,
-.filelist tr td.flag span.unflagged:hover {
+.filelist tr > .options a.listmenu,
+.filelist tr > .flag span.flagged,
+.filelist tr > .flag span.unflagged,
+.filelist tr > .flag span.unflagged:hover {
   display: inline-block;
   vertical-align: middle;
   height: 18px;
@@ -213,21 +217,26 @@
   background: url(../../../../skins/larry/images/listicons.png) -100px 0 no-repeat;
 }
 
-.filelist thead tr td.options div.listmenu {
-  background-position: 0 -976px;
+.filelist thead tr th.options {
+  padding: 0;
+  border-left: none;
+}
+
+.filelist thead tr th.options .listmenu {
+  background-position: 3px -970px;
   cursor: pointer;
-  width: 26px;
+  width: 24px;
+  height: 20px;
+  padding: 4px 4px 5px;
+  text-indent: -5000px;
 }
 
-.filelist thead tr td.options {
-  padding: 0 3px;
+.filelist thead tr th.options .listmenu:focus {
+  outline: none;
+  background-color: rgba(73,180,210,0.7);
 }
 
-.filelist thead tr td.options {
-  padding: 2px 3px;
-}
-
-.filelist thead tr td:first-child {
+.filelist thead tr th:first-child {
   border-radius: 4px 0 0 0;
 }
 

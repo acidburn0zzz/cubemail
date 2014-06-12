@@ -1,6 +1,7 @@
 <?php
 
 $labels['files'] = 'Files';
+$labels['filepreview'] = 'File preview';
 $labels['saveall'] = 'Save all to cloud...';
 $labels['saveto'] = 'Save to cloud...';
 $labels['saveas'] = 'Save as:';
@@ -66,5 +67,18 @@ $labels['fileskipall'] = 'Skip all';
 $labels['fileoverwrite'] = 'Overwrite';
 $labels['fileoverwriteall'] = 'Overwrite all';
 $labels['filemoveconfirm'] = 'This action is going to overwrite the destination file: <b>$file</b>.';
+
+$labels['arialabelsearchform'] = 'Files search form';
+$labels['arialabelquicksearchbox'] = 'Search input';
+$labels['arialabellistoptions'] = 'Files list options';
+$labels['arialabelfolderoptions'] = 'Folder actions';
+$labels['arialabelfileeditform'] = 'File editing form';
+$labels['arialabelfoldercreateform'] = 'Folder creation form';
+$labels['arialabelfolderlist'] = 'Folder/Collection selection';
+$labels['arialabelfileselectdialog'] = 'File selection dialog';
+$labels['arialabelattachmentoptions'] = 'Attachment save options';
+$labels['arialabelfilesavedialog'] = 'File(s) saving dialog';
+$labels['arialabelfileprops'] = 'File properties';
+$labels['arialabelfilecontent'] = 'File content';
 
 ?>
