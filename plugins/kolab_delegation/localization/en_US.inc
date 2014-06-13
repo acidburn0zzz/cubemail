@@ -27,4 +27,7 @@ $labels['updateerror'] = 'Could not update delegate.';
 $labels['createsuccess'] = 'The delegate was successfully added.';
 $labels['createerror'] = 'Could not add delegate.';
 
+$labels['arialabeldelegatedelete'] = 'Delegate deletion dialog';
+$labels['arialabeldelegateform'] = 'Delegate properties form';
+
 ?>

@@ -115,10 +115,12 @@ div.foldersblock h3.note {
   background: url(read.png) center no-repeat;
   width: 18px;
   height: 20px;
+  cursor: pointer;
 }
 
 .foldersblock th.write {
   background: url(write.png) center no-repeat;
   width: 18px;
   height: 20px;
+  cursor: pointer;
 }

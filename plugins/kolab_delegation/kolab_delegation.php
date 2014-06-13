@@ -497,8 +497,8 @@ class kolab_delegation extends rcube_plugin
         $write_ico = $attrib['writeicon'] ? html::img(array('src' => $path . $attrib['writeicon'], 'title' => $this->gettext('write'))) : '';
 
         $table = new html_table(array('cellspacing' => 0));
-        $table->add_header(array('class' => 'read', 'title' => $this->gettext('read')), $read_ico);
-        $table->add_header(array('class' => 'write', 'title' => $this->gettext('write')), $write_ico);
+        $table->add_header(array('class' => 'read', 'title' => $this->gettext('read'), 'tabindex' => 0), $read_ico);
+        $table->add_header(array('class' => 'write', 'title' => $this->gettext('write'), 'tabindex' => 0), $write_ico);
         $table->add_header('foldername', $this->rc->gettext('folder'));
 
         $checkbox_read  = new html_checkbox(array('name' => 'read[]', 'class' => 'read'));

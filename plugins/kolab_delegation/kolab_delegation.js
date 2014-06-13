@@ -49,8 +49,8 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     if (rcmail.gui_objects.delegatelist) {
       rcmail.delegatelist = new rcube_list_widget(rcmail.gui_objects.delegatelist,
         { multiselect:true, draggable:false, keyboard:true });
-      rcmail.delegatelist.addEventListener('select', function(o) { rcmail.select_delegate(o); });
-      rcmail.delegatelist.init();
+      rcmail.delegatelist.addEventListener('select', function(o) { rcmail.select_delegate(o); })
+        .init();
 
       rcmail.enable_command('delegate-add', true);
     }
@@ -77,14 +77,16 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
           $('input.write', this.parentNode.parentNode).prop('checked', false);
       });
 
-      $('.foldersblock thead td img').click(function(e) {
-        var $this = $(this),
-          classname = $this.parent().get(0).className,
-          list = $this.closest('table').find('input.'+classname),
+      var fn = function(elem) {
+        var classname = elem.className,
+          list = $(elem).closest('table').find('input.' + classname),
           check = list.not(':checked').length > 0;
 
         list.prop('checked', check).change();
-      });
+      };
+
+      $('th.read,th.write').click(function() { fn(this); })
+        .keydown(function(e) { if (e.which == 13 || e.which == 32) fn(this); });
     }
   }
 });
