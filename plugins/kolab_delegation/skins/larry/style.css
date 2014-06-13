@@ -8,14 +8,10 @@
   background-position: 6px -23px;
 }
 
-#sectionslist {
-	width: 220px;
-}
-
 #prefs-box {
 	position: absolute;
 	top: 0;
-	left: 232px;
+	left: 272px;
 	right: 0;
 	bottom: 0;
 }
@@ -113,4 +109,16 @@ div.foldersblock h3.note {
 
 #delegate-delete-dialog input {
 	vertical-align: middle;
+}
+
+.foldersblock th.read {
+  background: url(read.png) center no-repeat;
+  width: 18px;
+  height: 20px;
+}
+
+.foldersblock th.write {
+  background: url(write.png) center no-repeat;
+  width: 18px;
+  height: 20px;
 }
