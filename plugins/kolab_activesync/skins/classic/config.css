@@ -52,22 +52,22 @@ div.subscriptionblock h3.note {
 	background-position: 5px -76px;
 }
 
-#foldersubscriptions thead td {
+#foldersubscriptions thead th {
 	color: #999;
 	font-weight: bold;
 	padding: 2px;
 	text-align: center;
 }
 
-#foldersubscriptions thead tr td {
+#foldersubscriptions thead tr th {
 	border-top: 1px solid #ddd;
 }
 
-#foldersubscriptions thead td img {
+#foldersubscriptions thead th {
 	cursor: pointer;
 }
 
-#foldersubscriptions thead td.foldername {
+#foldersubscriptions thead th.foldername {
     text-align: left;
 }
 

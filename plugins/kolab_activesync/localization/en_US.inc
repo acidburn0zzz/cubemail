@@ -30,5 +30,6 @@ $labels['friendlyname'] = 'Friendly name';
 $labels['os'] = 'Operating system';
 $labels['oslanguage'] = 'OS language';
 $labels['phonenumber'] = 'Phone number';
+$labels['arialabeldeviceframe'] = 'Device synchronization settings form';
 
 ?>
