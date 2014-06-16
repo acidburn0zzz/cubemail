@@ -3,6 +3,7 @@
 $labels = array();
 
 $labels['tabtitle'] = 'Delegation';
+$labels['delegationtitle'] = 'Manage delegates';
 $labels['delegates'] = 'Delegates';
 $labels['delegate'] = 'Delegate';
 $labels['mail'] = 'Email';

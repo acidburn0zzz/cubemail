@@ -1,6 +1,7 @@
 <?php
 
 $labels['tabtitle'] = 'Activesync';
+$labels['activesynctitle'] = 'Manage Activesync devices';
 $labels['devices'] = 'Devices';
 $labels['devicealias'] = 'Device name';
 $labels['synchronize'] = 'Synchronize';

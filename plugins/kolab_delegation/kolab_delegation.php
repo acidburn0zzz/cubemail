@@ -94,6 +94,7 @@ class kolab_delegation extends rcube_plugin
             'class'  => 'delegation',
             'label'  => 'tabtitle',
             'domain' => 'kolab_delegation',
+            'title'  => 'delegationtitle',
         );
 
         return $args;
