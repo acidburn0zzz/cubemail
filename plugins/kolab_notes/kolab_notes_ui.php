@@ -72,17 +72,25 @@ class kolab_notes_ui
             $settings['selected_uid'] = $uid;
         }
 
-        // TinyMCE uses two-letter lang codes, with exception of Chinese
-        $lang = strtolower($_SESSION['language']);
-        $lang = strpos($lang, 'zh_') === 0 ? str_replace('_', '-', $lang) : substr($lang, 0, 2);
+        $lang_codes = array($_SESSION['language']);
 
-        if (!file_exists(INSTALL_PATH . 'program/js/tiny_mce/langs/'.$lang.'.js')) {
+        if ($pos = strpos($_SESSION['language'], '_')) {
+            $lang_codes[] = substr($_SESSION['language'], 0, $pos);
+        }
+
+        foreach ($lang_codes as $code) {
+            if (file_exists(INSTALL_PATH . "program/js/tinymce/langs/$code.js")) {
+                $lang = $code;
+                break;
+            }
+        }
+
+        if (empty($lang)) {
             $lang = 'en';
         }
 
         $settings['editor'] = array(
             'lang'       => $lang,
-            'editor_css' => $this->plugin->url($this->plugin->local_skin_path() . '/editor.css'),
             'spellcheck' => intval($this->rc->config->get('enable_spellcheck')),
             'spelldict'  => intval($this->rc->config->get('spellcheck_dictionary'))
         );
@@ -159,7 +167,7 @@ class kolab_notes_ui
         $attrib += array('action' => '#', 'id' => 'rcmkolabnoteseditform');
 
         $this->rc->output->add_gui_object('noteseditform', $attrib['id']);
-        $this->rc->output->include_script('tiny_mce/tiny_mce.js');
+        $this->rc->output->include_script('tinymce/tinymce.min.js');
 
         $textarea = new html_textarea(array('name' => 'content', 'id' => 'notecontent', 'cols' => 60, 'rows' => 20, 'tabindex' => 3));
         return html::tag('form', $attrib, $textarea->show(), array_merge(html::$common_attrib, array('action')));

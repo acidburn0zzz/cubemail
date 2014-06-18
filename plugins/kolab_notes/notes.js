@@ -293,27 +293,30 @@ function rcube_kolab_notes_ui(settings)
     function init_editor()
     {
         var editor_conf = {
-            mode: 'textareas',
-            elements: 'notecontent',
-            apply_source_formatting: true,
-            theme: 'advanced',
+            selector: '#notecontent',
+            theme: 'modern',
             language: settings.editor.lang,
-            content_css: settings.editor.editor_css,
-            theme_advanced_toolbar_location: 'top',
-            theme_advanced_toolbar_align: 'left',
-            theme_advanced_buttons3: '',
-            theme_advanced_statusbar_location: 'none',
+            content_css: 'program/js/tinymce/roundcube/content.css?v1',
+            plugins: 'autolink charmap code link paste tabfocus searchreplace table textcolor',
+            toolbar: 'bold italic underline | alignleft aligncenter alignright alignjustify '
+                + '| bullist numlist outdent indent blockquote | forecolor backcolor fontselect fontsizeselect '
+                + '| link unlink table charmap | code searchreplace undo redo',
+            menubar: false,
+            statusbar: false,
+            toolbar_items_size: 'small',
+            extended_valid_elements: 'font[face|size|color|style],span[id|class|align|style]',
             relative_urls: false,
             remove_script_host: false,
-            gecko_spellcheck: true,
             convert_urls: false,
+            image_description: false,
+            paste_webkit_style: "color font-size font-family",
             paste_data_images: true,
-            plugins: 'paste,tabfocus,searchreplace,table,inlinepopups',
-            theme_advanced_buttons1: 'bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,outdent,indent,blockquote,|,forecolor,backcolor,fontselect,fontsizeselect',
-            theme_advanced_buttons2: 'link,unlink,table,charmap,|,search,code,|,undo,redo',
+            //spellchecker_rpc_url: '../../../../../?_task=utils&_action=spell_html&_remote=1',
+            //spellchecker_language: rcmail.env.spell_lang,
+            accessibility_focus: false,
             setup: function(ed) {
                 // make links open on shift-click
-                ed.onClick.add(function(ed, e) {
+                ed.on('click', function(e) {
                     var link = $(e.target).closest('a');
                     if (link.length && e.shiftKey) {
                         if (!bw.mz) window.open(link.get(0).href, '_blank');

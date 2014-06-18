@@ -16,8 +16,8 @@
         <roundcube:container name="toolbar" id="notestoolbar" />
 
         <div id="quicksearchbar">
-            <roundcube:object name="plugin.searchform" id="quicksearchbox" />
             <a id="searchmenulink" class="iconbutton searchoptions" > </a>
+            <roundcube:object name="plugin.searchform" id="quicksearchbox" />
             <roundcube:button command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" content=" " />
         </div>
     </div>
@@ -38,7 +38,7 @@
             <roundcube:object name="plugin.notebooks" id="notebooks" class="listing" />
             </div>
             <div class="boxfooter">
-                <roundcube:button command="list-create" type="link" title="kolab_notes.createlist" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="notesoptionslink" id="notesoptionsmenulink" type="link" title="kolab_notes.listactions" class="listbutton groupactions" onclick="UI.show_popup('notesoptionsmenu', undefined, { above:true });return false" innerClass="inner" content="&#9881;" />
+                <roundcube:button command="list-create" type="link" title="kolab_notes.createlist" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="notesoptionslink" id="notesoptionsmenulink" type="link" title="kolab_notes.listactions" class="listbutton groupactions" onclick="return UI.toggle_popup('notesoptionsmenu', event)" innerClass="inner" content="&#9881;" />
             </div>
         </div>
     </div>
