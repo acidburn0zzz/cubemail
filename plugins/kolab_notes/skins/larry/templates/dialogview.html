@@ -42,8 +42,8 @@ $(document).ready(function(e){
         h = form.outerHeight();
         content.width(w).height(h);
 
-        $('#notecontent_tbl').width(w+'px').height('').css('margin-top', '-1px');
-        $('#notecontent_ifr').width(w+'px').height((h-54)+'px');
+        $('#noteform > div.mce-tinymce').width(w);
+        $('#notecontent_ifr').width(w).height(h - 4 - $('div.mce-toolbar').height());
     }
 
     $(window).resize(function(e){

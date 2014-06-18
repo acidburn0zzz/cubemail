@@ -135,7 +135,7 @@ function rcube_kolab_notes_ui(settings)
         // initialize notes list widget
         if (rcmail.gui_objects.noteslist) {
             noteslist = new rcube_list_widget(rcmail.gui_objects.noteslist,
-                { multiselect:true, draggable:true, keyboard:false });
+                { multiselect:true, draggable:true, keyboard:true });
             noteslist.addEventListener('select', function(list) {
                 var selection_changed = list.selection.length != 1 || !me.selected_note || list.selection[0] != me.selected_note.id;
                 selection_changed && warn_unsaved_changes(function(){
@@ -175,7 +175,7 @@ function rcube_kolab_notes_ui(settings)
                 }
                 folder_drop_target = null;
             })
-            .init();
+            .init().focus();
         }
 
         if (settings.sort_col) {
