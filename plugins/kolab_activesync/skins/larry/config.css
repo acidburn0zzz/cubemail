@@ -1,13 +1,9 @@
 /* Stylesheets for the Kolab ActiveSync configuration UI */
 
-#sectionslist {
-	width: 220px;
-}
-
 #prefs-box {
 	position: absolute;
 	top: 0;
-	left: 232px;
+	left: 272px;
 	right: 0;
 	bottom: 0;
 }
@@ -57,7 +53,7 @@ div.subscriptionblock h3.note {
 	background-position: 4px -78px;
 }
 
-#foldersubscriptions thead td {
+#foldersubscriptions thead th {
 	color: #69939e;
 	font-weight: bold;
 	padding: 2px;
@@ -68,11 +64,12 @@ div.subscriptionblock h3.note {
 	text-align: center;
 }
 
-#foldersubscriptions thead td.foldername {
+#foldersubscriptions thead th.foldername {
   text-align: left;
 }
 
-#foldersubscriptions thead td img {
+#foldersubscriptions thead th.alarm,
+#foldersubscriptions thead th.subscription {
 	cursor: pointer;
 }
 

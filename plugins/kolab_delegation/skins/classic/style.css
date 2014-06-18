@@ -42,22 +42,23 @@ div.foldersblock h3.note {
 	background-position: 5px -76px;
 }
 
-#delegatefolders thead td {
+#delegatefolders thead th {
 	color: #999;
 	font-weight: bold;
 	padding: 2px;
 	text-align: center;
 }
 
-#delegatefolders thead tr td {
+#delegatefolders thead tr th {
 	border-top: 1px solid #ddd;
 }
 
-#delegatefolders thead td img {
+#delegatefolders thead th.read,
+#delegatefolders thead th.write {
 	cursor: pointer;
 }
 
-#delegatefolders thead td.foldername {
+#delegatefolders thead th.foldername {
     text-align: left;
 }
 

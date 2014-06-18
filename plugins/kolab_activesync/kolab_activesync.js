@@ -35,8 +35,7 @@ function kolab_activesync_config()
   if (rcmail.gui_objects.devicelist) {
     var devicelist = new rcube_list_widget(rcmail.gui_objects.devicelist,
       { multiselect:true, draggable:false, keyboard:true });
-    devicelist.addEventListener('select', select_device);
-    devicelist.init();
+    devicelist.addEventListener('select', select_device).init().focus();
 
     // load frame if there are no devices
     if (!rcmail.env.devicecount)
@@ -56,14 +55,16 @@ function kolab_activesync_config()
         $('#'+this.id+'_alarm').prop('checked', false);
     });
 
-    $('.subscriptionblock thead td.subscription img, .subscriptionblock thead td.alarm img').click(function(e) {
-      var $this = $(this),
-        classname = $this.parent().get(0).className,
-        list = $this.closest('table').find('input.'+classname),
+    var fn = function(elem) {
+      var classname = elem.className,
+        list = $(elem).closest('table').find('input.' + classname),
         check = list.not(':checked').length > 0;
 
       list.prop('checked', check).change();
-    });
+    };
+
+    $('th.subscription,th.alarm').click(function() { fn(this); })
+      .keydown(function(e) { if (e.which == 13 || e.which == 32) fn(this); });
   }
 
   /* private methods */

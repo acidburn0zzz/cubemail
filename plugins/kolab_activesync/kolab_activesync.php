@@ -71,6 +71,7 @@ class kolab_activesync extends rcube_plugin
             'class'  => 'activesync',
             'label'  => 'tabtitle',
             'domain' => 'kolab_activesync',
+            'title'  => 'activesynctitle',
         );
 
         return $args;

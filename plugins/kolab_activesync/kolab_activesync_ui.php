@@ -144,9 +144,11 @@ class kolab_activesync_ui
         $alarms = ($attrib['type'] == 'event' || $attrib['type'] == 'task');
 
         $table = new html_table(array('cellspacing' => 0));
-        $table->add_header('subscription', $attrib['syncicon'] ? html::img(array('src' => $this->skin_path . $attrib['syncicon'], 'title' => $this->plugin->gettext('synchronize'))) : '');
+        $table->add_header(array('class' => 'subscription', 'title' => $this->plugin->gettext('synchronize'), 'tabindex' => 0),
+            $attrib['syncicon'] ? html::img(array('src' => $this->skin_path . $attrib['syncicon'])) : '');
         if ($alarms) {
-            $table->add_header('alarm', $attrib['alarmicon'] ? html::img(array('src' => $this->skin_path . $attrib['alarmicon'], 'title' => $this->plugin->gettext('withalarms'))) : '');
+            $table->add_header(array('class' => 'alarm', 'title' => $this->plugin->gettext('withalarms'), 'tabindex' => 0),
+                $attrib['alarmicon'] ? html::img(array('src' => $this->skin_path . $attrib['alarmicon'])) : '');
         }
         $table->add_header('foldername', $this->plugin->gettext('folder'));
 
