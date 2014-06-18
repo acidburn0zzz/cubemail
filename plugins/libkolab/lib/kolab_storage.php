@@ -1029,10 +1029,11 @@ class kolab_storage
                     // GETMETADATA "%" doesn't list shared or other namespace folders but "*" would
                     if ($ns_root == '') {
                         foreach ((array)self::$imap->get_metadata('%', $type_keys) as $folder => $metadata) {
-                            if (!in_array($folder, $blacklist) &&
-                                ($data = self::$imap->get_metadata($folder.$delimiter.'*', $type_keys))) {
+                            if (!in_array($folder, $blacklist)) {
                                 $folderdata[$folder] = $metadata;
-                                $folderdata += $data;
+                                if ($data = self::$imap->get_metadata($folder.$delimiter.'*', $type_keys)) {
+                                    $folderdata += $data;
+                                }
                             }
                         }
                     }
