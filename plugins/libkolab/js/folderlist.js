@@ -70,6 +70,7 @@ function kolab_folderlist(node, p)
                       // activate + subscribe
                       if ($(e.target).hasClass('subscribed')) {
                           search_results[id].subscribed = true;
+                          $(e.target).attr('aria-checked', 'true');
                           li.children().first()
                               .toggleClass('subscribed')
                               .find('input[type=checkbox]').get(0).checked = true;
@@ -222,6 +223,7 @@ function kolab_folderlist(node, p)
             div = li.children().first();
 
         div.toggleClass('subscribed');
+        $(this).attr('aria-checked', div.hasClass('subscribed') ? 'true' : 'false');
         me.triggerEvent('subscribe', { id: id, subscribed: div.hasClass('subscribed'), item: li });
 
         e.stopPropagation();
