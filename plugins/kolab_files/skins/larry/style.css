@@ -161,6 +161,7 @@
 .filelist tbody tr td {
   padding: 2px 7px;
   height: 18px;
+  line-height: 18px;
 }
 
 .filelist tr > .size {
@@ -243,7 +244,7 @@
 .filelist tbody tr td.options:hover span {
   width: 26px;
   height: 18px;
-  background: url(../../../../skins/larry/images/buttons.png) -5px -418px no-repeat;
+  background: url(../../../../skins/larry/images/buttons.png) -5px -417px no-repeat;
   display: block;
 }
 
