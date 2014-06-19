@@ -1282,8 +1282,9 @@ class kolab_driver extends calendar_driver
       $hidden_fields[] = array('name' => 'parent', 'value' => $path_imap);
     }
     else {
-      $select = kolab_storage::folder_selector('event', array('name' => 'parent'), $folder);
+      $select = kolab_storage::folder_selector('event', array('name' => 'parent', 'id' => 'calendar-parent'), $folder);
       $form['props']['fieldsets']['location']['content']['path'] = array(
+        'id' => 'calendar-parent',
         'label' => $this->cal->gettext('parentcalendar'),
         'value' => $select->show(strlen($folder) ? $path_imap : ''),
       );
@@ -1363,10 +1364,9 @@ class kolab_driver extends calendar_driver
     if (is_array($form['content']) && !empty($form['content'])) {
       $table = new html_table(array('cols' => 2));
       foreach ($form['content'] as $col => $colprop) {
-        $colprop['id'] = '_'.$col;
         $label = !empty($colprop['label']) ? $colprop['label'] : rcube_label($col);
 
-        $table->add('title', sprintf('<label for="%s">%s</label>', $colprop['id'], Q($label)));
+        $table->add('title', html::label($colprop['id'], Q($label)));
         $table->add(null, $colprop['value']);
       }
       $content = $table->show();

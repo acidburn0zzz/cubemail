@@ -2832,6 +2832,13 @@ function rcube_calendar_ui(settings)
 
         e.stopPropagation();
       }
+    })
+    .on('keypress', 'input[type=checkbox]', function(e) {
+        // select calendar on <Enter>
+        if (e.keyCode == 13) {
+            calendars_list.select(this.value);
+            return rcube_event.cancel(e);
+        }
     });
 
     // register dbl-click handler to open calendar edit dialog
