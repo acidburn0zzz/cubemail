@@ -57,6 +57,7 @@ $labels['onevery'] = 'On every';
 $labels['onsamedate'] = 'On the same date';
 $labels['forever'] = 'forever';
 $labels['recurrencend'] = 'until';
+$labels['untilenddate'] = 'until date';
 $labels['forntimes'] = 'for $nr time(s)';
 $labels['first'] = 'first';
 $labels['second'] = 'second';

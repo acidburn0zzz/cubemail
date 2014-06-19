@@ -735,19 +735,19 @@ class libcalendaring extends rcube_plugin
                 $select->add($this->gettext('monthly'), 'MONTHLY');
                 $select->add($this->gettext('yearly'),  'YEARLY');
                 $select->add($this->gettext('rdate'),   'RDATE');
-                $html = html::label('edit-frequency', $this->gettext('frequency')) . $select->show('');
+                $html = html::label('edit-recurrence-frequency', $this->gettext('frequency')) . $select->show('');
                 break;
 
             // daily recurrence
             case 'daily':
                 $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-daily'));
-                $html = html::div($attrib, html::label(null, $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('days')));
+                $html = html::div($attrib, html::label('edit-recurrence-interval-daily', $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('days')));
                 break;
 
             // weekly recurrence form
             case 'weekly':
                 $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-weekly'));
-                $html = html::div($attrib, html::label(null, $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('weeks')));
+                $html = html::div($attrib, html::label('edit-recurrence-interval-weekly', $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('weeks')));
                 // weekday selection
                 $daymap = array('sun','mon','tue','wed','thu','fri','sat');
                 $checkbox = new html_checkbox(array('name' => 'byday', 'class' => 'edit-recurrence-weekly-byday'));
@@ -765,7 +765,7 @@ class libcalendaring extends rcube_plugin
             // monthly recurrence form
             case 'monthly':
                 $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-monthly'));
-                $html = html::div($attrib, html::label(null, $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('months')));
+                $html = html::div($attrib, html::label('edit-recurrence-interval-monthly', $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('months')));
 
                 $checkbox = new html_checkbox(array('name' => 'bymonthday', 'class' => 'edit-recurrence-monthly-bymonthday'));
                 for ($monthdays = '', $d = 1; $d <= 31; $d++) {
@@ -787,7 +787,7 @@ class libcalendaring extends rcube_plugin
             // annually recurrence form
             case 'yearly':
                 $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-yearly'));
-                $html = html::div($attrib, html::label(null, $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('years')));
+                $html = html::div($attrib, html::label('edit-recurrence-interval-yearly', $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('years')));
                 // month selector
                 $monthmap = array('','jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec');
                 $checkbox = new html_checkbox(array('name' => 'bymonth', 'class' => 'edit-recurrence-yearly-bymonth'));
@@ -812,17 +812,18 @@ class libcalendaring extends rcube_plugin
                         $this->gettext('forever'))
                 );
 
+                $forntimes = $this->gettext(array(
+                    'name' => 'forntimes',
+                    'vars' => array('nr' => '%s'))
+                );
                 $html .= html::div('line',
-                    $radio->show('', array('value' => 'count', 'id' => 'edit-recurrence-repeat-count')) . ' ' .
-                        $this->gettext(array(
-                            'name' => 'forntimes',
-                            'vars' => array('nr' => $select->show(1)))
-                        )
+                    $radio->show('', array('value' => 'count', 'id' => 'edit-recurrence-repeat-count', 'aria-label' => sprintf($forntimes, 'N'))) . ' ' .
+                        sprintf($forntimes, $select->show(1))
                 );
 
                 $html .= html::div('line',
-                    $radio->show('', array('value' => 'until', 'id' => 'edit-recurrence-repeat-until')) . ' ' .
-                        $this->gettext('untildate') . ' ' . $input->show('')
+                    $radio->show('', array('value' => 'until', 'id' => 'edit-recurrence-repeat-until', 'aria-label' => $this->gettext('untilenddate'))) . ' ' .
+                        $this->gettext('untildate') . ' ' . $input->show('', array('aria-label' => $this->gettext('untilenddate')))
                 );
 
                 $html = html::div($attrib, html::label(null, ucfirst($this->gettext('recurrencend'))) . $html);
