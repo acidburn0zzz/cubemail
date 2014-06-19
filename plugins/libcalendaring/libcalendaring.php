@@ -288,7 +288,7 @@ class libcalendaring extends rcube_plugin
     public function alarm_select($attrib, $alarm_types, $absolute_time = true)
     {
         unset($attrib['name']);
-        $select_type = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type'));
+        $select_type = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type', 'id' => $attrib['id']));
         $select_type->add($this->gettext('none'), '');
         foreach ($alarm_types as $type)
             $select_type->add($this->gettext(strtolower("alarm{$type}option")), $type);
@@ -991,6 +991,7 @@ class libcalendaring extends rcube_plugin
                       'class' => 'delete',
                       'onclick' => sprintf("return %s.remove_from_attachment_list('rcmfile%s')", JS_OBJECT_NAME, $id),
                       'title' => $this->rc->gettext('delete'),
+                      'aria-label' => $this->rc->gettext('delete') . ' ' . $attachment['name'],
                   ), $button);
 
                   $content .= Q($attachment['name']);

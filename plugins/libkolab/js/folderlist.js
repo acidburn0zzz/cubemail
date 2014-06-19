@@ -46,8 +46,9 @@ function kolab_folderlist(node, p)
         if (results.length) {
           // create treelist widget to present the search results
           if (!search_results_widget) {
+              var list_id = (me.container.attr('id') || p.id_prefix || '0')
               search_results_container = $('<div class="searchresults"></div>')
-                  .html(p.search_title ? '<h2 class="boxtitle">' + p.search_title + '</h2>' : '')
+                  .html(p.search_title ? '<h2 class="boxtitle" id="st:' + list_id + '">' + p.search_title + '</h2>' : '')
                   .insertAfter(me.container);
 
               search_results_widget = new rcube_treelist_widget('<ul>', {
@@ -55,7 +56,7 @@ function kolab_folderlist(node, p)
                   selectable: false
               });
               // copy classes from main list
-              search_results_widget.container.addClass(me.container.attr('class'));
+              search_results_widget.container.addClass(me.container.attr('class')).attr('aria-labelledby', 'st:' + list_id);
 
               // register click handler on search result's checkboxes to select the given item for listing
               search_results_widget.container
@@ -86,6 +87,11 @@ function kolab_folderlist(node, p)
                       }
                       else {
                           li.remove();
+                      }
+
+                      // set focus to cloned checkbox
+                      if (rcube_event.is_keyboard(e)) {
+                        $(me.get_item(id, true)).find('input[type=checkbox]').first().focus();
                       }
                   });
           }
@@ -178,7 +184,7 @@ function kolab_folderlist(node, p)
             }
 
             if (listsearch_request) {
-                // ignore, let the currently runnung sequest finish
+                // ignore, let the currently running request finish
                 if (listsearch_request.query == search.query) {
                     return;
                 }
@@ -196,7 +202,10 @@ function kolab_folderlist(node, p)
                 postdata: { action:'search', q:search.query, source:'%s' },
                 lock: rcmail.display_message(rcmail.get_label('searching'), 'loading'),
                 onresponse: render_search_results,
-                whendone: function(e){ listsearch_request = null; }
+                whendone: function(data){
+                  listsearch_request = null;
+                  me.triggerEvent('search-complete', data);
+                }
             });
 
             listsearch_request = { id:reqid, query:search.query };

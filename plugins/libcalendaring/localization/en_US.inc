@@ -2,6 +2,10 @@
 
 $labels = array();
 
+// words for spoken dates
+$labels['until'] = 'until';
+$labels['at'] = 'at';
+
 // alarms related labels
 $labels['alarmemail'] = 'Send Email';
 $labels['alarmdisplay'] = 'Show message';
@@ -18,7 +22,8 @@ $labels['trigger+M'] = 'minutes after';
 $labels['trigger+H'] = 'hours after';
 $labels['trigger+D'] = 'days after';
 $labels['triggerattime'] = 'at time';
-$labels['addalarm'] = 'add alarm';
+$labels['addalarm'] = 'Add alarm';
+$labels['removealarm'] = 'Remove alarm';
 
 $labels['alarmtitle'] = 'Upcoming events';
 $labels['dismissall'] = 'Dismiss all';

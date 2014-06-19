@@ -269,6 +269,10 @@ html .fc,
 	cursor: default;
 	}
 
+.fc-event:focus {
+	outline: 2px solid ActiveBorder;
+	}
+
 a.fc-event {
 	text-decoration: none;
 	}

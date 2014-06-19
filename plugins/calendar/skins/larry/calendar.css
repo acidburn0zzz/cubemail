@@ -85,6 +85,14 @@ body.attachmentwin #topnav .topright {
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d9f1fb', endColorstr='#c5e3ee', GradientType=0);
 }
 
+#datepicker .ui-datepicker-days-cell-over a.ui-state-default {
+	color: #fff;
+	border-color: #2fa0c0;
+	background: rgba(73,180,210,0.6);
+	text-shadow: 0px 1px 1px #666;
+	filter: none;
+}
+
 #datepicker .ui-datepicker-activerange a.ui-state-active {
 	color: #fff;
 	background: #00acd4;
@@ -265,12 +273,19 @@ pre {
 	cursor: pointer;
 }
 
-#calendars .treelist div:hover > a.subscribed {
-	background-position: 1px -110px;
+#calendars .treelist div > a.subscribed:focus {
+	border-radius: 3px;
+	outline: 2px solid rgba(30,150,192, 0.5);
 }
 
-#calendars .treelist div.subscribed a.subscribed {
-	background-position: -15px -110px;
+#calendars .treelist div:hover > a.subscribed,
+#calendars .treelist div > a.subscribed:focus {
+	background-position: 0 -110px;
+}
+
+#calendars .treelist div.subscribed a.subscribed,
+#calendars .treelist div.subscribed a.subscribed:focus {
+	background-position: -16px -110px;
 }
 
 #calendars .treelist li input {
@@ -420,7 +435,7 @@ pre {
 }
 
 body.calendarmain #quicksearchbar {
-	z-index: 200;
+	z-index: 20;
 }
 
 body.calendarmain #searchmenulink {
@@ -600,7 +615,7 @@ a.miniColors-trigger {
 .calendarmain .fc-view-table td.fc-list-header,
 #attendees-freebusy-table h3.boxtitle,
 #schedule-freebusy-times thead th,
-.edit-attendees-table thead td
+.edit-attendees-table thead th
  {
 	color: #69939e;
 	font-size: 11px;
@@ -614,6 +629,7 @@ a.miniColors-trigger {
 	border: 0;
 	border-bottom: 1px solid #ccc;
 	height: 18px;
+	line-height: 18px;
 	padding: 8px 7px 3px 7px;
 }
 
@@ -775,21 +791,26 @@ td.topalign {
 	margin-top: 0.5em;
 }
 
+.edit-attendees-table th.role,
 .edit-attendees-table td.role {
 	width: 9em;
 }
 
+.edit-attendees-table th.availability,
 .edit-attendees-table td.availability,
+.edit-attendees-table th.confirmstate,
 .edit-attendees-table td.confirmstate {
 	width: 4em;
 }
 
+.edit-attendees-table th.options,
 .edit-attendees-table td.options {
 	width: 3em;
 	text-align: right;
 	padding-right: 4px;
 }
 
+.edit-attendees-table th.name,
 .edit-attendees-table td.name {
 	width: auto;
 	white-space: nowrap;
@@ -1120,7 +1141,7 @@ a.dropdown-link:after {
 	left: 0;
 	right: 0;
 	height: auto;
-	z-index: 200;
+	z-index: 10;
 	padding: 4px 5px;
 	border: 1px solid #c3c3c3;
 	border-top-color: #ddd;
@@ -1376,11 +1397,21 @@ a.dropdown-link:after {
 	-o-box-shadow: none;
 	-webkit-box-shadow: none;
 	-moz-box-shadow: none;
+	outline: none;
+}
+
+.calendarmain .fc-header-left .fc-button:focus {
+	color: #fff;
+	text-shadow: 0px 1px 1px #666;
+	background-color: rgba(30,150,192, 0.5);
+	border-radius: 3px;
 }
 
 .calendarmain .fc-header-left .fc-button.fc-state-active {
 	font-weight: bold;
 	color: #222;
+	text-shadow: none;
+	background-color: transparent;
 }
 
 .calendarmain .fc-header-left .fc-button-agendaDay {
@@ -1428,6 +1459,13 @@ a.dropdown-link:after {
 	font-size: 1em !important;
 }
 
+.calendarmain .fc-event:focus {
+	outline: 1px solid rgba(71,135,177, 0.4);
+	-webkit-box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
+	   -moz-box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
+	     -o-box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
+	        box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
+}
 .fc-event-title {
 	font-weight: bold;
 }

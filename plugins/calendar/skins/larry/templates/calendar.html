@@ -9,9 +9,12 @@
 
 <roundcube:include file="/includes/header.html" />
 
+<h1 class="voice"><roundcube:label name="calendar.calendar" /></h1>
+
 <div id="mainscreen">
 	<div id="calendarsidebar">
-		<div id="calendartoolbar" class="toolbar">
+		<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
+		<div id="calendartoolbar" class="toolbar" role="toolbar" aria-labelledby="aria-label-toolbar">
 			<roundcube:button command="addevent" type="link" class="button addevent disabled" classAct="button addevent" classSel="button addevent pressed" label="calendar.new_event" title="calendar.new_event" />
 			<roundcube:button command="print" type="link" class="button print disabled" classAct="button print" classSel="button print pressed" label="calendar.print" title="calendar.printtitle" />
 			<roundcube:button command="events-import" type="link" class="button import disabled" classAct="button import" classSel="button import pressed" label="import" title="calendar.importevents" />
@@ -19,35 +22,41 @@
 			<roundcube:container name="toolbar" id="calendartoolbar" />
 		</div>
 
-		<div id="datepicker" class="uibox"></div>
+		<h2 id="aria-label-minical" class="voice"><roundcube:label name="calendar.arialabelminical" /></h2>
+		<div id="datepicker" class="uibox" role="presentation"></div>
 
-		<div id="calendars" class="uibox listbox" style="visibility:hidden">
-			<h2 class="boxtitle"><roundcube:label name="calendar.calendars" />
-				<a class="iconbutton search" title="<roundcube:label name='calendar.findcalendars' />"></a>
+		<div id="calendars" class="uibox listbox" style="visibility:hidden" role="navigation" aria-labelledby="aria-label-calendarlist">
+			<h2 class="boxtitle" id="aria-label-calendarlist"><roundcube:label name="calendar.calendars" />
+				<a href="#calendars" class="iconbutton search" title="<roundcube:label name='calendar.findcalendars' />" tabindex="0"><roundcube:label name='calendar.findcalendars' /></a>
 			</h2>
 			<div class="listsearchbox">
-				<div class="searchbox">
+				<div class="searchbox" role="search" aria-labelledby="aria-label-calsearchform" aria-controls="calendarslist">
+					<h3 id="aria-label-calsearchform" class="voice"><roundcube:label name="calendar.arialabelcalsearchform" /></h3>
+					<label for="calendarlistsearch" class="voice"><roundcube:label name="calendar.searchterms" /></label>
 					<input type="text" name="q" id="calendarlistsearch" placeholder="<roundcube:label name='calendar.findcalendars' />" />
 					<a class="iconbutton searchicon"></a>
-					<roundcube:button command="reset-listsearch" id="calendarlistsearch-reset" class="iconbutton reset" title="resetsearch" content="x" />
+					<roundcube:button command="reset-listsearch" id="calendarlistsearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 				</div>
 			</div>
 			<div class="scroller withfooter">
-			<roundcube:object name="plugin.calendar_list" id="calendarslist" class="treelist listing" />
+				<roundcube:object name="plugin.calendar_list" id="calendarslist" class="treelist listing" />
 			</div>
 			<div class="boxfooter">
-				<roundcube:button command="calendar-create" type="link" title="calendar.createcalendar" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="calendaroptionslink" id="calendaroptionsmenulink" type="link" title="moreactions" class="listbutton groupactions" onclick="UI.show_popup('calendaroptionsmenu', undefined, { above:true });return false" innerClass="inner" content="&#9881;" />
+				<roundcube:button command="calendar-create" type="link" title="calendar.createcalendar" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="calendaroptionslink" id="calendaroptionsmenulink" type="link" title="moreactions" class="listbutton groupactions" onclick="return UI.toggle_popup('calendaroptionsmenu', event, { above:true })" innerClass="inner" label="calendar.calendaractions"  aria-haspopup="true" aria-expanded="false" aria-owns="calendaroptionsmenu-menu" />
 			</div>
 		</div>
 	</div>
 
-	<div id="quicksearchbar">
+	<div id="quicksearchbar" class="searchbox" role="search" aria-labelledby="aria-label-searchform">
+		<h2 id="aria-label-searchform" class="voice"><roundcube:label name="calendar.arialabelsearchform" /></h2>
+		<label for="quicksearchbox" class="voice"><roundcube:label name="calendar.arialabelquicksearchbox" /></label>
 		<roundcube:object name="plugin.searchform" id="quicksearchbox" />
-		<a id="searchmenulink" class="iconbutton searchoptions" > </a>
-		<roundcube:button command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" content=" " />
+		<a id="searchmenulink" class="iconbutton searchoptions" tabindex="-1"> </a>
+		<roundcube:button command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 	</div>
 
-	<div id="calendar">
+	<h2 id="aria-label-calendarview" class="voice"><roundcube:label name="calendar.arialabelcalendarview" /></h2>
+	<div id="calendar" role="main" aria-labelledby="aria-label-calendarview">
 		<roundcube:object name="plugin.angenda_options" class="boxfooter" id="agendaoptions" />
 	</div>
 </div>
@@ -56,18 +65,19 @@
 
 <roundcube:object name="message" id="messagestack" />
 
-<div id="calendaroptionsmenu" class="popupmenu">
-	<ul class="toolbarmenu">
-		<li><roundcube:button command="calendar-edit" label="calendar.edit" classAct="active" /></li>
-		<li><roundcube:button command="calendar-remove" label="calendar.remove" classAct="active" /></li>
-		<li><roundcube:button command="calendar-showurl" label="calendar.showurl" classAct="active" /></li>
+<div id="calendaroptionsmenu" class="popupmenu" aria-hidden="true">
+	<h3 id="aria-label-calendaroptions" class="voice"><roundcube:label name="calendar.calendaractions" /></h3>
+	<ul id="calendaroptionsmenu-menu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-calendaroptions">
+		<li role="menuitem"><roundcube:button command="calendar-edit" label="calendar.edit" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button command="calendar-remove" label="calendar.remove" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button command="calendar-showurl" label="calendar.showurl" classAct="active" /></li>
 		<roundcube:if condition="env:calendar_driver == 'kolab'" />
-		<li class="separator_above"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
 		<roundcube:endif />
 	</ul>
 </div>
 
-<div id="eventshow" class="uidialog">
+<div id="eventshow" class="uidialog" aria-hidden="true">
 	<h1 id="event-title">Event Title</h1>
 	<div class="event-section" id="event-location">Location</div>
 	<div class="event-section" id="event-date">From-To</div>
@@ -125,14 +135,17 @@
 
 <roundcube:include file="/templates/eventedit.html" />
 
-<div id="eventresourcesdialog" class="uidialog">
+<div id="eventresourcesdialog" class="uidialog" aria-hidden="true">
 	<div id="resource-dialog-left">
-		<div id="resource-selection" class="uibox listbox">
+		<div id="resource-selection" class="uibox listbox" role="navigation" aria-labelledby="aria-label-resourceselection">
+			<h2 class="voice" id="aria-label-resourceselection"><roundcube:label name="calendar.arialabelresourceselection" /></h2>
 			<div id="resourcequicksearch">
-				<div class="searchbox">
+				<div class="searchbox" role="search" aria-labelledby="aria-label-resourcesearchform" aria-controls="resources-list">
+					<h3 id="aria-label-resourcesearchform" class="voice"><roundcube:label name="calendar.arialabelresourcesearchform" /></h3>
+					<label for="resourcesearchbox" class="voice"><roundcube:label name="calendar.searchterms" /></label>
 					<roundcube:object name="plugin.resources_searchform" id="resourcesearchbox" />
 					<a id="resourcesearchmenulink" class="iconbutton searchoptions"> </a>
-					<roundcube:button command="reset-resource-search" id="resourcesearchreset" class="iconbutton reset" title="resetsearch" content=" " />
+					<roundcube:button command="reset-resource-search" id="resourcesearchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 				</div>
 			</div>
 			<div class="scroller">
@@ -142,25 +155,25 @@
 	</div>
 
 	<div id="resource-dialog-right">
-		<div id="resource-info" class="uibox contentbox">
-			<h2 class="boxtitle"><roundcube:label name="calendar.resourcedetails" /></h2>
+		<div id="resource-info" class="uibox contentbox" role="region" aria-labelledby="aria-label-resourcedetails">
+			<h2 class="boxtitle" id="aria-label-resourcedetails"><roundcube:label name="calendar.resourcedetails" /></h2>
 			<div class="scroller">
-				<roundcube:object name="plugin.resource_info" id="resource-details" class="propform" />
+				<roundcube:object name="plugin.resource_info" id="resource-details" class="propform" aria-live="polite" aria-relevant="text" aria-atomic="true" />
 			</div>
 		</div>
 
-		<div id="resource-availability" class="uibox contentbox">
-			<h2 class="boxtitle"><roundcube:label name="calendar.resourceavailability" /></h2>
+		<div id="resource-availability" class="uibox contentbox" role="region" aria-labelledby="aria-label-resourceavailability">
+			<h2 class="boxtitle" id="aria-label-resourceavailability"><roundcube:label name="calendar.resourceavailability" /></h2>
 			<roundcube:object name="plugin.resource_calendar" id="resource-freebusy-calendar" />
 			<div class="boxpagenav">
-				<roundcube:button name="resource-cal-prev" id="resource-calendar-prev" type="link" class="icon prevpage" title="calendar.prevslot" content="&amp;lt;" />
-				<roundcube:button name="resource-cal-next" id="resource-calendar-next" type="link" class="icon nextpage" title="calendar.nextslot" content="&amp;gt;" />
+				<roundcube:button name="resource-cal-prev" id="resource-calendar-prev" type="link" class="icon prevpage" title="calendar.prevslot" label="calendar.prevweek" />
+				<roundcube:button name="resource-cal-next" id="resource-calendar-next" type="link" class="icon nextpage" title="calendar.nextslot" label="calendar.nextweek" />
 			</div>
 		</div>
 	</div>
 </div>
 
-<div id="eventfreebusy" class="uidialog">
+<div id="eventfreebusy" class="uidialog" aria-hidden="true">
 	<roundcube:object name="plugin.attendees_freebusy_table" id="attendees-freebusy-table" cellpadding="0" />
 
 	<div class="schedule-options">
@@ -203,7 +216,7 @@
 	</div>
 </div>
 
-<div id="calendarform" class="uidialog">
+<div id="calendarform" class="uidialog" aria-hidden="true">
 	<roundcube:label name="loading" />
 </div>
 
@@ -262,6 +275,8 @@ $(document).ready(function(e){
 				// TODO: save state in localStorage
 			}
 		});
+
+		return false;
 	});
 
 });
@@ -275,8 +290,8 @@ function calendarview_splitter(p)
 	this.collapsed = false;
 	this.dragging = false;
 	this.threshold = 80;
-	this.lastpos = 0;
-	this._lastpos = 0;
+	this.lastpos = -1;
+	this._lastpos = -1;
 	this._min = p.min;
 
 	var me = this;
@@ -315,6 +330,9 @@ function calendarview_splitter(p)
 			this.p2.resize();
 			this.p1.resize();
 			this.lastpos = this.pos;
+
+			if (this._lastpos == -1)
+				this._lastpos = this.pos;
 
 			// also resize iframe covers
 			if (this.drag_active) {

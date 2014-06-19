@@ -1,4 +1,4 @@
-<div id="eventedit" class="uidialog uidialog-tabbed">
+<div id="eventedit" class="uidialog uidialog-tabbed" aria-hidden="true">
 	<form id="eventtabs" action="#" method="post" enctype="multipart/form-data">
 		<ul>
 			<li><a href="#event-panel-summary"><roundcube:label name="calendar.tabsummary" /></a></li><li id="edit-tab-recurrence"><a href="#event-panel-recurrence"><roundcube:label name="calendar.tabrecurrence" /></a></li><li id="edit-tab-attendees"><a href="#event-panel-attendees"><roundcube:label name="calendar.tabattendees" /></a></li><li id="edit-tab-resources"><a href="#event-panel-resources"><roundcube:label name="calendar.tabresources" /></a></li><li id="edit-tab-attachments"><a href="#event-panel-attachments"><roundcube:label name="calendar.tabattachments" /></a></li>
@@ -8,7 +8,7 @@
 			<div class="event-section">
 				<label for="edit-title"><roundcube:label name="calendar.title" /></label>
 				<br />
-				<input type="text" class="text" name="title" id="edit-title" size="40" />
+				<input type="text" class="text" name="title" id="edit-title" size="40" required="true" />
 			</div>
 			<div class="event-section">
 				<label for="edit-location"><roundcube:label name="calendar.location" /></label>
@@ -28,21 +28,21 @@
 			<div class="event-section">
 				<label style="float:right;padding-right:0.5em"><input type="checkbox" name="allday" id="edit-allday" value="1" /><roundcube:label name="calendar.all-day" /></label>
 				<label for="edit-startdate"><roundcube:label name="calendar.start" /></label>
-				<input type="text" name="startdate" size="11" id="edit-startdate" /> &nbsp;
-				<input type="text" name="starttime" size="6" id="edit-starttime" />
+				<input type="text" name="startdate" size="11" id="edit-startdate" required="true" /> &nbsp;
+				<input type="text" name="starttime" size="6" id="edit-starttime" aria-label="<roundcube:label name='calendar.starttime' />" />
 			</div>
 			<div class="event-section">
 				<label for="edit-enddate"><roundcube:label name="calendar.end" /></label>
-				<input type="text" name="enddate" size="11" id="edit-enddate" /> &nbsp;
-				<input type="text" name="endtime" size="6" id="edit-endtime" />
+				<input type="text" name="enddate" size="11" id="edit-enddate" required="true" /> &nbsp;
+				<input type="text" name="endtime" size="6" id="edit-endtime" aria-label="<roundcube:label name='calendar.endtime' />" />
 			</div>
 			<div class="event-section" id="edit-alarms">
 				<div class="edit-alarm-item first">
-					<label><roundcube:label name="calendar.alarms" /></label>
-					<roundcube:object name="plugin.alarm_select" />
+					<label for="edit-alarm-item"><roundcube:label name="calendar.alarms" /></label>
+					<roundcube:object name="plugin.alarm_select" id="edit-alarm-item" />
 					<span class="edit-alarm-buttons">
-						<a href="#add" class="iconbutton add add-alarm">+</a>
-						<a href="#delete" class="iconbutton remove delete-alarm">-</a>
+						<a href="#add" class="iconbutton add add-alarm"><roundcube:label name="libcalendaring.addalarm" /></a>
+						<a href="#delete" class="iconbutton remove delete-alarm"><roundcube:label name="libcalendaring.removealarm" /></a>
 					</span>
 				</div>
 			</div>
@@ -97,13 +97,15 @@
 		</div>
 		<!-- attendees list -->
 		<div id="event-panel-attendees">
-			<roundcube:object name="plugin.attendees_list" id="edit-attendees-table" class="records-table edit-attendees-table" coltitle="attendee" />
+			<h3 id="aria-label-attendeestable" class="voice"><roundcube:label name="calendar.arialabeleventattendees" /></h3>
+			<roundcube:object name="plugin.attendees_list" id="edit-attendees-table" class="records-table edit-attendees-table" coltitle="attendee" aria-labelledby="aria-label-attendeestable" />
 			<roundcube:object name="plugin.attendees_form" id="edit-attendees-form" />
 			<roundcube:include file="/templates/freebusylegend.html" />
 		</div>
 		<!-- resources list -->
 		<div id="event-panel-resources">
-			<roundcube:object name="plugin.attendees_list" id="edit-resources-table" class="records-table edit-attendees-table" coltitle="resource" />
+			<h3 id="aria-label-resourcestable" class="voice"><roundcube:label name="calendar.arialabeleventresources" /></h3>
+			<roundcube:object name="plugin.attendees_list" id="edit-resources-table" class="records-table edit-attendees-table" coltitle="resource" aria-labelledby="aria-label-resourcestable" />
 			<roundcube:object name="plugin.resources_form" id="edit-resources-form" />
 			<roundcube:include file="/templates/freebusylegend.html" />
 		</div>
@@ -112,7 +114,8 @@
 			<div id="edit-attachments">
 				<roundcube:object name="plugin.attachments_list" id="attachment-list" class="attachmentslist" />
 			</div>
-			<div id="edit-attachments-form">
+			<div id="edit-attachments-form" role="region" aria-labelledby="aria-label-attachmentuploadform">
+				<h3 id="aria-label-attachmentuploadform" class="voice"><roundcube:label name="arialabelattachmentuploadform" /></h2>
 				<roundcube:object name="plugin.attachments_form" id="calendar-attachment-form" attachmentFieldSize="30" />
 			</div>
 			<roundcube:object name="plugin.filedroparea" id="event-panel-attachments" />

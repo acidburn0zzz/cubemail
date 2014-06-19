@@ -299,7 +299,7 @@ class calendar extends rcube_plugin
     $this->rc->output->set_env('calendar_driver', $this->rc->config->get('calendar_driver'), false);
     $this->rc->output->set_env('calendar_resources', (bool)$this->rc->config->get('calendar_resources_driver'));
     $this->rc->output->set_env('mscolors', jqueryui::get_color_values());
-    $this->rc->output->set_env('identities-selector', $this->ui->identity_select(array('id' => 'edit-identities-list')));
+    $this->rc->output->set_env('identities-selector', $this->ui->identity_select(array('id' => 'edit-identities-list', 'aria-label' => $this->gettext('roleorganizer'))));
 
     $view = get_input_value('view', RCUBE_INPUT_GPC);
     if (in_array($view, array('agendaWeek', 'agendaDay', 'month', 'table')))

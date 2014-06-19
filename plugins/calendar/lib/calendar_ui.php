@@ -303,10 +303,11 @@ class calendar_ui
 
     $content = '';
     if (!$activeonly || $prop['active']) {
+      $label_id = 'cl:' . $id;
       $content = html::div(join(' ', $classes),
-        html::span(array('class' => 'calname', 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
+        html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' :
-          html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
+          html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
           (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->cal->gettext('calendarsubscribe')), ' ') : '') .
           html::span(array('class' => 'handle', 'style' => "background-color: #" . ($prop['color'] ?: 'f00')), '&nbsp;')
         )
@@ -326,7 +327,7 @@ class calendar_ui
     
     $select_range = new html_select(array('name' => 'listrange', 'id' => 'agenda-listrange'));
     $select_range->add(1 . ' ' . preg_replace('/\(.+\)/', '', $this->cal->lib->gettext('days')), $days);
-    foreach (array(2,5,7,14,30,60,90) as $days)
+    foreach (array(2,5,7,14,30,60,90,180,365) as $days)
       $select_range->add($days . ' ' . preg_replace('/\(|\)/', '', $this->cal->lib->gettext('days')), $days);
     
     $html .= html::label('agenda-listrange', $this->cal->gettext('listrange'));
@@ -334,8 +335,8 @@ class calendar_ui
     
     $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections'));
     $select_sections->add('---', '');
-    foreach (array('day' => 'days', 'week' => 'weeks', 'month' => 'months', 'smart' => 'smartsections') as $val => $label)
-      $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->cal->gettext($label))), $val);
+    foreach (array('day' => 'libcalendaring.days', 'week' => 'libcalendaring.weeks', 'month' => 'libcalendaring.months', 'smart' => 'calendar.smartsections') as $val => $label)
+      $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
     
     $html .= html::span('spacer', '&nbsp;');
     $html .= html::label('agenda-listsections', $this->cal->gettext('listsections'));

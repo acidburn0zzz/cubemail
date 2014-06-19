@@ -53,7 +53,9 @@ $labels['location'] = 'Location';
 $labels['url'] = 'URL';
 $labels['date'] = 'Date';
 $labels['start'] = 'Start';
+$labels['starttime'] = 'Start time';
 $labels['end'] = 'End';
+$labels['endtime'] = 'End time';
 $labels['repeat'] = 'Repeat';
 $labels['selectdate'] = 'Choose date';
 $labels['freebusy'] = 'Show me as';
@@ -87,8 +89,11 @@ $labels['showurl'] = 'Show calendar URL';
 $labels['showurldescription'] = 'Use the following address to access (read only) your calendar from other applications. You can copy and paste this into any calendar software that supports the iCal format.';
 $labels['caldavurldescription'] = 'Copy this address to a <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> client application (e.g. Evolution or Mozilla Thunderbird) to fully synchronize this specific calendar with your computer or mobile device.';
 $labels['findcalendars'] = 'Find calendars...';
+$labels['searchterms'] = 'Search terms';
 $labels['calsearchresults'] = 'Available Calendars';
 $labels['calendarsubscribe'] = 'List permanently';
+$labels['nocalendarsfound'] = 'No calendars found';
+$labels['nrcalendarsfound'] = '$nr calendars found';
 
 // agenda view
 $labels['listrange'] = 'Range to display:';
@@ -99,6 +104,7 @@ $labels['today'] = 'Today';
 $labels['tomorrow'] = 'Tomorrow';
 $labels['thisweek'] = 'This week';
 $labels['nextweek'] = 'Next week';
+$labels['prevweek'] = 'Previous week';
 $labels['thismonth'] = 'This month';
 $labels['nextmonth'] = 'Next month';
 $labels['weekofyear'] = 'Week';
@@ -140,6 +146,7 @@ $labels['onlyworkinghours'] = 'Find availability within my working hours';
 $labels['reqallattendees'] = 'Required/all participants';
 $labels['prevslot'] = 'Previous Slot';
 $labels['nextslot'] = 'Next Slot';
+$labels['suggestedslot'] = 'Suggested Slot';
 $labels['noslotfound'] = 'Unable to find a free time slot';
 $labels['invitationsubject'] = 'You\'ve been invited to "$title"';
 $labels['invitationmailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nPlease find attached an iCalendar file with all the event details which you can import to your calendar application.";
@@ -231,5 +238,17 @@ $labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
 $labels['birthdayscalendarsources'] = 'From these address books';
 $labels['birthdayeventtitle'] = '$name\'s Birthday';
 $labels['birthdayage'] = 'Age $age';
+
+// (hidden) titles and labels for accessibility annotations
+$labels['arialabelminical'] = 'Calendar date selection';
+$labels['arialabelcalendarview'] = 'Calendar view';
+$labels['arialabelsearchform'] = 'Event search form';
+$labels['arialabelquicksearchbox'] = 'Event search input';
+$labels['arialabelcalsearchform'] = 'Calendars search form';
+$labels['calendaractions'] = 'Calendar actions';
+$labels['arialabeleventattendees'] = 'Event participants list';
+$labels['arialabeleventresources'] = 'Event resources list';
+$labels['arialabelresourcesearchform'] = 'Resources search form';
+$labels['arialabelresourceselection'] = 'Available resources';
 
 ?>

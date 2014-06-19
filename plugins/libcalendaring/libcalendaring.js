@@ -68,25 +68,26 @@ function rcube_libcalendaring(settings)
     /**
      * Create a nice human-readable string for the date/time range
      */
-    this.event_date_text = function(event)
+    this.event_date_text = function(event, voice)
     {
       if (!event.start)
         return '';
       if (!event.end)
         event.end = event.start;
 
-      var fromto, duration = event.end.getTime() / 1000 - event.start.getTime() / 1000;
+      var fromto, duration = event.end.getTime() / 1000 - event.start.getTime() / 1000,
+        until = voice ? ' ' + rcmail.gettext('until','libcalendaring') + ' ' : ' — ';
       if (event.allDay) {
-        fromto = this.format_datetime(event.start, 1)
-          + (duration > 86400 || event.start.getDay() != event.end.getDay() ? ' &mdash; ' + this.format_datetime(event.end, 1) : '');
+        fromto = this.format_datetime(event.start, 1, voice)
+          + (duration > 86400 || event.start.getDay() != event.end.getDay() ? until + this.format_datetime(event.end, 1, voice) : '');
       }
       else if (duration < 86400 && event.start.getDay() == event.end.getDay()) {
-        fromto = this.format_datetime(event.start, 0)
-          + (duration > 0 ? ' &mdash; ' + this.format_datetime(event.end, 2) : '');
+        fromto = this.format_datetime(event.start, 0, voice)
+          + (duration > 0 ? until + this.format_datetime(event.end, 2, voice) : '');
       }
       else {
-        fromto = this.format_datetime(event.start, 0)
-          + (duration > 0 ? ' &mdash; ' + this.format_datetime(event.end, 0) : '');
+        fromto = this.format_datetime(event.start, 0, voice)
+          + (duration > 0 ? until + this.format_datetime(event.end, 0, voice) : '');
       }
 
       return fromto;
@@ -178,15 +179,18 @@ function rcube_libcalendaring(settings)
     /**
      * Format the given date object according to user's prefs
      */
-    this.format_datetime = function(date, mode)
+    this.format_datetime = function(date, mode, voice)
     {
         var res = '';
-        if (!mode || mode == 1)
-            res += $.datepicker.formatDate(datepicker_settings.dateFormat, date, datepicker_settings);
-        if (!mode)
-            res += ' ';
-        if (!mode || mode == 2)
-            res += this.format_time(date);
+        if (!mode || mode == 1) {
+          res += $.datepicker.formatDate(voice ? 'MM d yy' : datepicker_settings.dateFormat, date, datepicker_settings);
+        }
+        if (!mode) {
+            res += voice ? ' ' + rcmail.gettext('at','libcalendaring') + ' ' : ' ';
+        }
+        if (!mode || mode == 2) {
+            res += this.format_time(date, voice);
+        }
 
         return res;
     }
@@ -194,7 +198,7 @@ function rcube_libcalendaring(settings)
     /**
      * Clone from fullcalendar.js
      */
-    this.format_time = function(date)
+    this.format_time = function(date, voice)
     {
         var zeroPad = function(n) { return (n < 10 ? '0' : '') + n; }
         var formatters = {
@@ -212,7 +216,8 @@ function rcube_libcalendaring(settings)
             TT  : function(d) { return d.getHours() < 12 ? 'AM' : 'PM' }
         };
 
-        var i, i2, c, formatter, res = '', format = settings['time_format'];
+        var i, i2, c, formatter, res = '',
+          format = voice ? settings['time_format'].replace(':',' ').replace('HH','H').replace('hh','h').replace('mm','m').replace('ss','s') : settings['time_format'];
         for (i=0; i < format.length; i++) {
             c = format.charAt(i);
             for (i2=Math.min(i+2, format.length); i2 > i; i2--) {
@@ -316,10 +321,13 @@ function rcube_libcalendaring(settings)
             .replace(/\n/g, "<br/>");
     };
 
-    this.init_alarms_edit = function(prefix)
+    this.init_alarms_edit = function(prefix, index)
     {
+        var edit_type = $(prefix+' select.edit-alarm-type'),
+          dom_id = edit_type.attr('id');
+
         // register events on alarm fields
-        $(prefix+' select.edit-alarm-type').change(function(){
+        edit_type.change(function(){
             $(this).parent().find('span.edit-alarm-values')[(this.selectedIndex>0?'show':'hide')]();
         });
         $(prefix+' select.edit-alarm-offset').change(function(){
@@ -337,13 +345,20 @@ function rcube_libcalendaring(settings)
             return false;
         });
 
+        // set a unique id attribute and set label reference accordingly
+        if ((index || 0) > 0 && dom_id) {
+            dom_id += ':' + (new Date().getTime());
+            edit_type.attr('id', dom_id);
+            $(prefix+' label:first').attr('for', dom_id);
+        }
+
         $(prefix).on('click', 'a.add-alarm', function(e){
             var i = $(this).closest('.edit-alarm-item').siblings().length + 1;
             var item = $(this).closest('.edit-alarm-item').clone(false)
               .removeClass('first')
               .appendTo(prefix);
 
-              me.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')');
+              me.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
               $('select.edit-alarm-type, select.edit-alarm-offset', item).change();
               return false;
         });
@@ -364,7 +379,7 @@ function rcube_libcalendaring(settings)
           }
           else {
               domnode = $(prefix + ' .edit-alarm-item').eq(0).clone(false).removeClass('first').appendTo(prefix);
-              this.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')');
+              this.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
           }
 
           $('select.edit-alarm-type', domnode).val(alarm.action);
