@@ -1289,7 +1289,7 @@ function rcube_tasklist_ui(settings)
           closeOnEscape: true,
           title: rcmail.gettext('taskdetails', 'tasklist'),
           open: function() {
-            $dialog.parent().find('.ui-button').first().focus();
+            $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
           },
           close: function() {
               $dialog.dialog('destroy').appendTo(document.body);
@@ -1356,7 +1356,7 @@ function rcube_tasklist_ui(settings)
             animSpeed: 100,
             allowEdit: false,
             checkNewEntriesCaseSensitive: false,
-            autocompleteOptions: { source: tags, minLength: 0, noCheck: true },
+            autocompleteOptions: { source: tags, minLength: 0, noCheck: true, appendTo:'#taskedit' },
             texts: { removeLinkTitle: rcmail.gettext('removetag', 'tasklist') }
         });
 
@@ -1384,7 +1384,7 @@ function rcube_tasklist_ui(settings)
         $('#taskedit-tab-attachments')[(list.attachments||rec.attachments?'show':'hide')]();
 
         // activate the first tab
-        $('#taskedit').tabs('select', 0);
+        $('#taskedit').tabs('option', 'active', 0);
 
         // define dialog buttons
         var buttons = {};
