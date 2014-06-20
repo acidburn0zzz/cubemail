@@ -1174,17 +1174,6 @@ a.dropdown-link:after {
 	padding-right: 10px;
 }
 
-#calendar-kolabform .tabsbar.ui-tabs-nav {
-	margin-bottom: 0;
-}
-
-#calendar-kolabform fieldset.ui-tabs-panel {
-	background: #efefef;
-	display: block;
-	margin-top: 2px;
-	padding: 0.5em 1em;
-}
-
 #resource-selection {
 	position: absolute;
 	top: 0;

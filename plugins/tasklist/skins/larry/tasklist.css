@@ -936,15 +936,10 @@ label.block {
 }
 
 .tasklistview .uidialog .tabbed {
-	margin: -12px -8px 0 -8px;
 	min-width: 600px;
 }
 
-.tasklistview .uidialog .propform fieldset.tab {
-	display: block;
-	background: #efefef;
-	margin-top: 0.5em;
-	padding: 0.5em 1em;
+.tasklistview .uidialog .propform fieldset.ui-tabs-panel {
 	min-height: 290px;
 }
 
