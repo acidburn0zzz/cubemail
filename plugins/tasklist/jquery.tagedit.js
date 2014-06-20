@@ -11,7 +11,7 @@
 * JavaScript code in this file.
 *
 * Copyright (c) 2010 Oliver Albrecht <info@webwork-albrecht.de>
-* Copyright (c) 2012 Thomas Brüderli <thomas@roundcube.net>
+* Copyright (c) 2014 Thomas Brüderli <thomas@roundcube.net>
 *
 * Licensed under the MIT licenses
 *
@@ -38,7 +38,7 @@
 * for the JavaScript code in this file.
 *
 * @author Oliver Albrecht Mial: info@webwork-albrecht.de Twitter: @webworka
-* @version 1.5.1 (10/2013)
+* @version 1.5.2 (06/2014)
 * Requires: jQuery v1.4+, jQueryUI v1.8+, jQuerry.autoGrowInput
 *
 * Example of usage:
@@ -125,6 +125,7 @@
 		}
 
 		var elements = this;
+		var focusItem = null;
 
 		var baseNameRegexp = new RegExp("^(.*)\\[([0-9]*?("+options.deletedPostfix+"|"+options.addedPostfix+")?)?\]$", "i");
 
@@ -153,17 +154,18 @@
 		function inputsToList() {
 			var html = '<ul class="tagedit-list '+options.additionalListClass+'">';
 
-			elements.each(function() {
+			elements.each(function(i) {
 				var element_name = $(this).attr('name').match(baseNameRegexp);
 				if(element_name && element_name.length == 4 && (options.deleteEmptyItems == false || $(this).val().length > 0)) {
 					if(element_name[1].length > 0) {
-						var elementId = typeof element_name[2] != 'undefined'? element_name[2]: '';
+						var elementId = typeof element_name[2] != 'undefined'? element_name[2]: '',
+							domId = 'tagedit-' + baseName + '-' + (elementId || i);
 
-						html += '<li class="tagedit-listelement tagedit-listelement-old">';
-						html += '<span dir="'+options.direction+'">' + $(this).val() + '</span>';
+						html += '<li class="tagedit-listelement tagedit-listelement-old" aria-labelledby="'+domId+'">';
+						html += '<span dir="'+options.direction+'" id="'+domId+'">' + $(this).val() + '</span>';
 						html += '<input type="hidden" name="'+baseName+'['+elementId+']" value="'+$(this).val()+'" />';
 						if (options.allowDelete)
-							html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'">x</a>';
+							html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'" aria-label="'+options.texts.removeLinkTitle+' '+$(this).val()+'">x</a>';
 						html += '</li>';
 					}
 				}
@@ -215,12 +217,13 @@
 								}
 
 								if(options.allowAdd == true || oldValue) {
+									var domId = 'tagedit-' + baseName + '-' + id;
 									// Make a new tag in front the input
-									html = '<li class="tagedit-listelement tagedit-listelement-old">';
-									html += '<span dir="'+options.direction+'">' + $(this).val() + '</span>';
+									html = '<li class="tagedit-listelement tagedit-listelement-old" aria-labelledby="'+domId+'">';
+									html += '<span dir="'+options.direction+'" id="'+domId+'">' + $(this).val() + '</span>';
 									var name = oldValue? baseName + '['+id+options.addedPostfix+']' : baseName + '[]';
 									html += '<input type="hidden" name="'+name+'" value="'+$(this).val()+'" />';
-									html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'">x</a>';
+									html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'" aria-label="'+options.texts.removeLinkTitle+' '+$(this).val()+'">x</a>';
 									html += '</li>';
 
 									$(this).parent().before(html);
@@ -239,8 +242,19 @@
 							var code = event.keyCode > 0? event.keyCode : event.which;
 
 							switch(code) {
+								case 46:
+									if (!focusItem)
+										break;
 								case 8: // BACKSPACE
-									if($(this).val().length == 0) {
+									if(focusItem) {
+										focusItem.fadeOut(options.animSpeed, function() {
+											$(this).remove();
+										})
+										unfocusItem();
+										event.preventDefault();
+										return false;
+									}
+									else if($(this).val().length == 0) {
 										// delete Last Tag
 										var elementToRemove = elements.find('li.tagedit-listelement-old').last();
 										elementToRemove.fadeOut(options.animSpeed, function() {elementToRemove.remove();})
@@ -254,7 +268,41 @@
 										event.preventDefault();
 										return false;
 									}
-								break;
+									break;
+								case 37: // LEFT
+								case 39: // RIGHT
+									if($(this).val().length == 0) {
+										// select previous Tag
+										var inc = code == 37 ? -1 : 1,
+											items = elements.find('li.tagedit-listelement-old')
+											x = items.length, next = 0;
+										items.each(function(i, elem) {
+											if ($(elem).hasClass('tagedit-listelement-focus')) {
+												x = i;
+												return true;
+											}
+										});
+										unfocusItem();
+										next = Math.max(0, x + inc);
+										if (items.get(next)) {
+											focusItem = items.eq(next).addClass('tagedit-listelement-focus');
+											$(this).attr('aria-activedescendant', focusItem.attr('aria-labelledby'))
+
+											if(options.autocompleteOptions.source != false) {
+												$(this).autocomplete('close').autocomplete('disable');
+											}
+										}
+										event.preventDefault();
+										return false;
+									}
+									break;
+								default:
+									// ignore input if an item is focused
+									if (focusItem !== null) {
+										event.preventDefault();
+										event.bubble = false;
+										return false;
+									}
 							}
 							return true;
 						})
@@ -264,8 +312,11 @@
 								if($(this).val().length > 0 && $('ul.ui-autocomplete #ui-active-menuitem').length == 0) {
 									$(this).trigger('transformToTag');
 								}
-							event.preventDefault();
-							return false;
+								event.preventDefault();
+								return false;
+							}
+							else if($(this).val().length > 0){
+								unfocusItem();
 							}
 							return true;
 						})
@@ -287,9 +338,15 @@
 								var input = $(this);
 								$(this).data('blurtimer', window.setTimeout(function() {input.val('');}, 500));
 							}
+							unfocusItem();
+							// restore tabindex when widget looses focus
+							if (options.tabindex)
+								elements.attr('tabindex', options.tabindex);
 						})
 						.focus(function() {
 							window.clearTimeout($(this).data('blurtimer'));
+							// remove tabindex on <ul> because #tagedit-input now has it
+							elements.attr('tabindex', '-1');
 						});
 
 						if(options.autocompleteOptions.source != false) {
@@ -302,6 +359,7 @@
 						case 'A':
 							$(event.target).parent().fadeOut(options.animSpeed, function() {
 								$(event.target).parent().remove();
+								elements.find('#tagedit-input').focus();
 								});
 							break;
 						case 'INPUT':
@@ -322,6 +380,20 @@
 				})
 				// forward focus event (on tabbing through the form)
 				.focus(function(e){ $(this).click(); })
+		}
+
+		/**
+		 * Remove class and reference to currently focused tag item
+		 */
+		function unfocusItem() {
+			if(focusItem){
+				if(options.autocompleteOptions.source != false) {
+					elements.find('#tagedit-input').autocomplete('enable');
+				}
+				focusItem.removeClass('tagedit-listelement-focus');
+				focusItem = null;
+				elements.find('#tagedit-input').removeAttr('aria-activedescendant');
+			}
 		}
 
 		/**
