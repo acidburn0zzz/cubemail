@@ -68,6 +68,7 @@ window.rcmail && rcmail.addEventListener('init', function() {
       }
 
       rcmail.addEventListener('menu-open', kolab_files_attach_menu_open);
+      rcmail.enable_command('folder-create', true);
     }
 
     kolab_files_init();
@@ -422,7 +423,7 @@ function kolab_dialog_show(content, params, onopen)
     if (stack.length) {
       elem = stack[stack.length-1].find('input[type!="hidden"]:not(:hidden):first');
       if (!elem.length)
-        elem = stack[stack.length-1].parent().find('button:first');
+        elem = stack[stack.length-1].parent().find('a[role="button"], .ui-dialog-buttonpane button').first();
     }
 
     (elem && elem.length ? elem : window).focus();
