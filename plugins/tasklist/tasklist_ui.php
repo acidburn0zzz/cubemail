@@ -187,12 +187,13 @@ class tasklist_ui
             $classes[] = $prop['class'];
 
         if (!$activeonly || $prop['active']) {
+            $label_id = 'tl:' . $id;
             return html::div(join(' ', $classes),
-                html::span(array('class' => 'listname', 'title' => $title), $prop['listname'] ?: $prop['name']) .
+                html::span(array('class' => 'listname', 'title' => $title, 'id' => $label_id), $prop['listname'] ?: $prop['name']) .
                   ($prop['virtual'] ? '' :
-                    html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'])) .
-                    html::span(array('class' => 'quickview', 'title' => $this->plugin->gettext('focusview')), '&nbsp;') .
-                    (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('tasklistsubscribe')), ' ') : '')
+                    html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id)) .
+                    html::a(array('href' => '#', 'class' => 'quickview', 'title' => $this->plugin->gettext('focusview'), 'role' => 'checkbox', 'aria-checked' => 'false'), ' ') .
+                    (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('tasklistsubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') : '')
                 )
             );
         }
@@ -276,11 +277,12 @@ class tasklist_ui
     {
         $attrib += array('action' => $this->rc->url('add'), 'method' => 'post', 'id' => 'quickaddform');
 
+        $label = html::label(array('for' => 'quickaddinput', 'class' => 'voice'), $this->plugin->gettext('quickaddinput'));
         $input = new html_inputfield(array('name' => 'text', 'id' => 'quickaddinput'));
-        $button = html::tag('input', array('type' => 'submit', 'value' => '+', 'class' => 'button mainaction'));
+        $button = html::tag('input', array('type' => 'submit', 'value' => '+', 'title' => $this->plugin->gettext('createtask'), 'class' => 'button mainaction'));
 
         $this->rc->output->add_gui_object('quickaddform', $attrib['id']);
-        return html::tag('form', $attrib, $input->show() . $button);
+        return html::tag('form', $attrib, $label . $input->show() . $button);
     }
 
     /**
@@ -317,6 +319,7 @@ class tasklist_ui
         $this->rc->output->add_gui_object('edittagline', $attrib['id']);
 
         $input = new html_inputfield(array('name' => 'tags[]', 'class' => 'tag', 'size' => $attrib['size'], 'tabindex' => $attrib['tabindex']));
+        unset($attrib['tabindex']);
         return html::div($attrib, $input->show(''));
     }
 

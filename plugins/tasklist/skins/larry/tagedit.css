@@ -63,6 +63,14 @@
 	color: #0d5165;
 }
 
+.tagedit-list li.tagedit-listelement-focus {
+	border-color: #4787b1;
+	-moz-box-shadow: 0 0 3px 1px rgba(71,135,177, 0.8);
+	-webkit-box-shadow: 0 0 3px 1px rgba(71,135,177, 0.8);
+	-o-box-shadow: 0 0 3px 1px rgba(71,135,177, 0.8);
+	box-shadow: 0 0 3px 1px rgba(71,135,177, 0.8);
+}
+
 .tagedit span.tag-element {
 	margin-right: 0.6em;
 	padding: 2px 6px;

@@ -1148,7 +1148,6 @@ class tasklist_kolab_driver extends tasklist_driver
             if (is_array($tab['fields']) && empty($tab['content'])) {
                 $table = new html_table(array('cols' => 2));
                 foreach ($tab['fields'] as $col => $colprop) {
-                    $colprop['id'] = '_'.$col;
                     $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
 
                     $table->add('title', html::label($colprop['id'], Q($label)));

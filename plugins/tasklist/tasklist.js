@@ -80,6 +80,8 @@ function rcube_tasklist_ui(settings)
     var scroll_sensitivity = 40;
     var scroll_timer;
     var tasklists_widget;
+    var focused_task;
+    var focused_subclass;
     var me = this;
 
     // general datepicker settings
@@ -140,6 +142,7 @@ function rcube_tasklist_ui(settings)
             id_prefix: 'rcmlitasklist',
             selectable: true,
             save_state: true,
+            keyboard: false,
             searchbox: '#tasklistsearch',
             search_action: 'tasks/tasklist',
             search_sources: [ 'folders', 'users' ],
@@ -168,9 +171,15 @@ function rcube_tasklist_ui(settings)
                 $(p.item).data('type', 'tasklist');
             }
         });
+        tasklists_widget.addEventListener('search-complete', function(data) {
+            if (data.length)
+                rcmail.display_message(rcmail.gettext('nrtasklistsfound','tasklist').replace('$nr', data.length), 'voice');
+            else
+                rcmail.display_message(rcmail.gettext('notasklistsfound','tasklist'), 'info');
+        });
 
         // init (delegate) event handler on tasklist checkboxes
-        tasklists_widget.container.on('click', 'input[type=checkbox]', function(e){
+        tasklists_widget.container.on('click', 'input[type=checkbox]', function(e) {
             var list, id = this.value;
             if ((list = me.tasklists[id])) {
                 list.active = this.checked;
@@ -185,6 +194,13 @@ function rcube_tasklist_ui(settings)
                 }
             }
             e.stopPropagation();
+        })
+        .on('keypress', 'input[type=checkbox]', function(e) {
+            // select tasklist on <Enter>
+            if (e.keyCode == 13) {
+                tasklists_widget.select(this.value);
+                return rcube_event.cancel(e);
+            }
         })
         .find('li:not(.virtual)').data('type', 'tasklist');
 
@@ -250,7 +266,7 @@ function rcube_tasklist_ui(settings)
         }).find('input[type=text]').placeholder(rcmail.gettext('createnewtask','tasklist'));
 
         // click-handler on tags list
-        $(rcmail.gui_objects.tagslist).click(function(e){
+        $(rcmail.gui_objects.tagslist).on('click', 'li', function(e){
             var item = e.target.nodeName == 'LI' ? $(e.target) : $(e.target).closest('li'),
                 tag = item.data('value');
 
@@ -265,17 +281,17 @@ function rcube_tasklist_ui(settings)
                 if (tagsfilter.length > 1)
                     index = -1;
 
-                $('li', this).removeClass('selected');
+                $('li', rcmail.gui_objects.tagslist).removeClass('selected').attr('aria-checked', 'false');
                 tagsfilter = [];
             }
 
             // add tag to filter
             if (index < 0) {
-                item.addClass('selected');
+                item.addClass('selected').attr('aria-checked', 'true');
                 tagsfilter.push(tag);
             }
             else if (shift) {
-                item.removeClass('selected');
+                item.removeClass('selected').attr('aria-checked', 'false');
                 var a = tagsfilter.slice(0,index);
                 tagsfilter = a.concat(tagsfilter.slice(index+1));
             }
@@ -289,6 +305,11 @@ function rcube_tasklist_ui(settings)
             e.preventDefault();
             return false;
         })
+        .on('keypress', 'li', function(e) {
+            if (e.keyCode == 13) {
+                $(this).trigger('click', { pointerType:'keyboard' });
+            }
+        })
         .mousedown(function(e){
             // disable content selection with the mouse
             e.preventDefault();
@@ -296,7 +317,7 @@ function rcube_tasklist_ui(settings)
         });
 
         // click-handler on task list items (delegate)
-        $(rcmail.gui_objects.resultlist).click(function(e){
+        $(rcmail.gui_objects.resultlist).on('click', function(e){
             var item = $(e.target);
             var className = e.target.className;
 
@@ -314,11 +335,11 @@ function rcube_tasklist_ui(settings)
             var id = item.data('id'),
                 li = item.parent(),
                 rec = listdata[id];
-            
+
             switch (className) {
                 case 'childtoggle':
                     rec.collapsed = !rec.collapsed;
-                    li.children('.childtasks:first').toggle();
+                    li.children('.childtasks:first').toggle().attr('aria-hidden', rec.collapsed ? 'true' : 'false');
                     $(e.target).toggleClass('collapsed').html(rec.collapsed ? '&#9654;' : '&#9660;');
                     rcmail.http_post('tasks/task', { action:'collapse', t:{ id:rec.id, list:rec.list }, collapsed:rec.collapsed?1:0 });
                     if (e.shiftKey)  // expand/collapse all childs
@@ -333,16 +354,16 @@ function rcube_tasklist_ui(settings)
                     li.toggleClass('complete');
                     save_task(rec, 'edit');
                     return true;
-                
+
                 case 'flagged':
                     if (rcmail.busy)
                         return false;
 
                     rec.flagged = rec.flagged ? 0 : 1;
-                    li.toggleClass('flagged');
+                    li.toggleClass('flagged').find('.flagged:first').attr('aria-checked', (rec.flagged ? 'true' : 'false'));
                     save_task(rec, 'edit');
                     break;
-                
+
                 case 'date':
                     if (rcmail.busy)
                         return false;
@@ -364,7 +385,7 @@ function rcube_tasklist_ui(settings)
                     .datepicker('setDate', rec.date)
                     .datepicker('show');
                     break;
-                
+
                 case 'delete':
                     delete_task(id);
                     break;
@@ -372,14 +393,12 @@ function rcube_tasklist_ui(settings)
                 case 'actions':
                     var pos, ref = $(e.target),
                         menu = $('#taskitemmenu');
+
                     if (menu.is(':visible') && menu.data('refid') == id) {
-                        menu.hide();
+                        rcmail.command('menu-close', 'taskitemmenu');
                     }
                     else {
-                        pos = ref.offset();
-                        pos.left += ref.width() - menu.outerWidth();
-                        pos.top += (pos.top + ref.outerHeight() + menu.height() > $(window).height() ? -menu.height() : ref.outerHeight());
-                        menu.css({ top:pos.top+'px', left:pos.left+'px' }).show();
+                        rcmail.command('menu-open', { menu: 'taskitemmenu', show: true }, e.target, e);
                         menu.data('refid', id);
                         me.selected_task = rec;
                     }
@@ -397,7 +416,7 @@ function rcube_tasklist_ui(settings)
 
             return false;
         })
-        .dblclick(function(e){
+        .on('dblclick', '.taskhead, .childtoggle', function(e){
             var id, rec, item = $(e.target);
             if (!item.hasClass('taskhead'))
                 item = item.closest('div.taskhead');
@@ -409,6 +428,58 @@ function rcube_tasklist_ui(settings)
                 else
                     task_edit_dialog(id, 'edit');
                 clearSelection();
+            }
+        })
+        .on('keydown', '.taskhead', function(e) {
+            var inc = 1;
+            switch (e.keyCode) {
+                case 13:  // Enter
+                    $(e.target).trigger('click', { pointerType:'keyboard' });
+                    return rcube_event.cancel(e);
+
+                case 38: // Up arrow key
+                    inc = -1;
+                case 40: // Down arrow key
+                    if ($(e.target).hasClass('actions')) {
+                        // unfold actions menu
+                        $(e.target).trigger('click', { pointerType:'keyboard' });
+                        return rcube_event.cancel(e);
+                    }
+
+                    // focus next/prev task item
+                    var x = 0, target = this, items = $(rcmail.gui_objects.resultlist).find('.taskhead:visible');
+                    items.each(function(i, item) {
+                        if (item === target) {
+                            x = i;
+                            return false;
+                        }
+                    });
+                    items.get(x + inc).focus();
+                    return rcube_event.cancel(e);
+
+                case 37: // Left arrow key
+                case 39: // Right arrow key
+                    $(this).parent().children('.childtoggle:visible').first().trigger('click', { pointerType:'keyboard' });
+                    break;
+            }
+        })
+        .on('focusin', '.taskhead', function(e){
+            if (rcube_event.is_keyboard(e)) {
+                var item = $(e.target);
+                if (!item.hasClass('taskhead'))
+                    item = item.closest('div.taskhead');
+
+                var id = item.data('id');
+                if (id && listdata[id]) {
+                    focused_task = id;
+                    focused_subclass = item.get(0) !== e.target ? e.target.className : null;
+                }
+            }
+        })
+        .on('focusout', '.taskhead', function(e){
+            var item = $(e.target);
+            if (focused_task && item.data('id') == focused_task) {
+                focused_task = focused_subclass = null;
             }
         });
 
@@ -506,8 +577,8 @@ function rcube_tasklist_ui(settings)
         else
             render_tasklist();
 
-        $('#taskselector li.selected').removeClass('selected');
-        $('#taskselector li.'+selector).addClass('selected');
+        $('#taskselector li.selected').removeClass('selected').attr('aria-checked', 'false');
+        $('#taskselector li.'+selector).addClass('selected').attr('aria-checked', 'true');
     }
 
     /**
@@ -601,8 +672,10 @@ function rcube_tasklist_ui(settings)
         fix_tree_toggles();
         update_tagcloud(activetags);
 
-        if (!count)
+        if (!count) {
             msgbox.html(rcmail.gettext('notasksfound','tasklist')).show();
+            rcmail.display_message(rcmail.gettext('notasksfound','tasklist'), 'voice');
+        }
     }
 
     /**
@@ -658,7 +731,9 @@ function rcube_tasklist_ui(settings)
 
         // append new tags to tag cloud
         $.each(newtags, function(i, tag){
-            $('<li>').attr('rel', tag).data('value', tag)
+            $('<li role="checkbox" aria-checked="false" tabindex="0"></li>')
+                .attr('rel', tag)
+                .data('value', tag)
                 .html(Q(tag) + '<span class="count"></span>')
                 .appendTo(rcmail.gui_objects.tagslist)
                 .draggable({
@@ -879,15 +954,18 @@ function rcube_tasklist_ui(settings)
         for (var j=0; rec.tags && j < rec.tags.length; j++)
             tags_html += '<span class="tag">' + Q(rec.tags[j]) + '</span>';
 
+        var label_id = rcmail.html_identifier(rec.id) + '-title';
         var div = $('<div>').addClass('taskhead').html(
             '<div class="progressbar"><div class="progressvalue" style="width:' + (rec.complete * 100) + '%"></div></div>' +
-            '<input type="checkbox" name="completed[]" value="1" class="complete" ' + (is_complete(rec) ? 'checked="checked" ' : '') + '/>' + 
-            '<span class="flagged"></span>' +
-            '<span class="title">' + text2html(Q(rec.title)) + '</span>' +
+            '<input type="checkbox" name="completed[]" value="1" class="complete" aria-label="' + rcmail.gettext('complete','tasklist') + '" ' + (is_complete(rec) ? 'checked="checked" ' : '') + '/>' + 
+            '<span class="flagged" role="checkbox" tabindex="0" aria-checked="' + (rec.flagged ? 'true' : 'false') + '" aria-label="' + rcmail.gettext('flagged','tasklist') + '"></span>' +
+            '<span class="title" id="' + label_id + '">' + text2html(Q(rec.title)) + '</span>' +
             '<span class="tags">' + tags_html + '</span>' +
             '<span class="date">' + Q(rec.date || rcmail.gettext('nodate','tasklist')) + '</span>' +
-            '<a href="#" class="actions">V</a>'
+            '<a href="#" class="actions" aria-haspopup="true" aria-expanded="false">' + rcmail.gettext('taskactions','tasklist') + '</a>'
             )
+            .attr('tabindex', '0')
+            .attr('aria-labelledby', label_id)
             .data('id', rec.id)
             .draggable({
                 revert: 'invalid',
@@ -917,12 +995,12 @@ function rcube_tasklist_ui(settings)
             inplace = true;
         }
         else {
-            li = $('<li>')
+            li = $('<li role="treeitem">')
                 .attr('rel', rec.id)
                 .addClass('taskitem')
                 .append((rec.collapsed ? '<span class="childtoggle collapsed">&#9654;' : '<span class="childtoggle expanded">&#9660;') + '</span>')
                 .append(div)
-                .append('<ul class="childtasks" style="' + (rec.collapsed ? 'display:none' : '') + '"></ul>');
+                .append('<ul class="childtasks" role="group" style="' + (rec.collapsed ? 'display:none' : '') + '" aria-hidden="' + (rec.collapsed ? 'true' : 'false') +'"></ul>');
 
             if (!parent || !parent.length)
                 li.appendTo(rcmail.gui_objects.resultlist);
@@ -934,6 +1012,11 @@ function rcube_tasklist_ui(settings)
         if (replace) {
             resort_task(rec, li, true);
             // TODO: remove the item after a while if it doesn't match the current filter anymore
+        }
+
+        // re-set focus to taskhead element after DOM update
+        if (focused_task == rec.id) {
+            focus_task(li);
         }
     }
 
@@ -955,7 +1038,11 @@ function rcube_tasklist_ui(settings)
             li.slideUp(speed, function(){
                 if (before)     li.insertBefore(before);
                 else if (after) li.insertAfter(after);
-                li.slideDown(speed);
+                li.slideDown(speed, function(){
+                    if (focused_task == rec.id) {
+                        focus_task(li);
+                    }
+                });
             });
         }
 
@@ -1021,6 +1108,17 @@ function rcube_tasklist_ui(settings)
         if (!d) d = (b._hasdate-0) - (a._hasdate-0);
         if (!d) d = (a.datetime||99999999999) - (b.datetime||99999999999);
         return d;
+    }
+
+    /**
+     * Set focus on the given task item after DOM update
+     */
+    function focus_task(li)
+    {
+        var selector = '.taskhead';
+        if (focused_subclass)
+            selector += ' .' + focused_subclass
+        li.find(selector).focus();
     }
 
     /**
@@ -1346,7 +1444,7 @@ function rcube_tasklist_ui(settings)
         $.each(typeof rec.tags == 'object' && rec.tags.length ? rec.tags : [''], function(i,val){
             $('<input>')
                 .attr('name', 'tags[]')
-                .attr('tabindex', '3')
+                .attr('tabindex', '0')
                 .addClass('tag')
                 .val(val)
                 .appendTo(tagline);
@@ -2032,8 +2130,10 @@ function rcube_tasklist_ui(settings)
      */
     function set_focusview(id)
     {
-        if (focusview && focusview != id)
-            $(tasklists_widget.get_item(focusview)).find('.tasklist').first().removeClass('focusview');
+        if (focusview && focusview != id) {
+            $(tasklists_widget.get_item(focusview)).find('.tasklist').first().removeClass('focusview')
+                .find('a.quickview').attr('aria-checked', 'false');
+        }
 
         focusview = id;
 
@@ -2050,7 +2150,7 @@ function rcube_tasklist_ui(settings)
         list_tasks(null);
 
         if (focusview) {
-            li.addClass('focusview');
+            li.addClass('focusview').find('a.quickview').attr('aria-checked', 'true');
         }
     }
 

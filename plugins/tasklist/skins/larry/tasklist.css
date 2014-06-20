@@ -165,7 +165,6 @@ body.attachmentwin #topnav .topright {
 	border-color: #003645;
 	border-radius: 10px;
 	text-shadow: none;
-	outline: none;
 }
 
 #taskselector li .count {
@@ -306,15 +305,17 @@ body.attachmentwin #topnav .topright {
 	background: url(sprites.png) right 20px no-repeat;
 }
 
-#tasklistsbox .treelist li span.quickview {
+#tasklistsbox .treelist li a.quickview {
 	display: inline-block;
 	position: absolute;
 	top: 6px;
-	right: 20px;
+	right: 24px;
 	width: 16px;
 	height: 16px;
-	margin-right: 4px;
+	padding: 0;
 	background: url(sprites.png) -200px 0 no-repeat;
+	overflow: hidden;
+	text-indent: -5000px;
 	cursor: pointer;
 }
 
@@ -332,6 +333,7 @@ body.attachmentwin #topnav .topright {
 	cursor: pointer;
 }
 
+#tasklistsbox .treelist div > a.subscribed:focus,
 #tasklistsbox .treelist div:hover > a.subscribed {
 	background-position: -2px -215px;
 }
@@ -340,16 +342,23 @@ body.attachmentwin #topnav .topright {
 	background-position: -20px -215px;
 }
 
-#tasklistsbox .treelist li div:hover > span.quickview {
+#tasklistsbox .treelist div > a.quickview:focus,
+#tasklistsbox .treelist li div:hover > a.quickview {
 	background-position: -20px -101px;
 }
 
-#tasklistsbox .treelist li div.focusview > span.quickview {
+#tasklistsbox .treelist li div.focusview > a.quickview {
 	background-position: -2px -101px;
 }
 
-#tasklistsbox .searchresults .treelist li span.quickview {
+#tasklistsbox .searchresults .treelist li a.quickview {
 	display: none;
+}
+
+#tasklistsbox .treelist div a.quickview:focus,
+#tasklistsbox .treelist div a.subscribed:focus {
+	border-radius: 3px;
+	outline: 2px solid rgba(30,150,192, 0.5);
 }
 
 #tasklistsbox .treelist li.selected > div > span.listname {
@@ -578,8 +587,10 @@ body.attachmentwin #topnav .topright {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	cursor: default;
+	outline: none;
 }
 
+.taskhead:focus,
 .taskhead.droptarget {
 	border-color: #4787b1;
 	box-shadow: 0 0 5px 2px rgba(71,135,177, 0.9);
@@ -598,21 +609,20 @@ body.attachmentwin #topnav .topright {
 
 .taskhead .flagged {
 	display: inline-block;
-	visibility: hidden;
 	width: 16px;
 	height: 16px;
-	background: url(sprites.png) -2px -3px no-repeat;
+	background: url(sprites.png) 1000px -3px no-repeat;
 	margin: -3px 1em 0 0;
 	vertical-align: middle;
 	cursor: pointer;
 }
 
+.taskhead .flagged:focus,
 .taskhead:hover .flagged {
-	visibility: visible;
+	background-position: -2px -3px;
 }
 
 .taskhead.flagged .flagged {
-	visibility: visible;
 	background-position: -2px -23px;
 }
 
@@ -675,28 +685,22 @@ body.attachmentwin #topnav .topright {
 	font-size: 11px;
 }
 
-.taskhead .actions,
-.taskhead .delete {
+.taskhead .actions {
 	display: block;
-	visibility: hidden;
 	position: absolute;
 	top: 3px;
 	right: 6px;
 	width: 18px;
 	height: 18px;
-	background: url(sprites.png) 0 -80px no-repeat;
-	text-indent: -1000px;
+	background: url(sprites.png) 1000px -80px no-repeat;
+	text-indent: -5000px;
 	overflow: hidden;
 	cursor: pointer;
 }
 
-.taskhead .delete {
-	background-position: 0 -40px;
-}
-
-.taskhead:hover .actions,
-.taskhead:hover .delete {
-	visibility: visible;
+.taskhead .actions:focus,
+.taskhead:hover .actions {
+	background-position: 0 -80px;
 }
 
 .taskhead.complete {

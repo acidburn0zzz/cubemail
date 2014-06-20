@@ -8,8 +8,12 @@ $labels['tags'] = 'Tags';
 $labels['tasklistsubscribe'] = 'List permanently';
 $labels['listsearchresults'] = 'Available Tasklists';
 $labels['findlists'] = 'Find tasklists...';
+$labels['searchterms'] = 'Search terms';
+$labels['notasklistsfound'] = 'No tasklists found';
+$labels['nrtasklistsfound'] = '$nr tasklists found';
 
 $labels['newtask'] = 'New Task';
+$labels['createtask'] = 'Create Task <Enter>';
 $labels['createnewtask'] = 'Create new Task (e.g. Saturday, Mow the lawn)';
 $labels['createfrommail'] = 'Save as task';
 $labels['mark'] = 'Mark';
@@ -19,7 +23,9 @@ $labels['delete'] = 'Delete';
 $labels['title'] = 'Title';
 $labels['description'] = 'Description';
 $labels['datetime'] = 'Due';
+$labels['duetime'] = 'Due time';
 $labels['start'] = 'Start';
+$labels['starttime'] = 'Start time';
 $labels['alarms'] = 'Reminder';
 $labels['repeat'] = 'Repeat';
 $labels['status'] = 'Status';
@@ -48,6 +54,7 @@ $labels['addsubtask'] = 'Add subtask';
 $labels['deletetask'] = 'Delete task';
 $labels['deletethisonly'] = 'Delete this task only';
 $labels['deletewithchilds'] = 'Delete with all subtasks';
+$labels['taskactions'] = 'Task options...';
 
 $labels['tabsummary'] = 'Summary';
 $labels['tabrecurrence'] = 'Recurrence';
@@ -79,3 +86,13 @@ $labels['deleteparenttasktconfirm'] = 'Do you really want to delete this task an
 $labels['deletelistconfirm'] = 'Do you really want to delete this list with all its tasks?';
 $labels['deletelistconfirmrecursive'] = 'Do you really want to delete this list with all its sub-lists and tasks?';
 $labels['aclnorights'] = 'You do not have administrator rights on this task list.';
+
+// (hidden) titles and labels for accessibility annotations
+$labels['quickaddinput'] = 'New task date and title';
+$labels['arialabelquickaddbox'] = 'Quick add new task';
+$labels['arialabelsearchform'] = 'Task search form';
+$labels['arialabelquicksearchbox'] = 'Task search input';
+$labels['arialabellistsearchform'] = 'Tasklists search form';
+$labels['arialabeltaskselector'] = 'List mode';
+$labels['arialabeltasklisting'] = 'Tasks listing';
+

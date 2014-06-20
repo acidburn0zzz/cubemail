@@ -8,51 +8,51 @@
 			<div class="form-section">
 				<label for="taskedit-title"><roundcube:label name="tasklist.title" /></label>
 				<br />
-				<input type="text" class="text" name="title" id="taskedit-title" size="60" tabindex="1" />
+				<input type="text" class="text" name="title" id="taskedit-title" size="60" />
 			</div>
 			<div class="form-section">
 				<label for="taskedit-description"><roundcube:label name="tasklist.description" /></label>
 				<br />
-				<textarea name="description" id="taskedit-description" class="text" rows="5" cols="60" tabindex="2"></textarea>
+				<textarea name="description" id="taskedit-description" class="text" rows="5" cols="60"></textarea>
 			</div>
 			<div class="form-section">
-				<label for="taskedit-tags"><roundcube:label name="tasklist.tags" /></label>
-				<roundcube:object name="plugin.tags_editline" id="taskedit-tagline" class="tagedit" tabindex="3" />
+				<label for="tagedit-input"><roundcube:label name="tasklist.tags" /></label>
+				<roundcube:object name="plugin.tags_editline" id="taskedit-tagline" class="tagedit" tabindex="0" />
 			</div>
 			<div class="form-section">
 				<label for="taskedit-startdate"><roundcube:label name="tasklist.start" /></label>
-				<input type="text" name="startdate" size="10" id="taskedit-startdate" tabindex="23" /> &nbsp;
-				<input type="text" name="starttime" size="6" id="taskedit-starttime" tabindex="24" />
+				<input type="text" name="startdate" size="10" id="taskedit-startdate" /> &nbsp;
+				<input type="text" name="starttime" size="6" id="taskedit-starttime" aria-label="<roundcube:label name='tasklist.starttime' />" />
 				<a href="#nodate" style="margin-left:1em" class="edit-nodate" rel="#taskedit-startdate,#taskedit-starttime"><roundcube:label name="tasklist.nodate" /></a>
 			</div>
 			<div class="form-section">
 				<label for="taskedit-date"><roundcube:label name="tasklist.datetime" /></label>
-				<input type="text" name="date" size="10" id="taskedit-date" tabindex="20" /> &nbsp;
-				<input type="text" name="time" size="6" id="taskedit-time" tabindex="21" />
+				<input type="text" name="date" size="10" id="taskedit-date" /> &nbsp;
+				<input type="text" name="time" size="6" id="taskedit-time" aria-label="<roundcube:label name='tasklist.duetime' />" />
 				<a href="#nodate" style="margin-left:1em" class="edit-nodate" rel="#taskedit-date,#taskedit-time"><roundcube:label name="tasklist.nodate" /></a>
 			</div>
 			<div class="form-section" id="taskedit-alarms">
 				<div class="edit-alarm-item first">
-					<label><roundcube:label name="tasklist.alarms" /></label>
-					<roundcube:object name="plugin.alarm_select" />
+					<label for="edit-alarm-item"><roundcube:label name="tasklist.alarms" /></label>
+					<roundcube:object name="plugin.alarm_select" id="edit-alarm-item" />
 					<span class="edit-alarm-buttons">
-						<a href="#add" class="iconbutton add add-alarm">+</a>
-						<a href="#delete" class="iconbutton remove delete-alarm">-</a>
+						<a href="#add" class="iconbutton add add-alarm"><roundcube:label name="libcalendaring.addalarm" /></a>
+						<a href="#delete" class="iconbutton remove delete-alarm"><roundcube:label name="libcalendaring.removealarm" /></a>
 					</span>
 				</div>
 			</div>
 			<div class="form-section">
 				<label for="taskedit-completeness"><roundcube:label name="tasklist.complete" /></label>
-				<input type="text" name="title" id="taskedit-completeness" size="3"  tabindex="25" />&nbsp;%
+				<input type="text" name="title" id="taskedit-completeness" size="3"  />&nbsp;%
 				<div id="taskedit-completeness-slider"></div>
 			</div>
 			<div class="form-section">
 				<label for="taskedit-status"><roundcube:label name="tasklist.status" /></label>
-				<roundcube:object name="plugin.status_select" id="taskedit-status" tabindex="26" />
+				<roundcube:object name="plugin.status_select" id="taskedit-status" />
 			</div>
 			<div class="form-section" id="tasklist-select">
 				<label for="taskedit-tasklist"><roundcube:label name="tasklist.list" /></label>
-				<roundcube:object name="plugin.tasklist_select" id="taskedit-tasklist" tabindex="26" />
+				<roundcube:object name="plugin.tasklist_select" id="taskedit-tasklist" />
 			</div>
 		</div>
 		<!-- recurrence settings -->
@@ -84,7 +84,8 @@
 			<div id="taskedit-attachments">
 				<roundcube:object name="plugin.attachments_list" id="taskedit-attachment-list" class="attachmentslist" />
 			</div>
-			<div id="taskedit-attachments-form">
+			<div id="taskedit-attachments-form" role="region" aria-labelledby="aria-label-attachmentuploadform">
+				<h3 id="aria-label-attachmentuploadform" class="voice"><roundcube:label name="arialabelattachmentuploadform" /></h2>
 				<roundcube:object name="plugin.attachments_form" id="taskedit-attachment-form" attachmentFieldSize="30" />
 			</div>
 			<roundcube:object name="plugin.filedroparea" id="taskedit-tab-2" />
