@@ -61,6 +61,7 @@
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 	color: #0d5165;
+	line-height: 1.3em;
 }
 
 .tagedit-list li.tagedit-listelement-focus {
