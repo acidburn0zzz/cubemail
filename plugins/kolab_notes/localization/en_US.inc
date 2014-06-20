@@ -31,6 +31,7 @@ $labels['savein'] = 'Save in';
 
 $labels['savingdata'] = 'Saving data...';
 $labels['recordnotfound'] = 'Record not found';
+$labels['norecordsfound'] = 'No notes found';
 $labels['nochanges'] = 'No changes to be saved';
 $labels['entertitle'] = 'Please enter a title for this note!';
 $labels['deletenotesconfirm'] = 'Do you really want to delete the selected notes?';
@@ -46,3 +47,4 @@ $labels['arialabelnotesquicksearchbox'] = 'Notes search input';
 $labels['arialabelnotessortmenu'] = 'Notes list sorting options';
 $labels['arialabelnotesoptionsmenu'] = 'Notebook actions menu';
 $labels['arialabelnotebookform'] = 'Notebook properties';
+$labels['arialabelmessagereferences'] = 'Linked email messages';

@@ -31,20 +31,29 @@
 
     <div id="sidebar">
         <div id="tagsbox" class="uibox listbox">
-            <h2 class="boxtitle"><roundcube:label name="kolab_notes.tags" id="taglist" /></h2>
+            <h2 class="boxtitle" id="aria-label-tagsbox"><roundcube:label name="kolab_notes.tags" id="taglist" /></h2>
             <div class="scroller">
-                <roundcube:object name="plugin.tagslist" id="tagslist" class="tagcloud" />
+                <roundcube:object name="plugin.tagslist" id="tagslist" class="tagcloud" role="region" aria-labelledby="aria-label-tagsbox" aria-controls="kolabnoteslist" />
             </div>
         </div>
 
-        <div id="notebooksbox" class="uibox listbox">
-            <h2 class="boxtitle"><roundcube:label name="kolab_notes.lists" /></h2>
+        <div id="notebooksbox" class="uibox listbox" role="navigation" aria-labelledby="aria-label-notebooks">
+            <h2 class="boxtitle" id="aria-label-notebooks"><roundcube:label name="kolab_notes.lists" /></h2>
             <div class="scroller withfooter">
-                <roundcube:object name="plugin.notebooks" id="notebooks" class="listing" />
+                <roundcube:object name="plugin.notebooks" id="notebooks" class="listing treelist" />
             </div>
             <div class="boxfooter">
-                <roundcube:button command="list-create" type="link" title="kolab_notes.newnotebook" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" label="kolab_notes.addnotebook" /><roundcube:button name="notesoptionslink" id="notesoptionsmenulink" type="link" title="kolab_notes.listactions" class="listbutton groupactions" onclick="return UI.toggle_popup('notesoptionsmenu', event)" innerClass="inner" content="&#9881;" aria-haspopup="true" aria-expanded="false" aria-owns="notesoptionsmenu-menu" />
+                <roundcube:button command="list-create" type="link" title="kolab_notes.newnotebook" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" label="kolab_notes.addnotebook" /><roundcube:button name="notesoptionslink" id="notesoptionsmenulink" type="link" title="kolab_notes.listactions" class="listbutton groupactions" onclick="return UI.toggle_popup('notesoptionsmenu', event)" innerClass="inner" label="kolab_notes.listactions" aria-haspopup="true" aria-expanded="false" aria-owns="notesoptionsmenu-menu" />
             </div>
+        </div>
+
+        <div id="notesoptionsmenu" class="popupmenu" aria-hidden="true">
+            <h3 id="aria-label-optionsmenu" class="voice"><roundcube:label name="kolab_notes.arialabelnotesoptionsmenu" /></h3>
+            <ul class="toolbarmenu" id="notesoptionsmenu-menu" role="menu" aria-labelledby="aria-label-optionsmenu">
+                <li role="menuitem"><roundcube:button command="list-edit" label="edit" classAct="active" /></li>
+                <li role="menuitem"><roundcube:button command="list-remove" label="delete" classAct="active" /></li>
+                <li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+            </ul>
         </div>
     </div>
 
@@ -56,23 +65,24 @@
             </div>
             <div class="boxfooter">
                 <roundcube:button command="delete" type="link" title="delete" class="listbutton delete disabled" classAct="listbutton delete" innerClass="inner" label="delete" />
-                <roundcube:object name="plugin.recordsCountDisplay" class="countdisplay" label="fromtoshort" />
+                <roundcube:object name="plugin.recordsCountDisplay" class="countdisplay" label="fromtoshort" aria-live="polite" aria-relevant="text" />
             </div>
             <div class="boxpagenav">
                 <roundcube:button name="notessortmenulink" id="notessortmenulink" type="link" title="kolab_notes.sortby" class="icon sortoptions" onclick="return UI.toggle_popup('notessortmenu', event)" innerClass="inner" content="v" aria-haspopup="true" aria-expanded="false" aria-owns="notessortmenu-menu" />
             </div>
         </div>
 
-        <div id="notedetailsbox" class="uibox contentbox" role="complementary" aria-labelledby="aria-label-noteform">
+        <div id="notedetailsbox" class="uibox contentbox" role="main" aria-labelledby="aria-label-noteform">
             <h3 id="aria-label-noteform" class="voice"><roundcube:label name="kolab_notes.arialabelnoteform" /></h3>
             <roundcube:object name="plugin.notetitle" id="notedetailstitle" class="boxtitle" />
             <roundcube:object name="plugin.editform" id="noteform" />
             <roundcube:object name="plugin.detailview" id="notedetails" class="scroller" />
             <div id="notereferences">
-                <roundcube:object name="plugin.attachments_list" id="attachment-list" class="attachmentslist" />
+                <h3 id="aria-label-messagereferences" class="voice"><roundcube:label name="kolab_notes.arialabelmessagereferences" /></h3>
+                <roundcube:object name="plugin.attachments_list" id="attachment-list" class="attachmentslist" role="region" aria-labelledby="aria-label-messagereferences" />
             </div>
             <div class="footerleft formbuttons">
-                <roundcube:button command="save" type="input" class="button mainaction" label="save" />
+                <roundcube:button command="save" type="input" class="button mainaction" label="save" id="btn-save-note" />
             </div>
         </div>
     </div>
@@ -81,15 +91,6 @@
 </div>
 
 <roundcube:object name="message" id="messagestack" />
-
-<div id="notesoptionsmenu" class="popupmenu" aria-hidden="true">
-    <h3 id="aria-label-optionsmenu" class="voice"><roundcube:label name="kolab_notes.arialabelnotesoptionsmenu" /></h3>
-    <ul class="toolbarmenu" id="notesoptionsmenu-menu" role="menu" aria-labelledby="aria-label-optionsmenu">
-        <li role="menuitem"><roundcube:button command="list-edit" label="edit" classAct="active" /></li>
-        <li role="menuitem"><roundcube:button command="list-remove" label="delete" classAct="active" /></li>
-        <li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
-    </ul>
-</div>
 
 <div id="notessortmenu" class="popupmenu" aria-hidden="true">
     <h3 id="aria-label-sortmenu" class="voice"><roundcube:label name="kolab_notes.arialabelnotessortmenu" /></h3>

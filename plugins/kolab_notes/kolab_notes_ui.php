@@ -135,8 +135,9 @@ class kolab_notes_ui
                 if ($prop['class_name'])
                     $class .= ' '.$prop['class_name'];
 
+                $attr = $prop['virtual'] ? array('tabindex' => '0') : array('href' => $this->rc->url(array('_list' => $id)));
                 $items .= html::tag('li', array('id' => 'rcmliknb' . $html_id, 'class' => trim($class)),
-                    html::span(array('class' => 'listname', 'title' => $title), $prop['listname']) .
+                    html::a($attr + array('class' => 'listname', 'title' => $title), $prop['listname']) .
                     html::span(array('class' => 'count'), '')
                 );
             }
@@ -169,7 +170,7 @@ class kolab_notes_ui
         $this->rc->output->add_gui_object('noteseditform', $attrib['id']);
         $this->rc->output->include_script('tinymce/tinymce.min.js');
 
-        $textarea = new html_textarea(array('name' => 'content', 'id' => 'notecontent', 'cols' => 60, 'rows' => 20, 'tabindex' => 3));
+        $textarea = new html_textarea(array('name' => 'content', 'id' => 'notecontent', 'cols' => 60, 'rows' => 20, 'tabindex' => 0));
         return html::tag('form', $attrib, $textarea->show(), array_merge(html::$common_attrib, array('action')));
     }
 
@@ -185,7 +186,7 @@ class kolab_notes_ui
         $attrib += array('id' => 'rcmkolabnotestitle');
         $this->rc->output->add_gui_object('noteviewtitle', $attrib['id']);
 
-        $summary = new html_inputfield(array('name' => 'summary', 'class' => 'notetitle inline-edit', 'size' => 60, 'tabindex' => 1));
+        $summary = new html_inputfield(array('name' => 'summary', 'class' => 'notetitle inline-edit', 'size' => 60, 'tabindex' => 0));
 
         $html = $summary->show();
         $html .= html::div(array('class' => 'tagline tagedit', 'style' => 'display:none'), '&nbsp;');
@@ -247,7 +248,7 @@ class kolab_notes_ui
         $form['properties']['fields']['name'] = array(
             'label' => $this->plugin->gettext('listname'),
             'value' => $input_name->show($list['editname'], array('disabled' => ($options['norename'] || $options['protected']))),
-            'id' => 'folder-name',
+            'id' => 'noteslist-name',
         );
 
         // prevent user from moving folder
@@ -255,10 +256,11 @@ class kolab_notes_ui
             $hidden_fields[] = array('name' => 'parent', 'value' => $path_imap);
         }
         else {
-            $select = kolab_storage::folder_selector('note', array('name' => 'parent'), $folder_name);
+            $select = kolab_storage::folder_selector('note', array('name' => 'parent', 'id' => 'parent-folder'), $folder_name);
             $form['properties']['fields']['path'] = array(
                 'label' => $this->plugin->gettext('parentfolder'),
                 'value' => $select->show(strlen($folder_name) ? $path_imap : ''),
+                'id' => 'parent-folder',
             );
         }
 
@@ -289,7 +291,6 @@ class kolab_notes_ui
             if (is_array($tab['fields']) && empty($tab['content'])) {
                 $table = new html_table(array('cols' => 2));
                 foreach ($tab['fields'] as $col => $colprop) {
-                    $colprop['id'] = '_'.$col;
                     $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
 
                     $table->add('title', html::label($colprop['id'], Q($label)));

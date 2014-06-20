@@ -40,6 +40,7 @@ function rcube_kolab_notes_ui(settings)
     var search_request;
     var search_query;
     var tag_draghelper;
+    var render_no_focus;
     var me = this;
 
     /*  public members  */
@@ -112,9 +113,16 @@ function rcube_kolab_notes_ui(settings)
             }
         });
 
+        $(rcmail.gui_objects.notebooks).on('click', 'li a', function(e) {
+            var id = String($(this).closest('li').attr('id')).replace(/^rcmliknb/, '');
+            notebookslist.select(id);
+            e.preventDefault();
+            return false;
+        });
+
         // register dbl-click handler to open list edit dialog
-        $(rcmail.gui_objects.notebooks).on('dblclick', 'li:not(.virtual)', function(e){
-            var id = String(this.id).replace(/^rcmliknb/, '');
+        $(rcmail.gui_objects.notebooks).on('dblclick', 'li:not(.virtual) a', function(e) {
+            var id = String($(this).closest('li').attr('id')).replace(/^rcmliknb/, '');
             if (me.notebooks[id] && me.notebooks[id].editable) {
                 list_edit_dialog(id);
             }
@@ -137,6 +145,7 @@ function rcube_kolab_notes_ui(settings)
             noteslist = new rcube_list_widget(rcmail.gui_objects.noteslist,
                 { multiselect:true, draggable:true, keyboard:true });
             noteslist.addEventListener('select', function(list) {
+                render_no_focus = rcube_event._last_keyboard_event && $(list.list).has(rcube_event._last_keyboard_event.target);
                 var selection_changed = list.selection.length != 1 || !me.selected_note || list.selection[0] != me.selected_note.id;
                 selection_changed && warn_unsaved_changes(function(){
                     var note;
@@ -183,7 +192,7 @@ function rcube_kolab_notes_ui(settings)
         }
 
         // click-handler on tags list
-        $(rcmail.gui_objects.notestagslist).on('click', function(e){
+        $(rcmail.gui_objects.notestagslist).on('click', 'li', function(e){
             var item = e.target.nodeName == 'LI' ? $(e.target) : $(e.target).closest('li'),
                 tag = item.data('value');
 
@@ -198,17 +207,17 @@ function rcube_kolab_notes_ui(settings)
                 if (tagsfilter.length > 1)
                     index = -1;
 
-                $('li', this).removeClass('selected');
+                $('li', rcmail.gui_objects.notestagslist).removeClass('selected').attr('aria-checked', 'false');
                 tagsfilter = [];
             }
 
             // add tag to filter
             if (index < 0) {
-                item.addClass('selected');
+                item.addClass('selected').attr('aria-checked', 'true');
                 tagsfilter.push(tag);
             }
             else if (shift) {
-                item.removeClass('selected');
+                item.removeClass('selected').attr('aria-checked', 'false');
                 var a = tagsfilter.slice(0,index);
                 tagsfilter = a.concat(tagsfilter.slice(index+1));
             }
@@ -221,6 +230,11 @@ function rcube_kolab_notes_ui(settings)
 
             e.preventDefault();
             return false;
+        })
+        .on('keypress', 'li', function(e) {
+            if (e.keyCode == 13) {
+                $(this).trigger('click', { pointerType:'keyboard' });
+            }
         })
         .mousedown(function(e){
             // disable content selection with the mouse
@@ -314,6 +328,7 @@ function rcube_kolab_notes_ui(settings)
             //spellchecker_rpc_url: '../../../../../?_task=utils&_action=spell_html&_remote=1',
             //spellchecker_language: rcmail.env.spell_lang,
             accessibility_focus: false,
+            tabfocus_elements: [':prev','btn-save-note'],
             setup: function(ed) {
                 // make links open on shift-click
                 ed.on('click', function(e) {
@@ -453,7 +468,7 @@ function rcube_kolab_notes_ui(settings)
             modal: true,
             resizable: true,
             closeOnEscape: false,
-            title: rcmail.gettext((list.id ? 'editlist' : 'createlist'), 'kolab_notes'),
+            title: rcmail.gettext((list.id ? 'editlist' : 'newnotebook'), 'kolab_notes'),
             open: function() {
                 $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
             },
@@ -707,6 +722,10 @@ function rcube_kolab_notes_ui(settings)
         else if (me.selected_note && notesdata[me.selected_note.id]) {
             noteslist.select(me.selected_note.id);
         }
+        else if (!data.data.length) {
+            console.log(data);
+            rcmail.display_message(rcmail.gettext('norecordsfound','kolab_notes'), 'info');
+        }
     }
 
     /**
@@ -738,7 +757,7 @@ function rcube_kolab_notes_ui(settings)
         $.each(typeof data.categories == 'object' && data.categories.length ? data.categories : [''], function(i,val){
             $('<input>')
                 .attr('name', 'tags[]')
-                .attr('tabindex', '2')
+                .attr('tabindex', '0')
                 .addClass('tag')
                 .val(val)
                 .appendTo(tagline);
@@ -808,8 +827,10 @@ function rcube_kolab_notes_ui(settings)
             node = editor.getContentAreaContainer().childNodes[0];
             if (node) node.tabIndex = content.get(0).tabIndex;
 
-            if (me.selected_note.uid)
-                editor.getBody().focus();
+            if (me.selected_note.uid) {
+                if (!render_no_focus)
+                    editor.getBody().focus();
+            }
             else
                 $('.notetitle', rcmail.gui_objects.noteviewtitle).focus().select();
 
@@ -821,6 +842,8 @@ function rcube_kolab_notes_ui(settings)
             $(rcmail.gui_objects.noteseditform).hide();
             $(rcmail.gui_objects.notesdetailview).html(html).show();
         }
+
+        render_no_focus = false;
 
         // notify subscribers
         rcmail.triggerEvent('kolab_notes_render', { data:data, readonly:readonly, html:is_html });
@@ -916,7 +939,9 @@ function rcube_kolab_notes_ui(settings)
 
         // append tags to tag cloud
         $.each(tags, function(i, tag){
-            li = $('<li>').attr('rel', tag).data('value', tag)
+            li = $('<li role="checkbox" aria-checked="false" tabindex="0"></li>')
+                .attr('rel', tag)
+                .data('value', tag)
                 .html(Q(tag) + '<span class="count"></span>')
                 .appendTo(widget)
                 .draggable({
@@ -961,10 +986,10 @@ function rcube_kolab_notes_ui(settings)
             else            elem.removeClass('inactive');
 
             if (tagsfilter && tagsfilter.length && $.inArray(tag, tagsfilter)) {
-                elem.addClass('selected');
+                elem.addClass('selected').attr('aria-checked', 'true');
             }
             else {
-                elem.removeClass('selected');
+                elem.removeClass('selected').attr('aria-checked', 'false');
             }
         });
     }
@@ -1149,7 +1174,9 @@ function rcube_kolab_notes_ui(settings)
                 dialogClass: 'warning',
                 open: function(event, ui) {
                     $(this).parent().find('.ui-dialog-titlebar-close').hide();
-                    $(this).parent().find('.ui-button').first().addClass('mainaction').focus();
+                    setTimeout(function(){
+                        dialog.parent().find('.ui-button:visible').first().addClass('mainaction').focus();
+                    }, 10);
                 }
             };
 

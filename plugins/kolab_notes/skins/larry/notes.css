@@ -88,16 +88,25 @@
 	bottom: 0px;
 }
 
+.notesview #kolabnoteslist li {
+	border-left: 2px solid transparent;
+}
+
+.notesview #kolabnoteslist.focus li.focused {
+	border-left: 2px solid #739da8;
+}
+
 .notesview #kolabnoteslist .title {
 	display: block;
-	padding: 4px 8px;
+	padding: 4px 6px;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	outline: none;
 }
 
 .notesview #kolabnoteslist .date {
 	display: block;
-	padding: 0px 8px 4px 8px;
+	padding: 0px 6px 4px 6px;
 	color: #777;
 	font-weight: normal;
 }
@@ -238,6 +247,7 @@
 .notesview #notedetailstitle .tagline {
 	position: relative;
 	cursor: text;
+	margin: 6px -2px -2px -2px;
 }
 
 .notesview #notedetailstitle .tagline .placeholder {
@@ -250,6 +260,7 @@
 .notesview #notedetailstitle .tagedit-list {
 	position: relative;
 	z-index: 2;
+	padding: 2px;
 }
 
 .notesview #notedetailstitle #tagedit-input {
@@ -295,24 +306,25 @@
 	height: 12px;
 }
 
-.notesview #notebooks li span.listname {
+.notesview #notebooks li .listname {
 	display: block;
 	position: absolute;
-	top: 7px;
-	left: 9px;
+	top: 1px;
+	left: 2px;
 	right: 6px;
+	height: 19px;
 	cursor: default;
-	padding-bottom: 2px;
-	padding-right: 26px;
+	padding: 4px 26px 2px 6px;
 	color: #004458;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.notesview #notebooks li.virtual span.listname {
+.notesview #notebooks li.virtual .listname {
 	color: #aaa;
-	top: 3px;
+	top: 0;
+	padding: 1px 8px;
 }
 
 .notesview #notebooks li.readonly,
@@ -343,24 +355,16 @@
 	background-position: 98% -130px;
 }
 
-.notesview #notebooks li.other.readonly span.listname,
-.notesview #notebooks li.shared.readonly span.listname {
+.notesview #notebooks li.other.readonly .listname,
+.notesview #notebooks li.shared.readonly .listname {
 	padding-right: 36px;
-}
-
-.notesview #notebooks li.selected > a {
-	background-color: transparent;
 }
 
 .notesview .uidialog .tabbed {
 	margin-top: -12px;
 }
 
-.notesview .uidialog .propform fieldset.tab {
-	display: block;
-	background: #efefef;
-	margin-top: 0.5em;
-	padding: 0.5em 1em;
+.notesview .uidialog .propform fieldset.ui-tabs-panel {
 	min-height: 290px;
 }
 
