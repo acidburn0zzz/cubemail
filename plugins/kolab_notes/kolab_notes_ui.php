@@ -161,7 +161,7 @@ class kolab_notes_ui
             $prop = $data[$id];
             $is_collapsed = false; // TODO: determine this somehow?
 
-            $content = $this->folder_list_item($id, $prop, $jsenv, $attrib['activeonly']);
+            $content = $this->folder_list_item($id, $prop, $jsenv);
 
             if (!empty($folder->children)) {
                 $content .= html::tag('ul', array('style' => ($is_collapsed ? "display:none;" : null)),
@@ -183,7 +183,7 @@ class kolab_notes_ui
     /**
      * Helper method to build a tasklist item (HTML content and js data)
      */
-    public function folder_list_item($id, $prop, &$jsenv, $activeonly = false)
+    public function folder_list_item($id, $prop, &$jsenv, $checkbox = false)
     {
         if (!$prop['virtual']) {
             unset($prop['user_id']);
@@ -212,7 +212,10 @@ class kolab_notes_ui
         return html::div(join(' ', $classes),
             html::a($attr + array('class' => 'listname', 'title' => $title, 'id' => $label_id), $prop['listname'] ?: $prop['name']) .
             ($prop['virtual'] ? '' :
-                html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id)) .
+                ($checkbox ?
+                    html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id)) :
+                    ''
+                ) .
                 html::span('handle', '') .
                 (isset($prop['subscribed']) ?
                     html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('foldersubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') :

@@ -805,7 +805,7 @@ class kolab_notes extends rcube_plugin
                     unset($prop['editname']);  // force full name to be displayed
 
                     // let the UI generate HTML and CSS representation for this calendar
-                    $html = $this->ui->folder_list_item($id, $prop, $jsenv);
+                    $html = $this->ui->folder_list_item($id, $prop, $jsenv, true);
                     $prop += (array)$jsenv[$id];
                     $prop['editname'] = $editname;
                     $prop['html'] = $html;
