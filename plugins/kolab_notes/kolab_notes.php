@@ -106,6 +106,9 @@ class kolab_notes extends rcube_plugin
         if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || in_array($args['action'], array('folder-acl','dialog-ui')))) {
             $this->load_ui();
         }
+
+        // notes use fully encoded identifiers
+        kolab_storage::$encode_ids = true;
     }
 
     /**
@@ -155,63 +158,9 @@ class kolab_notes extends rcube_plugin
         }
 
         $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
-        $listnames = array();
-
-        // include virtual folders for a full folder tree
-        if (!$this->rc->output->ajax_call && in_array($this->rc->action, array('index','')))
-            $folders = kolab_storage::folder_hierarchy($folders);
 
         foreach ($folders as $folder) {
-            $utf7name = $folder->name;
-
-            $path_imap = explode($delim, $utf7name);
-            $editname = rcube_charset::convert(array_pop($path_imap), 'UTF7-IMAP');  // pop off raw name part
-            $path_imap = join($delim, $path_imap);
-
-            $fullname = $folder->get_name();
-            $listname = kolab_storage::folder_displayname($fullname, $listnames);
-
-            // special handling for virtual folders
-            if ($folder->virtual) {
-                $list_id = kolab_storage::folder_id($utf7name);
-                $this->lists[$list_id] = array(
-                    'id' => $list_id,
-                    'name' => $fullname,
-                    'listname' => $listname,
-                    'virtual' => true,
-                    'editable' => false,
-                );
-                continue;
-            }
-
-            if ($folder->get_namespace() == 'personal') {
-                $norename = false;
-                $readonly = false;
-                $alarms = true;
-            }
-            else {
-                $alarms = false;
-                $readonly = true;
-                if (($rights = $folder->get_myrights()) && !PEAR::isError($rights)) {
-                    if (strpos($rights, 'i') !== false)
-                      $readonly = false;
-                }
-                $info = $folder->get_folder_info();
-                $norename = $readonly || $info['norename'] || $info['protected'];
-            }
-
-            $list_id = kolab_storage::folder_id($utf7name);
-            $item = array(
-                'id' => $list_id,
-                'name' => $fullname,
-                'listname' => $listname,
-                'editname' => $editname,
-                'editable' => !$readonly,
-                'norename' => $norename,
-                'parentfolder' => $path_imap,
-                'default' => $folder->default,
-                'class_name' => trim($folder->get_namespace() . ($folder->default ? ' default' : '')),
-            );
+            $item = $this->folder_props($folder, $delim);
             $this->lists[$item['id']] = $item;
             $this->folders[$item['id']] = $folder;
             $this->folders[$folder->name] = $folder;
@@ -221,7 +170,7 @@ class kolab_notes extends rcube_plugin
     /**
      * Get a list of available folders from this source
      */
-    public function get_lists()
+    public function get_lists(&$tree = null)
     {
         $this->_read_lists();
 
@@ -233,9 +182,192 @@ class kolab_notes extends rcube_plugin
             }
         }
 
-        return $this->lists;
+        $folders = array();
+        foreach ($this->lists as $id => $list) {
+            if (!empty($this->folders[$id])) {
+                $folders[] = $this->folders[$id];
+            }
+        }
+
+        // include virtual folders for a full folder tree
+        if (!is_null($tree)) {
+            $folders = kolab_storage::folder_hierarchy($folders, $tree);
+        }
+
+        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
+
+        $lists = array();
+        foreach ($folders as $folder) {
+            $list_id = $folder->id;
+            $imap_path = explode($delim, $folder->name);
+
+            // find parent
+            do {
+              array_pop($imap_path);
+              $parent_id = kolab_storage::folder_id(join($delim, $imap_path));
+            }
+            while (count($imap_path) > 1 && !$this->folders[$parent_id]);
+
+            // restore "real" parent ID
+            if ($parent_id && !$this->folders[$parent_id]) {
+                $parent_id = kolab_storage::folder_id($folder->get_parent());
+            }
+
+            $fullname = $folder->get_name();
+            $listname = $folder->get_foldername();
+
+            // special handling for virtual folders
+            if ($folder instanceof kolab_storage_folder_user) {
+                $lists[$list_id] = array(
+                    'id'       => $list_id,
+                    'name'     => $fullname,
+                    'listname' => $listname,
+                    'title'    => $folder->get_owner(),
+                    'virtual'  => true,
+                    'editable' => false,
+                    'group'    => 'other virtual',
+                    'class'    => 'user',
+                    'parent'   => $parent_id,
+                );
+            }
+            else if ($folder->virtual) {
+                $lists[$list_id] = array(
+                    'id'       => $list_id,
+                    'name'     => kolab_storage::object_name($fullname),
+                    'listname' => $listname,
+                    'virtual'  => true,
+                    'editable' => false,
+                    'group'    => $folder->get_namespace(),
+                    'parent'   => $parent_id,
+                );
+            }
+            else {
+                if (!$this->lists[$list_id]) {
+                    $this->lists[$list_id] = $this->folder_props($folder, $delim);
+                    $this->folders[$list_id] = $folder;
+                }
+                $this->lists[$list_id]['parent'] = $parent_id;
+                $lists[$list_id] = $this->lists[$list_id];
+            }
+        }
+
+        return $lists;
     }
 
+    /**
+     * Search for shared or otherwise not listed folders the user has access
+     *
+     * @param string Search string
+     * @param string Section/source to search
+     * @return array List of notes folders
+     */
+    protected function search_lists($query, $source)
+    {
+        if (!kolab_storage::setup()) {
+            return array();
+        }
+
+        $this->search_more_results = false;
+        $this->lists = $this->folders = array();
+
+        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
+
+        // find unsubscribed IMAP folders that have "event" type
+        if ($source == 'folders') {
+            foreach ((array)kolab_storage::search_folders('note', $query, array('other')) as $folder) {
+                $this->folders[$folder->id] = $folder;
+                $this->lists[$folder->id] = $this->folder_props($folder, $delim);
+            }
+        }
+        // search other user's namespace via LDAP
+        else if ($source == 'users') {
+            $limit = $this->rc->config->get('autocomplete_max', 15) * 2;  // we have slightly more space, so display twice the number
+            foreach (kolab_storage::search_users($query, 0, array(), $limit * 10) as $user) {
+                $folders = array();
+                // search for tasks folders shared by this user
+                foreach (kolab_storage::list_user_folders($user, 'note', false) as $foldername) {
+                    $folders[] = new kolab_storage_folder($foldername, 'note');
+                }
+
+                if (count($folders)) {
+                    $userfolder = new kolab_storage_folder_user($user['kolabtargetfolder'], '', $user);
+                    $this->folders[$userfolder->id] = $userfolder;
+                    $this->lists[$userfolder->id] = $this->folder_props($userfolder, $delim, array());
+
+                    foreach ($folders as $folder) {
+                        $this->folders[$folder->id] = $folder;
+                        $this->lists[$folder->id] = $this->folder_props($folder, $delim, array());
+                        $count++;
+                    }
+                }
+
+                if ($count >= $limit) {
+                    $this->search_more_results = true;
+                    break;
+                }
+            }
+
+        }
+
+        return $this->get_lists();
+    }
+
+    /**
+     * Derive list properties from the given kolab_storage_folder object
+     */
+    protected function folder_props($folder, $delim)
+    {
+        if ($folder->get_namespace() == 'personal') {
+            $norename = false;
+            $readonly = false;
+            $alarms = true;
+        }
+        else {
+            $alarms = false;
+            $readonly = true;
+            if (($rights = $folder->get_myrights()) && !PEAR::isError($rights)) {
+                if (strpos($rights, 'i') !== false)
+                  $readonly = false;
+            }
+            $info = $folder->get_folder_info();
+            $norename = $readonly || $info['norename'] || $info['protected'];
+        }
+
+        $list_id = $folder->id;
+        return array(
+            'id' => $list_id,
+            'name' => $folder->get_name(),
+            'listname' => $folder->get_foldername(),
+            'editname' => $folder->get_foldername(),
+            'editable' => !$readonly,
+            'norename' => $norename,
+            'parentfolder' => $folder->get_parent(),
+            'subscribed' => (bool)$folder->is_subscribed(),
+            'default'  => $folder->default,
+            'group'    => $folder->default ? 'default' : $folder->get_namespace(),
+            'class'    => trim($folder->get_namespace() . ($folder->default ? ' default' : '')),
+        );
+    }
+
+    /**
+     * Get the kolab_calendar instance for the given calendar ID
+     *
+     * @param string List identifier (encoded imap folder name)
+     * @return object kolab_storage_folder Object nor null if list doesn't exist
+     */
+    public function get_folder($id)
+    {
+        // create list and folder instance if necesary
+        if (!$this->lists[$id]) {
+            $folder = kolab_storage::get_folder(kolab_storage::id_decode($id));
+            if ($folder->type) {
+                $this->folders[$id] = $folder;
+                $this->lists[$id] = $this->folder_props($folder, $this->rc->get_storage()->get_hierarchy_delimiter());
+            }
+        }
+
+        return $this->folders[$id];
+    }
 
     /*******  UI functions  ********/
 
@@ -325,7 +457,7 @@ class kolab_notes extends rcube_plugin
         }
 
         $this->_read_lists();
-        if ($folder = $this->folders[$list_id]) {
+        if ($folder = $this->get_folder($list_id)) {
             foreach ($folder->select($query) as $record) {
                 // post-filter search results
                 if (strlen($search)) {
@@ -393,7 +525,7 @@ class kolab_notes extends rcube_plugin
 
         $this->_read_lists();
         if ($list_id) {
-            if ($folder = $this->folders[$list_id]) {
+            if ($folder = $this->get_folder($list_id)) {
                 return $folder->get_object($uid);
             }
         }
@@ -514,11 +646,11 @@ class kolab_notes extends rcube_plugin
         $this->_read_lists();
 
         $list_id = $note['list'];
-        if (!$list_id || !($folder = $this->folders[$list_id]))
+        if (!$list_id || !($folder = $this->get_folder($list_id)))
             return false;
 
         // moved from another folder
-        if ($note['_fromlist'] && ($fromfolder = $this->folders[$note['_fromlist']])) {
+        if ($note['_fromlist'] && ($fromfolder = $this->get_folder($note['_fromlist']))) {
             if (!$fromfolder->move($note['uid'], $folder->name))
                 return false;
 
@@ -566,8 +698,8 @@ class kolab_notes extends rcube_plugin
     function move_note($note, $list_id)
     {
         $this->_read_lists();
-        $tofolder = $this->folders[$list_id];
-        $fromfolder = $this->folders[$note['list']];
+        $tofolder = $this->get_folder($list_id);
+        $fromfolder = $this->get_folder($note['list']);
 
         if ($fromfolder && $tofolder) {
             return $fromfolder->move($note['uid'], $tofolder->name);
@@ -588,7 +720,7 @@ class kolab_notes extends rcube_plugin
         $this->_read_lists();
 
         $list_id = $note['list'];
-        if (!$list_id || !($folder = $this->folders[$list_id]))
+        if (!$list_id || !($folder = $this->get_folder($list_id)))
             return false;
 
         return $folder->delete($note['uid'], $force);
@@ -602,6 +734,10 @@ class kolab_notes extends rcube_plugin
         $action = rcube_utils::get_input_value('_do', RCUBE_INPUT_GPC);
         $list = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC, true);
         $success = $update_cmd = false;
+
+        if (empty($action)) {
+            $action = rcube_utils::get_input_value('action', RCUBE_INPUT_GPC);
+        }
 
         switch ($action) {
             case 'form-new':
@@ -651,13 +787,46 @@ class kolab_notes extends rcube_plugin
 
             case 'delete':
                 $this->_read_lists();
-                $folder = $this->folders[$list['id']];
+                $folder = $this->get_folder($list['id']);
                 if ($folder && kolab_storage::folder_delete($folder->name)) {
                     $success = true;
                     $update_cmd = 'plugin.destroy_list';
                 }
                 else {
                     $save_error = $this->gettext(kolab_storage::$last_error);
+                }
+                break;
+
+            case 'search':
+                $this->load_ui();
+                $results = array();
+                foreach ((array)$this->search_lists(rcube_utils::get_input_value('q', RCUBE_INPUT_GPC), rcube_utils::get_input_value('source', RCUBE_INPUT_GPC)) as $id => $prop) {
+                    $editname = $prop['editname'];
+                    unset($prop['editname']);  // force full name to be displayed
+
+                    // let the UI generate HTML and CSS representation for this calendar
+                    $html = $this->ui->folder_list_item($id, $prop, $jsenv);
+                    $prop += (array)$jsenv[$id];
+                    $prop['editname'] = $editname;
+                    $prop['html'] = $html;
+
+                    $results[] = $prop;
+                }
+                // report more results available
+                if ($this->driver->search_more_results) {
+                    $this->rc->output->show_message('autocompletemore', 'info');
+                }
+
+                $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', RCUBE_INPUT_GPC));
+                return;
+
+            case 'subscribe':
+                $success = false;
+                if ($list['id'] && ($folder = $this->get_folder($list['id']))) {
+                    if (isset($list['permanent']))
+                        $success |= $folder->subscribe(intval($list['permanent']));
+                    if (isset($list['active']))
+                        $success |= $folder->activate(intval($list['active']));
                 }
                 break;
         }

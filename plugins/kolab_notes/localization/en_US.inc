@@ -28,6 +28,11 @@ $labels['unsavedchanges'] = 'Unsaved Changes!';
 $labels['appendnote'] = 'Add a Note';
 $labels['editnote'] = 'Edit Note';
 $labels['savein'] = 'Save in';
+$labels['foldersubscribe'] = 'List permanently';
+$labels['findnotebooks'] = 'Find notebooks...';
+$labels['listsearchresults'] = 'Additional notebooks';
+$labels['nrnotebooksfound'] = '$nr notebooks found';
+$labels['nonotebooksfound'] = 'No notebooks found';
 
 $labels['savingdata'] = 'Saving data...';
 $labels['recordnotfound'] = 'Record not found';
@@ -48,3 +53,4 @@ $labels['arialabelnotessortmenu'] = 'Notes list sorting options';
 $labels['arialabelnotesoptionsmenu'] = 'Notebook actions menu';
 $labels['arialabelnotebookform'] = 'Notebook properties';
 $labels['arialabelmessagereferences'] = 'Linked email messages';
+$labels['arialabelfolderearchform'] = 'Notebooks search form';

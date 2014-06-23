@@ -86,14 +86,21 @@ function rcube_kolab_notes_ui(settings)
         // initialize folder selectors
         var li, id;
         for (id in me.notebooks) {
-            if (me.notebooks[id].editable && (!settings.selected_list || (me.notebooks[id].active && !me.notebooks[me.selected_list].active))) {
+            if (me.notebooks[id].editable && !settings.selected_list) {
                 settings.selected_list = id;
             }
         }
 
-        notebookslist = new rcube_treelist_widget(rcmail.gui_objects.notebooks, {
+        var widget_class = window.kolab_folderlist || rcube_treelist_widget;
+        notebookslist = new widget_class(rcmail.gui_objects.notebooks, {
           id_prefix: 'rcmliknb',
+          save_state: true,
           selectable: true,
+          keyboard: false,
+          searchbox: '#notebooksearch',
+          search_action: 'notes/list',
+          search_sources: [ 'folders', 'users' ],
+          search_title: rcmail.gettext('listsearchresults','kolab_notes'),
           check_droptarget: function(node) {
               var list = me.notebooks[node.id];
               return !node.virtual && list.editable && node.id != me.selected_list;
@@ -112,8 +119,30 @@ function rcube_kolab_notes_ui(settings)
                 });
             }
         });
+        notebookslist.addEventListener('subscribe', function(p) {
+            var list;
+            if ((list = me.notebooks[p.id])) {
+                list.subscribed = p.subscribed || false;
+                rcmail.http_post('list', { _do:'subscribe', _list:{ id:p.id, permanent:list.subscribed?1:0 } });
+            }
+        });
+        notebookslist.addEventListener('insert-item', function(p) {
+            var list = p.data;
+            if (list && list.id && !list.virtual) {
+                me.notebooks[list.id] = list;
+                var prop = { id:p.id, active:list.active?1:0 };
+                if (list.subscribed) prop.permanent = 1;
+                rcmail.http_post('list', { _do:'subscribe', _list:prop });
+            }
+        });
+        notebookslist.addEventListener('search-complete', function(data) {
+            if (data.length)
+                rcmail.display_message(rcmail.gettext('nrnotebooksfound','kolab_notes').replace('$nr', data.length), 'voice');
+            else
+                rcmail.display_message(rcmail.gettext('nonotebooksfound','kolab_notes'), 'info');
+        });
 
-        $(rcmail.gui_objects.notebooks).on('click', 'li a', function(e) {
+        $(rcmail.gui_objects.notebooks).on('click', 'div.folder > a.listname', function(e) {
             var id = String($(this).closest('li').attr('id')).replace(/^rcmliknb/, '');
             notebookslist.select(id);
             e.preventDefault();

@@ -38,7 +38,18 @@
         </div>
 
         <div id="notebooksbox" class="uibox listbox" role="navigation" aria-labelledby="aria-label-notebooks">
-            <h2 class="boxtitle" id="aria-label-notebooks"><roundcube:label name="kolab_notes.lists" /></h2>
+            <h2 class="boxtitle" id="aria-label-notebooks"><roundcube:label name="kolab_notes.lists" />
+                <a href="#notebooks" class="iconbutton search" title="<roundcube:label name='kolab_notes.findnotebooks' />" tabindex="0"><roundcube:label name="kolab_notes.findnotebooks" /></a>
+            </h2>
+            <div class="listsearchbox" style="display:none">
+                <div class="searchbox" role="search" aria-labelledby="aria-label-notebooksearchform" aria-controls="kolabnoteslist">
+                    <h3 id="aria-label-notebooksearchform" class="voice"><roundcube:label name="kolab_notes.arialabelfolderearchform" /></h3>
+                    <label for="notebooksearch" class="voice"><roundcube:label name="kolab_notes.searchterms" /></label>
+                    <input type="text" name="q" id="notebooksearch" placeholder="<roundcube:label name='kolab_notes.findnotebooks' />" />
+                    <a class="iconbutton searchicon"></a>
+                    <roundcube:button command="reset-listsearch" id="notebooksearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+                </div>
+            </div>
             <div class="scroller withfooter">
                 <roundcube:object name="plugin.notebooks" id="notebooks" class="listing treelist" />
             </div>
@@ -152,6 +163,33 @@ $(document).ready(function(e){
     $(window).resize(function(e){
         layout_view();
     });
+
+    // animation to unfold list search box
+    $('#notebooksbox .boxtitle a.search').click(function(e){
+        var box = $('#notebooksbox .listsearchbox'),
+            dir = box.is(':visible') ? -1 : 1;
+
+        box.slideToggle({
+            duration: 160,
+            progress: function(animation, progress) {
+                if (dir < 0) progress = 1 - progress;
+                $('#notebooksbox .scroller').css('top', (34 + 34 * progress) + 'px');
+            },
+            complete: function() {
+                box.toggleClass('expanded');
+                if (box.is(':visible')) {
+                    box.find('input[type=text]').focus();
+                }
+                else {
+                    $('#notebooksearch-reset').click();
+                }
+                // TODO: save state in localStorage
+            }
+        });
+
+        return false;
+    });
+    
 });
 
 </script>

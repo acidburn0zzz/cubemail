@@ -293,71 +293,141 @@
 	bottom: 0;
 }
 
-.notesview #notebooks li {
-	margin: 0;
-	height: 20px;
-	padding: 6px 8px 2px 6px;
-	display: block;
-	position: relative;
-	white-space: nowrap;
+.notesview #notebooksbox .scroller {
+	top: 34px;
 }
 
-.notesview #notebooks li.virtual {
-	height: 12px;
+.notesview #notebooks li {
+	margin: 0;
+	display: block;
+	position: relative;
+}
+
+.notesview #notebooks li > div.folder {
+	position: relative;
+	padding: 0;
+	height: 28px;
+}
+
+.notesview #notebooks li.virtual > div.folder {
+	height: 22px;
 }
 
 .notesview #notebooks li .listname {
 	display: block;
-	position: absolute;
-	top: 1px;
-	left: 2px;
-	right: 6px;
-	height: 19px;
 	cursor: default;
-	padding: 4px 26px 2px 6px;
+	margin: 0;
+	height: 24px;
+	padding-bottom: 0;
+	padding-right: 26px;
 	color: #004458;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.notesview #notebooks li.virtual .listname {
+.notesview #notebooks li.virtual > div > .listname {
 	color: #aaa;
-	top: 0;
-	padding: 1px 8px;
+	height: 18px;
+	padding-top: 3px;
 }
 
-.notesview #notebooks li.readonly,
-.notesview #notebooks li.shared,
-.notesview #notebooks li.other {
-	background-image: url('folder_icons.png');
-	background-position: right -1000px;
-	background-repeat: no-repeat;
+.notesview #notebooksbox .treelist li a.subscribed {
+	display: inline-block;
+	position: absolute;
+	top: 6px;
+	right: 5px;
+	height: 16px;
+	width: 16px;
+	padding: 0;
+	background: url(sprites.png) -100px 0 no-repeat;
+	overflow: hidden;
+	text-indent: -5000px;
+	cursor: pointer;
 }
 
-.notesview #notebooks li.readonly {
-	background-position: 98% -21px;
+.notesview #notebooksbox .treelist div > a.subscribed:focus,
+.notesview #notebooksbox .treelist div:hover > a.subscribed {
+	background-position: 2px -266px;
 }
 
-.notesview #notebooks li.other {
-	background-position: 98% -52px;
+.notesview #notebooksbox .treelist div.subscribed a.subscribed {
+	background-position: -16px -266px;
 }
 
-.notesview #notebooks li.other.readonly {
-	background-position: 98% -77px;
+.notesview #notebooksbox .treelist li a.subscribed:focus {
+	border-radius: 3px;
+	outline: 2px solid rgba(30,150,192, 0.5);
 }
 
-.notesview #notebooks li.shared {
-	background-position: 98% -103px;
+.notesview #notebooksbox .treelist input {
+	position: absolute;
+	top: 4px;
+	left: 14px;
 }
 
-.notesview #notebooks li.shared.readonly {
-	background-position: 98% -130px;
+.notesview #notebooks input {
+	display: none;
 }
 
-.notesview #notebooks li.other.readonly .listname,
-.notesview #notebooks li.shared.readonly .listname {
-	padding-right: 36px;
+.notesview #notebooksbox .searchresults a.listname {
+	padding-left: 36px;
+}
+
+.notesview #notebooks div.folder span.handle {
+	display: inline-block;
+	position: absolute;
+	top: 6px;
+	right: 26px;
+	height: 16px;
+	width: 30px;
+	padding: 0;
+	background: url('sprites.png') right -1000px no-repeat;
+}
+
+.notesview #notebooks div.readonly span.handle {
+	background-position: right -192px;
+}
+
+.notesview #notebooks div.other span.handle {
+	background-position: right -210px;
+}
+
+.notesview #notebooks div.other.readonly span.handle {
+	background-position: right -228px;
+}
+
+.notesview #notebooks div.shared span.handle {
+	background-position: right -246px;
+}
+
+.notesview #notebooks div.other .listname,
+.notesview #notebooks div.shared .listname,
+.notesview #notebooks div.readonly .listname {
+	padding-right: 46px;
+}
+
+.notesview #notebooks div.other.readonly .listname {
+	padding-right: 56px;
+}
+
+.notesview #notebooksbox .searchresults {
+	background: #b0ccd7;
+	margin-top: 8px;
+}
+
+.notesview #notebooksbox .searchresults  .boxtitle {
+	background: none;
+	padding: 2px 8px 2px 8px;
+}
+
+.notesview #notebooksbox .boxtitle a.iconbutton.search {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 16px;
+	cursor: pointer;
+	background-position: -2px -317px;
 }
 
 .notesview .uidialog .tabbed {

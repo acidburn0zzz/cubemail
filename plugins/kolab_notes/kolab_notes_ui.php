@@ -57,6 +57,11 @@ class kolab_notes_ui
         $this->plugin->include_script('notes.js');
         $this->plugin->include_script('jquery.tagedit.js');
 
+        // include kolab folderlist widget if available
+        if (is_readable($this->plugin->api->dir . 'libkolab/js/folderlist.js')) {
+            $this->plugin->api->include_script('libkolab/js/folderlist.js');
+        }
+
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tagedit.css');
 
         // load config options and user prefs relevant for the UI
@@ -109,44 +114,110 @@ class kolab_notes_ui
             $select = new html_select($attrib);
         }
 
+        $tree = $attrib['type'] != 'select' ? true : null;
+        $lists = $this->plugin->get_lists($tree);
         $jsenv = array();
-        $items = '';
-        foreach ($this->plugin->get_lists() as $prop) {
-            unset($prop['user_id']);
-            $id = $prop['id'];
-            $class = '';
 
-            if (!$prop['virtual'])
-                $jsenv[$id] = $prop;
+        if (is_object($tree)) {
+            $html = $this->folder_tree_html($tree, $lists, $jsenv, $attrib);
+        }
+        else {
+            $html = '';
+            foreach ($lists as $prop) {
+                unset($prop['user_id']);
+                $id = $prop['id'];
 
-            if ($attrib['type'] == 'select') {
-                if ($prop['editable']) {
-                    $select->add($prop['name'], $prop['id']);
+                if ($attrib['type'] == 'select') {
+                    if ($prop['editable']) {
+                        $select->add($prop['name'], $prop['id']);
+                    }
                 }
-            }
-            else {
-                $html_id = rcube_utils::html_identifier($id);
-                $title = $prop['name'] != $prop['listname'] ? html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '';
-
-                if ($prop['virtual'])
-                    $class .= ' virtual';
-                else if (!$prop['editable'])
-                    $class .= ' readonly';
-                if ($prop['class_name'])
-                    $class .= ' '.$prop['class_name'];
-
-                $attr = $prop['virtual'] ? array('tabindex' => '0') : array('href' => $this->rc->url(array('_list' => $id)));
-                $items .= html::tag('li', array('id' => 'rcmliknb' . $html_id, 'class' => trim($class)),
-                    html::a($attr + array('class' => 'listname', 'title' => $title), $prop['listname']) .
-                    html::span(array('class' => 'count'), '')
-                );
+                else {
+                    $html .= html::tag('li', array('id' => 'rcmliknb' . rcube_utils::html_identifier($id), 'class' => $prop['group']),
+                        $this->folder_list_item($id, $prop, $jsenv)
+                    );
+                }
             }
         }
 
         $this->rc->output->set_env('kolab_notebooks', $jsenv);
         $this->rc->output->add_gui_object('notebooks', $attrib['id']);
 
-        return $attrib['type'] == 'select' ? $select->show() : html::tag('ul', $attrib, $items, html::$common_attrib);
+        return $attrib['type'] == 'select' ? $select->show() : html::tag('ul', $attrib, $html, html::$common_attrib);
+    }
+
+    /**
+     * Return html for a structured list <ul> for the folder tree
+     */
+    public function folder_tree_html($node, $data, &$jsenv, $attrib)
+    {
+        $out = '';
+        foreach ($node->children as $folder) {
+            $id = $folder->id;
+            $prop = $data[$id];
+            $is_collapsed = false; // TODO: determine this somehow?
+
+            $content = $this->folder_list_item($id, $prop, $jsenv, $attrib['activeonly']);
+
+            if (!empty($folder->children)) {
+                $content .= html::tag('ul', array('style' => ($is_collapsed ? "display:none;" : null)),
+                    $this->folder_tree_html($folder, $data, $jsenv, $attrib));
+            }
+
+            if (strlen($content)) {
+                $out .= html::tag('li', array(
+                      'id' => 'rcmliknb' . rcube_utils::html_identifier($id),
+                      'class' => $prop['group'] . ($prop['virtual'] ? ' virtual' : ''),
+                    ),
+                    $content);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Helper method to build a tasklist item (HTML content and js data)
+     */
+    public function folder_list_item($id, $prop, &$jsenv, $activeonly = false)
+    {
+        if (!$prop['virtual']) {
+            unset($prop['user_id']);
+            $jsenv[$id] = $prop;
+        }
+
+        $classes = array('folder');
+        if ($prop['virtual']) {
+            $classes[] = 'virtual';
+        }
+        else if (!$prop['editable']) {
+            $classes[] = 'readonly';
+        }
+        if ($prop['subscribed']) {
+            $classes[] = 'subscribed';
+        }
+        if ($prop['class']) {
+            $classes[] = $prop['class'];
+        }
+
+        $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
+          html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '');
+
+        $label_id = 'nl:' . $id;
+        $attr = $prop['virtual'] ? array('tabindex' => '0') : array('href' => $this->rc->url(array('_list' => $id)));
+        return html::div(join(' ', $classes),
+            html::a($attr + array('class' => 'listname', 'title' => $title, 'id' => $label_id), $prop['listname'] ?: $prop['name']) .
+            ($prop['virtual'] ? '' :
+                html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id)) .
+                html::span('handle', '') .
+                (isset($prop['subscribed']) ?
+                    html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('foldersubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') :
+                    ''
+                )
+            )
+        );
+
+        return '';
     }
 
     public function listing($attrib)
