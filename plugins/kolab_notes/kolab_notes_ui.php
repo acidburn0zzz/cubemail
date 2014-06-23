@@ -124,8 +124,12 @@ class kolab_notes_ui
         else {
             $html = '';
             foreach ($lists as $prop) {
-                unset($prop['user_id']);
                 $id = $prop['id'];
+
+                if (!$prop['virtual']) {
+                    unset($prop['user_id']);
+                    $jsenv[$id] = $prop;
+                }
 
                 if ($attrib['type'] == 'select') {
                     if ($prop['editable']) {
