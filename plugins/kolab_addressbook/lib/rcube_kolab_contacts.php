@@ -154,6 +154,14 @@ class rcube_kolab_contacts extends rcube_addressbook
         return $folder;
     }
 
+    /**
+     * Wrapper for kolab_storage_folder::get_foldername()
+     */
+    public function get_foldername()
+    {
+        return $this->storagefolder->get_foldername();
+    }
+
 
     /**
      * Getter for the IMAP folder name
@@ -178,6 +186,16 @@ class rcube_kolab_contacts extends rcube_addressbook
         }
 
         return $this->namespace;
+    }
+
+    /**
+     * Getter for parent folder path
+     *
+     * @return string Full path to parent folder
+     */
+    public function get_parent()
+    {
+        return $this->storagefolder->get_parent();
     }
 
     /**

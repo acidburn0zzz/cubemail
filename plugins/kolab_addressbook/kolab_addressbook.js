@@ -2,11 +2,12 @@
  * Client script for the Kolab address book plugin
  *
  * @author Aleksander Machniak <machniak@kolabsys.com>
+ * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -220,124 +221,39 @@ rcube_webmail.prototype.book_delete_done = function(id, recur)
 };
 
 // action executed after book create/update
-rcube_webmail.prototype.book_update = function(data, old, recur)
+rcube_webmail.prototype.book_update = function(data, old)
 {
-    var n, i, id, len, link, row, prop, olddata, oldid, name, sources, level,
-        folders = [], classes = ['addressbook'],
-        groups = this.env.contactgroups;
+    var link, classes = [(data.group || ''), 'addressbook'];
 
-    this.env.contactfolders[data.id] = this.env.address_sources[data.id] = data;
     this.show_contentframe(false);
-
-    // update (remove old row)
-    if (old && old != data.id) {
-        olddata = this.env.address_sources[old];
-        delete this.env.address_sources[old];
-        delete this.env.contactfolders[old];
-        this.treelist.remove(old);
-    }
-
-    sources = this.env.address_sources;
 
     // set row attributes
     if (data.readonly)
         classes.push('readonly');
-    if (data.class_name)
-        classes.push(data.class_name);
-    // updated currently selected book
-    if (this.env.source != '' && this.env.source == old) {
-        classes.push('selected');
-        this.env.source = data.id;
-    }
+    if (data.group)
+        classes.push(data.group);
 
     link = $('<a>').html(data.name)
       .attr({
-        href: '#', rel: data.id,
+        href: this.url('', { _source: data.id }),
+        rel: data.id,
         onclick: "return rcmail.command('list', '" + data.id + "', this)"
       });
 
-    // add row at the end of the list
-    // treelist widget is not very smart, we need
-    // to do sorting and add groups list by ourselves
-    this.treelist.insert({id: data.id, html:link, classes: classes, childlistclass: 'groups'}, '', false);
-    row = $(this.treelist.get_item(data.id));
-    row.append($('<ul class="groups">').hide());
-
-    // we need to sort rows because treelist can't sort by property
-    $.each(sources, function(i, v) {
-        if (v.kolab && v.realname)
-            folders.push(v.realname);
-    });
-    folders.sort();
-
-    for (n=0, len=folders.length; n<len; n++)
-        if (folders[n] == data.realname)
-           break;
-
-    // find the row before and re-insert after it
-    if (n && n < len - 1) {
-        name = folders[n-1];
-        for (n in sources)
-            if (sources[n].realname && sources[n].realname == name) {
-                row.detach().insertAfter(this.treelist.get_item(n));
-                break;
-            }
+    // update (remove old row)
+    if (old) {
+      this.treelist.update(old, { id: data.id, html:link, classes: classes, parent:(old != data.id ? data.parent : null) }, data.group || true);
+    }
+    else {
+      this.treelist.insert({ id: data.id, html:link, classes: classes, childlistclass: 'groups' }, data.parent, data.group || true);
     }
 
-    if (olddata) {
-        // update groups
-        for (n in groups) {
-            if (groups[n].source == old) {
-                prop = groups[n];
-                prop.type = 'group';
-                prop.source = data.id;
-                id = 'G' + prop.source + prop.id;
+    this.env.contactfolders[data.id] = this.env.address_sources[data.id] = data;
 
-                link = $('<a>').text(prop.name)
-                  .attr({
-                    href: '#', rel: prop.source + ':' + prop.id,
-                    onclick: "return rcmail.command('listgroup', {source: '"+prop.source+"', id: '"+prop.id+"'}, this)"
-                  });
-
-                this.treelist.insert({id:id, html:link, classes:['contactgroup']}, prop.source, true);
-
-                this.env.contactfolders[id] = this.env.contactgroups[id] = prop;
-                delete this.env.contactgroups[n];
-                delete this.env.contactfolders[n];
-            }
-        }
-
-        if (recur)
-            return;
-
-        // update subfolders
-        old += '_';
-        level = olddata.realname.split(this.env.delimiter).length - data.realname.split(this.env.delimiter).length;
-        olddata.realname += this.env.delimiter;
-
-        for (n in sources) {
-            if (sources[n].realname && sources[n].realname.indexOf(olddata.realname) == 0) {
-                prop = sources[n];
-                oldid = sources[n].id;
-                // new ID
-                prop.id = data.id + '_' + n.substr(old.length);
-                prop.realname = data.realname + prop.realname.substr(olddata.realname.length - 1);
-                name = prop.name;
-
-                // update display name
-                if (level > 0) {
-                    for (i=level; i>0; i--)
-                        name = name.replace(/^&nbsp;&nbsp;/, '');
-                }
-                else if (level < 0) {
-                    for (i=level; i<0; i++)
-                        name = '&nbsp;&nbsp;' + name;
-                }
-
-                prop.name = name;
-                this.book_update(prop, oldid, true)
-            }
-        }
+    // updated currently selected book
+    if (this.env.source != '' && this.env.source == old) {
+        this.treelist.select(data.id);
+        this.env.source = data.id;
     }
 };
 

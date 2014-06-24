@@ -32,6 +32,7 @@ class kolab_addressbook extends rcube_plugin
     public $task = '?(?!login|logout).*';
 
     private $sources;
+    private $folders;
     private $rc;
     private $ui;
 
@@ -60,6 +61,7 @@ class kolab_addressbook extends rcube_plugin
         if ($this->rc->task == 'addressbook') {
             $this->add_texts('localization');
             $this->add_hook('contact_form', array($this, 'contact_form'));
+            $this->add_hook('template_object_directorylist', array($this, 'directorylist_html'));
 
             // Plugin actions
             $this->register_action('plugin.book', array($this, 'book_actions'));
@@ -103,24 +105,9 @@ class kolab_addressbook extends rcube_plugin
         }
 
         $sources = array();
-        $names   = array();
-
         foreach ($this->_list_sources() as $abook_id => $abook) {
-            $name = kolab_storage::folder_displayname($abook->get_name(), $names);
-
             // register this address source
-            $sources[$abook_id] = array(
-                'id'       => $abook_id,
-                'name'     => $name,
-                'readonly' => $abook->readonly,
-                'editable' => $abook->editable,
-                'groups'   => $abook->groups,
-                'undelete' => $abook->undelete && $undelete,
-                'realname' => rcube_charset::convert($abook->get_realname(), 'UTF7-IMAP'), // IMAP folder name
-                'class_name' => $abook->get_namespace(),
-                'carddavurl' => $abook->get_carddav_url(),
-                'kolab'    => true,
-            );
+            $sources[$abook_id] = $this->abook_prop($abook_id, $abook);
         }
 
         // Add personal address sources to the list
@@ -141,6 +128,139 @@ class kolab_addressbook extends rcube_plugin
         return $p;
     }
 
+    /**
+     * Helper method to build a hash array of address book properties
+     */
+    protected function abook_prop($id, $abook)
+    {
+        return array(
+            'id'       => $id,
+            'name'     => $abook->get_name(),
+            'listname' => $abook->get_foldername(),
+            'readonly' => $abook->readonly,
+            'editable' => $abook->editable,
+            'groups'   => $abook->groups,
+            'undelete' => $abook->undelete && $this->rc->config->get('undo_timeout'),
+            'realname' => rcube_charset::convert($abook->get_realname(), 'UTF7-IMAP'), // IMAP folder name
+            'group'    => $abook->get_namespace(),
+            'carddavurl' => $abook->get_carddav_url(),
+            'kolab'    => true,
+        );
+    }
+
+    /**
+     *
+     */
+    public function directorylist_html($args)
+    {
+        $out = '';
+        $jsdata = array();
+        $sources = (array)$this->rc->get_address_sources();
+
+        // list all non-kolab sources first
+        foreach (array_filter($sources, function($source){ return empty($source['kolab']); }) as $j => $source) {
+            $id = strval(strlen($source['id']) ? $source['id'] : $j);
+            $out .= $this->addressbook_list_item($id, $source, $jsdata) . '</li>';
+        }
+
+        // render a hierarchical list of kolab contact folders
+        kolab_storage::folder_hierarchy($this->folders, $tree);
+        $out .= $this->folder_tree_html($tree, $sources, $jsdata);
+
+        $this->rc->output->set_env('contactgroups', $jsdata);
+
+        $args['content'] = html::tag('ul', $args, $out, html::$common_attrib);
+        return $args;
+    }
+
+    /**
+     * Return html for a structured list <ul> for the folder tree
+     */
+    public function folder_tree_html($node, $data, &$jsdata)
+    {
+        $out = '';
+        foreach ($node->children as $folder) {
+            $id = $folder->id;
+            $source = $data[$id];
+            $is_collapsed = strpos($this->rc->config->get('collapsed_abooks',''), '&'.rawurlencode($id).'&') !== false;
+
+            if ($folder->virtual) {
+                $source = array(
+                    'id'       => $folder->id,
+                    'name'     => $folder->get_name(),
+                    'listname' => $folder->get_foldername(),
+                    'group'    => $folder->get_namespace(),
+                    'readonly' => true,
+                    'editable' => false,
+                    'kolab'    => true,
+                    'virtual'  => true,
+                );
+            }
+
+            $content = $this->addressbook_list_item($id, $source, $jsdata);
+
+            if (!empty($folder->children)) {
+                $child_html = $this->folder_tree_html($folder, $data, $jsdata);
+
+                if (!empty($child_html) && preg_match('!</ul>\n*$!', $content)) {
+                    $content = preg_replace('!</ul>\n*$!', $child_html . '</ul>', $content);
+                }
+                else if (!empty($child_html)) {
+                    $content .= html::tag('ul', array('style' => ($is_collapsed ? "display:none;" : null)), $child_html);
+                }
+            }
+
+            $out .= $content . '</li>';
+        }
+
+        return $out;
+    }
+
+    /**
+     *
+     */
+    protected function addressbook_list_item($id, $source, &$jsdata, $checkbox = false)
+    {
+        $folder = $this->folders[$id];
+        $current = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GPC);
+
+        // set class name(s)
+        $classes = array($source['group'] ?: '000', 'addressbook');
+        if ($current === $id)
+            $classes[] = 'selected';
+        if ($source['readonly'])
+            $classes[] = 'readonly';
+        if ($source['virtual'])
+            $classes[] = 'virtual';
+        if ($source['class_name'])
+            $classes[] = $source['class_name'];
+
+        $name = !empty($source['listname']) ? $source['listname'] : (!empty($source['name']) ? $source['name'] : $id);
+        $out .= html::tag('li', array(
+                'id' => 'rcmli' . rcube_utils::html_identifier($id, true),
+                'class' => join(' ', $classes), 
+                'noclose' => true,
+            ),
+            ($source['virtual'] ?
+                html::a(array('tabindex' => '0'), $name) :
+                html::a(array(
+                        'href' => $this->rc->url(array('_source' => $id)),
+                        'rel' => $source['id'],
+                        'onclick' => "return " . rcmail_output::JS_OBJECT_NAME.".command('list','" . rcube::JQ($id) . "',this)",
+                    ), $name)
+            )
+        );
+
+        $groupdata = array('out' => '', 'jsdata' => $jsdata, 'source' => $id);
+        if ($source['groups'] && function_exists('rcmail_contact_groups')) {
+            $groupdata = rcmail_contact_groups($groupdata);
+        }
+
+        $jsdata = $groupdata['jsdata'];
+        $out .= $groupdata['out'];
+
+        return $out;
+    }
 
     /**
      * Sets autocomplete_addressbooks option according to
@@ -203,6 +323,16 @@ class kolab_addressbook extends rcube_plugin
             if ($this->sources[$p['id']]) {
                 $p['instance'] = $this->sources[$p['id']];
             }
+            else {
+                $folder = kolab_storage::get_folder(kolab_storage::id_decode($p['id']));
+                if ($folder->type) {  // try with unencoded (old-style) identifier
+                    $folder = kolab_storage::get_folder(kolab_storage::id_decode($p['id'], false));
+                }
+                if ($folder->type) {
+                    $this->sources[$p['id']] = new rcube_kolab_contacts($folder->name);
+                    $p['instance'] = $this->sources[$p['id']];
+                }
+            }
         }
 
         return $p;
@@ -215,7 +345,9 @@ class kolab_addressbook extends rcube_plugin
         if (isset($this->sources))
             return $this->sources;
 
+        kolab_storage::$encode_ids = true;
         $this->sources = array();
+        $this->folders = array();
 
         $abook_prio = $this->addressbook_prio();
 
@@ -247,9 +379,10 @@ class kolab_addressbook extends rcube_plugin
             $names = array();
             foreach ($folders as $folder) {
                 // create instance of rcube_contacts
-                $abook_id = kolab_storage::folder_id($folder->name, false);
+                $abook_id = $folder->id;
                 $abook = new rcube_kolab_contacts($folder->name);
                 $this->sources[$abook_id] = $abook;
+                $this->folders[$abook_id] = $folder;
             }
         }
 
@@ -436,40 +569,19 @@ class kolab_addressbook extends rcube_plugin
         if ($result) {
             $storage = $this->rc->get_storage();
             $delimiter = $storage->get_hierarchy_delimiter();
-            $kolab_folder = new rcube_kolab_contacts($folder);
-
-            // create display name for the folder (see self::address_sources())
-            if (strpos($folder, $delimiter)) {
-                $names = array();
-                foreach ($this->_list_sources() as $abook) {
-                    $realname = $abook->get_realname();
-                    // The list can be not updated yet, handle old folder name
-                    if ($type == 'update' && $realname == $prop['oldname']) {
-                        $abook    = $kolab_folder;
-                        $realname = $folder;
-                    }
-
-                    $name = kolab_storage::folder_displayname($abook->get_name(), $names);
-
-                    if ($realname == $folder) {
-                        break;
-                    }
-                }
-            }
-            else {
-                $name = $kolab_folder->get_name();
-            }
+            $kolab_folder = kolab_storage::get_folder($folder);
 
             $this->rc->output->show_message('kolab_addressbook.book'.$type.'d', 'confirmation');
             $this->rc->output->command('set_env', 'delimiter', $delimiter);
             $this->rc->output->command('book_update', array(
                 'id'       => kolab_storage::folder_id($folder),
-                'name'     => $name,
+                'name'     => $kolab_folder->get_foldername(),
                 'readonly' => false,
                 'editable' => true,
                 'groups'   => true,
                 'realname' => rcube_charset::convert($folder, 'UTF7-IMAP'), // IMAP folder name
-                'class_name' => $kolab_folder->get_namespace(),
+                'group'    => $kolab_folder->get_namespace(),
+                'parent'   => kolab_storage::folder_id($kolab_folder->get_parent()),
                 'kolab'    => true,
             ), kolab_storage::folder_id($prop['oldname']));
 
