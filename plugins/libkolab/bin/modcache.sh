@@ -110,7 +110,7 @@ case 'clear':
     }
 
     if ($sql_query) {
-        $db->query($sql_query . $sql_add, resource_prefix($opts).'%');
+        $db->query($sql_query, resource_prefix($opts).'%');
         echo $db->affected_rows() . " records deleted from 'kolab_folders'\n";
     }
     break;
