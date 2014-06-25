@@ -157,10 +157,8 @@ class kolab_notes extends rcube_plugin
             array_unshift($folders, $default_folder);
         }
 
-        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
-
         foreach ($folders as $folder) {
-            $item = $this->folder_props($folder, $delim);
+            $item = $this->folder_props($folder);
             $this->lists[$item['id']] = $item;
             $this->folders[$item['id']] = $folder;
             $this->folders[$folder->name] = $folder;
@@ -243,7 +241,7 @@ class kolab_notes extends rcube_plugin
             }
             else {
                 if (!$this->lists[$list_id]) {
-                    $this->lists[$list_id] = $this->folder_props($folder, $delim);
+                    $this->lists[$list_id] = $this->folder_props($folder);
                     $this->folders[$list_id] = $folder;
                 }
                 $this->lists[$list_id]['parent'] = $parent_id;
@@ -270,13 +268,11 @@ class kolab_notes extends rcube_plugin
         $this->search_more_results = false;
         $this->lists = $this->folders = array();
 
-        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
-
         // find unsubscribed IMAP folders that have "event" type
         if ($source == 'folders') {
             foreach ((array)kolab_storage::search_folders('note', $query, array('other')) as $folder) {
                 $this->folders[$folder->id] = $folder;
-                $this->lists[$folder->id] = $this->folder_props($folder, $delim);
+                $this->lists[$folder->id] = $this->folder_props($folder);
             }
         }
         // search other user's namespace via LDAP
@@ -284,7 +280,7 @@ class kolab_notes extends rcube_plugin
             $limit = $this->rc->config->get('autocomplete_max', 15) * 2;  // we have slightly more space, so display twice the number
             foreach (kolab_storage::search_users($query, 0, array(), $limit * 10) as $user) {
                 $folders = array();
-                // search for tasks folders shared by this user
+                // search for note folders shared by this user
                 foreach (kolab_storage::list_user_folders($user, 'note', false) as $foldername) {
                     $folders[] = new kolab_storage_folder($foldername, 'note');
                 }
@@ -292,11 +288,11 @@ class kolab_notes extends rcube_plugin
                 if (count($folders)) {
                     $userfolder = new kolab_storage_folder_user($user['kolabtargetfolder'], '', $user);
                     $this->folders[$userfolder->id] = $userfolder;
-                    $this->lists[$userfolder->id] = $this->folder_props($userfolder, $delim, array());
+                    $this->lists[$userfolder->id] = $this->folder_props($userfolder);
 
                     foreach ($folders as $folder) {
                         $this->folders[$folder->id] = $folder;
-                        $this->lists[$folder->id] = $this->folder_props($folder, $delim, array());
+                        $this->lists[$folder->id] = $this->folder_props($folder);
                         $count++;
                     }
                 }
@@ -315,7 +311,7 @@ class kolab_notes extends rcube_plugin
     /**
      * Derive list properties from the given kolab_storage_folder object
      */
-    protected function folder_props($folder, $delim)
+    protected function folder_props($folder)
     {
         if ($folder->get_namespace() == 'personal') {
             $norename = false;
@@ -362,7 +358,7 @@ class kolab_notes extends rcube_plugin
             $folder = kolab_storage::get_folder(kolab_storage::id_decode($id));
             if ($folder->type) {
                 $this->folders[$id] = $folder;
-                $this->lists[$id] = $this->folder_props($folder, $this->rc->get_storage()->get_hierarchy_delimiter());
+                $this->lists[$id] = $this->folder_props($folder);
             }
         }
 
