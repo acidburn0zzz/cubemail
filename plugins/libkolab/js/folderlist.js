@@ -53,6 +53,8 @@ function kolab_folderlist(node, p)
 
               search_results_widget = new rcube_treelist_widget('<ul>', {
                   id_prefix: p.id_prefix,
+                  id_encode: p.id_encode,
+                  id_decode: p.id_decode,
                   selectable: false
               });
               // copy classes from main list
@@ -61,11 +63,13 @@ function kolab_folderlist(node, p)
               // register click handler on search result's checkboxes to select the given item for listing
               search_results_widget.container
                   .appendTo(search_results_container)
-                  .on('click', 'input[type=checkbox], a.subscribed', function(e) {
-                      var li = $(this).closest('li'),
-                          id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '')
-                          node = search_results_widget.get_node(id),
-                          has_children = node.children && node.children.length;
+                  .on('click', 'input[type=checkbox], a.subscribed, span.subscribed', function(e) {
+                      var node, has_children, li = $(this).closest('li'),
+                          id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '');
+                      if (p.id_decode)
+                          id = p.id_decode(id);
+                      node = search_results_widget.get_node(id),
+                      has_children = node.children && node.children.length;
 
                       // activate + subscribe
                       if ($(e.target).hasClass('subscribed')) {
@@ -83,8 +87,8 @@ function kolab_folderlist(node, p)
                       add_result2list(id, li, true);
 
                       if (has_children) {
-                          li.find('input[type=checkbox]').first().prop('disabled', true).get(0).checked = true;
-                          li.find('a.subscribed').first().hide();
+                          li.find('input[type=checkbox]').first().prop('disabled', true).prop('checked', true);
+                          li.find('a.subscribed, span.subscribed').first().hide();
                       }
                       else {
                           li.remove();
@@ -106,13 +110,14 @@ function kolab_folderlist(node, p)
                   id: prop.id,
                   classes: [ prop.group || '' ],
                   html: item,
-                  collapsed: true
+                  collapsed: true,
+                  virtual: prop.virtual
               }, prop.parent);
 
               // disable checkbox if item already exists in main list
               if (me.get_node(prop.id) && !me.get_node(prop.id).virtual) {
-                  item.find('input[type=checkbox]').first().prop('disabled', true).get(0).checked = true;
-                  item.find('a.subscribed').hide();
+                  item.find('input[type=checkbox]').first().prop('disabled', true).prop('checked', true);
+                  item.find('a.subscribed, span.subscribed').hide();
               }
           }
 
@@ -131,7 +136,7 @@ function kolab_folderlist(node, p)
 
         // find parent node and insert at the right place
         if (parent_id && me.get_node(parent_id)) {
-            dom_node.children('span,a').first().html(Q(prop.editname));
+            dom_node.children('span,a').first().html(Q(prop.editname || prop.listname));
         }
         else if (parent_id && search_results[parent_id]) {
             // copy parent tree from search results
@@ -217,10 +222,13 @@ function kolab_folderlist(node, p)
         }
     });
 
-    this.container.on('click', 'a.subscribed', function(e){
+    this.container.on('click', 'a.subscribed, span.subscribed', function(e){
         var li = $(this).closest('li'),
             id = li.attr('id').replace(new RegExp('^'+p.id_prefix), ''),
             div = li.children().first();
+
+        if (p.id_decode)
+            id = p.id_decode(id);
 
         div.toggleClass('subscribed');
         $(this).attr('aria-checked', div.hasClass('subscribed') ? 'true' : 'false');
