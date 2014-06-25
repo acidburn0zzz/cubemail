@@ -199,6 +199,16 @@ class rcube_kolab_contacts extends rcube_addressbook
     }
 
     /**
+     * Check subscription status of this folder
+     *
+     * @return boolean True if subscribed, false if not
+     */
+    public function is_subscribed()
+    {
+        return kolab_storage::folder_is_subscribed($this->imap_folder);
+    }
+
+    /**
      * Compose an URL for CardDAV access to this address book (if configured)
      */
     public function get_carddav_url()

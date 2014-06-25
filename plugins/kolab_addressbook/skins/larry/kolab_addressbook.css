@@ -1,4 +1,79 @@
 
+#directorylistbox .listsearchbox + .scroller {
+	top: 34px;
+}
+
+#directorylistbox .listsearchbox.expanded + .scroller {
+	top: 68px;
+}
+
+#directorylistbox .boxtitle a.iconbutton.search {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 16px;
+	cursor: pointer;
+	background-position: -2px -317px;
+}
+
+#directorylistbox ul.treelist li.virtual {
+	background-image: none !important;
+}
+
+#directorylistbox ul.treelist li.virtual > div a {
+	color: #aaa;
+	background-image: none;
+	height: 16px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+#directorylistbox ul.treelist li.virtual > .treetoggle {
+	top: 6px !important;
+}
+
+#directorylistbox ul.treelist li input {
+	position: absolute;
+	top: 4px;
+	left: 10px;
+}
+
+#directorylistbox ul.treelist ul li input {
+	left: 36px;
+}
+
+#directorylist li input {
+	display: none;
+}
+
+#directorylistbox ul.treelist div span.subscribed {
+	display: inline-block;
+	position: absolute;
+	top: 4px;
+	right: 5px;
+	height: 16px;
+	width: 16px;
+	padding: 0;
+	background: url(folder_icons.png) -100px 0 no-repeat;
+	overflow: hidden;
+	text-indent: -5000px;
+	cursor: pointer;
+}
+
+#directorylistbox ul.treelist div > span.subscribed:focus,
+#directorylistbox ul.treelist div:hover > span.subscribed {
+	background-position: 2px -160px;
+}
+
+#directorylistbox ul.treelist div.subscribed span.subscribed {
+	background-position: -16px -160px;
+}
+
+#directorylistbox ul.treelist div span.subscribed:focus {
+	border-radius: 3px;
+	outline: 2px solid rgba(30,150,192, 0.5);
+}
+
 #directorylist li.addressbook.readonly,
 #directorylist li.addressbook.shared,
 #directorylist li.addressbook.other {
@@ -15,6 +90,7 @@
 	background-position: 98% -52px;
 }
 
+#directorylist li.addressbook.personal.readonly,
 #directorylist li.addressbook.other.readonly {
 	background-position: 98% -77px;
 }
@@ -25,6 +101,11 @@
 
 #directorylist li.addressbook.shared.readonly {
 	background-position: 98% -130px;
+}
+
+#directorylist li.addressbook.virtual.user {
+	background-image: url(folder_icons.png) !important;
+	background-position: 98% -52px;
 }
 
 #directorylist li.addressbook.readonly a,

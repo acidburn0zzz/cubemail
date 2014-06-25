@@ -54,6 +54,11 @@ class kolab_addressbook_ui
             // Include stylesheet (for directorylist)
             $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css');
 
+            // include kolab folderlist widget if available
+            if (is_readable($this->plugin->api->dir . 'libkolab/js/folderlist.js')) {
+                $this->plugin->api->include_script('libkolab/js/folderlist.js');
+            }
+
             // Add actions on address books
             $options = array('book-create', 'book-edit', 'book-delete');
             $idx     = 0;
@@ -91,7 +96,14 @@ class kolab_addressbook_ui
                 'kolab_addressbook.carddavurldescription',
                 'kolab_addressbook.bookedit',
                 'kolab_addressbook.bookdelete',
-                'kolab_addressbook.bookshowurl');
+                'kolab_addressbook.bookshowurl',
+                'kolab_addressbook.findaddressbooks',
+                'kolab_addressbook.searchterms',
+                'kolab_addressbook.foldersearchform',
+                'kolab_addressbook.listsearchresults',
+                'kolab_addressbook.nraddressbooksfound',
+                'kolab_addressbook.noaddressbooksfound',
+                'resetsearch');
         }
         // book create/edit form
         else {

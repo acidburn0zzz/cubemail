@@ -87,6 +87,91 @@ if (window.rcmail) {
                 }
             });
         }
+
+        // append search form for address books
+        if (rcmail.gui_objects.folderlist) {
+            var container = $(rcmail.gui_objects.folderlist);
+            $('<div class="listsearchbox" style="display:none">' +
+                '<div class="searchbox" role="search" aria-labelledby="aria-labelfoldersearchform" aria-controls="' + rcmail.gui_objects.folderlist.id + '">' +
+                    '<h3 id="aria-label-labelfoldersearchform" class="voice">' + rcmail.gettext('foldersearchform', 'kolab_addressbook') + '" /></h3>' +
+                    '<label for="addressbooksearch" class="voice">' + rcmail.gettext('searchterms', 'kolab_addressbook') + '</label>' +
+                    '<input type="text" name="q" id="addressbooksearch" placeholder="' + rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '" />' +
+                    '<a class="iconbutton searchicon"></a>' +
+                    '<a href="#reset" onclick="return rcmail.command(\'reset-listsearch\',null,this,event)" id="directorylistsearch-reset" class="iconbutton reset" title="' + rcmail.gettext('resetsearch') + '">' +
+                        rcmail.gettext('resetsearch') + '</a>' +
+                '</div>' +
+            '</div>')
+            .insertBefore(container.parent());
+
+            $('<a href="#search" class="iconbutton search" title="' + rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '" tabindex="0">' +
+                rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '</a>')
+                .appendTo('#directorylistbox h2.boxtitle')
+                .click(function(e){
+                    var box = $('#directorylistbox .listsearchbox'),
+                        dir = box.is(':visible') ? -1 : 1;
+
+                    box.slideToggle({
+                        duration: 160,
+                        progress: function(animation, progress) {
+                            if (dir < 0) progress = 1 - progress;
+                            $('#directorylistbox .scroller').css('top', (34 + 34 * progress) + 'px');
+                        },
+                        complete: function() {
+                            box.toggleClass('expanded');
+                            if (box.is(':visible')) {
+                                box.find('input[type=text]').focus();
+                            }
+                            else {
+                                $('#directorylistsearch-reset').click();
+                            }
+                        }
+                    });
+                });
+
+
+            // remove event handlers set by the regular treelist widget
+            rcmail.treelist.container.off('click mousedown focusin focusout');
+
+            // re-initialize folderlist widget
+            // copy form app.js with additional parameters
+            var widget_class = window.kolab_folderlist || rcube_treelist_widget;
+            rcmail.treelist = new widget_class(rcmail.gui_objects.folderlist, {
+                selectable: true,
+                id_prefix: 'rcmli',
+                id_encode: rcmail.html_identifier_encode,
+                id_decode: rcmail.html_identifier_decode,
+                searchbox: '#addressbooksearch',
+                search_action: 'plugin.book-search',
+                search_sources: [ 'folders', 'users' ],
+                search_title: rcmail.gettext('listsearchresults','kolab_addressbook'),
+                check_droptarget: function(node) { return !node.virtual && rcmail.check_droptarget(node.id) }
+            });
+
+            rcmail.treelist
+                .addEventListener('collapse',  function(node) { rcmail.folder_collapsed(node) })
+                .addEventListener('expand',    function(node) { rcmail.folder_collapsed(node) })
+                .addEventListener('select',    function(node) { rcmail.triggerEvent('selectfolder', { folder:node.id, prefix:'rcmli' }) })
+                .addEventListener('subscribe', function(node) {
+                    var source;
+                    if ((source = rcmail.env.address_sources[node.id])) {
+                        source.subscribed = node.subscribed || false;
+                        rcmail.http_post('plugin.book-subscribe', { _source:node.id, _permanent:source.subscribed?1:0 });
+                    }
+                })
+                .addEventListener('insert-item', function(data) {
+                    // register new address source
+                    rcmail.env.address_sources[data.id] = rcmail.env.contactfolders[data.id] = data.data;
+                    if (data.data.subscribed)
+                        rcmail.http_post('plugin.book-subscribe', { _source:data.id, _permanent:1 });
+                    // TODO: load groups and add them to the list
+                })
+                .addEventListener('search-complete', function(data) {
+                    if (data.length)
+                        rcmail.display_message(rcmail.gettext('nraddressbooksfound','kolab_addressbook').replace('$nr', data.length), 'voice');
+                    else
+                        rcmail.display_message(rcmail.gettext('noaddressbooksfound','kolab_addressbook'), 'info');
+                });
+        }
     });
     rcmail.addEventListener('listupdate', function() {
         rcmail.set_book_actions();

@@ -66,6 +66,8 @@ class kolab_addressbook extends rcube_plugin
             // Plugin actions
             $this->register_action('plugin.book', array($this, 'book_actions'));
             $this->register_action('plugin.book-save', array($this, 'book_save'));
+            $this->register_action('plugin.book-search', array($this, 'book_search'));
+            $this->register_action('plugin.book-subscribe', array($this, 'book_subscribe'));
 
             // Load UI elements
             if ($this->api->output->type == 'html') {
@@ -133,19 +135,34 @@ class kolab_addressbook extends rcube_plugin
      */
     protected function abook_prop($id, $abook)
     {
-        return array(
-            'id'       => $id,
-            'name'     => $abook->get_name(),
-            'listname' => $abook->get_foldername(),
-            'readonly' => $abook->readonly,
-            'editable' => $abook->editable,
-            'groups'   => $abook->groups,
-            'undelete' => $abook->undelete && $this->rc->config->get('undo_timeout'),
-            'realname' => rcube_charset::convert($abook->get_realname(), 'UTF7-IMAP'), // IMAP folder name
-            'group'    => $abook->get_namespace(),
-            'carddavurl' => $abook->get_carddav_url(),
-            'kolab'    => true,
-        );
+        if ($abook->virtual) {
+            return array(
+                'id'       => $id,
+                'name'     => $abook->get_name(),
+                'listname' => $abook->get_foldername(),
+                'group'    => $abook instanceof kolab_storage_folder_user ? 'user' : $abook->get_namespace(),
+                'readonly' => true,
+                'editable' => false,
+                'kolab'    => true,
+                'virtual'  => true,
+            );
+        }
+        else {
+            return array(
+                'id'       => $id,
+                'name'     => $abook->get_name(),
+                'listname' => $abook->get_foldername(),
+                'readonly' => $abook->readonly,
+                'editable' => $abook->editable,
+                'groups'   => $abook->groups,
+                'undelete' => $abook->undelete && $this->rc->config->get('undo_timeout'),
+                'realname' => rcube_charset::convert($abook->get_realname(), 'UTF7-IMAP'), // IMAP folder name
+                'group'    => $abook->get_namespace(),
+                'subscribed' => $abook->is_subscribed(),
+                'carddavurl' => $abook->get_carddav_url(),
+                'kolab'    => true,
+            );
+        }
     }
 
     /**
@@ -167,7 +184,8 @@ class kolab_addressbook extends rcube_plugin
         kolab_storage::folder_hierarchy($this->folders, $tree);
         $out .= $this->folder_tree_html($tree, $sources, $jsdata);
 
-        $this->rc->output->set_env('contactgroups', $jsdata);
+        $this->rc->output->set_env('contactgroups', array_filter($jsdata, function($src){ return $src['type'] == 'group'; }));
+        $this->rc->output->set_env('address_sources', array_filter($jsdata, function($src){ return $src['type'] != 'group'; }));
 
         $args['content'] = html::tag('ul', $args, $out, html::$common_attrib);
         return $args;
@@ -185,16 +203,11 @@ class kolab_addressbook extends rcube_plugin
             $is_collapsed = strpos($this->rc->config->get('collapsed_abooks',''), '&'.rawurlencode($id).'&') !== false;
 
             if ($folder->virtual) {
-                $source = array(
-                    'id'       => $folder->id,
-                    'name'     => $folder->get_name(),
-                    'listname' => $folder->get_foldername(),
-                    'group'    => $folder->get_namespace(),
-                    'readonly' => true,
-                    'editable' => false,
-                    'kolab'    => true,
-                    'virtual'  => true,
-                );
+                $source = $this->abook_prop($folder->id, $folder);
+            }
+            else if (empty($source)) {
+                $this->sources[$id] = new rcube_kolab_contacts($folder->name);
+                $source = $this->abook_prop($id, $this->sources[$id]);
             }
 
             $content = $this->addressbook_list_item($id, $source, $jsdata);
@@ -219,10 +232,14 @@ class kolab_addressbook extends rcube_plugin
     /**
      *
      */
-    protected function addressbook_list_item($id, $source, &$jsdata, $checkbox = false)
+    protected function addressbook_list_item($id, $source, &$jsdata, $search_mode = false)
     {
         $folder = $this->folders[$id];
         $current = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GPC);
+
+        if (!$source['virtual']) {
+            $jsdata[$id] = $source;
+        }
 
         // set class name(s)
         $classes = array($source['group'] ?: '000', 'addressbook');
@@ -236,19 +253,48 @@ class kolab_addressbook extends rcube_plugin
             $classes[] = $source['class_name'];
 
         $name = !empty($source['listname']) ? $source['listname'] : (!empty($source['name']) ? $source['name'] : $id);
+        $label_id = 'kabt:' . $id;
+        $inner = ($source['virtual'] ?
+            html::a(array('tabindex' => '0'), $name) :
+            html::a(array(
+                    'href' => $this->rc->url(array('_source' => $id)),
+                    'rel' => $source['id'],
+                    'id' => $label_id,
+                    'onclick' => "return " . rcmail_output::JS_OBJECT_NAME.".command('list','" . rcube::JQ($id) . "',this)",
+                ), $name)
+        );
+
+        if (isset($source['subscribed'])) {
+            $inner .= html::span(array(
+                'class' => 'subscribed',
+                'title' => $this->gettext('foldersubscribe'),
+                'role' => 'checkbox',
+                'aria-checked' => $source['subscribed'] ? 'true' : 'false',
+            ), '');
+        }
+
+        // don't wrap in <li> but add a checkbox for search results listing
+        if ($search_mode) {
+            $jsdata[$id]['group'] = join(' ', $classes);
+
+            if (!$source['virtual']) {
+                $inner .= html::tag('input', array(
+                    'type' => 'checkbox',
+                    'name' => '_source[]',
+                    'value' => $id,
+                    'checked' => $prop['active'],
+                    'aria-labelledby' => $label_id,
+                ));
+            }
+            return html::div(null, $inner);
+        }
+
         $out .= html::tag('li', array(
                 'id' => 'rcmli' . rcube_utils::html_identifier($id, true),
                 'class' => join(' ', $classes), 
                 'noclose' => true,
             ),
-            ($source['virtual'] ?
-                html::a(array('tabindex' => '0'), $name) :
-                html::a(array(
-                        'href' => $this->rc->url(array('_source' => $id)),
-                        'rel' => $source['id'],
-                        'onclick' => "return " . rcmail_output::JS_OBJECT_NAME.".command('list','" . rcube::JQ($id) . "',this)",
-                    ), $name)
-            )
+            html::div($source['subscribed'] ? 'subscribed' : null, $inner)
         );
 
         $groupdata = array('out' => '', 'jsdata' => $jsdata, 'source' => $id);
@@ -594,6 +640,119 @@ class kolab_addressbook extends rcube_plugin
         $this->rc->output->show_message($error, 'error');
         // display the form again
         $this->ui->book_edit();
+    }
+
+    /**
+     *
+     */
+    public function book_search()
+    {
+        $results = array();
+        $query = rcube_utils::get_input_value('q', RCUBE_INPUT_GPC);
+        $source = rcube_utils::get_input_value('source', RCUBE_INPUT_GPC);
+
+        kolab_storage::$encode_ids = true;
+        $search_more_results = false;
+        $this->sources = array();
+        $this->folders = array();
+    
+        // find unsubscribed IMAP folders that have "event" type
+        if ($source == 'folders') {
+            foreach ((array)kolab_storage::search_folders('contact', $query, array('other')) as $folder) {
+                $this->folders[$folder->id] = $folder;
+                $this->sources[$folder->id] = new rcube_kolab_contacts($folder->name);
+            }
+        }
+        // search other user's namespace via LDAP
+        else if ($source == 'users') {
+            $limit = $this->rc->config->get('autocomplete_max', 15) * 2;  // we have slightly more space, so display twice the number
+            foreach (kolab_storage::search_users($query, 0, array(), $limit * 10) as $user) {
+                $folders = array();
+                // search for contact folders shared by this user
+                foreach (kolab_storage::list_user_folders($user, 'contact', false) as $foldername) {
+                    $folders[] = new kolab_storage_folder($foldername, 'contact');
+                }
+
+                if (count($folders)) {
+                    $userfolder = new kolab_storage_folder_user($user['kolabtargetfolder'], '', $user);
+                    $this->folders[$userfolder->id] = $userfolder;
+                    $this->sources[$userfolder->id] = $userfolder;
+
+                    foreach ($folders as $folder) {
+                        $this->folders[$folder->id] = $folder;
+                        $this->sources[$folder->id] = new rcube_kolab_contacts($folder->name);;
+                        $count++;
+                    }
+                }
+
+                if ($count >= $limit) {
+                    $search_more_results = true;
+                    break;
+                }
+            }
+        }
+
+        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
+
+        // build results list
+        foreach ($this->sources as $id => $source) {
+            $folder = $this->folders[$id];
+            $imap_path = explode($delim, $folder->name);
+
+            // find parent
+            do {
+              array_pop($imap_path);
+              $parent_id = kolab_storage::folder_id(join($delim, $imap_path));
+            }
+            while (count($imap_path) > 1 && !$this->folders[$parent_id]);
+
+            // restore "real" parent ID
+            if ($parent_id && !$this->folders[$parent_id]) {
+                $parent_id = kolab_storage::folder_id($folder->get_parent());
+            }
+
+            $prop = $this->abook_prop($id, $source);
+            $prop['parent'] = $parent_id;
+            unset($prop['group']);
+
+            $html = $this->addressbook_list_item($id, $prop, $jsdata, true);
+            $prop += (array)$jsdata[$id];
+            $prop['html'] = $html;
+
+            $results[] = $prop;
+        }
+
+        // report more results available
+        if ($search_more_results) {
+            $this->rc->output->show_message('autocompletemore', 'info');
+        }
+
+        $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', RCUBE_INPUT_GPC));
+    }
+
+    /**
+     *
+     */
+    public function book_subscribe()
+    {
+        $success = false;
+        $id = rcube_utils::get_input_value('_source', RCUBE_INPUT_GPC);
+
+        if ($id && ($folder = kolab_storage::get_folder(kolab_storage::id_decode($id)))) {
+            if (isset($_POST['_permanent']))
+                $success |= $folder->subscribe(intval($_POST['_permanent']));
+            if (isset($_POST['_active']))
+                $success |= $folder->activate(intval($_POST['_active']));
+        }
+        
+        if ($success) {
+            $this->rc->output->show_message('successfullysaved', 'confirmation');
+        }
+        else {
+            $this->rc->output->show_message($this->gettext('errorsaving'), 'error');
+        }
+
+        $this->rc->output->send();
     }
 
 

@@ -34,6 +34,14 @@ $labels['globalfirst'] = 'Global address book(s) first';
 $labels['personalonly'] = 'Personal address book(s) only';
 $labels['globalonly'] = 'Global address book(s) only';
 
+$labels['findaddressbooks'] = 'Find address books';
+$labels['searchterms'] = 'Search terms';
+$labels['listsearchresults'] = 'Additional address books';
+$labels['foldersearchform'] = 'Address book search form';
+$labels['foldersubscribe'] = 'List permanently';
+$labels['nraddressbooksfound'] = '$nr address books found';
+$labels['noaddressbooksfound'] = 'No address books found';
+
 $messages['bookdeleteconfirm']  = 'Do you really want to delete the selected address book and all contacts in it?';
 $messages['bookdeleting'] = 'Deleting address book...';
 $messages['booksaving'] = 'Saving address book...';

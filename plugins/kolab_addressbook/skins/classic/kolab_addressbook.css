@@ -1,6 +1,19 @@
+#directorylistbox ul.treelist li.virtual {
+	background-image: none !important;
+}
+
+#directorylistbox ul.treelist li.virtual > div a {
+	color: #aaa;
+	background-image: none;
+}
+
+#directorylistbox ul.treelist li.virtual > .treetoggle {
+	top: -2px !important;
+}
+
+/*
 #directorylist li.addressbook.readonly
 {
-  /* don't use 'background' to not reset background color */
   background-image: url(kolab_folders.png);
   background-position: 5px 0px;
   background-repeat: no-repeat;
@@ -33,3 +46,4 @@
   background-position: 5px -36px;
   background-repeat: no-repeat;
 }
+*/
