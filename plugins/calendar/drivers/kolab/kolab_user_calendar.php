@@ -210,8 +210,10 @@ class kolab_user_calendar extends kolab_calendar
       }
     }
 
-    // get events from the user's free/busy feed
-    $this->fetch_freebusy($limit_changed);
+    // get events from the user's free/busy feed (for quickview only)
+    if (!empty($_REQUEST['_quickview']) && empty($search)) {
+      $this->fetch_freebusy($limit_changed);
+    }
 
     $events = array();
     foreach ($this->events as $id => $event) {
@@ -281,7 +283,7 @@ class kolab_user_calendar extends kolab_calendar
 
     // console('_fetch_freebusy', kolab_storage::get_freebusy_url($this->userdata['mail']), $fbdata);
 
-    // parse free-busy information using Horde classes
+    // parse free-busy information
     $count = 0;
     if ($fbdata) {
       $ical = $this->cal->get_ical();
@@ -304,6 +306,7 @@ class kolab_user_calendar extends kolab_calendar
             'start'     => $from,
             'end'       => $to,
             'free_busy' => $statusmap[$type] ?: 'busy',
+            'className' => 'fc-type-freebusy',
             'organizer' => array(
               'email' => $this->userdata['mail'],
               'name'  => $this->userdata['displayname'],

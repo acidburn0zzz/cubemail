@@ -3,12 +3,11 @@
 /**
  * Calendar plugin for Roundcube webmail
  *
- * @version @package_version@
  * @author Lazlo Westerhof <hello@lazlo.me>
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
  * Copyright (C) 2010, Lazlo Westerhof <hello@lazlo.me>
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -1397,7 +1396,9 @@ class calendar extends rcube_plugin
       'title'       => strval($event['title']),
       'description' => strval($event['description']),
       'location'    => strval($event['location']),
-      'className'   => ($addcss ? 'fc-event-cal-'.asciiwords($event['calendar'], true).' ' : '') . 'fc-event-cat-' . asciiwords(strtolower(join('-', (array)$event['categories'])), true),
+      'className'   => ($addcss ? 'fc-event-cal-'.asciiwords($event['calendar'], true).' ' : '') .
+          'fc-event-cat-' . asciiwords(strtolower(join('-', (array)$event['categories'])), true) .
+          rtrim(' ' . $event['className']),
       'allDay'      => ($event['allday'] == 1),
     ) + $event;
   }

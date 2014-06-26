@@ -94,6 +94,7 @@ $labels['calsearchresults'] = 'Available Calendars';
 $labels['calendarsubscribe'] = 'List permanently';
 $labels['nocalendarsfound'] = 'No calendars found';
 $labels['nrcalendarsfound'] = '$nr calendars found';
+$labels['quickview'] = 'View only this calendar';
 
 // agenda view
 $labels['listrange'] = 'Range to display:';
