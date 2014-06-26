@@ -71,6 +71,9 @@ function kolab_folderlist(node, p)
                       node = search_results_widget.get_node(id),
                       has_children = node.children && node.children.length;
 
+                      e.stopPropagation();
+                      e.bubbles = false;
+
                       // activate + subscribe
                       if ($(e.target).hasClass('subscribed')) {
                           search_results[id].subscribed = true;
@@ -97,6 +100,17 @@ function kolab_folderlist(node, p)
                       // set focus to cloned checkbox
                       if (rcube_event.is_keyboard(e)) {
                         $(me.get_item(id, true)).find('input[type=checkbox]').first().focus();
+                      }
+                  })
+                  .on('click', function(e) {
+                      var prop, id = String($(e.target).closest('li').attr('id')).replace(new RegExp('^'+p.id_prefix), '');
+                      if (p.id_decode)
+                          id = p.id_decode(id);
+
+                      // forward event
+                      if (prop = search_results[id]) {
+                        e.data = prop;
+                        me.triggerEvent('click-item', e);
                       }
                   });
           }
