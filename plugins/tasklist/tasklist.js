@@ -207,8 +207,9 @@ function rcube_tasklist_ui(settings)
         // handler for clicks on quickview buttons
         tasklists_widget.container.on('click', '.quickview', function(e){
             var id = $(this).closest('li').attr('id').replace(/^rcmlitasklist/, '');
-            set_focusview(focusview == id ? null : id)
+            set_focusview(focusview == id ? null : id);
             e.stopPropagation();
+            return false;
         });
 
         // register dbl-click handler to open calendar edit dialog
