@@ -370,6 +370,10 @@
 	display: none;
 }
 
+.notesview #notebooksbox .searchresults .listing li {
+	background-color: #c7e3ef;
+}
+
 .notesview #notebooksbox .searchresults a.listname {
 	padding-left: 36px;
 }

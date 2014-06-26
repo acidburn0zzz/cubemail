@@ -130,9 +130,8 @@ function rcube_kolab_notes_ui(settings)
             var list = p.data;
             if (list && list.id && !list.virtual) {
                 me.notebooks[list.id] = list;
-                var prop = { id:p.id, active:list.active?1:0 };
-                if (list.subscribed) prop.permanent = 1;
-                rcmail.http_post('list', { _do:'subscribe', _list:prop });
+                if (list.subscribed)
+                    rcmail.http_post('list', { _do:'subscribe', _list:{ id:p.id, permanent:1 } });
             }
         });
         notebookslist.addEventListener('search-complete', function(data) {
