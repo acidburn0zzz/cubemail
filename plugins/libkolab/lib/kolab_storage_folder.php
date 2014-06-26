@@ -59,8 +59,10 @@ class kolab_storage_folder extends kolab_storage_folder_api
         list($this->type, $suffix) = explode('.', $this->type_annotation);
         $this->default      = $suffix == 'default';
         $this->name         = $name;
-        $this->resource_uri = null;
         $this->id           = kolab_storage::folder_id($name);
+
+        // reset cached object properties
+        $this->owner = $this->namespace = $this->resource_uri = $this->info = $this->idata = null;
 
         // get a new cache instance of folder type changed
         if (!$this->cache || $type != $oldtype)
