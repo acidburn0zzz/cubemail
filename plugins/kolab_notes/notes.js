@@ -905,9 +905,19 @@ function rcube_kolab_notes_ui(settings)
      */
     function print_note()
     {
-        var printwin, data;
+        var printwin, data, list;
         if (me.selected_note && (printwin = rcmail.open_window(settings.print_template))) {
+            list = me.notebooks[me.selected_note.list] || me.notebooks[me.selected_list] || {};
             data = get_save_data();
+
+            // for read-only notes, get_save_data() won't return the content
+            if (me.selected_note.readonly || !list.editable) {
+                data.description = me.selected_note.html || me.selected_note.description;
+                if (!me.selected_note.html || !data.description.match(/<(html|body)/)) {
+                    data.description = text2html(data.description);
+                }
+            }
+
             $(printwin).load(function(){
                 printwin.document.title = data.title;
                 $('#notetitle', printwin.document).html(Q(data.title));
