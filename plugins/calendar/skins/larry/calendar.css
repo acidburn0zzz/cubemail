@@ -1515,7 +1515,8 @@ a.dropdown-link:after {
 }
 
 .fc-type-freebusy .fc-event-title {
-	display: none;
+	position: absolute;
+	top: -5000px;
 }
 
 .calendarmain .fc-event:focus {
