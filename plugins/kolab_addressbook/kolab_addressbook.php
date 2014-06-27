@@ -713,9 +713,9 @@ class kolab_addressbook extends rcube_plugin
 
             $prop = $this->abook_prop($id, $source);
             $prop['parent'] = $parent_id;
-            unset($prop['group']);
 
             $html = $this->addressbook_list_item($id, $prop, $jsdata, true);
+            unset($prop['group']);
             $prop += (array)$jsdata[$id];
             $prop['html'] = $html;
 
