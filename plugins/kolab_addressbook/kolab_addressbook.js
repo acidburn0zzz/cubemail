@@ -161,9 +161,9 @@ if (window.rcmail) {
                 .addEventListener('insert-item', function(data) {
                     // register new address source
                     rcmail.env.address_sources[data.id] = rcmail.env.contactfolders[data.id] = data.data;
-                    if (data.data.subscribed)
-                        rcmail.http_post('plugin.book-subscribe', { _source:data.id, _permanent:1 });
-                    // TODO: load groups and add them to the list
+                    // subscribe folder and load groups to add them to the list
+                    if (!data.data.virtual)
+                      rcmail.http_post('plugin.book-subscribe', { _source:data.id, _permanent:data.data.subscribed?1:0, _groups:1 });
                 })
                 .addEventListener('search-complete', function(data) {
                     if (data.length)

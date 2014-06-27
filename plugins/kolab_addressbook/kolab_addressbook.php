@@ -743,6 +743,17 @@ class kolab_addressbook extends rcube_plugin
                 $success |= $folder->subscribe(intval($_POST['_permanent']));
             if (isset($_POST['_active']))
                 $success |= $folder->activate(intval($_POST['_active']));
+
+            // list groups for this address book
+            if (!empty($_POST['_groups'])) {
+                $abook = new rcube_kolab_contacts($folder->name);
+                foreach ((array)$abook->list_groups() as $prop) {
+                    $prop['source'] = $id;
+                    $prop['id'] = $prop['ID'];
+                    unset($prop['ID']);
+                    $this->rc->output->command('insert_contact_group', $prop);
+                }
+            }
         }
         
         if ($success) {
