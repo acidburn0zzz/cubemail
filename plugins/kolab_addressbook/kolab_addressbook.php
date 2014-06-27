@@ -370,9 +370,12 @@ class kolab_addressbook extends rcube_plugin
                 $p['instance'] = $this->sources[$p['id']];
             }
             else {
-                $folder = kolab_storage::get_folder(kolab_storage::id_decode($p['id']));
-                if ($folder->type) {  // try with unencoded (old-style) identifier
-                    $folder = kolab_storage::get_folder(kolab_storage::id_decode($p['id'], false));
+                $id = kolab_storage::id_decode($p['id']);
+                if (preg_match('![^A-Za-z0-9/+=]!', $id))  // check for falsely base64 decoded identifier
+                    $id = $p['id'];
+                $folder = kolab_storage::get_folder($id);
+                if (!$folder->type && $id != $p['id']) {  // try with unencoded (old-style) identifier
+                    $folder = kolab_storage::get_folder($p['id']);
                 }
                 if ($folder->type) {
                     $this->sources[$p['id']] = new rcube_kolab_contacts($folder->name);
