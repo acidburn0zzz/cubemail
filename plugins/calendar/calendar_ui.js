@@ -143,7 +143,28 @@ function rcube_calendar_ui(settings)
       },
       currentTimeIndicator: settings.time_indicator,
       // event rendering
-      eventRender: fc_event_render,
+      eventRender: function(event, element, view) {
+        if (view.name != 'list' && view.name != 'table') {
+          var prefix = event.sensitivity && event.sensitivity != 'public' ? String(sensitivitylabels[event.sensitivity]).toUpperCase()+': ' : '';
+          element.attr('title', prefix + event.title);
+        }
+        if (view.name != 'month') {
+          if (event.location) {
+            element.find('div.fc-event-title').after('<div class="fc-event-location">@&nbsp;' + Q(event.location) + '</div>');
+          }
+          if (event.sensitivity && event.sensitivity != 'public')
+            element.find('div.fc-event-time').append('<i class="fc-icon-sensitive"></i>');
+          if (event.recurrence)
+            element.find('div.fc-event-time').append('<i class="fc-icon-recurring"></i>');
+          if (event.alarms)
+            element.find('div.fc-event-time').append('<i class="fc-icon-alarms"></i>');
+        }
+        if (event.status) {
+          element.addClass('cal-event-status-' + String(event.status).toLowerCase());
+        }
+
+        element.attr('aria-label', event.title + ', ' + me.event_date_text(event, true));
+      },
       // render element indicating more (invisible) events
       overflowRender: function(data, element) {
         element.html(rcmail.gettext('andnmore', 'calendar').replace('$nr', data.count))
@@ -2093,31 +2114,6 @@ function rcube_calendar_ui(settings)
       $('#agenda-listrange').val(fc.fullCalendar('option', 'listRange'));
       $('#agenda-listsections').val(fc.fullCalendar('option', 'listSections'));
     }
-
-    /*** fullcalendar event handlers ***/
-
-    var fc_event_render = function(event, element, view) {
-      if (view.name != 'list' && view.name != 'table') {
-        var prefix = event.sensitivity && event.sensitivity != 'public' ? String(sensitivitylabels[event.sensitivity]).toUpperCase()+': ' : '';
-        element.attr('title', prefix + event.title);
-      }
-      if (view.name != 'month') {
-        if (event.location) {
-          element.find('div.fc-event-title').after('<div class="fc-event-location">@&nbsp;' + Q(event.location) + '</div>');
-        }
-        if (event.sensitivity && event.sensitivity != 'public')
-          element.find('div.fc-event-time').append('<i class="fc-icon-sensitive"></i>');
-        if (event.recurrence)
-          element.find('div.fc-event-time').append('<i class="fc-icon-recurring"></i>');
-        if (event.alarms)
-          element.find('div.fc-event-time').append('<i class="fc-icon-alarms"></i>');
-      }
-      if (event.status) {
-        element.addClass('cal-event-status-' + String(event.status).toLowerCase());
-      }
-
-      element.attr('aria-label', event.title + ', ' + me.event_date_text(event, true));
-    };
 
 
     /*** public methods ***/
