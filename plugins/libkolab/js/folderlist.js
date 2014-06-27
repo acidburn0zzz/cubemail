@@ -110,7 +110,10 @@ function kolab_folderlist(node, p)
                       // forward event
                       if (prop = search_results[id]) {
                         e.data = prop;
-                        me.triggerEvent('click-item', e);
+                        if (me.triggerEvent('click-item', e) === false) {
+                          e.stopPropagation();
+                          return false;
+                        }
                       }
                   });
           }

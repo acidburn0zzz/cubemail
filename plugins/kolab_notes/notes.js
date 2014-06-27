@@ -134,6 +134,10 @@ function rcube_kolab_notes_ui(settings)
                     rcmail.http_post('list', { _do:'subscribe', _list:{ id:p.id, permanent:1 } });
             }
         });
+        notebookslist.addEventListener('click-item', function(p) {
+            // avoid link execution
+            return false;
+        });
         notebookslist.addEventListener('search-complete', function(data) {
             if (data.length)
                 rcmail.display_message(rcmail.gettext('nrnotebooksfound','kolab_notes').replace('$nr', data.length), 'voice');
