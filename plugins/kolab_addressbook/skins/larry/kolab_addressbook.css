@@ -32,17 +32,17 @@
 	top: 6px !important;
 }
 
-#directorylistbox ul.treelist li input {
+#directorylistbox ul.treelist li input[type='checkbox'] {
 	position: absolute;
 	top: 4px;
 	left: 10px;
 }
 
-#directorylistbox ul.treelist ul li input {
+#directorylistbox ul.treelist ul li input[type='checkbox'] {
 	left: 36px;
 }
 
-#directorylist li input {
+#directorylist li input[type='checkbox'] {
 	display: none;
 }
 
