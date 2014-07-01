@@ -434,12 +434,12 @@ function rcube_libcalendaring(settings)
     {
         // clear old alert first
         if (this.alarm_dialog)
-            this.alarm_dialog.dialog('destroy');
+            this.alarm_dialog.dialog('destroy').remove();
 
         this.alarm_dialog = $('<div>').attr('id', 'alarm-display');
 
-        var actions, adismiss, asnooze, alarm, html, event_ids = [];
-        for (var i=0; i < alarms.length; i++) {
+        var i, actions, adismiss, asnooze, alarm, html, event_ids = [], buttons = {};
+        for (i=0; i < alarms.length; i++) {
             alarm = alarms[i];
             alarm.start = this.parseISO8601(alarm.start);
             alarm.end = this.parseISO8601(alarm.end);
@@ -463,7 +463,6 @@ function rcube_libcalendaring(settings)
             $('<div>').addClass('alarm-item').html(html).append(actions).appendTo(this.alarm_dialog);
         }
 
-        var buttons = {};
         buttons[rcmail.gettext('dismissall','libcalendaring')] = function() {
             // submit dismissed event_ids to server
             me.dismiss_alarm(me.alarm_ids.join(','), 0);
@@ -474,8 +473,8 @@ function rcube_libcalendaring(settings)
             modal: false,
             resizable: true,
             closeOnEscape: false,
-            dialogClass: 'alarm',
-            title: '<span class="ui-icon ui-icon-alarms" style="float:left; margin:0 4px 0 0"></span>' + rcmail.gettext('alarmtitle','libcalendaring'),
+            dialogClass: 'alarms',
+            title: rcmail.gettext('alarmtitle','libcalendaring'),
             buttons: buttons,
             close: function() {
               $('#alarm-snooze-dropdown').hide();

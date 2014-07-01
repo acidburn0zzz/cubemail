@@ -46,11 +46,11 @@ span.edit-alarm-set {
 	white-space: nowrap;
 }
 
-.ui-widget-header .ui-dialog-title .ui-icon-alarms {
+.ui-dialog.alarms .ui-dialog-title {
 	background-image: url(../../../../skins/larry/images/messages.png);
+	background-repeat: no-repeat;
 	background-position: 0 -91px;
-	width: 20px;
-	height: 16px;
+	padding-left: 24px;
 }
 
 .itip-reply-comment {
