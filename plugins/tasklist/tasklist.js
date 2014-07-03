@@ -432,6 +432,9 @@ function rcube_tasklist_ui(settings)
             }
         })
         .on('keydown', '.taskhead', function(e) {
+            if (e.target.nodeName == 'INPUT' && e.target.type == 'text')
+                return true;
+
             var inc = 1;
             switch (e.keyCode) {
                 case 13:  // Enter
