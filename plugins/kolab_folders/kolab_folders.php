@@ -111,23 +111,37 @@ class kolab_folders extends rcube_plugin
             return $args;
         }
 
-        $table = $args['table'];
-
         // Add type-based style for table rows
         // See kolab_folders::folder_class_name()
-        for ($i=1, $cnt=$table->size(); $i<=$cnt; $i++) {
-            $attrib = $table->get_row_attribs($i);
-            $folder = $attrib['foldername']; // UTF7-IMAP
-            $type   = $folderdata[$folder];
+        if ($table = $args['table']) {
+            for ($i=1, $cnt=$table->size(); $i<=$cnt; $i++) {
+                $attrib = $table->get_row_attribs($i);
+                $folder = $attrib['foldername']; // UTF7-IMAP
+                $type   = $folderdata[$folder];
 
-            if (!$type) {
-                $type = 'mail';
+                if (!$type) {
+                    $type = 'mail';
+                }
+
+                $class_name = self::folder_class_name($type);
+                $attrib['class'] = trim($attrib['class'] . ' ' . $class_name);
+                $table->set_row_attribs($attrib, $i);
             }
+        }
 
-            $class_name = self::folder_class_name($type);
+        // Add type-based class for list items
+        if (is_array($args['list'])) {
+            foreach ((array)$args['list'] as $k => $item) {
+                $folder = $item['folder_imap']; // UTF7-IMAP
+                $type   = $folderdata[$folder];
 
-            $attrib['class'] = trim($attrib['class'] . ' ' . $class_name);
-            $table->set_row_attribs($attrib, $i);
+                if (!$type) {
+                    $type = 'mail';
+                }
+
+                $class_name = self::folder_class_name($type);
+                $args['list'][$k]['class'] = trim($item['class'] . ' ' . $class_name);
+            }
         }
 
         return $args;
