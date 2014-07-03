@@ -84,8 +84,10 @@ function rcube_kolab_notes_ui(settings)
         });
 
         // initialize folder selectors
-        var li, id;
-        for (id in me.notebooks) {
+        if (settings.selected_list && !me.notebooks[settings.selected_list]) {
+            settings.selected_list = null;
+        }
+        for (var id in me.notebooks) {
             if (me.notebooks[id].editable && !settings.selected_list) {
                 settings.selected_list = id;
             }
