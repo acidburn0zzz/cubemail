@@ -219,10 +219,10 @@ pre {
 
 #calendars .treelist li span.calname {
 	display: block;
-	padding: 0px 18px 2px 2px;
+	padding: 0;
 	position: absolute;
-	top: 7px;
-	left: 38px;
+	line-height: 26px
+	left: 40px;
 	right: 60px;
 	cursor: default;
 	background: url(images/calendars.png) right 20px no-repeat;
@@ -313,7 +313,7 @@ pre {
 
 #calendars .treelist li input {
 	position: absolute;
-	top: 5px;
+	margin-top: 4px;
 	left: 18px;
 }
 
