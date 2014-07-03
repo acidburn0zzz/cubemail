@@ -454,7 +454,7 @@ function rcube_libcalendaring(settings)
                 me.dismiss_alarm(me.dismiss_link.data('id'), 0);
             });
             asnooze = $('<a href="#" class="alarm-action-snooze"></a>').html(rcmail.gettext('snooze','libcalendaring')).click(function(e){
-                me.snooze_dropdown($(this));
+                me.snooze_dropdown($(this), e);
                 e.stopPropagation();
                 return false;
             });
@@ -462,6 +462,10 @@ function rcube_libcalendaring(settings)
 
             $('<div>').addClass('alarm-item').html(html).append(actions).appendTo(this.alarm_dialog);
         }
+
+        buttons[rcmail.gettext('close')] = function() {
+            $(this).dialog('close');
+        };
 
         buttons[rcmail.gettext('dismissall','libcalendaring')] = function() {
             // submit dismissed event_ids to server
@@ -476,6 +480,11 @@ function rcube_libcalendaring(settings)
             dialogClass: 'alarms',
             title: rcmail.gettext('alarmtitle','libcalendaring'),
             buttons: buttons,
+            open: function() {
+              setTimeout(function() {
+                me.alarm_dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+              }, 5);
+            },
             close: function() {
               $('#alarm-snooze-dropdown').hide();
               $(this).dialog('destroy').remove();
@@ -487,13 +496,15 @@ function rcube_libcalendaring(settings)
             }
         });
 
+        this.alarm_dialog.closest('div[role=dialog]').attr('role', 'alertdialog');
+
         this.alarm_ids = event_ids;
     };
 
     /**
      * Show a drop-down menu with a selection of snooze times
      */
-    this.snooze_dropdown = function(link)
+    this.snooze_dropdown = function(link, event)
     {
         if (!this.snooze_popup) {
             this.snooze_popup = $('#alarm-snooze-dropdown');
@@ -511,13 +522,12 @@ function rcube_libcalendaring(settings)
 
         // hide visible popup
         if (this.snooze_popup.is(':visible') && this.snooze_popup.data('id') == link.data('id')) {
-            this.snooze_popup.hide();
+            rcmail.command('menu-close', 'alarm-snooze-dropdown');
             this.dismiss_link = null;
         }
         else {  // open popup below the clicked link
-            var pos = link.offset();
-            pos.top += link.height() + 2;
-            this.snooze_popup.data('id', link.data('id')).css({ top:Math.floor(pos.top)+'px', left:Math.floor(pos.left)+'px' }).show();
+            rcmail.command('menu-open', 'alarm-snooze-dropdown', link.get(0), event);
+            this.snooze_popup.data('id', link.data('id'));
             this.dismiss_link = link;
         }
     };
@@ -527,7 +537,7 @@ function rcube_libcalendaring(settings)
      */
     this.dismiss_alarm = function(id, snooze)
     {
-        $('#alarm-snooze-dropdown').hide();
+        rcmail.command('menu-close', 'alarm-snooze-dropdown');
         rcmail.http_post('utils/plugin.alarms', { action:'dismiss', data:{ id:id, snooze:snooze } });
 
         // remove dismissed alarm from list

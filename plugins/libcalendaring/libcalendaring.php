@@ -580,6 +580,7 @@ class libcalendaring extends rcube_plugin
         if (!$plugin['abort'] && !empty($plugin['alarms'])) {
             // make sure texts and env vars are available on client
             $this->add_texts('localization/', true);
+            $this->rc->output->add_label('close');
             $this->rc->output->set_env('snooze_select', $this->snooze_select());
             $this->rc->output->command('plugin.display_alarms', $this->_alarms_output($plugin['alarms']));
         }
