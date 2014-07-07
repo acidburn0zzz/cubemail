@@ -917,7 +917,7 @@ class kolab_storage_cache
 
             $sql_result = $this->db->query(
                 "SELECT msguid FROM $this->cache_table ".
-                "WHERE folder_id=? AND uid=?",
+                "WHERE folder_id=? AND uid=? ORDER BY msguid DESC",
                 $this->folder_id,
                 $uid
             );
@@ -932,7 +932,7 @@ class kolab_storage_cache
             $index = $this->imap->search_once($this->folder->name, ($deleted ? '' : 'UNDELETED ') .
                 'HEADER SUBJECT ' . rcube_imap_generic::escape($uid));
             $results = $index->get();
-            $this->uid2msg[$uid] = $results[0];
+            $this->uid2msg[$uid] = end($results);
         }
 
         return $this->uid2msg[$uid];
