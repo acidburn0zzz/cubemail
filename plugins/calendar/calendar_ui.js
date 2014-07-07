@@ -2809,9 +2809,10 @@ function rcube_calendar_ui(settings)
     };
 
     // mark the given calendar folder as selected
-    this.select_calendar = function(id)
+    this.select_calendar = function(id, nolistupdate)
     {
-      calendars_list.select(id);
+      if (!nolistupdate)
+        calendars_list.select(id);
 
       // trigger event hook
       rcmail.triggerEvent('selectfolder', { folder:id, prefix:'rcmlical' });
@@ -2872,7 +2873,7 @@ function rcube_calendar_ui(settings)
       add_calendar_source(cal);
 
       // check active calendars
-      $('#rcmlical'+id+' > .calendar input').get(0).checked = active;
+      $('#rcmlical'+id+' > .calendar input').prop('checked', active);
 
       if (active) {
         event_sources.push(this.calendars[id]);
@@ -2897,9 +2898,11 @@ function rcube_calendar_ui(settings)
       search_title: rcmail.gettext('calsearchresults','calendar')
     });
     calendars_list.addEventListener('select', function(node) {
-      me.select_calendar(node.id);
-      rcmail.enable_command('calendar-edit', 'calendar-showurl', true);
-      rcmail.enable_command('calendar-remove', !me.calendars[node.id].readonly);
+      if (node && node.id && me.calendars[node.id]) {
+        me.select_calendar(node.id, true);
+        rcmail.enable_command('calendar-edit', 'calendar-showurl', true);
+        rcmail.enable_command('calendar-remove', !me.calendars[node.id].readonly);
+      }
     });
     calendars_list.addEventListener('insert-item', function(p) {
       var cal = p.data;
