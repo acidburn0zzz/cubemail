@@ -118,10 +118,9 @@ class libcalendaring_itip
             )
         ));
 
-        // append sender's comment
-        if (!empty($event['comment'])) {
-            $mailbody .= "\n\n" . $this->gettext('itipsendercomment') . $event['comment'];
-        }
+        // if (!empty($event['comment'])) {
+        //     $mailbody .= "\n\n" . $this->gettext('itipsendercomment') . $event['comment'];
+        // }
 
         // append links for direct invitation replies
         if ($method == 'REQUEST' && ($token = $this->store_invitation($event, $recipient['email']))) {

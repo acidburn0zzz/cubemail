@@ -1106,6 +1106,12 @@ td.topalign {
 	text-align: center;
 }
 
+#eventedit .attendees-commentbox textarea {
+	width: auto;
+	margin-left: 10px;
+	vertical-align: middle;
+}
+
 a.dropdown-link {
 	font-size: 12px;
 	text-decoration: none;

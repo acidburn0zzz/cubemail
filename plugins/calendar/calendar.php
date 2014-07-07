@@ -930,7 +930,7 @@ class calendar extends rcube_plugin
 
       // only notify if data really changed (TODO: do diff check on client already)
       if (!$old || $action == 'remove' || self::event_diff($event, $old)) {
-        $sent = $this->notify_attendees($event, $old, $action);
+        $sent = $this->notify_attendees($event, $old, $action, $event['_comment']);
         if ($sent > 0)
           $this->rc->output->show_message('calendar.itipsendsuccess', 'confirmation');
         else if ($sent < 0)
@@ -1599,7 +1599,7 @@ class calendar extends rcube_plugin
   /**
    * Send out an invitation/notification to all event attendees
    */
-  private function notify_attendees($event, $old, $action = 'edit')
+  private function notify_attendees($event, $old, $action = 'edit', $comment = null)
   {
     if ($action == 'remove' || ($event['status'] == 'CANCELLED' && $old['status'] != $event['status'])) {
       $event['cancelled'] = true;
@@ -1608,6 +1608,9 @@ class calendar extends rcube_plugin
 
     $itip = $this->load_itip();
     $emails = $this->get_user_emails();
+
+    // add comment to the iTip attachment
+    $event['comment'] = $comment;
 
     // compose multipart message using PEAR:Mail_Mime
     $method = $action == 'remove' ? 'CANCEL' : 'REQUEST';
@@ -1632,7 +1635,9 @@ class calendar extends rcube_plugin
       $is_new = !in_array($attendee['email'], $old_attendees);
       $bodytext = $is_cancelled ? 'eventcancelmailbody' : ($is_new ? 'invitationmailbody' : 'eventupdatemailbody');
       $subject  = $is_cancelled ? 'eventcancelsubject'  : ($is_new ? 'invitationsubject' : ($event['title'] ? 'eventupdatesubject':'eventupdatesubjectempty'));
-      
+
+      $event['comment'] = $comment;
+
       // finally send the message
       if ($itip->send_itip_message($event, $method, $attendee, $subject, $bodytext, $message))
         $sent++;
@@ -1648,6 +1653,7 @@ class calendar extends rcube_plugin
       $vevent = $old;
       $vevent['cancelled'] = $is_cancelled;
       $vevent['attendees'] = array($attendee);
+      $vevent['comment']   = $comment;
       if ($itip->send_itip_message($vevent, 'CANCEL', $attendee, 'eventcancelsubject', 'eventcancelmailbody'))
         $sent++;
       else

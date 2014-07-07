@@ -708,15 +708,18 @@ class calendar_ui
    */
   function attendees_form($attrib = array())
   {
-    $input = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => 30));
+    $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => 30));
     $checkbox = new html_checkbox(array('name' => 'invite', 'id' => 'edit-attendees-invite', 'value' => 1));
-    
+    $textarea = new html_textarea(array('name' => 'comment', 'id' => 'edit-attendees-comment',
+        'rows' => 4, 'cols' => 55, 'title' => $this->cal->gettext('itipcommenttitle')));
+
     return html::div($attrib,
       html::div(null, $input->show() . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-add', 'value' => $this->cal->gettext('addattendee'))) . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-schedule', 'value' => $this->cal->gettext('scheduletime').'...'))) .
-      html::p('attendees-invitebox', html::label(null, $checkbox->show(1) . $this->cal->gettext('sendinvitations')))
-      );
+      html::p('attendees-invitebox', html::label(null, $checkbox->show(1) . $this->cal->gettext('sendinvitations'))) .
+      html::p('attendees-commentbox', html::label(null, $this->cal->gettext('comment') . $textarea->show()))
+    );
   }
 
   /**

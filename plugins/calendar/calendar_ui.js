@@ -615,6 +615,7 @@ function rcube_calendar_ui(settings)
       var allday = $('#edit-allday').get(0);
       var notify = $('#edit-attendees-donotify').get(0);
       var invite = $('#edit-attendees-invite').get(0);
+      var comment = $('#edit-attendees-comment');
       notify.checked = has_attendees(event), invite.checked = true;
       
       if (event.allDay) {
@@ -750,6 +751,7 @@ function rcube_calendar_ui(settings)
         // tell server to send notifications
         if ((data.attendees.length || (event.id && event.attendees.length)) && allow_invitations && (notify.checked || invite.checked)) {
           data._notify = 1;
+          data._comment = comment.val();
         }
 
         data.calendar = calendars.val();
