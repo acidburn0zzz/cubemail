@@ -57,7 +57,7 @@ class libcalendaring_itip
     public function set_rsvp_actions($actions)
     {
         $this->rsvp_actions = (array)$actions;
-        // $this->rsvp_status = array_merge($this->rsvp_actions, array('delegated'));
+        $this->rsvp_status = array_merge($this->rsvp_actions, array('delegated'));
     }
 
     /**
@@ -280,22 +280,28 @@ class libcalendaring_itip
           $rsvp = $event['rsvp'] && $this->rc->config->get('calendar_allow_itip_uninvited', true);
         }
 
-        if ($status == 'unknown' && !$this->rc->config->get('calendar_allow_itip_uninvited', true)) {
+        $status_lc = strtolower($status);
+
+        if ($status_lc == 'unknown' && !$this->rc->config->get('calendar_allow_itip_uninvited', true)) {
           $html = html::div('rsvp-status', $this->gettext('notanattendee'));
           $action = 'import';
         }
-        else if (in_array(strtolower($status), $this->rsvp_status)) {
-          $html = html::div('rsvp-status ' . strtolower($status), $this->gettext(($latest ? 'youhave' : 'youhavepreviously') . strtolower($status)));
+        else if (in_array($status_lc, $this->rsvp_status)) {
+          $status_text = $this->gettext(($latest ? 'youhave' : 'youhavepreviously') . $status_lc);
 
-          if ($existing && ($existing['sequence'] > $event['sequence'] || (!$event['sequence'] && $existing['changed'] && $existing['changed'] > $event['changed']))) {
+          if ($existing && ($existing['sequence'] > $event['sequence'] || (!isset($event['sequence']) && $existing['changed'] && $existing['changed'] > $event['changed']))) {
             $action = '';  // nothing to do here, outdated invitation
+            if ($status_lc == 'needs-action')
+              $status_text = $this->gettext('outdatedinvitation');
           }
           else if (!$existing && !$rsvp) {
             $action = 'import';
           }
-          else if ($latest) {
+          else if ($latest && $status_lc != 'needs-action') {
             $action = 'update';
           }
+
+          $html = html::div('rsvp-status ' . $status_lc, $status_text);
         }
       }
       // determine action for REPLY
