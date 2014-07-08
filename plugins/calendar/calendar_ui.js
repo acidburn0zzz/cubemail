@@ -114,7 +114,7 @@ function rcube_calendar_ui(settings)
         day: 'dddd ' + settings['date_long'],
         table: settings.dates_long
       },
-      listPage: 1,  // advance one day in agenda view
+      listPage: 7,  // advance one week in agenda view
       listRange: settings.agenda_range,
       listSections: settings.agenda_sections,
       tableCols: ['handle', 'date', 'time', 'title', 'location'],
@@ -2237,6 +2237,8 @@ function rcube_calendar_ui(settings)
           },
           height: h - 50,
           defaultView: fc.fullCalendar('getView').name || fullcalendar_defaults.defaultView,
+          listRange: fc.fullCalendar('option', 'listRange'),
+          listSections: fc.fullCalendar('option', 'listSections'),
           date: date.getDate(),
           month: date.getMonth(),
           year: date.getFullYear(),
