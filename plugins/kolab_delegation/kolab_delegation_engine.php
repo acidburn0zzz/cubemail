@@ -423,6 +423,7 @@ class kolab_delegation_engine
         $mode   = (int) $this->rc->config->get('addressbook_search_mode');
         $fields = array_unique(array_filter(array_merge((array)$this->ldap_name_field, (array)$this->ldap_login_field)));
         $users  = array();
+        $keys   = array();
 
         $result = $ldap->dosearch($fields, $search, $mode, (array)$this->ldap_login_field, $max);
 
@@ -434,12 +435,23 @@ class kolab_delegation_engine
 
             $user = $this->parse_ldap_record($record);
 
-            if ($user['name']) {
-                $users[] = $user['name'];
+            if ($user['uid']) {
+                $display = rcube_addressbook::compose_search_name($record);
+                $user    = array('name' => $user['uid'], 'display' => $display);
+                $users[] = $user;
+                $keys[]  = $display ?: $user['uid'];
             }
         }
 
-        sort($users, SORT_LOCALE_STRING);
+        if (count($users)) {
+            // sort users index
+            asort($keys, SORT_LOCALE_STRING);
+            // re-sort users according to index
+            foreach ($keys as $idx => $val) {
+                $keys[$idx] = $users[$idx];
+            }
+            $users = array_values($keys);
+        }
 
         return $users;
     }
