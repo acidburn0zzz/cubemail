@@ -534,7 +534,7 @@ class tasklist extends rcube_plugin
     private function handle_recurrence(&$rec, $old)
     {
         $clone = null;
-        if ($this->driver->is_complete($rec) && $old && $this->driver->is_complete($old) && is_array($rec['recurrence'])) {
+        if ($this->driver->is_complete($rec) && $old && !$this->driver->is_complete($old) && is_array($rec['recurrence'])) {
             $engine = libcalendaring::get_recurrence();
             $rrule = $rec['recurrence'];
             $updates = array();
@@ -579,7 +579,7 @@ class tasklist extends rcube_plugin
                 // update the task but unset completed flag
                 $rec = array_merge($rec, $updates);
                 $rec['complete'] = $old['complete'];
-                $rec['satus'] = $old['satus'];
+                $rec['status'] = $old['status'];
             }
         }
 
