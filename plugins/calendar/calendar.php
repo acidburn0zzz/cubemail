@@ -2391,6 +2391,21 @@ class calendar extends rcube_plugin
             $event['id'] = $existing['id'];
             $event['calendar'] = $existing['calendar'];
 
+            // preserve my participant status for regular updates
+            if (empty($status)) {
+              $emails = $this->get_user_emails();
+              foreach ($event['attendees'] as $i => $attendee) {
+                if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+                  foreach ($existing['attendees'] as $j => $_attendee) {
+                    if ($attendee['email'] == $_attendee['email']) {
+                      $event['attendees'][$i] = $existing['attendees'][$j];
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+
             // set status=CANCELLED on CANCEL messages
             if ($this->ical->method == 'CANCEL')
               $event['status'] = 'CANCELLED';
