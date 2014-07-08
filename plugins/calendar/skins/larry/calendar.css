@@ -237,6 +237,11 @@ pre {
 	left: 20px;
 }
 
+#calendars .treelist li.x-birthdays span.calname,
+#calendars .treelist li.x-invitations span.calname {
+	font-style: italic;
+}
+
 #calendars .treelist.flat li span.calname {
 	left: 24px;
 	right: 42px;
@@ -1524,6 +1529,43 @@ a.dropdown-link:after {
 	top: -5000px;
 }
 
+.fc-invitation-declined {
+
+}
+
+.fc-event-vert.fc-invitation-needs-action,
+.fc-event-hori.fc-invitation-needs-action {
+	border: 1px dashed #5757c7 !important;
+}
+
+.fc-event-vert.fc-invitation-tentative,
+.fc-event-hori.fc-invitation-tentative {
+	border: 1px dashed #eb8900 !important;
+}
+
+.fc-event-vert.fc-invitation-declined,
+.fc-event-hori.fc-invitation-declined {
+	border: 1px dashed #c00 !important;
+}
+
+.fc-event-vert.fc-invitation-tentative .fc-event-head,
+.fc-event-vert.fc-invitation-declined .fc-event-head,
+.fc-event-vert.fc-invitation-needs-action .fc-event-head {
+/*	background-color: transparent !important; */
+}
+
+.fc-event-vert.fc-invitation-tentative .fc-event-bg {
+	background: url(data:image/gif;base64,R0lGODlhCAAIAPABAOuJAP///yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+}
+
+.fc-event-vert.fc-invitation-needs-action .fc-event-bg {
+	background: url(data:image/gif;base64,R0lGODlhCAAIAPABAFdXx////yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+}
+
+.fc-event-vert.fc-invitation-declined .fc-event-bg {
+	background: url(data:image/gif;base64,R0lGODlhCAAIAPABAMwAAP///yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+}
+
 .calendarmain .fc-event:focus {
 	outline: 1px solid rgba(71,135,177, 0.4);
 	-webkit-box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
@@ -1767,7 +1809,8 @@ div.calendar-invitebox .rsvp-status.hint {
 div.calendar-invitebox .rsvp-status.declined,
 div.calendar-invitebox .rsvp-status.tentative,
 div.calendar-invitebox .rsvp-status.accepted,
-div.calendar-invitebox .rsvp-status.delegated  {
+div.calendar-invitebox .rsvp-status.delegated,
+div.calendar-invitebox .rsvp-status.needs-action  {
 	padding: 0 0 1px 22px;
 	background: url(images/attendee-status.png) 2px -20px no-repeat;
 }
@@ -1782,6 +1825,10 @@ div.calendar-invitebox .rsvp-status.tentative {
 
 div.calendar-invitebox .rsvp-status.delegated {
 	background-position: 2px -180px;
+}
+
+div.calendar-invitebox .rsvp-status.needs-action {
+	background-position: 2px 0;
 }
 
 /* iTIP attend reply page */

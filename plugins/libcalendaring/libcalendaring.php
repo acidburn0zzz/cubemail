@@ -329,6 +329,13 @@ class libcalendaring extends rcube_plugin
      */
     public function get_user_emails()
     {
+        static $emails;
+
+        // return cached result
+        if (is_array($emails)) {
+            return $emails;
+        }
+
         $emails = array();
         $plugin = $this->rc->plugins->exec_hook('calendar_user_emails', array('emails' => $emails));
         $emails = array_map('strtolower', $plugin['emails']);
@@ -342,7 +349,28 @@ class libcalendaring extends rcube_plugin
             $emails[] = strtolower($identity['email']);
         }
 
-        return array_unique($emails);
+        $emails = array_unique($emails);
+        return $emails;
+    }
+
+    /**
+     * Set the given participant status to the attendee matching the current user's identities
+     *
+     * @param array   Hash array with event struct
+     * @param string  The PARTSTAT value to set
+     * @return mixed  Email address of the updated attendee or False if none matching found
+     */
+    public function set_partstat(&$event, $status)
+    {
+        $emails = $this->get_user_emails();
+        foreach ((array)$event['attendees'] as $i => $attendee) {
+            if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+                $event['attendees'][$i]['status'] = strtoupper($status);
+                return $attendee['email'];
+            }
+        }
+
+        return false;
     }
 
 

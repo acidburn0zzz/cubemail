@@ -25,9 +25,14 @@
 
 require_once(dirname(__FILE__) . '/kolab_calendar.php');
 require_once(dirname(__FILE__) . '/kolab_user_calendar.php');
+require_once(dirname(__FILE__) . '/kolab_invitation_calendar.php');
+
 
 class kolab_driver extends calendar_driver
 {
+  const INVITATIONS_CALENDAR_PENDING  = '--invitation--pending';
+  const INVITATIONS_CALENDAR_DECLINED = '--invitation--declined';
+
   // features this backend supports
   public $alarms = true;
   public $attendees = true;
@@ -202,6 +207,35 @@ class kolab_driver extends calendar_driver
       }
     }
 
+    // list virtual calendars showing invitations
+    if ($this->rc->config->get('kolab_invitation_calendars')) {
+      foreach (array(self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED) as $id) {
+        $cal = new kolab_invitation_calendar($id, $this->cal);
+        $this->calendars[$cal->id] = $cal;
+        if (!$active || $cal->is_active()) {
+          $calendars[$id] = array(
+            'id'       => $cal->id,
+            'name'     => $cal->get_name(),
+            'listname' => $cal->get_name(),
+            'editname' => $cal->get_foldername(),
+            'title'    => $cal->get_title(),
+            'color'    => $cal->get_color(),
+            'readonly' => $cal->readonly,
+            'showalarms' => $cal->alarms,
+            'group'    => 'x-invitations',
+            'default'  => false,
+            'active'   => $cal->is_active(),
+            'owner'    => $cal->get_owner(),
+            'children' => false,
+          );
+
+          if (is_object($tree)) {
+            $tree->children[] = $cal;
+          }
+        }
+      }
+    }
+
     // append the virtual birthdays calendar
     if ($this->rc->config->get('calendar_contact_birthdays', false)) {
       $id = self::BIRTHDAY_CALENDAR_ID;
@@ -214,7 +248,7 @@ class kolab_driver extends calendar_driver
           'color'      => $prefs[$id]['color'],
           'active'     => $prefs[$id]['active'],
           'showalarms' => (bool)$this->rc->config->get('calendar_birthdays_alarm_type'),
-          'group'      => 'birthdays',
+          'group'      => 'x-birthdays',
           'readonly'   => true,
           'default'    => false,
           'children'   => false,
@@ -273,10 +307,13 @@ class kolab_driver extends calendar_driver
    * @param string Calendar identifier (encoded imap folder name)
    * @return object kolab_calendar Object nor null if calendar doesn't exist
    */
-  protected function get_calendar($id)
+  public function get_calendar($id)
   {
     // create calendar object if necesary
-    if (!$this->calendars[$id] && $id !== self::BIRTHDAY_CALENDAR_ID) {
+    if (!$this->calendars[$id] && in_array($id, array(self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED))) {
+      $this->calendars[$id] = new kolab_invitation_calendar($id, $this->cal);
+    }
+    else if (!$this->calendars[$id] && $id !== self::BIRTHDAY_CALENDAR_ID) {
       $calendar = kolab_calendar::factory($id, $this->cal);
       if ($calendar->ready)
         $this->calendars[$calendar->id] = $calendar;
@@ -363,7 +400,7 @@ class kolab_driver extends calendar_driver
    */
   public function subscribe_calendar($prop)
   {
-    if ($prop['id'] && ($cal = $this->get_calendar($prop['id']))) {
+    if ($prop['id'] && ($cal = $this->get_calendar($prop['id'])) && is_object($cal->storage)) {
       $ret = false;
       if (isset($prop['permanent']))
         $ret |= $cal->storage->subscribe(intval($prop['permanent']));
@@ -452,6 +489,7 @@ class kolab_driver extends calendar_driver
 
     // don't list the birthday calendar
     $this->rc->config->set('calendar_contact_birthdays', false);
+    $this->rc->config->set('kolab_invitation_calendars', false);
 
     return $this->list_calendars();
   }
@@ -536,6 +574,29 @@ class kolab_driver extends calendar_driver
   }
 
   /**
+   * Extended event editing with possible changes to the argument
+   *
+   * @param array  Hash array with event properties
+   * @param string New participant status
+   * @return boolean True on success, False on error
+   */
+  public function edit_rsvp(&$event, $status)
+  {
+    if (($ret = $this->update_event($event)) && $this->rc->config->get('kolab_invitation_calendars')) {
+      // re-assign to the according (virtual) calendar
+      if (strtoupper($status) == 'DECLINED')
+        $event['calendar'] = self::INVITATIONS_CALENDAR_DECLINED;
+      else if (strtoupper($status) == 'NEEDS-ACTION')
+        $event['calendar'] = self::INVITATIONS_CALENDAR_PENDING;
+      else if ($event['_folder_id'])
+        $event['calendar'] = $event['_folder_id'];
+    }
+
+    return $ret;
+  }
+
+
+  /**
    * Move a single event
    *
    * @see calendar_driver::move_event()
@@ -580,6 +641,7 @@ class kolab_driver extends calendar_driver
   {
     $success = false;
     $savemode = $event['_savemode'];
+    $decline  = $event['decline'];
 
     if (($storage = $this->get_calendar($event['calendar'])) && ($event = $storage->get_event($event['id']))) {
       $event['_savemode'] = $savemode;
@@ -664,7 +726,15 @@ class kolab_driver extends calendar_driver
           }
 
         default:  // 'all' is default
-          $success = $storage->delete_event($master, $force);
+          if ($decline && $this->rc->config->get('kolab_invitation_calendars')) {
+            // don't delete but set PARTSTAT=DECLINED
+            if ($this->cal->lib->set_partstat($master, 'DECLINED')) {
+              $success = $storage->update_event($master);
+            }
+          }
+
+          if (!$success)
+            $success = $storage->delete_event($master, $force);
           break;
       }
     }
@@ -1227,7 +1297,9 @@ class kolab_driver extends calendar_driver
   public function calendar_form($action, $calendar, $formfields)
   {
     // show default dialog for birthday calendar
-    if ($calendar['id'] == self::BIRTHDAY_CALENDAR_ID) {
+    if (in_array($calendar['id'], array(self::BIRTHDAY_CALENDAR_ID, self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED))) {
+      if ($calendar['id'] != self::BIRTHDAY_CALENDAR_ID)
+        unset($formfields['showalarms']);
       return parent::calendar_form($action, $calendar, $formfields);
     }
 

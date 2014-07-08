@@ -30,6 +30,8 @@ class libcalendaring_itip
     protected $sender;
     protected $domain;
     protected $itip_send = false;
+    protected $rsvp_actions = array('accepted','tentative','declined');
+    protected $rsvp_status  = array('accepted','tentative','declined','delegated');
 
     function __construct($plugin, $domain = 'libcalendaring')
     {
@@ -50,6 +52,12 @@ class libcalendaring_itip
     {
         if (!empty($email))
             $this->sender['email'] = $email;
+    }
+
+    public function set_rsvp_actions($actions)
+    {
+        $this->rsvp_actions = (array)$actions;
+        // $this->rsvp_status = array_merge($this->rsvp_actions, array('delegated'));
     }
 
     /**
@@ -276,7 +284,7 @@ class libcalendaring_itip
           $html = html::div('rsvp-status', $this->gettext('notanattendee'));
           $action = 'import';
         }
-        else if (in_array($status, array('ACCEPTED','TENTATIVE','DECLINED','DELEGATED'))) {
+        else if (in_array(strtolower($status), $this->rsvp_status)) {
           $html = html::div('rsvp-status ' . strtolower($status), $this->gettext('youhave'.strtolower($status)));
 
           if ($existing && ($existing['sequence'] > $event['sequence'] || (!$event['sequence'] && $existing['changed'] && $existing['changed'] > $event['changed']))) {
@@ -402,7 +410,7 @@ class libcalendaring_itip
             $metadata['rsvp'] = true;
 
             // 1. display RSVP buttons (if the user was invited)
-            foreach (array('accepted','tentative','declined') as $method) {
+            foreach ($this->rsvp_actions as $method) {
                 $rsvp_buttons .= html::tag('input', array(
                     'type' => 'button',
                     'class' => "button $method",

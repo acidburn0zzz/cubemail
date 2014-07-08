@@ -384,6 +384,9 @@ function rcube_calendar_ui(settings)
       var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { editable:false };
       me.selected_event = event;
 
+      if ($dialog.is(':ui-dialog'))
+        $dialog.dialog('close');
+
       // allow other plugins to do actions when event form is opened
       rcmail.triggerEvent('calendar-event-init', {o: event});
 
@@ -408,7 +411,7 @@ function rcube_calendar_ui(settings)
         $('#event-alarm').show().children('.event-text').html(Q(event.alarms_text));
       
       if (calendar.name)
-        $('#event-calendar').show().children('.event-text').html(Q(calendar.name)).attr('class', 'event-text').addClass('cal-'+calendar.id);
+        $('#event-calendar').show().children('.event-text').html(Q(calendar.name)).attr('class', 'event-text cal-'+calendar.id).css('color', calendar.textColor || calendar.color || '');
       if (event.categories)
         $('#event-category').show().children('.event-text').html(Q(event.categories)).attr('class', 'event-text cat-'+String(event.categories).toLowerCase().replace(rcmail.identifier_expr, ''));
       if (event.free_busy)
@@ -1926,10 +1929,16 @@ function rcube_calendar_ui(settings)
             data.status = response.toUpperCase();
         }
         event_show_dialog(me.selected_event);
-        
+
         // submit status change to server
-        me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
-        rcmail.http_post('event', { action:'rsvp', e:me.selected_event, status:response });
+        var submit_data = $.extend({}, me.selected_event, { source:null });
+        if (settings.invitation_calendars) {
+          update_event('rsvp', submit_data, { status:response });
+        }
+        else {
+          me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
+          rcmail.http_post('event', { action:'rsvp', e:submit_data, status:response });
+        }
       }
     };
     
@@ -1962,10 +1971,10 @@ function rcube_calendar_ui(settings)
     }
     
     // post the given event data to server
-    var update_event = function(action, data)
+    var update_event = function(action, data, add)
     {
       me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
-      rcmail.http_post('calendar/event', { action:action, e:data });
+      rcmail.http_post('calendar/event', $.extend({ action:action, e:data }, (add || {})));
       
       // render event temporarily into the calendar
       if ((data.start && data.end) || data.id) {

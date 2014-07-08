@@ -234,6 +234,9 @@ class calendar extends rcube_plugin
     if (!$this->itip) {
       require_once($this->home . '/lib/calendar_itip.php');
       $this->itip = new calendar_itip($this);
+      
+      if ($this->rc->config->get('kolab_invitation_calendars'))
+        $this->itip->set_rsvp_actions(array('accepted','tentative','declined','needs-action'));
     }
 
     return $this->itip;
@@ -883,12 +886,13 @@ class calendar extends rcube_plugin
         break;
 
       case "rsvp":
+        $status = get_input_value('status', RCUBE_INPUT_GPC);
         $ev = $this->driver->get_event($event);
         $ev['attendees'] = $event['attendees'];
         $event = $ev;
 
-        if ($success = $this->driver->edit_event($event)) {
-          $status = get_input_value('status', RCUBE_INPUT_GPC);
+        if ($success = $this->driver->edit_rsvp($event, $status)) {
+          $reload = $event['calendar'] != $ev['calendar'] ? 2 : 1;
           $organizer = null;
           foreach ($event['attendees'] as $i => $attendee) {
             if ($attendee['role'] == 'ORGANIZER') {
@@ -947,7 +951,7 @@ class calendar extends rcube_plugin
       if ($reload > 1)
         $args['refetch'] = true;
       else if ($success && $action != 'remove')
-        $args['update'] = $this->_client_event($this->driver->get_event($event));
+        $args['update'] = $this->_client_event($this->driver->get_event($event), true);
       $this->rc->output->command('plugin.refresh_calendar', $args);
     }
   }
@@ -1314,6 +1318,7 @@ class calendar extends rcube_plugin
     $settings['event_coloring'] = (int)$this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring']);
     $settings['time_indicator'] = (int)$this->rc->config->get('calendar_time_indicator', $this->defaults['calendar_time_indicator']);
     $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', $this->defaults['calendar_allow_invite_shared']);
+    $settings['invitation_calendars'] = (bool)$this->rc->config->get('kolab_invitation_calendars', false);
 
     // get user identity to create default attendee
     if ($this->ui->screen == 'calendar') {
@@ -2398,7 +2403,7 @@ class calendar extends rcube_plugin
           else
             $error_msg = $this->gettext('newerversionexists');
         }
-        else if (!$existing && $status != 'declined') {
+        else if (!$existing && ($status != 'declined' || $this->rc->config->get('kolab_invitation_calendars'))) {
           $success = $this->driver->new_event($event);
         }
         else if ($status == 'declined')
@@ -2609,7 +2614,7 @@ class calendar extends rcube_plugin
   /**
    * Get a list of email addresses of the current user (from login and identities)
    */
-  private function get_user_emails()
+  public function get_user_emails()
   {
     return $this->lib->get_user_emails();
   }

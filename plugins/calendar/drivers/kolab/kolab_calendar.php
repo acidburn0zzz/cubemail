@@ -209,9 +209,10 @@ class kolab_calendar extends kolab_storage_folder_api
    * @param  string  Search query (optional)
    * @param  boolean Include virtual events (optional)
    * @param  array   Additional parameters to query storage
+   * @param  array   Additional query to filter events
    * @return array A list of event records
    */
-  public function list_events($start, $end, $search = null, $virtual = 1, $query = array())
+  public function list_events($start, $end, $search = null, $virtual = 1, $query = array(), $filter_query = null)
   {
     // convert to DateTime for comparisons
     try {
@@ -227,9 +228,23 @@ class kolab_calendar extends kolab_storage_folder_api
       $end = new DateTime('today +10 years');
     }
 
+    // get email addresses of the current user
+    $user_emails = $this->cal->get_user_emails();
+
     // query Kolab storage
     $query[] = array('dtstart', '<=', $end);
     $query[] = array('dtend',   '>=', $start);
+
+    // add query to exclude pending/declined invitations
+    if (empty($filter_query)) {
+      foreach ($user_emails as $email) {
+        $query[] = array('tags', '!=', 'x-partstat:' . $email . ':needs-action');
+        $query[] = array('tags', '!=', 'x-partstat:' . $email . ':declined');
+      }
+    }
+    else if (is_array($filter_query)) {
+      $query = array_merge($query, $filter_query);
+    }
 
     if (!empty($search)) {
         $search = mb_strtolower($search);
@@ -240,6 +255,15 @@ class kolab_calendar extends kolab_storage_folder_api
 
     $events = array();
     foreach ($this->storage->select($query) as $record) {
+      // post-filter events to skip pending and declined invitations
+      if (empty($filter_query) && is_array($record['attendees'])) {
+        foreach ($record['attendees'] as $attendee) {
+          if (in_array($attendee['email'], $user_emails) && in_array($attendee['status'], array('NEEDS-ACTION','DECLINED'))) {
+            continue 2;
+          }
+        }
+      }
+
       $event = $this->_to_rcube_event($record);
       $this->events[$event['id']] = $event;
 
@@ -671,7 +695,7 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     // remove some internal properties which should not be saved
-    unset($event['_savemode'], $event['_fromcalendar'], $event['_identity']);
+    unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_folder_id'], $event['className']);
 
     // copy meta data (starting with _) from old object
     foreach ((array)$old as $key => $val) {

@@ -191,6 +191,18 @@ abstract class calendar_driver
   abstract function edit_event($event);
 
   /**
+   * Extended event editing with possible changes to the argument
+   *
+   * @param array  Hash array with event properties
+   * @param string New participant status
+   * @return boolean True on success, False on error
+   */
+  public function edit_rsvp(&$event, $status)
+  {
+    return $this->edit_event($event);
+  }
+
+  /**
    * Move a single event
    *
    * @param array Hash array with event properties:

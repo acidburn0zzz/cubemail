@@ -95,6 +95,8 @@ $labels['calendarsubscribe'] = 'List permanently';
 $labels['nocalendarsfound'] = 'No calendars found';
 $labels['nrcalendarsfound'] = '$nr calendars found';
 $labels['quickview'] = 'View only this calendar';
+$labels['invitationspending'] = 'Pending invitations';
+$labels['invitationsdeclined'] = 'Declined invitations';
 
 // agenda view
 $labels['listrange'] = 'Range to display:';
