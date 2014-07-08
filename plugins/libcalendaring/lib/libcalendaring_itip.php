@@ -443,6 +443,12 @@ class libcalendaring_itip
                 html::tag('textarea', array('id' => 'reply-comment-'.$dom_id, 'cols' => 40, 'rows' => 6, 'style' => 'display:none', 'placeholder' => $this->gettext('itipcomment')), '')
             );
 
+            // add checkbox to suppress itip reply message
+            $rsvp_buttons .= html::label(array('class' => 'noreply-toggle'),
+                html::tag('input', array('type' => 'checkbox', 'id' => 'noreply-'.$dom_id, 'value' => 1))
+                . ' ' . $this->gettext('itipsuppressreply')
+            );
+
             $buttons[] = html::div(array('id' => 'rsvp-'.$dom_id, 'class' => 'rsvp-buttons', 'style' => 'display:none'), $rsvp_buttons);
         }
         // for CANCEL messages, we can:

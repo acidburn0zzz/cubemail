@@ -2277,11 +2277,12 @@ class calendar extends rcube_plugin
    */
   public function mail_import_itip()
   {
-    $uid = get_input_value('_uid', RCUBE_INPUT_POST);
-    $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+    $uid     = get_input_value('_uid', RCUBE_INPUT_POST);
+    $mbox    = get_input_value('_mbox', RCUBE_INPUT_POST);
     $mime_id = get_input_value('_part', RCUBE_INPUT_POST);
-    $status = get_input_value('_status', RCUBE_INPUT_POST);
-    $delete = intval(get_input_value('_del', RCUBE_INPUT_POST));
+    $status  = get_input_value('_status', RCUBE_INPUT_POST);
+    $delete  = intval(get_input_value('_del', RCUBE_INPUT_POST));
+    $noreply = intval(get_input_value('_noreply', RCUBE_INPUT_POST));
 
     $error_msg = $this->gettext('errorimportingevent');
     $success = false;
@@ -2428,7 +2429,7 @@ class calendar extends rcube_plugin
 
 
     // send iTip reply
-    if ($this->ical->method == 'REQUEST' && $organizer && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
+    if ($this->ical->method == 'REQUEST' && $organizer && !$noreply && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
       $event['comment'] = get_input_value('_comment', RCUBE_INPUT_POST);
       $itip = $this->load_itip();
       $itip->set_sender_email($reply_sender);

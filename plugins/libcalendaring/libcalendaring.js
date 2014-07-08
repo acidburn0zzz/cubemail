@@ -744,9 +744,11 @@ rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status, dom_id
         del = confirm(rcmail.gettext('itip.declinedeleteconfirm'));
     }
 
-    var comment = '';
+    var noreply = 0, comment = '';
     if (dom_id) {
-      comment = $('#reply-comment-'+dom_id).val();
+      noreply = $('#noreply-'+dom_id).prop('checked') ? 1 : 0;
+      if (!noreply)
+        comment = $('#reply-comment-'+dom_id).val();
     }
 
     rcmail.http_post(task + '/mailimportitip', {
@@ -756,6 +758,7 @@ rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status, dom_id
         _folder: $('#itip-saveto').val(),
         _status: status,
         _del: del?1:0,
+        _noreply: noreply,
         _comment: comment
       }, rcmail.set_busy(true, 'itip.savingdata'));
 
