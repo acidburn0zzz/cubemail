@@ -285,13 +285,16 @@ class libcalendaring_itip
           $action = 'import';
         }
         else if (in_array(strtolower($status), $this->rsvp_status)) {
-          $html = html::div('rsvp-status ' . strtolower($status), $this->gettext('youhave'.strtolower($status)));
+          $html = html::div('rsvp-status ' . strtolower($status), $this->gettext(($latest ? 'youhave' : 'youhavepreviously') . strtolower($status)));
 
           if ($existing && ($existing['sequence'] > $event['sequence'] || (!$event['sequence'] && $existing['changed'] && $existing['changed'] > $event['changed']))) {
             $action = '';  // nothing to do here, outdated invitation
           }
           else if (!$existing && !$rsvp) {
             $action = 'import';
+          }
+          else if ($latest) {
+            $action = 'update';
           }
         }
       }
@@ -419,7 +422,15 @@ class libcalendaring_itip
                 ));
             }
 
-            // 2. Simply import the event without replying
+            // 2. update the local copy with minor changes
+            $update_button = html::tag('input', array(
+                'type' => 'button',
+                'class' => 'button',
+                'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . JQ($mime_id) . "', '$task')",
+                'value' => $this->gettext('updatemycopy'),
+            ));
+
+            // 3. Simply import the event without replying
             $import_button = html::tag('input', array(
                 'type' => 'button',
                 'class' => 'button',
@@ -441,6 +452,7 @@ class libcalendaring_itip
             $rsvp_buttons .= html::div('itip-reply-controls', $this->itip_rsvp_options_ui($dom_id));
 
             $buttons[] = html::div(array('id' => 'rsvp-'.$dom_id, 'class' => 'rsvp-buttons', 'style' => 'display:none'), $rsvp_buttons);
+            $buttons[] = html::div(array('id' => 'update-'.$dom_id, 'style' => 'display:none'), $update_button);
         }
         // for CANCEL messages, we can:
         else if ($method == 'CANCEL') {

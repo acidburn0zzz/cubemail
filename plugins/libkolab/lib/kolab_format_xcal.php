@@ -29,6 +29,7 @@ abstract class kolab_format_xcal extends kolab_format
     public $CTYPE = 'application/calendar+xml';
 
     public static $fulltext_cols = array('title', 'description', 'location', 'attendees:name', 'attendees:email', 'categories');
+    public static $scheduling_properties = array('start', 'end', 'location');
 
     protected $sensitivity_map = array(
         'public'       => kolabformat::ClassPublic,
@@ -302,10 +303,27 @@ abstract class kolab_format_xcal extends kolab_format
         // set common object properties
         parent::set($object);
 
-        // increment sequence on updates
-        if (empty($object['sequence']))
-            $object['sequence'] = !$is_new ? $this->obj->sequence()+1 : 0;
-        $this->obj->setSequence($object['sequence']);
+        // set sequence value
+        if (!isset($object['sequence'])) {
+            if ($is_new) {
+                $object['sequence'] = 0;
+            }
+            else {
+                $object['sequence'] = $this->obj->sequence();
+                $old = $this->data['uid'] ? $this->data : $this->to_array();
+
+                // increment sequence when updating properties relevant for scheduling.
+                // RFC 5545: "It is incremented [...] each time the Organizer makes a significant revision to the calendar component."
+                // TODO: make the list of properties considered 'significant' for scheduling configurable
+                foreach (self::$scheduling_properties as $prop) {
+                    if ($object[$prop] != $old[$prop]) {
+                        $object['sequence']++;
+                        break;
+                    }
+                }
+            }
+        }
+        $this->obj->setSequence(intval($object['sequence']));
 
         $this->obj->setSummary($object['title']);
         $this->obj->setLocation($object['location']);

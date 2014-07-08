@@ -99,6 +99,13 @@ $labels['youhavetentative'] = 'You have tentatively accepted this invitation';
 $labels['youhavedeclined'] = 'You have declined this invitation';
 $labels['youhavedelegated'] = 'You have delegated this invitation';
 $labels['youhaveneeds-action'] = 'You have copied this invitation into your calendar';
+
+$labels['youhavepreviouslyaccepted'] = 'You have previously accepted this invitation';
+$labels['youhavepreviouslytentative'] = 'You have previously accepted this invitation tentatively';
+$labels['youhavepreviouslydeclined'] = 'You have previously declined this invitation';
+$labels['youhavepreviouslydelegated'] = 'You have previously delegated this invitation';
+$labels['youhavepreviouslyneeds-action'] = 'You have copied this invitation into your calendar';
+
 $labels['attendeeaccepted'] = 'Participant has accepted';
 $labels['attendeetentative'] = 'Participant has tentatively accepted';
 $labels['attendeedeclined'] = 'Participant has declined';

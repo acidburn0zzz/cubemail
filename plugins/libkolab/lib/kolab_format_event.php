@@ -26,6 +26,8 @@ class kolab_format_event extends kolab_format_xcal
 {
     public $CTYPEv2 = 'application/x-vnd.kolab.event';
 
+    public static $scheduling_properties = array('start', 'end', 'allday', 'location');
+
     protected $objclass = 'Event';
     protected $read_func = 'readEvent';
     protected $write_func = 'writeEvent';
