@@ -193,14 +193,10 @@ class kolab_format_event extends kolab_format_xcal
      */
     public function get_tags()
     {
-        $tags = array();
+        $tags = parent::get_tags();
 
         foreach ((array)$this->data['categories'] as $cat) {
             $tags[] = rcube_utils::normalize_string($cat);
-        }
-
-        if (!empty($this->data['valarms'])) {
-            $tags[] = 'x-has-alarms';
         }
 
         return $tags;

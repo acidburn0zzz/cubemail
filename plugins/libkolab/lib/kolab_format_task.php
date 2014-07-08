@@ -111,16 +111,13 @@ class kolab_format_task extends kolab_format_xcal
      */
     public function get_tags()
     {
-        $tags = array();
+        $tags = parent::get_tags();
 
         if ($this->data['status'] == 'COMPLETED' || ($this->data['complete'] == 100 && empty($this->data['status'])))
             $tags[] = 'x-complete';
 
         if ($this->data['priority'] == 1)
             $tags[] = 'x-flagged';
-
-        if (!empty($this->data['valarms']))
-            $tags[] = 'x-has-alarms';
 
         if ($this->data['parent_id'])
             $tags[] = 'x-parent:' . $this->data['parent_id'];

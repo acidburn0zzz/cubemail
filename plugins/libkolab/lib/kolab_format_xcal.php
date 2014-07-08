@@ -560,4 +560,27 @@ abstract class kolab_format_xcal extends kolab_format
         return array_unique(rcube_utils::normalize_string($data, true));
     }
 
+    /**
+     * Callback for kolab_storage_cache to get object specific tags to cache
+     *
+     * @return array List of tags to save in cache
+     */
+    public function get_tags()
+    {
+        $tags = array();
+
+        if (!empty($this->data['valarms'])) {
+            $tags[] = 'x-has-alarms';
+        }
+
+        // create tags reflecting participant status
+        if (is_array($this->data['attendees'])) {
+            foreach ($this->data['attendees'] as $attendee) {
+                if (!empty($attendee['email']) && !empty($attendee['status']))
+                    $tags[] = 'x-partstat:' . $attendee['email'] . ':' . strtolower($attendee['status']);
+            }
+        }
+
+        return $tags;
+    }
 }
