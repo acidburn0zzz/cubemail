@@ -258,8 +258,8 @@ class libcalendaring_itip
 
       // check if the given itip object matches the last state
       if ($existing) {
-        $latest = ($event['sequence'] && $existing['sequence'] == $event['sequence']) ||
-                  (!$event['sequence'] && $existing['changed'] && $existing['changed'] >= $event['changed']);
+        $latest = (isset($event['sequence']) && $existing['sequence'] == $event['sequence']) ||
+                  (!isset($event['sequence']) && $existing['changed'] && $existing['changed'] >= $event['changed']);
       }
 
       // determine action for REQUEST
@@ -320,7 +320,7 @@ class libcalendaring_itip
                     )
                 )));
               }
-              $action = $attendee['status'] == $status ? '' : 'update';
+              $action = $attendee['status'] == $status || !$latest ? '' : 'update';
               $listed = true;
               break;
             }

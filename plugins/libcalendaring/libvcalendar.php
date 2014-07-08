@@ -919,7 +919,7 @@ class libvcalendar implements Iterator
         if ($event['description'])
             $ve->add('DESCRIPTION', strtr($event['description'], array("\r\n" => "\n", "\r" => "\n"))); // normalize line endings
 
-        if ($event['sequence'])
+        if (isset($event['sequence']))
             $ve->add('SEQUENCE', $event['sequence']);
 
         if ($event['recurrence'] && !$recurrence_id) {
