@@ -79,7 +79,7 @@ $labels['itipneeds-action'] = 'Postpone';
 $labels['itipcomment'] = 'Your response';
 $labels['itipeditresponse'] = 'Enter a response text';
 $labels['itipsendercomment'] = 'Sender\'s comment: ';
-$labels['itipsuppressreply'] = 'Don\'t send reply message';
+$labels['itipsuppressreply'] = 'Do not send a response';
 
 $labels['itipobjectnotfound'] = 'The object referred by this message was not found in your account.';
 $labels['itipsubjectaccepted'] = '"$title" has been accepted by $name';
