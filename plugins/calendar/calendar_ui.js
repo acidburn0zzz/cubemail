@@ -1928,8 +1928,10 @@ function rcube_calendar_ui(settings)
         // update attendee status
         for (var data, i=0; i < me.selected_event.attendees.length; i++) {
           data = me.selected_event.attendees[i];
-          if (settings.identity.emails.indexOf(';'+String(data.email).toLowerCase()) >= 0)
+          if (settings.identity.emails.indexOf(';'+String(data.email).toLowerCase()) >= 0) {
             data.status = response.toUpperCase();
+            delete data.rsvp;  // unset RSVP flag
+          }
         }
         event_show_dialog(me.selected_event);
 

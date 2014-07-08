@@ -277,6 +277,7 @@ pre {
 	cursor: pointer;
 }
 
+#calendars .treelist div > a.quickview:focus,
 #calendars .treelist div > a.subscribed:focus {
 	border-radius: 3px;
 	outline: 2px solid rgba(30,150,192, 0.5);

@@ -205,6 +205,7 @@ class libcalendaring_itip
                 }
                 else if (strcasecmp($attedee['email'], $from) == 0 || strcasecmp($attendee['email'], $from_utf) == 0) {
                     $replying_attendee = $attendee;
+                    unset($replying_attendee['rsvp']);  // unset the RSVP attribute
                 }
             }
             if ($replying_attendee) {

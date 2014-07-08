@@ -896,14 +896,18 @@ class calendar extends rcube_plugin
           $noreply = intval(get_input_value('noreply', RCUBE_INPUT_GPC)) || $status == 'needs-action';
           $reload = $event['calendar'] != $ev['calendar'] ? 2 : 1;
           $organizer = null;
+          $emails = $this->get_user_emails();
           foreach ($event['attendees'] as $i => $attendee) {
             if ($attendee['role'] == 'ORGANIZER') {
               $organizer = $attendee;
-              break;
+            }
+            else if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+              $reply_sender = $attendee['email'];
             }
           }
           if (!$noreply) {
             $itip = $this->load_itip();
+            $itip->set_sender_email($reply_sender);
             $event['comment'] = $reply_comment;
             if ($organizer && $itip->send_itip_message($event, 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
               $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $organizer['name'] ? $organizer['name'] : $organizer['email']))), 'confirmation');
@@ -2318,8 +2322,10 @@ class calendar extends rcube_plugin
           }
           else if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
             $event['attendees'][$i]['status'] = strtoupper($status);
+            if ($event['attendees'][$i]['status'] != 'NEEDS-ACTION')
+              unset($event['attendees'][$i]['rsvp']);  // remove RSVP attribute
             $metadata['attendee'] = $attendee['email'];
-            $metadata['rsvp'] = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
+            $metadata['rsvp'] = $attendee['role'] != 'NON-PARTICIPANT';
             $reply_sender = $attendee['email'];
           }
         }
@@ -2332,7 +2338,6 @@ class calendar extends rcube_plugin
             'email' => $sender_identity['email'],
             'role' => 'OPT-PARTICIPANT',
             'status' => strtoupper($status),
-            'rsvp' => true,
           );
           $metadata['attendee'] = $sender_identity['email'];
         }
