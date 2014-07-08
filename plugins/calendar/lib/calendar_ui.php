@@ -860,7 +860,9 @@ class calendar_ui
         'value' => $this->cal->itip->gettext('itip' . $method),
       ));
     }
-    
+
+    $buttons .= html::div('itip-reply-controls', $this->cal->itip->itip_rsvp_options_ui($attrib['id']));
+
     return html::div($attrib,
       html::div('label', $this->cal->itip->gettext('acceptinvitation')) .
       html::div('rsvp-buttons', $buttons));

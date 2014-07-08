@@ -437,19 +437,8 @@ class libcalendaring_itip
                 }
             }
 
-            // add checkbox to suppress itip reply message
-            $rsvp_additions = html::label(array('class' => 'noreply-toggle'),
-                html::tag('input', array('type' => 'checkbox', 'id' => 'noreply-'.$dom_id, 'value' => 1))
-                . ' ' . $this->gettext('itipsuppressreply')
-            );
-
-            // add input field for reply comment
-            $rsvp_additions .= html::a(array('href' => '#toggle', 'class' => 'reply-comment-toggle'), $this->gettext('itipeditresponse'));
-            $rsvp_additions .= html::div('itip-reply-comment',
-                html::tag('textarea', array('id' => 'reply-comment-'.$dom_id, 'cols' => 40, 'rows' => 6, 'style' => 'display:none', 'placeholder' => $this->gettext('itipcomment')), '')
-            );
-
-            $rsvp_buttons .= html::div('itip-reply-controls', $rsvp_additions);
+            // add itip reply message controls
+            $rsvp_buttons .= html::div('itip-reply-controls', $this->itip_rsvp_options_ui($dom_id));
 
             $buttons[] = html::div(array('id' => 'rsvp-'.$dom_id, 'class' => 'rsvp-buttons', 'style' => 'display:none'), $rsvp_buttons);
         }
@@ -501,6 +490,26 @@ class libcalendaring_itip
         // show event details with buttons
         return $this->itip_object_details_table($event, $title) .
             html::div(array('class' => 'itip-buttons', 'id' => 'itip-buttons-' . asciiwords($metadata['uid'], true)), join('', $buttons));
+    }
+
+    /**
+     * Render UI elements to control iTip reply message sending
+     */
+    public function itip_rsvp_options_ui($dom_id)
+    {
+        // add checkbox to suppress itip reply message
+        $rsvp_additions = html::label(array('class' => 'noreply-toggle'),
+            html::tag('input', array('type' => 'checkbox', 'id' => 'noreply-'.$dom_id, 'value' => 1))
+            . ' ' . $this->gettext('itipsuppressreply')
+        );
+
+        // add input field for reply comment
+        $rsvp_additions .= html::a(array('href' => '#toggle', 'class' => 'reply-comment-toggle'), $this->gettext('itipeditresponse'));
+        $rsvp_additions .= html::div('itip-reply-comment',
+            html::tag('textarea', array('id' => 'reply-comment-'.$dom_id, 'cols' => 40, 'rows' => 6, 'style' => 'display:none', 'placeholder' => $this->gettext('itipcomment')), '')
+        );
+
+        return $rsvp_additions;
     }
 
     /**

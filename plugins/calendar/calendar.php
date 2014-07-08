@@ -887,11 +887,13 @@ class calendar extends rcube_plugin
 
       case "rsvp":
         $status = get_input_value('status', RCUBE_INPUT_GPC);
+        $reply_comment = $event['comment'];
         $ev = $this->driver->get_event($event);
         $ev['attendees'] = $event['attendees'];
         $event = $ev;
 
         if ($success = $this->driver->edit_rsvp($event, $status)) {
+          $noreply = intval(get_input_value('noreply', RCUBE_INPUT_GPC)) || $status == 'needs-action';
           $reload = $event['calendar'] != $ev['calendar'] ? 2 : 1;
           $organizer = null;
           foreach ($event['attendees'] as $i => $attendee) {
@@ -900,11 +902,14 @@ class calendar extends rcube_plugin
               break;
             }
           }
-          $itip = $this->load_itip();
-          if ($organizer && $itip->send_itip_message($event, 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
-            $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $organizer['name'] ? $organizer['name'] : $organizer['email']))), 'confirmation');
-          else
-            $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+          if (!$noreply) {
+            $itip = $this->load_itip();
+            $event['comment'] = $reply_comment;
+            if ($organizer && $itip->send_itip_message($event, 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
+              $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $organizer['name'] ? $organizer['name'] : $organizer['email']))), 'confirmation');
+            else
+              $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+          }
         }
         break;
 
@@ -2282,7 +2287,7 @@ class calendar extends rcube_plugin
     $mime_id = get_input_value('_part', RCUBE_INPUT_POST);
     $status  = get_input_value('_status', RCUBE_INPUT_POST);
     $delete  = intval(get_input_value('_del', RCUBE_INPUT_POST));
-    $noreply = intval(get_input_value('_noreply', RCUBE_INPUT_POST));
+    $noreply = intval(get_input_value('_noreply', RCUBE_INPUT_POST)) || $status == 'needs-action';
 
     $error_msg = $this->gettext('errorimportingevent');
     $success = false;

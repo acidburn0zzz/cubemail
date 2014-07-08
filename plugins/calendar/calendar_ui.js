@@ -505,6 +505,9 @@ function rcube_calendar_ui(settings)
         
         $('#event-rsvp')[(rsvp && !is_organizer(event) && event.status != 'CANCELLED' ? 'show' : 'hide')]();
         $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+rsvp+']').prop('disabled', true);
+
+        $('#event-rsvp a.reply-comment-toggle').show();
+        $('#event-rsvp .itip-reply-comment textarea').hide().val('');
       }
 
       var buttons = {};
@@ -1931,13 +1934,15 @@ function rcube_calendar_ui(settings)
         event_show_dialog(me.selected_event);
 
         // submit status change to server
-        var submit_data = $.extend({}, me.selected_event, { source:null });
+        var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val() }),
+          noreply = $('#noreply-event-rsvp').prop('checked') ? 1 : 0;
+
         if (settings.invitation_calendars) {
-          update_event('rsvp', submit_data, { status:response });
+          update_event('rsvp', submit_data, { status:response, noreply:noreply });
         }
         else {
           me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
-          rcmail.http_post('event', { action:'rsvp', e:submit_data, status:response });
+          rcmail.http_post('event', { action:'rsvp', e:submit_data, status:response, noreply:noreply });
         }
       }
     };
