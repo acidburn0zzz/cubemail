@@ -919,6 +919,7 @@ td.topalign {
 	border: 0;
 	padding: 2px;
 	background: white;
+	width: 100%;
 }
 
 .availability img.availabilityicon {
