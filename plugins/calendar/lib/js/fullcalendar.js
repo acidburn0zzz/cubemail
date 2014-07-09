@@ -5128,7 +5128,7 @@ function TableEventRenderer() {
 				if (event.source && event.source.className) {
 					skinClasses = skinClasses.concat(event.source.className);
 				}
-				rowClasses = ['fc-event', 'fc-event-row', 'fc-'+dayIDs[event.start.getDay()]];
+				rowClasses = ['fc-event', 'fc-event-row', 'fc-'+dayIDs[event.start.getDay()]].concat(event.className);
 				if (seg.daydiff == 0) {
 					rowClasses.push('fc-today');
 				}

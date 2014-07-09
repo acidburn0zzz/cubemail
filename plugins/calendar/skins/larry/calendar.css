@@ -1576,10 +1576,6 @@ a.dropdown-link:after {
 	top: -5000px;
 }
 
-.fc-invitation-declined {
-
-}
-
 .fc-event-vert.fc-invitation-needs-action,
 .fc-event-hori.fc-invitation-needs-action {
 	border: 1px dashed #5757c7 !important;
@@ -1611,6 +1607,24 @@ a.dropdown-link:after {
 
 .fc-event-vert.fc-invitation-declined .fc-event-bg {
 	background: url(data:image/gif;base64,R0lGODlhCAAIAPABAMwAAP///yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+}
+
+.fc-view-table tr.fc-invitation-tentative td,
+.fc-view-table tr.fc-invitation-declined td,
+.fc-view-table tr.fc-invitation-needs-action td {
+	color: #888;
+}
+
+.fc-view-table tr.fc-invitation-tentative td.fc-event-title,
+.fc-view-table tr.fc-invitation-declined td.fc-event-title,
+.fc-view-table tr.fc-invitation-needs-action td.fc-event-title {
+	font-weight: normal;
+}
+
+#quickview-calendar .fc-view-table tr.fc-invitation-tentative td,
+#quickview-calendar .fc-view-table tr.fc-invitation-declined td,
+#quickview-calendar .fc-view-table tr.fc-invitation-needs-action td {
+	color: #333;
 }
 
 .calendarmain .fc-event:focus {
