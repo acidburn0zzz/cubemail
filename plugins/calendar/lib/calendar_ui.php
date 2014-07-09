@@ -714,11 +714,11 @@ class calendar_ui
         'rows' => 4, 'cols' => 55, 'title' => $this->cal->gettext('itipcommenttitle')));
 
     return html::div($attrib,
+      html::p('attendees-invitebox', html::label(null, $this->cal->gettext('sendinvitations') . $checkbox->show(1))) .
       html::div(null, $input->show() . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-add', 'value' => $this->cal->gettext('addattendee'))) . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-schedule', 'value' => $this->cal->gettext('scheduletime').'...'))) .
-      html::p('attendees-invitebox', html::label(null, $checkbox->show(1) . $this->cal->gettext('sendinvitations'))) .
-      html::p('attendees-commentbox', html::label(null, $this->cal->gettext('comment') . $textarea->show()))
+      html::p('attendees-commentbox', html::label(null, $this->cal->gettext('itipcomment') . $textarea->show()))
     );
   }
 

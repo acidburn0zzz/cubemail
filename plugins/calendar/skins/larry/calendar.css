@@ -845,9 +845,8 @@ td.topalign {
 
 .edit-attendees-table th.options,
 .edit-attendees-table td.options {
-	width: 3em;
-	text-align: right;
-	padding-right: 4px;
+	width: 40px;
+	padding: 2px 4px;
 }
 
 .edit-attendees-table th.name,
@@ -858,8 +857,12 @@ td.topalign {
 	text-overflow: ellipsis;
 }
 
+.edit-attendees-table td.name select {
+	width: 100%;
+}
+
 .edit-attendees-table a.deletelink {
-	display: block;
+	display: inline-block;
 	width: 17px;
 	height: 17px;
 	padding: 0;
@@ -870,14 +873,26 @@ td.topalign {
 #edit-attendees-form,
 #edit-resources-form {
 	position: relative;
-	margin-top: 1em;
+	margin-top: 3px;
 }
 
-#edit-attendees-form #edit-attendee-schedule,
+#edit-attendees-form .attendees-invitebox {
+	text-align: right;
+	margin: 0;
+}
+
+#edit-attendees-form .attendees-invitebox label {
+	padding-right: 3px;
+}
+
 #edit-resources-form #edit-resource-find {
 	position: absolute;
 	top: 0;
 	right: 0;
+}
+
+#edit-attendees-form #edit-attendee-schedule {
+	margin-left: 20px;
 }
 
 .edit-attendees-table select.edit-attendee-role {
@@ -1124,10 +1139,8 @@ td.topalign {
 	text-align: center;
 }
 
-#eventedit .attendees-commentbox textarea {
-	width: auto;
-	margin-left: 10px;
-	vertical-align: middle;
+#eventedit .attendees-commentbox label {
+	display: block;
 }
 
 a.dropdown-link {

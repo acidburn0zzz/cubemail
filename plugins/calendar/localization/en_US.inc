@@ -170,7 +170,8 @@ $labels['itipmailbodycancel'] = "\$sender has rejected your participation in the
 
 $labels['itipdeclineevent'] = 'Do you want to decline your invitation to this event?';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined event from your calendar?';
-$labels['itipcommenttitle'] = 'This comment will be attached to the invitation/notification message send to participants';
+$labels['itipcomment'] = 'Invitation/notification comment';
+$labels['itipcommenttitle'] = 'This comment will be attached to the invitation/notification message sent to participants';
 
 $labels['notanattendee'] = 'You\'re not listed as an attendee of this event';
 $labels['eventcancelled'] = 'The event has been cancelled';

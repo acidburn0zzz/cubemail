@@ -1644,6 +1644,10 @@ class calendar extends rcube_plugin
       // skip myself for obvious reasons
       if (!$attendee['email'] || in_array(strtolower($attendee['email']), $emails))
         continue;
+
+      // skip if notification is disabled for this attendee
+      if ($attendee['noreply'])
+        continue;
       
       // which template to use for mail text
       $is_new = !in_array($attendee['email'], $old_attendees);
