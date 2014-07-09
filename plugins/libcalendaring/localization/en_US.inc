@@ -75,6 +75,7 @@ $labels['itipreply'] = 'Reply to';
 $labels['itipaccepted'] = 'Accept';
 $labels['itiptentative'] = 'Maybe';
 $labels['itipdeclined'] = 'Decline';
+$labels['itipdelegated'] = 'Delegate';
 $labels['itipneeds-action'] = 'Postpone';
 $labels['itipcomment'] = 'Your response';
 $labels['itipeditresponse'] = 'Enter a response text';
