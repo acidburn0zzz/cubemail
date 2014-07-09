@@ -37,6 +37,20 @@ class calendar_itip extends libcalendaring_itip
   }
 
   /**
+   * Handler for calendar/itip-status requests
+   */
+  public function get_itip_status($event, $existing = null)
+  {
+    $status = parent::get_itip_status($event, $existing);
+
+    // don't ask for deleting events when declining
+    if ($this->rc->config->get('kolab_invitation_calendars'))
+      $status['saved'] = false;
+
+    return $status;
+  }
+
+  /**
    * Find invitation record by token
    *
    * @param string Invitation token
