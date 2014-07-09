@@ -63,6 +63,7 @@ $labels['free'] = 'Free';
 $labels['busy'] = 'Busy';
 $labels['outofoffice'] = 'Out of Office';
 $labels['tentative'] = 'Tentative';
+$labels['mystatus'] = 'My status';
 $labels['status'] = 'Status';
 $labels['confirmed'] = 'Confirmed';
 $labels['cancelled'] = 'Cancelled';
@@ -97,6 +98,7 @@ $labels['nrcalendarsfound'] = '$nr calendars found';
 $labels['quickview'] = 'View only this calendar';
 $labels['invitationspending'] = 'Pending invitations';
 $labels['invitationsdeclined'] = 'Declined invitations';
+$labels['changepartstat'] = 'Change participant status';
 
 // agenda view
 $labels['listrange'] = 'Range to display:';

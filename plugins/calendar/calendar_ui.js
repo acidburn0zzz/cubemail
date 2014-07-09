@@ -451,7 +451,7 @@ function rcube_calendar_ui(settings)
           return (j - k);
         });
 
-        var data, dispname, tooltip, organizer = false, rsvp = false, line,  morelink, html = '',overflow = '';
+        var data, dispname, tooltip, organizer = false, rsvp = false, mystatus = null, line,  morelink, html = '',overflow = '';
         for (var j=0; j < event.attendees.length; j++) {
           data = event.attendees[j];
           dispname = Q(data.name || data.email);
@@ -461,8 +461,11 @@ function rcube_calendar_ui(settings)
             dispname = '<a href="mailto:' + data.email + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
             if (data.role == 'ORGANIZER')
               organizer = true;
-            else if ((data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp) && settings.identity.emails.indexOf(';'+data.email) >= 0)
-              rsvp = data.status.toLowerCase();
+            else if (settings.identity.emails.indexOf(';'+data.email) >= 0) {
+              mystatus = data.status.toLowerCase();
+              if (data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp)
+                rsvp = mystatus;
+            }
           }
           
           if (data['delegated-to'])
@@ -502,9 +505,17 @@ function rcube_calendar_ui(settings)
             })
           }
         }
-        
+
+        if (mystatus && !rsvp) {
+          $('#event-partstat').show().children('.changersvp')
+            .removeClass('accepted tentative declined delegated needs-action')
+            .addClass(mystatus)
+            .children('.event-text')
+            .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
+        }
+
         $('#event-rsvp')[(rsvp && !is_organizer(event) && event.status != 'CANCELLED' ? 'show' : 'hide')]();
-        $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+rsvp+']').prop('disabled', true);
+        $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
 
         $('#event-rsvp a.reply-comment-toggle').show();
         $('#event-rsvp .itip-reply-comment textarea').hide().val('');
@@ -3416,9 +3427,17 @@ function rcube_calendar_ui(settings)
           $('<style type="text/css" id="workinghourscss"> td.offhours { opacity:0.3; filter:alpha(opacity=30) } </style>').appendTo('head');
       });
 
-      $('#event-rsvp input.button').click(function(){
+      $('#event-rsvp input.button').click(function(e) {
         event_rsvp($(this).attr('rel'))
       });
+
+      $('#eventshow .changersvp').click(function(e) {
+        var d = $('#eventshow'),
+          h = $('#event-rsvp').show().height();
+        h -= $(this).closest('.event-line').toggle().height();
+        me.dialog_resize(d.get(0), d.height() + h, d.outerWidth() - 50);
+        return false;
+      })
 
       $('#agenda-listrange').change(function(e){
         settings['agenda_range'] = parseInt($(this).val());

@@ -705,6 +705,26 @@ a.miniColors-trigger {
 	margin-bottom: 0.3em;
 }
 
+#eventshow div.event-line a.iconbutton {
+	margin-left: 0.5em;
+	line-height: 17px;
+}
+
+#event-partstat .changersvp {
+	cursor: pointer;
+	color: #333;
+	text-decoration: none;
+}
+
+#event-partstat .iconbutton {
+	visibility: hidden;
+}
+
+#event-partstat .changersvp:focus .iconbutton,
+#event-partstat:hover .iconbutton {
+	visibility: visible;
+}
+
 #eventedit {
 	position: relative;
 	top: -1.5em;
@@ -1832,6 +1852,7 @@ div.calendar-invitebox .rsvp-status.hint {
 	font-style: italic;
 }
 
+#event-partstat .changersvp,
 div.calendar-invitebox .rsvp-status.declined,
 div.calendar-invitebox .rsvp-status.tentative,
 div.calendar-invitebox .rsvp-status.accepted,
@@ -1841,18 +1862,22 @@ div.calendar-invitebox .rsvp-status.needs-action  {
 	background: url(images/attendee-status.png) 2px -20px no-repeat;
 }
 
+#event-partstat .changersvp.declined,
 div.calendar-invitebox .rsvp-status.declined {
 	background-position: 2px -40px;
 }
 
+#event-partstat .changersvp.tentative,
 div.calendar-invitebox .rsvp-status.tentative {
 	background-position: 2px -60px;
 }
 
+#event-partstat .changersvp.delegated,
 div.calendar-invitebox .rsvp-status.delegated {
 	background-position: 2px -180px;
 }
 
+#event-partstat .changersvp.needs-action,
 div.calendar-invitebox .rsvp-status.needs-action {
 	background-position: 2px 0;
 }

@@ -568,6 +568,41 @@ a.miniColors-trigger {
 	margin-bottom: 0.3em;
 }
 
+#event-rsvp .itip-reply-controls {
+	margin-top: 0.5em;
+}
+
+#eventshow .itip-reply-controls label {
+	font-size: 1em;
+	color: #333;
+}
+
+#event-partstat .changersvp {
+	cursor: pointer;
+	color: #333;
+	text-decoration: none;
+}
+
+#event-partstat:hover .changersvp {
+	text-decoration: underline;
+}
+
+#event-partstat .changersvp.accepted {
+	color: #589b1e;
+}
+
+#event-partstat .changersvp.tentative {
+	color: #f0bb1d;
+}
+
+#event-partstat .changersvp.declined {
+	color: #ea0000;
+}
+
+#event-partstat .changersvp.delegated {
+	color: #018be9;
+}
+
 #eventedit {
 	position: relative;
 	padding: 0.5em 0.1em;
@@ -1410,6 +1445,21 @@ span.spacer {
 	font-weight: normal !important;
 	font-size: 10px;
 	padding-right: 0.6em;
+}
+
+.fc-event-vert.fc-invitation-needs-action,
+.fc-event-hori.fc-invitation-needs-action {
+	border: 1px dashed #5757c7 !important;
+}
+
+.fc-event-vert.fc-invitation-tentative,
+.fc-event-hori.fc-invitation-tentative {
+	border: 1px dashed #eb8900 !important;
+}
+
+.fc-event-vert.fc-invitation-declined,
+.fc-event-hori.fc-invitation-declined {
+	border: 1px dashed #c00 !important;
 }
 
 .fc-grid .fc-event-time {
