@@ -4758,6 +4758,7 @@ function ListEventRenderer() {
 	
 	function renderEvents(events, modifiedEventId) {
 		events.sort(sortCmp);
+		clearEvents();
 		renderSegs(compileSegs(events), modifiedEventId);
 	}
 	
@@ -5095,6 +5096,7 @@ function TableEventRenderer() {
 	
 	function renderEvents(events, modifiedEventId) {
 		events.sort(sortCmp);
+		clearEvents();
 		renderSegs(compileSegs(events), modifiedEventId);
 		getListContainer().removeClass('fc-list-smart fc-list-day fc-list-month fc-list-week').addClass('fc-list-' + opt('listSections'));
 	}
