@@ -54,6 +54,7 @@ class calendar extends rcube_plugin
     'calendar_event_coloring'  => 0,
     'calendar_time_indicator'  => true,
     'calendar_allow_invite_shared' => false,
+    'calendar_itip_after_action'   => 0,
   );
 
   private $ical;
@@ -512,6 +513,46 @@ class calendar extends rcube_plugin
       );
     }
 
+    $p['blocks']['itip']['name'] = $this->gettext('itipoptions');
+
+    // Invitations handling
+    if (!isset($no_override['calendar_itip_after_action'])) {
+      if (!$p['current']) {
+        $p['blocks']['itip']['content'] = true;
+        return $p;
+      }
+
+      $field_id = 'rcmfd_after_action';
+      $select   = new html_select(array('name' => '_after_action', 'id' => $field_id,
+        'onchange' => "\$('#{$field_id}_select')[this.value == 4 ? 'show' : 'hide']()"));
+
+      $select->add($this->gettext('afternothing'), '');
+      $select->add($this->gettext('aftertrash'), 1);
+      $select->add($this->gettext('afterdelete'), 2);
+      $select->add($this->gettext('afterflagdeleted'), 3);
+      $select->add($this->gettext('aftermoveto'), 4);
+
+      $val = $this->rc->config->get('calendar_itip_after_action', $this->defaults['calendar_itip_after_action']);
+      if ($val !== null && $val !== '' && !is_int($val)) {
+        $folder = $val;
+        $val    = 4;
+      }
+
+      $folders = $this->rc->folder_selector(array(
+          'id'            => $field_id . '_select',
+          'name'          => '_after_action_folder',
+          'maxlength'     => 30,
+          'folder_filter' => 'mail',
+          'folder_rights' => 'w',
+          'style'         => $val !== 4 ? 'display:none' : '',
+      ));
+
+      $p['blocks']['itip']['options']['after_action'] = array(
+        'title'   => html::label($field_id, Q($this->gettext('afteraction'))),
+        'content' => $select->show($val) . $folders->show($folder),
+      );
+    }
+
     // category definitions
     if (!$this->driver->nocategories && !isset($no_override['calendar_categories'])) {
         $p['blocks']['categories']['name'] = $this->gettext('categories');
@@ -660,7 +701,12 @@ class calendar extends rcube_plugin
         'calendar_birthday_adressbooks' => (array)get_input_value('_birthday_adressbooks', RCUBE_INPUT_POST),
         'calendar_birthdays_alarm_type'   => get_input_value('_birthdays_alarm_type', RCUBE_INPUT_POST),
         'calendar_birthdays_alarm_offset' => $birthdays_alarm_value ?: null,
+        'calendar_itip_after_action'      => intval(get_input_value('_after_action', RCUBE_INPUT_POST)),
       );
+
+      if ($p['prefs']['calendar_itip_after_action'] == 4) {
+        $p['prefs']['calendar_itip_after_action'] = get_input_value('_after_action_folder', RCUBE_INPUT_POST, true);
+      }
 
       // categories
       if (!$this->driver->nocategories) {

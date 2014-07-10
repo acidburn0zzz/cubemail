@@ -143,6 +143,14 @@ $rcmail_config['kolab_invitation_calendars'] = true;
 // $rcmail_config['calendar_resources_driver'] = 'ldap';
 
 // LDAP directory configuration to find avilable resources for events
-// $rcmail_config['calendar_resources_directory'] = array(/* ldap_public-like address book configuration */)
+// $rcmail_config['calendar_resources_directory'] = array(/* ldap_public-like address book configuration */);
+
+// Action taken after iTip request is handled. Possible values:
+// 0 - no action
+// 1 - move to Trash
+// 2 - delete the message
+// 3 - flag as deleted
+// folder_name - move the message to the specified folder
+$rcmail_config['calendar_itip_after_action'] = 0;
 
 ?>

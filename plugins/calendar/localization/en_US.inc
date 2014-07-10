@@ -17,6 +17,13 @@ $labels['coloringmode0'] = 'According to calendar';
 $labels['coloringmode1'] = 'According to category';
 $labels['coloringmode2'] = 'Calendar for outline, category for content';
 $labels['coloringmode3'] = 'Category for outline, calendar for content';
+$labels['afternothing'] = 'Do nothing';
+$labels['aftertrash'] = 'Move to Trash';
+$labels['afterdelete'] = 'Delete the message';
+$labels['afterflagdeleted'] = 'Flag as deleted';
+$labels['aftermoveto'] = 'Move to...';
+$labels['itipoptions'] = 'Invitations';
+$labels['afteraction'] = 'After the request is handled';
 
 // calendar
 $labels['calendar'] = 'Calendar';
