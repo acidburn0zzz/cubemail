@@ -675,10 +675,20 @@ function rcube_calendar_ui(settings)
 
       var load_attendees_tab = function()
       {
+        var j, data, reply_selected = 0;
         if (event.attendees) {
-          for (var j=0; j < event.attendees.length; j++)
-            add_attendee(event.attendees[j], !allow_invitations);
+          for (j=0; j < event.attendees.length; j++) {
+            data = event.attendees[j];
+            add_attendee(data, !allow_invitations);
+            if (allow_invitations && data.role != 'ORGANIZER' && !data.noreply)
+              reply_selected++;
+          }
         }
+
+        // make sure comment box is visible if at least one attendee has reply enabled
+        // or global "send invitations" checkbox is checked
+        if (reply_selected || $('#edit-attendees-invite:checked').length)
+          $('p.attendees-commentbox').show();
 
         // select the correct organizer identity
         var identity_id = 0;
@@ -772,6 +782,7 @@ function rcube_calendar_ui(settings)
             if (v.role != 'ORGANIZER') {
               if ($('input.edit-attendee-reply[value="' + v.email + '"]').prop('checked')) {
                 need_invitation = true;
+                delete data.attendees[i]['noreply'];
               }
               else {
                 data.attendees[i].noreply = 1;
@@ -1570,7 +1581,8 @@ function rcube_calendar_ui(settings)
       var tooltip = data.status || '';
 
       // send invitation checkbox
-      var invbox = '<input type="checkbox" class="edit-attendee-reply" value="' + Q(data.email) +'" checked="checked" title="' + Q(rcmail.gettext('calendar.sendinvitations')) + '" />';
+      var invbox = '<input type="checkbox" class="edit-attendee-reply" value="' + Q(data.email) +'" title="' + Q(rcmail.gettext('calendar.sendinvitations')) + '" '
+        + (!data.noreply ? 'checked="checked" ' : '') + '/>';
 
       if (data['delegated-to'])
         tooltip = rcmail.gettext('delegatedto', 'calendar') + data['delegated-to'];
@@ -1581,7 +1593,8 @@ function rcube_calendar_ui(settings)
         '<td class="name">' + dispname + '</td>' +
         '<td class="availability"><img src="./program/resources/blank.gif" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
         '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
-        '<td class="options">' + (organizer || readonly ? '' : dellink + invbox) + '</td>';
+        (data.cutype != 'RESOURCE' ? '<td class="sendmail">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
+        '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
 
       var table = rcmail.env.calendar_resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
       var tr = $('<tr>')
@@ -1591,6 +1604,10 @@ function rcube_calendar_ui(settings)
 
       tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
       tr.find('a.mailtolink').click(event_attendee_click);
+      tr.find('input.edit-attendee-reply').click(function() {
+        var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
+        $('p.attendees-commentbox')[enabled ? 'show' : 'hide']();
+      });
 
       // select organizer identity
       if (data.identity_id)

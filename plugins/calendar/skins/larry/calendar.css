@@ -865,8 +865,20 @@ td.topalign {
 
 .edit-attendees-table th.options,
 .edit-attendees-table td.options {
-	width: 40px;
+	width: 16px;
 	padding: 2px 4px;
+}
+
+.edit-attendees-table th.sendmail,
+.edit-attendees-table td.sendmail {
+	width: 50px;
+	padding: 2px;
+}
+
+.edit-attendees-table th.sendmail {
+	background-image: url(../../../../skins/larry/images/buttons.png);
+	background-position: 20px 4px;
+	background-repeat: no-repeat;
 }
 
 .edit-attendees-table th.name,
@@ -893,7 +905,7 @@ td.topalign {
 #edit-attendees-form,
 #edit-resources-form {
 	position: relative;
-	margin-top: 3px;
+	margin-top: 15px;
 }
 
 #edit-attendees-form .attendees-invitebox {
@@ -912,7 +924,8 @@ td.topalign {
 }
 
 #edit-attendees-form #edit-attendee-schedule {
-	margin-left: 20px;
+	position: absolute;
+	right: 0;
 }
 
 .edit-attendees-table select.edit-attendee-role {

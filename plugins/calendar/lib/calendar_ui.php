@@ -693,13 +693,21 @@ class calendar_ui
    */
   function attendees_list($attrib = array())
   {
-    $table = new html_table(array('cols' => 5, 'border' => 0, 'cellpadding' => 0, 'class' => 'rectable'));
+    // add "noreply" checkbox to attendees table only
+    $invitations = strpos($attrib['id'], 'attend') !== false;
+
+    $invite = new html_checkbox(array('value' => 1, 'id' => 'edit-attendees-invite'));
+    $table  = new html_table(array('cols' => 5 + intval($invitations), 'border' => 0, 'cellpadding' => 0, 'class' => 'rectable'));
+
     $table->add_header('role', $this->cal->gettext('role'));
     $table->add_header('name', $this->cal->gettext($attrib['coltitle'] ?: 'attendee'));
     $table->add_header('availability', $this->cal->gettext('availability'));
     $table->add_header('confirmstate', $this->cal->gettext('confirmstate'));
+    if ($invitations) {
+      $table->add_header(array('class' => 'sendmail', 'title' => $this->cal->gettext('sendinvitations')), $invite->show(1));
+    }
     $table->add_header('options', '');
-    
+
     return $table->show($attrib);
   }
 
@@ -709,12 +717,10 @@ class calendar_ui
   function attendees_form($attrib = array())
   {
     $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => 30));
-    $checkbox = new html_checkbox(array('name' => 'invite', 'id' => 'edit-attendees-invite', 'value' => 1));
     $textarea = new html_textarea(array('name' => 'comment', 'id' => 'edit-attendees-comment',
         'rows' => 4, 'cols' => 55, 'title' => $this->cal->gettext('itipcommenttitle')));
 
     return html::div($attrib,
-      html::p('attendees-invitebox', html::label(null, $this->cal->gettext('sendinvitations') . $checkbox->show(1))) .
       html::div(null, $input->show() . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-add', 'value' => $this->cal->gettext('addattendee'))) . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-schedule', 'value' => $this->cal->gettext('scheduletime').'...'))) .
