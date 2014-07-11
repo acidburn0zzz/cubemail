@@ -854,6 +854,33 @@ rcube_libcalendaring.update_itip_object_status = function(p)
   $('#'+p.action+'-'+p.id).show().find('input.button').last().after(p.select);
 };
 
+/**
+ * After-action on iTip request message. Action types:
+ *     0 - no action
+ *     1 - move to Trash
+ *     2 - delete the message
+ *     3 - flag as deleted
+ *     folder_name - move the message to the specified folder
+ */
+rcube_libcalendaring.itip_after_action = function(action)
+{
+  if (!action) {
+    return;
+  }
+
+  var rc = rcmail.is_framed() ? parent.rcmail : rcmail;
+
+  if (action === 2) {
+    rc.permanently_remove_messages();
+  }
+  else if (action === 3) {
+    rc.mark_message('delete');
+  }
+  else {
+    rc.move_messages(action === 1 ? rc.env.trash_mailbox : action);
+  }
+};
+
 
 // extend jQuery
 (function($){
@@ -874,8 +901,9 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     rcmail.addEventListener('plugin.display_alarms', function(alarms){ libcal.display_alarms(alarms); });
   }
 
-  rcmail.addEventListener('plugin.update_itip_object_status', rcube_libcalendaring.update_itip_object_status);
-  rcmail.addEventListener('plugin.fetch_itip_object_status', rcube_libcalendaring.fetch_itip_object_status);
+  rcmail.addEventListener('plugin.update_itip_object_status', rcube_libcalendaring.update_itip_object_status)
+    .addEventListener('plugin.fetch_itip_object_status', rcube_libcalendaring.fetch_itip_object_status)
+    .addEventListener('plugin.itip_after_action', rcube_libcalendaring.itip_after_action);
 
   $('.rsvp-buttons').on('click', 'a.reply-comment-toggle', function(e){
     $(this).hide().parent().find('textarea').show().focus();
