@@ -221,7 +221,7 @@ class kolab_auth extends rcube_plugin
 
             if (!empty($role_plugins[$role_dn])) {
                 foreach ((array)$role_plugins[$role_dn] as $plugin) {
-                    $this->require_plugin($plugin);
+                    $this->api->load_plugin($plugin);
                 }
             }
         }
