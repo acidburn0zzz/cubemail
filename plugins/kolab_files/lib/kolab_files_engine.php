@@ -64,6 +64,7 @@ class kolab_files_engine
                         'class'      => 'button buttonPas saveas',
                         'classact'   => 'button saveas',
                         'label'      => 'kolab_files.save',
+                        'title'      => 'kolab_files.saveto',
                         ), 'toolbar');
                 }
                 else {
