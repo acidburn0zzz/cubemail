@@ -806,26 +806,46 @@ td.topalign {
 	border: 1px solid #ccc;
 }
 
+.edit-attendees-table th,
 .edit-attendees-table td {
 	padding: 3px;
 	border-bottom: 1px solid #ccc;
+	text-align: left;
 }
 
+.edit-attendees-table th.role,
 .edit-attendees-table td.role {
 	width: 8em;
 }
 
+.edit-attendees-table th.availability,
+.edit-attendees-table th.confirmstate,
 .edit-attendees-table td.availability,
 .edit-attendees-table td.confirmstate {
 	width: 4em;
 }
 
+.edit-attendees-table th.options,
 .edit-attendees-table td.options {
-	width: 3em;
+	width: 2em;
 	text-align: right;
 	padding-right: 4px;
 }
 
+.edit-attendees-table th.sendmail,
+.edit-attendees-table td.sendmail {
+	width: 24px;
+	padding: 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: hidden;
+}
+
+#eventedit .edit-attendees-table th.sendmail label {
+	display: none;
+}
+
+.edit-attendees-table th.name,
 .edit-attendees-table td.name {
 	width: auto;
 	white-space: nowrap;
@@ -833,6 +853,7 @@ td.topalign {
 	text-overflow: ellipsis;
 }
 
+.edit-attendees-table thead th,
 .edit-attendees-table thead td {
 	background: url(images/listheader.gif) top left repeat-x #CCC;
 }

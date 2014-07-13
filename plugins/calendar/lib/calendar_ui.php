@@ -704,7 +704,8 @@ class calendar_ui
     $table->add_header('availability', $this->cal->gettext('availability'));
     $table->add_header('confirmstate', $this->cal->gettext('confirmstate'));
     if ($invitations) {
-      $table->add_header(array('class' => 'sendmail', 'title' => $this->cal->gettext('sendinvitations')), $invite->show(1));
+      $table->add_header(array('class' => 'sendmail', 'title' => $this->cal->gettext('sendinvitations')),
+        $invite->show(1) . html::label('edit-attendees-invite', $this->cal->gettext('sendinvitations')));
     }
     $table->add_header('options', '');
 
