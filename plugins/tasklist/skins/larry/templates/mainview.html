@@ -201,14 +201,15 @@ $(document).ready(function(e){
 
 	// animation to unfold list search box
 	$('#tasklistsbox .boxtitle a.search').click(function(e){
-		var box = $('#tasklistsbox .listsearchbox'),
+		var title = $('#tasklistsbox .boxtitle'),
+			box = $('#tasklistsbox .listsearchbox'),
 			dir = box.is(':visible') ? -1 : 1;
 
 		box.slideToggle({
 			duration: 160,
 			progress: function(animation, progress) {
 				if (dir < 0) progress = 1 - progress;
-				$('#tasklistsbox .scroller').css('top', (34 + 34 * progress) + 'px');
+				$('#tasklistsbox .scroller').css('top', (title.outerHeight() + 34 * progress) + 'px');
 			},
 			complete: function() {
 				box.toggleClass('expanded');

@@ -166,14 +166,15 @@ $(document).ready(function(e){
 
     // animation to unfold list search box
     $('#notebooksbox .boxtitle a.search').click(function(e){
-        var box = $('#notebooksbox .listsearchbox'),
+        var title = $('#notebooksbox .boxtitle'),
+            box = $('#notebooksbox .listsearchbox'),
             dir = box.is(':visible') ? -1 : 1;
 
         box.slideToggle({
             duration: 160,
             progress: function(animation, progress) {
                 if (dir < 0) progress = 1 - progress;
-                $('#notebooksbox .scroller').css('top', (34 + 34 * progress) + 'px');
+                $('#notebooksbox .scroller').css('top', (title.outerHeight() + 34 * progress) + 'px');
             },
             complete: function() {
                 box.toggleClass('expanded');

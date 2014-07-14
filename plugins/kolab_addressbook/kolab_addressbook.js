@@ -107,14 +107,15 @@ if (window.rcmail) {
                 rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '</a>')
                 .appendTo('#directorylistbox h2.boxtitle')
                 .click(function(e){
-                    var box = $('#directorylistbox .listsearchbox'),
+                    var title = $('#directorylistbox .boxtitle'),
+                        box = $('#directorylistbox .listsearchbox'),
                         dir = box.is(':visible') ? -1 : 1;
 
                     box.slideToggle({
                         duration: 160,
                         progress: function(animation, progress) {
                             if (dir < 0) progress = 1 - progress;
-                            $('#directorylistbox .scroller').css('top', (34 + 34 * progress) + 'px');
+                            $('#directorylistbox .scroller').css('top', (title.outerHeight() + 34 * progress) + 'px');
                         },
                         complete: function() {
                             box.toggleClass('expanded');

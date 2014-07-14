@@ -262,14 +262,15 @@ $(document).ready(function(e){
 
 	// animation to unfold list search box
 	$('#calendars .boxtitle a.search').click(function(e){
-		var box = $('#calendars .listsearchbox'),
+		var title = $('#calendars .boxtitle'),
+			box = $('#calendars .listsearchbox'),
 			dir = box.is(':visible') ? -1 : 1;
 
 		box.slideToggle({
 			duration: 160,
 			progress: function(animation, progress) {
 				if (dir < 0) progress = 1 - progress;
-				$('#calendars .scroller').css('top', (34 + 34 * progress) + 'px');
+				$('#calendars .scroller').css('top', (title.outerHeight() + 34 * progress) + 'px');
 			},
 			complete: function() {
 				box.toggleClass('expanded');
