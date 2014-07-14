@@ -17,19 +17,19 @@
 }
 
 #directorylist li.addressbook.selected > div a {
-	background-position: 6px -790px;
+	background-position: 6px -791px;
 }
 
 #directorylist ul li.addressbook.selected > div a {
-	background-position: 32px -790px;
+	background-position: 32px -791px;
 }
 
 #directorylist ul ul li.addressbook.selected > div a {
-	background-position: 58px -790px;
+	background-position: 58px -791px;
 }
 
 #directorylist ul ul ul li.addressbook.selected > div a {
-	background-position: 84px -790px;
+	background-position: 84px -791px;
 }
 
 #directorylistbox ul.treelist li.virtual {
