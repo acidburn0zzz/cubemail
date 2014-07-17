@@ -633,8 +633,10 @@ function rcube_calendar_ui(settings)
       var notify = $('#edit-attendees-donotify').get(0);
       var invite = $('#edit-attendees-invite').get(0);
       var comment = $('#edit-attendees-comment');
-      notify.checked = has_attendees(event), invite.checked = true;
-      
+
+      notify.checked = has_attendees(event);
+      invite.checked = true;
+
       if (event.allDay) {
         starttime.val("12:00").hide();
         endtime.val("13:00").hide();
