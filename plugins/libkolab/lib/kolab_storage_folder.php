@@ -346,7 +346,30 @@ class kolab_storage_folder extends kolab_storage_folder_api
     {
         if ($msguid = ($mailbox ? $uid : $this->cache->uid2msguid($uid))) {
             $this->imap->set_folder($mailbox ? $mailbox : $this->name);
-            return $this->imap->get_message_part($msguid, $part, null, $print, $fp, $skip_charset_conv);
+
+            if (substr($part, 0, 2) == 'i:') {
+                // attachment data is stored in XML
+                if ($object = $this->cache->get($msguid)) {
+                    // load data from XML (attachment content is not stored in cache)
+                    if ($object['_formatobj'] && isset($object['_size'])) {
+                        $object['_attachments'] = array();
+                        $object['_formatobj']->get_attachments($object);
+                    }
+
+                    foreach ($object['_attachments'] as $k => $attach) {
+                        if ($attach['id'] == $part) {
+                            if ($print)   echo $attach['content'];
+                            else if ($fp) fwrite($fp, $attach['content']);
+                            else          return $attach['content'];
+                            return true;
+                        }
+                    }
+                }
+            }
+            else {
+                // return message part from IMAP directly
+                return $this->imap->get_message_part($msguid, $part, null, $print, $fp, $skip_charset_conv);
+            }
         }
 
         return null;

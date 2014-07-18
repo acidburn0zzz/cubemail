@@ -510,8 +510,10 @@ abstract class kolab_format
      *
      * @param array Hash array reference to append attachment data into
      */
-    protected function get_attachments(&$object)
+    public function get_attachments(&$object)
     {
+        $this->init();
+
         // handle attachments
         $vattach = $this->obj->attachments();
         for ($i=0; $i < $vattach->size(); $i++) {
@@ -520,8 +522,10 @@ abstract class kolab_format
             // skip cid: attachments which are mime message parts handled by kolab_storage_folder
             if (substr($attach->uri(), 0, 4) != 'cid:' && $attach->label()) {
                 $name    = $attach->label();
+                $key     = $name . (isset($object['_attachments'][$name]) ? '.'.$i : '');
                 $content = $attach->data();
-                $object['_attachments'][$name] = array(
+                $object['_attachments'][$key] = array(
+                    'id'       => 'i:'.$i,
                     'name'     => $name,
                     'mimetype' => $attach->mimetype(),
                     'size'     => strlen($content),
