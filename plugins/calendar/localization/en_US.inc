@@ -22,8 +22,8 @@ $labels['aftertrash'] = 'Move to Trash';
 $labels['afterdelete'] = 'Delete the message';
 $labels['afterflagdeleted'] = 'Flag as deleted';
 $labels['aftermoveto'] = 'Move to...';
-$labels['itipoptions'] = 'Invitations';
-$labels['afteraction'] = 'After the request is handled';
+$labels['itipoptions'] = 'Event Invitations';
+$labels['afteraction'] = 'After an invitation or update message is processed';
 
 // calendar
 $labels['calendar'] = 'Calendar';
