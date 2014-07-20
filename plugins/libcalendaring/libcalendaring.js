@@ -855,6 +855,19 @@ rcube_libcalendaring.update_itip_object_status = function(p)
 };
 
 /**
+ * Callback from server after an iTip message has been processed
+ */
+rcube_libcalendaring.itip_message_processed = function(metadata)
+{
+  if (metadata.after_action) {
+    setTimeout(function(){ rcube_libcalendaring.itip_after_action(metadata.after_action); }, 1200);
+  }
+  else {
+    rcube_libcalendaring.fetch_itip_object_status(metadata);
+  }
+};
+
+/**
  * After-action on iTip request message. Action types:
  *     0 - no action
  *     1 - move to Trash
@@ -903,7 +916,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
   rcmail.addEventListener('plugin.update_itip_object_status', rcube_libcalendaring.update_itip_object_status)
     .addEventListener('plugin.fetch_itip_object_status', rcube_libcalendaring.fetch_itip_object_status)
-    .addEventListener('plugin.itip_after_action', rcube_libcalendaring.itip_after_action);
+    .addEventListener('plugin.itip_message_processed', rcube_libcalendaring.itip_message_processed);
 
   $('.rsvp-buttons').on('click', 'a.reply-comment-toggle', function(e){
     $(this).hide().parent().find('textarea').show().focus();

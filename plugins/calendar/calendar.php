@@ -2497,7 +2497,8 @@ class calendar extends rcube_plugin
       $this->rc->output->command('display_message', $this->gettext(array('name' => $message, 'vars' => array('calendar' => $calendar['name']))), 'confirmation');
 
       $metadata['rsvp'] = intval($metadata['rsvp']);
-      $this->rc->output->command('plugin.fetch_itip_object_status', $metadata);
+      $metadata['after_action'] = $this->rc->config->get('calendar_itip_after_action', $this->defaults['calendar_itip_after_action']);
+      $this->rc->output->command('plugin.itip_message_processed', $metadata);
       $error_msg = null;
     }
     else if ($error_msg)
