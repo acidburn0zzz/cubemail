@@ -316,7 +316,13 @@ abstract class kolab_format_xcal extends kolab_format
                 // RFC 5545: "It is incremented [...] each time the Organizer makes a significant revision to the calendar component."
                 // TODO: make the list of properties considered 'significant' for scheduling configurable
                 foreach (self::$scheduling_properties as $prop) {
-                    if ($object[$prop] != $old[$prop]) {
+                    $a = $old[$prop];
+                    $b = $object[$prop];
+                    if ($object['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {
+                        $a = $a->format('Y-m-d');
+                        $b = $b->format('Y-m-d');
+                    }
+                    if ($a != $b) {
                         $object['sequence']++;
                         break;
                     }
