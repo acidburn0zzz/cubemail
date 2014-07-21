@@ -200,7 +200,7 @@ function kolab_folderlist(node, p)
         // send search request(s) to server
         if (search.query && search.execute) {
             // require a minimum length for the search string
-            if (rcmail.env.autocomplete_min_length && search.query.length < rcmail.env.autocomplete_min_length) {
+            if (rcmail.env.autocomplete_min_length && search.query.length < rcmail.env.autocomplete_min_length && search.query != '*') {
                 search_messagebox = rcmail.display_message(
                     rcmail.get_label('autocompletechars').replace('$min', rcmail.env.autocomplete_min_length));
                 return;

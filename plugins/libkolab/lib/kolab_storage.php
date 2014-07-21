@@ -874,12 +874,13 @@ class kolab_storage
         }
 
         $folders = array();
+        $query = str_replace('*', '', $query);
 
         // find unsubscribed IMAP folders of the given type
         foreach ((array)self::list_folders('', '*', $type, false, $folderdata) as $foldername) {
             // FIXME: only consider the last part of the folder path for searching?
             $realname = strtolower(rcube_charset::convert($foldername, 'UTF7-IMAP'));
-            if (strpos($realname, $query) !== false &&
+            if (($query == '' || strpos($realname, $query) !== false) &&
                 !self::folder_is_subscribed($foldername, true) &&
                 !in_array(self::$imap->folder_namespace($foldername), (array)$exclude_ns)
               ) {
@@ -1423,8 +1424,10 @@ class kolab_storage
      */
     public static function search_users($query, $mode = 1, $required = array(), $limit = 0, &$count = 0)
     {
+        $query = str_replace('*', '', $query);
+
         // requires a working LDAP setup
-        if (!self::ldap()) {
+        if (!self::ldap() || strlen($query) == 0) {
             return array();
         }
 
