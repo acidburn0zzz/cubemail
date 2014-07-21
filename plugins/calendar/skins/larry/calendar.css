@@ -349,7 +349,7 @@ pre {
 	margin-left: 48px;
 }
 
-#calendars .treelist li.selected {
+#calendars .treelist li.selected > div.calendar {
 	background-color: #c7e3ef;
 }
 
