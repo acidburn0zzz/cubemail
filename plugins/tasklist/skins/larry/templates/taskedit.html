@@ -1,7 +1,7 @@
 <div id="taskedit" class="uidialog uidialog-tabbed">
 	<form id="taskeditform" action="#" method="post" enctype="multipart/form-data">
 		<ul>
-			<li><a href="#taskedit-panel-main"><roundcube:label name="tasklist.tabsummary" /></a></li><li><a href="#taskedit-panel-recurrence"><roundcube:label name="tasklist.tabrecurrence" /></a></li><li id="taskedit-tab-attachments"><a href="#taskedit-panel-attachments"><roundcube:label name="tasklist.tabattachments" /></a></li>
+			<li><a href="#taskedit-panel-main"><roundcube:label name="tasklist.tabsummary" /></a></li><li><a href="#taskedit-panel-recurrence"><roundcube:label name="tasklist.tabrecurrence" /></a></li><li id="edit-tab-attendees"><a href="#taskedit-panel-attendees"><roundcube:label name="tasklist.tabassignments" /></a></li><li id="taskedit-tab-attachments"><a href="#taskedit-panel-attachments"><roundcube:label name="tasklist.tabattachments" /></a></li>
 		</ul>
 		<!-- basic info -->
 		<div id="taskedit-panel-main">
@@ -79,6 +79,13 @@
 				<roundcube:object name="plugin.recurrence_form" part="rdate" class="form-section" />
 			</div>
 		</div>
+		<!-- attendees list (assignments) -->
+		<div id="taskedit-panel-attendees">
+			<h3 id="aria-label-attendeestable" class="voice"><roundcube:label name="tasklist.arialabeleventassignments" /></h3>
+			<roundcube:object name="plugin.attendees_list" id="edit-attendees-table" class="records-table edit-attendees-table" coltitle="attendee" aria-labelledby="aria-label-attendeestable" />
+			<roundcube:object name="plugin.attendees_form" id="edit-attendees-form" />
+			<roundcube:include file="/templates/freebusylegend.html" />
+		</div>
 		<!-- attachments list (with upload form) -->
 		<div id="taskedit-panel-attachments">
 			<div id="taskedit-attachments">
@@ -91,4 +98,5 @@
 			<roundcube:object name="plugin.filedroparea" id="taskedit-tab-2" />
 		</div>
 	</form>
+	<roundcube:object name="plugin.edit_attendees_notify" id="edit-attendees-notify" class="taskedit-dialog-message" style="display:none" />
 </div>

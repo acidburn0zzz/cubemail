@@ -849,6 +849,84 @@ a.morelink:hover {
 	border-bottom: 2px solid #fafafa;
 }
 
+.edit-attendees-table {
+	width: 100%;
+	margin-top: 0.5em;
+}
+
+.edit-attendees-table th.role,
+.edit-attendees-table td.role {
+	width: 9em;
+}
+
+.edit-attendees-table th.availability,
+.edit-attendees-table td.availability,
+.edit-attendees-table th.confirmstate,
+.edit-attendees-table td.confirmstate {
+	width: 4em;
+}
+
+.edit-attendees-table th.options,
+.edit-attendees-table td.options {
+	width: 16px;
+	padding: 2px 4px;
+}
+
+.edit-attendees-table th.sendmail,
+.edit-attendees-table td.sendmail {
+	width: 44px;
+	padding: 2px;
+}
+
+.edit-attendees-table th.sendmail label {
+	display: inline-block;
+	position: relative;
+	top: 4px;
+	width: 24px;
+	height: 18px;
+	min-width: 24px;
+	padding: 0;
+	overflow: hidden;
+	text-indent: -5000px;
+	white-space: nowrap;
+	background: url(images/sendinvitation.png) 1px 0 no-repeat;
+}
+
+.edit-attendees-table th.name,
+.edit-attendees-table td.name {
+	width: auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.edit-attendees-table td.name select {
+	width: 100%;
+}
+
+.edit-attendees-table a.deletelink {
+	display: inline-block;
+	width: 17px;
+	height: 17px;
+	padding: 0;
+	overflow: hidden;
+	text-indent: 1000px;
+}
+
+#edit-attendees-form {
+	position: relative;
+	margin-top: 15px;
+}
+
+#edit-attendees-form .attendees-invitebox {
+	text-align: right;
+	margin: 0;
+}
+
+#edit-attendees-form .attendees-invitebox label {
+	padding-right: 3px;
+}
+
 #taskedit-attachments {
 	margin: 0.6em 0;
 }
@@ -954,4 +1032,3 @@ label.block {
 html.ie7 #taskedit-completeness-slider {
 	display: inline;
 }
-

@@ -58,6 +58,7 @@ $labels['taskactions'] = 'Task options...';
 
 $labels['tabsummary'] = 'Summary';
 $labels['tabrecurrence'] = 'Recurrence';
+$labels['tabassignments'] = 'Assignments';
 $labels['tabattachments'] = 'Attachments';
 $labels['tabsharing'] = 'Sharing';
 
@@ -96,3 +97,38 @@ $labels['arialabellistsearchform'] = 'Tasklists search form';
 $labels['arialabeltaskselector'] = 'List mode';
 $labels['arialabeltasklisting'] = 'Tasks listing';
 
+// attendees
+$labels['attendee'] = 'Participant';
+$labels['role'] = 'Role';
+$labels['availability'] = 'Avail.';
+$labels['confirmstate'] = 'Status';
+$labels['addattendee'] = 'Add participant';
+$labels['roleorganizer'] = 'Organizer';
+$labels['rolerequired'] = 'Required';
+$labels['roleoptional'] = 'Optional';
+$labels['rolechair'] = 'Chair';
+$labels['rolenonparticipant'] = 'Absent';
+$labels['sendinvitations'] = 'Send invitations';
+$labels['sendnotifications'] = 'Notify participants about modifications';
+$labels['sendcancellation'] = 'Notify participants about task cancellation';
+$labels['invitationsubject'] = 'You\'ve been invited to "$title"';
+$labels['invitationmailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nPlease find attached an iCalendar file with all the task details which you can import to your tasks application.";
+$labels['invitationattendlinks'] = "In case your email client doesn't support iTip requests you can use the following link to either accept or decline this invitation:\n\$url";
+$labels['eventupdatesubject'] = '"$title" has been updated';
+$labels['eventupdatesubjectempty'] = 'A task that concerns you has been updated';
+$labels['eventupdatemailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nPlease find attached an iCalendar file with the updated task details which you can import to your tasks application.";
+$labels['eventcancelsubject'] = '"$title" has been canceled';
+$labels['eventcancelmailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nThe task has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated task details.";
+
+// invitation handling (overrides labels from libcalendaring)
+$labels['itipobjectnotfound'] = 'The task referred by this message was not found in your tasks list.';
+
+$labels['itipmailbodyaccepted'] = "\$sender has accepted the assignment to the following task:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
+$labels['itipmailbodytentative'] = "\$sender has tentatively accepted the assignment to the following task:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
+$labels['itipmailbodydeclined'] = "\$sender has declined the assignment to the following task:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
+$labels['itipmailbodycancel'] = "\$sender has rejected your assignment to the following task:\n\n*\$title*\n\nWhen: \$date";
+
+$labels['itipdeclineevent'] = 'Do you want to decline your assignment to this task?';
+$labels['declinedeleteconfirm'] = 'Do you also want to delete this declined task from your tasks list?';
+$labels['itipcomment'] = 'Invitation/notification comment';
+$labels['itipcommenttitle'] = 'This comment will be attached to the invitation/notification message sent to participants';
