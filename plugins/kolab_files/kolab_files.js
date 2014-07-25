@@ -828,6 +828,26 @@ rcube_webmail.prototype.files_save = function()
   if (!this.file_editor)
     return;
 
+  // binary files like ODF need to be updated using FormData
+  if (this.file_editor.getContentCallback) {
+    if (!file_api.file_uploader_support())
+      return;
+
+    file_api.req = file_api.set_busy(true, 'saving');
+//    this.file_editor.disable();
+    this.file_editor.getContentCallback(function(content, filename) {
+      file_api.file_uploader([content], {
+        action: 'file_update',
+        params: {file: rcmail.env.file, info: 1, token: file_api.env.token},
+        response_handler: 'file_save_response',
+        fieldname: 'content',
+        single: true
+      });
+    });
+
+    return;
+  }
+
   var content = this.file_editor.getContent();
 
   file_api.file_save(this.env.file, content);
