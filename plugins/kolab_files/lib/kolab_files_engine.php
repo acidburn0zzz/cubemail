@@ -472,8 +472,9 @@ class kolab_files_engine
 
         $this->rc->output->add_gui_object('preview_frame', $attrib['id']);
 
-        $attrib['src']    = $href;
-        $attrib['onload'] = 'kolab_files_frame_load(this)';
+        $attrib['allowfullscreen'] = true;
+        $attrib['src']             = $href;
+        $attrib['onload']          = 'kolab_files_frame_load(this)';
 
         return html::iframe($attrib);
     }
