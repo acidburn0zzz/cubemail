@@ -572,6 +572,19 @@ function rcube_tasklist_ui(settings)
           input.val('');
         }
       });
+
+      // handle change of "send invitations" checkbox
+      $('#edit-attendees-invite').change(function() {
+        $('#edit-attendees-donotify,input.edit-attendee-reply').prop('checked', this.checked);
+        // hide/show comment field
+        $('.attendees-commentbox')[this.checked ? 'show' : 'hide']();
+      });
+
+      // delegate change task to "send invitations" checkbox
+      $('#edit-attendees-donotify').change(function() {
+        $('#edit-attendees-invite').click();
+        return false;
+      });
     }
 
     /**
@@ -1338,11 +1351,13 @@ function rcube_tasklist_ui(settings)
     // check if the current user is an attendee of this task
     var is_attendee = function(task, role, email)
     {
-        var i, emails = email ? ';' + email.toLowerCase() : settings.identity.emails;
+        var i, attendee, emails = email ? ';' + email.toLowerCase() : settings.identity.emails;
 
         for (i=0; task.attendees && i < task.attendees.length; i++) {
-            if ((!role || task.attendees[i].role == role) && task.attendees[i].email && emails.indexOf(';'+task.attendees[i].email.toLowerCase()) >= 0)
-                return task.attendees[i];
+            attendee = task.attendees[i];
+            if ((!role || attendee.role == role) && attendee.email && emails.indexOf(';'+attendee.email.toLowerCase()) >= 0) {
+                return attendee;
+            }
         }
 
         return false;
@@ -1357,140 +1372,144 @@ function rcube_tasklist_ui(settings)
     // add the given list of participants
     var add_attendees = function(names, params)
     {
-      names = explode_quoted_string(names.replace(/,\s*$/, ''), ',');
+        names = explode_quoted_string(names.replace(/,\s*$/, ''), ',');
 
-      // parse name/email pairs
-      var item, email, name, success = false;
-      for (var i=0; i < names.length; i++) {
-        email = name = '';
-        item = $.trim(names[i]);
+        // parse name/email pairs
+        var i, item, email, name, success = false;
+        for (i=0; i < names.length; i++) {
+            email = name = '';
+            item = $.trim(names[i]);
 
-        if (!item.length) {
-          continue;
-        } // address in brackets without name (do nothing)
-        else if (item.match(/^<[^@]+@[^>]+>$/)) {
-          email = item.replace(/[<>]/g, '');
-        } // address without brackets and without name (add brackets)
-        else if (rcube_check_email(item)) {
-          email = item;
-        } // address with name
-        else if (item.match(/([^\s<@]+@[^>]+)>*$/)) {
-          email = RegExp.$1;
-          name = item.replace(email, '').replace(/^["\s<>]+/, '').replace(/["\s<>]+$/, '');
-        }
-        if (email) {
-          add_attendee($.extend({ email:email, name:name }, params));
-          success = true;
-        }
-        else {
-          alert(rcmail.gettext('noemailwarning'));
-        }
-      }
+            if (!item.length) {
+                continue;
+            }
+            // address in brackets without name (do nothing)
+            else if (item.match(/^<[^@]+@[^>]+>$/)) {
+                email = item.replace(/[<>]/g, '');
+            }
+            // address without brackets and without name (add brackets)
+            else if (rcube_check_email(item)) {
+                email = item;
+            }
+            // address with name
+            else if (item.match(/([^\s<@]+@[^>]+)>*$/)) {
+                email = RegExp.$1;
+                name = item.replace(email, '').replace(/^["\s<>]+/, '').replace(/["\s<>]+$/, '');
+            }
 
-      return success;
+            if (email) {
+                add_attendee($.extend({ email:email, name:name }, params));
+                success = true;
+            }
+            else {
+                alert(rcmail.gettext('noemailwarning'));
+            }
+        }
+
+        return success;
     };
 
     // add the given attendee to the list
     var add_attendee = function(data, readonly)
     {
-      if (!me.selected_task)
-        return false;
+        if (!me.selected_task)
+            return false;
 
-      // check for dupes...
-      var exists = false;
-      $.each(task_attendees, function(i, v) { exists |= (v.email == data.email); });
-      if (exists)
-        return false;
+        // check for dupes...
+        var exists = false;
+        $.each(task_attendees, function(i, v) { exists |= (v.email == data.email); });
+        if (exists)
+            return false;
 
-      var list = me.selected_task && me.tasklists[me.selected_task.list] ? me.tasklists[me.selected_task.list] : me.tasklists[me.selected_list];
+//      var list = me.selected_task && me.tasklists[me.selected_task.list] ? me.tasklists[me.selected_task.list] : me.tasklists[me.selected_list];
 
-      var dispname = Q(data.name || data.email);
-      if (data.email)
-        dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
+        var dispname = Q(data.name || data.email);
+        if (data.email)
+            dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
 
-      // role selection
-      var organizer = data.role == 'ORGANIZER';
-      var opts = {};
-      if (organizer)
-        opts.ORGANIZER = rcmail.gettext('.roleorganizer');
-      opts['REQ-PARTICIPANT'] = rcmail.gettext('tasklist.rolerequired');
-      opts['OPT-PARTICIPANT'] = rcmail.gettext('tasklist.roleoptional');
-      opts['NON-PARTICIPANT'] = rcmail.gettext('tasklist.rolenonparticipant');
+        // role selection
+        var opts = {}, organizer = data.role == 'ORGANIZER';
+        if (organizer)
+            opts.ORGANIZER = rcmail.gettext('tasklist.roleorganizer');
+        opts['REQ-PARTICIPANT'] = rcmail.gettext('tasklist.rolerequired');
+        opts['OPT-PARTICIPANT'] = rcmail.gettext('tasklist.roleoptional');
+        opts['NON-PARTICIPANT'] = rcmail.gettext('tasklist.rolenonparticipant');
 
-      if (data.cutype != 'RESOURCE')
-        opts['CHAIR'] =  rcmail.gettext('tasklist.rolechair');
+        if (data.cutype != 'RESOURCE')
+            opts['CHAIR'] =  rcmail.gettext('tasklist.rolechair');
 
-      if (organizer && !readonly)
-          dispname = rcmail.env['identities-selector'];
+        if (organizer && !readonly)
+            dispname = rcmail.env['identities-selector'];
 
-      var select = '<select class="edit-attendee-role"' + (organizer || readonly ? ' disabled="true"' : '') + ' aria-label="' + rcmail.gettext('role','tasklist') + '">';
-      for (var r in opts)
-        select += '<option value="'+ r +'" class="' + r.toLowerCase() + '"' + (data.role == r ? ' selected="selected"' : '') +'>' + Q(opts[r]) + '</option>';
-      select += '</select>';
+        var select = '<select class="edit-attendee-role"' + (organizer || readonly ? ' disabled="true"' : '') + ' aria-label="' + rcmail.gettext('role','tasklist') + '">';
+        for (var r in opts)
+            select += '<option value="'+ r +'" class="' + r.toLowerCase() + '"' + (data.role == r ? ' selected="selected"' : '') +'>' + Q(opts[r]) + '</option>';
+        select += '</select>';
 
-      // availability
-      var avail = data.email ? 'loading' : 'unknown';
+        // availability
+        var avail = data.email ? 'loading' : 'unknown';
 
-      // delete icon
-      var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : rcmail.gettext('delete');
-      var dellink = '<a href="#delete" class="iconlink delete deletelink" title="' + Q(rcmail.gettext('delete')) + '">' + icon + '</a>';
-      var tooltip = data.status || '';
+        // delete icon
+        var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : rcmail.gettext('delete');
+        var dellink = '<a href="#delete" class="iconlink delete deletelink" title="' + Q(rcmail.gettext('delete')) + '">' + icon + '</a>';
+        var tooltip = data.status || '';
 
-      // send invitation checkbox
-      var invbox = '<input type="checkbox" class="edit-attendee-reply" value="' + Q(data.email) +'" title="' + Q(rcmail.gettext('tasklist.sendinvitations')) + '" '
-        + (!data.noreply ? 'checked="checked" ' : '') + '/>';
+        // send invitation checkbox
+        var invbox = '<input type="checkbox" class="edit-attendee-reply" value="' + Q(data.email) +'" title="' + Q(rcmail.gettext('tasklist.sendinvitations')) + '" '
+            + (!data.noreply ? 'checked="checked" ' : '') + '/>';
 
-      if (data['delegated-to'])
-        tooltip = rcmail.gettext('delegatedto', 'tasklist') + data['delegated-to'];
-      else if (data['delegated-from'])
-        tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
+        if (data['delegated-to'])
+            tooltip = rcmail.gettext('delegatedto', 'tasklist') + data['delegated-to'];
+        else if (data['delegated-from'])
+            tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
 
-      var html = '<td class="role">' + select + '</td>' +
-        '<td class="name">' + dispname + '</td>' +
-//        '<td class="availability"><img src="./program/resources/blank.gif" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
-        '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
-        (data.cutype != 'RESOURCE' ? '<td class="sendmail">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
-        '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
+        var html = '<td class="role">' + select + '</td>' +
+            '<td class="name">' + dispname + '</td>' +
+//            '<td class="availability"><img src="./program/resources/blank.gif" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
+            '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
+            (data.cutype != 'RESOURCE' ? '<td class="sendmail">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
+            '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
 
-      var table = rcmail.env.tasklist_resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
-      var tr = $('<tr>')
-        .addClass(String(data.role).toLowerCase())
-        .html(html)
-        .appendTo(table);
+        var table = rcmail.env.tasklist_resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
+        var tr = $('<tr>')
+            .addClass(String(data.role).toLowerCase())
+            .html(html)
+            .appendTo(table);
 
-      tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
-      tr.find('a.mailtolink').click(task_attendee_click);
-      tr.find('input.edit-attendee-reply').click(function() {
-        var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
-        $('p.attendees-commentbox')[enabled ? 'show' : 'hide']();
-      });
+        tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
+        tr.find('a.mailtolink').click(task_attendee_click);
+        tr.find('input.edit-attendee-reply').click(function() {
+            var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
+            $('p.attendees-commentbox')[enabled ? 'show' : 'hide']();
+        });
 
-      // select organizer identity
-      if (data.identity_id)
-        $('#edit-identities-list').val(data.identity_id);
+        // select organizer identity
+        if (data.identity_id)
+            $('#edit-identities-list').val(data.identity_id);
 
       // check free-busy status
 //      if (avail == 'loading') {
 //        check_freebusy_status(tr.find('img.availabilityicon'), data.email, me.selected_task);
 //      }
 
-      task_attendees.push(data);
-      return true;
+        task_attendees.push(data);
+        return true;
     };
 
     // event handler for clicks on an attendee link
     var task_attendee_click = function(e)
     {
-      var cutype = $(this).attr('data-cutype'),
-        mailto = this.href.substr(7);
+        var cutype = $(this).attr('data-cutype'),
+            mailto = this.href.substr(7);
 
-      if (rcmail.env.calendar_resources && cutype == 'RESOURCE') {
-        event_resources_dialog(mailto);
-      }
-      else {
-        rcmail.redirect(rcmail.url('mail/compose', { _to:mailto }));
-      }
-      return false;
+        if (rcmail.env.tasklist_resources && cutype == 'RESOURCE') {
+            task_resources_dialog(mailto);
+        }
+        else {
+            rcmail.redirect(rcmail.url('mail/compose', {_to: mailto}));
+        }
+
+        return false;
     };
 
     // remove an attendee from the list
@@ -1528,6 +1547,7 @@ function rcube_tasklist_ui(settings)
         $('#task-completeness .task-text').html(((rec.complete || 0) * 100) + '%');
         $('#task-status')[(rec.status ? 'show' : 'hide')]().children('.task-text').html(rcmail.gettext('status-'+String(rec.status).toLowerCase(),'tasklist'));
         $('#task-list .task-text').html(Q(me.tasklists[rec.list] ? me.tasklists[rec.list].name : ''));
+        $('#task-attendees').hide();
 
         var itags = get_inherited_tags(rec);
         var taglist = $('#task-tags')[(rec.tags && rec.tags.length || itags.length ? 'show' : 'hide')]().children('.task-text').empty();
@@ -1563,6 +1583,90 @@ function rcube_tasklist_ui(settings)
             if (rec.attachments.length > 0) {
                 $('#task-attachments').show();
             }
+        }
+
+        // list task attendees
+        if (list.attendees && rec.attendees) {
+/*
+            // sort resources to the end
+            rec.attendees.sort(function(a,b) {
+                var j = a.cutype == 'RESOURCE' ? 1 : 0,
+                    k = b.cutype == 'RESOURCE' ? 1 : 0;
+                return (j - k);
+            });
+*/
+            var j, data, dispname, tooltip, organizer = false, rsvp = false, mystatus = null, line, morelink, html = '', overflow = '';
+            for (j=0; j < rec.attendees.length; j++) {
+                data = rec.attendees[j];
+                dispname = Q(data.name || data.email);
+                tooltip = '';
+
+                if (data.email) {
+                    tooltip = data.email;
+                    dispname = '<a href="mailto:' + data.email + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
+                    if (data.role == 'ORGANIZER')
+                        organizer = true;
+                    else if (settings.identity.emails.indexOf(';'+data.email) >= 0) {
+                        mystatus = data.status.toLowerCase();
+                        if (data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp)
+                            rsvp = mystatus;
+                    }
+                }
+
+                if (data['delegated-to'])
+                    tooltip = rcmail.gettext('delegatedto', 'tasklist') + data['delegated-to'];
+                else if (data['delegated-from'])
+                    tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
+
+                line = '<span class="attendee ' + String(data.role == 'ORGANIZER' ? 'organizer' : data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + dispname + '</span> ';
+
+                if (morelink)
+                    overflow += line;
+                else
+                    html += line;
+
+                // stop listing attendees
+                if (j == 7 && rec.attendees.length >= 7) {
+                    morelink = $('<a href="#more" class="morelink"></a>').html(rcmail.gettext('andnmore', 'tasklist').replace('$nr', rec.attendees.length - j - 1));
+                }
+            }
+
+            if (html && (rec.attendees.length > 1 || !organizer)) {
+                $('#task-attendees').show()
+                    .children('.task-text')
+                    .html(html)
+                    .find('a.mailtolink').click(task_attendee_click);
+
+                // display all attendees in a popup when clicking the "more" link
+                if (morelink) {
+                    $('#task-attendees .task-text').append(morelink);
+                    morelink.click(function(e) {
+                        rcmail.show_popup_dialog(
+                            '<div id="all-task-attendees" class="task-attendees">' + html + overflow + '</div>',
+                            rcmail.gettext('tabattendees', 'tasklist'),
+                            null,
+                            {width: 450, modal: false}
+                        );
+                        $('#all-task-attendees a.mailtolink').click(task_attendee_click);
+                        return false;
+                    });
+                }
+            }
+/*
+            if (mystatus && !rsvp) {
+                $('#task-partstat').show().children('.changersvp')
+                    .removeClass('accepted tentative declined delegated needs-action')
+                    .addClass(mystatus)
+                    .children('.task-text')
+                    .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
+            }
+
+            $('#task-rsvp')[(rsvp && !is_organizer(event) && rec.status != 'CANCELLED' ? 'show' : 'hide')]();
+            $('#task-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
+
+            $('#task-rsvp a.reply-comment-toggle').show();
+            $('#task-rsvp .itip-reply-comment textarea').hide().val('');
+*/
         }
 
         // define dialog buttons
@@ -1874,7 +1978,7 @@ function rcube_tasklist_ui(settings)
         // set dialog size according to content
         me.dialog_resize($dialog.get(0), $dialog.height(), 580);
 
-        if (tasklist.attendees)
+        if (list.attendees)
             window.setTimeout(load_attendees_tab, 1);
     }
 

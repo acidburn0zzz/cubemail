@@ -56,6 +56,7 @@ class tasklist_ui
 
         // copy config to client
         $this->rc->output->set_env('tasklist_settings', $this->load_settings());
+        $this->rc->output->set_env('identities-selector', $this->identity_select(array('id' => 'edit-identities-list', 'aria-label' => $this->plugin->gettext('roleorganizer'))));
 
         // initialize attendees autocompletion
         $this->rc->autocomplete_init();
@@ -89,6 +90,22 @@ class tasklist_ui
         );
 
         return $settings;
+    }
+
+    /**
+     * Render a HTML select box for user identity selection
+     */
+    function identity_select($attrib = array())
+    {
+        $attrib['name'] = 'identity';
+        $select         = new html_select($attrib);
+        $identities     = $this->rc->user->list_identities();
+
+        foreach ($identities as $ident) {
+            $select->add(format_email_recipient($ident['email'], $ident['name']), $ident['identity_id']);
+        }
+
+        return $select->show(null);
     }
 
     /**
@@ -200,10 +217,11 @@ class tasklist_ui
         // enrich list properties with settings from the driver
         if (!$prop['virtual']) {
             unset($prop['user_id']);
-            $prop['alarms'] = $this->plugin->driver->alarms;
-            $prop['undelete'] = $this->plugin->driver->undelete;
-            $prop['sortable'] = $this->plugin->driver->sortable;
+            $prop['alarms']      = $this->plugin->driver->alarms;
+            $prop['undelete']    = $this->plugin->driver->undelete;
+            $prop['sortable']    = $this->plugin->driver->sortable;
             $prop['attachments'] = $this->plugin->driver->attachments;
+            $prop['attendees']   = $this->plugin->driver->attendees;
             $jsenv[$id] = $prop;
         }
 

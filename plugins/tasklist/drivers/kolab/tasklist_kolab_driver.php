@@ -25,16 +25,17 @@
 class tasklist_kolab_driver extends tasklist_driver
 {
     // features supported by the backend
-    public $alarms = false;
+    public $alarms      = false;
     public $attachments = true;
-    public $undelete = false; // task undelete action
+    public $attendees   = true;
+    public $undelete    = false; // task undelete action
     public $alarm_types = array('DISPLAY','AUDIO');
 
     private $rc;
     private $plugin;
     private $lists;
     private $folders = array();
-    private $tasks = array();
+    private $tasks   = array();
 
 
     /**
@@ -772,6 +773,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'status' => $record['status'],
             'parent_id' => $record['parent_id'],
             'recurrence' => $record['recurrence'],
+            'attendees' => $record['attendees'],
         );
 
         // convert from DateTime to internal date format
@@ -897,6 +899,14 @@ class tasklist_kolab_driver extends tasklist_driver
 
             unset($object['attachments']);
         }
+
+        // set current user as ORGANIZER
+        $identity = $this->rc->user->get_identity();
+        if (empty($object['attendees']) && $identity['email']) {
+            $object['attendees'] = array(array('role' => 'ORGANIZER', 'name' => $identity['name'], 'email' => $identity['email']));
+        }
+
+        $object['_owner'] = $identity['email'];
 
         unset($object['tempid'], $object['raw'], $object['list'], $object['flagged'], $object['tags']);
         return $object;

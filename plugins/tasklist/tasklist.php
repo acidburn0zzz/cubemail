@@ -55,6 +55,7 @@ class tasklist extends rcube_plugin
     public $home;  // declare public to be used in other classes
 
     private $collapsed_tasks = array();
+    private $itip;
 
 
     /**
@@ -64,7 +65,7 @@ class tasklist extends rcube_plugin
     {
         $this->require_plugin('libcalendaring');
 
-        $this->rc = rcube::get_instance();
+        $this->rc  = rcube::get_instance();
         $this->lib = libcalendaring::get_instance();
 
         $this->register_task('tasks', 'tasklist');
@@ -188,7 +189,7 @@ class tasklist extends rcube_plugin
     {
         $filter = intval(get_input_value('filter', RCUBE_INPUT_GPC));
         $action = get_input_value('action', RCUBE_INPUT_GPC);
-        $rec  = get_input_value('t', RCUBE_INPUT_POST, true);
+        $rec    = get_input_value('t', RCUBE_INPUT_POST, true);
         $oldrec = $rec;
         $success = $refresh = false;
 
@@ -318,8 +319,24 @@ class tasklist extends rcube_plugin
             $this->rc->output->show_message('successfullysaved', 'confirmation');
             $this->update_counts($oldrec, $refresh);
         }
-        else
+        else {
             $this->rc->output->show_message('tasklist.errorsaving', 'error');
+        }
+
+        // send out notifications
+        if ($success && $rec['_notify'] && ($rec['attendees'] || $oldrec['attendees'])) {
+            // make sure we have the complete record
+            $task = $action == 'delete' ? $oldrec : $this->driver->get_task($rec);
+
+            // only notify if data really changed (TODO: do diff check on client already)
+            if (!$oldrec || $action == 'delete' || self::task_diff($event, $old)) {
+                $sent = $this->notify_attendees($task, $oldrec, $action, $rec['_comment']);
+                if ($sent > 0)
+                    $this->rc->output->show_message('tasklist.itipsendsuccess', 'confirmation');
+                else if ($sent < 0)
+                    $this->rc->output->show_message('tasklist.errornotifying', 'error');
+            }
+        }
 
         // unlock client
         $this->rc->output->command('plugin.unlock_saving');
@@ -334,6 +351,23 @@ class tasklist extends rcube_plugin
             }
             $this->rc->output->command('plugin.update_task', $refresh);
         }
+    }
+
+    /**
+     * Load iTIP functions
+     */
+    private function load_itip()
+    {
+        if (!$this->itip) {
+            require_once realpath(__DIR__ . '/../libcalendaring/lib/libcalendaring_itip.php');
+            $this->itip = new libcalendaring_itip($this, 'tasklist');
+
+//            if ($this->rc->config->get('kolab_invitation_tasklists')) {
+//                $this->itip->set_rsvp_actions(array('accepted','tentative','declined','needs-action'));
+//            }
+        }
+
+        return $this->itip;
     }
 
     /**
@@ -584,6 +618,106 @@ class tasklist extends rcube_plugin
         }
 
         return $clone;
+    }
+
+    /**
+     * Send out an invitation/notification to all task attendees
+     */
+    private function notify_attendees($task, $old, $action = 'edit', $comment = null)
+    {
+        if ($action == 'delete' || ($task['status'] == 'CANCELLED' && $old['status'] != $task['status'])) {
+            $task['cancelled'] = true;
+            $is_cancelled      = true;
+        }
+
+        $itip   = $this->load_itip();
+        $emails = $this->lib->get_user_emails();
+
+        // add comment to the iTip attachment
+        $task['comment'] = $comment;
+
+        // needed to generate VTODO instead of VEVENT entry
+        $task['_type'] = 'task';
+
+        // compose multipart message using PEAR:Mail_Mime
+        $method  = $action == 'delete' ? 'CANCEL' : 'REQUEST';
+        $message = $itip->compose_itip_message($task, $method);
+
+        // list existing attendees from the $old task
+        $old_attendees = array();
+        foreach ((array)$old['attendees'] as $attendee) {
+            $old_attendees[] = $attendee['email'];
+        }
+
+        // send to every attendee
+        $sent = 0; $current = array();
+        foreach ((array)$task['attendees'] as $attendee) {
+            $current[] = strtolower($attendee['email']);
+
+            // skip myself for obvious reasons
+            if (!$attendee['email'] || in_array(strtolower($attendee['email']), $emails)) {
+                continue;
+            }
+
+            // skip if notification is disabled for this attendee
+            if ($attendee['noreply']) {
+                continue;
+            }
+
+            // which template to use for mail text
+            $is_new   = !in_array($attendee['email'], $old_attendees);
+            $bodytext = $is_cancelled ? 'eventcancelmailbody' : ($is_new ? 'invitationmailbody' : 'eventupdatemailbody');
+            $subject  = $is_cancelled ? 'eventcancelsubject'  : ($is_new ? 'invitationsubject' : ($task['title'] ? 'eventupdatesubject' : 'eventupdatesubjectempty'));
+
+            // finally send the message
+            if ($itip->send_itip_message($task, $method, $attendee, $subject, $bodytext, $message))
+                $sent++;
+            else
+                $sent = -100;
+        }
+
+        // send CANCEL message to removed attendees
+        foreach ((array)$old['attendees'] as $attendee) {
+            if ($attendee['ROLE'] == 'ORGANIZER' || !$attendee['email'] || in_array(strtolower($attendee['email']), $current)) {
+                continue;
+            }
+
+            $vevent = $old;
+            $vevent['cancelled'] = $is_cancelled;
+            $vevent['attendees'] = array($attendee);
+            $vevent['comment']   = $comment;
+
+            if ($itip->send_itip_message($vevent, 'CANCEL', $attendee, 'eventcancelsubject', 'eventcancelmailbody'))
+                $sent++;
+            else
+                $sent = -100;
+        }
+
+        return $sent;
+    }
+
+    /**
+     * Compare two task objects and return differing properties
+     *
+     * @param array Event A
+     * @param array Event B
+     * @return array List of differing task properties
+     */
+    public static function task_diff($a, $b)
+    {
+        $diff   = array();
+        $ignore = array('changed' => 1, 'attachments' => 1);
+
+        foreach (array_unique(array_merge(array_keys($a), array_keys($b))) as $key) {
+            if (!$ignore[$key] && $a[$key] != $b[$key])
+                $diff[] = $key;
+        }
+
+        // only compare number of attachments
+        if (count($a['attachments']) != count($b['attachments']))
+            $diff[] = 'attachments';
+
+        return $diff;
     }
 
     /**
