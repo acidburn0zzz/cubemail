@@ -236,7 +236,7 @@ class libcalendaring_itip
         $message->headers($headers);
 
         // attach ics file for this event
-        $ical = $this->plugin->get_ical();
+        $ical = libcalendaring::get_ical();
         $ics = $ical->export(array($event), $method, false, $method == 'REQUEST' && $this->plugin->driver ? array($this->plugin->driver, 'get_attachment_body') : false);
         $message->addAttachment($ics, 'text/calendar', 'event.ics', false, '8bit', '', RCMAIL_CHARSET . "; method=" . $method);
 
