@@ -705,6 +705,13 @@ kolab_files_frame_load = function(frame)
 
   rcmail.enable_command('files-print', (rcmail.file_editor && rcmail.file_editor.printable) ||
     (rcmail.env.file_data && /^image\//i.test(rcmail.env.file_data.type)));
+
+  // detect Print button and check if it can be accessed
+  try {
+    if ($('#fileframe').contents().find('#print').length)
+      rcmail.enable_command('files-print', true);
+  }
+  catch(e) {};
 };
 
 
@@ -865,6 +872,13 @@ rcube_webmail.prototype.files_print = function()
       win.focus();
       win.print();
     }
+  }
+  else {
+    // e.g. Print button in PDF viewer
+    try {
+      $('#fileframe').contents().find('#print').click();
+    }
+    catch(e) {};
   }
 };
 
