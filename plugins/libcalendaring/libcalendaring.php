@@ -145,7 +145,7 @@ class libcalendaring extends rcube_plugin
         if (is_numeric($dt))
             $dt = new DateTime('@'.$dt);
         else if (is_string($dt))
-            $dt = new DateTime($dt);
+            $dt = rcube_utils::anytodatetime($dt);
 
         if ($dt instanceof DateTime && !($dt->_dateonly || $dateonly)) {
             $dt->setTimezone($this->timezone);
