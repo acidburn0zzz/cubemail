@@ -51,4 +51,11 @@ $rcmail_config['kolab_users_id_attrib'] = null;
 // Use these attributes when searching users in LDAP
 $rcmail_config['kolab_users_search_attrib'] = array('cn','mail','alias');
 
-
+// JSON-RPC endpoint configuration of the Bonnie web service providing historic data for groupware objects
+$rcmail_config['kolab_bonnie_api'] = array(
+    'uri'    => 'https://<kolab-hostname>:8080/api/rpc',
+    'user'   => 'webclient',
+    'pass'   => 'Welcome2KolabSystems',
+    'secret' => '8431f191707fffffff00000000cccc',
+    'debug'  => true,   // logs requests/responses to <log-dir>/bonnie
+);
