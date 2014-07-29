@@ -77,7 +77,7 @@ $labels['at'] = 'at';
 $labels['this'] = 'this';
 $labels['next'] = 'next';
 
-// mesages
+// messages
 $labels['savingdata'] = 'Saving data...';
 $labels['errorsaving'] = 'Failed to save data.';
 $labels['notasksfound'] = 'No tasks found for the given criteria';
@@ -138,3 +138,17 @@ $labels['errornotifying'] = 'Failed to send notifications to task participants';
 $labels['andnmore'] = '$nr more...';
 $labels['delegatedto'] = 'Delegated to: ';
 $labels['delegatedfrom'] = 'Delegated from: ';
+$labels['savetotasklist'] = 'Save to tasks';
+$labels['comment'] = 'Comment';
+$labels['errorimportingtask'] = 'Failed to import task(s)';
+$labels['importwarningexists'] = 'A copy of this task already exists in your tasklist.';
+$labels['importsuccess'] = 'Successfully imported $nr tasks';
+$labels['newerversionexists'] = 'A newer version of this task already exists! Aborted.';
+$labels['nowritetasklistfound'] = 'No tasklist found to save the task';
+$labels['importedsuccessfully'] = 'The task was successfully added to \'$list\'';
+$labels['updatedsuccessfully'] = 'The task was successfully updated in \'$list\'';
+$labels['attendeupdateesuccess'] = 'Successfully updated the participant\'s status';
+$labels['itipresponseerror'] = 'Failed to send the response to this task invitation';
+$labels['itipinvalidrequest'] = 'This invitation is no longer valid';
+$labels['sentresponseto'] = 'Successfully sent invitation response to $mailto';
+$labels['successremoval'] = 'The task has been deleted successfully.';

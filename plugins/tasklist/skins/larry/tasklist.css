@@ -20,7 +20,8 @@
 	background-position: 0 -26px;
 }
 
-ul.toolbarmenu li span.icon.taskadd {
+ul.toolbarmenu li span.icon.taskadd,
+#attachmentmenu li a.tasklistlink span.icon.taskadd {
 	background-image: url(buttons.png);
 	background-position: -4px -90px;
 }
@@ -1084,6 +1085,98 @@ label.block {
 .task-update-confirm .message {
 	margin-bottom: 0.5em;
 }
+
+/* Invitation UI in mail */
+
+.messagelist tbody .attachment span.ical {
+	display: inline-block;
+	vertical-align: middle;
+	height: 18px;
+	width: 20px;
+	padding: 0;
+	background: url(images/ical-attachment.png) 2px 1px no-repeat;
+}
+
+div.tasklist-invitebox {
+	min-height: 20px;
+	margin: 5px 8px;
+	padding: 3px 6px 6px 34px;
+	border: 1px solid #ffdf0e;
+	background: url(images/tasklist.png) 6px 5px no-repeat #fef893;
+}
+
+div.tasklist-invitebox td.ititle {
+	font-weight: bold;
+	padding-right: 0.5em;
+}
+
+div.tasklist-invitebox td.label {
+	color: #666;
+	padding-right: 1em;
+}
+
+#event-rsvp .rsvp-buttons,
+div.tasklist-invitebox .itip-buttons div {
+	margin-top: 0.5em;
+}
+
+#event-rsvp input.button,
+div.tasklist-invitebox input.button {
+	font-weight: bold;
+	margin-right: 0.5em;
+}
+
+div.tasklist-invitebox .folder-select {
+	font-weight: 10px;
+	margin-left: 1em;
+}
+
+div.tasklist-invitebox .rsvp-status {
+	padding-left: 2px;
+}
+
+div.tasklist-invitebox .rsvp-status.loading {
+	color: #666;
+	padding: 1px 0 2px 24px;
+	background: url(images/loading_blue.gif) top left no-repeat;
+}
+
+div.tasklist-invitebox .rsvp-status.hint {
+	color: #666;
+	text-shadow: none;
+	font-style: italic;
+}
+
+#event-partstat .changersvp,
+div.tasklist-invitebox .rsvp-status.declined,
+div.tasklist-invitebox .rsvp-status.tentative,
+div.tasklist-invitebox .rsvp-status.accepted,
+div.tasklist-invitebox .rsvp-status.delegated,
+div.tasklist-invitebox .rsvp-status.needs-action  {
+	padding: 0 0 1px 22px;
+	background: url(images/attendee-status.png) 2px -20px no-repeat;
+}
+
+#event-partstat .changersvp.declined,
+div.tasklist-invitebox .rsvp-status.declined {
+	background-position: 2px -40px;
+}
+
+#event-partstat .changersvp.tentative,
+div.tasklist-invitebox .rsvp-status.tentative {
+	background-position: 2px -60px;
+}
+
+#event-partstat .changersvp.delegated,
+div.tasklist-invitebox .rsvp-status.delegated {
+	background-position: 2px -180px;
+}
+
+#event-partstat .changersvp.needs-action,
+div.tasklist-invitebox .rsvp-status.needs-action {
+	background-position: 2px 0;
+}
+
 
 /** Special hacks for IE7 **/
 /** They need to be in this file to also affect the task-create dialog embedded in mail view **/
