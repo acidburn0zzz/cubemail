@@ -2621,7 +2621,6 @@ function rcube_calendar_ui(settings)
           date: date.getDate(),
           month: date.getMonth(),
           year: date.getFullYear(),
-          slotMinutes: 60,
           eventSources: [ src ]
         }));
 
