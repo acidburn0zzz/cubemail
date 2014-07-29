@@ -124,4 +124,15 @@ class libkolab extends rcube_plugin
 
         return $request;
     }
+
+    /**
+     * Wrapper function for generating a html diff using the FineDiff class by Raymond Hill
+     */
+    public static function html_diff($from, $to)
+    {
+      include_once __dir__ . '/vendor/finediff.php';
+
+      $diff = new FineDiff($from, $to, FineDiff::$wordGranularity);
+      return $diff->renderDiffToHTML();
+    }
 }
