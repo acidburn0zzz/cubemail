@@ -746,7 +746,17 @@ class libcalendaring extends rcube_plugin
             $until = $this->gettext('forever');
         }
 
-        return rtrim($freq . $details . ', ' . $until);
+        $except = '';
+        if (is_array($rrule['EXDATE']) && !empty($rrule['EXDATE'])) {
+          $format = self::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format']));
+          $exdates = array_map(
+            function($dt) use ($format) { return format_date($dt, $format); },
+            array_slice($rrule['EXDATE'], 0, 10)
+          );
+          $except = '; ' . $this->gettext('except') . ' ' . join(', ');
+        }
+
+        return rtrim($freq . $details . ', ' . $until . $except);
     }
 
     /**

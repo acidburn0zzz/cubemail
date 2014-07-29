@@ -100,7 +100,8 @@ abstract class calendar_driver
   public $attendees = false;
   public $freebusy = false;
   public $attachments = false;
-  public $undelete = false; // event undelete action
+  public $undelete = false;
+  public $history = false;
   public $categoriesimmutable = false;
   public $alarm_types = array('DISPLAY');
   public $alarm_absolute = true;
@@ -404,6 +405,77 @@ abstract class calendar_driver
   {
     return false;
   }
+
+  /**
+   * Provide a list of revisions for the given event
+   *
+   * @param array  $event Hash array with event properties:
+   *         id: Event identifier
+   *   calendar: Calendar identifier
+   *
+   * @return array List of changes, each as a hash array:
+   *         rev: Revision number
+   *        type: Type of the change (create, update, move, delete)
+   *        date: Change date
+   *        user: The user who executed the change
+   *          ip: Client IP
+   * destination: Destination calendar for 'move' type
+   */
+  public function get_event_changelog($event)
+  {
+    return false;
+  }
+
+  /**
+   * Get a list of property changes beteen two revisions of an event
+   *
+   * @param array  $event Hash array with event properties:
+   *         id: Event identifier
+   *   calendar: Calendar identifier
+   * @param mixed  $rev   Revisions: "from:to"
+   *
+   * @return array List of property changes, each as a hash array:
+   *    property: Revision number
+   *         old: Old property value
+   *         new: Updated property value
+   */
+  public function get_event_diff($event, $rev)
+  {
+    return false;
+  }
+
+  /**
+   * Return full data of a specific revision of an event
+   *
+   * @param mixed  UID string or hash array with event properties:
+   *        id: Event identifier
+   *  calendar: Calendar identifier
+   * @param mixed  $rev Revision number
+   *
+   * @return array Event object as hash array
+   * @see self::get_event()
+   */
+  public function get_event_revison($event, $rev)
+  {
+    return false;
+  }
+
+  /**
+   * Command the backend to restore a certain revision of an event.
+   * This shall replace the current event with an older version.
+   *
+   * @param mixed  UID string or hash array with event properties:
+   *        id: Event identifier
+   *  calendar: Calendar identifier
+   * @param mixed  $rev Revision number
+   *
+   * @return boolean True on success, False on failure
+   */
+  public function restore_event_revision($event, $rev)
+  {
+    return false;
+  }
+
 
   /**
    * Callback function to produce driver-specific calendar create/edit form

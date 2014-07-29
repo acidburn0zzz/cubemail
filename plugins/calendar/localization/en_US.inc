@@ -81,7 +81,12 @@ $labels['private'] = 'private';
 $labels['confidential'] = 'confidential';
 $labels['alarms'] = 'Reminder';
 $labels['comment'] = 'Comment';
+$labels['created'] = 'Created';
+$labels['changed'] = 'Last Modified';
+$labels['unknown'] = 'Unknown';
+$labels['eventoptions'] = 'Options';
 $labels['generated'] = 'generated at';
+$labels['eventhistory'] = 'History';
 $labels['printdescriptions'] = 'Print descriptions';
 $labels['parentcalendar'] = 'Insert inside';
 $labels['searchearlierdates'] = '« Search for earlier events';
@@ -252,6 +257,24 @@ $labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
 $labels['birthdayscalendarsources'] = 'From these address books';
 $labels['birthdayeventtitle'] = '$name\'s Birthday';
 $labels['birthdayage'] = 'Age $age';
+
+// history dialog
+$labels['eventchangelog'] = 'Change History';
+$labels['eventdiff'] = 'Changes from revisions $rev';
+$labels['revision'] = 'Revision';
+$labels['user'] = 'User';
+$labels['operation'] = 'Action';
+$labels['actionappend'] = 'Saved';
+$labels['actionmove'] = 'Moved';
+$labels['actiondelete'] = 'Deleted';
+$labels['compare'] = 'Compare';
+$labels['showrevision'] = 'Show this version';
+$labels['restore'] = 'Restore this version';
+$labels['eventnotfound'] = 'Failed to load event data';
+$labels['eventchangelognotavailable'] = 'Change history is not available for this event';
+$labels['eventdiffnotavailable'] = 'No comparison possible for the selected revisions';
+$labels['eventrestoreconfirm'] = 'Do you really want to restore revision $rev of this event? This will replace the current event with the old version.';
+
 
 // (hidden) titles and labels for accessibility annotations
 $labels['arialabelminical'] = 'Calendar date selection';

@@ -77,7 +77,7 @@
 	</ul>
 </div>
 
-<div id="eventshow" class="uidialog" aria-hidden="true">
+<div id="eventshow" class="uidialog eventdialog" aria-hidden="true">
 	<h1 id="event-title">Event Title</h1>
 	<div class="event-section" id="event-location">Location</div>
 	<div class="event-section" id="event-date">From-To</div>
@@ -136,8 +136,107 @@
 		<label><roundcube:label name="attachments" /></label>
 		<div class="event-text"></div>
 	</div>
+	<div class="event-line" id="event-created-changed">
+		<label><roundcube:label name="calendar.created" /></label>
+		<span class="event-text event-created"></span>
+		<label><roundcube:label name="calendar.changed" /></label>
+		<span class="event-text event-changed"></span>
+	</div>
 
 	<roundcube:object name="plugin.event_rsvp_buttons" id="event-rsvp" class="event-dialog-message" style="display:none" />
+</div>
+
+<div id="eventoptionsmenu" class="popupmenu" aria-hidden="true">
+	<h3 id="aria-label-eventoptions" class="voice"><roundcube:label name="calendar.eventoptions" /></h3>
+	<ul id="eventoptionsmenu-menu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-eventoptions">
+		<li role="menuitem"><roundcube:button command="event-download" label="download" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button command="event-sendbymail" label="send" classAct="active" /></li>
+		<roundcube:if condition="env:calendar_driver == 'kolab' && config:kolab_bonnie_api" />
+		<li role="menuitem"><roundcube:button command="event-history" type="link" label="calendar.eventhistory" classAct="active" /></li>
+		<roundcube:endif />
+	</ul>
+</div>
+
+<div id="eventdiff" class="uidialog eventdialog" aria-hidden="true">
+	<h1 class="event-title">Event Title</h1>
+	<h1 class="event-title-new event-text-new"></h1>
+	<div class="event-section event-date"></div>
+	<div class="event-section event-location">
+		<h5 class="label"><roundcube:label name="calendar.location" /></h5>
+		<div class="event-text-old"></div>
+		<div class="event-text-new"></div>
+	</div>
+	<div class="event-section event-description">
+		<h5 class="label"><roundcube:label name="calendar.description" /></h5>
+		<div class="event-text-diff" style="white-space:pre-wrap"></div>
+		<div class="event-text-old"></div>
+		<div class="event-text-new"></div>
+	</div>
+	<div class="event-section event-url">
+		<h5 class="label"><roundcube:label name="calendar.url" /></h5>
+		<div class="event-text-old"></div>
+		<div class="event-text-new"></div>
+	</div>
+	<div class="event-section event-recurrence">
+		<h5 class="label"><roundcube:label name="calendar.repeat" /></h5>
+		<div class="event-text-old"></div>
+		<div class="event-text-new"></div>
+	</div>
+	<div class="event-section event-alarms">
+		<h5 class="label"><roundcube:label name="calendar.alarms" /><span class="index"></span></h5>
+		<div class="event-text-old"></div>
+		<div class="event-text-new"></div>
+	</div>
+	<div class="event-line event-start">
+		<label><roundcube:label name="calendar.start" /></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-line event-end">
+		<label><roundcube:label name="calendar.end" /></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-line event-attendees">
+		<label><roundcube:label name="calendar.tabattendees" /><span class="index"></span></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-line event-calendar">
+		<label><roundcube:label name="calendar.calendar" /></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-line event-categories">
+		<label><roundcube:label name="calendar.category" /></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-line event-status">
+		<label><roundcube:label name="calendar.status" /></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-line event-free_busy">
+		<label><roundcube:label name="calendar.freebusy" /></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-line event-priority">
+		<label><roundcube:label name="calendar.priority" /></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-line event-sensitivity">
+		<label><roundcube:label name="calendar.sensitivity" /></label>
+		<span class="event-text-old"></span> &#8674;
+		<span class="event-text-new"></span>
+	</div>
+	<div class="event-section event-attachments">
+		<label><roundcube:label name="attachments" /><span class="index"></span></label>
+		<div class="event-text-old"></div>
+		<div class="event-text-new"></div>
+	</div>
 </div>
 
 <roundcube:include file="/templates/eventedit.html" />
@@ -221,6 +320,11 @@
 		<span class="attendee non-participant"><roundcube:label name="calendar.rolenonparticipant" /></span>
 		<span class="attendee chair"><roundcube:label name="calendar.rolechair" /></span>
 	</div>
+</div>
+
+<div id="eventhistory" class="uidialog" aria-hidden="true">
+    <roundcube:object name="plugin.event_changelog_table" id="event-changelog-table" class="records-table" />
+    <div class="compare-button"><input type="button" class="button" value="↳ <roundcube:label name='calendar.compare' />" /></div>
 </div>
 
 <div id="calendarform" class="uidialog" aria-hidden="true">

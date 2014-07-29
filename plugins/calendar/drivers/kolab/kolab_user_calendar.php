@@ -391,9 +391,7 @@ class kolab_user_calendar extends kolab_calendar
     $record['id'] = $record['uid'];
     $record['calendar'] = $this->id;
 
-    // TODO: implement this
-
-    return $record;
+    return kolab_driver::to_rcube_event($record);
   }
 
 }

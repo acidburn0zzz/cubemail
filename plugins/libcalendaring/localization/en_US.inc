@@ -66,6 +66,7 @@ $labels['fourth'] = 'fourth';
 $labels['last'] = 'last';
 $labels['dayofmonth'] = 'Day of month';
 $labels['addrdate'] = 'Add repeat date';
+$labels['except'] = 'except';
 
 // itip related labels
 $labels['itipinvitation'] = 'Invitation to';

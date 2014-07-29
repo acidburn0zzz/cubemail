@@ -663,51 +663,158 @@ a.miniColors-trigger {
 
 /* jQuery UI overrides */
 
-#eventshow h1 {
+.calendarmain .eventdialog h1 {
 	font-size: 18px;
 	margin: -0.3em 0 0.4em 0;
 }
 
-#eventshow label,
-#eventshow h5.label {
+.calendarmain .eventdialog label,
+.calendarmain .eventdialog h5.label {
 	font-weight: normal;
 	font-size: 1em;
 	color: #999;
 	margin: 0 0 0.2em 0;
 }
 
-#eventshow {
+.calendarmain .eventdialog label span.index,
+.calendarmain .eventdialog h5.label .index {
+	vertical-align: inherit;
+	margin-left: 0.6em;
+}
+
+.calendarmain .eventdialog {
 	margin: 0 -0.2em;
 }
 
-#eventshow.status-cancelled {
+.calendarmain .eventdialog.status-cancelled {
 	background: url(images/badge_cancelled.png) top right no-repeat;
 }
 
-#eventshow.sensitivity-private {
+.calendarmain .eventdialog.sensitivity-private {
 	background: url(images/badge_private.png) top right no-repeat;
 }
 
-#eventshow.sensitivity-confidential {
+.calendarmain .eventdialog.sensitivity-confidential {
 	background: url(images/badge_confidential.png) top right no-repeat;
 }
 
-.sensitivity-private #event-title {
+.calendarmain .sensitivity-private #event-title {
 	margin-right: 50px;
 }
 
-.sensitivity-confidential #event-title {
+.calendarmain .sensitivity-confidential #event-title {
 	margin-right: 60px;
 }
 
-#eventshow div.event-line {
+.calendarmain .eventdialog div.event-line {
 	margin-top: 0.1em;
 	margin-bottom: 0.3em;
 }
 
-#eventshow div.event-line a.iconbutton {
+.calendarmain .eventdialog div.event-line a.iconbutton {
 	margin-left: 0.5em;
 	line-height: 17px;
+}
+
+.calendarmain .eventdialog div.event-line span.event-text + label {
+	margin-left: 2em;
+}
+
+.calendarmain .eventdialog #event-created-changed {
+	margin-top: 0.6em;
+}
+
+.eventdialog .event-text-old,
+.eventdialog .event-text-new,
+.eventdialog .event-text-diff {
+	padding: 2px;
+}
+
+.eventdialog .event-text-diff del,
+.eventdialog .event-text-diff ins {
+	text-decoration: none;
+	color: inherit;
+}
+
+.eventdialog .event-text-old,
+.eventdialog .event-text-diff del {
+	background-color: #fdd;
+	/* text-decoration: line-through; */
+}
+
+.eventdialog .event-text-new,
+.eventdialog .event-text-diff ins {
+	background-color: #dfd;
+}
+
+#eventdiff .attachmentslist li a,
+#eventdiff .attachmentslist li a:hover {
+	cursor: default;
+	text-decoration: none;
+}
+
+#eventhistory .loading {
+	color: #666;
+	margin: 1em 0;
+	padding: 1px 0 2px 24px;
+	background: url(images/loading_blue.gif) top left no-repeat;
+}
+
+#eventhistory .compare-button {
+	margin: 4px 0;
+}
+
+#event-changelog-table tbody td {
+	padding: 4px 7px;
+	vertical-align: middle;
+}
+
+#event-changelog-table tbody tr.undisclosed td.date,
+#event-changelog-table tbody tr.undisclosed td.user {
+	font-style: italic;
+}
+
+#event-changelog-table .diff {
+	width: 4em;
+	padding: 2px;
+}
+
+#event-changelog-table .revision {
+	width: 5em;
+}
+
+#event-changelog-table .date {
+	width: 11em;
+}
+
+#event-changelog-table .user {
+	width: auto;
+}
+
+#event-changelog-table .operation {
+	width: 15%;
+}
+
+#event-changelog-table .actions {
+	width: 50px;
+	text-align: right;
+	padding: 4px;
+}
+
+#event-changelog-table td a.iconbutton.restore,
+#event-changelog-table td a.iconbutton.preview {
+	background-image: url(images/calendars.png);
+	background-position: 1px -147px;
+}
+
+#event-changelog-table td a.iconbutton.restore {
+	background-image: url(images/calendars.png);
+	background-position: 1px -167px;
+}
+
+#event-changelog-table tr.first td a.iconbutton {
+	opacity: 0.3;
+	cursor: default;
 }
 
 #event-partstat .changersvp {
@@ -745,7 +852,7 @@ a.miniColors-trigger {
 }
 
 div.form-section,
-#eventshow div.event-section,
+.calendarmain .eventdialog div.event-section,
 #eventtabs div.event-section {
 	margin-top: 0.2em;
 	margin-bottom: 0.6em;
@@ -757,7 +864,7 @@ div.form-section,
 	border-bottom: 2px solid #fafafa;
 }
 
-#eventshow label,
+.calendarmain .eventdialog label,
 #eventedit label,
 .form-section label {
 	display: inline-block;
@@ -830,7 +937,7 @@ td.topalign {
 
 #event-rsvp,
 #edit-attendees-notify {
-	margin: 0.3em 0;
+	margin: 0.6em 0 0.3em 0;
 	padding: 0.5em;
 }
 
@@ -1186,13 +1293,13 @@ td.topalign {
 }
 
 a.dropdown-link {
-	font-size: 12px;
+	font-size: 11px;
 	text-decoration: none;
 }
 
 a.dropdown-link:after {
 	content: ' ▼';
-	font-size: 11px;
+	font-size: 10px;
 	color: #666;
 }
 
@@ -1201,7 +1308,10 @@ a.dropdown-link:after {
 }
 
 .ui-dialog-buttonset a.dropdown-link {
-	margin-right: 1em;
+	position: relative;
+	top: 2px;
+	margin: 0 1em;
+	color: #333;
 }
 
 #calendarsidebar .ui-datepicker-calendar {

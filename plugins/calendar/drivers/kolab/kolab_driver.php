@@ -47,6 +47,7 @@ class kolab_driver extends calendar_driver
   private $calendars;
   private $has_writeable = false;
   private $freebusy_trigger = false;
+  private $bonnie_api = false;
 
   /**
    * Default constructor
@@ -68,6 +69,10 @@ class kolab_driver extends calendar_driver
         $this->alarm_types = array('DISPLAY');
         $this->alarm_absolute = false;
     }
+
+    // get configuration for the Bonnie API
+    if ($bonnie_config = $this->cal->rc->config->get('kolab_bonnie_api', false))
+      $this->bonnie_api = new kolab_bonnie_api($bonnie_config);
 
     // calendar uses fully encoded identifiers
     kolab_storage::$encode_ids = true;
@@ -164,6 +169,7 @@ class kolab_driver extends calendar_driver
           'active'   => $cal->is_active(),
           'title'    => $cal->get_owner(),
           'owner'    => $cal->get_owner(),
+          'history'  => false,
           'virtual'  => false,
           'readonly' => true,
           'group'    => 'other',
@@ -192,6 +198,7 @@ class kolab_driver extends calendar_driver
           'color'    => $cal->get_color(),
           'readonly' => $cal->readonly,
           'showalarms' => $cal->alarms,
+          'history'  => !empty($this->bonnie_api),
           'group'    => $cal->get_namespace(),
           'default'  => $cal->default,
           'active'   => $cal->is_active(),
@@ -222,6 +229,7 @@ class kolab_driver extends calendar_driver
             'color'    => $cal->get_color(),
             'readonly' => $cal->readonly,
             'showalarms' => $cal->alarms,
+            'history'  => !empty($this->bonnie_api),
             'group'    => 'x-invitations',
             'default'  => false,
             'active'   => $cal->is_active(),
@@ -252,6 +260,7 @@ class kolab_driver extends calendar_driver
           'readonly'   => true,
           'default'    => false,
           'children'   => false,
+          'history'    => false,
         );
       }
     }
@@ -1283,6 +1292,265 @@ class kolab_driver extends calendar_driver
     }
 
     exit;
+  }
+
+
+  /**
+   * Convert from Kolab_Format to internal representation
+   */
+  public static function to_rcube_event($record)
+  {
+    $record['id'] = $record['uid'];
+
+    // all-day events go from 12:00 - 13:00
+    if ($record['end'] <= $record['start'] && $record['allday']) {
+      $record['end'] = clone $record['start'];
+      $record['end']->add(new DateInterval('PT1H'));
+    }
+
+    if (!empty($record['_attachments'])) {
+      foreach ($record['_attachments'] as $key => $attachment) {
+        if ($attachment !== false) {
+          if (!$attachment['name'])
+            $attachment['name'] = $key;
+
+          unset($attachment['path'], $attachment['content']);
+          $attachments[] = $attachment;
+        }
+      }
+
+      $record['attachments'] = $attachments;
+    }
+
+    // Roundcube only supports one category assignment
+    if (is_array($record['categories']))
+      $record['categories'] = $record['categories'][0];
+
+    // the cancelled flag transltes into status=CANCELLED
+    if ($record['cancelled'])
+      $record['status'] = 'CANCELLED';
+
+    // The web client only supports DISPLAY type of alarms
+    if (!empty($record['alarms']))
+      $record['alarms'] = preg_replace('/:[A-Z]+$/', ':DISPLAY', $record['alarms']);
+
+    // remove empty recurrence array
+    if (empty($record['recurrence']))
+      unset($record['recurrence']);
+
+    // remove internals
+    unset($record['_mailbox'], $record['_msguid'], $record['_formatobj'], $record['_attachments'], $record['x-custom']);
+
+    return $record;
+  }
+
+
+  /**
+   * Provide a list of revisions for the given event
+   *
+   * @param array  $event Hash array with event properties
+   *
+   * @return array List of changes, each as a hash array
+   * @see calendar_driver::get_event_changelog()
+   */
+  public function get_event_changelog($event)
+  {
+    if (empty($this->bonnie_api)) {
+      return false;
+    }
+
+    list($uid, $folder) = $this->_resolve_event_identity($event);
+
+    $result = $this->bonnie_api->changelog('event', $uid, $folder);
+    if (is_array($result) && $result['uid'] == $uid) {
+      return $result['changes'];
+    }
+
+    return false;
+  }
+
+  /**
+   * Get a list of property changes beteen two revisions of an event
+   *
+   * @param array  $event Hash array with event properties
+   * @param mixed  $rev   Revisions: "from:to"
+   *
+   * @return array List of property changes, each as a hash array
+   * @see calendar_driver::get_event_diff()
+   */
+  public function get_event_diff($event, $rev)
+  {
+    if (empty($this->bonnie_api)) {
+      return false;
+    }
+
+    list($uid, $folder) = $this->_resolve_event_identity($event);
+
+    // call Bonnie API
+    $result = $this->bonnie_api->diff('event', $uid, $rev, $folder);
+    if (is_array($result) && $result['uid'] == $uid) {
+      $result['rev'] = $rev;
+
+      $keymap = array(
+        'dtstart'  => 'start',
+        'dtend'    => 'end',
+        'dstamp'   => 'changed',
+        'summary'  => 'title',
+        'alarm'    => 'alarms',
+        'attendee' => 'attendees',
+        'attach'   => 'attachments',
+        'rrule'    => 'recurrence',
+        'transparency' => 'free_busy',
+        'classification' => 'sensitivity',
+        'lastmodified-date' => 'changed',
+      );
+      $prop_keymaps = array(
+        'attachments' => array('fmttype' => 'mimetype', 'label' => 'name'),
+        'attendees'   => array('partstat' => 'status'),
+      );
+      $special_changes = array();
+
+      // map kolab event properties to keys the client expects
+      array_walk($result['changes'], function(&$change, $i) use ($keymap, $prop_keymaps, $special_changes) {
+        if (array_key_exists($change['property'], $keymap)) {
+          $change['property'] = $keymap[$change['property']];
+        }
+        // translate free_busy values
+        if ($change['property'] == 'free_busy') {
+          $change['old'] = $old['old'] ? 'free' : 'busy';
+          $change['new'] = $old['new'] ? 'free' : 'busy';
+        }
+        // map alarms trigger value
+        if ($change['property'] == 'alarms') {
+          if (is_array($change['old']) && is_array($change['old']['trigger']))
+            $change['old']['trigger'] = $change['old']['trigger']['value'];
+          if (is_array($change['new']) && is_array($change['new']['trigger']))
+            $change['new']['trigger'] = $change['new']['trigger']['value'];
+        }
+        // make all property keys uppercase
+        if ($change['property'] == 'recurrence') {
+          $special_changes['recurrence'] = $i;
+          foreach (array('old','new') as $m) {
+            if (is_array($change[$m])) {
+              $props = array();
+              foreach ($change[$m] as $k => $v)
+                $props[strtoupper($k)] = $v;
+              $change[$m] = $props;
+            }
+          }
+        }
+        // map property keys names
+        if (is_array($prop_keymaps[$change['property']])) {
+          foreach ($prop_keymaps[$change['property']] as $k => $dest) {
+            if (is_array($change['old']) && array_key_exists($k, $change['old'])) {
+              $change['old'][$dest] = $change['old'][$k];
+              unset($change['old'][$k]);
+            }
+            if (is_array($change['new']) && array_key_exists($k, $change['new'])) {
+              $change['new'][$dest] = $change['new'][$k];
+              unset($change['new'][$k]);
+            }
+          }
+        }
+
+        if ($change['property'] == 'exdate') {
+          $special_changes['exdate'] = $i;
+        }
+        else if ($change['property'] == 'rdate') {
+          $special_changes['rdate'] = $i;
+        }
+      });
+
+      // merge some recurrence changes
+      foreach (array('exdate','rdate') as $prop) {
+        if (array_key_exists($prop, $special_changes)) {
+          $exdate = $result['changes'][$special_changes[$prop]];
+          if (array_key_exists('recurrence', $special_changes)) {
+            $recurrence = &$result['changes'][$special_changes['recurrence']];
+          }
+          else {
+            $i = count($result['changes']);
+            $result['changes'][$i] = array('property' => 'recurrence', 'old' => array(), 'new' => array());
+            $recurrence = &$result['changes'][$i]['recurrence'];
+          }
+          $key = strtoupper($prop);
+          $recurrence['old'][$key] = $exdate['old'];
+          $recurrence['new'][$key] = $exdate['new'];
+          unset($result['changes'][$special_changes[$prop]]);
+        }
+      }
+
+      return $result;
+    }
+
+    return false;
+  }
+
+  /**
+   * Return full data of a specific revision of an event
+   *
+   * @param array  Hash array with event properties
+   * @param mixed  $rev Revision number
+   *
+   * @return array Event object as hash array
+   * @see calendar_driver::get_event_revison()
+   */
+  public function get_event_revison($event, $rev)
+  {
+    if (empty($this->bonnie_api)) {
+      return false;
+    }
+
+    $calid = $event['calendar'];
+    list($uid, $folder) = $this->_resolve_event_identity($event);
+
+    // call Bonnie API
+    $result = $this->bonnie_api->get('event', $uid, $rev, $folder);
+    if (is_array($result) && $result['uid'] == $uid && !empty($result['xml'])) {
+      $format = kolab_format::factory('event');
+      $format->load($result['xml']);
+      $event = $format->to_array();
+
+      if ($format->is_valid()) {
+        if ($result['folder'] && ($cal = $this->get_calendar(kolab_storage::id_encode($result['folder'])))) {
+          $event['calendar'] = $cal->id;
+        }
+        else {
+          $event['calendar'] = $calid;
+        }
+
+        $event['rev'] = $result['rev'];
+        return self::to_rcube_event($event);
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Helper method to resolved the given event identifier into uid and folder
+   *
+   * @return array (uid,folder) tuple
+   */
+  private function _resolve_event_identity($event)
+  {
+    $folder = null;
+    if (is_array($event)) {
+      $uid = $event['id'] ?: $event['uid'];
+      if ($cal = $this->get_calendar($event['calendar']) && !($cal instanceof kolab_invitation_calendar)) {
+        $folder = $cal->name;
+      }
+    }
+    else {
+      $uid = $event;
+    }
+
+    // FIXME: hard-code UID for static Bonnie API demo
+    $demo_uids = $this->rc->config->get('kolab_static_bonnie_uids', array('0015c5fe-9baf-0561-11e3-d584fa2894b7'));
+    if (!in_array($uid, $demo_uids))
+      $uid = reset($demo_uids);
+
+    return array($uid, $folder);
   }
 
   /**

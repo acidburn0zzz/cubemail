@@ -194,6 +194,7 @@ class calendar extends rcube_plugin
       }
 
       $this->add_hook('messages_list', array($this, 'mail_messages_list'));
+      $this->add_hook('message_compose', array($this, 'mail_message_compose'));
     }
     else if ($args['task'] == 'addressbook') {
       if ($this->rc->config->get('calendar_contact_birthdays')) {
@@ -973,6 +974,95 @@ class calendar extends rcube_plugin
                 $success |= $this->driver->dismiss_alarm(substr($id, 4), $event['snooze']);
         }
         break;
+
+      case "changelog":
+        $data = $this->driver->get_event_changelog($event);
+        if (is_array($data) && !empty($data)) {
+          $lib = $this->lib;
+          array_walk($data, function($change) use ($lib) {
+            if ($change['date']) {
+              $dt = $lib->adjust_timezone($change['date']);
+              if ($dt instanceof DateTime)
+                $change['date'] = $dt->format('c');
+            }
+          });
+          $this->rc->output->command('plugin.render_event_changelog', $data);
+        }
+        else {
+          $this->rc->output->command('plugin.render_event_changelog', false);
+          $this->rc->output->command('display_message', $this->gettext('eventchangelognotavailable'), 'error');
+        }
+        $got_msg = true;
+        $reload = false;
+        break;
+
+      case "diff":
+        $data = $this->driver->get_event_diff($event, $event['rev']);
+        if (is_array($data)) {
+          // convert some properties, similar to self::_client_event()
+          $lib = $this->lib;
+          array_walk($data['changes'], function(&$change, $i) use ($event, $lib) {
+            // convert date cols
+            foreach (array('start','end','created','changed') as $col) {
+              if ($change['property'] == $col) {
+                $change['old'] = $this->lib->adjust_timezone($change['old'], strlen($change['old']) == 10)->format('c');
+                $change['new'] = $this->lib->adjust_timezone($change['new'], strlen($change['new']) == 10)->format('c');
+              }
+            }
+            // create textual representation for alarms and recurrence
+            if ($change['property'] == 'alarms') {
+              if (is_array($change['old']))
+                $change['old_'] = libcalendaring::alarm_text($change['old']);
+              if (is_array($change['new']))
+                $change['new_'] = libcalendaring::alarm_text(array_merge((array)$change['old'], $change['new']));
+            }
+            if ($change['property'] == 'recurrence') {
+              if (is_array($change['old']))
+                $change['old_'] = $lib->recurrence_text($change['old']);
+              if (is_array($change['new']))
+                $change['new_'] = $lib->recurrence_text(array_merge((array)$change['old'], $change['new']));
+            }
+            if ($change['property'] == 'attachments') {
+              if (is_array($change['old']))
+                $change['old']['classname'] = rcube_utils::file2class($change['old']['mimetype'], $change['old']['name']);
+              if (is_array($change['new']))
+                $change['new']['classname'] = rcube_utils::file2class($change['new']['mimetype'], $change['new']['name']);
+            }
+            // compute a nice diff of description texts
+            if ($change['property'] == 'description') {
+              $change['diff_'] = libkolab::html_diff($change['old'], $change['new']);
+            }
+          });
+          $this->rc->output->command('plugin.event_show_diff', $data);
+        }
+        else {
+          $this->rc->output->command('display_message', $this->gettext('eventdiffnotavailable'), 'error');
+        }
+        $got_msg = true;
+        $reload = false;
+        break;
+
+      case "show":
+        if ($event = $this->driver->get_event_revison($event, $event['rev'])) {
+          $this->rc->output->command('plugin.event_show_revision', $this->_client_event($event));
+        }
+        else {
+          $this->rc->output->command('display_message', $this->gettext('eventnotfound'), 'error');
+        }
+        $got_msg = true;
+        $reload = false;
+        break;
+
+      case "restore":
+        if ($success = $this->driver->restore_event_revision($event, $event['rev'])) {
+
+        }
+        else {
+          $this->rc->output->command('display_message', 'Not implemented yet', 'error');
+          $got_msg = true;
+        }
+        $reload = false;
+        break;
     }
 
     // show confirmation/error message
@@ -1271,22 +1361,33 @@ class calendar extends rcube_plugin
     if (!is_numeric($end))
       $end = strtotime($end . ' 23:59:59');
 
+    $event_id = get_input_value('id', RCUBE_INPUT_GET);
     $attachments = get_input_value('attachments', RCUBE_INPUT_GET);
-    $calid = $calname = get_input_value('source', RCUBE_INPUT_GET);
+    $calid = $filename = get_input_value('source', RCUBE_INPUT_GET);
 
     $calendars = $this->driver->list_calendars();
+    $events = array();
 
     if ($calendars[$calid]) {
-      $calname = $calendars[$calid]['name'] ? $calendars[$calid]['name'] : $calid;
-      $calname = preg_replace('/[^a-z0-9_.-]/i', '', html_entity_decode($calname));  // to 7bit ascii
-      if (empty($calname)) $calname = $calid;
-      $events = $this->driver->load_events($start, $end, null, $calid, 0);
+      $filename = $calendars[$calid]['name'] ? $calendars[$calid]['name'] : $calid;
+      $filename = asciiwords(html_entity_decode($filename));  // to 7bit ascii
+      if (!empty($event_id)) {
+        if ($event = $this->driver->get_event(array('calendar' => $calid, 'id' => $event_id))) {
+          $events = array($event);
+          $filename = asciiwords($event['title']);
+          if (empty($filename))
+            $filename = 'event';
+        }
+      }
+      else {
+         $events = $this->driver->load_events($start, $end, null, $calid, 0);
+         if (empty($filename))
+           $filename = $calid;
+      }
     }
-    else
-      $events = array();
 
     header("Content-Type: text/calendar");
-    header("Content-Disposition: inline; filename=".$calname.'.ics');
+    header("Content-Disposition: inline; filename=".$filename.'.ics');
 
     $this->get_ical()->export($events, '', true, $attachments ? array($this->driver, 'get_attachment_body') : null);
 
@@ -2672,6 +2773,34 @@ class calendar extends rcube_plugin
     $this->rc->output->send();
   }
 
+  /**
+   * Handler for the 'message_compose' plugin hook. This will check for
+   * a compose parameter 'calendar_event' and create an attachment with the
+   * referenced event in iCal format
+   */
+  public function mail_message_compose($args)
+  {
+    // set the submitted event ID as attachment
+    if (!empty($args['param']['calendar_event'])) {
+      $this->load_driver();
+
+      list($cal, $id) = explode(':', $args['param']['calendar_event'], 2);
+      if ($event = $this->driver->get_event(array('id' => $id, 'calendar' => $cal))) {
+        $filename = asciiwords($event['title']);
+        if (empty($filename))
+          $filename = 'event';
+
+        // save ics to a temp file and register as attachment
+        $tmp_path = tempnam($this->rc->config->get('temp_dir'), 'rcmAttmntCal');
+        file_put_contents($tmp_path, $this->get_ical()->export(array($event), '', false, array($this->driver, 'get_attachment_body')));
+
+        $args['attachments'][] = array('path' => $tmp_path, 'name' => $filename . '.ics', 'mimetype' => 'text/calendar');
+        $args['param']['subject'] = $event['title'];
+      }
+    }
+
+    return $args;
+  }
 
   /**
    * Checks if specified message part is a vcalendar data

@@ -30,6 +30,7 @@ class kolab_calendar extends kolab_storage_folder_api
   public $readonly = true;
   public $attachments = true;
   public $alarms = false;
+  public $history = false;
   public $subscriptions = true;
   public $categories = array();
   public $storage;
@@ -589,53 +590,8 @@ class kolab_calendar extends kolab_storage_folder_api
   {
     $record['id'] = $record['uid'];
     $record['calendar'] = $this->id;
-/*
-    // convert from DateTime to unix timestamp
-    if (is_a($record['start'], 'DateTime'))
-      $record['start'] = $record['start']->format('U');
-    if (is_a($record['end'], 'DateTime'))
-      $record['end'] = $record['end']->format('U');
-*/
-    // all-day events go from 12:00 - 13:00
-    if ($record['end'] <= $record['start'] && $record['allday']) {
-      $record['end'] = clone $record['start'];
-      $record['end']->add(new DateInterval('PT1H'));
-    }
 
-    if (!empty($record['_attachments'])) {
-      foreach ($record['_attachments'] as $key => $attachment) {
-        if ($attachment !== false) {
-          if (!$attachment['name'])
-            $attachment['name'] = $key;
-
-          unset($attachment['path'], $attachment['content']);
-          $attachments[] = $attachment;
-        }
-      }
-
-      $record['attachments'] = $attachments;
-    }
-
-    // Roundcube only supports one category assignment
-    if (is_array($record['categories']))
-      $record['categories'] = $record['categories'][0];
-
-    // the cancelled flag transltes into status=CANCELLED
-    if ($record['cancelled'])
-      $record['status'] = 'CANCELLED';
-
-    // The web client only supports DISPLAY type of alarms
-    if (!empty($record['alarms']))
-      $record['alarms'] = preg_replace('/:[A-Z]+$/', ':DISPLAY', $record['alarms']);
-
-    // remove empty recurrence array
-    if (empty($record['recurrence']))
-      unset($record['recurrence']);
-
-    // remove internals
-    unset($record['_mailbox'], $record['_msguid'], $record['_formatobj'], $record['_attachments'], $record['x-custom']);
-
-    return $record;
+    return kolab_driver::to_rcube_event($record);
   }
 
    /**
