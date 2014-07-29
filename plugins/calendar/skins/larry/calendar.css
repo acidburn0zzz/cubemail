@@ -769,6 +769,10 @@ a.miniColors-trigger {
 	vertical-align: middle;
 }
 
+#event-changelog-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
 #event-changelog-table tbody tr.undisclosed td.date,
 #event-changelog-table tbody tr.undisclosed td.user {
 	font-style: italic;
@@ -994,6 +998,10 @@ td.topalign {
 	text-indent: -5000px;
 	white-space: nowrap;
 	background: url(images/sendinvitation.png) 1px 0 no-repeat;
+}
+
+.edit-attendees-table tbody tr:last-child td {
+	border-bottom: 0;
 }
 
 .edit-attendees-table th.name,
