@@ -406,7 +406,7 @@ function rcube_libcalendaring(settings)
     {
         var valarms = [];
 
-        $(prefix + ':visible .edit-alarm-item').each(function(i, elem){
+        $(prefix + ' .edit-alarm-item').each(function(i, elem) {
             var val, offset, alarm = { action: $('select.edit-alarm-type', elem).val() };
             if (alarm.action) {
                 offset = $('select.edit-alarm-offset', elem).val();
