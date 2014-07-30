@@ -755,12 +755,15 @@ class kolab_storage_cache
             }
         }
 
+        $object_type = $sql_arr['type'] ?: $this->folder->type;
+        $format_type = $this->folder->type == 'configuration' ? 'configuration' : $object_type;
+
         // add meta data
-        $object['_type']      = $sql_arr['type'] ?: $this->folder->type;
+        $object['_type']      = $object_type;
         $object['_msguid']    = $sql_arr['msguid'];
         $object['_mailbox']   = $this->folder->name;
         $object['_size']      = strlen($sql_arr['xml']);
-        $object['_formatobj'] = kolab_format::factory($object['_type'], 3.0, $sql_arr['xml']);
+        $object['_formatobj'] = kolab_format::factory($format_type, 3.0, $sql_arr['xml']);
 
         return $object;
     }
