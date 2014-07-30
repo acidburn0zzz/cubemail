@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" packagerversion="1.9.0" version="2.0" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+    http://pear.php.net/dtd/tasks-1.0.xsd
+    http://pear.php.net/dtd/package-2.0
+    http://pear.php.net/dtd/package-2.0.xsd">
+	<name>kolab_tags</name>
+    <uri>http://git.kolab.org/roundcubemail-plugins-kolab/</uri>
+	<summary>Email tags plugin</summary>
+	<description>-</description>
+	<lead>
+		<name>Aleksander Machniak</name>
+		<user>machniak</user>
+		<email>machniak@kolabsys.com</email>
+		<active>yes</active>
+	</lead>
+	<date>2013-07-30</date>
+	<version>
+		<release>0.1-beta</release>
+		<api>0.1-beta</api>
+	</version>
+	<stability>
+		<release>beta</release>
+		<api>beta</api>
+	</stability>
+	<license uri="http://www.gnu.org/licenses/agpl.html">GNU AGPLv3</license>
+	<notes>-</notes>
+	<contents>
+		<dir baseinstalldir="/" name="/">
+			<file name="kolab_tags.php" role="php">
+				<tasks:replace from="@package_version@" to="version" type="package-info"/>
+			</file>
+			<file name="kolab_tags.js" role="data">
+				<tasks:replace from="@package_version@" to="version" type="package-info"/>
+			</file>
+			<file name="lib/kolab_tags_backend.php" role="data">
+				<tasks:replace from="@package_version@" to="version" type="package-info"/>
+			</file>
+			<file name="lib/kolab_tags_engine.php" role="data">
+				<tasks:replace from="@package_version@" to="version" type="package-info"/>
+			</file>
+
+			<file name="LICENSE" role="data"></file>
+
+			<file name="localization/en_US.inc" role="data"></file>
+			
+			<file name="skins/larry/images/icons.png" role="data"></file>
+			<file name="skins/larry/templates/ui.html" role="data"></file>
+			<file name="skins/larry/style.css" role="data"></file>
+		</dir>
+		<!-- / -->
+	</contents>
+	<dependencies>
+		<required>
+			<php>
+				<min>5.3.1</min>
+			</php>
+			<pearinstaller>
+				<min>1.7.0</min>
+			</pearinstaller>
+			<package>
+			<name>libkolab</name>
+				<uri>http://git.kolab.org/roundcubemail-plugins-kolab/tree/plugins/libkolab</uri>
+			</package>
+		</required>
+	</dependencies>
+	<phprelease/>
+</package>
