@@ -2240,6 +2240,7 @@ class calendar extends rcube_plugin
     }
 
     $html = '';
+    $has_events = false;
     foreach ($this->ics_parts as $mime_id) {
       $part    = $this->message->mime_parts[$mime_id];
       $charset = $part->ctype_parameters['charset'] ? $part->ctype_parameters['charset'] : RCMAIL_CHARSET;
@@ -2255,16 +2256,20 @@ class calendar extends rcube_plugin
         if ($event['_type'] != 'event')  // skip non-event objects (#2928)
           continue;
 
+        $has_events = true;
+
         // get prepared inline UI for this event object
-        $html .= html::div('calendar-invitebox',
-          $this->itip->mail_itip_inline_ui(
-            $event,
-            $this->ical->method,
-            $mime_id.':'.$idx,
-            'calendar',
-            rcube_utils::anytodatetime($this->message->headers->date)
-          )
-        );
+        if ($this->ical->method) {
+          $html .= html::div('calendar-invitebox',
+            $this->itip->mail_itip_inline_ui(
+              $event,
+              $this->ical->method,
+              $mime_id.':'.$idx,
+              'calendar',
+              rcube_utils::anytodatetime($this->message->headers->date)
+            )
+          );
+        }
 
         // limit listing
         if ($idx >= 3)
@@ -2280,7 +2285,7 @@ class calendar extends rcube_plugin
     }
 
     // add "Save to calendar" button into attachment menu
-    if (!empty($this->ics_parts)) {
+    if ($has_events) {
       $this->add_button(array(
         'id'         => 'attachmentsavecal',
         'name'       => 'attachmentsavecal',

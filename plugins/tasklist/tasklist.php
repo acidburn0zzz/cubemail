@@ -1305,6 +1305,7 @@ class tasklist extends rcube_plugin
         // @todo: Calendar plugin does the same, which means the
         // attachment body is fetched twice, this is not optimal
         $html = '';
+        $has_tasks = false;
         foreach ($this->ics_parts as $mime_id) {
             $part    = $this->message->mime_parts[$mime_id];
             $charset = $part->ctype_parameters['charset'] ? $part->ctype_parameters['charset'] : RCMAIL_CHARSET;
@@ -1322,16 +1323,20 @@ class tasklist extends rcube_plugin
                     continue;
                 }
 
+                $has_tasks = true;
+
                 // get prepared inline UI for this event object
-                $html .= html::div('tasklist-invitebox',
-                    $this->itip->mail_itip_inline_ui(
-                        $task,
-                        $this->ical->method,
-                        $mime_id . ':' . $idx,
-                        'tasks',
-                        rcube_utils::anytodatetime($this->message->headers->date)
-                    )
-                );
+                if ($this->ical->method) {
+                    $html .= html::div('tasklist-invitebox',
+                        $this->itip->mail_itip_inline_ui(
+                            $task,
+                            $this->ical->method,
+                            $mime_id . ':' . $idx,
+                            'tasks',
+                            rcube_utils::anytodatetime($this->message->headers->date)
+                        )
+                    );
+                }
 
                 // limit listing
                 if ($idx >= 3) {
@@ -1348,8 +1353,10 @@ class tasklist extends rcube_plugin
             $p['content'] = $html . $p['content'];
 
             $this->rc->output->add_label('tasklist.savingdata','tasklist.deletetaskconfirm','tasklist.declinedeleteconfirm');
+        }
 
-            // add "Save to calendar" button into attachment menu
+        // add "Save to tasks" button into attachment menu
+        if ($has_tasks) {
             $this->add_button(array(
                 'id'         => 'attachmentsavetask',
                 'name'       => 'attachmentsavetask',
