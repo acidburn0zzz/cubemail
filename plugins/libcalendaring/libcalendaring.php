@@ -247,11 +247,25 @@ class libcalendaring extends rcube_plugin
      */
     public function event_date_text($event, $tzinfo = false)
     {
-        $fromto = '';
+        $fromto = '--';
+
+        // handle task objects
+        if ($event['_type'] == 'task' && is_object($event['due'])) {
+            $date_format = $event['due']->_dateonly ? self::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format'])) : null;
+            $fromto = $this->rc->format_date($event['due'], $date_format, false);
+
+            // add timezone information
+            if ($fromto && $tzinfo && ($tzname = $this->timezone->getName())) {
+                $fromto .= ' (' . strtr($tzname, '_', ' ') . ')';
+            }
+
+            return $fromto;
+        }
 
         // abort if no valid event dates are given
-        if (!is_object($event['start']) || !is_a($event['start'], 'DateTime') || !is_object($event['end']) || !is_a($event['end'], 'DateTime'))
+        if (!is_object($event['start']) || !is_a($event['start'], 'DateTime') || !is_object($event['end']) || !is_a($event['end'], 'DateTime')) {
             return $fromto;
+        }
 
         $duration = $event['start']->diff($event['end'])->format('s');
 

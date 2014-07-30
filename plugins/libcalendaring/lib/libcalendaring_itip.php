@@ -213,6 +213,14 @@ class libcalendaring_itip
                 $event['attendees'] = $reply_attendees;
             }
         }
+        // set RSVP=TRUE for every attendee if not set
+        else if ($method == 'REQUEST') {
+            foreach ($event['attendees'] as $i => $attendee) {
+                if (!isset($attendee['rsvp'])) {
+                    $event['attendees'][$i]['rsvp']= true;
+                }
+            }
+        }
 
         // compose multipart message using PEAR:Mail_Mime
         $message = new Mail_mime("\r\n");
@@ -532,15 +540,21 @@ class libcalendaring_itip
     }
 
     /**
-     * Render event details in a table
+     * Render event/task details in a table
      */
     function itip_object_details_table($event, $title)
     {
         $table = new html_table(array('cols' => 2, 'border' => 0, 'class' => 'calendar-eventdetails'));
         $table->add('ititle', $title);
         $table->add('title', Q($event['title']));
-        $table->add('label', $this->plugin->gettext('date'), $this->domain);
-        $table->add('date', Q($this->lib->event_date_text($event)));
+        if ($event['start'] && $event['end']) {
+            $table->add('label', $this->plugin->gettext('date'), $this->domain);
+            $table->add('date', Q($this->lib->event_date_text($event)));
+        }
+        else if ($event['due'] && $event['_type'] == 'task') {
+            $table->add('label', $this->plugin->gettext('date'), $this->domain);
+            $table->add('date', Q($this->lib->event_date_text($event)));
+        }
         if ($event['location']) {
             $table->add('label', $this->plugin->gettext('location'), $this->domain);
             $table->add('location', Q($event['location']));

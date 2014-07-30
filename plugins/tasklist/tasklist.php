@@ -334,7 +334,7 @@ class tasklist extends rcube_plugin
             $task = $action == 'delete' ? $oldrec : $this->driver->get_task($rec);
 
             // only notify if data really changed (TODO: do diff check on client already)
-            if (!$oldrec || $action == 'delete' || self::task_diff($event, $old)) {
+            if (!$oldrec || $action == 'delete' || self::task_diff($task, $oldrec)) {
                 $sent = $this->notify_attendees($task, $oldrec, $action, $rec['_comment']);
                 if ($sent > 0)
                     $this->rc->output->show_message('tasklist.itipsendsuccess', 'confirmation');
@@ -366,10 +366,7 @@ class tasklist extends rcube_plugin
         if (!$this->itip) {
             require_once realpath(__DIR__ . '/../libcalendaring/lib/libcalendaring_itip.php');
             $this->itip = new libcalendaring_itip($this, 'tasklist');
-
-//            if ($this->rc->config->get('kolab_invitation_tasklists')) {
-//                $this->itip->set_rsvp_actions(array('accepted','tentative','declined','needs-action'));
-//            }
+            $this->itip->set_rsvp_actions(array('accepted','declined'));
         }
 
         return $this->itip;
@@ -520,6 +517,11 @@ class tasklist extends rcube_plugin
 
         $rec['attachments'] = $attachments;
 
+        // set organizer from identity selector
+        if (isset($rec['_identity']) && ($identity = $this->rc->user->get_identity($rec['_identity']))) {
+            $rec['organizer'] = array('name' => $identity['name'], 'email' => $identity['email']);
+        }
+
         if (is_numeric($rec['id']) && $rec['id'] < 0)
             unset($rec['id']);
 
@@ -646,7 +648,8 @@ class tasklist extends rcube_plugin
 
         // compose multipart message using PEAR:Mail_Mime
         $method  = $action == 'delete' ? 'CANCEL' : 'REQUEST';
-        $message = $itip->compose_itip_message($task, $method);
+        $object = $this->to_libcal($task);
+        $message = $itip->compose_itip_message($object, $method);
 
         // list existing attendees from the $old task
         $old_attendees = array();
@@ -671,11 +674,11 @@ class tasklist extends rcube_plugin
 
             // which template to use for mail text
             $is_new   = !in_array($attendee['email'], $old_attendees);
-            $bodytext = $is_cancelled ? 'eventcancelmailbody' : ($is_new ? 'invitationmailbody' : 'eventupdatemailbody');
-            $subject  = $is_cancelled ? 'eventcancelsubject'  : ($is_new ? 'invitationsubject' : ($task['title'] ? 'eventupdatesubject' : 'eventupdatesubjectempty'));
+            $bodytext = $is_cancelled ? 'itipcancelmailbody' : ($is_new ? 'invitationmailbody' : 'itipupdatemailbody');
+            $subject  = $is_cancelled ? 'itipcancelsubject'  : ($is_new ? 'invitationsubject' : ($task['title'] ? 'itipupdatesubject' : 'itipupdatesubjectempty'));
 
             // finally send the message
-            if ($itip->send_itip_message($task, $method, $attendee, $subject, $bodytext, $message))
+            if ($itip->send_itip_message($object, $method, $attendee, $subject, $bodytext, $message))
                 $sent++;
             else
                 $sent = -100;
@@ -683,16 +686,16 @@ class tasklist extends rcube_plugin
 
         // send CANCEL message to removed attendees
         foreach ((array)$old['attendees'] as $attendee) {
-            if ($attendee['ROLE'] == 'ORGANIZER' || !$attendee['email'] || in_array(strtolower($attendee['email']), $current)) {
+            if (!$attendee['email'] || in_array(strtolower($attendee['email']), $current)) {
                 continue;
             }
 
-            $vevent = $old;
-            $vevent['cancelled'] = $is_cancelled;
-            $vevent['attendees'] = array($attendee);
-            $vevent['comment']   = $comment;
+            $vtodo = $this->to_libcal($old);
+            $vtodo['cancelled'] = $is_cancelled;
+            $vtodo['attendees'] = array($attendee);
+            $vtodo['comment']   = $comment;
 
-            if ($itip->send_itip_message($vevent, 'CANCEL', $attendee, 'eventcancelsubject', 'eventcancelmailbody'))
+            if ($itip->send_itip_message($vtodo, 'CANCEL', $attendee, 'itipcancelsubject', 'itipcancelmailbody'))
                 $sent++;
             else
                 $sent = -100;
@@ -1393,6 +1396,8 @@ class tasklist extends rcube_plugin
 
         // successfully parsed events?
         if (!empty($tasks) && ($task = $tasks[$index])) {
+            $task = $this->from_ical($task);
+
             // store the message's sender address for comparisons
             $task['_sender'] = preg_match('/([a-z0-9][a-z0-9\-\.\+\_]*@[^&@"\'.][^@&"\']*\\.([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}))/', $headers->from, $m) ? $m[1] : '';
             $askt['_sender_utf'] = rcube_idn_to_utf8($task['_sender']);
@@ -1496,6 +1501,7 @@ class tasklist extends rcube_plugin
             foreach ($tasks as $task) {
                 // save to tasklist
                 if ($list && $list['editable'] && $task['_type'] == 'task') {
+                    $task = $this->from_ical($task);
                     $task['list'] = $list['id'];
 
                     if (!$this->driver->get_task($task['uid'])) {
@@ -1555,14 +1561,11 @@ class tasklist extends rcube_plugin
 
             // update my attendee status according to submitted method
             if (!empty($status)) {
-                $organizer = null;
+                $organizer = $task['organizer'];
                 $emails    = $this->lib->get_user_emails();
 
                 foreach ($task['attendees'] as $i => $attendee) {
-                    if ($attendee['role'] == 'ORGANIZER') {
-                        $organizer = $attendee;
-                    }
-                    else if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+                    if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
                         $metadata['attendee'] = $attendee['email'];
                         $metadata['rsvp']     = $attendee['role'] != 'NON-PARTICIPANT';
                         $reply_sender         = $attendee['email'];
@@ -1714,7 +1717,7 @@ class tasklist extends rcube_plugin
             $itip = $this->load_itip();
             $itip->set_sender_email($reply_sender);
 
-            if ($itip->send_itip_message($task, 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
+            if ($itip->send_itip_message($this->to_libcal($task), 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
                 $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $organizer['name'] ? $organizer['name'] : $organizer['email']))), 'confirmation');
             else
                 $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
@@ -1729,7 +1732,7 @@ class tasklist extends rcube_plugin
     /**
      * Handler for calendar/itip-status requests
      */
-    function task_itip_status()
+    public function task_itip_status()
     {
         $data = rcube_utils::get_input_value('data', rcube_utils::INPUT_POST, true);
 
@@ -1768,7 +1771,7 @@ class tasklist extends rcube_plugin
     /**
      * Handler for calendar/itip-remove requests
      */
-    function task_itip_remove()
+    public function task_itip_remove()
     {
         $success = false;
         $uid     = rcube_utils::get_input_value('uid', rcube_utils::INPUT_POST);
@@ -1795,6 +1798,78 @@ class tasklist extends rcube_plugin
     public function generate_uid()
     {
       return strtoupper(md5(time() . uniqid(rand())) . '-' . substr(md5($this->rc->user->get_username()), 0, 16));
+    }
+
+    /**
+     * Map task properties for ical exprort using libcalendaring
+     */
+    public function to_libcal($task)
+    {
+        $object = $task;
+        $object['categories'] = (array)$task['tags'];
+
+        // convert to datetime objects
+        if (!empty($task['date'])) {
+            $object['due'] = rcube_utils::anytodatetime($task['date'].' '.$task['time'], $this->timezone);
+            if (empty($task['time']))
+                $object['due']->_dateonly = true;
+            unset($object['date']);
+        }
+
+        if (!empty($task['startdate'])) {
+            $object['start'] = rcube_utils::anytodatetime($task['startdate'].' '.$task['starttime'], $this->timezone);
+            if (empty($task['starttime']))
+                $object['start']->_dateonly = true;
+            unset($object['startdate']);
+        }
+
+        $object['complete'] = $task['complete'] * 100;
+        if ($task['complete'] == 1.0 && empty($task['complete'])) {
+            $object['status'] = 'COMPLETED';
+        }
+
+        if ($task['flagged']) {
+            $object['priority'] = 1;
+        }
+        else if (!$task['priority']) {
+            $object['priority'] = 0;
+        }
+
+        return $object;
+    }
+
+    /**
+     * Convert task properties from ical parser to the internal format
+     */
+    public function from_ical($vtodo)
+    {
+        $task = $vtodo;
+
+        $task['tags'] = array_filter((array)$vtodo['categories']);
+        $task['flagged'] = $vtodo['priority'] == 1;
+        $task['complete'] = floatval($vtodo['complete'] / 100);
+
+        // convert from DateTime to internal date format
+        if (is_a($vtodo['due'], 'DateTime')) {
+            $due = $this->lib->adjust_timezone($vtodo['due']);
+            $task['date'] = $due->format('Y-m-d');
+            if (!$vtodo['due']->_dateonly)
+                $task['time'] = $due->format('H:i');
+        }
+        // convert from DateTime to internal date format
+        if (is_a($vtodo['start'], 'DateTime')) {
+            $start = $this->lib->adjust_timezone($vtodo['start']);
+            $task['startdate'] = $start->format('Y-m-d');
+            if (!$vtodo['start']->_dateonly)
+                $task['starttime'] = $start->format('H:i');
+        }
+        if (is_a($vtodo['dtstamp'], 'DateTime')) {
+            $task['changed'] = $vtodo['dtstamp'];
+        }
+
+        unset($task['categories'], $task['due'], $task['start'], $task['dtstamp']);
+
+        return $task;
     }
 
     /**

@@ -84,7 +84,6 @@ function rcube_tasklist_ui(settings)
     var focused_subclass;
     var task_attendees = [];
     var attendees_list;
-//    var resources_list;
     var me = this;
 
     // general datepicker settings
@@ -1349,7 +1348,7 @@ function rcube_tasklist_ui(settings)
     };
 
     // check if the current user is an attendee of this task
-    var is_attendee = function(task, role, email)
+    var is_attendee = function(task, email, role)
     {
         var i, attendee, emails = email ? ';' + email.toLowerCase() : settings.identity.emails;
 
@@ -1366,7 +1365,10 @@ function rcube_tasklist_ui(settings)
     // check if the current user is the organizer
     var is_organizer = function(task, email)
     {
-        return is_attendee(task, 'ORGANIZER', email) || !task.id;
+        if (!email) email = task.organizer ? task.organizer.email : null;
+        if (email)
+            return settings.identity.emails.indexOf(';'+email) >= 0;
+        return true;
     };
 
     // add the given list of participants
@@ -1421,33 +1423,9 @@ function rcube_tasklist_ui(settings)
         if (exists)
             return false;
 
-//      var list = me.selected_task && me.tasklists[me.selected_task.list] ? me.tasklists[me.selected_task.list] : me.tasklists[me.selected_list];
-
         var dispname = Q(data.name || data.email);
         if (data.email)
             dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
-
-        // role selection
-        var opts = {}, organizer = data.role == 'ORGANIZER';
-        if (organizer)
-            opts.ORGANIZER = rcmail.gettext('tasklist.roleorganizer');
-        opts['REQ-PARTICIPANT'] = rcmail.gettext('tasklist.rolerequired');
-        opts['OPT-PARTICIPANT'] = rcmail.gettext('tasklist.roleoptional');
-        opts['NON-PARTICIPANT'] = rcmail.gettext('tasklist.rolenonparticipant');
-
-        if (data.cutype != 'RESOURCE')
-            opts['CHAIR'] =  rcmail.gettext('tasklist.rolechair');
-
-        if (organizer && !readonly)
-            dispname = rcmail.env['identities-selector'];
-
-        var select = '<select class="edit-attendee-role"' + (organizer || readonly ? ' disabled="true"' : '') + ' aria-label="' + rcmail.gettext('role','tasklist') + '">';
-        for (var r in opts)
-            select += '<option value="'+ r +'" class="' + r.toLowerCase() + '"' + (data.role == r ? ' selected="selected"' : '') +'>' + Q(opts[r]) + '</option>';
-        select += '</select>';
-
-        // availability
-        var avail = data.email ? 'loading' : 'unknown';
 
         // delete icon
         var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : rcmail.gettext('delete');
@@ -1463,18 +1441,15 @@ function rcube_tasklist_ui(settings)
         else if (data['delegated-from'])
             tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
 
-        var html = '<td class="role">' + select + '</td>' +
-            '<td class="name">' + dispname + '</td>' +
-//            '<td class="availability"><img src="./program/resources/blank.gif" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
+        var html = '<td class="name">' + dispname + '</td>' +
             '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
-            (data.cutype != 'RESOURCE' ? '<td class="sendmail">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
-            '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
+            (data.cutype != 'RESOURCE' ? '<td class="sendmail">' + (readonly || !invbox ? '' : invbox) + '</td>' : '') +
+            '<td class="options">' + (readonly ? '' : dellink) + '</td>';
 
-        var table = rcmail.env.tasklist_resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
         var tr = $('<tr>')
             .addClass(String(data.role).toLowerCase())
             .html(html)
-            .appendTo(table);
+            .appendTo(attendees_list);
 
         tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
         tr.find('a.mailtolink').click(task_attendee_click);
@@ -1483,15 +1458,6 @@ function rcube_tasklist_ui(settings)
             $('p.attendees-commentbox')[enabled ? 'show' : 'hide']();
         });
 
-        // select organizer identity
-        if (data.identity_id)
-            $('#edit-identities-list').val(data.identity_id);
-
-      // check free-busy status
-//      if (avail == 'loading') {
-//        check_freebusy_status(tr.find('img.availabilityicon'), data.email, me.selected_task);
-//      }
-
         task_attendees.push(data);
         return true;
     };
@@ -1499,15 +1465,8 @@ function rcube_tasklist_ui(settings)
     // event handler for clicks on an attendee link
     var task_attendee_click = function(e)
     {
-        var cutype = $(this).attr('data-cutype'),
-            mailto = this.href.substr(7);
-
-        if (rcmail.env.tasklist_resources && cutype == 'RESOURCE') {
-            task_resources_dialog(mailto);
-        }
-        else {
-            rcmail.redirect(rcmail.url('mail/compose', {_to: mailto}));
-        }
+        var mailto = this.href.substr(7);
+        rcmail.command('compose', mailto);
 
         return false;
     };
@@ -1547,7 +1506,7 @@ function rcube_tasklist_ui(settings)
         $('#task-completeness .task-text').html(((rec.complete || 0) * 100) + '%');
         $('#task-status')[(rec.status ? 'show' : 'hide')]().children('.task-text').html(rcmail.gettext('status-'+String(rec.status).toLowerCase(),'tasklist'));
         $('#task-list .task-text').html(Q(me.tasklists[rec.list] ? me.tasklists[rec.list].name : ''));
-        $('#task-attendees').hide();
+        $('#task-attendees, #task-organizer').hide();
 
         var itags = get_inherited_tags(rec);
         var taglist = $('#task-tags')[(rec.tags && rec.tags.length || itags.length ? 'show' : 'hide')]().children('.task-text').empty();
@@ -1587,6 +1546,7 @@ function rcube_tasklist_ui(settings)
 
         // list task attendees
         if (list.attendees && rec.attendees) {
+            console.log(rec.attendees)
 /*
             // sort resources to the end
             rec.attendees.sort(function(a,b) {
@@ -1595,30 +1555,19 @@ function rcube_tasklist_ui(settings)
                 return (j - k);
             });
 */
-            var j, data, dispname, tooltip, organizer = false, rsvp = false, mystatus = null, line, morelink, html = '', overflow = '';
+            var j, data, rsvp = false, mystatus = null, line, morelink, html = '', overflow = '',
+                organizer = is_organizer(rec);
+
             for (j=0; j < rec.attendees.length; j++) {
                 data = rec.attendees[j];
-                dispname = Q(data.name || data.email);
-                tooltip = '';
 
-                if (data.email) {
-                    tooltip = data.email;
-                    dispname = '<a href="mailto:' + data.email + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
-                    if (data.role == 'ORGANIZER')
-                        organizer = true;
-                    else if (settings.identity.emails.indexOf(';'+data.email) >= 0) {
-                        mystatus = data.status.toLowerCase();
-                        if (data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp)
-                            rsvp = mystatus;
-                    }
+                if (data.email && settings.identity.emails.indexOf(';'+data.email) >= 0) {
+                    mystatus = data.status.toLowerCase();
+                    if (data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp)
+                        rsvp = mystatus;
                 }
 
-                if (data['delegated-to'])
-                    tooltip = rcmail.gettext('delegatedto', 'tasklist') + data['delegated-to'];
-                else if (data['delegated-from'])
-                    tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
-
-                line = '<span class="attendee ' + String(data.role == 'ORGANIZER' ? 'organizer' : data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + dispname + '</span> ';
+                line = task_attendee_html(data);
 
                 if (morelink)
                     overflow += line;
@@ -1631,7 +1580,7 @@ function rcube_tasklist_ui(settings)
                 }
             }
 
-            if (html && (rec.attendees.length > 1 || !organizer)) {
+            if (html) {
                 $('#task-attendees').show()
                     .children('.task-text')
                     .html(html)
@@ -1667,6 +1616,10 @@ function rcube_tasklist_ui(settings)
             $('#task-rsvp a.reply-comment-toggle').show();
             $('#task-rsvp .itip-reply-comment textarea').hide().val('');
 */
+
+            if (rec.organizer && !organizer) {
+                $('#task-organizer').show().children('.task-text').html(task_attendee_html(rec.organizer));
+            }
         }
 
         // define dialog buttons
@@ -1697,7 +1650,7 @@ function rcube_tasklist_ui(settings)
           closeOnEscape: true,
           title: rcmail.gettext('taskdetails', 'tasklist'),
           open: function() {
-            $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+              $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
           },
           close: function() {
               $dialog.dialog('destroy').appendTo(document.body);
@@ -1709,6 +1662,24 @@ function rcube_tasklist_ui(settings)
 
         // set dialog size according to content
         me.dialog_resize($dialog.get(0), $dialog.height(), 580);
+    }
+
+    // render HTML code for displaying an attendee record
+    function task_attendee_html(data)
+    {
+        var dispname = Q(data.name || data.email), tooltip = '';
+
+        if (data.email) {
+          tooltip = data.email;
+          dispname = '<a href="mailto:' + data.email + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
+        }
+
+        if (data['delegated-to'])
+          tooltip = rcmail.gettext('delegatedto', 'tasklist') + data['delegated-to'];
+        else if (data['delegated-from'])
+          tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
+
+        return '<span class="attendee ' + String(data.role == 'ORGANIZER' ? 'organizer' : data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + dispname + '</span> ';
     }
 
     /**
@@ -1786,18 +1757,17 @@ function rcube_tasklist_ui(settings)
 
         task_attendees = [];
         attendees_list = $('#edit-attendees-table > tbody').html('');
-        //resources_list = $('#edit-resources-table > tbody').html('');
         $('#edit-attendees-notify')[(notify.checked && allow_invitations ? 'show' : 'hide')]();
         $('#edit-localchanges-warning')[(has_attendees(rec) && !(allow_invitations || (rec.owner && is_organizer(rec, rec.owner))) ? 'show' : 'hide')]();
 
-        var load_attendees_tab = function()
-        {
+        // attendees (aka assignees)
+        if (list.attendees) {
             var j, data, reply_selected = 0;
             if (rec.attendees) {
                 for (j=0; j < rec.attendees.length; j++) {
                     data = rec.attendees[j];
                     add_attendee(data, !allow_invitations);
-                    if (allow_invitations && data.role != 'ORGANIZER' && !data.noreply) {
+                    if (allow_invitations && !data.noreply) {
                         reply_selected++;
                     }
                 }
@@ -1812,16 +1782,16 @@ function rcube_tasklist_ui(settings)
             // select the correct organizer identity
             var identity_id = 0;
             $.each(settings.identities, function(i,v) {
-                if (organizer && v == organizer.email) {
+                if (rec.organizer && v == rec.organizer.email) {
                     identity_id = i;
                     return false;
                 }
             });
 
-            $('#edit-identities-list').val(identity_id);
             $('#edit-attendees-form')[(allow_invitations?'show':'hide')]();
-//            $('#edit-attendee-schedule')[(tasklist.freebusy?'show':'hide')]();
-        };
+            $('#edit-identities-list').val(identity_id);
+            $('#taskedit-organizer')[(organizer ? 'show' : 'hide')]();
+        }
 
         // attachments
         rcmail.enable_command('remove-attachment', list.editable);
@@ -1904,15 +1874,9 @@ function rcube_tasklist_ui(settings)
             if (!data.tags.length)
                 data.tags = '';
 
-            // read attendee roles
-            $('select.edit-attendee-role').each(function(i, elem) {
-                if (data.attendees[i]) {
-                    data.attendees[i].role = $(elem).val();
-                }
-            });
-
             if (organizer) {
                 data._identity = $('#edit-identities-list option:selected').val();
+                delete data.organizer;
             }
 
             // don't submit attendees if only myself is added as organizer
@@ -1977,9 +1941,6 @@ function rcube_tasklist_ui(settings)
 
         // set dialog size according to content
         me.dialog_resize($dialog.get(0), $dialog.height(), 580);
-
-        if (list.attendees)
-            window.setTimeout(load_attendees_tab, 1);
     }
 
     /**

@@ -56,7 +56,6 @@ class tasklist_ui
 
         // copy config to client
         $this->rc->output->set_env('tasklist_settings', $this->load_settings());
-        $this->rc->output->set_env('identities-selector', $this->identity_select(array('id' => 'edit-identities-list', 'aria-label' => $this->plugin->gettext('roleorganizer'))));
 
         // initialize attendees autocompletion
         $this->rc->autocomplete_init();
@@ -71,7 +70,7 @@ class tasklist_ui
     {
         $settings = array();
 
-        //$settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', $this->defaults['calendar_allow_invite_shared']);
+        $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', 0);
 
         // get user identity to create default attendee
         foreach ($this->rc->user->list_identities() as $rec) {
@@ -128,6 +127,7 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.filedroparea', array($this, 'file_drop_area'));
         $this->plugin->register_handler('plugin.attendees_list', array($this, 'attendees_list'));
         $this->plugin->register_handler('plugin.attendees_form', array($this, 'attendees_form'));
+        $this->plugin->register_handler('plugin.identity_select', array($this, 'identity_select'));
         $this->plugin->register_handler('plugin.edit_attendees_notify', array($this, 'edit_attendees_notify'));
 
         $this->plugin->include_script('jquery.tagedit.js');
@@ -438,9 +438,8 @@ class tasklist_ui
         $invite = new html_checkbox(array('value' => 1, 'id' => 'edit-attendees-invite'));
         $table  = new html_table(array('cols' => 4 + intval($invitations), 'border' => 0, 'cellpadding' => 0, 'class' => 'rectable'));
 
-        $table->add_header('role', $this->plugin->gettext('role'));
+//      $table->add_header('role', $this->plugin->gettext('role'));
         $table->add_header('name', $this->plugin->gettext($attrib['coltitle'] ?: 'attendee'));
-//        $table->add_header('availability', $this->plugin->gettext('availability'));
         $table->add_header('confirmstate', $this->plugin->gettext('confirmstate'));
         if ($invitations) {
             $table->add_header(array('class' => 'sendmail', 'title' => $this->plugin->gettext('sendinvitations')),

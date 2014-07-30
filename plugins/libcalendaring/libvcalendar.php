@@ -567,7 +567,7 @@ class libvcalendar implements Iterator
         }
 
         // make organizer part of the attendees list for compatibility reasons
-        if (!empty($event['organizer']) && is_array($event['attendees'])) {
+        if (!empty($event['organizer']) && is_array($event['attendees']) && $event['_type'] == 'event') {
             array_unshift($event['attendees'], $event['organizer']);
         }
 

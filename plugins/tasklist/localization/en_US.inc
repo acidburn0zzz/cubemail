@@ -33,6 +33,7 @@ $labels['status-needs-action'] = 'Needs action';
 $labels['status-in-process'] = 'In process';
 $labels['status-completed'] = 'Completed';
 $labels['status-cancelled'] = 'Cancelled';
+$labels['assignedto'] = 'Assigned to';
 
 $labels['all'] = 'All';
 $labels['flagged'] = 'Flagged';
@@ -98,35 +99,35 @@ $labels['arialabeltaskselector'] = 'List mode';
 $labels['arialabeltasklisting'] = 'Tasks listing';
 
 // attendees
-$labels['attendee'] = 'Participant';
+$labels['attendee'] = 'Assignee';
 $labels['role'] = 'Role';
 $labels['availability'] = 'Avail.';
 $labels['confirmstate'] = 'Status';
-$labels['addattendee'] = 'Add participant';
+$labels['addattendee'] = 'Add assignee';
 $labels['roleorganizer'] = 'Organizer';
 $labels['rolerequired'] = 'Required';
 $labels['roleoptional'] = 'Optional';
 $labels['rolechair'] = 'Chair';
-$labels['rolenonparticipant'] = 'Absent';
+$labels['rolenonparticipant'] = 'Observer';
 $labels['sendinvitations'] = 'Send invitations';
-$labels['sendnotifications'] = 'Notify participants about modifications';
-$labels['sendcancellation'] = 'Notify participants about task cancellation';
-$labels['invitationsubject'] = 'You\'ve been invited to "$title"';
-$labels['invitationmailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nPlease find attached an iCalendar file with all the task details which you can import to your tasks application.";
-$labels['invitationattendlinks'] = "In case your email client doesn't support iTip requests you can use the following link to either accept or decline this invitation:\n\$url";
-$labels['eventupdatesubject'] = '"$title" has been updated';
-$labels['eventupdatesubjectempty'] = 'A task that concerns you has been updated';
-$labels['eventupdatemailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nPlease find attached an iCalendar file with the updated task details which you can import to your tasks application.";
-$labels['eventcancelsubject'] = '"$title" has been canceled';
-$labels['eventcancelmailbody'] = "*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees\n\nThe task has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated task details.";
+$labels['sendnotifications'] = 'Notify assignees about modifications';
+$labels['sendcancellation'] = 'Notify assignees about task cancellation';
+$labels['invitationsubject'] = 'You\'ve been assigned to "$title"';
+$labels['invitationmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nPlease find attached an iCalendar file with all the task details which you can import to your tasks application.";
+$labels['itipupdatesubject'] = '"$title" has been updated';
+$labels['itipupdatesubjectempty'] = 'A task that concerns you has been updated';
+$labels['itipupdatemailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nPlease find attached an iCalendar file with the updated task details which you can import to your tasks application.";
+$labels['itipcancelsubject'] = '"$title" has been canceled';
+$labels['itipcancelmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nThe task has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated task details.";
+$labels['saveintasklist'] = 'save in ';
 
 // invitation handling (overrides labels from libcalendaring)
 $labels['itipobjectnotfound'] = 'The task referred by this message was not found in your tasks list.';
 
-$labels['itipmailbodyaccepted'] = "\$sender has accepted the assignment to the following task:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
-$labels['itipmailbodytentative'] = "\$sender has tentatively accepted the assignment to the following task:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
-$labels['itipmailbodydeclined'] = "\$sender has declined the assignment to the following task:\n\n*\$title*\n\nWhen: \$date\n\nInvitees: \$attendees";
-$labels['itipmailbodycancel'] = "\$sender has rejected your assignment to the following task:\n\n*\$title*\n\nWhen: \$date";
+$labels['itipmailbodyaccepted'] = "\$sender has accepted the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nInvitees: \$attendees";
+$labels['itipmailbodytentative'] = "\$sender has tentatively accepted the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nInvitees: \$attendees";
+$labels['itipmailbodydeclined'] = "\$sender has declined the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nInvitees: \$attendees";
+$labels['itipmailbodycancel'] = "\$sender has rejected your assignment to the following task:\n\n*\$title*\n\nDue: \$date";
 
 $labels['itipdeclineevent'] = 'Do you want to decline your assignment to this task?';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined task from your tasks list?';

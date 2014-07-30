@@ -774,6 +774,8 @@ class tasklist_kolab_driver extends tasklist_driver
             'parent_id' => $record['parent_id'],
             'recurrence' => $record['recurrence'],
             'attendees' => $record['attendees'],
+            'organizer' => $record['organizer'],
+            'sequence' => $record['sequence'],
         );
 
         // convert from DateTime to internal date format
@@ -817,8 +819,8 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
-    * Convert the given task record into a data structure that can be passed to kolab_storage backend for saving
-    * (opposite of self::_to_rcube_event())
+     * Convert the given task record into a data structure that can be passed to kolab_storage backend for saving
+     * (opposite of self::_to_rcube_event())
      */
     private function _from_rcube_task($task, $old = array())
     {
@@ -826,14 +828,14 @@ class tasklist_kolab_driver extends tasklist_driver
         $object['categories'] = (array)$task['tags'];
 
         if (!empty($task['date'])) {
-            $object['due'] = new DateTime($task['date'].' '.$task['time'], $this->plugin->timezone);
+            $object['due'] = rcube_utils::anytodatetime($task['date'].' '.$task['time'], $this->plugin->timezone);
             if (empty($task['time']))
                 $object['due']->_dateonly = true;
             unset($object['date']);
         }
 
         if (!empty($task['startdate'])) {
-            $object['start'] = new DateTime($task['startdate'].' '.$task['starttime'], $this->plugin->timezone);
+            $object['start'] = rcube_utils::anytodatetime($task['startdate'].' '.$task['starttime'], $this->plugin->timezone);
             if (empty($task['starttime']))
                 $object['start']->_dateonly = true;
             unset($object['startdate']);
@@ -898,12 +900,6 @@ class tasklist_kolab_driver extends tasklist_driver
             }
 
             unset($object['attachments']);
-        }
-
-        // set current user as ORGANIZER
-        $identity = $this->rc->user->get_identity();
-        if (empty($object['attendees']) && $identity['email']) {
-            $object['attendees'] = array(array('role' => 'ORGANIZER', 'name' => $identity['name'], 'email' => $identity['email']));
         }
 
         $object['_owner'] = $identity['email'];

@@ -855,6 +855,14 @@ a.morelink:hover {
 	margin-top: 0.5em;
 }
 
+.edit-attendees-table tbody td {
+	padding: 4px 7px;
+}
+
+.edit-attendees-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
 .edit-attendees-table th.role,
 .edit-attendees-table td.role {
 	width: 9em;
@@ -864,18 +872,19 @@ a.morelink:hover {
 .edit-attendees-table td.availability,
 .edit-attendees-table th.confirmstate,
 .edit-attendees-table td.confirmstate {
-	width: 4em;
+	width: 6em;
 }
 
 .edit-attendees-table th.options,
 .edit-attendees-table td.options {
-	width: 16px;
+	width: 24px;
 	padding: 2px 4px;
+	text-align: right;
 }
 
 .edit-attendees-table th.sendmail,
 .edit-attendees-table td.sendmail {
-	width: 44px;
+	width: 48px;
 	padding: 2px;
 }
 
@@ -955,7 +964,7 @@ a.morelink:hover {
 div.form-section {
 	position: relative;
 	margin-top: 0.2em;
-	margin-bottom: 0.8em;
+	margin-bottom: 0.5em;
 }
 
 .form-section label {
@@ -968,6 +977,10 @@ div.form-section {
 label.block {
 	display: block;
 	margin-bottom: 0.3em;
+}
+
+#task-description {
+	margin-bottom: 1em;
 }
 
 #taskedit-completeness-slider {
@@ -1047,7 +1060,7 @@ label.block {
 }
 
 .task-attendees span.organizer {
-	background-position: right -80px;
+	background-position: right 100px;
 }
 
 #all-task-attendees span.attendee {
