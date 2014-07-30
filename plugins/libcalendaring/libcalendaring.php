@@ -753,7 +753,7 @@ class libcalendaring extends rcube_plugin
             function($dt) use ($format) { return format_date($dt, $format); },
             array_slice($rrule['EXDATE'], 0, 10)
           );
-          $except = '; ' . $this->gettext('except') . ' ' . join(', ');
+          $except = '; ' . $this->gettext('except') . ' ' . join(', ', $exdates);
         }
 
         return rtrim($freq . $details . ', ' . $until . $except);
