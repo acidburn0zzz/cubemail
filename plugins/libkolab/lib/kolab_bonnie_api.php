@@ -50,25 +50,25 @@ class kolab_bonnie_api
     /**
      * Wrapper function for <object>.changelog() API call
      */
-    public function changelog($type, $uid, $folder=null)
+    public function changelog($type, $uid, $mailbox=null)
     {
-        return $this->client->execute($type.'.changelog', array('uid' => $uid, 'folder' => $folder));
+        return $this->client->execute($type.'.changelog', array('uid' => $uid, 'mailbox' => $mailbox));
     }
 
     /**
      * Wrapper function for <object>.diff() API call
      */
-    public function diff($type, $uid, $rev, $folder=null)
+    public function diff($type, $uid, $rev, $mailbox=null)
     {
-        return $this->client->execute($type.'.diff', array('uid' => $uid, 'rev' => $rev, 'folder' => $folder));
+        return $this->client->execute($type.'.diff', array('uid' => $uid, 'rev' => $rev, 'mailbox' => $mailbox));
     }
 
     /**
      * Wrapper function for <object>.get() API call
      */
-    public function get($type, $uid, $rev, $folder=null)
+    public function get($type, $uid, $rev, $mailbox=null)
     {
-      return $this->client->execute($type.'.get', array('uid' => $uid, 'rev' => intval($rev), 'folder' => $folder));
+      return $this->client->execute($type.'.get', array('uid' => $uid, 'rev' => intval($rev), 'mailbox' => $mailbox));
     }
 
     /**

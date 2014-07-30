@@ -167,6 +167,38 @@ abstract class kolab_storage_folder_api
         return join('/', $path);
     }
 
+    /**
+     * Getter for the Cyrus mailbox identifier corresponding to this folder
+     * (e.g. user/john.doe/Calendar/Personal@example.org)
+     *
+     * @return string Mailbox ID
+     */
+    public function get_mailbox_id()
+    {
+        $info = $this->get_folder_info();
+        $owner = $this->get_owner();
+        list($user, $domain) = explode('@', $owner);
+
+        switch ($info['namespace']) {
+        case 'personal':
+            return sprintf('user/%s/%s@%s', $user, $this->name, $domain);
+
+        case 'shared':
+            $ns = $this->imap->get_namespace('shared');
+            $prefix = is_array($ns) ? $ns[0][0] : '';
+            list(, $domain) = explode('@', rcube::get_instance()->get_user_name());
+            return substr($this->name, strlen($prefix)) . '@' . $domain;
+
+        default:
+            $ns = $this->imap->get_namespace('other');
+            $prefix = is_array($ns) ? $ns[0][0] : '';
+            list($user, $folder) = explode($this->imap->get_hierarchy_delimiter(), substr($info['name'], strlen($prefix)), 2);
+            if (strpos($user, '@')) {
+                list($user, $domain) = explode('@', $user);
+            }
+            return sprintf('user/%s/%s@%s', $user, $folder, $domain);
+        }
+    }
 
     /**
      * Get the color value stored in metadata

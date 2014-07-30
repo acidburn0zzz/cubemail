@@ -1359,9 +1359,9 @@ class kolab_driver extends calendar_driver
       return false;
     }
 
-    list($uid, $folder) = $this->_resolve_event_identity($event);
+    list($uid, $mailbox) = $this->_resolve_event_identity($event);
 
-    $result = $this->bonnie_api->changelog('event', $uid, $folder);
+    $result = $this->bonnie_api->changelog('event', $uid, $mailbox);
     if (is_array($result) && $result['uid'] == $uid) {
       return $result['changes'];
     }
@@ -1384,10 +1384,10 @@ class kolab_driver extends calendar_driver
       return false;
     }
 
-    list($uid, $folder) = $this->_resolve_event_identity($event);
+    list($uid, $mailbox) = $this->_resolve_event_identity($event);
 
     // call Bonnie API
-    $result = $this->bonnie_api->diff('event', $uid, $rev, $folder);
+    $result = $this->bonnie_api->diff('event', $uid, $rev, $mailbox);
     if (is_array($result) && $result['uid'] == $uid) {
       $result['rev'] = $rev;
 
@@ -1502,23 +1502,17 @@ class kolab_driver extends calendar_driver
     }
 
     $calid = $event['calendar'];
-    list($uid, $folder) = $this->_resolve_event_identity($event);
+    list($uid, $mailbox) = $this->_resolve_event_identity($event);
 
     // call Bonnie API
-    $result = $this->bonnie_api->get('event', $uid, $rev, $folder);
+    $result = $this->bonnie_api->get('event', $uid, $rev, $mailbox);
     if (is_array($result) && $result['uid'] == $uid && !empty($result['xml'])) {
       $format = kolab_format::factory('event');
       $format->load($result['xml']);
       $event = $format->to_array();
 
       if ($format->is_valid()) {
-        if ($result['folder'] && ($cal = $this->get_calendar(kolab_storage::id_encode($result['folder'])))) {
-          $event['calendar'] = $cal->id;
-        }
-        else {
-          $event['calendar'] = $calid;
-        }
-
+        $event['calendar'] = $calid;
         $event['rev'] = $result['rev'];
         return self::to_rcube_event($event);
       }
@@ -1534,11 +1528,11 @@ class kolab_driver extends calendar_driver
    */
   private function _resolve_event_identity($event)
   {
-    $folder = null;
+    $mailbox = null;
     if (is_array($event)) {
       $uid = $event['id'] ?: $event['uid'];
-      if ($cal = $this->get_calendar($event['calendar']) && !($cal instanceof kolab_invitation_calendar)) {
-        $folder = $cal->name;
+      if (($cal = $this->get_calendar($event['calendar'])) && !($cal instanceof kolab_invitation_calendar)) {
+        $mailbox = $cal->get_mailbox_id();
       }
     }
     else {
@@ -1550,7 +1544,7 @@ class kolab_driver extends calendar_driver
     if (!in_array($uid, $demo_uids))
       $uid = reset($demo_uids);
 
-    return array($uid, $folder);
+    return array($uid, $mailbox);
   }
 
   /**

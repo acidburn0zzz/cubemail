@@ -115,6 +115,17 @@ class kolab_invitation_calendar
   }
 
   /**
+   * Getter for the Cyrus mailbox identifier corresponding to this folder
+   *
+   * @return string Mailbox ID
+   */
+  public function get_mailbox_id()
+  {
+    // this is a virtual collection and has no concrete mailbox ID
+    return null;
+  }
+
+  /**
    * Return color to display this calendar
    */
   public function get_color()
