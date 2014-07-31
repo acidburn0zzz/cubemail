@@ -129,7 +129,7 @@ class kolab_storage_config
      *
      * @return bool True on success, False on failure
      */
-    public function save($object, $type)
+    public function save(&$object, $type)
     {
         if (!$this->enabled) {
             return false;
