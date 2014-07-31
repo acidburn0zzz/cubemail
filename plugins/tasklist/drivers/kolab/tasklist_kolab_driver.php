@@ -25,16 +25,17 @@
 class tasklist_kolab_driver extends tasklist_driver
 {
     // features supported by the backend
-    public $alarms = false;
+    public $alarms      = false;
     public $attachments = true;
-    public $undelete = false; // task undelete action
+    public $attendees   = true;
+    public $undelete    = false; // task undelete action
     public $alarm_types = array('DISPLAY','AUDIO');
 
     private $rc;
     private $plugin;
     private $lists;
     private $folders = array();
-    private $tasks = array();
+    private $tasks   = array();
 
 
     /**
@@ -772,6 +773,9 @@ class tasklist_kolab_driver extends tasklist_driver
             'status' => $record['status'],
             'parent_id' => $record['parent_id'],
             'recurrence' => $record['recurrence'],
+            'attendees' => $record['attendees'],
+            'organizer' => $record['organizer'],
+            'sequence' => $record['sequence'],
         );
 
         // convert from DateTime to internal date format
@@ -815,8 +819,8 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
-    * Convert the given task record into a data structure that can be passed to kolab_storage backend for saving
-    * (opposite of self::_to_rcube_event())
+     * Convert the given task record into a data structure that can be passed to kolab_storage backend for saving
+     * (opposite of self::_to_rcube_event())
      */
     private function _from_rcube_task($task, $old = array())
     {
@@ -824,14 +828,14 @@ class tasklist_kolab_driver extends tasklist_driver
         $object['categories'] = (array)$task['tags'];
 
         if (!empty($task['date'])) {
-            $object['due'] = new DateTime($task['date'].' '.$task['time'], $this->plugin->timezone);
+            $object['due'] = rcube_utils::anytodatetime($task['date'].' '.$task['time'], $this->plugin->timezone);
             if (empty($task['time']))
                 $object['due']->_dateonly = true;
             unset($object['date']);
         }
 
         if (!empty($task['startdate'])) {
-            $object['start'] = new DateTime($task['startdate'].' '.$task['starttime'], $this->plugin->timezone);
+            $object['start'] = rcube_utils::anytodatetime($task['startdate'].' '.$task['starttime'], $this->plugin->timezone);
             if (empty($task['starttime']))
                 $object['start']->_dateonly = true;
             unset($object['startdate']);
@@ -896,6 +900,14 @@ class tasklist_kolab_driver extends tasklist_driver
             }
 
             unset($object['attachments']);
+        }
+
+        // allow sequence increments if I'm the organizer
+        if ($this->plugin->is_organizer($object)) {
+            unset($object['sequence']);
+        }
+        else if (isset($old['sequence'])) {
+            $object['sequence'] = $old['sequence'];
         }
 
         unset($object['tempid'], $object['raw'], $object['list'], $object['flagged'], $object['tags']);

@@ -55,6 +55,8 @@ class tasklist extends rcube_plugin
     public $home;  // declare public to be used in other classes
 
     private $collapsed_tasks = array();
+    private $itip;
+    private $ical;
 
 
     /**
@@ -64,7 +66,7 @@ class tasklist extends rcube_plugin
     {
         $this->require_plugin('libcalendaring');
 
-        $this->rc = rcube::get_instance();
+        $this->rc  = rcube::get_instance();
         $this->lib = libcalendaring::get_instance();
 
         $this->register_task('tasks', 'tasklist');
@@ -106,15 +108,19 @@ class tasklist extends rcube_plugin
             $this->register_action('mail2task', array($this, 'mail_message2task'));
             $this->register_action('get-attachment', array($this, 'attachment_get'));
             $this->register_action('upload', array($this, 'attachment_upload'));
+            $this->register_action('mailimportitip', array($this, 'mail_import_itip'));
+            $this->register_action('mailimportattach', array($this, 'mail_import_attachment'));
+            $this->register_action('itip-status', array($this, 'task_itip_status'));
+            $this->register_action('itip-remove', array($this, 'task_itip_remove'));
+            $this->register_action('itip-decline-reply', array($this, 'mail_itip_decline_reply'));
             $this->add_hook('refresh', array($this, 'refresh'));
 
             $this->collapsed_tasks = array_filter(explode(',', $this->rc->config->get('tasklist_collapsed_tasks', '')));
         }
         else if ($args['task'] == 'mail') {
-            // TODO: register hooks to catch ical/vtodo email attachments
             if ($args['action'] == 'show' || $args['action'] == 'preview') {
-                // $this->add_hook('message_load', array($this, 'mail_message_load'));
-                // $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
+                $this->add_hook('message_load', array($this, 'mail_message_load'));
+                $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
             }
 
             // add 'Create event' item to message menu
@@ -188,7 +194,7 @@ class tasklist extends rcube_plugin
     {
         $filter = intval(get_input_value('filter', RCUBE_INPUT_GPC));
         $action = get_input_value('action', RCUBE_INPUT_GPC);
-        $rec  = get_input_value('t', RCUBE_INPUT_POST, true);
+        $rec    = get_input_value('t', RCUBE_INPUT_POST, true);
         $oldrec = $rec;
         $success = $refresh = false;
 
@@ -318,8 +324,42 @@ class tasklist extends rcube_plugin
             $this->rc->output->show_message('successfullysaved', 'confirmation');
             $this->update_counts($oldrec, $refresh);
         }
-        else
+        else {
             $this->rc->output->show_message('tasklist.errorsaving', 'error');
+        }
+
+        // send out notifications
+        if ($success && $rec['_notify'] && ($rec['attendees'] || $oldrec['attendees'])) {
+            // make sure we have the complete record
+            $task = $action == 'delete' ? $oldrec : $this->driver->get_task($rec);
+
+            // only notify if data really changed (TODO: do diff check on client already)
+            if (!$oldrec || $action == 'delete' || self::task_diff($task, $oldrec)) {
+                $sent = $this->notify_attendees($task, $oldrec, $action, $rec['_comment']);
+                if ($sent > 0)
+                    $this->rc->output->show_message('tasklist.itipsendsuccess', 'confirmation');
+                else if ($sent < 0)
+                    $this->rc->output->show_message('tasklist.errornotifying', 'error');
+            }
+        }
+        else if ($success && $rec['_reportpartstat']) {
+            // get the full record after update
+            $task = $this->driver->get_task($rec);
+
+            // send iTip REPLY with the updated partstat
+            if ($task['organizer'] && ($idx = $this->is_attendee($task)) !== false) {
+                $sender = $task['attendees'][$idx];
+                $status = strtolower($sender['status']);
+
+                $itip = $this->load_itip();
+                $itip->set_sender_email($sender['email']);
+
+                if ($itip->send_itip_message($this->to_libcal($task), 'REPLY', $task['organizer'], 'itipsubject' . $status, 'itipmailbody' . $status))
+                    $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $task['organizer']['name'] ?: $task['organizer']['email']))), 'confirmation');
+                else
+                    $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+            }
+        }
 
         // unlock client
         $this->rc->output->command('plugin.unlock_saving');
@@ -334,6 +374,21 @@ class tasklist extends rcube_plugin
             }
             $this->rc->output->command('plugin.update_task', $refresh);
         }
+    }
+
+    /**
+     * Load iTIP functions
+     */
+    private function load_itip()
+    {
+        if (!$this->itip) {
+            require_once realpath(__DIR__ . '/../libcalendaring/lib/libcalendaring_itip.php');
+            $this->itip = new libcalendaring_itip($this, 'tasklist');
+            $this->itip->set_rsvp_actions(array('accepted','declined'));
+            $this->itip->set_rsvp_status(array('accepted','tentative','declined','delegated','in-process','completed'));
+        }
+
+        return $this->itip;
     }
 
     /**
@@ -481,6 +536,25 @@ class tasklist extends rcube_plugin
 
         $rec['attachments'] = $attachments;
 
+        // convert invalid data
+        if (isset($rec['attendees']) && !is_array($rec['attendees']))
+            $rec['attendees'] = array();
+
+        // copy the task status to my attendee partstat
+        if (!empty($rec['_reportpartstat'])) {
+            if (($idx = $this->is_attendee($rec)) !== false) {
+                if (!($rec['_reportpartstat'] == 'NEEDS-ACTION' && $rec['attendees'][$idx]['status'] == 'ACCEPTED'))
+                    $rec['attendees'][$idx]['status'] = $rec['_reportpartstat'];
+                else
+                    unset($rec['_reportpartstat']);
+            }
+        }
+
+        // set organizer from identity selector
+        if (isset($rec['_identity']) && ($identity = $this->rc->user->get_identity($rec['_identity']))) {
+            $rec['organizer'] = array('name' => $identity['name'], 'email' => $identity['email']);
+        }
+
         if (is_numeric($rec['id']) && $rec['id'] < 0)
             unset($rec['id']);
 
@@ -584,6 +658,107 @@ class tasklist extends rcube_plugin
         }
 
         return $clone;
+    }
+
+    /**
+     * Send out an invitation/notification to all task attendees
+     */
+    private function notify_attendees($task, $old, $action = 'edit', $comment = null)
+    {
+        if ($action == 'delete' || ($task['status'] == 'CANCELLED' && $old['status'] != $task['status'])) {
+            $task['cancelled'] = true;
+            $is_cancelled      = true;
+        }
+
+        $itip   = $this->load_itip();
+        $emails = $this->lib->get_user_emails();
+
+        // add comment to the iTip attachment
+        $task['comment'] = $comment;
+
+        // needed to generate VTODO instead of VEVENT entry
+        $task['_type'] = 'task';
+
+        // compose multipart message using PEAR:Mail_Mime
+        $method  = $action == 'delete' ? 'CANCEL' : 'REQUEST';
+        $object = $this->to_libcal($task);
+        $message = $itip->compose_itip_message($object, $method);
+
+        // list existing attendees from the $old task
+        $old_attendees = array();
+        foreach ((array)$old['attendees'] as $attendee) {
+            $old_attendees[] = $attendee['email'];
+        }
+
+        // send to every attendee
+        $sent = 0; $current = array();
+        foreach ((array)$task['attendees'] as $attendee) {
+            $current[] = strtolower($attendee['email']);
+
+            // skip myself for obvious reasons
+            if (!$attendee['email'] || in_array(strtolower($attendee['email']), $emails)) {
+                continue;
+            }
+
+            // skip if notification is disabled for this attendee
+            if ($attendee['noreply']) {
+                continue;
+            }
+
+            // which template to use for mail text
+            $is_new   = !in_array($attendee['email'], $old_attendees);
+            $bodytext = $is_cancelled ? 'itipcancelmailbody' : ($is_new ? 'invitationmailbody' : 'itipupdatemailbody');
+            $subject  = $is_cancelled ? 'itipcancelsubject'  : ($is_new ? 'invitationsubject' : ($task['title'] ? 'itipupdatesubject' : 'itipupdatesubjectempty'));
+
+            // finally send the message
+            if ($itip->send_itip_message($object, $method, $attendee, $subject, $bodytext, $message))
+                $sent++;
+            else
+                $sent = -100;
+        }
+
+        // send CANCEL message to removed attendees
+        foreach ((array)$old['attendees'] as $attendee) {
+            if (!$attendee['email'] || in_array(strtolower($attendee['email']), $current)) {
+                continue;
+            }
+
+            $vtodo = $this->to_libcal($old);
+            $vtodo['cancelled'] = $is_cancelled;
+            $vtodo['attendees'] = array($attendee);
+            $vtodo['comment']   = $comment;
+
+            if ($itip->send_itip_message($vtodo, 'CANCEL', $attendee, 'itipcancelsubject', 'itipcancelmailbody'))
+                $sent++;
+            else
+                $sent = -100;
+        }
+
+        return $sent;
+    }
+
+    /**
+     * Compare two task objects and return differing properties
+     *
+     * @param array Event A
+     * @param array Event B
+     * @return array List of differing task properties
+     */
+    public static function task_diff($a, $b)
+    {
+        $diff   = array();
+        $ignore = array('changed' => 1, 'attachments' => 1);
+
+        foreach (array_unique(array_merge(array_keys($a), array_keys($b))) as $key) {
+            if (!$ignore[$key] && $a[$key] != $b[$key])
+                $diff[] = $key;
+        }
+
+        // only compare number of attachments
+        if (count($a['attachments']) != count($b['attachments']))
+            $diff[] = 'attachments';
+
+        return $diff;
     }
 
     /**
@@ -902,7 +1077,33 @@ class tasklist extends rcube_plugin
         else if ($start > $weeklimit || ($rec['date'] && $duedate > $weeklimit))
             $mask |= self::FILTER_MASK_LATER;
 
+        // TODO: add mask for "assigned to me"
+
         return $mask;
+    }
+
+    /**
+     * Determine whether the current user is an attendee of the given task
+     */
+    public function is_attendee($task)
+    {
+        $emails = $this->lib->get_user_emails();
+        foreach ((array)$task['attendees'] as $i => $attendee) {
+            if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+                return $i;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the current user is the organizer of the given task
+     */
+    public function is_organizer($task)
+    {
+        $emails = $this->lib->get_user_emails();
+        return (empty($task['organizer']) || in_array(strtolower($task['organizer']['email']), $emails));
     }
 
 
@@ -937,11 +1138,17 @@ class tasklist extends rcube_plugin
 
         $texts['tasklist.newtask'] = $this->gettext('createfrommail');
 
+        // collect env variables
+        $env = array(
+            'tasklists' => array(),
+            'tasklist_settings' => $this->ui->load_settings(),
+        );
+
         $this->ui->init_templates();
         echo $this->api->output->parse('tasklist.taskedit', false, false);
         echo html::tag('link', array('rel' => 'stylesheet', 'type' => 'text/css', 'href' => $this->url($this->local_skin_path() . '/tagedit.css'), 'nl' => true));
         echo html::tag('script', array('type' => 'text/javascript'),
-            "rcmail.set_env('tasklists', " . json_encode($this->api->output->env['tasklists']) . ");\n".
+            "rcmail.set_env(" . json_encode($env) . ");\n".
             "rcmail.add_label(" . json_encode($texts) . ");\n"
         );
         exit;
@@ -1121,6 +1328,539 @@ class tasklist extends rcube_plugin
         $this->rc->output->send();
     }
 
+    /**
+     * Check mail message structure of there are .ics files attached
+     *
+     * @todo move to libcalendaring
+     */
+    public function mail_message_load($p)
+    {
+        $this->message = $p['object'];
+        $itip_part     = null;
+
+        // check all message parts for .ics files
+        foreach ((array)$this->message->mime_parts as $part) {
+            if ($this->is_vcalendar($part)) {
+                if ($part->ctype_parameters['method'])
+                    $itip_part = $part->mime_id;
+                else
+                    $this->ics_parts[] = $part->mime_id;
+            }
+        }
+
+        // priorize part with method parameter
+        if ($itip_part) {
+            $this->ics_parts = array($itip_part);
+        }
+    }
+
+    /**
+     * Add UI element to copy event invitations or updates to the calendar
+     *
+     * @todo move to libcalendaring
+     */
+    public function mail_messagebody_html($p)
+    {
+        // load iCalendar functions (if necessary)
+        if (!empty($this->ics_parts)) {
+            $this->get_ical();
+            $this->load_itip();
+        }
+
+        // @todo: Calendar plugin does the same, which means the
+        // attachment body is fetched twice, this is not optimal
+        $html = '';
+        $has_tasks = false;
+        foreach ($this->ics_parts as $mime_id) {
+            $part    = $this->message->mime_parts[$mime_id];
+            $charset = $part->ctype_parameters['charset'] ? $part->ctype_parameters['charset'] : RCMAIL_CHARSET;
+            $objects = $this->ical->import($this->message->get_part_content($mime_id), $charset);
+            $title   = $this->gettext('title');
+
+            // successfully parsed events?
+            if (empty($objects)) {
+                continue;
+            }
+
+            // show a box for every task in the file
+            foreach ($objects as $idx => $task) {
+                if ($task['_type'] != 'task') {
+                    continue;
+                }
+
+                $has_tasks = true;
+
+                // get prepared inline UI for this event object
+                if ($this->ical->method) {
+                    $html .= html::div('tasklist-invitebox',
+                        $this->itip->mail_itip_inline_ui(
+                            $task,
+                            $this->ical->method,
+                            $mime_id . ':' . $idx,
+                            'tasks',
+                            rcube_utils::anytodatetime($this->message->headers->date)
+                        )
+                    );
+                }
+
+                // limit listing
+                if ($idx >= 3) {
+                    break;
+                }
+            }
+        }
+
+        // prepend event boxes to message body
+        if ($html) {
+            $this->load_ui();
+            $this->ui->init();
+
+            $p['content'] = $html . $p['content'];
+
+            $this->rc->output->add_label('tasklist.savingdata','tasklist.deletetaskconfirm','tasklist.declinedeleteconfirm');
+        }
+
+        // add "Save to tasks" button into attachment menu
+        if ($has_tasks) {
+            $this->add_button(array(
+                'id'         => 'attachmentsavetask',
+                'name'       => 'attachmentsavetask',
+                'type'       => 'link',
+                'wrapper'    => 'li',
+                'command'    => 'attachment-save-task',
+                'class'      => 'icon tasklistlink',
+                'classact'   => 'icon tasklistlink active',
+                'innerclass' => 'icon taskadd',
+                'label'      => 'tasklist.savetotasklist',
+            ), 'attachmentmenu');
+        }
+
+        return $p;
+    }
+
+    /**
+     * Read the given mime message from IMAP and parse ical data
+     *
+     * @todo move to libcalendaring
+     */
+    private function mail_get_itip_task($mbox, $uid, $mime_id)
+    {
+        $charset = RCMAIL_CHARSET;
+
+        // establish imap connection
+        $imap = $this->rc->get_storage();
+        $imap->set_mailbox($mbox);
+
+        if ($uid && $mime_id) {
+            list($mime_id, $index) = explode(':', $mime_id);
+
+            $part    = $imap->get_message_part($uid, $mime_id);
+            $headers = $imap->get_message_headers($uid);
+
+            if ($part->ctype_parameters['charset']) {
+                $charset = $part->ctype_parameters['charset'];
+            }
+
+            if ($part) {
+                $tasks = $this->get_ical()->import($part, $charset);
+            }
+        }
+
+        // successfully parsed events?
+        if (!empty($tasks) && ($task = $tasks[$index])) {
+            $task = $this->from_ical($task);
+
+            // store the message's sender address for comparisons
+            $task['_sender'] = preg_match('/([a-z0-9][a-z0-9\-\.\+\_]*@[^&@"\'.][^@&"\']*\\.([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}))/', $headers->from, $m) ? $m[1] : '';
+            $askt['_sender_utf'] = rcube_idn_to_utf8($task['_sender']);
+
+            return $task;
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks if specified message part is a vcalendar data
+     *
+     * @param rcube_message_part Part object
+     *
+     * @return boolean True if part is of type vcard
+     *
+     * @todo move to libcalendaring
+     */
+    private function is_vcalendar($part)
+    {
+        return (
+            in_array($part->mimetype, array('text/calendar', 'text/x-vcalendar', 'application/ics')) ||
+            // Apple sends files as application/x-any (!?)
+            ($part->mimetype == 'application/x-any' && $part->filename && preg_match('/\.ics$/i', $part->filename))
+        );
+    }
+
+    /**
+     * Load iCalendar functions
+     */
+    public function get_ical()
+    {
+        if (!$this->ical) {
+            $this->ical = libcalendaring::get_ical();
+        }
+
+        return $this->ical;
+    }
+
+    /**
+     * Get properties of the tasklist this user has specified as default
+     */
+    public function get_default_tasklist($writeable = false)
+    {
+//        $default_id = $this->rc->config->get('tasklist_default_list');
+        $lists = $this->driver->get_lists();
+//        $list  = $calendars[$default_id] ?: null;
+
+        if (!$list || ($writeable && !$list['editable'])) {
+            foreach ($lists as $l) {
+                if ($l['default']) {
+                    $list = $l;
+                    break;
+                }
+
+                if (!$writeable || $l['editable']) {
+                    $first = $l;
+                }
+            }
+        }
+
+        return $list ?: $first;
+    }
+
+    /**
+     * Import the full payload from a mail message attachment
+     */
+    public function mail_import_attachment()
+    {
+        $uid     = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
+        $mbox    = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
+        $mime_id = rcube_utils::get_input_value('_part', rcube_utils::INPUT_POST);
+        $charset = RCMAIL_CHARSET;
+
+        // establish imap connection
+        $imap = $this->rc->get_storage();
+        $imap->set_mailbox($mbox);
+
+        if ($uid && $mime_id) {
+            $part    = $imap->get_message_part($uid, $mime_id);
+            $headers = $imap->get_message_headers($uid);
+
+            if ($part->ctype_parameters['charset']) {
+                $charset = $part->ctype_parameters['charset'];
+            }
+
+            if ($part) {
+                $tasks = $this->get_ical()->import($part, $charset);
+            }
+        }
+
+        $success = $existing = 0;
+
+        if (!empty($tasks)) {
+            // find writeable tasklist to store task
+            $cal_id = !empty($_REQUEST['_list']) ? rcube_utils::get_input_value('_list', rcube_utils::INPUT_POST) : null;
+            $lists  = $this->driver->get_lists();
+            $list   = $lists[$cal_id] ?: $this->get_default_tasklist(true);
+
+            foreach ($tasks as $task) {
+                // save to tasklist
+                if ($list && $list['editable'] && $task['_type'] == 'task') {
+                    $task = $this->from_ical($task);
+                    $task['list'] = $list['id'];
+
+                    if (!$this->driver->get_task($task['uid'])) {
+                        $success += (bool) $this->driver->create_task($task);
+                    }
+                    else {
+                        $existing++;
+                    }
+                }
+            }
+        }
+
+        if ($success) {
+            $this->rc->output->command('display_message', $this->gettext(array(
+                'name' => 'importsuccess',
+                'vars' => array('nr' => $success),
+            )), 'confirmation');
+        }
+        else if ($existing) {
+            $this->rc->output->command('display_message', $this->gettext('importwarningexists'), 'warning');
+        }
+        else {
+            $this->rc->output->command('display_message', $this->gettext('errorimportingtask'), 'error');
+        }
+    }
+
+    /**
+     * Handler for POST request to import an event attached to a mail message
+     */
+    public function mail_import_itip()
+    {
+        $uid     = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
+        $mbox    = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
+        $mime_id = rcube_utils::get_input_value('_part', rcube_utils::INPUT_POST);
+        $status  = rcube_utils::get_input_value('_status', rcube_utils::INPUT_POST);
+        $delete  = intval(rcube_utils::get_input_value('_del', rcube_utils::INPUT_POST));
+        $noreply = intval(rcube_utils::get_input_value('_noreply', rcube_utils::INPUT_POST)) || $status == 'needs-action';
+
+        $error_msg = $this->gettext('errorimportingtask');
+        $success   = false;
+
+        // successfully parsed tasks?
+        if ($task = $this->mail_get_itip_task($mbox, $uid, $mime_id)) {
+            // find writeable list to store the task
+            $list_id = !empty($_REQUEST['_list']) ? rcube_utils::get_input_value('_list', rcube_utils::INPUT_POST) : null;
+            $lists   = $this->driver->get_lists();
+            $list    = $lists[$list_id] ?: $this->get_default_tasklist(true);
+
+            $metadata = array(
+                'uid'      => $task['uid'],
+                'changed'  => is_object($task['changed']) ? $task['changed']->format('U') : 0,
+                'sequence' => intval($task['sequence']),
+                'fallback' => strtoupper($status),
+                'method'   => $this->ical->method,
+                'task'     => 'tasks',
+            );
+
+            // update my attendee status according to submitted method
+            if (!empty($status)) {
+                $organizer = $task['organizer'];
+                $emails    = $this->lib->get_user_emails();
+
+                foreach ($task['attendees'] as $i => $attendee) {
+                    if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+                        $metadata['attendee'] = $attendee['email'];
+                        $metadata['rsvp']     = $attendee['role'] != 'NON-PARTICIPANT';
+                        $reply_sender         = $attendee['email'];
+
+                        $task['attendees'][$i]['status'] = strtoupper($status);
+                        if ($task['attendees'][$i]['status'] != 'NEEDS-ACTION') {
+                            unset($task['attendees'][$i]['rsvp']);  // remove RSVP attribute
+                        }
+                    }
+                }
+
+                // add attendee with this user's default identity if not listed
+                if (!$reply_sender) {
+                    $sender_identity = $this->rc->user->get_identity();
+                    $task['attendees'][] = array(
+                        'name'   => $sender_identity['name'],
+                        'email'  => $sender_identity['email'],
+                        'role'   => 'OPT-PARTICIPANT',
+                        'status' => strtoupper($status),
+                    );
+                    $metadata['attendee'] = $sender_identity['email'];
+                }
+            }
+
+            // save to tasklist
+            if ($list && $list['editable']) {
+                $task['list'] = $list['id'];
+
+                // check for existing task with the same UID
+                $existing = $this->driver->get_task($task['uid']);
+
+                if ($existing) {
+                    // only update attendee status
+                    if ($this->ical->method == 'REPLY') {
+                        // try to identify the attendee using the email sender address
+                        $existing_attendee = -1;
+                        foreach ($existing['attendees'] as $i => $attendee) {
+                            if ($task['_sender'] && ($attendee['email'] == $task['_sender'] || $attendee['email'] == $task['_sender_utf'])) {
+                                $existing_attendee = $i;
+                                break;
+                            }
+                        }
+
+                        $task_attendee = null;
+                        foreach ($task['attendees'] as $attendee) {
+                            if ($task['_sender'] && ($attendee['email'] == $task['_sender'] || $attendee['email'] == $task['_sender_utf'])) {
+                                $task_attendee        = $attendee;
+                                $metadata['fallback'] = $attendee['status'];
+                                $metadata['attendee'] = $attendee['email'];
+                                $metadata['rsvp']     = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
+                                break;
+                            }
+                        }
+
+                        // found matching attendee entry in both existing and new events
+                        if ($existing_attendee >= 0 && $task_attendee) {
+                            $existing['attendees'][$existing_attendee] = $task_attendee;
+                            $success = $this->driver->edit_task($existing);
+                        }
+                        // update the entire attendees block
+                        else if (($task['sequence'] >= $existing['sequence'] || $task['changed'] >= $existing['changed']) && $task_attendee) {
+                            $existing['attendees'][] = $task_attendee;
+                            $success = $this->driver->edit_task($existing);
+                        }
+                        else {
+                            $error_msg = $this->gettext('newerversionexists');
+                        }
+                    }
+                    // delete the task when declined
+                    else if ($status == 'declined' && $delete) {
+                        $deleted = $this->driver->delete_task($existing, true);
+                        $success = true;
+                    }
+                    // import the (newer) task
+                    else if ($task['sequence'] >= $existing['sequence'] || $task['changed'] >= $existing['changed']) {
+                        $task['id']   = $existing['id'];
+                        $task['list'] = $existing['list'];
+
+                        // preserve my participant status for regular updates
+                        if (empty($status)) {
+                            $emails = $this->lib->get_user_emails();
+                            foreach ($task['attendees'] as $i => $attendee) {
+                                if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+                                    foreach ($existing['attendees'] as $j => $_attendee) {
+                                        if ($attendee['email'] == $_attendee['email']) {
+                                            $task['attendees'][$i] = $existing['attendees'][$j];
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // set status=CANCELLED on CANCEL messages
+                        if ($this->ical->method == 'CANCEL') {
+                            $task['status'] = 'CANCELLED';
+                        }
+                        // show me as free when declined (#1670)
+                        if ($status == 'declined' || $task['status'] == 'CANCELLED') {
+                            $task['free_busy'] = 'free';
+                        }
+
+                        $success = $this->driver->edit_task($task);
+                    }
+                    else if (!empty($status)) {
+                        $existing['attendees'] = $task['attendees'];
+                        if ($status == 'declined') { // show me as free when declined (#1670)
+                            $existing['free_busy'] = 'free';
+                        }
+
+                        $success = $this->driver->edit_event($existing);
+                    }
+                    else {
+                        $error_msg = $this->gettext('newerversionexists');
+                    }
+                }
+                else if (!$existing && ($status != 'declined' || $this->rc->config->get('kolab_invitation_tasklists'))) {
+                    $success = $this->driver->create_task($task);
+                }
+                else if ($status == 'declined') {
+                    $error_msg = null;
+                }
+            }
+            else if ($status == 'declined') {
+                $error_msg = null;
+            }
+            else {
+                $error_msg = $this->gettext('nowritetasklistfound');
+            }
+        }
+
+        if ($success) {
+            $message = $this->ical->method == 'REPLY' ? 'attendeupdateesuccess' : ($deleted ? 'successremoval' : ($existing ? 'updatedsuccessfully' : 'importedsuccessfully'));
+            $this->rc->output->command('display_message', $this->gettext(array('name' => $message, 'vars' => array('list' => $list['name']))), 'confirmation');
+
+            $metadata['rsvp']         = intval($metadata['rsvp']);
+            $metadata['after_action'] = $this->rc->config->get('calendar_itip_after_action', 0);
+
+            $this->rc->output->command('plugin.itip_message_processed', $metadata);
+            $error_msg = null;
+        }
+        else if ($error_msg) {
+            $this->rc->output->command('display_message', $error_msg, 'error');
+        }
+
+        // send iTip reply
+        if ($this->ical->method == 'REQUEST' && $organizer && !$noreply && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
+            $task['comment'] = rcube_utils::get_input_value('_comment', rcube_utils::INPUT_POST);
+            $itip = $this->load_itip();
+            $itip->set_sender_email($reply_sender);
+
+            if ($itip->send_itip_message($this->to_libcal($task), 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
+                $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $organizer['name'] ?: $organizer['email']))), 'confirmation');
+            else
+                $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+        }
+
+        $this->rc->output->send();
+    }
+
+
+    /****  Task invitation plugin hooks ****/
+
+    /**
+     * Handler for calendar/itip-status requests
+     */
+    public function task_itip_status()
+    {
+        $data = rcube_utils::get_input_value('data', rcube_utils::INPUT_POST, true);
+
+        // find local copy of the referenced task
+        $existing = $this->driver->get_task($data);
+        $itip     = $this->load_itip();
+        $response = $itip->get_itip_status($data, $existing);
+
+        // get a list of writeable lists to save new tasks to
+        if (!$existing && $response['action'] == 'rsvp' || $response['action'] == 'import') {
+            $lists  = $this->driver->get_lists();
+            $select = new html_select(array('name' => 'tasklist', 'id' => 'itip-saveto', 'is_escaped' => true));
+            $num    = 0;
+
+            foreach ($lists as $list) {
+                if ($list['editable']) {
+                    $select->add($list['name'], $list['id']);
+                    $num++;
+                }
+            }
+
+            if ($num <= 1) {
+                $select = null;
+            }
+        }
+
+        if ($select) {
+            $default_list = $this->get_default_tasklist(true);
+            $response['select'] = html::span('folder-select', $this->gettext('saveintasklist') . '&nbsp;' .
+                $select->show($this->rc->config->get('tasklist_default_list', $default_list['id'])));
+        }
+
+        $this->rc->output->command('plugin.update_itip_object_status', $response);
+    }
+
+    /**
+     * Handler for calendar/itip-remove requests
+     */
+    public function task_itip_remove()
+    {
+        $success = false;
+        $uid     = rcube_utils::get_input_value('uid', rcube_utils::INPUT_POST);
+
+        // search for event if only UID is given
+        if ($task = $this->driver->get_task($uid)) {
+            $success = $this->driver->delete_task($task, true);
+        }
+
+        if ($success) {
+            $this->rc->output->show_message('tasklist.successremoval', 'confirmation');
+        }
+        else {
+            $this->rc->output->show_message('tasklist.errorsaving', 'error');
+        }
+    }
+
 
     /*******  Utility functions  *******/
 
@@ -1133,6 +1873,79 @@ class tasklist extends rcube_plugin
     }
 
     /**
+     * Map task properties for ical exprort using libcalendaring
+     */
+    public function to_libcal($task)
+    {
+        $object = $task;
+        $object['_type'] = 'task';
+        $object['categories'] = (array)$task['tags'];
+
+        // convert to datetime objects
+        if (!empty($task['date'])) {
+            $object['due'] = rcube_utils::anytodatetime($task['date'].' '.$task['time'], $this->timezone);
+            if (empty($task['time']))
+                $object['due']->_dateonly = true;
+            unset($object['date']);
+        }
+
+        if (!empty($task['startdate'])) {
+            $object['start'] = rcube_utils::anytodatetime($task['startdate'].' '.$task['starttime'], $this->timezone);
+            if (empty($task['starttime']))
+                $object['start']->_dateonly = true;
+            unset($object['startdate']);
+        }
+
+        $object['complete'] = $task['complete'] * 100;
+        if ($task['complete'] == 1.0 && empty($task['complete'])) {
+            $object['status'] = 'COMPLETED';
+        }
+
+        if ($task['flagged']) {
+            $object['priority'] = 1;
+        }
+        else if (!$task['priority']) {
+            $object['priority'] = 0;
+        }
+
+        return $object;
+    }
+
+    /**
+     * Convert task properties from ical parser to the internal format
+     */
+    public function from_ical($vtodo)
+    {
+        $task = $vtodo;
+
+        $task['tags'] = array_filter((array)$vtodo['categories']);
+        $task['flagged'] = $vtodo['priority'] == 1;
+        $task['complete'] = floatval($vtodo['complete'] / 100);
+
+        // convert from DateTime to internal date format
+        if (is_a($vtodo['due'], 'DateTime')) {
+            $due = $this->lib->adjust_timezone($vtodo['due']);
+            $task['date'] = $due->format('Y-m-d');
+            if (!$vtodo['due']->_dateonly)
+                $task['time'] = $due->format('H:i');
+        }
+        // convert from DateTime to internal date format
+        if (is_a($vtodo['start'], 'DateTime')) {
+            $start = $this->lib->adjust_timezone($vtodo['start']);
+            $task['startdate'] = $start->format('Y-m-d');
+            if (!$vtodo['start']->_dateonly)
+                $task['starttime'] = $start->format('H:i');
+        }
+        if (is_a($vtodo['dtstamp'], 'DateTime')) {
+            $task['changed'] = $vtodo['dtstamp'];
+        }
+
+        unset($task['categories'], $task['due'], $task['start'], $task['dtstamp']);
+
+        return $task;
+    }
+
+    /**
      * Handler for user_delete plugin hook
      */
     public function user_delete($args)
@@ -1141,4 +1954,3 @@ class tasklist extends rcube_plugin
        return $this->driver->user_delete($args);
     }
 }
-

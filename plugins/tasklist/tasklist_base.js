@@ -37,6 +37,7 @@ function rcube_tasklist(settings)
     /* public methods */
     this.create_from_mail = create_from_mail;
     this.mail2taskdialog = mail2task_dialog;
+    this.save_to_tasklist = save_to_tasklist;
 
 
     /**
@@ -56,7 +57,7 @@ function rcube_tasklist(settings)
                     // rcmail.gui_object('attachmentlist', 'attachmentlist');
 
                     ui_loaded = true;
-                    me.ui = new rcube_tasklist_ui(settings);
+                    me.ui = new rcube_tasklist_ui($.extend(rcmail.env.tasklist_settings, settings));
                     create_from_mail(uid);  // start over
                 });
                 return;
@@ -80,20 +81,45 @@ function rcube_tasklist(settings)
         this.ui.edit_task(null, 'new', prop);
     }
 
+    // handler for attachment-save-tasklist commands
+    function save_to_tasklist()
+    {
+      // TODO: show dialog to select the tasklist for importing
+      if (this.selected_attachment && window.rcube_libcalendaring) {
+        rcmail.http_post('tasks/mailimportattach', {
+            _uid: rcmail.env.uid,
+            _mbox: rcmail.env.mailbox,
+            _part: this.selected_attachment,
+            // _list: $('#tasklist-attachment-saveto').val(),
+          }, rcmail.set_busy(true, 'itip.savingdata'));
+      }
+    }
+
 }
 
 /* tasklist plugin initialization (for email task) */
 window.rcmail && rcmail.env.task == 'mail' && rcmail.addEventListener('init', function(evt) {
     var tasks = new rcube_tasklist(rcmail.env.libcal_settings);
 
-    rcmail.register_command('tasklist-create-from-mail', function() { tasks.create_from_mail() });
-    rcmail.addEventListener('plugin.mail2taskdialog', function(p){ tasks.mail2taskdialog(p) });
-    rcmail.addEventListener('plugin.unlock_saving', function(p){ tasks.ui && tasks.ui.unlock_saving(); });
+    rcmail.register_command('tasklist-create-from-mail', function() { tasks.create_from_mail(); });
+    rcmail.register_command('attachment-save-task', function() { tasks.save_to_tasklist(); });
+    rcmail.addEventListener('plugin.mail2taskdialog', function(p) { tasks.mail2taskdialog(p); });
+    rcmail.addEventListener('plugin.unlock_saving', function(p) { tasks.ui && tasks.ui.unlock_saving(); });
 
     if (rcmail.env.action != 'show')
         rcmail.env.message_commands.push('tasklist-create-from-mail');
     else
         rcmail.enable_command('tasklist-create-from-mail', true);
+
+    rcmail.addEventListener('beforemenu-open', function(p) {
+        if (p.menu == 'attachmentmenu') {
+            tasks.selected_attachment = p.id;
+            var mimetype = rcmail.env.attachments[p.id],
+                is_ics = mimetype == 'text/calendar' || mimetype == 'text/x-vcalendar' || mimetype == 'application/ics';
+
+            rcmail.enable_command('attachment-save-task', is_ics);
+        }
+    });
 
     // add contextmenu item
     if (window.rcm_contextmenu_register_command) {
@@ -104,4 +130,3 @@ window.rcmail && rcmail.env.task == 'mail' && rcmail.addEventListener('init', fu
             'moveto');
         }
 });
-

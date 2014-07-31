@@ -60,6 +60,11 @@ class libcalendaring_itip
         $this->rsvp_status = array_merge($this->rsvp_actions, array('delegated'));
     }
 
+    public function set_rsvp_status($status)
+    {
+        $this->rsvp_status = $status;
+    }
+
     /**
      * Wrapper for rcube_plugin::gettext()
      * Checking for a label in different domains
@@ -213,6 +218,14 @@ class libcalendaring_itip
                 $event['attendees'] = $reply_attendees;
             }
         }
+        // set RSVP=TRUE for every attendee if not set
+        else if ($method == 'REQUEST') {
+            foreach ($event['attendees'] as $i => $attendee) {
+                if (!isset($attendee['rsvp'])) {
+                    $event['attendees'][$i]['rsvp']= true;
+                }
+            }
+        }
 
         // compose multipart message using PEAR:Mail_Mime
         $message = new Mail_mime("\r\n");
@@ -236,9 +249,10 @@ class libcalendaring_itip
         $message->headers($headers);
 
         // attach ics file for this event
-        $ical = $this->plugin->get_ical();
+        $ical = libcalendaring::get_ical();
         $ics = $ical->export(array($event), $method, false, $method == 'REQUEST' && $this->plugin->driver ? array($this->plugin->driver, 'get_attachment_body') : false);
-        $message->addAttachment($ics, 'text/calendar', 'event.ics', false, '8bit', '', RCMAIL_CHARSET . "; method=" . $method);
+        $filename = $event['_type'] == 'task' ? 'todo.ics' : 'event.ics';
+        $message->addAttachment($ics, 'text/calendar', $filename, false, '8bit', '', RCMAIL_CHARSET . "; method=" . $method);
 
         return $message;
     }
@@ -313,9 +327,10 @@ class libcalendaring_itip
           $listed = false;
           foreach ($existing['attendees'] as $attendee) {
             if ($attendee['role'] != 'ORGANIZER' && strcasecmp($attendee['email'], $event['attendee']) == 0) {
-              if (in_array($status, array('ACCEPTED','TENTATIVE','DECLINED','DELEGATED'))) {
-                $html = html::div('rsvp-status ' . strtolower($status), $this->gettext(array(
-                    'name' => 'attendee'.strtolower($status),
+              $status_lc = strtolower($status);
+              if (in_array($status_lc, $this->rsvp_status)) {
+                $html = html::div('rsvp-status ' . $status_lc, $this->gettext(array(
+                    'name' => 'attendee' . $status_lc,
                     'vars' => array(
                         'delegatedto' => Q($attendee['delegated-to'] ?: '?'),
                     )
@@ -532,15 +547,21 @@ class libcalendaring_itip
     }
 
     /**
-     * Render event details in a table
+     * Render event/task details in a table
      */
     function itip_object_details_table($event, $title)
     {
         $table = new html_table(array('cols' => 2, 'border' => 0, 'class' => 'calendar-eventdetails'));
         $table->add('ititle', $title);
         $table->add('title', Q($event['title']));
-        $table->add('label', $this->plugin->gettext('date'), $this->domain);
-        $table->add('date', Q($this->lib->event_date_text($event)));
+        if ($event['start'] && $event['end']) {
+            $table->add('label', $this->plugin->gettext('date'), $this->domain);
+            $table->add('date', Q($this->lib->event_date_text($event)));
+        }
+        else if ($event['due'] && $event['_type'] == 'task') {
+            $table->add('label', $this->plugin->gettext('date'), $this->domain);
+            $table->add('date', Q($this->lib->event_date_text($event)));
+        }
         if ($event['location']) {
             $table->add('label', $this->plugin->gettext('location'), $this->domain);
             $table->add('location', Q($event['location']));

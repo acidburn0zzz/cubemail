@@ -72,6 +72,7 @@ abstract class tasklist_driver
     // features supported by the backend
     public $alarms = false;
     public $attachments = false;
+    public $attendees = false;
     public $undelete = false; // task undelete action
     public $sortable = false;
     public $alarm_types = array('DISPLAY');

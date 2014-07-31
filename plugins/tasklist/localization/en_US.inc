@@ -33,6 +33,7 @@ $labels['status-needs-action'] = 'Needs action';
 $labels['status-in-process'] = 'In process';
 $labels['status-completed'] = 'Completed';
 $labels['status-cancelled'] = 'Cancelled';
+$labels['assignedto'] = 'Assigned to';
 
 $labels['all'] = 'All';
 $labels['flagged'] = 'Flagged';
@@ -50,6 +51,7 @@ $labels['newtask'] = 'New Task';
 $labels['edittask'] = 'Edit Task';
 $labels['save'] = 'Save';
 $labels['cancel'] = 'Cancel';
+$labels['saveandnotify'] = 'Save and Notify';
 $labels['addsubtask'] = 'Add subtask';
 $labels['deletetask'] = 'Delete task';
 $labels['deletethisonly'] = 'Delete this task only';
@@ -58,6 +60,7 @@ $labels['taskactions'] = 'Task options...';
 
 $labels['tabsummary'] = 'Summary';
 $labels['tabrecurrence'] = 'Recurrence';
+$labels['tabassignments'] = 'Assignments';
 $labels['tabattachments'] = 'Attachments';
 $labels['tabsharing'] = 'Sharing';
 
@@ -76,7 +79,7 @@ $labels['at'] = 'at';
 $labels['this'] = 'this';
 $labels['next'] = 'next';
 
-// mesages
+// messages
 $labels['savingdata'] = 'Saving data...';
 $labels['errorsaving'] = 'Failed to save data.';
 $labels['notasksfound'] = 'No tasks found for the given criteria';
@@ -86,6 +89,9 @@ $labels['deleteparenttasktconfirm'] = 'Do you really want to delete this task an
 $labels['deletelistconfirm'] = 'Do you really want to delete this list with all its tasks?';
 $labels['deletelistconfirmrecursive'] = 'Do you really want to delete this list with all its sub-lists and tasks?';
 $labels['aclnorights'] = 'You do not have administrator rights on this task list.';
+$labels['changetaskconfirm'] = 'Update task';
+$labels['changeconfirmnotifications'] = 'Do you want to notify the attendees about the modification?';
+$labels['partstatupdatenotification'] = 'Do you want to notify the organizer about the status change?';
 
 // (hidden) titles and labels for accessibility annotations
 $labels['quickaddinput'] = 'New task date and title';
@@ -96,3 +102,68 @@ $labels['arialabellistsearchform'] = 'Tasklists search form';
 $labels['arialabeltaskselector'] = 'List mode';
 $labels['arialabeltasklisting'] = 'Tasks listing';
 
+// attendees
+$labels['attendee'] = 'Assignee';
+$labels['role'] = 'Role';
+$labels['availability'] = 'Avail.';
+$labels['confirmstate'] = 'Status';
+$labels['addattendee'] = 'Add assignee';
+$labels['roleorganizer'] = 'Organizer';
+$labels['rolerequired'] = 'Required';
+$labels['roleoptional'] = 'Optional';
+$labels['rolechair'] = 'Chair';
+$labels['rolenonparticipant'] = 'Observer';
+$labels['sendinvitations'] = 'Send invitations';
+$labels['sendnotifications'] = 'Notify assignees about modifications';
+$labels['sendcancellation'] = 'Notify assignees about task cancellation';
+$labels['invitationsubject'] = 'You\'ve been assigned to "$title"';
+$labels['invitationmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nPlease find attached an iCalendar file with all the task details which you can import to your tasks application.";
+$labels['itipupdatesubject'] = '"$title" has been updated';
+$labels['itipupdatesubjectempty'] = 'A task that concerns you has been updated';
+$labels['itipupdatemailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nPlease find attached an iCalendar file with the updated task details which you can import to your tasks application.";
+$labels['itipcancelsubject'] = '"$title" has been canceled';
+$labels['itipcancelmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nThe task has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated task details.";
+$labels['saveintasklist'] = 'save in ';
+
+// invitation handling (overrides labels from libcalendaring)
+$labels['itipobjectnotfound'] = 'The task referred by this message was not found in your tasks list.';
+
+$labels['itipmailbodyaccepted'] = "\$sender has accepted the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
+$labels['itipmailbodytentative'] = "\$sender has tentatively accepted the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
+$labels['itipmailbodydeclined'] = "\$sender has declined the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
+$labels['itipmailbodycancel'] = "\$sender has rejected your assignment to the following task:\n\n*\$title*\n\nDue: \$date";
+$labels['itipmailbodyin-process'] = "\$sender has set the status of the following task to in-process:\n\n*\$title*\n\nDue: \$date";
+$labels['itipmailbodycompleted'] = "\$sender has completed the following task:\n\n*\$title*\n\nDue: \$date";
+
+$labels['attendeeaccepted'] = 'Assignee has accepted';
+$labels['attendeetentative'] = 'Assignee has tentatively accepted';
+$labels['attendeedeclined'] = 'Assignee has declined';
+$labels['attendeedelegated'] = 'Assignee has delegated to $delegatedto';
+$labels['attendeein-process'] = 'Assignee is in-process';
+$labels['attendeecompleted'] = 'Assignee has completed';
+
+$labels['itipdeclinetask'] = 'Decline your assignment to this task to the organizer';
+$labels['declinedeleteconfirm'] = 'Do you also want to delete this declined task from your tasks list?';
+$labels['itipcomment'] = 'Invitation/notification comment';
+$labels['itipcommenttitle'] = 'This comment will be attached to the invitation/notification message sent to assignees';
+$labels['itipsendsuccess'] = 'Invitation sent to assignees';
+$labels['errornotifying'] = 'Failed to send notifications to task assignees';
+$labels['removefromcalendar'] = 'Remove from my tasks';
+
+$labels['andnmore'] = '$nr more...';
+$labels['delegatedto'] = 'Delegated to: ';
+$labels['delegatedfrom'] = 'Delegated from: ';
+$labels['savetotasklist'] = 'Save to tasks';
+$labels['comment'] = 'Comment';
+$labels['errorimportingtask'] = 'Failed to import task(s)';
+$labels['importwarningexists'] = 'A copy of this task already exists in your tasklist.';
+$labels['importsuccess'] = 'Successfully imported $nr tasks';
+$labels['newerversionexists'] = 'A newer version of this task already exists! Aborted.';
+$labels['nowritetasklistfound'] = 'No tasklist found to save the task';
+$labels['importedsuccessfully'] = 'The task was successfully added to \'$list\'';
+$labels['updatedsuccessfully'] = 'The task was successfully updated in \'$list\'';
+$labels['attendeupdateesuccess'] = 'Successfully updated the participant\'s status';
+$labels['itipresponseerror'] = 'Failed to send the response to this task assignment';
+$labels['itipinvalidrequest'] = 'This invitation is no longer valid';
+$labels['sentresponseto'] = 'Successfully sent assignment response to $mailto';
+$labels['successremoval'] = 'The task has been deleted successfully.';

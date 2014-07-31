@@ -20,7 +20,8 @@
 	background-position: 0 -26px;
 }
 
-ul.toolbarmenu li span.icon.taskadd {
+ul.toolbarmenu li span.icon.taskadd,
+#attachmentmenu li a.tasklistlink span.icon.taskadd {
 	background-image: url(buttons.png);
 	background-position: -4px -90px;
 }
@@ -814,6 +815,10 @@ ul.toolbarmenu li span.delete {
 	color: #999;
 }
 
+#taskshow.status-cancelled {
+	background: url(images/badge_cancelled.png) top right no-repeat;
+}
+
 #task-parent-title {
 	position: relative;
 	top: -0.6em;
@@ -849,6 +854,93 @@ a.morelink:hover {
 	border-bottom: 2px solid #fafafa;
 }
 
+.edit-attendees-table {
+	width: 100%;
+	margin-top: 0.5em;
+}
+
+.edit-attendees-table tbody td {
+	padding: 4px 7px;
+}
+
+.edit-attendees-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.edit-attendees-table th.role,
+.edit-attendees-table td.role {
+	width: 9em;
+}
+
+.edit-attendees-table th.availability,
+.edit-attendees-table td.availability,
+.edit-attendees-table th.confirmstate,
+.edit-attendees-table td.confirmstate {
+	width: 6em;
+}
+
+.edit-attendees-table th.options,
+.edit-attendees-table td.options {
+	width: 24px;
+	padding: 2px 4px;
+	text-align: right;
+}
+
+.edit-attendees-table th.sendmail,
+.edit-attendees-table td.sendmail {
+	width: 48px;
+	padding: 2px;
+}
+
+.edit-attendees-table th.sendmail label {
+	display: inline-block;
+	position: relative;
+	top: 4px;
+	width: 24px;
+	height: 18px;
+	min-width: 24px;
+	padding: 0;
+	overflow: hidden;
+	text-indent: -5000px;
+	white-space: nowrap;
+	background: url(images/sendinvitation.png) 1px 0 no-repeat;
+}
+
+.edit-attendees-table th.name,
+.edit-attendees-table td.name {
+	width: auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.edit-attendees-table td.name select {
+	width: 100%;
+}
+
+.edit-attendees-table a.deletelink {
+	display: inline-block;
+	width: 17px;
+	height: 17px;
+	padding: 0;
+	overflow: hidden;
+	text-indent: 1000px;
+}
+
+#edit-attendees-form {
+	position: relative;
+	margin-top: 15px;
+}
+
+#edit-attendees-form .attendees-invitebox {
+	text-align: right;
+	margin: 0;
+}
+
+#edit-attendees-form .attendees-invitebox label {
+	padding-right: 3px;
+}
+
 #taskedit-attachments {
 	margin: 0.6em 0;
 }
@@ -857,10 +949,11 @@ a.morelink:hover {
 	display: block;
 	color: #333;
 	font-weight: bold;
-	padding: 8px 4px 3px 30px;
+	padding: 3px 4px 3px 30px;
 	text-shadow: 0px 1px 1px #fff;
 	text-decoration: none;
 	white-space: nowrap;
+	line-height: 20px;
 }
 
 #taskedit-attachments ul li a.file {
@@ -876,7 +969,7 @@ a.morelink:hover {
 div.form-section {
 	position: relative;
 	margin-top: 0.2em;
-	margin-bottom: 0.8em;
+	margin-bottom: 0.5em;
 }
 
 .form-section label {
@@ -889,6 +982,10 @@ div.form-section {
 label.block {
 	display: block;
 	margin-bottom: 0.3em;
+}
+
+#task-description {
+	margin-bottom: 1em;
 }
 
 #taskedit-completeness-slider {
@@ -935,6 +1032,57 @@ label.block {
 	outline: none;
 }
 
+.task-attendees span.attendee {
+	padding-right: 18px;
+	margin-right: 0.5em;
+	background: url(images/attendee-status.png) right 0 no-repeat;
+}
+
+.task-attendees span.attendee a.mailtolink {
+	text-decoration: none;
+	white-space: nowrap;
+	outline: none;
+}
+
+.task-attendees span.attendee a.mailtolink:hover {
+	text-decoration: underline;
+}
+
+.task-attendees span.completed {
+	background-position: right -20px;
+}
+
+.task-attendees span.declined {
+	background-position: right -40px;
+}
+
+.task-attendees span.tentative {
+	background-position: right -60px;
+}
+
+.task-attendees span.delegated {
+	background-position: right -180px;
+}
+
+.task-attendees span.in-process {
+	background-position: right -200px;
+}
+
+.task-attendees span.accepted {
+	background-position: right -220px;
+}
+
+.task-attendees span.organizer {
+	background-position: right 100px;
+}
+
+#all-task-attendees span.attendee {
+	display: block;
+	margin-bottom: 0.4em;
+	padding-bottom: 0.3em;
+	border-bottom: 1px solid #ddd;
+}
+
 .tasklistview .uidialog .tabbed {
 	min-width: 600px;
 }
@@ -947,6 +1095,128 @@ label.block {
 	width: 20em;
 }
 
+.task-dialog-message {
+	margin-top: 0.5em;
+	padding: 0.8em;
+	border: 1px solid #ffdf0e;
+	background-color: #fef893;
+}
+
+.task-dialog-message .message,
+.task-update-confirm .message {
+	margin-bottom: 0.5em;
+}
+
+/* Invitation UI in mail */
+
+.messagelist tbody .attachment span.ical {
+	display: inline-block;
+	vertical-align: middle;
+	height: 18px;
+	width: 20px;
+	padding: 0;
+	background: url(images/ical-attachment.png) 2px 1px no-repeat;
+}
+
+div.tasklist-invitebox {
+	min-height: 20px;
+	margin: 5px 8px;
+	padding: 3px 6px 6px 34px;
+	border: 1px solid #ffdf0e;
+	background: url(images/tasklist.png) 6px 5px no-repeat #fef893;
+}
+
+div.tasklist-invitebox td.ititle {
+	font-weight: bold;
+	padding-right: 0.5em;
+}
+
+div.tasklist-invitebox td.label {
+	color: #666;
+	padding-right: 1em;
+}
+
+#event-rsvp .rsvp-buttons,
+div.tasklist-invitebox .itip-buttons div {
+	margin-top: 0.5em;
+}
+
+#event-rsvp input.button,
+div.tasklist-invitebox input.button {
+	font-weight: bold;
+	margin-right: 0.5em;
+}
+
+div.tasklist-invitebox .folder-select {
+	font-weight: 10px;
+	margin-left: 1em;
+}
+
+div.tasklist-invitebox .rsvp-status {
+	padding-left: 2px;
+}
+
+div.tasklist-invitebox .rsvp-status.loading {
+	color: #666;
+	padding: 1px 0 2px 24px;
+	background: url(images/loading_blue.gif) top left no-repeat;
+}
+
+div.tasklist-invitebox .rsvp-status.hint {
+	color: #666;
+	text-shadow: none;
+	font-style: italic;
+}
+
+#event-partstat .changersvp,
+.edit-attendees-table td.confirmstate span,
+div.tasklist-invitebox .rsvp-status.declined,
+div.tasklist-invitebox .rsvp-status.tentative,
+div.tasklist-invitebox .rsvp-status.accepted,
+div.tasklist-invitebox .rsvp-status.delegated,
+div.tasklist-invitebox .rsvp-status.in-process,
+div.tasklist-invitebox .rsvp-status.completed,
+div.tasklist-invitebox .rsvp-status.needs-action {
+	padding: 0 0 1px 22px;
+	background: url(images/attendee-status.png) 2px -20px no-repeat;
+}
+
+#event-partstat .changersvp.declined,
+div.tasklist-invitebox .rsvp-status.declined,
+.edit-attendees-table td.confirmstate span.declined {
+	background-position: 2px -40px;
+}
+
+#event-partstat .changersvp.tentative,
+div.tasklist-invitebox .rsvp-status.tentative,
+.edit-attendees-table td.confirmstate span.tentative {
+	background-position: 2px -60px;
+}
+
+#event-partstat .changersvp.delegated,
+div.tasklist-invitebox .rsvp-status.delegated,
+.edit-attendees-table td.confirmstate span.delegated {
+	background-position: 2px -180px;
+}
+
+#event-partstat .changersvp.needs-action,
+div.tasklist-invitebox .rsvp-status.needs-action,
+.edit-attendees-table td.confirmstate span.needs-action {
+	background-position: 2px 0;
+}
+
+#event-partstat .changersvp.in-process,
+div.tasklist-invitebox .rsvp-status.in-process,
+.edit-attendees-table td.confirmstate span.in-process {
+	background-position: 2px -200px;
+}
+
+#event-partstat .changersvp.accepted,
+div.tasklist-invitebox .rsvp-status.accepted,
+.edit-attendees-table td.confirmstate span.accepted {
+	background-position: 2px -220px;
+}
+
 
 /** Special hacks for IE7 **/
 /** They need to be in this file to also affect the task-create dialog embedded in mail view **/
@@ -954,4 +1224,3 @@ label.block {
 html.ie7 #taskedit-completeness-slider {
 	display: inline;
 }
-

@@ -55,10 +55,57 @@ class tasklist_ui
         $this->plugin->include_script('tasklist_base.js');
 
         // copy config to client
-        // $this->rc->output->set_env('tasklist_settings', $settings);
+        $this->rc->output->set_env('tasklist_settings', $this->load_settings());
+
+        // initialize attendees autocompletion
+        $this->rc->autocomplete_init();
 
         $this->ready = true;
-  }
+    }
+
+    /**
+     *
+     */
+    function load_settings()
+    {
+        $settings = array();
+
+        $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', 0);
+
+        // get user identity to create default attendee
+        foreach ($this->rc->user->list_identities() as $rec) {
+            if (!$identity)
+                $identity = $rec;
+
+            $identity['emails'][] = $rec['email'];
+            $settings['identities'][$rec['identity_id']] = $rec['email'];
+        }
+
+        $identity['emails'][] = $this->rc->user->get_username();
+        $settings['identity'] = array(
+            'name'   => $identity['name'],
+            'email'  => strtolower($identity['email']),
+            'emails' => ';' . strtolower(join(';', $identity['emails']))
+        );
+
+        return $settings;
+    }
+
+    /**
+     * Render a HTML select box for user identity selection
+     */
+    function identity_select($attrib = array())
+    {
+        $attrib['name'] = 'identity';
+        $select         = new html_select($attrib);
+        $identities     = $this->rc->user->list_identities();
+
+        foreach ($identities as $ident) {
+            $select->add(format_email_recipient($ident['email'], $ident['name']), $ident['identity_id']);
+        }
+
+        return $select->show(null);
+    }
 
     /**
     * Register handler methods for the template engine
@@ -78,6 +125,10 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.attachments_form', array($this, 'attachments_form'));
         $this->plugin->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
         $this->plugin->register_handler('plugin.filedroparea', array($this, 'file_drop_area'));
+        $this->plugin->register_handler('plugin.attendees_list', array($this, 'attendees_list'));
+        $this->plugin->register_handler('plugin.attendees_form', array($this, 'attendees_form'));
+        $this->plugin->register_handler('plugin.identity_select', array($this, 'identity_select'));
+        $this->plugin->register_handler('plugin.edit_attendees_notify', array($this, 'edit_attendees_notify'));
 
         $this->plugin->include_script('jquery.tagedit.js');
         $this->plugin->include_script('tasklist.js');
@@ -166,10 +217,11 @@ class tasklist_ui
         // enrich list properties with settings from the driver
         if (!$prop['virtual']) {
             unset($prop['user_id']);
-            $prop['alarms'] = $this->plugin->driver->alarms;
-            $prop['undelete'] = $this->plugin->driver->undelete;
-            $prop['sortable'] = $this->plugin->driver->sortable;
+            $prop['alarms']      = $this->plugin->driver->alarms;
+            $prop['undelete']    = $this->plugin->driver->undelete;
+            $prop['sortable']    = $this->plugin->driver->sortable;
             $prop['attachments'] = $this->plugin->driver->attachments;
+            $prop['attendees']   = $this->plugin->driver->attendees;
             $jsenv[$id] = $prop;
         }
 
@@ -375,4 +427,53 @@ class tasklist_ui
         }
     }
 
+    /**
+     *
+     */
+    function attendees_list($attrib = array())
+    {
+        // add "noreply" checkbox to attendees table only
+        $invitations = strpos($attrib['id'], 'attend') !== false;
+
+        $invite = new html_checkbox(array('value' => 1, 'id' => 'edit-attendees-invite'));
+        $table  = new html_table(array('cols' => 4 + intval($invitations), 'border' => 0, 'cellpadding' => 0, 'class' => 'rectable'));
+
+//      $table->add_header('role', $this->plugin->gettext('role'));
+        $table->add_header('name', $this->plugin->gettext($attrib['coltitle'] ?: 'attendee'));
+        $table->add_header('confirmstate', $this->plugin->gettext('confirmstate'));
+        if ($invitations) {
+            $table->add_header(array('class' => 'sendmail', 'title' => $this->plugin->gettext('sendinvitations')),
+                $invite->show(1) . html::label('edit-attendees-invite', $this->plugin->gettext('sendinvitations')));
+        }
+        $table->add_header('options', '');
+
+        return $table->show($attrib);
+    }
+
+    /**
+     *
+     */
+    function attendees_form($attrib = array())
+    {
+        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => 30));
+        $textarea = new html_textarea(array('name' => 'comment', 'id' => 'edit-attendees-comment',
+            'rows' => 4, 'cols' => 55, 'title' => $this->plugin->gettext('itipcommenttitle')));
+
+        return html::div($attrib,
+            html::div(null, $input->show() . " " .
+                html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-add', 'value' => $this->plugin->gettext('addattendee')))
+                // . " " . html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-schedule', 'value' => $this->plugin->gettext('scheduletime').'...'))
+                ) .
+            html::p('attendees-commentbox', html::label(null, $this->plugin->gettext('itipcomment') . $textarea->show()))
+        );
+    }
+
+    /**
+     *
+     */
+    function edit_attendees_notify($attrib = array())
+    {
+        $checkbox = new html_checkbox(array('name' => '_notify', 'id' => 'edit-attendees-donotify', 'value' => 1));
+        return html::div($attrib, html::label(null, $checkbox->show(1) . ' ' . $this->plugin->gettext('sendnotifications')));
+    }
 }
