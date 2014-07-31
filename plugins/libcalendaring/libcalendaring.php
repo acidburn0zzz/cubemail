@@ -35,6 +35,8 @@ class libcalendaring extends rcube_plugin
     public $gmt_offset;
     public $dst_active;
     public $timezone_offset;
+    public $ical_parts = array();
+    public $ical_message;
 
     public $defaults = array(
       'calendar_date_format'  => "yyyy-MM-dd",
@@ -56,6 +58,8 @@ class libcalendaring extends rcube_plugin
     );
 
     private static $instance;
+
+    private $mail_ical_parser;
 
     /**
      * Singleton getter to allow direct access from other plugins
@@ -101,6 +105,21 @@ class libcalendaring extends rcube_plugin
             // add hook to display alarms
             $this->add_hook('refresh', array($this, 'refresh'));
             $this->register_action('plugin.alarms', array($this, 'alarms_action'));
+        }
+
+        // proceed initialization in startup hook
+        $this->add_hook('startup', array($this, 'startup'));
+    }
+
+    /**
+     * Startup hook
+     */
+    public function startup($args)
+    {
+        if ($args['task'] == 'mail') {
+            if ($args['action'] == 'show' || $args['action'] == 'preview') {
+                $this->add_hook('message_load', array($this, 'mail_message_load'));
+            }
         }
     }
 
@@ -1217,6 +1236,125 @@ class libcalendaring extends rcube_plugin
         }
 
         return $table->show($attrib);
+    }
+
+
+    /*********  iTip message detection  *********/
+
+    /**
+     * Check mail message structure of there are .ics files attached
+     */
+    public function mail_message_load($p)
+    {
+        $this->ical_message = $p['object'];
+        $itip_part     = null;
+
+        // check all message parts for .ics files
+        foreach ((array)$this->ical_message->mime_parts as $part) {
+            if (self::part_is_vcalendar($part)) {
+                if ($part->ctype_parameters['method'])
+                    $itip_part = $part->mime_id;
+                else
+                    $this->ical_parts[] = $part->mime_id;
+            }
+        }
+
+        // priorize part with method parameter
+        if ($itip_part) {
+            $this->ical_parts = array($itip_part);
+        }
+    }
+
+    /**
+     * Getter for the parsed iCal objects attached to the current email message
+     *
+     * @return object libvcalendar parser instance with the parsed objects
+     */
+    public function get_mail_ical_objects()
+    {
+        // create parser and load ical objects
+        if (!$this->mail_ical_parser) {
+            $this->mail_ical_parser = $this->get_ical();
+
+            foreach ($this->ical_parts as $mime_id) {
+                $part    = $this->ical_message->mime_parts[$mime_id];
+                $charset = $part->ctype_parameters['charset'] ?: RCMAIL_CHARSET;
+                $this->mail_ical_parser->import($this->ical_message->get_part_content($mime_id), $charset);
+
+                // stop on the part that has an iTip method specified
+                if (count($this->mail_ical_parser->objects) && $this->mail_ical_parser->method) {
+                    $this->mail_ical_parser->message_date = $this->ical_message->headers->date;
+                    $this->mail_ical_parser->mime_id = $mime_id;
+                    break;
+                }
+            }
+        }
+
+        return $this->mail_ical_parser;
+    }
+
+    /**
+     * Read the given mime message from IMAP and parse ical data
+     *
+     * @param string Mailbox name
+     * @param string Message UID
+     * @param string Message part ID and object index (e.g. '1.2:0')
+     * @param string Object type filter (optional)
+     *
+     * @return array Hash array with the parsed iCal 
+     */
+    public function mail_get_itip_object($mbox, $uid, $mime_id, $type = null)
+    {
+        $charset = RCMAIL_CHARSET;
+
+        // establish imap connection
+        $imap = $this->rc->get_storage();
+        $imap->set_mailbox($mbox);
+
+        if ($uid && $mime_id) {
+            list($mime_id, $index) = explode(':', $mime_id);
+
+            $part    = $imap->get_message_part($uid, $mime_id);
+            $headers = $imap->get_message_headers($uid);
+            $parser  = $this->get_ical();
+
+            if ($part->ctype_parameters['charset']) {
+                $charset = $part->ctype_parameters['charset'];
+            }
+
+            if ($part) {
+                $objects = $parser->import($part, $charset);
+            }
+        }
+
+        // successfully parsed events/tasks?
+        if (!empty($objects) && ($object = $objects[$index]) && (!$type || $object['_type'] == $type)) {
+            if ($parser->method)
+                $object['_method'] = $parser->method;
+
+            // store the message's sender address for comparisons
+            $object['_sender'] = preg_match('/([a-z0-9][a-z0-9\-\.\+\_]*@[^&@"\'.][^@&"\']*\\.([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}))/', $headers->from, $m) ? $m[1] : '';
+            $object['_sender_utf'] = rcube_idn_to_utf8($object['_sender']);
+
+            return $object;
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks if specified message part is a vcalendar data
+     *
+     * @param rcube_message_part Part object
+     * @return boolean True if part is of type vcard
+     */
+    public static function part_is_vcalendar($part)
+    {
+        return (
+            in_array($part->mimetype, array('text/calendar', 'text/x-vcalendar', 'application/ics')) ||
+            // Apple sends files as application/x-any (!?)
+            ($part->mimetype == 'application/x-any' && $part->filename && preg_match('/\.ics$/i', $part->filename))
+        );
     }
 
 

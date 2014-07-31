@@ -123,7 +123,6 @@ class tasklist extends rcube_plugin
         }
         else if ($args['task'] == 'mail') {
             if ($args['action'] == 'show' || $args['action'] == 'preview') {
-                $this->add_hook('message_load', array($this, 'mail_message_load'));
                 $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
             }
 
@@ -1337,84 +1336,44 @@ class tasklist extends rcube_plugin
     }
 
     /**
-     * Check mail message structure of there are .ics files attached
-     *
-     * @todo move to libcalendaring
-     */
-    public function mail_message_load($p)
-    {
-        $this->message = $p['object'];
-        $itip_part     = null;
-
-        // check all message parts for .ics files
-        foreach ((array)$this->message->mime_parts as $part) {
-            if ($this->is_vcalendar($part)) {
-                if ($part->ctype_parameters['method'])
-                    $itip_part = $part->mime_id;
-                else
-                    $this->ics_parts[] = $part->mime_id;
-            }
-        }
-
-        // priorize part with method parameter
-        if ($itip_part) {
-            $this->ics_parts = array($itip_part);
-        }
-    }
-
-    /**
-     * Add UI element to copy event invitations or updates to the calendar
-     *
-     * @todo move to libcalendaring
+     * Add UI element to copy task invitations or updates to the tasklist
      */
     public function mail_messagebody_html($p)
     {
         // load iCalendar functions (if necessary)
-        if (!empty($this->ics_parts)) {
+        if (!empty($this->lib->ical_parts)) {
             $this->get_ical();
             $this->load_itip();
         }
 
-        // @todo: Calendar plugin does the same, which means the
-        // attachment body is fetched twice, this is not optimal
         $html = '';
         $has_tasks = false;
-        foreach ($this->ics_parts as $mime_id) {
-            $part    = $this->message->mime_parts[$mime_id];
-            $charset = $part->ctype_parameters['charset'] ? $part->ctype_parameters['charset'] : RCMAIL_CHARSET;
-            $objects = $this->ical->import($this->message->get_part_content($mime_id), $charset);
-            $title   = $this->gettext('title');
+        $ical_objects = $this->lib->get_mail_ical_objects();
 
-            // successfully parsed events?
-            if (empty($objects)) {
+        // show a box for every task in the file
+        foreach ($ical_objects as $idx => $task) {
+            if ($task['_type'] != 'task') {
                 continue;
             }
 
-            // show a box for every task in the file
-            foreach ($objects as $idx => $task) {
-                if ($task['_type'] != 'task') {
-                    continue;
-                }
+            $has_tasks = true;
 
-                $has_tasks = true;
+            // get prepared inline UI for this event object
+            if ($ical_objects->method) {
+                $html .= html::div('tasklist-invitebox',
+                    $this->itip->mail_itip_inline_ui(
+                        $task,
+                        $ical_objects->method,
+                        $ical_objects->mime_id . ':' . $idx,
+                        'tasks',
+                        rcube_utils::anytodatetime($ical_objects->message_date)
+                    )
+                );
+            }
 
-                // get prepared inline UI for this event object
-                if ($this->ical->method) {
-                    $html .= html::div('tasklist-invitebox',
-                        $this->itip->mail_itip_inline_ui(
-                            $task,
-                            $this->ical->method,
-                            $mime_id . ':' . $idx,
-                            'tasks',
-                            rcube_utils::anytodatetime($this->message->headers->date)
-                        )
-                    );
-                }
-
-                // limit listing
-                if ($idx >= 3) {
-                    break;
-                }
+            // limit listing
+            if ($idx >= 3) {
+                break;
             }
         }
 
@@ -1444,66 +1403,6 @@ class tasklist extends rcube_plugin
         }
 
         return $p;
-    }
-
-    /**
-     * Read the given mime message from IMAP and parse ical data
-     *
-     * @todo move to libcalendaring
-     */
-    private function mail_get_itip_task($mbox, $uid, $mime_id)
-    {
-        $charset = RCMAIL_CHARSET;
-
-        // establish imap connection
-        $imap = $this->rc->get_storage();
-        $imap->set_mailbox($mbox);
-
-        if ($uid && $mime_id) {
-            list($mime_id, $index) = explode(':', $mime_id);
-
-            $part    = $imap->get_message_part($uid, $mime_id);
-            $headers = $imap->get_message_headers($uid);
-
-            if ($part->ctype_parameters['charset']) {
-                $charset = $part->ctype_parameters['charset'];
-            }
-
-            if ($part) {
-                $tasks = $this->get_ical()->import($part, $charset);
-            }
-        }
-
-        // successfully parsed events?
-        if (!empty($tasks) && ($task = $tasks[$index])) {
-            $task = $this->from_ical($task);
-
-            // store the message's sender address for comparisons
-            $task['_sender'] = preg_match('/([a-z0-9][a-z0-9\-\.\+\_]*@[^&@"\'.][^@&"\']*\\.([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}))/', $headers->from, $m) ? $m[1] : '';
-            $askt['_sender_utf'] = rcube_idn_to_utf8($task['_sender']);
-
-            return $task;
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks if specified message part is a vcalendar data
-     *
-     * @param rcube_message_part Part object
-     *
-     * @return boolean True if part is of type vcard
-     *
-     * @todo move to libcalendaring
-     */
-    private function is_vcalendar($part)
-    {
-        return (
-            in_array($part->mimetype, array('text/calendar', 'text/x-vcalendar', 'application/ics')) ||
-            // Apple sends files as application/x-any (!?)
-            ($part->mimetype == 'application/x-any' && $part->filename && preg_match('/\.ics$/i', $part->filename))
-        );
     }
 
     /**
@@ -1624,7 +1523,9 @@ class tasklist extends rcube_plugin
         $success   = false;
 
         // successfully parsed tasks?
-        if ($task = $this->mail_get_itip_task($mbox, $uid, $mime_id)) {
+        if ($task = $this->lib->mail_get_itip_object($mbox, $uid, $mime_id, 'task')) {
+            $task = $this->from_ical($task);
+
             // find writeable list to store the task
             $list_id = !empty($_REQUEST['_list']) ? rcube_utils::get_input_value('_list', rcube_utils::INPUT_POST) : null;
             $lists   = $this->driver->get_lists();
