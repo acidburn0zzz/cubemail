@@ -992,16 +992,14 @@ function rcube_tasklist_ui(settings)
           notify = false, partstat = false, html = '';
 
         // task has attendees, ask whether to notify them
-        if (has_attendees(rec)) {
-            if (is_organizer(rec)) {
-                notify = true;
-                html = rcmail.gettext('changeconfirmnotifications', 'tasklist');
-            }
-            // ask whether to change my partstat and notify organizer
-            else if (data._status_before !== undefined && data.status && data._status_before != data.status && is_attendee(rec)) {
-              partstat = true;
-              html = rcmail.gettext('partstatupdatenotification', 'tasklist');
-            }
+        if (has_attendees(rec) && is_organizer(rec)) {
+            notify = true;
+            html = rcmail.gettext('changeconfirmnotifications', 'tasklist');
+        }
+        // ask whether to change my partstat and notify organizer
+        else if (data._status_before !== undefined && data.status && data._status_before != data.status && is_attendee(rec)) {
+          partstat = true;
+          html = rcmail.gettext('partstatupdatenotification', 'tasklist');
         }
 
         // remove to avoid endless recursion

@@ -902,9 +902,15 @@ class tasklist_kolab_driver extends tasklist_driver
             unset($object['attachments']);
         }
 
-        $object['_owner'] = $identity['email'];
+        // allow sequence increments if I'm the organizer
+        if ($this->plugin->is_organizer($object)) {
+            unset($object['sequence']);
+        }
+        else if (isset($old['sequence'])) {
+            $object['sequence'] = $old['sequence'];
+        }
 
-        unset($object['tempid'], $object['raw'], $object['list'], $object['flagged'], $object['tags'], $object['sequence']);
+        unset($object['tempid'], $object['raw'], $object['list'], $object['flagged'], $object['tags']);
         return $object;
     }
 

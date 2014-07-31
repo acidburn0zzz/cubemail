@@ -1097,6 +1097,16 @@ class tasklist extends rcube_plugin
         return false;
     }
 
+    /**
+     * Determine whether the current user is the organizer of the given task
+     */
+    public function is_organizer($task)
+    {
+        $emails = $this->lib->get_user_emails();
+        return (empty($task['organizer']) || in_array(strtolower($task['organizer']['email']), $emails));
+    }
+
+
     /*******  UI functions  ********/
 
     /**
