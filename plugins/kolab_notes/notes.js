@@ -757,7 +757,6 @@ function rcube_kolab_notes_ui(settings)
             noteslist.select(me.selected_note.id);
         }
         else if (!data.data.length) {
-            console.log(data);
             rcmail.display_message(rcmail.gettext('norecordsfound','kolab_notes'), 'info');
         }
     }
