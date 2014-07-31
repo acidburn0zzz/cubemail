@@ -606,7 +606,7 @@ class kolab_calendar extends kolab_storage_folder_api
       foreach ($event['attachments'] as $attachment) {
         $key = null;
         // Roundcube ID has nothing to do with the storage ID, remove it
-        if ($attachment['content']) {
+        if ($attachment['content'] || $attachment['path']) {
           unset($attachment['id']);
         }
         else {

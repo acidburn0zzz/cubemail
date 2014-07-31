@@ -30,12 +30,8 @@ div.uidialog {
 	display: none;
 }
 
-body.attachmentwin #mainscreen {
-	top: 60px;
-}
-
-body.attachmentwin #topnav .topright {
-	margin-top: 20px;
+body.tasklist.attachmentwin #mainscreen {
+	top: 32px;
 }
 
 .tasklistview #mainscreen {

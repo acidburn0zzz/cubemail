@@ -342,7 +342,7 @@ class tasklist extends rcube_plugin
                     $this->rc->output->show_message('tasklist.errornotifying', 'error');
             }
         }
-        else if ($success && $rec['_reportpartstat']) {
+        else if ($success && $rec['_reportpartstat'] && $rec['_reportpartstat'] != 'NEEDS-ACTION') {
             // get the full record after update
             $task = $this->driver->get_task($rec);
 

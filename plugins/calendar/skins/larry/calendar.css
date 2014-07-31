@@ -34,12 +34,8 @@ body.calendarmain #mainscreen {
 	}
 }
 
-body.attachmentwin #mainscreen {
-	top: 60px;
-}
-
-body.attachmentwin #topnav .topright {
-	margin-top: 20px;
+body.calendar.attachmentwin #mainscreen {
+	top: 32px;
 }
 
 #calendarsidebar {
@@ -549,6 +545,7 @@ a.miniColors-trigger {
 	text-shadow: 0px 1px 1px #fff;
 	text-decoration: none;
 	white-space: nowrap;
+	line-height: 20px;
 }
 
 #edit-attachments ul li a.file {

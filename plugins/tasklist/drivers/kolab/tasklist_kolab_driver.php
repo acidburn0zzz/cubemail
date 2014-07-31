@@ -879,7 +879,7 @@ class tasklist_kolab_driver extends tasklist_driver
             foreach ($task['attachments'] as $idx => $attachment) {
                 $key = null;
                 // Roundcube ID has nothing to do with the storage ID, remove it
-                if ($attachment['content']) {
+                if ($attachment['content'] || $attachment['path']) {
                     unset($attachment['id']);
                 }
                 else {
