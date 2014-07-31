@@ -22,6 +22,10 @@
 	background-position: 0 -26px;
 }
 
+.notesview div.uidialog {
+	display: none;
+}
+
 .notesview #sidebar {
 	position: absolute;
 	top: 0;

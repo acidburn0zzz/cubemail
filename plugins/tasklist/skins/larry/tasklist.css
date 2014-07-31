@@ -26,7 +26,7 @@ ul.toolbarmenu li span.icon.taskadd,
 	background-position: -4px -90px;
 }
 
-div.uidialog {
+.tasklistview div.uidialog {
 	display: none;
 }
 

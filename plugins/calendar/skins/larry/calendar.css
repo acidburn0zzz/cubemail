@@ -466,7 +466,7 @@ body.calendarmain #searchmenulink {
 	width: 15px;
 }
 
-div.uidialog {
+.calendarmain div.uidialog {
 	display: none;
 }
 

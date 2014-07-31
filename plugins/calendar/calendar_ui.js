@@ -396,6 +396,12 @@ function rcube_calendar_ui(settings)
       if ($dialog.is(':ui-dialog'))
         $dialog.dialog('close');
 
+      // remove status-* classes
+      $dialog.removeClass(function(i, oldclass) {
+          var oldies = String(oldclass).split(' ');
+          return $.grep(oldies, function(cls) { return cls.indexOf('status-') === 0 || cls.indexOf('sensitivity-') === 0 }).join(' ');
+      });
+
       // convert start/end dates if not done yet by fullcalendar
       if (typeof event.start == 'string')
         event.start = parseISO8601(event.start);
