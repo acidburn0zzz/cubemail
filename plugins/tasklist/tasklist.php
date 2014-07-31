@@ -1527,7 +1527,7 @@ class tasklist extends rcube_plugin
             $task = $this->from_ical($task);
 
             // find writeable list to store the task
-            $list_id = !empty($_REQUEST['_list']) ? rcube_utils::get_input_value('_list', rcube_utils::INPUT_POST) : null;
+            $list_id = !empty($_REQUEST['_folder']) ? rcube_utils::get_input_value('_folder', rcube_utils::INPUT_POST) : null;
             $lists   = $this->driver->get_lists();
             $list    = $lists[$list_id] ?: $this->get_default_tasklist(true);
 
