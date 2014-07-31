@@ -1128,11 +1128,17 @@ class tasklist extends rcube_plugin
 
         $texts['tasklist.newtask'] = $this->gettext('createfrommail');
 
+        // collect env variables
+        $env = array(
+            'tasklists' => array(),
+            'tasklist_settings' => $this->ui->load_settings(),
+        );
+
         $this->ui->init_templates();
         echo $this->api->output->parse('tasklist.taskedit', false, false);
         echo html::tag('link', array('rel' => 'stylesheet', 'type' => 'text/css', 'href' => $this->url($this->local_skin_path() . '/tagedit.css'), 'nl' => true));
         echo html::tag('script', array('type' => 'text/javascript'),
-            "rcmail.set_env('tasklists', " . json_encode($this->api->output->env['tasklists']) . ");\n".
+            "rcmail.set_env(" . json_encode($env) . ");\n".
             "rcmail.add_label(" . json_encode($texts) . ");\n"
         );
         exit;

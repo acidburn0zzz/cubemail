@@ -57,7 +57,7 @@ function rcube_tasklist(settings)
                     // rcmail.gui_object('attachmentlist', 'attachmentlist');
 
                     ui_loaded = true;
-                    me.ui = new rcube_tasklist_ui(settings);
+                    me.ui = new rcube_tasklist_ui($.extend(rcmail.env.tasklist_settings, settings));
                     create_from_mail(uid);  // start over
                 });
                 return;
