@@ -342,6 +342,24 @@ class tasklist extends rcube_plugin
                     $this->rc->output->show_message('tasklist.errornotifying', 'error');
             }
         }
+        else if ($success && $rec['_reportpartstat']) {
+            // get the full record after update
+            $task = $this->driver->get_task($rec);
+
+            // send iTip REPLY with the updated partstat
+            if ($task['organizer'] && ($idx = $this->is_attendee($task)) !== false) {
+                $sender = $task['attendees'][$idx];
+                $status = strtolower($sender['status']);
+
+                $itip = $this->load_itip();
+                $itip->set_sender_email($sender['email']);
+
+                if ($itip->send_itip_message($this->to_libcal($task), 'REPLY', $task['organizer'], 'itipsubject' . $status, 'itipmailbody' . $status))
+                    $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $task['organizer']['name'] ?: $task['organizer']['email']))), 'confirmation');
+                else
+                    $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+            }
+        }
 
         // unlock client
         $this->rc->output->command('plugin.unlock_saving');
@@ -367,6 +385,7 @@ class tasklist extends rcube_plugin
             require_once realpath(__DIR__ . '/../libcalendaring/lib/libcalendaring_itip.php');
             $this->itip = new libcalendaring_itip($this, 'tasklist');
             $this->itip->set_rsvp_actions(array('accepted','declined'));
+            $this->itip->set_rsvp_status(array('accepted','tentative','declined','delegated','in-process','completed'));
         }
 
         return $this->itip;
@@ -516,6 +535,20 @@ class tasklist extends rcube_plugin
         }
 
         $rec['attachments'] = $attachments;
+
+        // convert invalid data
+        if (isset($rec['attendees']) && !is_array($rec['attendees']))
+            $rec['attendees'] = array();
+
+        // copy the task status to my attendee partstat
+        if (!empty($rec['_reportpartstat'])) {
+            if (($idx = $this->is_attendee($rec)) !== false) {
+                if (!($rec['_reportpartstat'] == 'NEEDS-ACTION' && $rec['attendees'][$idx]['status'] == 'ACCEPTED'))
+                    $rec['attendees'][$idx]['status'] = $rec['_reportpartstat'];
+                else
+                    unset($rec['_reportpartstat']);
+            }
+        }
 
         // set organizer from identity selector
         if (isset($rec['_identity']) && ($identity = $this->rc->user->get_identity($rec['_identity']))) {
@@ -1044,9 +1077,25 @@ class tasklist extends rcube_plugin
         else if ($start > $weeklimit || ($rec['date'] && $duedate > $weeklimit))
             $mask |= self::FILTER_MASK_LATER;
 
+        // TODO: add mask for "assigned to me"
+
         return $mask;
     }
 
+    /**
+     * Determine whether the current user is an attendee of the given task
+     */
+    public function is_attendee($task)
+    {
+        $emails = $this->lib->get_user_emails();
+        foreach ((array)$task['attendees'] as $i => $attendee) {
+            if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+                return $i;
+            }
+        }
+
+        return false;
+    }
 
     /*******  UI functions  ********/
 
@@ -1709,7 +1758,7 @@ class tasklist extends rcube_plugin
             $this->rc->output->command('display_message', $this->gettext(array('name' => $message, 'vars' => array('list' => $list['name']))), 'confirmation');
 
             $metadata['rsvp']         = intval($metadata['rsvp']);
-            $metadata['after_action'] = $this->rc->config->get('tasklist_itip_after_action');
+            $metadata['after_action'] = $this->rc->config->get('calendar_itip_after_action', 0);
 
             $this->rc->output->command('plugin.itip_message_processed', $metadata);
             $error_msg = null;
@@ -1725,7 +1774,7 @@ class tasklist extends rcube_plugin
             $itip->set_sender_email($reply_sender);
 
             if ($itip->send_itip_message($this->to_libcal($task), 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
-                $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $organizer['name'] ? $organizer['name'] : $organizer['email']))), 'confirmation');
+                $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $organizer['name'] ?: $organizer['email']))), 'confirmation');
             else
                 $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
         }
@@ -1813,6 +1862,7 @@ class tasklist extends rcube_plugin
     public function to_libcal($task)
     {
         $object = $task;
+        $object['_type'] = 'task';
         $object['categories'] = (array)$task['tags'];
 
         // convert to datetime objects

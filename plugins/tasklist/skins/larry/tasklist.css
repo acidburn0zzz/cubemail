@@ -815,6 +815,10 @@ ul.toolbarmenu li span.delete {
 	color: #999;
 }
 
+#taskshow.status-cancelled {
+	background: url(images/badge_cancelled.png) top right no-repeat;
+}
+
 #task-parent-title {
 	position: relative;
 	top: -0.6em;
@@ -1043,7 +1047,7 @@ label.block {
 	text-decoration: underline;
 }
 
-.task-attendees span.accepted {
+.task-attendees span.completed {
 	background-position: right -20px;
 }
 
@@ -1057,6 +1061,14 @@ label.block {
 
 .task-attendees span.delegated {
 	background-position: right -180px;
+}
+
+.task-attendees span.in-process {
+	background-position: right -200px;
+}
+
+.task-attendees span.accepted {
+	background-position: right -220px;
 }
 
 .task-attendees span.organizer {
@@ -1082,12 +1094,7 @@ label.block {
 	width: 20em;
 }
 
-.ui-dialog .task-update-confirm {
-	padding: 0 0.5em 0.5em 0.5em;
-}
-
-.task-dialog-message,
-.task-update-confirm .message {
+.task-dialog-message {
 	margin-top: 0.5em;
 	padding: 0.8em;
 	border: 1px solid #ffdf0e;
@@ -1161,33 +1168,52 @@ div.tasklist-invitebox .rsvp-status.hint {
 }
 
 #event-partstat .changersvp,
+.edit-attendees-table td.confirmstate span,
 div.tasklist-invitebox .rsvp-status.declined,
 div.tasklist-invitebox .rsvp-status.tentative,
 div.tasklist-invitebox .rsvp-status.accepted,
 div.tasklist-invitebox .rsvp-status.delegated,
-div.tasklist-invitebox .rsvp-status.needs-action  {
+div.tasklist-invitebox .rsvp-status.in-process,
+div.tasklist-invitebox .rsvp-status.completed,
+div.tasklist-invitebox .rsvp-status.needs-action {
 	padding: 0 0 1px 22px;
 	background: url(images/attendee-status.png) 2px -20px no-repeat;
 }
 
 #event-partstat .changersvp.declined,
-div.tasklist-invitebox .rsvp-status.declined {
+div.tasklist-invitebox .rsvp-status.declined,
+.edit-attendees-table td.confirmstate span.declined {
 	background-position: 2px -40px;
 }
 
 #event-partstat .changersvp.tentative,
-div.tasklist-invitebox .rsvp-status.tentative {
+div.tasklist-invitebox .rsvp-status.tentative,
+.edit-attendees-table td.confirmstate span.tentative {
 	background-position: 2px -60px;
 }
 
 #event-partstat .changersvp.delegated,
-div.tasklist-invitebox .rsvp-status.delegated {
+div.tasklist-invitebox .rsvp-status.delegated,
+.edit-attendees-table td.confirmstate span.delegated {
 	background-position: 2px -180px;
 }
 
 #event-partstat .changersvp.needs-action,
-div.tasklist-invitebox .rsvp-status.needs-action {
+div.tasklist-invitebox .rsvp-status.needs-action,
+.edit-attendees-table td.confirmstate span.needs-action {
 	background-position: 2px 0;
+}
+
+#event-partstat .changersvp.in-process,
+div.tasklist-invitebox .rsvp-status.in-process,
+.edit-attendees-table td.confirmstate span.in-process {
+	background-position: 2px -200px;
+}
+
+#event-partstat .changersvp.accepted,
+div.tasklist-invitebox .rsvp-status.accepted,
+.edit-attendees-table td.confirmstate span.accepted {
+	background-position: 2px -220px;
 }
 
 
