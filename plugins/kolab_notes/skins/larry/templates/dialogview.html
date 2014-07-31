@@ -43,7 +43,15 @@ $(document).ready(function(e){
         content.width(w).height(h);
 
         $('#noteform > div.mce-tinymce').width(w);
-        $('#notecontent_ifr').width(w).height(h - 4 - $('div.mce-toolbar').height());
+
+        h = h - 4 - $('div.mce-toolbar').height();
+
+        $('#notecontent_ifr').width(w).height(h);
+
+        // fixes issue when toolbar is not ready yet and content
+        // area height is set to 0, wait and try again later...
+        if (h < 0)
+            setTimeout(function() { layout_view(); }, 1000);
     }
 
     $(window).resize(function(e){
