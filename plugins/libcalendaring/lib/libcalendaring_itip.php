@@ -527,6 +527,33 @@ class libcalendaring_itip
     }
 
     /**
+     * Render an RSVP UI widget with buttons to respond on iTip invitations
+     */
+    function itip_rsvp_buttons($attrib = array(), $actions = null)
+    {
+        $attrib += array('type' => 'button');
+
+        if (!$actions)
+            $actions = $this->rsvp_actions;
+
+        foreach ($actions as $method) {
+            $buttons .= html::tag('input', array(
+                'type'  => $attrib['type'],
+                'name'  => $attrib['iname'],
+                'class' => 'button',
+                'rel'   => $method,
+                'value' => $this->gettext('itip' . $method),
+            ));
+        }
+
+        $buttons .= html::div('itip-reply-controls', $this->itip_rsvp_options_ui($attrib['id']));
+
+        return html::div($attrib,
+            html::div('label', $this->gettext('acceptinvitation')) .
+            html::div('rsvp-buttons', $buttons));
+    }
+
+    /**
      * Render UI elements to control iTip reply message sending
      */
     public function itip_rsvp_options_ui($dom_id)

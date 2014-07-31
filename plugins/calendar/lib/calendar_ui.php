@@ -874,22 +874,7 @@ class calendar_ui
 
   function event_rsvp_buttons($attrib = array())
   {
-    $attrib += array('type' => 'button');
-    foreach (array('accepted','tentative','declined') as $method) {
-      $buttons .= html::tag('input', array(
-        'type' => $attrib['type'],
-        'name' => $attrib['iname'],
-        'class' => 'button',
-        'rel' => $method,
-        'value' => $this->cal->itip->gettext('itip' . $method),
-      ));
-    }
-
-    $buttons .= html::div('itip-reply-controls', $this->cal->itip->itip_rsvp_options_ui($attrib['id']));
-
-    return html::div($attrib,
-      html::div('label', $this->cal->itip->gettext('acceptinvitation')) .
-      html::div('rsvp-buttons', $buttons));
+    return $this->cal->itip->itip_rsvp_buttons($attrib, array('accepted','tentative','declined'));
   }
 
 }
