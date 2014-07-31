@@ -60,6 +60,11 @@ class libcalendaring_itip
         $this->rsvp_status = array_merge($this->rsvp_actions, array('delegated'));
     }
 
+    public function set_rsvp_status($status)
+    {
+        $this->rsvp_status = $status;
+    }
+
     /**
      * Wrapper for rcube_plugin::gettext()
      * Checking for a label in different domains
@@ -246,7 +251,8 @@ class libcalendaring_itip
         // attach ics file for this event
         $ical = libcalendaring::get_ical();
         $ics = $ical->export(array($event), $method, false, $method == 'REQUEST' && $this->plugin->driver ? array($this->plugin->driver, 'get_attachment_body') : false);
-        $message->addAttachment($ics, 'text/calendar', 'event.ics', false, '8bit', '', RCMAIL_CHARSET . "; method=" . $method);
+        $filename = $event['_type'] == 'task' ? 'todo.ics' : 'event.ics';
+        $message->addAttachment($ics, 'text/calendar', $filename, false, '8bit', '', RCMAIL_CHARSET . "; method=" . $method);
 
         return $message;
     }
@@ -321,9 +327,10 @@ class libcalendaring_itip
           $listed = false;
           foreach ($existing['attendees'] as $attendee) {
             if ($attendee['role'] != 'ORGANIZER' && strcasecmp($attendee['email'], $event['attendee']) == 0) {
-              if (in_array($status, array('ACCEPTED','TENTATIVE','DECLINED','DELEGATED'))) {
-                $html = html::div('rsvp-status ' . strtolower($status), $this->gettext(array(
-                    'name' => 'attendee'.strtolower($status),
+              $status_lc = strtolower($status);
+              if (in_array($status_lc, $this->rsvp_status)) {
+                $html = html::div('rsvp-status ' . $status_lc, $this->gettext(array(
+                    'name' => 'attendee' . $status_lc,
                     'vars' => array(
                         'delegatedto' => Q($attendee['delegated-to'] ?: '?'),
                     )

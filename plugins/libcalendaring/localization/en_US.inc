@@ -86,6 +86,8 @@ $labels['itipobjectnotfound'] = 'The object referred by this message was not fou
 $labels['itipsubjectaccepted'] = '"$title" has been accepted by $name';
 $labels['itipsubjecttentative'] = '"$title" has been tentatively accepted by $name';
 $labels['itipsubjectdeclined'] = '"$title" has been declined by $name';
+$labels['itipsubjectin-process'] = '"$title" is in-process by $name';
+$labels['itipsubjectcompleted'] = '"$title" was completed by $name';
 $labels['itipsubjectcancel'] = 'Your participation in "$title" has been cancelled';
 
 $labels['itipnewattendee'] = 'This is a reply from a new participant';
@@ -99,18 +101,24 @@ $labels['youhaveaccepted'] = 'You have accepted this invitation';
 $labels['youhavetentative'] = 'You have tentatively accepted this invitation';
 $labels['youhavedeclined'] = 'You have declined this invitation';
 $labels['youhavedelegated'] = 'You have delegated this invitation';
+$labels['youhavein-process'] = 'You are working on this assignment';
+$labels['youhavecompleted'] = 'You have completed this assignment';
 $labels['youhaveneeds-action'] = 'Your response to this invitation is still pending';
 
 $labels['youhavepreviouslyaccepted'] = 'You have previously accepted this invitation';
 $labels['youhavepreviouslytentative'] = 'You have previously accepted this invitation tentatively';
 $labels['youhavepreviouslydeclined'] = 'You have previously declined this invitation';
 $labels['youhavepreviouslydelegated'] = 'You have previously delegated this invitation';
+$labels['youhavepreviouslyin-process'] = 'You have previously reported to work on this assignment';
+$labels['youhavepreviouslycompleted'] = 'You have previously completed this assignment';
 $labels['youhavepreviouslyneeds-action'] = 'Your response to this invitation is still pending';
 
 $labels['attendeeaccepted'] = 'Participant has accepted';
 $labels['attendeetentative'] = 'Participant has tentatively accepted';
 $labels['attendeedeclined'] = 'Participant has declined';
 $labels['attendeedelegated'] = 'Participant has delegated to $delegatedto';
+$labels['attendeein-process'] = 'Participant is in-process';
+$labels['attendeecompleted'] = 'Participant has completed';
 $labels['notanattendee'] = 'You\'re not listed as an attendee of this object';
 $labels['outdatedinvitation'] = 'This invitation has been replaced by a newer version';
 
