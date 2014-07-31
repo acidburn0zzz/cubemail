@@ -23,50 +23,11 @@
 
 class kolab_tags_backend
 {
-    private $folders;
     private $tag_cols = array('name', 'category', 'color', 'parent', 'iconName', 'priority', 'members');
 
-    const FOLDER_TYPE  = 'configuration';
-    const OBJECT_TYPE  = 'relation';
-    const CATEGORY     = 'tag';
+    const O_TYPE     = 'relation';
+    const O_CATEGORY = 'tag';
 
-
-    /**
-     * Class constructor
-     */
-    public function __construct()
-    {
-    }
-
-    /**
-     * Initializes config object and dependencies
-     */
-    private function load()
-    {
-        // nothing to be done here
-        if (isset($this->folders)) {
-            return;
-        }
-
-        $this->folders = kolab_storage::get_folders(self::FOLDER_TYPE);
-
-        foreach ($this->folders as $folder) {
-            if ($folder->default) {
-                $this->default = $folder;
-                break;
-            }
-        }
-
-        // if no folder is set as default, choose the first one
-        if (!$this->default) {
-            $this->default = reset($this->folders);
-        }
-
-        // check if configuration folder exist
-        if ($this->default && $this->default->name) {
-            $this->enabled = true;
-        }
-    }
 
     /**
      * Tags list
@@ -77,27 +38,12 @@ class kolab_tags_backend
      */
     public function list_tags($filter = array())
     {
-        $this->load();
+        $config     = kolab_storage_config::get_instance();
+        $default    = true;
+        $filter[]   = array('type', '=', self::O_TYPE);
+        $cat_filter = array('category' => self::O_CATEGORY);
 
-        $default  = true;
-        $taglist  = array();
-        $filter[] = array('type', '=', self::OBJECT_TYPE);
-
-        foreach ($this->folders as $folder) {
-            // we only want to read from default folder
-            if ($default && !$folder->default) {
-                continue;
-            }
-
-            foreach ($folder->select($filter) as $object) {
-                if ($object['category'] == self::CATEGORY) {
-                    // @TODO: we need uid, name, color and members only?
-                    $taglist[] = $object;
-                }
-            }
-        }
-
-        return $taglist;
+        return $config->get_objects($filter, $default, $cat_filter);
     }
 
     /**
@@ -109,18 +55,12 @@ class kolab_tags_backend
      */
     public function create($tag)
     {
-        $this->load();
-
-        if (!$this->default) {
-            return false;
-        }
-
-        $tag = array_intersect_key($tag, array_combine($this->tag_cols, $this->tag_cols));
-        $tag['type']     = 'relation';
-        $tag['category'] = self::CATEGORY;
+        $config = kolab_storage_config::get_instance();
+        $tag    = array_intersect_key($tag, array_combine($this->tag_cols, $this->tag_cols));
+        $tag['category'] = self::O_CATEGORY;
 
         // Create the object
-        $result = $this->default->save($tag, self::FOLDER_TYPE . '.' . self::OBJECT_TYPE);
+        $result = $config->save($tag, self::O_TYPE);
 
         return $result ? $tag : false;
     }
@@ -142,18 +82,12 @@ class kolab_tags_backend
             return false;
         }
 
-        $tag = array_intersect_key($tag, array_combine($this->tag_cols, $this->tag_cols));
-        $tag = array_merge($old_tag, $tag);
-
-        // find folder object
-        foreach ($this->folders as $folder) {
-            if ($folder->name == $tag['_mailbox']) {
-                break;
-            }
-        }
+        $config = kolab_storage_config::get_instance();
+        $tag    = array_intersect_key($tag, array_combine($this->tag_cols, $this->tag_cols));
+        $tag    = array_merge($old_tag, $tag);
 
         // Update the object
-        $result = $folder->save($tag, self::FOLDER_TYPE . '.' . self::OBJECT_TYPE, $tag['uid']);
+        $result = $config->save($tag, self::O_TYPE, $tag['uid']);
 
         return $result ? $tag : false;
     }
@@ -167,21 +101,8 @@ class kolab_tags_backend
      */
     public function remove($uid)
     {
-        // get tag object data, we need _mailbox
-        $list = $this->list_tags(array(array('uid', '=', $uid)));
-        $tag  = $list[0];
+        $config = kolab_storage_config::get_instance();
 
-        if (!$tag) {
-            return false;
-        }
-
-        // find folder object
-        foreach ($this->folders as $folder) {
-            if ($folder->name == $tag['_mailbox']) {
-                break;
-            }
-        }
-
-        return $folder->delete($uid);
+        return $config->delete($uid);
     }
 }

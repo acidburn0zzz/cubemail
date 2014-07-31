@@ -31,9 +31,10 @@ class kolab_config extends rcube_plugin
     public $task = 'utils';
 
     private $enabled;
-    private $default;
-    private $folders;
+    private $config;
     private $dicts = array();
+
+    const O_TYPE = 'dictionary';
 
     /**
      * Required startup method of a Roundcube plugin
@@ -54,6 +55,8 @@ class kolab_config extends rcube_plugin
         $this->add_hook('saved_search_list', array($this, 'saved_search_list'));
         $this->add_hook('saved_search_get', array($this, 'saved_search_get'));
 */
+
+        // @TODO: responses (snippets)
     }
 
     /**
@@ -61,28 +64,14 @@ class kolab_config extends rcube_plugin
      */
     private function load()
     {
-        // nothing to be done here
-        if (isset($this->folders))
+        if ($this->loaded) {
             return;
+        }
 
         $this->require_plugin('libkolab');
 
-        $this->folders = kolab_storage::get_folders('configuration');
-        foreach ($this->folders as $folder) {
-            if ($folder->default) {
-                $this->default = $folder;
-                break;
-            }
-        }
-
-        // if no folder is set as default, choose the first one
-        if (!$this->default)
-            $this->default = reset($this->folders);
-
-        // check if configuration folder exist
-        if ($this->default && $this->default->name) {
-            $this->enabled = true;
-        }
+        $this->config = kolab_storage_config::get_instance();
+        $this->loaded = true;
     }
 
     /**
@@ -96,24 +85,23 @@ class kolab_config extends rcube_plugin
     {
         $this->load();
 
-        if (!$this->enabled) {
+        if (!$this->config->is_enabled()) {
             return $args;
         }
 
         $lang = $args['language'];
         $dict = $this->read_dictionary($lang, true);
 
-        $dict['type']     = 'dictionary';
         $dict['language'] = $args['language'];
         $dict['e']        = $args['dictionary'];
 
         if (empty($dict['e'])) {
             // Delete the object
-            $this->default->delete($dict);
+            $this->config->delete($dict['uid']);
         }
         else {
             // Update the object
-            $this->default->save($dict, 'configuration.dictionary', $dict['uid']);
+            $this->config->save($dict, self::O_TYPE, $dict['uid']);
         }
 
         $args['abort'] = true;
@@ -132,7 +120,7 @@ class kolab_config extends rcube_plugin
     {
         $this->load();
 
-        if (!$this->enabled) {
+        if (!$this->config->is_enabled()) {
             return $args;
         }
 
@@ -153,33 +141,30 @@ class kolab_config extends rcube_plugin
      *
      * @param string The language (2 chars) to load
      * @param boolean Only load objects from default folder
+     *
      * @return array Dictionary object as hash array
      */
     private function read_dictionary($lang, $default = false)
     {
-        if (isset($this->dicts[$lang]))
+        if (isset($this->dicts[$lang])) {
             return $this->dicts[$lang];
+        }
 
-        $query = array(array('type','=','dictionary'), array('tags','=',$lang));
+        $query = array(array('type','=',self::O_TYPE), array('tags','=',$lang));
 
-        foreach ($this->folders as $folder) {
-            // we only want to read from default folder
-            if ($default && !$folder->default)
-                continue;
-
-            foreach ($folder->select($query) as $object) {
-                if ($object['type'] == 'dictionary' && ($object['language'] == $lang || $object['language'] == 'XX')) {
-                    if (is_array($this->dicts[$lang]))
-                        $this->dicts[$lang]['e'] = array_merge((array)$this->dicts[$lang]['e'], $object['e']);
-                    else
-                        $this->dicts[$lang] = $object;
-
-                    // make sure the default object is cached
-                    if ($folder->default && $object['language'] != 'XX') {
-                        $object['e'] = $this->dicts[$lang]['e'];
-                        $this->dicts[$lang] = $object;
-                    }
+        foreach ($this->config->get_objects($query, $default) as $object) {
+            if ($object['language'] == $lang || $object['language'] == 'XX') {
+                if (is_array($this->dicts[$lang]))
+                    $this->dicts[$lang]['e'] = array_merge((array)$this->dicts[$lang]['e'], $object['e']);
+                else
+                    $this->dicts[$lang] = $object;
+/*
+                // make sure the default object is cached
+                if ($folder->default && $object['language'] != 'XX') {
+                    $object['e'] = $this->dicts[$lang]['e'];
+                    $this->dicts[$lang] = $object;
                 }
+*/
             }
         }
 
