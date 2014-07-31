@@ -26,7 +26,7 @@ class kolab_format_task extends kolab_format_xcal
 {
     public $CTYPEv2 = 'application/x-vnd.kolab.task';
 
-    public static $scheduling_properties = array('start', 'due', 'summary', 'status');
+    public $scheduling_properties = array('start', 'due', 'summary', 'status');
 
     protected $objclass = 'Todo';
     protected $read_func = 'readTodo';

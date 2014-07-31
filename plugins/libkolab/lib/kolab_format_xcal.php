@@ -29,7 +29,8 @@ abstract class kolab_format_xcal extends kolab_format
     public $CTYPE = 'application/calendar+xml';
 
     public static $fulltext_cols = array('title', 'description', 'location', 'attendees:name', 'attendees:email', 'categories');
-    public static $scheduling_properties = array('start', 'end', 'location');
+
+    public $scheduling_properties = array('start', 'end', 'location');
 
     protected $sensitivity_map = array(
         'public'       => kolabformat::ClassPublic,
@@ -315,7 +316,7 @@ abstract class kolab_format_xcal extends kolab_format
                 // increment sequence when updating properties relevant for scheduling.
                 // RFC 5545: "It is incremented [...] each time the Organizer makes a significant revision to the calendar component."
                 // TODO: make the list of properties considered 'significant' for scheduling configurable
-                foreach (self::$scheduling_properties as $prop) {
+                foreach ($this->scheduling_properties as $prop) {
                     $a = $old[$prop];
                     $b = $object[$prop];
                     if ($object['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {

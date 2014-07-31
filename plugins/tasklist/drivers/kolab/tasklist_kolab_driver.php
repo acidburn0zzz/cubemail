@@ -904,7 +904,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         $object['_owner'] = $identity['email'];
 
-        unset($object['tempid'], $object['raw'], $object['list'], $object['flagged'], $object['tags']);
+        unset($object['tempid'], $object['raw'], $object['list'], $object['flagged'], $object['tags'], $object['sequence']);
         return $object;
     }
 
