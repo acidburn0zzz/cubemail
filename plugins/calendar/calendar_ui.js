@@ -3642,7 +3642,7 @@ function rcube_calendar_ui(settings)
       })) // set event handler for clicks on calendar week cell of the datepicker widget
         .on('click', 'td.ui-datepicker-week-col', function(e) {
           var cell = $(e.target);
-          if (e.target.tagName == 'TD' && cell.hasClass('')) {
+          if (e.target.tagName == 'TD') {
             var base_date = minical.datepicker('getDate');
             if (minical.data('month'))
               base_date.setMonth(minical.data('month')-1);
