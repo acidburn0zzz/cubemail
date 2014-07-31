@@ -32,6 +32,8 @@ class tasklist extends rcube_plugin
     const FILTER_MASK_OVERDUE = 32;
     const FILTER_MASK_FLAGGED = 64;
     const FILTER_MASK_COMPLETE = 128;
+    const FILTER_MASK_ASSIGNED = 256;
+    const FILTER_MASK_MYTASKS = 512;
 
     const SESSION_KEY = 'tasklist_temp';
 
@@ -44,6 +46,8 @@ class tasklist extends rcube_plugin
         'overdue'  => self::FILTER_MASK_OVERDUE,
         'flagged'  => self::FILTER_MASK_FLAGGED,
         'complete' => self::FILTER_MASK_COMPLETE,
+        'assigned' => self::FILTER_MASK_ASSIGNED,
+        'mytasks'  => self::FILTER_MASK_MYTASKS,
     );
 
     public $task = '?(?!login|logout).*';
@@ -1077,7 +1081,11 @@ class tasklist extends rcube_plugin
         else if ($start > $weeklimit || ($rec['date'] && $duedate > $weeklimit))
             $mask |= self::FILTER_MASK_LATER;
 
-        // TODO: add mask for "assigned to me"
+        // add masks for assigned tasks
+        if ($this->is_organizer($rec) && !empty($rec['attendees']) && $this->is_attendee($rec) === false)
+            $mask |= self::FILTER_MASK_ASSIGNED;
+        else if (/*empty($rec['attendees']) ||*/ $this->is_attendee($rec) !== false)
+            $mask |= self::FILTER_MASK_MYTASKS;
 
         return $mask;
     }

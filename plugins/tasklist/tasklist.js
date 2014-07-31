@@ -40,6 +40,8 @@ function rcube_tasklist_ui(settings)
     var FILTER_MASK_OVERDUE = 32;
     var FILTER_MASK_FLAGGED = 64;
     var FILTER_MASK_COMPLETE = 128;
+    var FILTER_MASK_ASSIGNED = 256;
+    var FILTER_MASK_MYTASKS = 512;
 
     var filter_masks = {
         all:      FILTER_MASK_ALL,
@@ -50,11 +52,12 @@ function rcube_tasklist_ui(settings)
         nodate:   FILTER_MASK_NODATE,
         overdue:  FILTER_MASK_OVERDUE,
         flagged:  FILTER_MASK_FLAGGED,
-        complete: FILTER_MASK_COMPLETE
+        complete: FILTER_MASK_COMPLETE,
+        assigned: FILTER_MASK_ASSIGNED,
+        mytasks:  FILTER_MASK_MYTASKS
     };
 
     /*  private vars  */
-    var selector = 'all';
     var tagsfilter = [];
     var filtermask = FILTER_MASK_ALL;
     var loadstate = { filter:-1, lists:'', search:null };
@@ -245,9 +248,21 @@ function rcube_tasklist_ui(settings)
         list_tasks();
 
         // register event handlers for UI elements
-        $('#taskselector a').click(function(e){
-            if (!$(this).parent().hasClass('inactive'))
-                list_tasks(this.href.replace(/^.*#/, ''));
+        $('#taskselector a').click(function(e) {
+            if (!$(this).parent().hasClass('inactive')) {
+                var selector = this.href.replace(/^.*#/, ''),
+                    mask = filter_masks[selector],
+                    shift = e.shiftKey || e.ctrlKey || e.metaKey;
+
+                if (!shift)
+                    filtermask = mask;  // reset selection on regular clicks
+                else if (filtermask & mask)
+                    filtermask -= mask;
+                else
+                    filtermask |= mask;
+
+                list_tasks();
+            }
             return false;
         });
 
@@ -606,11 +621,10 @@ function rcube_tasklist_ui(settings)
 
         if (sel && filter_masks[sel] !== undefined) {
             filtermask = filter_masks[sel];
-            selector = sel;
         }
 
         var active = active_lists(),
-            basefilter = filtermask == FILTER_MASK_COMPLETE ? FILTER_MASK_COMPLETE : FILTER_MASK_ALL,
+            basefilter = filtermask & FILTER_MASK_COMPLETE ? FILTER_MASK_COMPLETE : FILTER_MASK_ALL,
             reload = force || active.join(',') != loadstate.lists || basefilter != loadstate.filter || loadstate.search != search_query;
 
         if (active.length && reload) {
@@ -623,7 +637,16 @@ function rcube_tasklist_ui(settings)
             render_tasklist();
 
         $('#taskselector li.selected').removeClass('selected').attr('aria-checked', 'false');
-        $('#taskselector li.'+selector).addClass('selected').attr('aria-checked', 'true');
+
+        // select all active selectors
+        if (filtermask > 0) {
+            $.each(filter_masks, function(sel, mask) {
+                if (filtermask & mask)
+                    $('#taskselector li.'+sel).addClass('selected').attr('aria-checked', 'true');
+            });
+        }
+        else
+            $('#taskselector li.all').addClass('selected').attr('aria-checked', 'true');
     }
 
     /**
@@ -1876,9 +1899,13 @@ function rcube_tasklist_ui(settings)
                 }
             });
 
+            $('#edit-tab-attendees').show();
             $('#edit-attendees-form')[(allow_invitations?'show':'hide')]();
             $('#edit-identities-list').val(identity_id);
             $('#taskedit-organizer')[(organizer ? 'show' : 'hide')]();
+        }
+        else {
+            $('#edit-tab-attendees').hide();
         }
 
         // attachments
@@ -2238,7 +2265,7 @@ function rcube_tasklist_ui(settings)
             return cache[rec.id];
         }
 
-        var match = !filtermask || (filtermask & rec.mask) > 0;
+        var match = !filtermask || (filtermask & rec.mask) == filtermask;
 
         // in focusview mode, only tasks from the selected list are allowed
         if (focusview && rec.list != focusview)

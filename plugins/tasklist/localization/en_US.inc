@@ -43,6 +43,10 @@ $labels['today'] = 'Today';
 $labels['tomorrow'] = 'Tomorrow';
 $labels['next7days'] = 'Next 7 days';
 $labels['later'] = 'Later';
+$labels['assigned'] = 'Assigned';
+$labels['assignedtitle'] = 'Tasks you assigned to others';
+$labels['mytasks'] = 'My tasks';
+$labels['mytaskstitle'] = 'Tasks assigned to you';
 $labels['nodate'] = 'no date';
 $labels['removetag'] = 'Remove';
 
