@@ -811,13 +811,13 @@ function rcube_kolab_notes_ui(settings)
         });
 
         if (data.links) {
-            $.each(data.links, function(i, link){
+            $.each(data.links, function(i, link) {
                 var li = $('<li>').addClass('link')
                     .addClass('message eml')
                     .append($('<a>')
                         .attr('href', link.mailurl)
                         .addClass('messagelink')
-                        .html(Q(link.subject || link.message_id || link.uri))
+                        .text(link.subject || link.uri)
                     )
                     .appendTo(attachmentslist);
 /*

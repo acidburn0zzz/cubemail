@@ -488,7 +488,7 @@ class kolab_notes extends rcube_plugin
     public function note_record()
     {
         $data = $this->get_note(array(
-            'uid' => rcube_utils::get_input_value('_id', RCUBE_INPUT_GPC),
+            'uid'  => rcube_utils::get_input_value('_id', RCUBE_INPUT_GPC),
             'list' => rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC),
         ));
 
@@ -562,12 +562,10 @@ class kolab_notes extends rcube_plugin
         }
 
         // resolve message links
-        if (is_array($note['links'])) {
-            $me = $this;
-            $note['links'] = array_map(function($link) use ($me, $resolve){
+        $me = $this;
+        $note['links'] = array_map(function($link) use ($me, $resolve) {
                 return $me->get_message_reference($link, $resolve) ?: array('uri' => $link);
-            }, $note['links']);
-        }
+            }, $this->get_links($note['uid']));
 
         return $note;
     }
@@ -622,7 +620,7 @@ class kolab_notes extends rcube_plugin
         else {
             $this->rc->output->show_message('errorsaving', 'error');
         }
- 
+
         // unlock client
         $this->rc->output->command('plugin.unlock_saving');
 
@@ -666,6 +664,11 @@ class kolab_notes extends rcube_plugin
 
         // generate new note object from input
         $object = $this->_write_preprocess($note, $old);
+
+        // email links are handled separately
+        $links = $object['links'];
+        unset($object['links']);
+
         $saved = $folder->save($object, 'note', $note['uid']);
 
         if (!$saved) {
@@ -677,7 +680,10 @@ class kolab_notes extends rcube_plugin
             $saved = false;
         }
         else {
-            $note = $object;
+            // save links in configuration.relation object
+            $this->save_links($object['uid'], $links);
+
+            $note         = $object;
             $note['list'] = $list_id;
 
             // cache this in memory for later read
@@ -716,10 +722,17 @@ class kolab_notes extends rcube_plugin
         $this->_read_lists();
 
         $list_id = $note['list'];
-        if (!$list_id || !($folder = $this->get_folder($list_id)))
+        if (!$list_id || !($folder = $this->get_folder($list_id))) {
             return false;
+        }
 
-        return $folder->delete($note['uid'], $force);
+        $status = $folder->delete($note['uid'], $force);
+
+        if ($status) {
+            $this->save_links($note['uid'], null);
+        }
+
+        return $status;
     }
 
     /**
@@ -873,23 +886,12 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
-     * Lookup backend storage and find notes tagged with the given message-ID
+     * Lookup backend storage and find notes associated with the given message
      */
     public function mail_message_load($p)
     {
-        $this->message = $p['object'];
-        $this->message_notes = array();
-
-        // TODO: only query for notes if message was flagged with $KolabNotes ?
-
-        $message_id = trim($p['object']->headers->messageID, '<> ');
-        if ($message_id && $p['object']->uid) {
-            $query = array(array('tags','=','ref:' . $message_id));
-            foreach (kolab_storage::select($query, 'note') as $record) {
-                $record['list'] = kolab_storage::folder_id($record['_mailbox']);
-                $this->message_notes[] = $record;
-            }
-        }
+        $this->message       = $p['object'];
+        $this->message_notes = $this->get_message_notes($this->message->headers, $this->message->folder);
     }
 
     /**
@@ -964,41 +966,161 @@ class kolab_notes extends rcube_plugin
         return $message->getMessage();
     }
 
+    private function save_links($uid, $links)
+    {
+        $config    = kolab_storage_config::get_instance();
+        $search    = kolab_storage_config::build_member_url($uid);
+        $relations = $this->get_relations($uid);
+
+        // @TODO: here we support only one-way relations, i.e.
+        // such relation can contain only note and mail members
+        // So, when we remove a note member the whole relation
+        // will be removed
+
+        foreach ($relations as $relation) {
+            if (empty($links)) {
+                $config->delete($relation['uid']);
+                $this->relations = null; // clear in-memory cache
+            }
+            else {
+                // assign all links to one relation, others will be removed
+                $members = array_merge($links, array($search));
+                $diff1   = array_diff($members, $relation['members']);
+                $diff1   = array_diff($relation['members'], $members);
+
+                if (count($diff1) || count($diff2)) {
+                    $relation['members'] = $members;
+                    $config->save($relation, 'relation');
+                    $this->relations = null; // clear in-memory cache
+                }
+
+                $links = null;
+            }
+        }
+
+        // create a new relation
+        if (!empty($links)) {
+            $relation = array(
+                'members'  => array_merge($links, array($search)),
+                'category' => 'generic',
+            );
+
+            $config->save($relation, 'relation');
+            $this->relations = null; // clear in-memory cache
+        }
+    }
+
+    /**
+     * Find messages assigned to specified note
+     */
+    private function get_links($uid)
+    {
+        $result = array();
+        $search = kolab_storage_config::build_member_url($uid);
+
+        foreach ($this->get_relations($uid) as $relation) {
+            if (in_array($search, (array) $relation['members'])) {
+                foreach ($relation['members'] as $member) {
+                    if ($member != $search) {
+                        $result[] = $member;
+                    }
+                }
+            }
+        }
+
+        return array_unique($result);
+    }
+
+    /**
+     * Find notes assigned to specified message
+     */
+    private function get_message_notes($message, $folder)
+    {
+        $result = array();
+        $uids   = array();
+
+        // TODO: only query for notes if message was flagged with $KolabNotes ?
+
+        // get UIDs of assigned notes
+        foreach ($this->get_relations() as $relation) {
+            foreach ($relation['members'] as $member) {
+                $member = kolab_storage_config::parse_member_url($member);
+                if ($member['folder'] == $folder && $member['uid'] == $message->uid) {
+                    reset($relation['members']);
+                    // find note UID(s)
+                    foreach ($relation['members'] as $member) {
+                        if (strpos($member, 'urn:uuid:') === 0) {
+                            $uids[] = substr($member, 9);
+                        }
+                    }
+
+                    continue 2;
+                }
+            }
+        }
+
+        // get Note objects
+        if (!empty($uids)) {
+            $query = array(array('uid', '=', $uids));
+            foreach (kolab_storage::select($query, 'note') as $record) {
+                $record['list'] = kolab_storage::folder_id($record['_mailbox']);
+                $result[] = $record;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Find relation objects referring to specified note
+     */
+    private function get_relations($uid = null)
+    {
+        if (!isset($this->relations)) {
+            $config      = kolab_storage_config::get_instance();
+            $filter      = array(array('type', '=', 'relation'));
+            $default     = true;
+            $data_filter = array('category' => 'generic');
+
+            $this->relations = $config->get_objects($filter, $default, $data_filter);
+        }
+
+        if ($uid === null) {
+            return $this->relations;
+        }
+
+        $result = array();
+        $search = kolab_storage_config::build_member_url($uid);
+
+        foreach ($this->relations as $relation) {
+            if (in_array($search, (array) $relation['members'])) {
+                $result[] = $relation;
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * Build a URI representing the given message reference
      */
     private function get_message_uri($headers, $folder)
     {
-        return sprintf('imap://%s/%s?message-id=%s&subject=%s',
-            $headers->folder ?: $folder,
-            $headers->uid,
-            urlencode($headers->messageID),
-            urlencode($headers->get('subject'))
+        $params = array(
+            'folder' => $headers->folder ?: $folder,
+            'uid'    => $headers->uid,
         );
-    }
 
-    /**
-     * Extract message reference components from the given URI
-     */
-    private function parse_message_uri($uri)
-    {
-        $url = parse_url($uri);
-        if ($url['scheme'] == 'imap') {
-            parse_str($url['query'], $param);
-            $linkref = array(
-                'uri' => $uri,
-                'message_id' => $param['message-id'] ?: urldecode($url['fragment']),
-                'subject' => $param['subject'],
-            );
+        if (($messageid = $headers->get('message-id', false)) && ($date = $headers->get('date', false))) {
+            $params['message-id'] = $messageid;
+            $params['date']       = $date;
 
-            $path = explode('/', $url['host'] . $url['path']);
-            $linkref['msguid'] = array_pop($path);
-            $linkref['folder'] = join('/', $path);
-
-            return $linkref;
+            if ($subject = $headers->get('subject')) {
+                $params['subject'] = $subject;
+            }
         }
 
-        return false;
+        return kolab_storage_config::build_member_url($params);
     }
 
     /**
@@ -1006,34 +1128,18 @@ class kolab_notes extends rcube_plugin
      */
     public function get_message_reference($uri, $resolve = false)
     {
-        if ($linkref = $this->parse_message_uri($uri)) {
-            // fetch message subject
-            if ($resolve || empty($linkref['subject'])) {
-                $imap = $this->rc->get_storage();
-                if (!($message = $imap->get_message_headers($linrkef['msguid'], $linkref['folder']))) {
-                    // try to find message using the message_id fragment
-                    $index = $imap->search_once($imap->list_folders_subscribed('', '*', 'mail', null, true), 'HEADER MESSAGE-ID ' . $linkref['message_id']);
-                    if ($index->count()) {
-                        $uid = reset($index->get());
-                        $folder = $index->get_parameters('MAILBOX');
-                        if ($message = $imap->get_message_headers($uid, $folder)) {
-                            // replace metadata
-                            $linkref['subject'] = $message->get('subject');
-                            $linkref['msguid'] = $message->uid;
-                            $linkref['folder'] = $message->folder;
-                            $linkref['uri'] = $this->get_message_uri($message, $folder);
-                        }
-                    }
-                }
-            }
-
+        if ($linkref = kolab_storage_config::parse_member_url($uri)) {
+            $linkref['subject'] = $linkref['params']['subject'];
+            $linkref['uri']     = $uri;
             $linkref['mailurl'] = $this->rc->url(array(
-                'task' => 'mail',
+                'task'   => 'mail',
                 'action' => 'show',
-                'mbox' => $linkref['folder'],
-                'uid' => $linkref['msguid'],
-                'rel' => 'note',
+                'mbox'   => $linkref['folder'],
+                'uid'    => $linkref['uid'],
+                'rel'    => 'note',
             ));
+
+            unset($linkref['params']);
         }
 
         return $linkref;

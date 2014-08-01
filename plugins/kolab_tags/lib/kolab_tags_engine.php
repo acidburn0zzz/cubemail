@@ -552,57 +552,7 @@ class kolab_tags_engine
      */
     protected function parse_member_url($url)
     {
-        // Look for IMAP URI:
-        // imap:///(user/username@domain|shared)/<folder>/<UID>?<search_params>
-        if (strpos($url, 'imap:///') === 0) {
-            $rcube   = rcube::get_instance();
-            $storage = $rcube->get_storage();
-
-            // parse_url does not work with imap:/// prefix
-            $url   = parse_url(substr($url, 8));
-            $path  = explode('/', $url['path']);
-            parse_str($url['query'], $params);
-
-            $uid  = array_pop($path);
-            $ns   = array_shift($path);
-            $path = array_map('rawurldecode', $path);
-
-            // resolve folder name
-            if ($ns == 'shared') {
-                $folder = implode('/', $path);
-                // Note: this assumes there's only one shared namespace root
-                if ($ns = $storage->get_namespace('shared')) {
-                    if ($prefix = $ns[0][0]) {
-                        $folder = $prefix . '/' . $folder;
-                    }
-                }
-            }
-            else if ($ns == 'user') {
-                $username = array_shift($path);
-                $folder   = implode('/', $path);
-
-                if ($username != $rcube->get_user_name()) {
-                    // Note: this assumes there's only one other users namespace root
-                    if ($ns = $storage->get_namespace('other')) {
-                        if ($prefix = $ns[0][0]) {
-                            $folder = $prefix . '/' . $username . '/' . $folder;
-                        }
-                    }
-                }
-                else if (!strlen($folder)) {
-                    $folder = 'INBOX';
-                }
-            }
-            else {
-                return;
-            }
-
-            return array(
-                'folder' => $folder,
-                'uid'    => $uid,
-                'params' => $params,
-            );
-        }
+        return kolab_storage_config::parse_member_url($url);
     }
 
     /**
@@ -614,57 +564,6 @@ class kolab_tags_engine
      */
     protected function build_member_url($params)
     {
-        if (empty($params) || !strlen($params['folder'])) {
-            return null;
-        }
-
-        $rcube   = rcube::get_instance();
-        $storage = $rcube->get_storage();
-
-        // modify folder spec. according to namespace
-        $folder = $params['folder'];
-        $ns     = $storage->folder_namespace($folder);
-
-        if ($ns == 'shared') {
-            // Note: this assumes there's only one shared namespace root
-            if ($ns = $storage->get_namespace('shared')) {
-                if ($prefix = $ns[0][0]) {
-                    $folder = 'shared' . substr($folder, strlen($prefix));
-                }
-            }
-        }
-        else {
-            if ($ns == 'other') {
-                // Note: this assumes there's only one other users namespace root
-                if ($ns = $storage->get_namespace('shared')) {
-                    if ($prefix = $ns[0][0]) {
-                        $folder = 'user' . substr($folder, strlen($prefix));
-                    }
-                }
-            }
-            else {
-                $folder = 'user' . '/' . $rcube->get_user_name() . '/' . $folder;
-            }
-        }
-
-        $folder = implode('/', array_map('rawurlencode', explode('/', $folder)));
-
-        // build URI
-        $url = 'imap:///' . $folder;
-
-        // UID is optional here because sometimes we want
-        // to build just a member uri prefix
-        if ($params['uid']) {
-            $url .= '/' . $params['uid'];
-        }
-
-        unset($params['folder']);
-        unset($params['uid']);
-
-        if (!empty($params)) {
-            $url .= '?' . http_build_query($params, '', '&');
-        }
-
-        return $url;
+        return kolab_storage_config::build_member_url($params);
     }
 }
