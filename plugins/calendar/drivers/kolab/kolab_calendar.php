@@ -650,6 +650,11 @@ class kolab_calendar extends kolab_storage_folder_api
       $event['recurrence'] = array();
     }
 
+    // keep 'comment' from initial itip invitation
+    if (!empty($old['comment'])) {
+      $event['comment'] = $old['comment'];
+    }
+
     // remove some internal properties which should not be saved
     unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_folder_id'], $event['className']);
 

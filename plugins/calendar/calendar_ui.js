@@ -2320,7 +2320,6 @@ function rcube_calendar_ui(settings)
             delete data.rsvp;  // unset RSVP flag
           }
         }
-        event_show_dialog(me.selected_event);
 
         // submit status change to server
         var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val() }),
@@ -2333,6 +2332,8 @@ function rcube_calendar_ui(settings)
           me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
           rcmail.http_post('event', { action:'rsvp', e:submit_data, status:response, noreply:noreply });
         }
+
+        event_show_dialog(me.selected_event);
       }
     };
     
