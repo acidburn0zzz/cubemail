@@ -465,6 +465,7 @@ class libvcalendar implements Iterator
             case 'LOCATION':
             case 'DESCRIPTION':
             case 'URL':
+            case 'COMMENT':
                 $event[strtolower($prop->name)] = self::convert_string($prop);
                 break;
 
@@ -518,10 +519,6 @@ class libvcalendar implements Iterator
                     $attachment['size'] = strlen($attachment['data']);
                     $event['attachments'][] = $attachment;
                 }
-                break;
-
-            case 'COMMENT':
-                $event['comment'] = $prop->value;
                 break;
 
             default:

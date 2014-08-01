@@ -127,6 +127,10 @@ abstract class kolab_format_xcal extends kolab_format
             'start'       => self::php_datetime($this->obj->start()),
         );
 
+        if (method_exists($this->obj, 'comment')) {
+            $object['comment'] = $this->obj->comment();
+        }
+
         // read organizer and attendees
         if (($organizer = $this->obj->organizer()) && ($organizer->email() || $organizer->name())) {
             $object['organizer'] = array(
@@ -339,6 +343,10 @@ abstract class kolab_format_xcal extends kolab_format
         $this->obj->setClassification($this->sensitivity_map[$object['sensitivity']]);
         $this->obj->setCategories(self::array2vector($object['categories']));
         $this->obj->setUrl(strval($object['url']));
+
+        if (method_exists($this->obj, 'setComment')) {
+            $this->obj->setComment($object['comment']);
+        }
 
         // process event attendees
         $attendees = new vectorattendee;

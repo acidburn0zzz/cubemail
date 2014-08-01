@@ -717,6 +717,7 @@ a.miniColors-trigger {
 	margin-left: 2em;
 }
 
+.calendarmain .eventdialog #event-rsvp-comment,
 .calendarmain .eventdialog #event-created-changed {
 	margin-top: 0.6em;
 }

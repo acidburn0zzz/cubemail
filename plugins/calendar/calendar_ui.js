@@ -534,8 +534,12 @@ function rcube_calendar_ui(settings)
             .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
         }
 
-        $('#event-rsvp')[(rsvp && !is_organizer(event) && event.status != 'CANCELLED' ? 'show' : 'hide')]();
+        var show_rsvp = rsvp && !is_organizer(event) && event.status != 'CANCELLED';
+        $('#event-rsvp')[(show_rsvp ? 'show' : 'hide')]();
         $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
+
+        if (show_rsvp && event.comment)
+          $('#event-rsvp-comment').show().children('.event-text').html(Q(event.comment));
 
         $('#event-rsvp a.reply-comment-toggle').show();
         $('#event-rsvp .itip-reply-comment textarea').hide().val('');

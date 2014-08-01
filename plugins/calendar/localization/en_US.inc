@@ -111,6 +111,7 @@ $labels['quickview'] = 'View only this calendar';
 $labels['invitationspending'] = 'Pending invitations';
 $labels['invitationsdeclined'] = 'Declined invitations';
 $labels['changepartstat'] = 'Change participant status';
+$labels['rsvpcomment'] = 'Invitation text';
 
 // agenda view
 $labels['listrange'] = 'Range to display:';
