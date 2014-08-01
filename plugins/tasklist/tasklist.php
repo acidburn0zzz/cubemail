@@ -321,6 +321,22 @@ class tasklist extends rcube_plugin
 
             $this->rc->user->save_prefs(array('tasklist_collapsed_tasks' => join(',', array_unique($this->collapsed_tasks))));
             return;  // avoid further actions
+
+        case 'rsvp':
+            $status = get_input_value('status', RCUBE_INPUT_GPC);
+            $task = $this->driver->get_task($rec);
+            $task['attendees'] = $rec['attendees'];
+            $rec = $task;
+
+            if ($success = $this->driver->edit_task($rec)) {
+                $noreply = intval(get_input_value('noreply', RCUBE_INPUT_GPC)) || $status == 'needs-action';
+
+                if (!$noreply) {
+                    // let the reply clause further down send the iTip message
+                    $rec['_reportpartstat'] = $status;
+                }
+            }
+            break;
         }
 
         if ($success) {
@@ -353,6 +369,9 @@ class tasklist extends rcube_plugin
             if ($task['organizer'] && ($idx = $this->is_attendee($task)) !== false) {
                 $sender = $task['attendees'][$idx];
                 $status = strtolower($sender['status']);
+
+                if (!empty($_POST['comment']))
+                    $task['comment'] = get_input_value('comment', RCUBE_INPUT_POST);
 
                 $itip = $this->load_itip();
                 $itip->set_sender_email($sender['email']);
@@ -1861,5 +1880,26 @@ class tasklist extends rcube_plugin
     {
        $this->load_driver();
        return $this->driver->user_delete($args);
+    }
+
+
+    /**
+     * Magic getter for public access to protected members
+     */
+    public function __get($name)
+    {
+        switch ($name) {
+            case 'ical':
+                return $this->get_ical();
+
+            case 'itip':
+                return $this->load_itip();
+
+            case 'driver':
+                $this->load_driver();
+                return $this->driver;
+        }
+
+        return null;
     }
 }

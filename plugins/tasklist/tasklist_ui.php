@@ -129,6 +129,7 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.attendees_form', array($this, 'attendees_form'));
         $this->plugin->register_handler('plugin.identity_select', array($this, 'identity_select'));
         $this->plugin->register_handler('plugin.edit_attendees_notify', array($this, 'edit_attendees_notify'));
+        $this->plugin->register_handler('plugin.task_rsvp_buttons', array($this->plugin->itip, 'itip_rsvp_buttons'));
 
         $this->plugin->include_script('jquery.tagedit.js');
         $this->plugin->include_script('tasklist.js');

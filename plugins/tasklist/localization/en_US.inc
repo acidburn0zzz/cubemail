@@ -146,6 +146,7 @@ $labels['attendeedelegated'] = 'Assignee has delegated to $delegatedto';
 $labels['attendeein-process'] = 'Assignee is in-process';
 $labels['attendeecompleted'] = 'Assignee has completed';
 
+$labels['acceptinvitation'] = 'Do you accept this assignment?';
 $labels['itipdeclinetask'] = 'Decline your assignment to this task to the organizer';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined task from your tasks list?';
 $labels['itipcomment'] = 'Invitation/notification comment';

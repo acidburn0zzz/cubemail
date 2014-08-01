@@ -1132,12 +1132,18 @@ div.tasklist-invitebox td.label {
 	padding-right: 1em;
 }
 
-#event-rsvp .rsvp-buttons,
+#task-rsvp .rsvp-buttons,
+#task-rsvp .itip-reply-controls,
 div.tasklist-invitebox .itip-buttons div {
 	margin-top: 0.5em;
 }
 
-#event-rsvp input.button,
+#task-rsvp .itip-reply-controls a,
+#task-rsvp .itip-reply-controls label {
+	color: #333;
+}
+
+#task-rsvp input.button,
 div.tasklist-invitebox input.button {
 	font-weight: bold;
 	margin-right: 0.5em;
@@ -1164,7 +1170,7 @@ div.tasklist-invitebox .rsvp-status.hint {
 	font-style: italic;
 }
 
-#event-partstat .changersvp,
+#task-partstat .changersvp,
 .edit-attendees-table td.confirmstate span,
 div.tasklist-invitebox .rsvp-status.declined,
 div.tasklist-invitebox .rsvp-status.tentative,
@@ -1177,37 +1183,37 @@ div.tasklist-invitebox .rsvp-status.needs-action {
 	background: url(images/attendee-status.png) 2px -20px no-repeat;
 }
 
-#event-partstat .changersvp.declined,
+#task-partstat .changersvp.declined,
 div.tasklist-invitebox .rsvp-status.declined,
 .edit-attendees-table td.confirmstate span.declined {
 	background-position: 2px -40px;
 }
 
-#event-partstat .changersvp.tentative,
+#task-partstat .changersvp.tentative,
 div.tasklist-invitebox .rsvp-status.tentative,
 .edit-attendees-table td.confirmstate span.tentative {
 	background-position: 2px -60px;
 }
 
-#event-partstat .changersvp.delegated,
+#task-partstat .changersvp.delegated,
 div.tasklist-invitebox .rsvp-status.delegated,
 .edit-attendees-table td.confirmstate span.delegated {
 	background-position: 2px -180px;
 }
 
-#event-partstat .changersvp.needs-action,
+#task-partstat .changersvp.needs-action,
 div.tasklist-invitebox .rsvp-status.needs-action,
 .edit-attendees-table td.confirmstate span.needs-action {
 	background-position: 2px 0;
 }
 
-#event-partstat .changersvp.in-process,
+#task-partstat .changersvp.in-process,
 div.tasklist-invitebox .rsvp-status.in-process,
 .edit-attendees-table td.confirmstate span.in-process {
 	background-position: 2px -200px;
 }
 
-#event-partstat .changersvp.accepted,
+#task-partstat .changersvp.accepted,
 div.tasklist-invitebox .rsvp-status.accepted,
 .edit-attendees-table td.confirmstate span.accepted {
 	background-position: 2px -220px;

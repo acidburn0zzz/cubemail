@@ -502,6 +502,35 @@ function rcube_tasklist_ui(settings)
             }
         });
 
+        // init RSVP widget
+        $('#task-rsvp input.button').click(function(e) {
+            var response = $(this).attr('rel');
+
+            if (me.selected_task && me.selected_task.attendees && response) {
+                // update attendee status
+                for (var data, i=0; i < me.selected_task.attendees.length; i++) {
+                    data = me.selected_task.attendees[i];
+                    if (settings.identity.emails.indexOf(';'+String(data.email).toLowerCase()) >= 0) {
+                        data.status = response.toUpperCase();
+                        delete data.rsvp;  // unset RSVP flag
+                    }
+                }
+
+                // submit status change to server
+                saving_lock = rcmail.set_busy(true, 'tasklist.savingdata');
+                rcmail.http_post('tasks/task', {
+                    action: 'rsvp',
+                    t: me.selected_task,
+                    filter: filtermask,
+                    status: response,
+                    noreply: $('#noreply-task-rsvp').prop('checked') ? 1 : 0,
+                    comment: $('#reply-comment-task-rsvp').val()
+                });
+
+                task_show_dialog(me.selected_task.id);
+            }
+        });
+
         // handle global document clicks: close popup menus
         $(document.body).click(clear_popups);
 
@@ -1613,7 +1642,7 @@ function rcube_tasklist_ui(settings)
         $('#task-completeness .task-text').html(((rec.complete || 0) * 100) + '%');
         $('#task-status')[(rec.status ? 'show' : 'hide')]().children('.task-text').html(rcmail.gettext('status-'+String(rec.status).toLowerCase(),'tasklist'));
         $('#task-list .task-text').html(Q(me.tasklists[rec.list] ? me.tasklists[rec.list].name : ''));
-        $('#task-attendees, #task-organizer').hide();
+        $('#task-attendees, #task-organizer, #task-created-changed, #task-rsvp-comment').hide();
 
         var itags = get_inherited_tags(rec);
         var taglist = $('#task-tags')[(rec.tags && rec.tags.length || itags.length ? 'show' : 'hide')]().children('.task-text').empty();
@@ -1657,7 +1686,6 @@ function rcube_tasklist_ui(settings)
 
         // list task attendees
         if (list.attendees && rec.attendees) {
-            console.log(rec.attendees)
 /*
             // sort resources to the end
             rec.attendees.sort(function(a,b) {
@@ -1720,13 +1748,16 @@ function rcube_tasklist_ui(settings)
                     .children('.task-text')
                     .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
             }
-
-            $('#task-rsvp')[(rsvp && !is_organizer(event) && rec.status != 'CANCELLED' ? 'show' : 'hide')]();
+*/
+            var show_rsvp = rsvp && !is_organizer(rec) && rec.status != 'CANCELLED';
+            $('#task-rsvp')[(show_rsvp ? 'show' : 'hide')]();
             $('#task-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
 
+            if (show_rsvp && rec.comment) {
+                $('#task-rsvp-comment').show().children('.task-text').html(Q(rec.comment));
+            }
             $('#task-rsvp a.reply-comment-toggle').show();
             $('#task-rsvp .itip-reply-comment textarea').hide().val('');
-*/
 
             if (rec.organizer && !organizer) {
                 $('#task-organizer').show().children('.task-text').html(task_attendee_html(rec.organizer));
