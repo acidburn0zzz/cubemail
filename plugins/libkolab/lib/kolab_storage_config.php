@@ -94,10 +94,11 @@ class kolab_storage_config
      * @param array $filter      Search filter
      * @param bool  $default     Enable to get objects only from default folder
      * @param array $data_filter Additional object data filter
+     * @param int   $limit       Max. number of records (per-folder)
      *
      * @return array List of objects
      */
-    public function get_objects($filter = array(), $default = false, $data_filter = array())
+    public function get_objects($filter = array(), $default = false, $data_filter = array(), $limit = 0)
     {
         $list = array();
 
@@ -105,6 +106,11 @@ class kolab_storage_config
             // we only want to read from default folder
             if ($default && !$folder->default) {
                 continue;
+            }
+
+            // for better performance it's good to assume max. number of records
+            if ($limit) {
+                $folder->set_order_and_limit(null, $limit);
             }
 
             foreach ($folder->select($filter) as $object) {
@@ -119,6 +125,28 @@ class kolab_storage_config
         }
 
         return $list;
+    }
+
+    /**
+     * Get configuration object
+     *
+     * @param string $uid     Object UID
+     * @param bool   $default Enable to get objects only from default folder
+     *
+     * @return array Object data
+     */
+    public function get_object($uid, $default = false)
+    {
+        foreach ($this->folders as $folder) {
+            // we only want to read from default folder
+            if ($default && !$folder->default) {
+                continue;
+            }
+
+            if ($object = $folder->get_object($uid)) {
+                return $object;
+            }
+        }
     }
 
     /**
@@ -151,8 +179,12 @@ class kolab_storage_config
      */
     public function delete($uid)
     {
+        if (!$this->enabled) {
+            return false;
+        }
+
         // fetch the object to find folder
-        $list   = $this->get_objects(array(array('uid', '=', $uid)));
+        $list   = $this->get_object($uid);
         $object = $list[0];
 
         if (!$object) {
@@ -313,5 +345,4 @@ class kolab_storage_config
             );
         }
     }
-
 }

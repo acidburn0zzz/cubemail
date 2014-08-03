@@ -152,7 +152,7 @@ class kolab_config extends rcube_plugin
 
         $query = array(array('type','=',self::O_TYPE), array('tags','=',$lang));
 
-        foreach ($this->config->get_objects($query, $default) as $object) {
+        foreach ($this->config->get_objects($query, $default, null, 100) as $object) {
             if ($object['language'] == $lang || $object['language'] == 'XX') {
                 if (is_array($this->dicts[$lang]))
                     $this->dicts[$lang]['e'] = array_merge((array)$this->dicts[$lang]['e'], $object['e']);

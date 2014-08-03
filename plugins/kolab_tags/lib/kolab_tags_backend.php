@@ -43,7 +43,9 @@ class kolab_tags_backend
         $filter[]   = array('type', '=', self::O_TYPE);
         $cat_filter = array('category' => self::O_CATEGORY);
 
-        return $config->get_objects($filter, $default, $cat_filter);
+        // for performance reasons assume there will be no more than 100 tags (per-folder)
+
+        return $config->get_objects($filter, $default, $cat_filter, 100);
     }
 
     /**
