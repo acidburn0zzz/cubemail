@@ -2398,7 +2398,7 @@ class calendar extends rcube_plugin
         'changed' => is_object($event['changed']) ? $event['changed']->format('U') : 0,
         'sequence' => intval($event['sequence']),
         'fallback' => strtoupper($status),
-        'method' => $this->ical->method,
+        'method' => $event['_method'],
         'task' => 'calendar',
       );
 
@@ -2442,7 +2442,7 @@ class calendar extends rcube_plugin
         
         if ($existing) {
           // only update attendee status
-          if ($this->ical->method == 'REPLY') {
+          if ($$event['_method'] == 'REPLY') {
             // try to identify the attendee using the email sender address
             $existing_attendee = -1;
             foreach ($existing['attendees'] as $i => $attendee) {
@@ -2502,7 +2502,7 @@ class calendar extends rcube_plugin
             }
 
             // set status=CANCELLED on CANCEL messages
-            if ($this->ical->method == 'CANCEL')
+            if ($event['_method'] == 'CANCEL')
               $event['status'] = 'CANCELLED';
             // show me as free when declined (#1670)
             if ($status == 'declined' || $event['status'] == 'CANCELLED')
@@ -2532,7 +2532,7 @@ class calendar extends rcube_plugin
     }
 
     if ($success) {
-      $message = $this->ical->method == 'REPLY' ? 'attendeupdateesuccess' : ($deleted ? 'successremoval' : ($existing ? 'updatedsuccessfully' : 'importedsuccessfully'));
+      $message = $event['_method'] == 'REPLY' ? 'attendeupdateesuccess' : ($deleted ? 'successremoval' : ($existing ? 'updatedsuccessfully' : 'importedsuccessfully'));
       $this->rc->output->command('display_message', $this->gettext(array('name' => $message, 'vars' => array('calendar' => $calendar['name']))), 'confirmation');
 
       $metadata['rsvp'] = intval($metadata['rsvp']);
@@ -2543,9 +2543,8 @@ class calendar extends rcube_plugin
     else if ($error_msg)
       $this->rc->output->command('display_message', $error_msg, 'error');
 
-
     // send iTip reply
-    if ($this->ical->method == 'REQUEST' && $organizer && !$noreply && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
+    if ($event['_method'] == 'REQUEST' && $organizer && !$noreply && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
       $event['comment'] = get_input_value('_comment', RCUBE_INPUT_POST);
       $itip = $this->load_itip();
       $itip->set_sender_email($reply_sender);
