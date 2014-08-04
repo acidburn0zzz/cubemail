@@ -2575,6 +2575,7 @@ function rcube_calendar_ui(settings)
           }
         })
         .fullCalendar($.extend({}, fullcalendar_defaults, {
+          defaultView: 'agendaDay',
           header: { left: '', center: '', right: '' },
           height: h - 50,
           date: date.getDate(),
