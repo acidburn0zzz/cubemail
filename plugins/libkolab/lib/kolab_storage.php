@@ -563,8 +563,17 @@ class kolab_storage
             $name = $c_folder->name;
 
             // skip current folder and it's subfolders
-            if ($len && ($name == $current || strpos($name, $current.$delim) === 0)) {
-                continue;
+            if ($len) {
+                if ($name == $current) {
+                    // Make sure parent folder is listed (might be skipped e.g. if it's namespace root)
+                    if ($p_len && !isset($names[$parent])) {
+                        $names[$parent] = self::object_name($parent);
+                    }
+                    continue;
+                }
+                if (strpos($name, $current.$delim) === 0) {
+                    continue;
+                }
             }
 
             // always show the parent of current folder
@@ -576,11 +585,6 @@ class kolab_storage
                 if (!preg_match('/[ck]/', $rights)) {
                     continue;
                 }
-            }
-
-            // Make sure parent folder is listed (might be skipped e.g. if it's namespace root)
-            if ($p_len && !isset($names[$parent]) && strpos($name, $parent.$delim) === 0) {
-                $names[$parent] = self::object_name($parent);
             }
 
             $names[$name] = self::object_name($name);
