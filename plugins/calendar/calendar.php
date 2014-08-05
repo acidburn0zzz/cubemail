@@ -2442,7 +2442,7 @@ class calendar extends rcube_plugin
         
         if ($existing) {
           // only update attendee status
-          if ($$event['_method'] == 'REPLY') {
+          if ($event['_method'] == 'REPLY') {
             // try to identify the attendee using the email sender address
             $existing_attendee = -1;
             foreach ($existing['attendees'] as $i => $attendee) {
