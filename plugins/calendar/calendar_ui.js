@@ -836,7 +836,7 @@ function rcube_calendar_ui(settings)
         if (allow_invitations) {
           $.each(data.attendees, function (i, v) {
             if (v.role != 'ORGANIZER') {
-              if ($('input.edit-attendee-reply[value="' + v.email + '"]').prop('checked')) {
+              if ($('input.edit-attendee-reply[value="' + v.email + '"]').prop('checked') || v.cutype == 'RESOURCE') {
                 need_invitation = true;
                 delete data.attendees[i]['noreply'];
               }
