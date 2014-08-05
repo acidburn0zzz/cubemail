@@ -418,7 +418,8 @@ class calendar_ui
     $select = new html_select($attrib);
     $select->add($this->cal->gettext('free'), 'free');
     $select->add($this->cal->gettext('busy'), 'busy');
-    $select->add($this->cal->gettext('outofoffice'), 'outofoffice');
+    // out-of-office is not supported by libkolabxml (#3220)
+    // $select->add($this->cal->gettext('outofoffice'), 'outofoffice');
     $select->add($this->cal->gettext('tentative'), 'tentative');
     return $select->show(null);
   }

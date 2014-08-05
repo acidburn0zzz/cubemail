@@ -34,11 +34,11 @@ class kolab_auth_ldap extends rcube_ldap_generic
     {
         $rcmail = rcube::get_instance();
 
-        $this->debug    = (bool) $rcmail->config->get('ldap_debug');
         $this->fieldmap = $p['fieldmap'];
         $this->fieldmap['uid'] = 'uid';
 
         $p['attributes'] = array_values($this->fieldmap);
+        $p['debug']      = (bool) $rcmail->config->get('ldap_debug');
 
         // Connect to the server (with bind)
         parent::__construct($p);
