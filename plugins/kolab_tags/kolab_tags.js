@@ -618,18 +618,19 @@ function tag_box_element(tag, del_btn)
 // set color style on tag box
 function tag_set_color(obj, tag)
 {
-    var style = {backgroundColor: tag.color};
-
     if (obj && tag.color) {
+        var style = 'background-color: ' + tag.color + ' !important';
+
         // choose black text color when background is bright, white otherwise
         if (/^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i.test(tag.color)) {
             // use information about brightness calculation found at
             // http://javascriptrules.com/2009/08/05/css-color-brightness-contrast-using-javascript/
             var brightness = (parseInt(RegExp.$1, 16) * 299 + parseInt(RegExp.$2, 16) * 587 + parseInt(RegExp.$3, 16) * 114) / 1000;
-            style.color = brightness > 125 ? 'black' : 'white';
+            style += '; color: ' + (brightness > 125 ? 'black' : 'white') + ' !important';
         }
 
-        $(obj).css(style);
+        // don't use css() it does not work with "!important" flag
+        $(obj).attr('style', style);
     }
 }
 
