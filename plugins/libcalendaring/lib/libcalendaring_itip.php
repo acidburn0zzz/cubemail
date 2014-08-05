@@ -434,6 +434,12 @@ class libcalendaring_itip
             $title = $event['sequence'] > 0 ? $this->gettext('itipupdate') : $this->gettext('itipinvitation');
             $metadata['rsvp'] = true;
 
+            // check for X-KOLAB-INVITATIONTYPE property and only show accept/decline buttons
+            if (self::get_custom_property($event, 'X-KOLAB-INVITATIONTYPE') == 'CONFIRMATION') {
+                $this->rsvp_actions = array('accepted','declined');
+                $metadata['nosave'] = true;
+            }
+
             // 1. display RSVP buttons (if the user was invited)
             foreach ($this->rsvp_actions as $method) {
                 $rsvp_buttons .= html::tag('input', array(
@@ -471,7 +477,7 @@ class libcalendaring_itip
             }
 
             // add itip reply message controls
-            $rsvp_buttons .= html::div('itip-reply-controls', $this->itip_rsvp_options_ui($dom_id));
+            $rsvp_buttons .= html::div('itip-reply-controls', $this->itip_rsvp_options_ui($dom_id, $metadata['nosave']));
 
             $buttons[] = html::div(array('id' => 'rsvp-'.$dom_id, 'class' => 'rsvp-buttons', 'style' => 'display:none'), $rsvp_buttons);
             $buttons[] = html::div(array('id' => 'update-'.$dom_id, 'style' => 'display:none'), $update_button);
@@ -507,7 +513,6 @@ class libcalendaring_itip
             $buttons[] = html::div(array('id' => 'import-'.$dom_id, 'style' => 'display:none'), $import_button);
         }
 
-        // TODO: add field for COMMENT on iTip replies
         // TODO: add option/checkbox to delete this message after update
 
         // pass some metadata about the event and trigger the asynchronous status check
@@ -556,11 +561,11 @@ class libcalendaring_itip
     /**
      * Render UI elements to control iTip reply message sending
      */
-    public function itip_rsvp_options_ui($dom_id)
+    public function itip_rsvp_options_ui($dom_id, $disable = false)
     {
         // add checkbox to suppress itip reply message
         $rsvp_additions = html::label(array('class' => 'noreply-toggle'),
-            html::tag('input', array('type' => 'checkbox', 'id' => 'noreply-'.$dom_id, 'value' => 1))
+            html::tag('input', array('type' => 'checkbox', 'id' => 'noreply-'.$dom_id, 'value' => 1, 'disabled' => $disable))
             . ' ' . $this->gettext('itipsuppressreply')
         );
 
@@ -624,6 +629,24 @@ class libcalendaring_itip
     {
         // empty stub
         return false;
+    }
+
+    /**
+     * Utility function to get the value of a custom property
+     */
+    public static function get_custom_property($event, $name)
+    {
+      $ret = false;
+
+      if (is_array($event['x-custom'])) {
+          array_walk($event['x-custom'], function($prop, $i) use ($name, &$ret) {
+              if (strcasecmp($prop[0], $name) === 0) {
+                  $ret = $prop[1];
+              }
+          });
+      }
+
+      return $ret;
     }
 
 }

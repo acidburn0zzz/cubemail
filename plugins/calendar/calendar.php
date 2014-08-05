@@ -2155,9 +2155,10 @@ class calendar extends rcube_plugin
     $response = $itip->get_itip_status($data, $existing);
 
     // get a list of writeable calendars to save new events to
-    if (!$existing && $response['action'] == 'rsvp' || $response['action'] == 'import') {
+    if (!$existing && !$data['nosave'] && $response['action'] == 'rsvp' || $response['action'] == 'import') {
       $calendars = $this->driver->list_calendars(false, true);
       $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'itip-saveto', 'is_escaped' => true));
+      $calendar_select->add('--', '');
       $numcals = 0;
       foreach ($calendars as $calendar) {
         if (!$calendar['readonly']) {
@@ -2173,6 +2174,9 @@ class calendar extends rcube_plugin
       $default_calendar = $this->get_default_calendar(true);
       $response['select'] = html::span('folder-select', $this->gettext('saveincalendar') . '&nbsp;' .
         $calendar_select->show($this->rc->config->get('calendar_default_calendar', $default_calendar['id'])));
+    }
+    else if ($data['nosave']) {
+      $response['select'] = html::tag('input', array('type' => 'hidden', 'name' => 'calendar', 'id' => 'itip-saveto', 'value' => ''));
     }
 
     $this->rc->output->command('plugin.update_itip_object_status', $response);
@@ -2390,8 +2394,13 @@ class calendar extends rcube_plugin
     if ($event = $this->lib->mail_get_itip_object($mbox, $uid, $mime_id, 'event')) {
       // find writeable calendar to store event
       $cal_id = !empty($_REQUEST['_folder']) ? get_input_value('_folder', RCUBE_INPUT_POST) : null;
+      $dontsave = ($_REQUEST['_folder'] === '' && $event['_method'] == 'REQUEST');
       $calendars = $this->driver->list_calendars(false, true);
-      $calendar = $calendars[$cal_id] ?: $this->get_default_calendar(true);
+      $calendar = $calendars[$cal_id];
+
+      // select default calendar except user explicitly selected 'none'
+      if (!$calendar && !$dontsave)
+         $calendar = $this->get_default_calendar(true);
 
       $metadata = array(
         'uid' => $event['uid'],
@@ -2525,7 +2534,7 @@ class calendar extends rcube_plugin
         else if ($status == 'declined')
           $error_msg = null;
       }
-      else if ($status == 'declined')
+      else if ($status == 'declined' || $dontsave)
         $error_msg = null;
       else
         $error_msg = $this->gettext('nowritecalendarfound');
@@ -2534,14 +2543,18 @@ class calendar extends rcube_plugin
     if ($success) {
       $message = $event['_method'] == 'REPLY' ? 'attendeupdateesuccess' : ($deleted ? 'successremoval' : ($existing ? 'updatedsuccessfully' : 'importedsuccessfully'));
       $this->rc->output->command('display_message', $this->gettext(array('name' => $message, 'vars' => array('calendar' => $calendar['name']))), 'confirmation');
+    }
 
+    if ($success || $dontsave) {
+      $metadata['nosave'] = $dontsave;
       $metadata['rsvp'] = intval($metadata['rsvp']);
       $metadata['after_action'] = $this->rc->config->get('calendar_itip_after_action', $this->defaults['calendar_itip_after_action']);
       $this->rc->output->command('plugin.itip_message_processed', $metadata);
       $error_msg = null;
     }
-    else if ($error_msg)
+    else if ($error_msg) {
       $this->rc->output->command('display_message', $error_msg, 'error');
+    }
 
     // send iTip reply
     if ($event['_method'] == 'REQUEST' && $organizer && !$noreply && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
