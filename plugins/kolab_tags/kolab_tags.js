@@ -388,6 +388,9 @@ function update_tags(response)
         message_list_select(list);
     }
 
+    // reset tag selector popup
+    tag_selector_element = null;
+
     // @TODO: sort tags by name/prio
 }
 
