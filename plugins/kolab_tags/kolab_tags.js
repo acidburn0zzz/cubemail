@@ -599,7 +599,7 @@ function tag_find(uid)
 // create and return tag box element
 function tag_box_element(tag, del_btn)
 {
-    var span = $('<span class="tagbox"></span>')
+    var span = $('<span class="tagbox skip-on-drag"></span>')
         .text(tag.name).data('tag', tag.uid);
 
     tag_set_color(span, tag);
