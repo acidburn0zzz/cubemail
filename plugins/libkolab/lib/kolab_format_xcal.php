@@ -304,6 +304,8 @@ abstract class kolab_format_xcal extends kolab_format
         $this->init();
 
         $is_new = !$this->obj->uid();
+        $old_sequence = $this->obj->sequence();
+        $reschedule = $is_new;
 
         // set common object properties
         parent::set($object);
@@ -314,7 +316,7 @@ abstract class kolab_format_xcal extends kolab_format
                 $object['sequence'] = 0;
             }
             else {
-                $object['sequence'] = $this->obj->sequence();
+                $object['sequence'] = $old_sequence;
                 $old = $this->data['uid'] ? $this->data : $this->to_array();
 
                 // increment sequence when updating properties relevant for scheduling.
@@ -336,6 +338,10 @@ abstract class kolab_format_xcal extends kolab_format
         }
         $this->obj->setSequence(intval($object['sequence']));
 
+        if ($object['sequence'] > $old_sequence) {
+            $reschedule = true;
+        }
+
         $this->obj->setSummary($object['title']);
         $this->obj->setLocation($object['location']);
         $this->obj->setDescription($object['description']);
@@ -350,7 +356,7 @@ abstract class kolab_format_xcal extends kolab_format
 
         // process event attendees
         $attendees = new vectorattendee;
-        foreach ((array)$object['attendees'] as $attendee) {
+        foreach ((array)$object['attendees'] as $i => $attendee) {
             if ($attendee['role'] == 'ORGANIZER') {
                 $object['organizer'] = $attendee;
             }
@@ -363,7 +369,9 @@ abstract class kolab_format_xcal extends kolab_format
                 $att->setPartStat($this->part_status_map[$attendee['status']]);
                 $att->setRole($this->role_map[$attendee['role']] ? $this->role_map[$attendee['role']] : kolabformat::Required);
                 $att->setCutype($this->cutype_map[$attendee['cutype']] ? $this->cutype_map[$attendee['cutype']] : kolabformat::CutypeIndividual);
-                $att->setRSVP((bool)$attendee['rsvp']);
+                $att->setRSVP((bool)$attendee['rsvp'] || $reschedule);
+
+                $object['attendees'][$i]['rsvp'] = $attendee['rsvp'] || $reschedule;
 
                 if (!empty($attendee['delegated-from'])) {
                     $vdelegators = new vectorcontactref;
