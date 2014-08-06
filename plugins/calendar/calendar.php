@@ -978,7 +978,7 @@ class calendar extends rcube_plugin
         $data = $this->driver->get_event_changelog($event);
         if (is_array($data) && !empty($data)) {
           $lib = $this->lib;
-          array_walk($data, function($change) use ($lib) {
+          array_walk($data, function(&$change) use ($lib) {
             if ($change['date']) {
               $dt = $lib->adjust_timezone($change['date']);
               if ($dt instanceof DateTime)
@@ -1720,6 +1720,8 @@ class calendar extends rcube_plugin
           $owner = $i;
         else if (!isset($attendee['rsvp']))
           $event['attendees'][$i]['rsvp'] = true;
+        else if (is_string($attendee['rsvp']))
+          $event['attendees'][$i]['rsvp'] = $attendee['rsvp'] == 'true' || $attendee['rsvp'] == '1';
       }
 
       // set new organizer identity

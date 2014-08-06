@@ -619,7 +619,7 @@ function rcube_calendar_ui(settings)
       var dispname = Q(data.name || data.email), tooltip = '';
 
       if (data.email) {
-        tooltip = data.email;
+        tooltip = data.email + '; ' + data.status;
         dispname = '<a href="mailto:' + data.email + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
       }
 

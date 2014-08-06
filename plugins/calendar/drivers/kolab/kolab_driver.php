@@ -1326,6 +1326,17 @@ class kolab_driver extends calendar_driver
       $record['attachments'] = $attachments;
     }
 
+    if (!empty($record['attendees'])) {
+      foreach ((array)$record['attendees'] as $i => $attendee) {
+        if (is_array($attendee['delegated-from'])) {
+          $record['attendees'][$i]['delegated-from'] = join(', ', $attendee['delegated-from']);
+        }
+        if (is_array($attendee['delegated-to'])) {
+          $record['attendees'][$i]['delegated-to'] = join(', ', $attendee['delegated-to']);
+        }
+      }
+    }
+
     // Roundcube only supports one category assignment
     if (is_array($record['categories']))
       $record['categories'] = $record['categories'][0];
@@ -1542,11 +1553,6 @@ class kolab_driver extends calendar_driver
     else {
       $uid = $event;
     }
-
-    // FIXME: hard-code UID for static Bonnie API demo
-    $demo_uids = $this->rc->config->get('kolab_static_bonnie_uids', array('0015c5fe-9baf-0561-11e3-d584fa2894b7'));
-    if (!in_array($uid, $demo_uids))
-      $uid = reset($demo_uids);
 
     return array($uid, $mailbox);
   }
