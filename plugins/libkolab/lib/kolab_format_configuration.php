@@ -64,7 +64,7 @@ class kolab_format_configuration extends kolab_format
             break;
 
         case 'relation':
-            $relation = new Relation($object['name'], $object['category']);
+            $relation = new Relation(strval($object['name']), strval($object['category']));
 
             if ($object['color']) {
                 $relation->setColor($object['color']);
