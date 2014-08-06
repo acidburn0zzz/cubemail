@@ -524,6 +524,11 @@ function apply_tags_filter()
 // adds _tags argument to http search request
 function search_request(url)
 {
+    // remove old tags filter
+    if (url._filter) {
+        url._filter = url._filter.replace(/^kolab_tags_[0-9]+:[^:]+:/, '');
+    }
+
     if (tagsfilter.length) {
         url._filter = 'kolab_tags_' + (new Date).getTime() + ':' + tagsfilter.join(',') + ':' + (url._filter || 'ALL');
 
