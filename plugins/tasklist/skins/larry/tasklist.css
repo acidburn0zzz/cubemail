@@ -1171,7 +1171,7 @@ div.tasklist-invitebox .rsvp-status.hint {
 }
 
 #task-partstat .changersvp,
-.edit-attendees-table td.confirmstate span,
+.tasklistview .edit-attendees-table td.confirmstate span,
 div.tasklist-invitebox .rsvp-status.declined,
 div.tasklist-invitebox .rsvp-status.tentative,
 div.tasklist-invitebox .rsvp-status.accepted,
@@ -1185,37 +1185,37 @@ div.tasklist-invitebox .rsvp-status.needs-action {
 
 #task-partstat .changersvp.declined,
 div.tasklist-invitebox .rsvp-status.declined,
-.edit-attendees-table td.confirmstate span.declined {
+.tasklistview .edit-attendees-table td.confirmstate span.declined {
 	background-position: 2px -40px;
 }
 
 #task-partstat .changersvp.tentative,
 div.tasklist-invitebox .rsvp-status.tentative,
-.edit-attendees-table td.confirmstate span.tentative {
+.tasklistview .edit-attendees-table td.confirmstate span.tentative {
 	background-position: 2px -60px;
 }
 
 #task-partstat .changersvp.delegated,
 div.tasklist-invitebox .rsvp-status.delegated,
-.edit-attendees-table td.confirmstate span.delegated {
+.tasklistview .edit-attendees-table td.confirmstate span.delegated {
 	background-position: 2px -180px;
 }
 
 #task-partstat .changersvp.needs-action,
 div.tasklist-invitebox .rsvp-status.needs-action,
-.edit-attendees-table td.confirmstate span.needs-action {
+.tasklistview .edit-attendees-table td.confirmstate span.needs-action {
 	background-position: 2px 0;
 }
 
 #task-partstat .changersvp.in-process,
 div.tasklist-invitebox .rsvp-status.in-process,
-.edit-attendees-table td.confirmstate span.in-process {
+.tasklistview .edit-attendees-table td.confirmstate span.in-process {
 	background-position: 2px -200px;
 }
 
 #task-partstat .changersvp.accepted,
 div.tasklist-invitebox .rsvp-status.accepted,
-.edit-attendees-table td.confirmstate span.accepted {
+.tasklistview .edit-attendees-table td.confirmstate span.accepted {
 	background-position: 2px -220px;
 }
 
