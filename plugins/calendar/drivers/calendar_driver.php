@@ -563,7 +563,11 @@ abstract class calendar_driver
             $birthyear = $bday->format('Y');
           }
           catch (Exception $e) {
-            console('BIRTHDAY PARSE ERROR: ' . $e);
+            rcube::raise_error(array(
+                'code' => 600, 'type' => 'php',
+                'file' => __FILE__, 'line' => __LINE__,
+                'message' => 'BIRTHDAY PARSE ERROR: ' . $e),
+              true, false);
             continue;
           }
 
@@ -598,7 +602,7 @@ abstract class calendar_driver
           if ($bday <= $end && $bday >= $start) {
             $age = $year - $birthyear;
             $event = array(
-              'id'          => md5('bday_' . $contact['ID'] . $year),
+              'id'          => rcube_ldap::dn_encode('bday:' . $source . ':' . $contact['ID'] . ':' . $year),
               'calendar'    => self::BIRTHDAY_CALENDAR_ID,
               'title'       => $event_title,
               'description' => $rcmail->gettext(array('name' => 'birthdayage', 'vars' => array('age' => $age)), 'calendar'),
@@ -622,6 +626,62 @@ abstract class calendar_driver
     }
 
     return $events;
+  }
+
+  /**
+   * Get a single birthday calendar event
+   */
+  public function get_birthday_event($id)
+  {
+    // decode $id
+    list(,$source,$contact_id,$year) = explode(':', rcube_ldap::dn_decode($id));
+
+    $rcmail = rcmail::get_instance();
+
+    if ($source && $contact_id && ($abook = $rcmail->get_address_book($source))) {
+      $contact = $abook->get_record($contact_id, true);
+
+      if (is_array($contact) && !empty($contact['birthday'])) {
+        try {
+          if (is_array($contact['birthday']))
+            $contact['birthday'] = reset($contact['birthday']);
+
+          $bday = $contact['birthday'] instanceof DateTime ? $contact['birthday'] :
+                    new DateTime($contact['birthday'], new DateTimezone('UTC'));
+          $birthyear = $bday->format('Y');
+        }
+        catch (Exception $e) {
+          rcube::raise_error(array(
+              'code' => 600, 'type' => 'php',
+              'file' => __FILE__, 'line' => __LINE__,
+              'message' => 'BIRTHDAY PARSE ERROR: ' . $e),
+            true, false);
+
+          return null;
+        }
+
+        $display_name = rcube_addressbook::compose_display_name($contact);
+        $event_title = $rcmail->gettext(array('name' => 'birthdayeventtitle', 'vars' => array('name' => $display_name)), 'calendar');
+
+        $event = array(
+          'id'          => rcube_ldap::dn_encode('bday:' . $source . ':' . $contact['ID'] . ':' . $year),
+          'uid'         => rcube_ldap::dn_encode('bday:' . $source . ':' . $contact['ID'] . ':' . $birthyear),
+          'calendar'    => self::BIRTHDAY_CALENDAR_ID,
+          'title'       => $event_title,
+          'description' => '',
+          'allday'      => true,
+          'start'       => $bday,
+          'recurrence'  => array('FREQ' => 'YEARLY', 'INTERVAL' => 1),
+          'free_busy'   => 'free',
+        );
+        $event['end'] = clone $bday;
+        $event['end']->add(new DateInterval('PT1H'));
+
+        return $event;
+      }
+    }
+
+    return null;
   }
 
   /**

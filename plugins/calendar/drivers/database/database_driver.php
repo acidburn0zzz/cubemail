@@ -744,10 +744,16 @@ class database_driver extends calendar_driver
   public function get_event($event, $writeable = false, $active = false, $personal = false)
   {
     $id = is_array($event) ? ($event['id'] ? $event['id'] : $event['uid']) : $event;
+    $cal = is_array($event) ? $event['calendar'] : null;
     $col = is_array($event) && is_numeric($id) ? 'event_id' : 'uid';
 
     if ($this->cache[$id])
       return $this->cache[$id];
+
+    // get event from the address books birthday calendar
+    if ($cal == self::BIRTHDAY_CALENDAR_ID) {
+      return $this->get_birthday_event($id);
+    }
 
     if ($active) {
       $calendars = $this->calendars;

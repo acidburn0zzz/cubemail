@@ -524,6 +524,10 @@ class kolab_driver extends calendar_driver
       if ($storage = $this->get_calendar($cal)) {
         return $storage->get_event($id);
       }
+      // get event from the address books birthday calendar
+      else if ($cal == self::BIRTHDAY_CALENDAR_ID) {
+        return $this->get_birthday_event($id);
+      }
     }
     // iterate over all calendar folders and search for the event ID
     else {
