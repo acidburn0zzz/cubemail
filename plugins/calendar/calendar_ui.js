@@ -1060,7 +1060,7 @@ function rcube_calendar_ui(settings)
           op_append = '';
         }
 
-        $('<tr class="' + (i == last ? 'last' : (i == first ? 'first' : '')) + (accessible ? '' : 'undisclosed') + '">')
+        $('<tr class="' + (i == first ? 'first' : (i == last ? 'last' : '')) + (accessible ? '' : 'undisclosed') + '">')
           .append('<td class="diff">' + (accessible && change.op != 'DELETE' ? 
             '<input type="radio" name="rev1" class="diff-rev1" value="' + change.rev + '" title="" '+ (i == last ? 'checked="checked"' : '') +' /> '+
             '<input type="radio" name="rev2" class="diff-rev2" value="' + change.rev + '" title="" '+ (i == first ? 'checked="checked"' : '') +' /></td>'
@@ -1073,7 +1073,8 @@ function rcube_calendar_ui(settings)
           .appendTo(tbody);
       }
 
-      $('#eventhistory .compare-button').fadeIn(200);
+      if (first > 0)
+        $('#eventhistory .compare-button').fadeIn(200);
 
       // set dialog size according to content
       me.dialog_resize($dialog.get(0), $dialog.height(), 600);
