@@ -27,6 +27,7 @@ class kolab_storage_config
 {
     const FOLDER_TYPE = 'configuration';
 
+
     /**
      * Singleton instace of kolab_storage_config
      *
@@ -165,9 +166,11 @@ class kolab_storage_config
 
         $folder = $this->find_folder($object);
 
-        $object['type'] = $type;
+        if ($type) {
+            $object['type'] = $type;
+        }
 
-        return $folder->save($object, self::FOLDER_TYPE . '.' . $type, $object['uid']);
+        return $folder->save($object, self::FOLDER_TYPE . '.' . $object['type'], $object['uid']);
     }
 
     /**
@@ -199,7 +202,7 @@ class kolab_storage_config
     /**
      * Find folder
      */
-    private function find_folder($object = array())
+    public function find_folder($object = array())
     {
         // find folder object
         if ($object['_mailbox']) {
@@ -344,5 +347,162 @@ class kolab_storage_config
                 'params' => $params,
             );
         }
+    }
+
+    /**
+     * Build array of member URIs from set of messages
+     *
+     * @param string $folder   Folder name
+     * @param array  $messages Array of rcube_message objects
+     *
+     * @return array List of members (IMAP URIs)
+     */
+    public static function build_members($folder, $messages)
+    {
+        $members = array();
+
+        foreach ((array) $messages as $msg) {
+            $params = array(
+                'folder' => $folder,
+                'uid'    => $msg->uid,
+            );
+
+            // add search parameters:
+            // we don't want to build "invalid" searches e.g. that
+            // will return false positives (more or wrong messages)
+            if (($messageid = $msg->get('message-id', false)) && ($date = $msg->get('date', false))) {
+                $params['message-id'] = $messageid;
+                $params['date']       = $date;
+
+                if ($subject = $msg->get('subject', false)) {
+                    $params['subject'] = substr($subject, 0, 256);
+                }
+            }
+
+            $members[] = self::build_member_url($params);
+        }
+
+        return $members;
+    }
+
+    /**
+     * Resolve/validate/update members (which are IMAP URIs) of relation object.
+     *
+     * @param array $tag   Tag object
+     * @param bool  $force Force members list update
+     *
+     * @return array Folder/UIDs list
+     */
+    public static function resolve_members(&$tag, $force = true)
+    {
+        $result = array();
+
+        foreach ((array) $tag['members'] as $member) {
+            // IMAP URI members
+            if ($url = self::parse_member_url($member)) {
+                $folder = $url['folder'];
+
+                if (!$force) {
+                    $result[$folder][] = $url['uid'];
+                }
+                else {
+                    $result[$folder]['uid'][]    = $url['uid'];
+                    $result[$folder]['params'][] = $url['params'];
+                    $result[$folder]['member'][] = $member;
+                }
+            }
+        }
+
+        if (empty($result) || !$force) {
+            return $result;
+        }
+
+        $rcube   = rcube::get_instance();
+        $storage = $rcube->get_storage();
+        $search  = array();
+        $missing = array();
+
+        // first we search messages by Folder+UID
+        foreach ($result as $folder => $data) {
+            // @FIXME: maybe better use index() which is cached?
+            // @TODO: consider skip_deleted option
+            $index = $storage->search_once($folder, 'UID ' . rcube_imap_generic::compressMessageSet($data['uid']));
+            $uids  = $index->get();
+
+            // messages that were not found need to be searched by search parameters
+            $not_found = array_diff($data['uid'], $uids);
+            if (!empty($not_found)) {
+                foreach ($not_found as $uid) {
+                    $idx = array_search($uid, $data['uid']);
+
+                    if ($p = $data['params'][$idx]) {
+                        $search[] = $p;
+                    }
+
+                    $missing[] = $result[$folder]['member'][$idx];
+
+                    unset($result[$folder]['uid'][$idx]);
+                    unset($result[$folder]['params'][$idx]);
+                    unset($result[$folder]['member'][$idx]);
+                }
+            }
+
+            $result[$folder] = $uids;
+        }
+
+        // search in all subscribed mail folders using search parameters
+        if (!empty($search)) {
+            // remove not found members from the members list
+            $tag['members'] = array_diff($tag['members'], $missing);
+
+            // get subscribed folders
+            $folders = $storage->list_folders_subscribed('', '*', 'mail', null, true);
+
+            // @TODO: do this search in chunks (for e.g. 10 messages)?
+            $search_str = '';
+
+            foreach ($search as $p) {
+                $search_params = array();
+                foreach ($p as $key => $val) {
+                    $key = strtoupper($key);
+                    // don't search by subject, we don't want false-positives
+                    if ($key != 'SUBJECT') {
+                        $search_params[] = 'HEADER ' . $key . ' ' . rcube_imap_generic::escape($val);
+                    }
+                }
+
+                $search_str .= ' (' . implode(' ', $search_params) . ')';
+            }
+
+            $search_str = trim(str_repeat(' OR', count($search)-1) . $search_str);
+
+            // search
+            $search = $storage->search_once($folders, $search_str);
+
+            // handle search result
+            $folders = (array) $search->get_parameters('MAILBOX');
+
+            foreach ($folders as $folder) {
+                $set  = $search->get_set($folder);
+                $uids = $set->get();
+
+                if (!empty($uids)) {
+                    $msgs    = $storage->fetch_headers($folder, $uids, false);
+                    $members = self::build_members($folder, $msgs);
+
+                    // merge new members into the tag members list
+                    $tag['members'] = array_merge($tag['members'], $members);
+
+                    // add UIDs into the result
+                    $result[$folder] = array_unique(array_merge((array)$result[$folder], $uids));
+                }
+            }
+
+            // update tag object with new members list
+            $tag['members'] = array_unique($tag['members']);
+            kolab_storage_config::get_instance()->save($tag, 'relation', false);
+        }
+
+        return $result;
     }
 }

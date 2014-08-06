@@ -983,6 +983,9 @@ class kolab_notes extends rcube_plugin
                 $this->relations = null; // clear in-memory cache
             }
             else {
+                // make relation members up-to-date
+                kolab_storage_config::resolve_members($relation);
+
                 // assign all links to one relation, others will be removed
                 $members = array_merge($links, array($search));
                 $diff1   = array_diff($members, $relation['members']);
@@ -1020,6 +1023,9 @@ class kolab_notes extends rcube_plugin
 
         foreach ($this->get_relations($uid) as $relation) {
             if (in_array($search, (array) $relation['members'])) {
+                // make relation members up-to-date
+                kolab_storage_config::resolve_members($relation);
+
                 foreach ($relation['members'] as $member) {
                     if ($member != $search) {
                         $result[] = $member;
@@ -1043,18 +1049,15 @@ class kolab_notes extends rcube_plugin
 
         // get UIDs of assigned notes
         foreach ($this->get_relations() as $relation) {
-            foreach ($relation['members'] as $member) {
-                $member = kolab_storage_config::parse_member_url($member);
-                if ($member['folder'] == $folder && $member['uid'] == $message->uid) {
-                    reset($relation['members']);
-                    // find note UID(s)
-                    foreach ($relation['members'] as $member) {
-                        if (strpos($member, 'urn:uuid:') === 0) {
-                            $uids[] = substr($member, 9);
-                        }
-                    }
+            // get Folder/UIDs of relation members
+            $messages = kolab_storage_config::resolve_members($relation);
 
-                    continue 2;
+            if (!empty($messages[$folder]) && in_array($message->uid, $messages[$folder])) {
+                // find note UID(s)
+                foreach ($relation['members'] as $member) {
+                    if (strpos($member, 'urn:uuid:') === 0) {
+                        $uids[] = substr($member, 9);
+                    }
                 }
             }
         }

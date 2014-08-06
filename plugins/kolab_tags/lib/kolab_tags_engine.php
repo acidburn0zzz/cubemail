@@ -220,12 +220,6 @@ class kolab_tags_engine
 
         // for every tag...
         foreach ($taglist as $tag) {
-            $updated = false;
-
-            // make sure members list is up-to-date (UIDs are up-to-date)
-            // @todo: maybe there's a faster way?
-            $this->get_tag_messages($tag);
-
             $tag['members'] = array_unique(array_merge((array) $tag['members'], $members));
 
             // update tag object
@@ -429,91 +423,9 @@ class kolab_tags_engine
      *
      * @return array Folder/UID list
      */
-    protected function get_tag_messages(&$tag)
+    protected function get_tag_messages(&$tag, $force = true)
     {
-        $result = array();
-
-        foreach ((array) $tag['members'] as $member) {
-            if ($url = $this->parse_member_url($member)) {
-                $folder                      = $url['folder'];
-                $result[$folder]['uid'][]    = $url['uid'];
-                $result[$folder]['params'][] = $url['params'];
-                $result[$folder]['member'][] = $member;
-            }
-        }
-
-        if (empty($result)) {
-            return array();
-        }
-
-        // @TODO: caching?
-
-        $rcube   = rcube::get_instance();
-        $storage = $rcube->get_storage();
-
-        foreach ($result as $folder => $data) {
-            // first, we search messages by UID
-            // @FIXME: maybe better use index() which is cached?
-            // @TODO: consider skip_deleted option
-            $index = $storage->search_once($folder, 'UID ' . rcube_imap_generic::compressMessageSet($data['uid']));
-            $uids  = $index->get();
-
-            // search by search parameters
-            $not_found = array_diff($data['uid'], $uids);
-            if (!empty($not_found)) {
-                $params      = array();
-                $old_members = array();
-                $new_members = array();
-
-                foreach ($not_found as $uid) {
-                    $idx = array_search($uid, $data['uid']);
-
-                    if ($p = $data['params'][$idx]) {
-                        $params[$idx] = $p;
-                    }
-
-                    $old_members[] = $data['member'][$idx];
-                }
-
-                if (!empty($params)) {
-                    // @TODO: do this search in chunks (for e.g. 10 messages)?
-                    $search_str = '';
-
-                    foreach ($params as $p) {
-                        $search = array();
-                        foreach ($p as $key => $val) {
-                            $search[] = 'HEADER ' . strtoupper($key) . ' ' . rcube_imap_generic::escape($val);
-                        }
-
-                        $search_str .= ' (' . implode(' ', $search) . ')';
-                    }
-
-                    $search_str = str_repeat(' OR', count($params)-1) . $search_str;
-
-                    // @TODO: we should search all folders
-                    $index = $storage->search_once($folder, $search_str);
-                    $_uids = $index->get();
-
-                    if (!empty($_uids)) {
-                        $uids = array_merge($uids, $_uids);
-                        $msgs = $storage->fetch_headers($folder, $_uids, false);
-
-                        $new_members = array_merge($new_members, $this->build_members($folder, $msgs));
-                    }
-                }
-
-                // merge members
-                $tag['members'] = array_diff($tag['members'], $old_members);
-                $tag['members'] = array_unique(array_merge($tag['members'], $new_members));
-
-                // update tag object with new members list
-                $this->backend->update($tag);
-            }
-
-            $result[$folder] = array_unique($uids);
-        }
-
-        return $result;
+        return kolab_storage_config::resolve_members($tag, $force);
     }
 
     /**
@@ -521,26 +433,7 @@ class kolab_tags_engine
      */
     protected function build_members($folder, $messages)
     {
-        $members = array();
-
-        foreach ((array) $messages as $msg) {
-            $params = array(
-                'folder' => $folder,
-                'uid'    => $msg->uid,
-            );
-
-            // add search parameters
-            // we don't want to build "invalid" searches e.g. that
-            // will return false positives (more or wrong messages)
-            if (($messageid = $msg->get('message-id', false)) && ($date = $msg->get('date', false))) {
-                $params['message-id'] = $messageid;
-                $params['date']       = $date;
-            }
-
-            $members[] = $this->build_member_url($params);
-        }
-
-        return $members;
+        return kolab_storage_config::build_members($folder, $messages);
     }
 
     /**
