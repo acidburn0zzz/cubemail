@@ -23,11 +23,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(dirname(__FILE__) . '/kolab_calendar.php');
-require_once(dirname(__FILE__) . '/kolab_user_calendar.php');
-require_once(dirname(__FILE__) . '/kolab_invitation_calendar.php');
-
-
 class kolab_driver extends calendar_driver
 {
   const INVITATIONS_CALENDAR_PENDING  = '--invitation--pending';
@@ -55,6 +50,11 @@ class kolab_driver extends calendar_driver
   public function __construct($cal)
   {
     $cal->require_plugin('libkolab');
+
+    // load helper classes *after* libkolab has been loaded (#3248)
+    require_once(dirname(__FILE__) . '/kolab_calendar.php');
+    require_once(dirname(__FILE__) . '/kolab_user_calendar.php');
+    require_once(dirname(__FILE__) . '/kolab_invitation_calendar.php');
 
     $this->cal = $cal;
     $this->rc = $cal->rc;
