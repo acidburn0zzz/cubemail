@@ -3028,6 +3028,10 @@ function rcube_calendar_ui(settings)
         // update main view
         event.editable = source.editable;
         update_view(fc, event, source);
+
+        // update the currently displayed event dialog
+        if ($('#eventshow').is(':visible') && me.selected_event && me.selected_event.id == event.id)
+          event_show_dialog(event)
       }
       // refetch all calendars
       else if (p.refetch) {
