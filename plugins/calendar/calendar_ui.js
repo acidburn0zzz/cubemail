@@ -3385,6 +3385,11 @@ function rcube_calendar_ui(settings)
           me.calendars[id].active = false;
         }
 
+        // adjust checked state of original list item
+        if (calendars_list.is_search()) {
+          calendars_list.container.find('input[value="'+id+'"]').prop('checked', this.checked);
+        }
+
         // add/remove event source
         fc.fullCalendar(action, me.calendars[id]);
         rcmail.http_post('calendar', { action:'subscribe', c:{ id:id, active:me.calendars[id].active?1:0 } });
@@ -3402,8 +3407,13 @@ function rcube_calendar_ui(settings)
     // init (delegate) event handler on quickview links
     .on('click', 'a.quickview', function(e) {
       var id = $(this).closest('li').attr('id').replace(/^rcmlical/, '');
+
+      if (calendars_list.is_search())
+        id = id.replace(/--xsR$/, '');
+
       if (me.calendars[id])
         me.quickview(id);
+
       e.stopPropagation();
       return false;
     });

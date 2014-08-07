@@ -244,6 +244,9 @@ function kolab_folderlist(node, p)
             id = li.attr('id').replace(new RegExp('^'+p.id_prefix), ''),
             div = li.children().first();
 
+        if (me.is_search())
+          id = id.replace(/--xsR$/, '');
+
         if (p.id_decode)
             id = p.id_decode(id);
 

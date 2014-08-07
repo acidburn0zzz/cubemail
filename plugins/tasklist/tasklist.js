@@ -197,6 +197,11 @@ function rcube_tasklist_ui(settings)
                 if (!this.checked && focusview == id) {
                     set_focusview(null);
                 }
+
+                // adjust checked state of original list item
+                if (tasklists_widget.is_search()) {
+                  tasklists_widget.container.find('input[value="'+id+'"]').prop('checked', this.checked);
+                }
             }
             e.stopPropagation();
         })
@@ -212,6 +217,10 @@ function rcube_tasklist_ui(settings)
         // handler for clicks on quickview buttons
         tasklists_widget.container.on('click', '.quickview', function(e){
             var id = $(this).closest('li').attr('id').replace(/^rcmlitasklist/, '');
+
+            if (tasklists_widget.is_search())
+              id = id.replace(/--xsR$/, '');
+
             set_focusview(focusview == id ? null : id);
             e.stopPropagation();
             return false;
@@ -220,6 +229,10 @@ function rcube_tasklist_ui(settings)
         // register dbl-click handler to open calendar edit dialog
         tasklists_widget.container.on('dblclick', ':not(.virtual) > .tasklist', function(e){
             var id = $(this).closest('li').attr('id').replace(/^rcmlitasklist/, '');
+
+            if (tasklists_widget.is_search())
+              id = id.replace(/--xsR$/, '');
+
             list_edit_dialog(id);
         });
 
