@@ -164,6 +164,7 @@
 	    -ms-box-sizing: border-box;
 	        box-sizing: border-box;
 	border-bottom: 1px solid #dfdfdf;
+	background: #fff;
 }
 
 .notesdialog #noteform,
