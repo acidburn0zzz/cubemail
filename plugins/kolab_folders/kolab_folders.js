@@ -119,13 +119,11 @@ function kolab_folders_filter(filter)
     return false;
 }
 
-function kolab_folder_filter_match(elem, type, display)
+function kolab_folder_filter_match(elem, type)
 {
-    var t, found = 0, cl = elem.className || '',
+    var found = 0, cl = elem.className || '',
         $elem = $(elem),
-        sub = $('ul', elem),
-        disp = sub.css('display') == 'none',
-        children = sub.children('li');
+        children = $('ul', elem).children('li');
 
     // subfolders...
     children.each(function() {
@@ -133,7 +131,7 @@ function kolab_folder_filter_match(elem, type, display)
     });
 
     if (found || cl.match(new RegExp('type-' + type))
-        || (type == 'mail' && !children.length && !cl.match(/(^| )type-([a-z]+)/) && !$elem.is('.virtual'))
+        || (type == 'mail' && !children.length && !cl.match(/(^| )type-([a-z]+)/))
     ) {
         if (found || !$elem.is('.virtual')) {
             found++;
