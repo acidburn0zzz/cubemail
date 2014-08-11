@@ -104,6 +104,32 @@ class kolab_folders extends rcube_plugin
             return $args;
         }
 
+        // load translations
+        $this->add_texts('localization/', false);
+
+        // Add javascript script to the client
+        $this->include_script('kolab_folders.js');
+
+        $this->add_label('folderctype');
+        foreach ($this->types as $type) {
+            $this->add_label('foldertype' . $type);
+        }
+
+        $skip_namespace = (array)$this->rc->config->get('kolab_skip_namespace');
+        $skip_roots     = array();
+
+        if (!empty($skip_namespace)) {
+            $storage = $this->rc->get_storage();
+            foreach ($skip_namespace as $ns) {
+                foreach((array)$storage->get_namespace($ns) as $root) {
+                    $skip_roots[] = rtrim($root[0], $root[1]);
+                }
+            }
+        }
+
+        $this->rc->output->set_env('skip_roots', $skip_roots);
+        $this->rc->output->set_env('foldertypes', $this->types);
+
         // get folders types
         $folderdata = kolab_storage::folders_typedata();
 

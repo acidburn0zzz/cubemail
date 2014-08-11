@@ -25,7 +25,31 @@
  * for the JavaScript code in this file.
  */
 
-$(document).ready(function() {
+window.rcmail && rcmail.env.action == 'folders' && rcmail.addEventListener('init', function() {
+    var filter = $(rcmail.gui_objects.foldersfilter),
+        optgroup = $('<optgroup>').attr('label', rcmail.gettext('kolab_folders.folderctype'));
+
+    // remove disabled namespaces
+    filter.children('option').each(function(i, opt) {
+        $.each(rcmail.env.skip_roots || [], function() {
+            if (opt.value == this) {
+                $(opt).remove();
+            }
+        });
+    });
+
+    // add type options to the filter
+    $.each(rcmail.env.foldertypes, function() {
+        optgroup.append($('<option>').attr('value', 'type-' + this).text(rcmail.gettext('kolab_folders.foldertype' + this)));
+    });
+
+    // overwrite default onchange handler
+    filter.attr('onchange', '')
+        .on('change', function() { return kolab_folders_filter(this.value); })
+        .append(optgroup);
+});
+
+window.rcmail && rcmail.env.action != 'folders' && $(document).ready(function() {
     // IE doesn't allow setting OPTION's display/visibility
     // We'll need to remove SELECT's options, see below
     if (bw.ie) {
@@ -68,3 +92,60 @@ $(document).ready(function() {
         }
     }).change();
 });
+
+function kolab_folders_filter(filter)
+{
+    var type = filter.match(/^type-([a-z]+)$/) ? RegExp.$1 : null;
+
+    rcmail.subscription_list.reset_search();
+
+    if (!type) {
+        // clear type filter
+        if (rcmail.folder_filter_type) {
+            $('li', rcmail.subscription_list.container).removeData('filtered').show();
+            rcmail.folder_filter_type = null;
+        }
+
+        // apply namespace filter
+        rcmail.folder_filter(filter);
+    }
+    else {
+        rcmail.folder_filter_type = type;
+        rcmail.subscription_list.container.children('li').each(function() {
+            kolab_folder_filter_match(this, type);
+        });
+    }
+
+    return false;
+}
+
+function kolab_folder_filter_match(elem, type, display)
+{
+    var t, found = 0, cl = elem.className || '',
+        $elem = $(elem),
+        sub = $('ul', elem),
+        disp = sub.css('display') == 'none',
+        children = sub.children('li');
+
+    // subfolders...
+    children.each(function() {
+        found += kolab_folder_filter_match(this, type);
+    });
+
+    if (found || cl.match(new RegExp('type-' + type))
+        || (type == 'mail' && !children.length && !cl.match(/(^| )type-([a-z]+)/) && !$elem.is('.virtual'))
+    ) {
+        if (found || !$elem.is('.virtual')) {
+            found++;
+        }
+    }
+
+    if (found) {
+        $elem.removeData('filtered').show();
+    }
+    else {
+        $elem.data('filtered', true).hide();
+    }
+
+    return found;
+}
