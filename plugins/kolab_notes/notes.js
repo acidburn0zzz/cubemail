@@ -848,7 +848,7 @@ function rcube_kolab_notes_ui(settings)
         var html = data.html || data.description;
 
         // convert plain text to HTML and make URLs clickable
-        if (!data.html || !html.match(/<(html|body)/)) {
+        if (html != '' && (!data.html || !html.match(/<(html|body)/))) {
             html = text2html(html);
         }
 

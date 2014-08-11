@@ -129,6 +129,9 @@
 	left: 252px;
 	right: 0;
 	bottom: 0px;
+	background-image: url(../../../../skins/larry/images/watermark.jpg);
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 .notesdialog #notedetailsbox {
