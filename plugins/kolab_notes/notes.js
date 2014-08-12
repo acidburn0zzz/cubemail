@@ -764,7 +764,7 @@ function rcube_kolab_notes_ui(settings)
     /**
      *
      */
-    function render_note(data)
+    function render_note(data, retry)
     {
         rcmail.set_busy(false, 'loading', ui_loading);
 
@@ -853,6 +853,18 @@ function rcube_kolab_notes_ui(settings)
         }
 
         var node, editor = tinyMCE.get('notecontent'), is_html = false;
+        retry = retry || 0;
+
+        // sometimes the editor instance is not ready yet (FF only)...
+        if (!readonly && !editor && $('#notecontent').length && retry < 5) {
+          // ... give it some more time
+          setTimeout(function() {
+              $(rcmail.gui_objects.noteseditform).show();
+              render_note(data, retry+1);
+          }, 200);
+          return;
+        }
+
         if (!readonly && editor) {
             $(rcmail.gui_objects.notesdetailview).hide();
             $(rcmail.gui_objects.noteseditform).show();
