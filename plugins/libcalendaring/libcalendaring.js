@@ -303,11 +303,11 @@ function rcube_libcalendaring(settings)
         // simple link parser (similar to rcube_string_replacer class in PHP)
         var utf_domain = '[^?&@"\'/\\(\\)\\s\\r\\t\\n]+\\.([^\x00-\x2f\x3b-\x40\x5b-\x60\x7b-\x7f]{2,}|xn--[a-z0-9]{2,})';
         var url1 = '.:;,', url2 = 'a-z0-9%=#@+?&/_~\\[\\]-';
-        var link_pattern = new RegExp('([hf]t+ps?://)('+utf_domain+'(['+url1+']?['+url2+']+)*)?', 'ig');
+        var link_pattern = new RegExp('([hf]t+ps?://)('+utf_domain+'(['+url1+']?['+url2+']+)*)', 'ig');
         var mailto_pattern = new RegExp('([^\\s\\n\\(\\);]+@'+utf_domain+')', 'ig');
         var link_replace = function(matches, p1, p2) {
           var title = '', text = p2;
-          if (p2.length > 55) {
+          if (p2 && p2.length > 55) {
             text = p2.substr(0, 45) + '...' + p2.substr(-8);
             title = p1 + p2;
           }
