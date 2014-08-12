@@ -187,8 +187,7 @@ class kolab_storage_config
         }
 
         // fetch the object to find folder
-        $list   = $this->get_object($uid);
-        $object = $list[0];
+        $object = $this->get_object($uid);
 
         if (!$object) {
             return false;
