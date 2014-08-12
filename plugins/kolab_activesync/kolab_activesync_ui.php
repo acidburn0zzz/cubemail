@@ -37,7 +37,6 @@ class kolab_activesync_ui
         $this->skin_path = 'plugins/kolab_activesync/' . $skin_path;
 
         $this->plugin->include_stylesheet($skin_path . 'config.css');
-        $this->rc->output->include_script('list.js');
     }
 
     public function device_list($attrib = array())
@@ -55,6 +54,8 @@ class kolab_activesync_ui
 
         $this->rc->output->add_gui_object('devicelist', $attrib['id']);
         $this->rc->output->set_env('devicecount', count($devices));
+
+        $this->rc->output->include_script('list.js');
 
         return $table->show($attrib);
     }
@@ -191,6 +192,53 @@ class kolab_activesync_ui
             }
 
             $table->add(join(' ', $classes), html::label($folder_id, $foldername));
+        }
+
+        return $table->show();
+    }
+
+    public function folder_options_table($folder_name, $devices, $type)
+    {
+        $alarms      = $type == 'event' || $type == 'task';
+        $meta        = $this->plugin->folder_meta();
+        $folder_data = (array) ($meta[$folder_name] ? $meta[$folder_name]['FOLDER'] : null);
+
+        $table = new html_table(array('cellspacing' => 0, 'id' => 'folder-sync-options', 'class' => 'records-table'));
+
+        // table header
+        $table->add_header(array('class' => 'device'), $this->plugin->gettext('devicealias'));
+        $table->add_header(array('class' => 'subscription'), $this->plugin->gettext('synchronize'));
+        if ($alarms) {
+            $table->add_header(array('class' => 'alarm'), $this->plugin->gettext('withalarms'));
+        }
+
+        // table records
+        foreach ($devices as $id => $device) {
+            $info     = $this->plugin->device_info($device['ID']);
+            $name     = $id;
+            $title    = '';
+            $checkbox = new html_checkbox(array('name' => "_subscriptions[$id]", 'value' => 1,
+                'onchange' => 'return activesync_object.update_sync_data(this)'));
+
+            if (!empty($info)) {
+                $_name = trim($info['friendlyname'] . ' ' . $info['os']);
+                $title = $info['useragent'];
+
+                if ($_name) {
+                    $name .= " ($_name)";
+                }
+            }
+
+            $table->add_row();
+            $table->add(array('class' => 'device', 'title' => $title), $name);
+            $table->add('subscription', $checkbox->show(!empty($folder_data[$id]['S']) ? 1 : 0));
+
+            if ($alarms) {
+                $checkbox_alarm = new html_checkbox(array('name' => "_alarms[$id]", 'value' => 1,
+                    'onchange' => 'return activesync_object.update_sync_data(this)'));
+
+                $table->add('alarm', $checkbox_alarm->show($folder_data[$id]['S'] > 1 ? 1 : 0));
+            }
         }
 
         return $table->show();

@@ -46,7 +46,7 @@ div.subscriptionblock h3.event {
 }
 
 div.subscriptionblock h3.task {
-	background-position: 4px -58x;
+	background-position: 4px -58px;
 }
 
 div.subscriptionblock h3.note {
@@ -96,6 +96,21 @@ div.subscriptionblock h3.note {
 #foldersubscriptions {
 	overflow: auto;
 	margin-top: 0.5em;
+}
+
+#folder-sync-options {
+	border-radius: 4px;
+}
+
+#folder-sync-options td.subscription,
+#folder-sync-options td.alarm,
+#folder-sync-options th {
+	text-align: center;
+}
+
+#folder-sync-options th.subscription,
+#folder-sync-options th.alarm {
+	width: 90px;
 }
 
 #introtext {

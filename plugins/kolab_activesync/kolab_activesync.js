@@ -41,7 +41,7 @@ function kolab_activesync_config()
     if (!rcmail.env.devicecount)
       device_select();
   }
-  else {
+  else if (rcmail.env.action != 'edit-folder') {
     if (rcmail.env.active_device)
       rcmail.enable_command('plugin.save-config', true);
 
@@ -155,9 +155,36 @@ function kolab_activesync_config()
   this.update_list = function(id, name)
   {
     $('#devices-table tr.selected span.devicealias').html(name);
-  }
-};
+  };
 
+  this.update_sync_data = function(elem)
+  {
+    elem.name.match(/^_(subscriptions|alarms)\[(.+)\]$/);
+
+    var flag, type = RegExp.$1, device = RegExp.$2,
+        http_lock = rcmail.set_busy(true, 'kolab_activesync.savingdata');
+
+    // set subscription flag
+    if (elem.checked) {
+      flag = type == 'alarms' ? 2 : 1;
+    }
+    else {
+      flag = type == 'alarms' ? 1 : 0;
+    }
+
+    // make sure subscription checkbox is checked if alarms is checked
+    if (flag == 2) {
+      $('input[name="_subscriptions[' + device + ']"]').prop('checked', true);
+    }
+    // make sure alarms checkbox is unchecked if subscription is unchecked
+    else if (flag == 0) {
+      $('input[name="_alarms[' + device + ']"]').prop('checked', false);
+    }
+
+    // send the request
+    rcmail.http_post('plugin.activesync-json', {cmd: 'update', id: device, flag: flag, folder: rcmail.env.folder}, http_lock);
+  };
+};
 
 window.rcmail && rcmail.addEventListener('init', function(evt) {
   activesync_object = new kolab_activesync_config();

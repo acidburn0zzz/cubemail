@@ -53,10 +53,12 @@ class kolab_activesync extends rcube_plugin
         $this->register_action('plugin.activesync-json', array($this, 'json_command'));
 
         $this->add_hook('settings_actions', array($this, 'settings_actions'));
+        $this->add_hook('folder_form', array($this, 'folder_form'));
 
-        $this->add_texts('localization/', array('devicedeleteconfirm', 'savingdata'));
+        $this->add_texts('localization/');
 
-        if (strpos($this->rc->action, 'plugin.activesync') === 0) {
+        if (preg_match('/^(plugin.activesync|edit-folder|save-folder)/', $this->rc->action)) {
+            $this->add_label('devicedeleteconfirm', 'savingdata');
             $this->include_script('kolab_activesync.js');
         }
     }
@@ -78,12 +80,51 @@ class kolab_activesync extends rcube_plugin
     }
 
     /**
+     * Handler for folder info/edit form (folder_form hook).
+     * Adds ActiveSync section.
+     */
+    function folder_form($args)
+    {
+        $mbox_imap = $args['options']['name'];
+        $myrights  = $args['options']['rights'];
+
+        // Edited folder name (empty in create-folder mode)
+        if (!strlen($mbox_imap)) {
+            return $args;
+        }
+
+        $devices = $this->list_devices();
+
+        // no registered devices
+        if (empty($devices)) {
+            return $args;
+        }
+
+        list($type, ) = explode('.', (string) kolab_storage::folder_type($mbox_imap));
+        if ($type && !in_array($type, array('mail', 'event', 'contact', 'task', 'note'))) {
+            return $args;
+        }
+
+        require_once $this->home . '/kolab_activesync_ui.php';
+        $this->ui = new kolab_activesync_ui($this);
+
+        if ($content = $this->ui->folder_options_table($mbox_imap, $devices, $type)) {
+            $args['form']['activesync'] = array(
+                'name'    => rcube::Q($this->gettext('tabtitle')),
+                'content' => $content,
+            );
+        }
+
+        return $args;
+    }
+
+    /**
      * Handle JSON requests
      */
     public function json_command()
     {
-        $cmd  = get_input_value('cmd', RCUBE_INPUT_GPC);
-        $imei = get_input_value('id', RCUBE_INPUT_GPC);
+        $cmd  = get_input_value('cmd', RCUBE_INPUT_POST);
+        $imei = get_input_value('id', RCUBE_INPUT_POST);
 
         switch ($cmd) {
         case 'save':
@@ -128,6 +169,19 @@ class kolab_activesync extends rcube_plugin
             }
             else
                 $this->rc->output->show_message($this->gettext('savingerror'), 'error');
+
+            break;
+
+        case 'update':
+            $subscription = (int) get_input_value('flag', RCUBE_INPUT_POST);
+            $folder       = get_input_value('folder', RCUBE_INPUT_POST);
+
+            $err = !$this->folder_set($folder, $imei, $subscription);
+
+            if ($err)
+                $this->rc->output->show_message($this->gettext('savingerror'), 'error');
+            else
+                $this->rc->output->show_message($this->gettext('successfullysaved'), 'confirmation');
 
             break;
         }
