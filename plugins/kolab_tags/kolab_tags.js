@@ -296,13 +296,13 @@ function tag_form_dialog(id)
             color_input.val(tag.color.replace(/^#/, ''));
         }
     }
-    color_input.miniColors({colorValues: rcmail.env.mscolors});
 
     // display form
     form.children().hide();
     form.append(content);
     content.append([name_label, name_input, '<br>', color_label, color_input]).show();
     name_input.focus();
+    color_input.miniColors({colorValues: rcmail.env.mscolors});
 }
 
 // save tags form (create/update/delete tags)
