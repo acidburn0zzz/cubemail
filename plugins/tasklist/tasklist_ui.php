@@ -27,6 +27,7 @@ class tasklist_ui
     private $rc;
     private $plugin;
     private $ready = false;
+    private $gui_objects = array();
 
     function __construct($plugin)
     {
@@ -175,7 +176,7 @@ class tasklist_ui
         }
 
         $this->rc->output->set_env('tasklists', $jsenv);
-        $this->rc->output->add_gui_object('tasklistslist', $attrib['id']);
+        $this->register_gui_object('tasklistslist', $attrib['id']);
 
         return html::tag('ul', $attrib, $html, html::$common_attrib);
     }
@@ -334,7 +335,7 @@ class tasklist_ui
         $input = new html_inputfield(array('name' => 'text', 'id' => 'quickaddinput'));
         $button = html::tag('input', array('type' => 'submit', 'value' => '+', 'title' => $this->plugin->gettext('createtask'), 'class' => 'button mainaction'));
 
-        $this->rc->output->add_gui_object('quickaddform', $attrib['id']);
+        $this->register_gui_object('quickaddform', $attrib['id']);
         return html::tag('form', $attrib, $label . $input->show() . $button);
     }
 
@@ -345,7 +346,7 @@ class tasklist_ui
     {
         $attrib += array('id' => 'rcmtaskslist');
 
-        $this->rc->output->add_gui_object('resultlist', $attrib['id']);
+        $this->register_gui_object('resultlist', $attrib['id']);
 
         unset($attrib['name']);
         return html::tag('ul', $attrib, '');
@@ -359,7 +360,7 @@ class tasklist_ui
         $attrib += array('id' => 'rcmtasktagslist');
         unset($attrib['name']);
 
-        $this->rc->output->add_gui_object('tagslist', $attrib['id']);
+        $this->register_gui_object('tagslist', $attrib['id']);
         return html::tag('ul', $attrib, '');
     }
 
@@ -369,7 +370,7 @@ class tasklist_ui
     function tags_editline($attrib)
     {
         $attrib += array('id' => 'rcmtasktagsedit');
-        $this->rc->output->add_gui_object('edittagline', $attrib['id']);
+        $this->register_gui_object('edittagline', $attrib['id']);
 
         $input = new html_inputfield(array('name' => 'tags[]', 'class' => 'tag', 'size' => $attrib['size'], 'tabindex' => $attrib['tabindex']));
         unset($attrib['tabindex']);
@@ -384,7 +385,7 @@ class tasklist_ui
         if (!$attrib['id'])
             $attrib['id'] = 'rcmtaskattachmentlist';
 
-        $this->rc->output->add_gui_object('attachmentlist', $attrib['id']);
+        $this->register_gui_object('attachmentlist', $attrib['id']);
 
         return html::tag('ul', $attrib, '', html::$common_attrib);
     }
@@ -423,7 +424,7 @@ class tasklist_ui
     function file_drop_area($attrib = array())
     {
         if ($attrib['id']) {
-            $this->rc->output->add_gui_object('filedrop', $attrib['id']);
+            $this->register_gui_object('filedrop', $attrib['id']);
             $this->rc->output->set_env('filedrop', array('action' => 'upload', 'fieldname' => '_attachments'));
         }
     }
@@ -476,5 +477,23 @@ class tasklist_ui
     {
         $checkbox = new html_checkbox(array('name' => '_notify', 'id' => 'edit-attendees-donotify', 'value' => 1));
         return html::div($attrib, html::label(null, $checkbox->show(1) . ' ' . $this->plugin->gettext('sendnotifications')));
+    }
+
+    /**
+     * Wrapper for rcube_output_html::add_gui_object()
+     */
+    function register_gui_object($name, $id)
+    {
+        $this->gui_objects[$name] = $id;
+        $this->rc->output->add_gui_object($name, $id);
+    }
+
+    /**
+     * Getter for registered gui objects.
+     * (for manual registration when loading the inline UI)
+     */
+    function get_gui_objects()
+    {
+        return $this->gui_objects;
     }
 }
