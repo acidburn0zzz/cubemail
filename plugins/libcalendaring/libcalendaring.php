@@ -445,7 +445,7 @@ class libcalendaring extends rcube_plugin
             if ($alarm['trigger'] instanceof DateTime) {
                 $alarm['trigger'] = '@' . $alarm['trigger']->format('U');
             }
-            else if ($trigger = self::parse_alaram_value($alarm['trigger'])) {
+            else if ($trigger = libcalendaring::parse_alaram_value($alarm['trigger'])) {
                 $alarm['trigger'] = $trigger[2];
             }
             return $alarm;
