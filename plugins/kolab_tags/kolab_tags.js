@@ -75,7 +75,7 @@ window.rcmail && rcmail.addEventListener('init', function() {
     }
 });
 
-var tagsfilter = [], tag_selector_element, tag_form_data,
+var tagsfilter = [], tag_selector_element, tag_form_data, tag_form_save_func,
     reset_css = {color: '', backgroundColor: ''};
 
 // fills tag cloud with tags list
@@ -159,7 +159,7 @@ function manage_tags()
         rcmail.gettext('kolab_tags.tags'),
         [{
             text: rcmail.gettext('save'),
-            click: function() { $(this).dialog('close'); tag_form_save(); }
+            click: function() { if (tag_form_save()) $(this).dialog('close'); }
         },
         {
             text: rcmail.gettext('cancel'),
@@ -176,6 +176,7 @@ function manage_tags()
     );
 
     tag_form_data = {add: {}, 'delete': [], update: {}};
+    tag_form_save_func = null;
 
     var form = $('#tagsform'),
         select = $('select', form),
@@ -218,71 +219,69 @@ function tag_form_dialog(id)
 {
     var tag, form = $('#tagsform'),
         content = $('<div id="tageditform"></div>'),
-        input = $('<input type="text" size="25" />'),
-        color_input = $('<input type="text" size="6" class="colors" />'),
-        close = function() { content.remove(); form.children().show(); },
-        buttons = [
-            $('<input type="button" />').val(rcmail.gettext('save'))
-                .click(function() {
-                    var i, tag, name = $.trim(input.val()), color = $.trim(color_input.val());
+        name_input = $('<input type="text" size="25" id="tag-form-name" />'),
+        color_input = $('<input type="text" size="6" class="colors" id="tag-form-color" />'),
+        name_label = $('<label for="tag-form-name">').text(rcmail.gettext('kolab_tags.tagname')),
+        color_label = $('<label for="tag-form-color">').text(rcmail.gettext('kolab_tags.tagcolor'));
 
-                    if (!name) {
-                        alert(rcmail.gettext('kolab_tags.nameempty'));
-                        return;
-                    }
+    tag_form_save_func = function() {
+        var i, tag, name = $.trim(name_input.val()), color = $.trim(color_input.val());
 
-                    // check if specified name already exists
-                    for (i in rcmail.env.tags) {
-                        tag = rcmail.env.tags[i];
-                        if (tag.uid != id) {
-                            if (tag_form_data.update[tag.uid])
-                                tag.name = tag_form_data.update[tag.uid].name;
+        if (!name) {
+            alert(rcmail.gettext('kolab_tags.nameempty'));
+            return false;
+        }
 
-                            if (tag.name == name && !tag_form_data['delete'][tag.uid]) {
-                                alert(rcmail.gettext('kolab_tags.nameexists'));
-                                return;
-                            }
-                        }
-                    }
-                    for (i in tag_form_data.add) {
-                        if (i != id) {
-                            if (tag_form_data.add[i].name == name) {
-                                alert(rcmail.gettext('kolab_tags.nameexists'));
-                                return;
-                            }
-                        }
-                    }
+        // check if specified name already exists
+        for (i in rcmail.env.tags) {
+            tag = rcmail.env.tags[i];
+            if (tag.uid != id) {
+                if (tag_form_data.update[tag.uid]) {
+                    tag.name = tag_form_data.update[tag.uid].name;
+                }
 
-                    // check color
-                    if (color) {
-                        color = color.toUpperCase();
-                        if (!color.match(/^#/))
-                            color = '#' + color;
-                        if (!color.match(/^#[a-f0-9]{3,6}$/i)) {
-                            alert(rcmail.gettext('kolab_tags.colorinvalid'));
-                            return;
-                        }
-                    }
+                if (tag.name == name && !tag_form_data['delete'][tag.uid]) {
+                    alert(rcmail.gettext('kolab_tags.nameexists'));
+                    return false;
+                }
+            }
+        }
 
-                    tag = {name: name, color: color};
+        for (i in tag_form_data.add) {
+            if (i != id) {
+                if (tag_form_data.add[i].name == name) {
+                    alert(rcmail.gettext('kolab_tags.nameexists'));
+                    return false;
+                }
+            }
+        }
 
-                    if (!id) {
-                        tag.uid = 'temp' + (new Date()).getTime(); // temp ID
-                        tag_form_data.add[tag.uid] = tag;
-                        $('<option>').val(tag.uid).text(name)
-                            .on('dblclick', function() { tag_form_dialog(tag.uid); })
-                            .appendTo($('#tagsform select'));
-                    }
-                    else {
-                        tag_form_data[tag_form_data.add[id] ? 'add' : 'update'][id] = tag;
-                        $('#tagsform option[value=' + id + ']').text(name);
-                    }
+        // check color
+        if (color) {
+            color = color.toUpperCase();
 
-                    close();
-                }),
-            $('<input type="button" />').val(rcmail.gettext('cancel'))
-                .click(close)
-            ];
+            if (!color.match(/^#/)) {
+                color = '#' + color;
+            }
+
+            if (!color.match(/^#[a-f0-9]{3,6}$/i)) {
+                alert(rcmail.gettext('kolab_tags.colorinvalid'));
+                return false;
+            }
+        }
+
+        tag = {name: name, color: color};
+
+        if (!id) {
+            tag.uid = 'temp' + (new Date()).getTime(); // temp ID
+            tag_form_data.add[tag.uid] = tag;
+        }
+        else {
+            tag_form_data[tag_form_data.add[id] ? 'add' : 'update'][id] = tag;
+        }
+
+        return true;
+    };
 
     // reset inputs
     if (id) {
@@ -293,7 +292,7 @@ function tag_form_dialog(id)
             tag = tag_find(id);
 
         if (tag) {
-            input.val(tag.name);
+            name_input.val(tag.name);
             color_input.val(tag.color.replace(/^#/, ''));
         }
     }
@@ -302,13 +301,17 @@ function tag_form_dialog(id)
     // display form
     form.children().hide();
     form.append(content);
-    content.append([input, '&nbsp;', color_input]).append($('<div></div>').append(buttons)).show();
-    input.focus();
+    content.append([name_label, name_input, '<br>', color_label, color_input]).show();
+    name_input.focus();
 }
 
 // save tags form (create/update/delete tags)
 function tag_form_save()
 {
+    if (tag_form_save_func && !tag_form_save_func()) {
+        return false;
+    }
+
     var count = 0;
 
     // check if updates are needed
@@ -325,11 +328,15 @@ function tag_form_save()
     });
 
     // check if anything added/deleted
-    if (!count)
+    if (!count) {
         count = tag_form_data['delete'].length || $.makeArray(tag_form_data.add).length;
+    }
 
-    if (count)
+    if (count) {
         rcmail.http_post('plugin.kolab_tags', tag_form_data, rcmail.display_message(rcmail.get_label('kolab_tags.saving'), 'loading'));
+    }
+
+    return true;
 }
 
 // ajax response handler

@@ -54,7 +54,7 @@ class kolab_tags_engine
             $this->plugin->include_script('kolab_tags.js');
             $this->rc->output->add_label('cancel', 'save');
             $this->plugin->add_label('tags', 'add', 'edit', 'delete', 'saving',
-                'nameempty', 'nameexists', 'colorinvalid', 'untag');
+                'nameempty', 'nameexists', 'colorinvalid', 'untag', 'tagname', 'tagcolor');
 
             $this->rc->output->add_handlers(array(
                 'plugin.taglist' => array($this, 'taglist'),

@@ -97,10 +97,13 @@ ul.toolbarmenu li span.icon.tagremoveall {
 	float: left;
 }
 
-#tageditform input[type=button] {
+#tageditform input {
+	margin-bottom: 5px;
+}
+
+#tageditform label {
+	width: 60px;
 	display: inline-block;
-	width: 80px;
-	margin-top: 10px;
 }
 
 .tagbox {
