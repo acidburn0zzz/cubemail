@@ -1890,12 +1890,12 @@ class calendar extends rcube_plugin
 
     // convert dates into unix timestamps
     if (!empty($start) && !is_numeric($start)) {
-      $dts = new DateTime($start, $this->timezone);
-      $start = $dts->format('U');
+      $dts = rcube_utils::anytodatetime($start, $this->timezone);
+      $start = $dts ? $dts->format('U') : null;
     }
     if (!empty($end) && !is_numeric($end)) {
-      $dte = new DateTime($end, $this->timezone);
-      $end = $dte->format('U');
+      $dte = rcube_utils::anytodatetime($end, $this->timezone);
+      $end = $dte ? $dte->format('U') : null;
     }
 
     if (!$start) $start = time();
@@ -1922,6 +1922,14 @@ class calendar extends rcube_plugin
         $status = self::FREEBUSY_FREE;
         foreach ($fblist as $slot) {
           list($from, $to, $type) = $slot;
+
+          // check for possible all-day times
+          if (gmdate('His', $from) == '000000' && gmdate('His', $to) == '235959') {
+              // shift into the user's timezone for sane matching
+              $from -= $this->gmt_offset;
+              $to   -= $this->gmt_offset;
+          }
+
           if ($from < $t_end && $to > $t) {
             $status = isset($type) ? $type : self::FREEBUSY_BUSY;
             if ($status == self::FREEBUSY_BUSY)  // can't get any worse :-)
