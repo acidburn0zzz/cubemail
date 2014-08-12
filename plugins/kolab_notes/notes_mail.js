@@ -129,7 +129,8 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         var win = rcmail.env.contentframe ? rcmail.get_frame_window(rcmail.env.contentframe) : mywin;
         if (win && e.response) {
             win.location.reload();
-            // $dialog.dialog('close');
+            if (e.response.action == 'action')
+                $('#kolabnotesinlinegui').dialog('close');
         }
     }
 
