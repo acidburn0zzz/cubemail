@@ -279,13 +279,17 @@ class tasklist_ui
         $attrib['name']       = 'list';
         $attrib['is_escaped'] = true;
         $select = new html_select($attrib);
+        $default = null;
 
         foreach ((array)$this->plugin->driver->get_lists() as $id => $prop) {
-            if ($prop['editable'])
+            if ($prop['editable']) {
                 $select->add($prop['name'], $id);
+                if (!$default || $prop['default'])
+                    $default = $id;
+            }
         }
 
-        return $select->show(null);
+        return $select->show($default);
     }
 
 
