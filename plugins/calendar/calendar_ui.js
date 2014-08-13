@@ -3107,7 +3107,7 @@ function rcube_calendar_ui(settings)
           
           for (var sid in this.calendars) {
             if (this.calendars[sid]) {
-              this.calendars[sid].url = this.calendars[sid].url.replace(/&q=.+/, '') + '&q='+escape(q);
+              this.calendars[sid].url = this.calendars[sid].url.replace(/&q=.+/, '') + '&q=' + urlencode(q);
               sources.push(sid);
             }
           }
