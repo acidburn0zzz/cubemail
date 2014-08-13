@@ -836,7 +836,7 @@ class database_driver extends calendar_driver
     }
 
     // add events from the address books birthday calendar
-    if (in_array(self::BIRTHDAY_CALENDAR_ID, $calendars)) {
+    if (in_array(self::BIRTHDAY_CALENDAR_ID, $calendars) && empty($query)) {
       $events = array_merge($events, $this->load_birthday_events($start, $end, $search, $modifiedsince));
     }
 
