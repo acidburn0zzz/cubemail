@@ -2778,21 +2778,7 @@ class calendar extends rcube_plugin
   public function get_url($param = array())
   {
     $param += array('task' => 'calendar');
-    
-    $schema = 'http';
-    $default_port = 80;
-    if (rcube_https_check()) {
-      $schema = 'https';
-      $default_port = 443;
-    }
-    $url = $schema . '://' . preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
-    if ($_SERVER['SERVER_PORT'] != $default_port)
-      $url .= ':' . $_SERVER['SERVER_PORT'];
-    if (dirname($_SERVER['SCRIPT_NAME']) != '/')
-      $url .= dirname($_SERVER['SCRIPT_NAME']);
-    $url .= preg_replace('!^\./!', '/', $this->rc->url($param));
-    
-    return $url; 
+    return $this->rc->url($param, true, true);
   }
 
 
