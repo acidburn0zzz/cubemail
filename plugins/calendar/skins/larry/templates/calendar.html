@@ -363,7 +363,7 @@ $(document).ready(function(e){
 	UI.init();
 
 	new calendarview_splitter({ id:'calsidebarsplitter', p1:'#calendarsidebar', p2:'#calendar',
-		orientation:'v', relative:true, start:270, min:240, size:12, offset:0 });
+		orientation:'v', relative:true, start:280, min:260, size:12, offset:0 });
 
 	new rcube_splitter({ id:'calresourceviewsplitter', p1:'#resource-dialog-left', p2:'#resource-dialog-right',
 		orientation:'v', relative:true, start:380, min:220, size:10, offset:-3 }).init();
@@ -494,7 +494,7 @@ function calendarview_splitter(p)
 	{
 		var me = this, time = 250;
 		this.handle.removeClass('sidebarclosed');
-		this.pos = this.lastpos || this._min;
+		this.pos = this.lastpos > 0 ? this.lastpos : this._min;
 		this.p1pos.left = 10;
 		this.p1.show().animate({ left:'10px', width:(this.pos - this.p1pos.left - this.halfsize) + 'px' }, time);
 		this.p2.animate({ left:(this.pos + this.halfsize) + 'px' }, time, function(){ me.resize(); });
