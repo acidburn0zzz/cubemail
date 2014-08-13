@@ -115,12 +115,12 @@ class kolab_folders extends rcube_plugin
             $this->add_label('foldertype' . $type);
         }
 
-        $skip_namespace = (array)$this->rc->config->get('kolab_skip_namespace');
+        $skip_namespace = $this->rc->config->get('kolab_skip_namespace');
         $skip_roots     = array();
 
         if (!empty($skip_namespace)) {
             $storage = $this->rc->get_storage();
-            foreach ($skip_namespace as $ns) {
+            foreach ((array)$skip_namespace as $ns) {
                 foreach((array)$storage->get_namespace($ns) as $root) {
                     $skip_roots[] = rtrim($root[0], $root[1]);
                 }
