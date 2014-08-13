@@ -71,10 +71,12 @@ class tasklist_kolab_driver extends tasklist_driver
         $folders = kolab_storage::sort_folders(kolab_storage::get_folders('task'));
         $this->lists = $this->folders = array();
 
+        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
+
         // find default folder
         $default_index = 0;
         foreach ($folders as $i => $folder) {
-            if ($folder->default)
+            if ($folder->default && strpos($folder->name, $delim) === false)
                 $default_index = $i;
         }
 
@@ -85,7 +87,6 @@ class tasklist_kolab_driver extends tasklist_driver
             array_unshift($folders, $default_folder);
         }
 
-        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
         $prefs = $this->rc->config->get('kolab_tasklists', array());
 
         foreach ($folders as $folder) {

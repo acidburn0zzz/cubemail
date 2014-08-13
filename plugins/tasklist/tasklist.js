@@ -135,9 +135,8 @@ function rcube_tasklist_ui(settings)
     {
         // initialize task list selectors
         for (var id in me.tasklists) {
-            if (me.tasklists[id].editable && (!me.selected_list || (me.tasklists[id].active && !me.tasklists[me.selected_list].active))) {
+            if (me.tasklists[id].editable && (!me.selected_list || me.tasklists[id].default || (me.tasklists[id].active && !me.tasklists[me.selected_list].active))) {
                 me.selected_list = id;
-                break;
             }
         }
 
