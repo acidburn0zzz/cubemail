@@ -203,6 +203,8 @@ class kolab_format_contact extends kolab_format
             $this->obj->setNote($object['notes']);
         if (isset($object['freebusyurl']))
             $this->obj->setFreeBusyUrl($object['freebusyurl']);
+        if (isset($object['lang']))
+            $this->obj->setLanguages(self::array2vector($object['lang']));
         if (isset($object['birthday']))
             $this->obj->setBDay(self::get_datetime($object['birthday'], false, true));
         if (isset($object['anniversary']))
@@ -225,6 +227,12 @@ class kolab_format_contact extends kolab_format
                 foreach ((array)$object[$field] as $value) {
                     $rels->push(new Related(Related::Text, $value, $reltype));
                 }
+            }
+        }
+        // add other relateds
+        if (is_array($object['related'])) {
+            foreach ($object['related'] as $value) {
+                $rels->push(new Related(Related::Text, $value));
             }
         }
         $this->obj->setRelateds($rels);
@@ -346,6 +354,7 @@ class kolab_format_contact extends kolab_format
 
         $object['notes'] = $this->obj->note();
         $object['freebusyurl'] = $this->obj->freeBusyUrl();
+        $object['lang'] = self::vector2array($this->obj->languages());
 
         if ($bday = self::php_datetime($this->obj->bDay()))
             $object['birthday'] = $bday;
@@ -363,7 +372,7 @@ class kolab_format_contact extends kolab_format
             $object['photo'] = $photo_name;
 
         // relateds -> spouse, children
-        $this->read_relateds($this->obj->relateds(), $object);
+        $this->read_relateds($this->obj->relateds(), $object, 'related');
 
         // crypto settings: currently only key values are supported
         $keys = $this->obj->keys();
@@ -446,7 +455,7 @@ class kolab_format_contact extends kolab_format
     /**
      * Helper method to map contents of a Related vector to the contact data object
      */
-    private function read_relateds($rels, &$object)
+    private function read_relateds($rels, &$object, $catchall = null)
     {
         $typemap = array_flip($this->relatedmap);
 
@@ -455,12 +464,18 @@ class kolab_format_contact extends kolab_format
             if ($rel->type() != Related::Text)  // we can't handle UID relations yet
                 continue;
 
+            $known = false;
             $types = $rel->relationTypes();
             foreach ($typemap as $t => $field) {
                 if ($types & $t) {
                     $object[$field][] = $rel->text();
+                    $known = true;
                     break;
                 }
+            }
+
+            if (!$known && $catchall) {
+                $object[$catchall][] = $rel->text();
             }
         }
     }
