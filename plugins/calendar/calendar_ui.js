@@ -669,7 +669,7 @@ function rcube_calendar_ui(settings)
       // event details
       var title = $('#edit-title').val(event.title || '');
       var location = $('#edit-location').val(event.location || '');
-      var description = $('#edit-description').html(event.description || '');
+      var description = $('#edit-description').text(event.description || '');
       var vurl = $('#edit-url').val(event.vurl || '');
       var categories = $('#edit-categories').val(event.categories);
       var calendars = $('#edit-calendar').val(event.calendar);
@@ -1090,8 +1090,8 @@ function rcube_calendar_ui(settings)
       $dialog.find('div.event-section.clone, div.event-line.clone').remove();
 
       // always show event title and date
-      $('.event-title', $dialog).html(Q(event.title)).removeClass('event-text-old').show();
-      $('.event-date', $dialog).html(Q(me.event_date_text(event))).show();
+      $('.event-title', $dialog).text(event.title).removeClass('event-text-old').show();
+      $('.event-date', $dialog).text(me.event_date_text(event)).show();
 
       // show each property change
       $.each(data.changes, function(i,change) {
@@ -1100,8 +1100,8 @@ function rcube_calendar_ui(settings)
 
           // special case: title
           if (prop == 'title') {
-            $('.event-title', $dialog).addClass('event-text-old').html(Q(change.old || '--'));
-            $('.event-title-new', $dialog).html(Q(change.new || '--')).show();
+            $('.event-title', $dialog).addClass('event-text-old').text(change.old || '--');
+            $('.event-title-new', $dialog).text(change.new || '--').show();
           }
 
           // no display container for this property
@@ -1149,9 +1149,9 @@ function rcube_calendar_ui(settings)
           // format attachments struct
           if (prop == 'attachments') {
             if (change.old) event_show_attachments([change.old], row.children('.event-text-old'), event, false);
-            else            row.children('.event-text-old').html('--');
+            else            row.children('.event-text-old').text('--');
             if (change.new) event_show_attachments([$.extend({}, change.old || {}, change.new)], row.children('.event-text-new'), event, false);
-            else            row.children('.event-text-new').html('--');
+            else            row.children('.event-text-new').text('--');
             // remove click handler as we're currentyl not able to display the according attachment contents
             $('.attachmentslist li a', row).unbind('click').removeAttr('href');
           }
