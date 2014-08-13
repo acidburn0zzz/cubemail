@@ -97,12 +97,31 @@
 			</ul>
 
 			<div class="buttonbar-right">
-				<roundcube:button name="taskviewmenulink" id="taskviewmenulink" type="link" title="tasklist.viewoptions" class="listmenu viewoptions" onclick="return UI.toggle_popup('taskviewmenu',event)" innerClass="inner" label="tasklist.viewoptions" aria-haspopup="true" aria-expanded="false" aria-owns="taskviewmenu-menu" />
+				<roundcube:button name="taskviewactionslink" id="taskviewactionslink" type="link" title="tasklist.viewactions" class="iconbutton viewactions" onclick="return UI.toggle_popup('taskviewactions',event)" label="tasklist.viewactions" aria-haspopup="true" aria-expanded="false" aria-owns="taskviewactions-menu" />
+				<roundcube:button name="taskviewsortmenulink" id="taskviewsortmenulink" type="link" title="sortby" class="iconbutton sorting" onclick="return UI.toggle_popup('taskviewsortmenu',event)" label="sortby" aria-haspopup="true" aria-expanded="false" aria-owns="taskviewsortmenu-menu" />
 			</div>
 
-			<div id="taskviewmenu" class="popupmenu" aria-hidden="true">
-				<h3 id="aria-label-taskviewmenu" class="voice"><roundcube:label name="tasklist.viewoptions" /></h3>
-				<ul class="toolbarmenu" id="taskviewmenu-menu" role="menu" aria-labelledby="aria-label-taskviewmenu">
+			<div id="taskviewsortmenu" class="popupmenu" aria-hidden="true" data-align="right">
+				<h3 id="aria-label-taskviewsortmenu" class="voice"><roundcube:label name="tasklist.arialabelsortmenu" /></h3>
+				<ul class="toolbarmenu iconized" id="taskviewsortmenu-menu" role="menu" aria-labelledby="aria-label-taskviewsortmenu">
+					<ul role="radiogroup" aria-label="<roundcube:label name='sortby' />">
+						<li><roundcube:button command="list-sort" prop="auto" type="link" label="tasklist.auto" role="radio" aria-checked="false" class="sortcol by-auto icon active" innerclass="icon" /></li>
+						<li><roundcube:button command="list-sort" prop="datetime" type="link" label="tasklist.datetime" role="radio" aria-checked="false" class="sortcol by-datetime icon active" innerclass="icon" /></li>
+						<li><roundcube:button command="list-sort" prop="startdatetime" type="link" label="tasklist.start" role="radio" aria-checked="false" class="sortcol by-startdatetime icon active" innerclass="icon" /></li>
+						<li><roundcube:button command="list-sort" prop="flagged" type="link" label="tasklist.flagged" role="radio" aria-checked="false" class="sortcol by-flagged icon active" innerclass="icon" /></li>
+						<li><roundcube:button command="list-sort" prop="complete" type="link" label="tasklist.completeness" role="radio" aria-checked="false" class="sortcol by-complete icon active" innerclass="icon" /></li>
+						<li><roundcube:button command="list-sort" prop="changed" type="link" label="tasklist.changed" role="radio" aria-checked="false" class="sortcol by-changed icon active" innerclass="icon" /></li>
+					</ul>
+					<li role="separator" class="separator"><label id="aria-label-taskviewsortorder"><roundcube:label name="listorder" /></label></li>
+					<ul role="radiogroup" aria-labelledby="aria-label-taskviewsortorder">
+						<li><roundcube:button command="list-order" prop="asc" type="link" label="sortasc" role="radio" aria-checked="false" class="sortorder asc icon" classAct="icon sortorder asc active" innerclass="icon" /></li>
+						<li><roundcube:button command="list-order" prop="desc" type="link" label="sortdesc" role="radio" aria-checked="false" class="sortorder desc icon" classAct="icon sortorder desc active" innerclass="icon" /></li>
+					</ul>
+				</ul>
+			</div>
+			<div id="taskviewactions" class="popupmenu" aria-hidden="true" data-align="right">
+				<h3 id="aria-label-taskviewactions" class="voice"><roundcube:label name="tasklist.viewactions" /></h3>
+				<ul class="toolbarmenu" id="taskviewactions-menu" role="menu" aria-labelledby="aria-label-taskviewactions">
 					<li role="menuitem"><roundcube:button command="expand-all" label="expand-all" class="icon" classAct="icon active" innerclass="icon expand" /></li>
 					<li role="menuitem"><roundcube:button command="collapse-all" label="collapse-all" class="icon" classAct="icon active" innerclass="icon collapse" /></li>
 				</ul>

@@ -72,6 +72,8 @@ class tasklist_ui
         $settings = array();
 
         $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', 0);
+        $settings['sort_col']      = $this->rc->config->get('tasklist_sort_col', '');
+        $settings['sort_order']    = $this->rc->config->get('tasklist_sort_order', 'asc');
 
         // get user identity to create default attendee
         foreach ($this->rc->user->list_identities() as $rec) {

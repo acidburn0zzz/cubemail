@@ -34,10 +34,13 @@ $labels['status-in-process'] = 'In process';
 $labels['status-completed'] = 'Completed';
 $labels['status-cancelled'] = 'Cancelled';
 $labels['assignedto'] = 'Assigned to';
+$labels['created'] = 'Created';
+$labels['changed'] = 'Last Modified';
 
 $labels['all'] = 'All';
 $labels['flagged'] = 'Flagged';
 $labels['complete'] = 'Complete';
+$labels['completeness'] = 'Progress';
 $labels['overdue'] = 'Overdue';
 $labels['today'] = 'Today';
 $labels['tomorrow'] = 'Tomorrow';
@@ -49,6 +52,7 @@ $labels['mytasks'] = 'My tasks';
 $labels['mytaskstitle'] = 'Tasks assigned to you';
 $labels['nodate'] = 'no date';
 $labels['removetag'] = 'Remove';
+$labels['auto'] = 'Auto';
 
 $labels['taskdetails'] = 'Details';
 $labels['newtask'] = 'New Task';
@@ -74,7 +78,7 @@ $labels['listactions'] = 'List options...';
 $labels['listname'] = 'Name';
 $labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'Import';
-$labels['viewoptions'] = 'View options';
+$labels['viewactions'] = 'View actions';
 $labels['focusview'] = 'View only this list';
 
 // date words
@@ -172,3 +176,5 @@ $labels['itipresponseerror'] = 'Failed to send the response to this task assignm
 $labels['itipinvalidrequest'] = 'This invitation is no longer valid';
 $labels['sentresponseto'] = 'Successfully sent assignment response to $mailto';
 $labels['successremoval'] = 'The task has been deleted successfully.';
+
+$labels['arialabelsortmenu'] = 'Tasks sorting options';

@@ -256,6 +256,13 @@ function rcube_tasklist_ui(settings)
             setTimeout(fetch_counts, 200);
         });
 
+        rcmail.register_command('list-sort', list_set_sort, true);
+        rcmail.register_command('list-order', list_set_order, (settings.sort_col || 'auto') != 'auto');
+
+        $('#taskviewsortmenu .by-' + (settings.sort_col || 'auto')).attr('aria-checked', 'true').addClass('selected');
+        $('#taskviewsortmenu .sortorder.' + (settings.sort_order || 'asc')).attr('aria-checked', 'true').addClass('selected');
+
+
         // start loading tasks
         fetch_counts();
         list_tasks();
@@ -743,6 +750,9 @@ function rcube_tasklist_ui(settings)
                 listdata[listdata[id].parent_id].children.push(id);
         }
 
+        // sort index before rendering
+        listindex.sort(function(a, b) { return task_cmp(listdata[a], listdata[b]); });
+
         append_tags(response.tags || []);
         render_tasklist();
 
@@ -1014,6 +1024,14 @@ function rcube_tasklist_ui(settings)
                 if (listdata[pid].parent_id == id)
                     listdata[id].children.push(pid);
             }
+        }
+
+        // copy _depth property from old rec or derive from parent
+        if (rec.parent_id && listdata[rec.parent_id]) {
+            rec._depth = (listdata[rec.parent_id]._depth || 0) + 1;
+        }
+        else if (oldrec) {
+            rec._depth = oldrec._depth || 0;
         }
 
         if (list.active || rec.tempid) {
@@ -1294,10 +1312,33 @@ function rcube_tasklist_ui(settings)
      */
     function task_cmp(a, b)
     {
-        var d = is_complete(a) - is_complete(b);
-        if (!d) d = (b._hasdate-0) - (a._hasdate-0);
-        if (!d) d = (a.datetime||99999999999) - (b.datetime||99999999999);
-        return d;
+        // sort by hierarchy level first
+        if ((a._depth || 0) != (b._depth || 0))
+            return a._depth - b._depth;
+
+        var p, alt, inv = 1, c = is_complete(a) - is_complete(b), d = c;
+
+        // completed tasks always move to the end
+        if (c != 0)
+            return c;
+
+        // custom sorting
+        if (settings.sort_col && settings.sort_col != 'auto') {
+            alt = settings.sort_col == 'datetime' || settings.sort_col == 'startdatetime' ? 99999999999 : 0
+            d = (a[settings.sort_col]||alt) - (b[settings.sort_col]||alt);
+            inv = settings.sort_order == 'desc' ? -1 : 1;
+        }
+        // default sorting (auto)
+        else {
+            if (!d) d = (b._hasdate-0) - (a._hasdate-0);
+            if (!d) d = (a.datetime||99999999999) - (b.datetime||99999999999);
+        }
+
+        // fall-back to created/changed date
+        if (!d) d = (a.created||0) - (b.created||0);
+        if (!d) d = (a.changed||0) - (b.changed||0);
+
+        return d * inv;
     }
 
     /**
@@ -1686,6 +1727,12 @@ function rcube_tasklist_ui(settings)
         }
         else {
             $('#task-recurrence').hide();
+        }
+
+        if (rec.created || rec.changed) {
+            $('#task-created-changed .task-created').html(Q(rec.created_ || rcmail.gettext('unknown','tasklist')))
+            $('#task-created-changed .task-changed').html(Q(rec.changed_ || rcmail.gettext('unknown','tasklist')))
+            $('#task-created-changed').show()
         }
 
         // build attachments list
@@ -2179,12 +2226,12 @@ function rcube_tasklist_ui(settings)
     /**
      *
      */
-    var remove_attachment = function(elem, id)
+    function remove_attachment(elem, id)
     {
         $(elem.parentNode).hide();
         me.selected_task.deleted_attachments.push(id);
         delete rcmail.env.attachments[id];
-    };
+    }
 
     /**
      *
@@ -2361,6 +2408,45 @@ function rcube_tasklist_ui(settings)
         }
 
         return $.unqiqueStrings(itags);
+    }
+
+    /**
+     * Change tasks list sorting
+     */
+    function list_set_sort(col)
+    {
+        if (settings.sort_col != col) {
+          settings.sort_col = col;
+          $('#taskviewsortmenu .sortcol').attr('aria-checked', 'false').removeClass('selected')
+              .filter('.by-' + col).attr('aria-checked', 'true').addClass('selected');
+
+          // re-sort list index and re-render list
+          listindex.sort(function(a, b) { return task_cmp(listdata[a], listdata[b]); });
+          render_tasklist();
+
+          rcmail.enable_command('list-order', settings.sort_col != 'auto');
+          $('#taskviewsortmenu .sortorder').removeClass('selected').filter('[aria-checked=true]').addClass('selected');
+
+          rcmail.save_pref({ name: 'tasklist_sort_col', value: (col == 'auto' ? '' : col) });
+        }
+    }
+
+    /**
+     * Change tasks list sort order
+     */
+    function list_set_order(order)
+    {
+        if (settings.sort_order != order) {
+          settings.sort_order = order;
+          $('#taskviewsortmenu .sortorder').attr('aria-checked', 'false').removeClass('selected')
+              .filter('.' + order).attr('aria-checked', 'true').addClass('selected');
+
+          // re-sort list index and re-render list
+          listindex.sort(function(a, b) { return task_cmp(listdata[a], listdata[b]); });
+          render_tasklist();
+
+          rcmail.save_pref({ name: 'tasklist_sort_order', value: order });
+        }
     }
 
     /**

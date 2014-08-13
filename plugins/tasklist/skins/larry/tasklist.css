@@ -507,13 +507,14 @@ body.tasklist.attachmentwin #mainscreen {
 	cursor: pointer;
 }
 
-.buttonbar-right .listmenu .inner {
-	display: inline-block;
-	height: 18px;
-	width: 20px;
+.buttonbar-right a.iconbutton {
 	padding: 0;
-	background: url(sprites.png) 0 -237px no-repeat;
-	text-indent: -5000px;
+	background-image: url(sprites.png);
+	background-position: 0 -238px;
+}
+
+.buttonbar-right a.iconbutton.sorting {
+	background-position: -18px -347px;
 }
 
 #thelist {
@@ -728,7 +729,8 @@ body.tasklist.attachmentwin #mainscreen {
 
 ul.toolbarmenu li span.add,
 ul.toolbarmenu li span.expand,
-ul.toolbarmenu li span.collapse {
+ul.toolbarmenu li span.collapse,
+ul.toolbarmenu.iconized .selected span.icon {
 	background-image: url(sprites.png);
 }
 
@@ -746,6 +748,14 @@ ul.toolbarmenu li span.collapse {
 
 ul.toolbarmenu li span.delete {
 	background-position: 0 -1508px;
+}
+
+ul.toolbarmenu.iconized .selected span.icon {
+	background-position: 0 -324px;
+}
+
+ul.toolbarmenu .sortcol.by-auto a {
+	font-style: italic;
 }
 
 .taskitem-draghelper {
@@ -973,6 +983,10 @@ div.form-section {
 	min-width: 7em;
 	padding-right: 0.5em;
 	margin-bottom: 0.3em;
+}
+
+.tasklistview div.form-section span.task-text + label {
+	margin-left: 2em;
 }
 
 label.block {

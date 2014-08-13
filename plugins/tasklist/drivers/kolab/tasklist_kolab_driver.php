@@ -794,8 +794,11 @@ class tasklist_kolab_driver extends tasklist_driver
             if (!$record['start']->_dateonly)
                 $task['starttime'] = $start->format('H:i');
         }
-        if (is_a($record['dtstamp'], 'DateTime')) {
-            $task['changed'] = $record['dtstamp'];
+        if (is_a($record['changed'], 'DateTime')) {
+            $task['changed'] = $record['changed'];
+        }
+        if (is_a($record['created'], 'DateTime')) {
+            $task['created'] = $record['created'];
         }
 
         if ($record['valarms']) {
@@ -912,7 +915,7 @@ class tasklist_kolab_driver extends tasklist_driver
             $object['sequence'] = $old['sequence'];
         }
 
-        unset($object['tempid'], $object['raw'], $object['list'], $object['flagged'], $object['tags']);
+        unset($object['tempid'], $object['raw'], $object['list'], $object['flagged'], $object['tags'], $object['created']);
         return $object;
     }
 

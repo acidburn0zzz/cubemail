@@ -51,6 +51,8 @@ class tasklist extends rcube_plugin
     );
 
     public $task = '?(?!login|logout).*';
+    public $allowed_prefs = array('tasklist_sort_col','tasklist_sort_order');
+
     public $rc;
     public $lib;
     public $driver;
@@ -959,9 +961,8 @@ class tasklist extends rcube_plugin
                 $data[] = $rec;
         }
 
-        // sort tasks according to their hierarchy level and due date
+        // assign hierarchy level indicators for later sorting
         array_walk($data, array($this, 'task_walk_tree'));
-        usort($data, array($this, 'task_sort_cmp'));
 
         return $data;
     }
@@ -974,7 +975,18 @@ class tasklist extends rcube_plugin
         $rec['mask'] = $this->filter_mask($rec);
         $rec['flagged'] = intval($rec['flagged']);
         $rec['complete'] = floatval($rec['complete']);
-        $rec['changed'] = is_object($rec['changed']) ? $rec['changed']->format('U') : null;
+
+        if (is_object($rec['created'])) {
+            $rec['created_'] = $this->rc->format_date($rec['created']);
+            $rec['created'] = $rec['created']->format('U');
+        }
+        if (is_object($rec['changed'])) {
+            $rec['changed_'] = $this->rc->format_date($rec['changed']);
+            $rec['changed'] = $rec['changed']->format('U');
+        }
+        else {
+            $rec['changed'] = null;
+        }
 
         if ($rec['date']) {
             try {
@@ -1043,18 +1055,6 @@ class tasklist extends rcube_plugin
             $rec['parent_title'] = $this->task_titles[$parent_id];
             $parent_id = $this->task_tree[$parent_id];
         }
-    }
-
-    /**
-     * Compare function for task list sorting.
-     * Nested tasks need to be sorted to the end.
-     */
-    private function task_sort_cmp($a, $b)
-    {
-        $d = $a['_depth'] - $b['_depth'];
-        if (!$d) $d = $b['_hasdate'] - $a['_hasdate'];
-        if (!$d) $d = $a['datetime'] - $b['datetime'];
-        return $d;
     }
 
     /**
