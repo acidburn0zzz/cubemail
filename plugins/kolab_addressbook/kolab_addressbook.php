@@ -81,6 +81,10 @@ class kolab_addressbook extends rcube_plugin
             $this->add_hook('preferences_list', array($this, 'prefs_list'));
             $this->add_hook('preferences_save', array($this, 'prefs_save'));
         }
+
+        $this->add_hook('folder_delete', array($this, 'prefs_folder_delete'));
+        $this->add_hook('folder_rename', array($this, 'prefs_folder_rename'));
+        $this->add_hook('folder_update', array($this, 'prefs_folder_update'));
     }
 
 
@@ -820,4 +824,74 @@ class kolab_addressbook extends rcube_plugin
 
         return $abook_prio;
     }
+
+    /**
+     * Hook for (contact) folder deletion
+     */
+    function prefs_folder_delete($args)
+    {
+        // ignore...
+        if ($args['abort'] && !$args['result']) {
+            return $args;
+        }
+
+        $this->_contact_folder_rename($args['name'], false);
+    }
+
+    /**
+     * Hook for (contact) folder renaming
+     */
+    function prefs_folder_rename($args)
+    {
+        // ignore...
+        if ($args['abort'] && !$args['result']) {
+            return $args;
+        }
+
+        $this->_contact_folder_rename($args['oldname'], $args['newname']);
+    }
+
+    /**
+     * Hook for (contact) folder updates. Forward to folder_rename handler if name was changed
+     */
+    function prefs_folder_update($args)
+    {
+        // ignore...
+        if ($args['abort'] && !$args['result']) {
+            return $args;
+        }
+
+        if ($args['record']['name'] != $args['record']['oldname']) {
+            $this->_contact_folder_rename($args['record']['oldname'], $args['record']['name']);
+        }
+    }
+
+    /**
+     * Apply folder renaming or deletion to the registered birthday calendar address books
+     */
+    private function _contact_folder_rename($oldname, $newname = false)
+    {
+        $update = false;
+        $delimiter = $this->rc->get_storage()->get_hierarchy_delimiter();
+        $bday_addressbooks = (array)$this->rc->config->get('calendar_birthday_adressbooks', array());
+
+        foreach ($bday_addressbooks as $i => $id) {
+            $folder_name = kolab_storage::id_decode($id);
+            if ($oldname === $folder_name || strpos($folder_name, $oldname.$delimiter) === 0) {
+                if ($newname) {  // rename
+                    $new_folder = $newname . substr($folder_name, strlen($oldname));
+                    $bday_addressbooks[$i] = kolab_storage::id_encode($new_folder);
+                }
+                else {  // delete
+                    unset($bday_addressbooks[$i]);
+                }
+                $update = true;
+            }
+        }
+
+        if ($update) {
+            $this->rc->user->save_prefs(array('calendar_birthday_adressbooks' => $bday_addressbooks));
+        }
+    }
+
 }
