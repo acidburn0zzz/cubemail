@@ -38,6 +38,11 @@ file_filter = plugins/kolab_folders/localization/<lang>.inc
 source_file = plugins/kolab_folders/localization/en_US.inc
 source_lang = en_US
 
+[kolab.kolab_tags]
+file_filter = plugins/kolab_tags/localization/<lang>.inc
+source_file = plugins/kolab_tags/localization/en_US.inc
+source_lang = en_US
+
 [kolab.owncloud]
 file_filter = plugins/owncloud/localization/<lang>.inc
 source_file = plugins/owncloud/localization/en_US.inc
