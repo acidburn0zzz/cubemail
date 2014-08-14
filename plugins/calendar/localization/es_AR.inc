@@ -1,0 +1,248 @@
+<?php
+
+$labels = array();
+
+// preferences
+$labels['default_view'] = 'Vista predeterminada';
+$labels['time_format'] = 'Formato de hora';
+$labels['timeslots'] = 'Espacios por hora';
+$labels['first_day'] = 'Primer día de semana';
+$labels['first_hour'] = 'Primer hora a mostrar';
+$labels['workinghours'] = 'Horario laboral';
+$labels['add_category'] = 'Agregar categoría';
+$labels['remove_category'] = 'Eliminar categoría';
+$labels['defaultcalendar'] = 'Crear nuevos eventos en';
+$labels['eventcoloring'] = 'Colores de eventos';
+$labels['coloringmode0'] = 'De acuerdo al calendario';
+$labels['coloringmode1'] = 'De acuerdo a la categoría';
+$labels['coloringmode2'] = 'Calendario para borde, categoría para contenido';
+$labels['coloringmode3'] = 'Categoría para borde, calendario para contenido';
+
+// calendar
+$labels['calendar'] = 'Calendario';
+$labels['calendar_kolab'] = 'Calendario Kolab';
+$labels['calendar_caldav'] = 'Calendario CalDAV';
+$labels['calendar_ical'] = 'Calendario iCAL';
+$labels['calendars'] = 'Calendarios';
+$labels['category'] = 'Categoría';
+$labels['categories'] = 'Categorías';
+$labels['createcalendar'] = 'Crear nuevo calendario';
+$labels['editcalendar'] = 'Editar propiedades del calendario';
+$labels['name'] = 'Nombre';
+$labels['color'] = 'Color';
+$labels['day'] = 'Día';
+$labels['week'] = 'Semana';
+$labels['month'] = 'Mes';
+$labels['agenda'] = 'Agenda';
+$labels['new'] = 'Nuevo';
+$labels['new_event'] = 'Nuevo evento';
+$labels['edit_event'] = 'Editar evento';
+$labels['edit'] = 'Editar';
+$labels['save'] = 'Guardar';
+$labels['remove'] = 'Elminiar';
+$labels['cancel'] = 'Cancelar';
+$labels['select'] = 'Seleccionar';
+$labels['print'] = 'Imprimir';
+$labels['printtitle'] = 'Imprimir calendarios';
+$labels['title'] = 'Sumario';
+$labels['description'] = 'Descripción';
+$labels['all-day'] = 'Todo el día';
+$labels['export'] = 'Exportar';
+$labels['exporttitle'] = 'Exportar a iCalendar';
+$labels['exportrange'] = 'Eventos de';
+$labels['exportattachments'] = 'Con adjunto';
+$labels['customdate'] = 'Fecha personalizada';
+$labels['location'] = 'Localización';
+$labels['url'] = 'URL';
+$labels['date'] = 'Fecha';
+$labels['start'] = 'Inicio';
+$labels['end'] = 'Fin';
+$labels['selectdate'] = 'Elegir fecha';
+$labels['freebusy'] = 'Mostrarme como';
+$labels['free'] = 'Libre';
+$labels['busy'] = 'Ocupado';
+$labels['outofoffice'] = 'Fuera de la oficina';
+$labels['tentative'] = 'Tentativo';
+$labels['priority'] = 'Prioridad';
+$labels['sensitivity'] = 'Privacidad';
+$labels['public'] = 'público';
+$labels['private'] = 'privado';
+$labels['confidential'] = 'confidencial';
+$labels['alarms'] = 'Recordatorio';
+$labels['generated'] = 'generado en';
+$labels['printdescriptions'] = 'Imprimir descripciones';
+$labels['parentcalendar'] = 'Insertar dentro';
+$labels['searchearlierdates'] = '« Buscar eventos anteriores';
+$labels['searchlaterdates'] = 'Buscar eventos posteriores »';
+$labels['andnmore'] = '$nr más...';
+$labels['togglerole'] = 'Click para cambiar rol';
+$labels['createfrommail'] = 'Guardar como evento';
+$labels['importevents'] = 'Importar eventos';
+$labels['importrange'] = 'Eventos de';
+$labels['onemonthback'] = '1 mes atrás';
+$labels['nmonthsback'] = '$nr meses atrás';
+$labels['showurl'] = 'Mostrar URL del calendario';
+$labels['showurldescription'] = 'Use la siguiente direccion para acceder (sólo lectura) a su calendario desde otras aplicaciones. Puede copiar y pegar esto dentro de cualquier software de calendario que soporte el formato iCal.';
+$labels['caldavurldescription'] = 'Copie esta direccion a su aplicación cliente <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> (por ejemplo, Evolution o Mozilla Thunderbird) para sincronizar completamente este calendario específico con su ordenador o dispositivo móvil.';
+$labels['caldavurl'] = "CalDAV URL";
+$labels['icalurl'] = "iCal URL";
+
+// agenda view
+$labels['listrange'] = 'Rango a mostrar:';
+$labels['listsections'] = 'Dividir en:';
+$labels['smartsections'] = 'Secciones inteligentes';
+$labels['until'] = 'hasta';
+$labels['today'] = 'Hoy';
+$labels['tomorrow'] = 'Mañana';
+$labels['thisweek'] = 'Esta semana';
+$labels['nextweek'] = 'Próxima semana';
+$labels['thismonth'] = 'Este mes';
+$labels['nextmonth'] = 'Próximo mes';
+$labels['weekofyear'] = 'Semana';
+$labels['pastevents'] = 'Pasado';
+$labels['futureevents'] = 'Futuro';
+
+// alarm/reminder settings
+$labels['showalarms'] = 'Mostrar alarmas';
+$labels['defaultalarmtype'] = 'Configuración predeterminada de recordatorio';
+$labels['defaultalarmoffset'] = 'Tiempo predeterminado de recordatorio';
+
+// attendees
+$labels['attendee'] = 'Participante';
+$labels['role'] = 'Rol';
+$labels['availability'] = 'Disp.';
+$labels['confirmstate'] = 'Estado';
+$labels['addattendee'] = 'Agregar participante';
+$labels['roleorganizer'] = 'Organizador';
+$labels['rolerequired'] = 'Requerido';
+$labels['roleoptional'] = 'Opcional';
+$labels['rolechair'] = 'Jefe';
+$labels['cutypeindividual'] = 'Individual';
+$labels['cutypegroup'] = 'Grupo';
+$labels['cutyperesource'] = 'Recurso';
+$labels['cutyperoom'] = 'Habitación';
+$labels['availfree'] = 'Libre';
+$labels['availbusy'] = 'Ocupado';
+$labels['availunknown'] = 'Desconocido';
+$labels['availtentative'] = 'Tentativo';
+$labels['availoutofoffice'] = 'Fuera de la oficina';
+$labels['scheduletime'] = 'Buscar disponibilidad';
+$labels['sendinvitations'] = 'Enviar invitaciones';
+$labels['sendnotifications'] = 'Notificar a los participantes sobre las modificaciones';
+$labels['sendcancellation'] = 'Notificar a los participantes sobre la cancelación del evento';
+$labels['onlyworkinghours'] = 'Buscar disponibilidad dentro de mi horario laboral';
+$labels['reqallattendees'] = 'Requerido/todos los participantes';
+$labels['prevslot'] = 'Espacio anterior';
+$labels['nextslot'] = 'Espacio siguiente';
+$labels['noslotfound'] = 'Imposible encontrar un espacio libre';
+$labels['invitationsubject'] = 'Ha sido invitado a "$title"';
+$labels['invitationmailbody'] = "*\$title*\n\nCuándo: \$date\n\nInvitados: \$attendees\n\nEncontrará adjunto un archivo iCalendar con todos los detalles del evento, el cual puede importar a su aplicación de calendario.";
+$labels['invitationattendlinks'] = "En caso que su cliente de correos no soporte peticiones iTip puede usar el siguiente link para aceptar o declinar esta invitación:\n\$url";
+$labels['eventupdatesubject'] = '"$title" ha sido actualizado';
+$labels['eventupdatesubjectempty'] = 'Un evento que le interesa ha sido actualizado';
+$labels['eventupdatemailbody'] = "*\$title*\n\nCuándo: \$date\n\nInvitados: \$attendees\n\nEncontrará adjunto un archivo iCalendar con todos los detalles del evento, el cual puede importar a su aplicación de calendario.";
+$labels['eventcancelsubject'] = '"$title" has been canceled';
+$labels['eventcancelmailbody'] = "*\$title*\n\nCuándo: \$date\n\nInvitados: \$attendees\n\nEl evento ha sido cancelado por \$organizer.\n\nEncontrará adjunto un archivo iCalendar con todos los detalles actualizados del evento.";
+
+// invitation handling
+$labels['itipinvitation'] = 'Invitación a';
+$labels['itipupdate'] = 'Actualización de';
+$labels['itipcancellation'] = 'Cancelado:';
+$labels['itipreply'] = 'Responder a';
+$labels['itipaccepted'] = 'Aceptar';
+$labels['itiptentative'] = 'Quizás';
+$labels['itipdeclined'] = 'Declinar';
+$labels['itipsubjectaccepted'] = '"$title" ha sido aceptado por $name';
+$labels['itipsubjecttentative'] = '"$title" ha sido tentativamente aceptado por $name';
+$labels['itipsubjectdeclined'] = '"$title" ha sido rechazado por $name';
+$labels['itipmailbodyaccepted'] = "\$sender ha aceptado la invitación al siguiente evento:\n\n*\$title*\n\nCuándo: \$date\n\nInvitados: \$attendees";
+$labels['itipmailbodytentative'] = "\$sender ha tentativamente aceptado la invitación al siguiente evento:\n\n*\$title*\n\nCuándo: \$date\n\nInvitados: \$attendees";
+$labels['itipmailbodydeclined'] = "\$sender ha rechazado la invitación al siguiente evento:\n\n*\$title*\n\nCuándo: \$date\n\nInvitados: \$attendees";
+$labels['itipdeclineevent'] = '¿Quiere rechazar la invitación a este evento?';
+$labels['declinedeleteconfirm'] = '¿Quiere también eliminar este evento rechazado de su calendario?';
+$labels['importtocalendar'] = 'Guardar en mi calendario';
+$labels['removefromcalendar'] = 'Eliminar de mi calendario';
+$labels['updateattendeestatus'] = 'Actualizar el estado de los participantes';
+$labels['acceptinvitation'] = '¿Acepta esta invitación?';
+$labels['youhaveaccepted'] = 'Ha aceptado esta invitación';
+$labels['youhavetentative'] = 'Ha aceptado tentativamente esta invitación';
+$labels['youhavedeclined'] = 'Ha rechazado esta invitación';
+$labels['notanattendee'] = 'No esta incluído en la lista de invitados a este evento';
+$labels['eventcancelled'] = 'El evento ha sido cancelado';
+$labels['saveincalendar'] = 'guardar en';
+
+// event dialog tabs
+$labels['tabsummary'] = 'Sumario';
+$labels['tabrecurrence'] = 'Recurrencia';
+$labels['tabattendees'] = 'Participantes';
+$labels['tabattachments'] = 'Adjuntos';
+$labels['tabsharing'] = 'Compartir';
+
+// messages
+$labels['deleteventconfirm'] = 'Confirme que desea eliminar este evento';
+$labels['deletecalendarconfirm'] = 'Confirme que desea eliminar este calendario con todos sus eventos';
+$labels['deletecalendarconfirmrecursive'] = 'Confirme que desea eliminar este calendario con todos sus eventos y sub-calendarios';
+$labels['savingdata'] = 'Guardando...';
+$labels['errorsaving'] = 'Falló guardando los cambios.';
+$labels['operationfailed'] = 'La operación falló.';
+$labels['invalideventdates'] = 'Ingresó fechas erroneas. Por favor compruebe los datos.';
+$labels['invalidcalendarproperties'] = 'Propiedades del calendario erroneas. Por favor ingrese un nombre válido.';
+$labels['searchnoresults'] = 'No hay eventos en los calendarios seleccionados.';
+$labels['successremoval'] = 'El evento ha sido eliminado exitosamente.';
+$labels['successrestore'] = 'El evento ha sido recuperado exitosamente.';
+$labels['errornotifying'] = 'Fallo al enviar las notificaciones del evento a los participantes';
+$labels['errorimportingevent'] = 'Fallo al importar el evento';
+$labels['newerversionexists'] = 'Ya existe una versión actualizada de este evento. Cancelado.';
+$labels['nowritecalendarfound'] = 'No hay calendarios para guardar el evento.';
+$labels['importedsuccessfully'] = 'El evento fue guardado en \'$calendar\' exitosamente';
+$labels['attendeupdateesuccess'] = 'Se actualizaron los estados de los participantes exitosamente';
+$labels['itipsendsuccess'] = 'Invitaciones enviadas a los participantes.';
+$labels['itipresponseerror'] = 'Fallo enviando la respuesta a la invitación de este evento';
+$labels['itipinvalidrequest'] = 'Esta invitación no es válida';
+$labels['sentresponseto'] = 'Se envió la respuesta a la invitación $mailto exitosamente';
+$labels['localchangeswarning'] = 'Se realizarán cambios que sólo serán reflejadas en su calendario y no serán enviadas al organizador del evento';
+$labels['importsuccess'] = 'Importados $nr eventos exitosamente';
+$labels['importnone'] = 'No se importaron eventos';
+$labels['importerror'] = 'Fallo al importar';
+$labels['aclnorights'] = 'No tiene permisos de administrador en este calendario.';
+
+// recurrence form
+$labels['repeat'] = 'Repetir';
+$labels['frequency'] = 'Repetir';
+$labels['never'] = 'nunca';
+$labels['daily'] = 'diario';
+$labels['weekly'] = 'semanal';
+$labels['monthly'] = 'mensual';
+$labels['yearly'] = 'anual';
+$labels['rdate'] = 'en fechas';
+$labels['every'] = 'Cada';
+$labels['days'] = 'día(s)';
+$labels['weeks'] = 'semana(s)';
+$labels['months'] = 'mes(es)';
+$labels['years'] = 'año(s) en:';
+$labels['bydays'] = 'En';
+$labels['untildate'] = 'el';
+$labels['each'] = 'Cada';
+$labels['onevery'] = 'En cada';
+$labels['onsamedate'] = 'En la misma fecha';
+$labels['forever'] = 'siempre';
+$labels['recurrencend'] = 'hasta';
+$labels['forntimes'] = 'por $nr veces';
+$labels['first'] = 'primer';
+$labels['second'] = 'segundo';
+$labels['third'] = 'tercero';
+$labels['fourth'] = 'cuarto';
+$labels['last'] = 'último';
+$labels['dayofmonth'] = 'Día del mes';
+$labels['addrdate'] = 'Agregar fecha de repetición';
+
+$labels['changeeventconfirm'] = 'Cambiar evento';
+$labels['removeeventconfirm'] = 'Eliminar evento';
+$labels['changerecurringeventwarning'] = 'Este es un evento recurrente. ¿Desea editar solo el evento actual, este y las ocurrencias futuras, todas las ocurrencias o guardarlo como un evento nuevo?';
+$labels['removerecurringeventwarning'] = 'Este es un evento recurrente. ¿Desea eliminar solo el evento actual, este y las ocurrencias futuras o todas las ocurrencias del evento?';
+$labels['currentevent'] = 'Actual';
+$labels['futurevents'] = 'Futuro';
+$labels['allevents'] = 'Todos';
+$labels['saveasnew'] = 'Guardar como nuevo';
+
+?>
