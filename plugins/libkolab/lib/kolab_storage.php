@@ -332,6 +332,9 @@ class kolab_storage
         if ($folder = self::get_folder($name))
             $folder->cache->purge();
 
+        $rcmail = rcube::get_instance();
+        $plugin = $rcmail->plugins->exec_hook('folder_delete', array('name' => $name));
+
         $success = self::$imap->delete_folder($name);
         self::$last_error = self::$imap->get_error_str();
 
@@ -351,6 +354,12 @@ class kolab_storage
     public static function folder_create($name, $type = null, $subscribed = false, $active = false)
     {
         self::setup();
+
+        $rcmail = rcube::get_instance();
+        $plugin = $rcmail->plugins->exec_hook('folder_create', array('record' => array(
+            'name' => $name,
+            'subscribe' => $subscribed,
+        )));
 
         if ($saved = self::$imap->create_folder($name, $subscribed)) {
             // set metadata for folder type
@@ -388,6 +397,10 @@ class kolab_storage
     public static function folder_rename($oldname, $newname)
     {
         self::setup();
+
+        $rcmail = rcube::get_instance();
+        $plugin = $rcmail->plugins->exec_hook('folder_rename', array(
+            'oldname' => $oldname, 'newname' => $newname));
 
         $oldfolder = self::get_folder($oldname);
         $active = self::folder_is_active($oldname);
