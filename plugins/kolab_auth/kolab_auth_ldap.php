@@ -154,7 +154,7 @@ class kolab_auth_ldap extends rcube_ldap_generic
         foreach ($result as $entry) {
             $entry = rcube_ldap_generic::normalize_entry($entry);
             if (!$entry['dn']) {
-                $entry['dn'] = $result->get_dn();
+                $entry['dn'] = key($result->entries(true));
             }
             $groups[$entry['dn']] = $entry[$name_attr];
         }
@@ -303,7 +303,7 @@ class kolab_auth_ldap extends rcube_ldap_generic
                 if ($limit && $limit <= $i) {
                     break;
                 }
-                $dn        = $result->get_dn();
+                $dn        = key($result->entries(true));
                 $entry     = rcube_ldap_generic::normalize_entry($entry);
                 $list[$dn] = $this->field_mapping($dn, $entry);
                 $i++;
