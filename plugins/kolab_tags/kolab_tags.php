@@ -79,6 +79,10 @@ class kolab_tags extends rcube_plugin
             return;
         }
 
+        if ($this->rc->action == 'print') {
+            return;
+        }
+
         if ($engine = $this->engine()) {
             $engine->ui();
         }
