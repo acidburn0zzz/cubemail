@@ -55,11 +55,12 @@ class kolab_storage_config
     }
 
     /**
-     * Private constructor
+     * Private constructor (finds default configuration folder as a config source)
      */
     private function __construct()
     {
-        $this->folders = kolab_storage::get_folders(self::FOLDER_TYPE);
+        // get all configuration folders
+        $this->folders = kolab_storage::get_folders(self::FOLDER_TYPE, false);
 
         foreach ($this->folders as $folder) {
             if ($folder->default) {
@@ -71,6 +72,16 @@ class kolab_storage_config
         // if no folder is set as default, choose the first one
         if (!$this->default) {
             $this->default = reset($this->folders);
+        }
+
+        // attempt to create a default folder if it does not exist
+        if (!$this->default) {
+            $folder_name = 'Configuration';
+            $folder_type = self::FOLDER_TYPE . '.default';
+
+            if (kolab_storage::folder_create($folder_name, $folder_type, true)) {
+                $this->default = new kolab_storage_folder($folder_name, $folder_type);
+            }
         }
 
         // check if configuration folder exist
