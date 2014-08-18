@@ -406,10 +406,16 @@ class kolab_notes extends rcube_plugin
     public function notes_fetch()
     {
         $search = rcube_utils::get_input_value('_q', RCUBE_INPUT_GPC, true);
-        $list = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC);
+        $list   = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC);
 
         $data = $this->notes_data($this->list_notes($list, $search), $tags);
-        $this->rc->output->command('plugin.data_ready', array('list' => $list, 'search' => $search, 'data' => $data, 'tags' => array_values($tags)));
+
+        $this->rc->output->command('plugin.data_ready', array(
+                'list'   => $list,
+                'search' => $search,
+                'data'   => $data,
+                'tags'   => array_values($tags)
+        ));
     }
 
     /**
@@ -417,18 +423,14 @@ class kolab_notes extends rcube_plugin
      */
     protected function notes_data($records, &$tags)
     {
-        $tags = array();
+        $config = kolab_storage_config::get_instance();
+        $tags   = $config->apply_tags($records);
 
         foreach ($records as $i => $rec) {
             unset($records[$i]['description']);
             $this->_client_encode($records[$i]);
-
-            foreach ((array)$rec['categories'] as $tag) {
-                $tags[] = $tag;
-            }
         }
 
-        $tags = array_unique($tags);
         return $records;
     }
 
@@ -460,8 +462,7 @@ class kolab_notes extends rcube_plugin
                     $matches = 0;
                     $contents = mb_strtolower(
                         $record['title'] .
-                        ($this->is_html($record) ? strip_tags($record['description']) : $record['description']) .
-                        join(' ', (array)$record['categories'])
+                        ($this->is_html($record) ? strip_tags($record['description']) : $record['description'])
                     );
                     foreach ($words as $word) {
                         if (mb_strpos($contents, $word) !== false) {
@@ -519,10 +520,12 @@ class kolab_notes extends rcube_plugin
             return $this->cache[$key];
         }
 
+        $result = false;
+
         $this->_read_lists();
         if ($list_id) {
             if ($folder = $this->get_folder($list_id)) {
-                return $folder->get_object($uid);
+                $result = $folder->get_object($uid);
             }
         }
         // iterate over all calendar folders and search for the event ID
@@ -530,12 +533,17 @@ class kolab_notes extends rcube_plugin
             foreach ($this->folders as $list_id => $folder) {
                 if ($result = $folder->get_object($uid)) {
                     $result['list'] = $list_id;
-                    return $result;
+                    break;
                 }
             }
         }
 
-        return false;
+        if ($result) {
+            // get note tags
+            $result['tags'] = $this->get_tags($result['uid']);
+        }
+
+        return $result;
     }
 
     /**
@@ -576,7 +584,7 @@ class kolab_notes extends rcube_plugin
     public function note_action()
     {
         $action = rcube_utils::get_input_value('_do', RCUBE_INPUT_POST);
-        $note = rcube_utils::get_input_value('_data', RCUBE_INPUT_POST, true);
+        $note   = rcube_utils::get_input_value('_data', RCUBE_INPUT_POST, true);
 
         $success = false;
         switch ($action) {
@@ -665,9 +673,12 @@ class kolab_notes extends rcube_plugin
         // generate new note object from input
         $object = $this->_write_preprocess($note, $old);
 
-        // email links are handled separately
+        // email links and tags are handled separately
         $links = $object['links'];
+        $tags  = $object['tags'];
+
         unset($object['links']);
+        unset($object['tags']);
 
         $saved = $folder->save($object, 'note', $note['uid']);
 
@@ -682,9 +693,12 @@ class kolab_notes extends rcube_plugin
         else {
             // save links in configuration.relation object
             $this->save_links($object['uid'], $links);
+            // save tags in configuration.relation object
+            $this->save_tags($object['uid'], $tags);
 
             $note         = $object;
             $note['list'] = $list_id;
+            $note['tags'] = (array) $tags;
 
             // cache this in memory for later read
             $key = $list_id . ':' . $note['uid'];
@@ -700,7 +714,8 @@ class kolab_notes extends rcube_plugin
     function move_note($note, $list_id)
     {
         $this->_read_lists();
-        $tofolder = $this->get_folder($list_id);
+
+        $tofolder   = $this->get_folder($list_id);
         $fromfolder = $this->get_folder($note['list']);
 
         if ($fromfolder && $tofolder) {
@@ -730,6 +745,7 @@ class kolab_notes extends rcube_plugin
 
         if ($status) {
             $this->save_links($note['uid'], null);
+            $this->save_tags($note['uid'], null);
         }
 
         return $status;
@@ -740,8 +756,8 @@ class kolab_notes extends rcube_plugin
      */
     public function list_action()
     {
-        $action = rcube_utils::get_input_value('_do', RCUBE_INPUT_GPC);
-        $list = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC, true);
+        $action  = rcube_utils::get_input_value('_do', RCUBE_INPUT_GPC);
+        $list    = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC, true);
         $success = $update_cmd = false;
 
         if (empty($action)) {
@@ -1038,6 +1054,18 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
+     * Get note tags
+     */
+    private function get_tags($uid)
+    {
+        $config = kolab_storage_config::get_instance();
+        $tags   = $config->get_tags($uid);
+        $tags   = array_map(function($v) { return $v['name']; }, $tags);
+
+        return $tags;
+    }
+
+    /**
      * Find notes assigned to specified message
      */
     private function get_message_notes($message, $folder)
@@ -1149,6 +1177,15 @@ class kolab_notes extends rcube_plugin
     }
 
     /**
+     * Update note tags
+     */
+    private function save_tags($uid, $tags)
+    {
+        $config = kolab_storage_config::get_instance();
+        $config->save_tags($uid, $tags);
+    }
+
+    /**
      * Process the given note data (submitted by the client) before saving it
      */
     private function _write_preprocess($note, $old = array())
@@ -1192,8 +1229,8 @@ class kolab_notes extends rcube_plugin
         }
 
         // make list of categories unique
-        if (is_array($object['categories'])) {
-            $object['categories'] = array_unique(array_filter($object['categories']));
+        if (is_array($object['tags'])) {
+            $object['tags'] = array_unique(array_filter($object['tags']));
         }
 
         unset($object['list'], $object['tempid'], $object['created'], $object['changed'], $object['created_'], $object['changed_']);

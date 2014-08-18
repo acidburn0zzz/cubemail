@@ -325,7 +325,7 @@ function rcube_kolab_notes_ui(settings)
                     uid: null,
                     title: rcmail.gettext('newnote','kolab_notes'),
                     description: '',
-                    categories: [],
+                    tags: [],
                     created: rcmail.gettext('now', 'kolab_notes'),
                     changed: rcmail.gettext('now', 'kolab_notes')
                 }, rcmail.env.kolab_notes_template || {});
@@ -417,7 +417,7 @@ function rcube_kolab_notes_ui(settings)
                 uid: null,
                 title: rcmail.gettext('newnote','kolab_notes'),
                 description: '',
-                categories: [],
+                tags: [],
                 created: rcmail.gettext('now', 'kolab_notes'),
                 changed: rcmail.gettext('now', 'kolab_notes')
             }
@@ -687,9 +687,9 @@ function rcube_kolab_notes_ui(settings)
         for (var id in noteslist.rows) {
             tr = noteslist.rows[id].obj;
             note = notesdata[id];
-            match = note.categories && note.categories.length;
+            match = note.tags && note.tags.length;
             for (var i=0; match && note && i < tagsfilter.length; i++) {
-                if ($.inArray(tagsfilter[i], note.categories) < 0)
+                if ($.inArray(tagsfilter[i], note.tags) < 0)
                     match = false;
             }
 
@@ -787,7 +787,7 @@ function rcube_kolab_notes_ui(settings)
 
         // tag-edit line
         var tagline = $('.tagline', rcmail.gui_objects.noteviewtitle).empty()[readonly?'addClass':'removeClass']('disabled').show();
-        $.each(typeof data.categories == 'object' && data.categories.length ? data.categories : [''], function(i,val){
+        $.each(typeof data.tags == 'object' && data.tags.length ? data.tags : [''], function(i,val) {
             $('<input>')
                 .attr('name', 'tags[]')
                 .attr('tabindex', '0')
@@ -796,7 +796,7 @@ function rcube_kolab_notes_ui(settings)
                 .appendTo(tagline);
         });
 
-        if (!data.categories || !data.categories.length) {
+        if (!data.tags || !data.tags.length) {
             $('<span>').addClass('placeholder')
               .html(rcmail.gettext('notags', 'kolab_notes'))
               .appendTo(tagline)
@@ -941,7 +941,7 @@ function rcube_kolab_notes_ui(settings)
                 printwin.document.title = data.title;
                 $('#notetitle', printwin.document).html(Q(data.title));
                 $('#notebody',  printwin.document).html(data.description);
-                $('#notetags',  printwin.document).html('<span class="tag">' + data.categories.join('</span><span class="tag">') + '</span>');
+                $('#notetags',  printwin.document).html('<span class="tag">' + data.tags.join('</span><span class="tag">') + '</span>');
                 $('#notecreated', printwin.document).html(Q(me.selected_note.created));
                 $('#notechanged', printwin.document).html(Q(me.selected_note.changed));
                 printwin.print();
@@ -1026,8 +1026,8 @@ function rcube_kolab_notes_ui(settings)
         if (typeof counts == 'undefined') {
             counts = {};
             $.each(notesdata, function(id, rec){
-                for (var t, j=0; rec && rec.categories && j < rec.categories.length; j++) {
-                    t = rec.categories[j];
+                for (var t, j=0; rec && rec.tags && j < rec.tags.length; j++) {
+                    t = rec.tags[j];
                     if (typeof counts[t] == 'undefined')
                         counts[t] = 0;
                     counts[t]++;
@@ -1064,10 +1064,10 @@ function rcube_kolab_notes_ui(settings)
 
         if (is_new || me.selected_note && data.id == me.selected_note.id) {
             render_note(data);
-            render_tagslist(data.categories || []);
+            render_tagslist(data.tags || []);
         }
-        else if (data.categories) {
-            render_tagslist(data.categories);
+        else if (data.tags) {
+            render_tagslist(data.tags);
         }
 
         // add list item on top
@@ -1153,18 +1153,18 @@ function rcube_kolab_notes_ui(settings)
             description: editor ? editor.getContent({ format:'html' }).replace(/^<p><\/p>/, '') : $('#notecontent').val(),
             list: listselect.length ? listselect.val() : me.selected_note.list || me.selected_list,
             uid: me.selected_note.uid,
-            categories: []
+            tags: []
         };
 
         // collect tags
         $('.tagedit-list input[type="hidden"]', rcmail.gui_objects.noteviewtitle).each(function(i, elem){
             if (elem.value)
-                savedata.categories.push(elem.value);
+                savedata.tags.push(elem.value);
         });
         // including the "pending" one in the text box
         var newtag = $('#tagedit-input').val();
         if (newtag != '') {
-            savedata.categories.push(newtag);
+            savedata.tags.push(newtag);
         }
 
         return savedata;
@@ -1183,7 +1183,7 @@ function rcube_kolab_notes_ui(settings)
 
         return savedata.title != me.selected_note.title
             || savedata.description != me.selected_note.description
-            || savedata.categories.join(',') != (me.selected_note.categories || []).join(',')
+            || savedata.tags.join(',') != (me.selected_note.tags || []).join(',')
             || savedata.list != me.selected_note.list;
     }
 
@@ -1367,7 +1367,7 @@ function rcube_kolab_notes_ui(settings)
             drop_rec = notesdata[drop_id];
 
         // target already has this tag assigned
-        if (!drop_rec || (drop_rec.categories && $.inArray(tag, drop_rec.categories) >= 0)) {
+        if (!drop_rec || (drop_rec.tags && $.inArray(tag, drop_rec.tags) >= 0)) {
             return false;
         }
 
@@ -1387,9 +1387,9 @@ function rcube_kolab_notes_ui(settings)
             if (savedata.id)   delete savedata.id;
             if (savedata.html) delete savedata.html;
 
-            if (!savedata.categories)
-                savedata.categories = [];
-            savedata.categories.push(tag);
+            if (!savedata.tags)
+                savedata.tags = [];
+            savedata.tags.push(tag);
 
             rcmail.lock_form(rcmail.gui_objects.noteseditform, true);
             saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');

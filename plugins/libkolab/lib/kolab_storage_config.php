@@ -515,4 +515,135 @@ class kolab_storage_config
 
         return $result;
     }
+
+    /**
+     * Assign tags to kolab objects
+     *
+     * @param array $records List of kolab objects
+     *
+     * @return array List of tags
+     */
+    public function apply_tags(&$records)
+    {
+        // first convert categories into tags
+        foreach ($records as $i => $rec) {
+            if (!empty($rec['categories'])) {
+                $folder = new kolab_storage_folder($rec['_mailbox']);
+                if ($object = $folder->get_object($rec['uid'])) {
+                    $tags = $rec['categories'];
+
+                    unset($object['categories']);
+                    unset($records[$i]['categories']);
+
+                    $this->save_tags($rec['uid'], $tags);
+                    $folder->save($object, $rec['_type'], $rec['uid']);
+                }
+            }
+        }
+
+        $tags = array();
+
+        // assign tags to objects
+        foreach ($this->get_tags() as $tag) {
+            foreach ($records as $idx => $rec) {
+                $uid = self::build_member_url($rec['uid']);
+                if (in_array($uid, (array) $tag['members'])) {
+                    $records[$idx]['tags'][] = $tag['name'];
+                }
+            }
+
+            $tags[] = $tag['name'];
+        }
+
+        $tags = array_unique($tags);
+
+        return $tags;
+    }
+
+    /**
+     * Update object tags
+     *
+     * @param string $uid  Kolab object UID
+     * @param array  $tags List of tag names
+     */
+    public function save_tags($uid, $tags)
+    {
+        $url       = self::build_member_url($uid);
+        $relations = $this->get_tags();
+
+        foreach ($relations as $idx => $relation) {
+            $selected = !empty($tags) && in_array($relation['name'], $tags);
+            $found    = !empty($relation['members']) && in_array($url, $relation['members']);
+            $update   = false;
+
+            // remove member from the relation
+            if ($found && !$selected) {
+                $relation['members'] = array_diff($relation['members'], (array) $url);
+                $update = true;
+            }
+            // add member to the relation
+            else if (!$found && $selected) {
+                $relation['members'][] = $url;
+                $update = true;
+            }
+
+            if ($update) {
+                if ($this->save($relation, 'relation')) {
+                    $this->tags[$idx] = $relation; // update in-memory cache
+                }
+            }
+
+            if ($selected) {
+                $tags = array_diff($tags, (array)$relation['name']);
+            }
+        }
+
+        // create new relations
+        if (!empty($tags)) {
+            foreach ($tags as $tag) {
+                $relation = array(
+                    'name'     => $tag,
+                    'members'  => (array) $url,
+                    'category' => 'tag',
+                );
+
+                if ($this->save($relation, 'relation')) {
+                    $this->tags[] = $relation; // update in-memory cache
+                }
+            }
+        }
+    }
+
+    /**
+     * Get tags (all or referring to specified object)
+     *
+     * @param string $uid Optional object UID
+     *
+     * @return array List of Relation objects
+     */
+    public function get_tags($uid = '*')
+    {
+        if (!isset($this->tags)) {
+            $filter      = array(array('type', '=', 'relation'));
+            $default     = true;
+            $data_filter = array('category' => 'tag');
+
+            $this->tags = $this->get_objects($filter, $default, $data_filter);
+        }
+
+        if ($uid === '*') {
+            return $this->tags;
+        }
+
+        $result = array();
+        $search = self::build_member_url($uid);
+
+        foreach ($this->tags as $tag) {
+            if (in_array($search, (array) $tag['members'])) {
+                $result[] = $tag;
+            }
+        }
+
+        return $result;
+    }
 }
