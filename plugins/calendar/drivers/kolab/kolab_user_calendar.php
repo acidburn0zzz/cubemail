@@ -74,7 +74,7 @@ class kolab_user_calendar extends kolab_calendar
    */
   public function get_name()
   {
-    return $this->userdata['name'] ?: $this->userdata['mail'];
+    return $this->userdata['displayname'] ?: ($this->userdata['name'] ?: $this->userdata['mail']);
   }
 
 
@@ -94,7 +94,7 @@ class kolab_user_calendar extends kolab_calendar
    */
   public function get_title()
   {
-    return $this->userdata['mail'];
+    return trim($this->userdata['displayname'] . '; ' . $this->userdata['mail'], '; ');
   }
 
 

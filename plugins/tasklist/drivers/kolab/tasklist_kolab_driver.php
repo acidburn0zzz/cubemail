@@ -199,7 +199,7 @@ class tasklist_kolab_driver extends tasklist_driver
                     'id'       => $list_id,
                     'name'     => $folder->get_name(),
                     'listname' => $listname,
-                    'title'    => $folder->get_owner(),
+                    'title'    => $folder->get_title(),
                     'virtual'  => true,
                     'editable' => false,
                     'group'    => 'other virtual',

@@ -65,6 +65,16 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
     }
 
     /**
+     * Getter for a more informative title of this user folder
+     *
+     * @return string Title for the given user record
+     */
+    public function get_title()
+    {
+      return trim($this->ldaprec['displayname'] . '; ' . $this->ldaprec['mail'], '; ');
+    }
+
+    /**
      * Returns the owner of the folder.
      *
      * @return string  The owner of this folder.

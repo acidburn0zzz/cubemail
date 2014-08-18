@@ -28,11 +28,16 @@
 class kolab_auth_ldap extends rcube_ldap_generic
 {
     private $icache = array();
+    private $conf = array();
+    private $fieldmap = array();
 
 
     function __construct($p)
     {
         $rcmail = rcube::get_instance();
+
+        $this->conf = $p;
+        $this->conf['kolab_auth_user_displayname'] = $rcmail->config->get('kolab_auth_user_displayname', '{name}');
 
         $this->fieldmap = $p['fieldmap'];
         $this->fieldmap['uid'] = 'uid';
@@ -338,6 +343,16 @@ class kolab_auth_ldap extends rcube_ldap_generic
             else if (isset($entry[$attr])) {
                 $entry[$field] = $entry[$attr];
             }
+        }
+
+        // compose display name according to config
+        if (empty($this->fieldmap['displayname'])) {
+            $entry['displayname'] = rcube_addressbook::compose_search_name(
+                $entry,
+                $entry['email'],
+                $entry['name'],
+                $this->conf['kolab_auth_user_displayname']
+            );
         }
 
         return $entry;

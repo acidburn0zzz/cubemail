@@ -220,7 +220,7 @@ class kolab_notes extends rcube_plugin
                     'id'       => $list_id,
                     'name'     => $fullname,
                     'listname' => $listname,
-                    'title'    => $folder->get_owner(),
+                    'title'    => $folder->get_title(),
                     'virtual'  => true,
                     'editable' => false,
                     'group'    => 'other virtual',

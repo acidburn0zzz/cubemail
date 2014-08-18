@@ -29,6 +29,10 @@ $rcmail_config['kolab_auth_name']         = array('name', 'cn');
 $rcmail_config['kolab_auth_email']        = array('email');
 $rcmail_config['kolab_auth_organization'] = array('organization');
 
+// Template for user names displayed in the UI.
+// You can use all attributes from the 'fieldmap' property of the 'kolab_auth_addressbook' configuration
+$rcmail_config['kolab_auth_user_displayname'] = '{name} ({ou})';
+
 // Login and password of the admin user. Enables "Login As" feature.
 $rcmail_config['kolab_auth_admin_login']    = '';
 $rcmail_config['kolab_auth_admin_password'] = '';
