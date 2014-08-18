@@ -860,45 +860,45 @@ a.morelink:hover {
 	border-bottom: 2px solid #fafafa;
 }
 
-.edit-attendees-table {
+#taskedit .edit-attendees-table {
 	width: 100%;
 	margin-top: 0.5em;
 }
 
-.edit-attendees-table tbody td {
+#taskedit .edit-attendees-table tbody td {
 	padding: 4px 7px;
 }
 
-.edit-attendees-table tbody tr:last-child td {
+#taskedit .edit-attendees-table tbody tr:last-child td {
 	border-bottom: 0;
 }
 
-.edit-attendees-table th.role,
-.edit-attendees-table td.role {
+#taskedit .edit-attendees-table th.role,
+#taskedit .edit-attendees-table td.role {
 	width: 9em;
 }
 
-.edit-attendees-table th.availability,
-.edit-attendees-table td.availability,
-.edit-attendees-table th.confirmstate,
-.edit-attendees-table td.confirmstate {
+#taskedit .edit-attendees-table th.availability,
+#taskedit .edit-attendees-table td.availability,
+#taskedit .edit-attendees-table th.confirmstate,
+#taskedit .edit-attendees-table td.confirmstate {
 	width: 6em;
 }
 
-.edit-attendees-table th.options,
-.edit-attendees-table td.options {
+#taskedit .edit-attendees-table th.options,
+#taskedit .edit-attendees-table td.options {
 	width: 24px;
 	padding: 2px 4px;
 	text-align: right;
 }
 
-.edit-attendees-table th.sendmail,
-.edit-attendees-table td.sendmail {
+#taskedit .edit-attendees-table th.sendmail,
+#taskedit .edit-attendees-table td.sendmail {
 	width: 48px;
 	padding: 2px;
 }
 
-.edit-attendees-table th.sendmail label {
+#taskedit .edit-attendees-table th.sendmail label {
 	display: inline-block;
 	position: relative;
 	top: 4px;
@@ -912,19 +912,19 @@ a.morelink:hover {
 	background: url(images/sendinvitation.png) 1px 0 no-repeat;
 }
 
-.edit-attendees-table th.name,
-.edit-attendees-table td.name {
+#taskedit .edit-attendees-table th.name,
+#taskedit .edit-attendees-table td.name {
 	width: auto;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-.edit-attendees-table td.name select {
+#taskedit .edit-attendees-table td.name select {
 	width: 100%;
 }
 
-.edit-attendees-table a.deletelink {
+#taskedit .edit-attendees-table a.deletelink {
 	display: inline-block;
 	width: 17px;
 	height: 17px;
