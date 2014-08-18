@@ -240,6 +240,7 @@ class kolab_delegation_engine
         $this->ldap_org_field = $this->rc->config->get('kolab_auth_organization');
 
         $ldap->set_filter($this->ldap_filter);
+        $ldap->extend_fieldmap(array($this->ldap_delegate_field => $this->ldap_delegate_field));
 
         return $ldap;
     }
@@ -533,7 +534,7 @@ class kolab_delegation_engine
             }
 
             // Get current user record
-            $this->cache['user'] = $ldap->get_record($this->ldap_dn, true);
+            $this->cache['user'] = $ldap->get_record($this->ldap_dn);
         }
 
         return $parsed ? $this->parse_ldap_record($this->cache['user']) : $this->cache['user'];

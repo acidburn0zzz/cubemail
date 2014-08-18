@@ -202,7 +202,9 @@ class kolab_auth_ldap extends rcube_ldap_generic
         foreach ($this->fieldmap as $field => $attr) {
             if (array_key_exists($field, $entry)) {
                 $entry[$attr] = $entry[$field];
-                unset($entry[$field]);
+                if ($attr != $field) {
+                    unset($entry[$field]);
+                }
             }
         }
 
@@ -506,6 +508,19 @@ class kolab_auth_ldap extends rcube_ldap_generic
     public function get_parse_vars()
     {
         return $this->parse_replaces;
+    }
+
+    /**
+     * Register additional fields
+     */
+    public function extend_fieldmap($map)
+    {
+        foreach ((array)$map as $name => $attr) {
+            if (!in_array($attr, $this->attributes)) {
+                $this->attributes[]    = $attr;
+                $this->fieldmap[$name] = $attr;
+            }
+        }
     }
 
     /**
