@@ -34,7 +34,7 @@ class kolab_files_engine
      */
     public function __construct($plugin, $url)
     {
-        $this->url    = $url;
+        $this->url    = $this->resolve_url($url);
         $this->plugin = $plugin;
         $this->rc     = $plugin->rc;
     }
@@ -1016,5 +1016,31 @@ class kolab_files_engine
         }
 
         return $mimetypes;
+    }
+
+    /**
+     * Resolve relative URL
+     */
+    protected function resolve_url($url)
+    {
+        // prepend protocol://hostname:port
+        if (!preg_match('|^https?://|', $url)) {
+            $schema       = 'http';
+            $default_port = 80;
+
+            if (rcube_utils::https_check()) {
+                $schema       = 'https';
+                $default_port = 443;
+            }
+
+            $prefix = $schema . '://' . preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
+            if ($_SERVER['SERVER_PORT'] != $default_port) {
+                $prefix .= ':' . $_SERVER['SERVER_PORT'];
+            }
+
+            $url = $prefix . ($url[0] == '/' ? '' : '/') . $url;
+        }
+
+        return $url;
     }
 }
