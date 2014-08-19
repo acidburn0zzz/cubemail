@@ -2080,7 +2080,7 @@ class calendar extends rcube_plugin
   public function resources_autocomplete()
   {
     $search = rcube_utils::get_input_value('_search', rcube_utils::INPUT_GPC, true);
-    $sid    = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+    $sid    = rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC);
     $maxnum = (int)$this->rc->config->get('autocomplete_max', 15);
     $results = array();
 
