@@ -615,22 +615,22 @@ function rcube_tasklist_ui(settings)
         };
       }
       rcmail.init_address_input_events($('#edit-attendee-name'), ac_props);
-      rcmail.addEventListener('autocomplete_insert', function(e){
-        if (e.field.name == 'participant') {
-          $('#edit-attendee-add').click();
-        }
-//        else if (e.field.name == 'resource' && e.data && e.data.email) {
-//          add_attendee($.extend(e.data, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:'RESOURCE' }));
-//          e.field.value = '';
-//        }
+      rcmail.addEventListener('autocomplete_insert', function(e) {
+          var success = false;
+          if (e.field.name == 'participant') {
+              success = add_attendees(e.insert, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:(e.data && e.data.type == 'group' ? 'GROUP' : 'INDIVIDUAL') });
+          }
+          if (e.field && success) {
+              e.field.value = '';
+          }
       });
 
-      $('#edit-attendee-add').click(function(){
-        var input = $('#edit-attendee-name');
-        rcmail.ksearch_blur();
-        if (add_attendees(input.val(), { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:'INDIVIDUAL' })) {
-          input.val('');
-        }
+      $('#edit-attendee-add').click(function() {
+          var input = $('#edit-attendee-name');
+          rcmail.ksearch_blur();
+          if (add_attendees(input.val(), { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:'INDIVIDUAL' })) {
+              input.val('');
+          }
       });
 
       // handle change of "send invitations" checkbox
@@ -1595,7 +1595,7 @@ function rcube_tasklist_ui(settings)
     };
 
     // add the given attendee to the list
-    var add_attendee = function(data, readonly)
+    var add_attendee = function(data, readonly, before)
     {
         if (!me.selected_task)
             return false;
@@ -1624,6 +1624,12 @@ function rcube_tasklist_ui(settings)
         else if (data['delegated-from'])
             tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
 
+        // add expand button for groups
+        if (data.cutype == 'GROUP') {
+            dispname += ' <a href="#expand" data-email="' + Q(data.email) + '" class="iconbutton add expandlink" title="' + rcmail.gettext('expandattendeegroup','libcalendaring') + '">' +
+                rcmail.gettext('expandattendeegroup','libcalendaring') + '</a>';
+        }
+
         var html = '<td class="name">' + dispname + '</td>' +
             '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
             (data.cutype != 'RESOURCE' ? '<td class="sendmail">' + (readonly || !invbox ? '' : invbox) + '</td>' : '') +
@@ -1631,11 +1637,16 @@ function rcube_tasklist_ui(settings)
 
         var tr = $('<tr>')
             .addClass(String(data.role).toLowerCase())
-            .html(html)
-            .appendTo(attendees_list);
+            .html(html);
+
+        if (before)
+            tr.insertBefore(before)
+        else
+            tr.appendTo(attendees_list);
 
         tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
         tr.find('a.mailtolink').click(task_attendee_click);
+        tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); });
         tr.find('input.edit-attendee-reply').click(function() {
             var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
             $('p.attendees-commentbox')[enabled ? 'show' : 'hide']();

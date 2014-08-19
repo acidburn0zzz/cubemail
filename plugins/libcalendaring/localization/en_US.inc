@@ -140,3 +140,9 @@ $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined obje
 
 $labels['savingdata'] = 'Saving data...';
 
+// attendees labels
+$labels['expandattendeegroup'] = 'Substitute with group members';
+$labels['expandattendeegroupnodata'] = 'Unable to substitute this group. No members found.';
+$labels['expandattendeegrouperror'] = 'Unable to substitute this group. It might contain too many members.';
+$labels['expandattendeegroupsizelimit'] = 'This group contains too many members for substituting.';
+

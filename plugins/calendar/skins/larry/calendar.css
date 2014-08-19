@@ -955,31 +955,31 @@ td.topalign {
 	width: 95%;
 }
 
-.edit-attendees-table {
+#eventedit .edit-attendees-table {
 	width: 100%;
 	margin-top: 0.5em;
 }
 
-.edit-attendees-table th.role,
-.edit-attendees-table td.role {
+#eventedit .edit-attendees-table th.role,
+#eventedit .edit-attendees-table td.role {
 	width: 9em;
 }
 
-.edit-attendees-table th.availability,
-.edit-attendees-table td.availability,
-.edit-attendees-table th.confirmstate,
-.edit-attendees-table td.confirmstate {
+#eventedit .edit-attendees-table th.availability,
+#eventedit .edit-attendees-table td.availability,
+#eventedit .edit-attendees-table th.confirmstate,
+#eventedit .edit-attendees-table td.confirmstate {
 	width: 4em;
 }
 
-.edit-attendees-table th.options,
-.edit-attendees-table td.options {
+#eventedit .edit-attendees-table th.options,
+#eventedit .edit-attendees-table td.options {
 	width: 16px;
 	padding: 2px 4px;
 }
 
-.edit-attendees-table th.sendmail,
-.edit-attendees-table td.sendmail {
+#eventedit .edit-attendees-table th.sendmail,
+#eventedit .edit-attendees-table td.sendmail {
 	width: 44px;
 	padding: 2px;
 }
@@ -998,29 +998,38 @@ td.topalign {
 	background: url(images/sendinvitation.png) 1px 0 no-repeat;
 }
 
-.edit-attendees-table tbody tr:last-child td {
+#eventedit .edit-attendees-table tbody tr:last-child td {
 	border-bottom: 0;
 }
 
-.edit-attendees-table th.name,
-.edit-attendees-table td.name {
+#eventedit .edit-attendees-table th.name,
+#eventedit .edit-attendees-table td.name {
 	width: auto;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	position: relative;
 }
 
-.edit-attendees-table td.name select {
+#eventedit .edit-attendees-table td.name select {
 	width: 100%;
 }
 
-.edit-attendees-table a.deletelink {
+#eventedit .edit-attendees-table a.deletelink {
 	display: inline-block;
 	width: 17px;
 	height: 17px;
 	padding: 0;
 	overflow: hidden;
 	text-indent: 1000px;
+}
+
+#eventedit .edit-attendees-table a.expandlink {
+	position: absolute;
+	top: 4px;
+	right: 6px;
+	width: 16px;
+	height: 16px;
 }
 
 #edit-attendees-form,

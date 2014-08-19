@@ -914,11 +914,11 @@ function rcube_calendar_ui(settings)
         },
         buttons: buttons,
         minWidth: 500,
-        width: 580
+        width: 600
       }).append(editform.show());  // adding form content AFTERWARDS massively speeds up opening on IE6
 
       // set dialog size according to form content
-      me.dialog_resize($dialog.get(0), editform.height() + (bw.ie ? 20 : 0), 530);
+      me.dialog_resize($dialog.get(0), editform.height() + (bw.ie ? 20 : 0), 550);
 
       title.select();
 
@@ -1877,7 +1877,7 @@ function rcube_calendar_ui(settings)
     };
 
     // add the given attendee to the list
-    var add_attendee = function(data, readonly)
+    var add_attendee = function(data, readonly, before)
     {
       if (!me.selected_event)
         return false;
@@ -1931,6 +1931,12 @@ function rcube_calendar_ui(settings)
       else if (data['delegated-from'])
         tooltip = rcmail.gettext('delegatedfrom', 'calendar') + data['delegated-from'];
 
+      // add expand button for groups
+      if (data.cutype == 'GROUP') {
+        dispname += ' <a href="#expand" data-email="' + Q(data.email) + '" class="iconbutton add expandlink" title="' + rcmail.gettext('expandattendeegroup','libcalendaring') + '">' +
+          rcmail.gettext('expandattendeegroup','libcalendaring') + '</a>';
+      }
+
       var html = '<td class="role">' + select + '</td>' +
         '<td class="name">' + dispname + '</td>' +
         '<td class="availability"><img src="./program/resources/blank.gif" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
@@ -1941,11 +1947,16 @@ function rcube_calendar_ui(settings)
       var table = rcmail.env.calendar_resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
       var tr = $('<tr>')
         .addClass(String(data.role).toLowerCase())
-        .html(html)
-        .appendTo(table);
+        .html(html);
+
+      if (before)
+        tr.insertBefore(before)
+      else
+        tr.appendTo(table);
 
       tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
       tr.find('a.mailtolink').click(event_attendee_click);
+      tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); });
       tr.find('input.edit-attendee-reply').click(function() {
         var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
         $('p.attendees-commentbox')[enabled ? 'show' : 'hide']();
@@ -3755,12 +3766,15 @@ function rcube_calendar_ui(settings)
         };
       }
       rcmail.init_address_input_events($('#edit-attendee-name'), ac_props);
-      rcmail.addEventListener('autocomplete_insert', function(e){
+      rcmail.addEventListener('autocomplete_insert', function(e) {
+        var success = false;
         if (e.field.name == 'participant') {
-          $('#edit-attendee-add').click();
+          success = add_attendees(e.insert, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:(e.data && e.data.type == 'group' ? 'GROUP' : 'INDIVIDUAL') });
         }
         else if (e.field.name == 'resource' && e.data && e.data.email) {
-          add_attendee($.extend(e.data, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:'RESOURCE' }));
+          success = add_attendee($.extend(e.data, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:'RESOURCE' }));
+        }
+        if (e.field && success) {
           e.field.value = '';
         }
       });

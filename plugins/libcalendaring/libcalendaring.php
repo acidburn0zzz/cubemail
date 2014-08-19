@@ -106,6 +106,7 @@ class libcalendaring extends rcube_plugin
             // add hook to display alarms
             $this->add_hook('refresh', array($this, 'refresh'));
             $this->register_action('plugin.alarms', array($this, 'alarms_action'));
+            $this->register_action('plugin.expand_attendee_group', array($this, 'expand_attendee_group'));
         }
 
         // proceed initialization in startup hook
@@ -1356,6 +1357,61 @@ class libcalendaring extends rcube_plugin
             // Apple sends files as application/x-any (!?)
             ($part->mimetype == 'application/x-any' && $part->filename && preg_match('/\.ics$/i', $part->filename))
         );
+    }
+
+
+    /*********  Attendee handling functions  *********/
+
+    /**
+     * Handler for attendee group expansion requests
+     */
+    public function expand_attendee_group()
+    {
+        $id     = rcube_utils::get_input_value('id', rcube_utils::INPUT_POST);
+        $data   = rcube_utils::get_input_value('data', rcube_utils::INPUT_POST, true);
+        $result = array('id' => $id, 'members' => array());
+        $maxnum = 500;
+
+        // iterate over all autocomplete address books (we don't know the source of the group)
+        foreach ((array)$this->rc->config->get('autocomplete_addressbooks', 'sql') as $abook_id) {
+            if (($abook = $this->rc->get_address_book($abook_id)) && $abook->groups) {
+                foreach ($abook->list_groups($data['name'], 1) as $group) {
+                    // this is the matching group to expand
+                    if (in_array($data['email'], (array)$group['email'])) {
+                        $abook->set_pagesize($maxnum);
+                        $abook->set_group($group['ID']);
+
+                        // get all members
+                        $res = $abook->list_records($this->rc->config->get('contactlist_fields'));
+
+                        // handle errors (e.g. sizelimit, timelimit)
+                        if ($abook->get_error()) {
+                            $result['error'] = $this->rc->gettext('expandattendeegrouperror', 'libcalendaring');
+                            $res = false;
+                        }
+                        // check for maximum number of members (we don't wanna bloat the UI too much)
+                        else if ($res->count > $maxnum) {
+                            $result['error'] = $this->rc->gettext('expandattendeegroupsizelimit', 'libcalendaring');
+                            $res = false;
+                        }
+
+                        while ($res && ($member = $res->iterate())) {
+                            $emails = (array)$abook->get_col_values('email', $member, true);
+                            if (!empty($emails) && ($email = array_shift($emails))) {
+                                $result['members'][] = array(
+                                    'email' => $email,
+                                    'name' => rcube_addressbook::compose_list_name($member),
+                                );
+                            }
+                        }
+
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        $this->rc->output->command('plugin.expand_attendee_callback', $result);
     }
 
 

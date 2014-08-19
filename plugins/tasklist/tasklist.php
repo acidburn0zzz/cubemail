@@ -1147,7 +1147,7 @@ class tasklist extends rcube_plugin
         $this->rc->output->set_env('autocomplete_threads', (int)$this->rc->config->get('autocomplete_threads', 0));
         $this->rc->output->set_env('autocomplete_max', (int)$this->rc->config->get('autocomplete_max', 15));
         $this->rc->output->set_env('autocomplete_min_length', $this->rc->config->get('autocomplete_min_length'));
-        $this->rc->output->add_label('autocompletechars', 'autocompletemore');
+        $this->rc->output->add_label('autocompletechars', 'autocompletemore', 'libcalendaring.expandattendeegroup', 'libcalendaring.expandattendeegroupnodata');
 
         $this->rc->output->set_pagetitle($this->gettext('navtitle'));
         $this->rc->output->send('tasklist.mainview');

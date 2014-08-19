@@ -918,6 +918,7 @@ a.morelink:hover {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	position: relative;
 }
 
 #taskedit .edit-attendees-table td.name select {
@@ -931,6 +932,14 @@ a.morelink:hover {
 	padding: 0;
 	overflow: hidden;
 	text-indent: 1000px;
+}
+
+#taskedit .edit-attendees-table a.expandlink {
+	position: absolute;
+	top: 4px;
+	right: 6px;
+	width: 16px;
+	height: 16px;
 }
 
 #edit-attendees-form {

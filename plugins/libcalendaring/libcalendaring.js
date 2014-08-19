@@ -33,6 +33,7 @@ function rcube_libcalendaring(settings)
     this.alarm_dialog = null;
     this.snooze_popup = null;
     this.dismiss_link = null;
+    this.group2expand = {};
 
     // abort if env isn't set
     if (!settings || !settings.date_format)
@@ -727,6 +728,64 @@ function rcube_libcalendaring(settings)
             return (compA < compB) ? -1 : (compA > compB) ? 1 : 0;
         })
         $.each(listitems, function(idx, item) { mylist.append(item); });
+    };
+
+
+    /*****  Attendee form handling  *****/
+
+    // expand the given contact group into individual event/task attendees
+    this.expand_attendee_group = function(e, add, remove)
+    {
+        var id = (e.data ? e.data.email : null) || $(e.target).attr('data-email'),
+            role_select = $(e.target).closest('tr').find('select.edit-attendee-role option:selected');
+
+        this.group2expand[id] = { link: e.target, data: $.extend({}, e.data || {}), adder: add, remover: remove }
+
+        // copy group role from the according form element
+        if (role_select.length) {
+            this.group2expand[id].data.role = role_select.val();
+        }
+
+        // register callback handler
+        if (!this._expand_attendee_listener) {
+            this._expand_attendee_listener = this.expand_attendee_callback;
+            rcmail.addEventListener('plugin.expand_attendee_callback', function(result) {
+                me._expand_attendee_listener(result);
+            });
+        }
+
+        rcmail.http_post('libcal/plugin.expand_attendee_group', { id: id, data: e.data || {} }, rcmail.set_busy(true, 'loading'));
+    };
+
+    // callback from server to expand an attendee group
+    this.expand_attendee_callback = function(result)
+    {
+        var attendee, id = result.id,
+            data = this.group2expand[id],
+            row = $(data.link).closest('tr');
+
+        // replace group entry with all members returned by the server
+        if (data && data.adder && result.members && result.members.length) {
+            for (var i=0; i < result.members.length; i++) {
+                attendee = result.members[i];
+                attendee.role = data.data.role;
+                attendee.cutype = 'INDIVIDUAL';
+                attendee.status = 'NEEDS-ACTION';
+                data.adder(attendee, null, row);
+            }
+
+            if (data.remover) {
+                data.remover(data.link, id)
+            }
+            else {
+                row.remove();
+            }
+
+            delete this.group2expand[id];
+        }
+        else {
+            rcmail.display_message(result.error || rcmail.gettext('expandattendeegroupnodata','libcalendaring'), 'error');
+        }
     };
 
 }
