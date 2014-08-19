@@ -462,7 +462,7 @@ class kolab_storage_cache
                 else if ($fetchall && ($object = $this->_unserialize($sql_arr))) {
                     $result[] = $object;
                 }
-                else {
+                else if (!$fetchall) {
                     // only add msguid to dataset index
                     $result[] = $sql_arr;
                 }
