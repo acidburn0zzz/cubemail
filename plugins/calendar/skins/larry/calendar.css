@@ -1298,6 +1298,20 @@ td.topalign {
 	display: block;
 }
 
+#eventedit .ui-tabs-panel {
+	min-height: 24em;
+}
+
+#rcmKSearchpane ul li.resource i.icon,
+#rcmKSearchpane ul li.collection i.icon {
+	background-image: url(images/autocomplete.png);
+	background-position: -1px -2px;
+}
+
+#rcmKSearchpane ul li.collection i.icon {
+	background-position: -1px -26px;
+}
+
 a.dropdown-link {
 	font-size: 11px;
 	text-decoration: none;
@@ -1307,10 +1321,6 @@ a.dropdown-link:after {
 	content: ' ▼';
 	font-size: 10px;
 	color: #666;
-}
-
-#eventedit .ui-tabs-panel {
-	min-height: 24em;
 }
 
 .ui-dialog-buttonset a.dropdown-link {
