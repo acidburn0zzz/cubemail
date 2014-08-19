@@ -52,6 +52,12 @@ class kolab_storage_cache_configuration extends kolab_storage_cache
                     $query[$idx][0] = 'tags';
                     $query[$idx][2] = count($param[2]) > 1 ? $param[2] : $param[2][0];
                 }
+                // convert member filter (we support only = operator with single value)
+                else if ($param[0] == 'member') {
+                    $query[$idx][0] = 'words';
+                    $query[$idx][1] = '~';
+                    $query[$idx][2] = '^' . $param[2] . '$';
+                }
             }
         }
 

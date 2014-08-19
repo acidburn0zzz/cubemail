@@ -623,6 +623,12 @@ class kolab_storage_config
                 array('category', '=', 'tag')
             );
 
+            // use faster method
+            if ($uid && $uid != '*') {
+                $filter[] = array('member', '=', $uid);
+                return $this->get_objects($filter, $default);
+            }
+
             $this->tags = $this->get_objects($filter, $default);
         }
 
@@ -640,5 +646,78 @@ class kolab_storage_config
         }
 
         return $result;
+    }
+
+    /**
+     * Find kolab objects assigned to specified e-mail message
+     *
+     * @param rcube_message $message E-mail message
+     * @param string        $folder  Folder name
+     * @param string        $type    Result objects type
+     *
+     * @return array List of kolab objects
+     */
+    public function get_message_relations($message, $folder, $type)
+    {
+        $result  = array();
+        $uids    = array();
+        $default = true;
+        $uri     = self::get_message_uri($message, $folder);
+        $filter  = array(
+            array('type', '=', 'relation'),
+            array('category', '=', 'generic'),
+            // @TODO: what if Message-Id (and Date) does not exist?
+            array('member', '=', $message->get('message-id', false)),
+        );
+
+        // get UIDs of assigned notes
+        foreach ($this->get_objects($filter, $default) as $relation) {
+            // we don't need to update members if the URI is found
+            if (in_array($uri, $relation['members'])) {
+                // update members...
+                $messages = kolab_storage_config::resolve_members($relation);
+                // ...and check again
+                if (empty($messages[$folder]) || !in_array($message->uid, $messages[$folder])) {
+                    continue;
+                }
+            }
+
+            // find note UID(s)
+            foreach ($relation['members'] as $member) {
+                if (strpos($member, 'urn:uuid:') === 0) {
+                    $uids[] = substr($member, 9);
+                }
+            }
+        }
+
+        // get kolab objects of specified type
+        if (!empty($uids)) {
+            $query  = array(array('uid', '=', array_unique($uids)));
+            $result = kolab_storage::select($query, $type);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Build a URI representing the given message reference
+     */
+    public static function get_message_uri($headers, $folder)
+    {
+        $params = array(
+            'folder' => $headers->folder ?: $folder,
+            'uid'    => $headers->uid,
+        );
+
+        if (($messageid = $headers->get('message-id', false)) && ($date = $headers->get('date', false))) {
+            $params['message-id'] = $messageid;
+            $params['date']       = $date;
+
+            if ($subject = $headers->get('subject')) {
+                $params['subject'] = $subject;
+            }
+        }
+
+        return self::build_member_url($params);
     }
 }
