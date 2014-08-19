@@ -213,14 +213,13 @@
 
 .notesview #notedetailstitle {
 	height: auto;
+	min-height: 20px;
 }
 
-.notesview #notedetailstitle .tagedit-list,
-.notesview #notedetailstitle input.inline-edit,
-.notesview #notedetailstitle input.inline-edit:focus {
+.notesview #notedetailstitle .disabled .tagedit-list,
+.notesview #notedetailstitle input.inline-edit:disabled {
 	outline: none;
-	padding: 0;
-	margin: 0;
+	padding-left: 0;
 	border: 0;
 	background: rgba(255,255,255,0.01);
 	-webkit-box-shadow: none;
@@ -235,6 +234,10 @@
 	font-size: 14px;
 	font-weight: bold;
 	color: #333;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	        box-sizing: border-box;
 }
 
 .notesview #notedetailstitle .dates,
@@ -246,29 +249,40 @@
 	margin-top: 6px;
 }
 
-.notesview #notedetailstitle .dates,
-.notesview #notedetailstitle .notebookselect {
+.notesview .notebookselect {
 	margin-top: 4px;
-	margin-bottom: 4px;
 }
 
 .notesview #notedetailstitle .tagline {
 	position: relative;
 	cursor: text;
-	margin: 6px -2px -2px -2px;
+	margin: 4px 0 0 0;
+}
+
+.notesview #notedetailstitle .tagline.disabled {
+	margin-top: 0;
 }
 
 .notesview #notedetailstitle .tagline .placeholder {
 	position: absolute;
-	top: 4px;
-	left: 0;
-	z-index: 1;
+	top: 6px;
+	left: 6px;
+	z-index: 2;
 }
 
 .notesview #notedetailstitle .tagedit-list {
 	position: relative;
-	z-index: 2;
-	padding: 2px;
+	z-index: 1;
+	min-height: 32px;
+/*	padding: 2px; */
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.notesview #notedetailstitle .disabled .tagedit-list {
+	min-height: 26px;
 }
 
 .notesview #notedetailstitle #tagedit-input {
@@ -456,6 +470,10 @@
 
 .notesdialog #notesdialogheader {
 	height: auto;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	        box-sizing: border-box;
 }
 
 #kolabnotesinlinegui {

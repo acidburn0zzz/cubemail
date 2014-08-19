@@ -777,7 +777,7 @@ function rcube_kolab_notes_ui(settings)
             content = $('#notecontent').val(data.description),
             readonly = data.readonly || !list.editable,
             attachmentslist = $(rcmail.gui_objects.notesattachmentslist).html('');
-        $('.notetitle', rcmail.gui_objects.noteviewtitle).val(data.title).prop('disabled', readonly);
+        $('.notetitle', rcmail.gui_objects.noteviewtitle).val(data.title).prop('disabled', readonly).show();
         $('.dates .notecreated', rcmail.gui_objects.noteviewtitle).html(Q(data.created || ''));
         $('.dates .notechanged', rcmail.gui_objects.noteviewtitle).html(Q(data.changed || ''));
         $(rcmail.gui_objects.notebooks).filter('select').val(list.id);
@@ -786,7 +786,7 @@ function rcube_kolab_notes_ui(settings)
         }
 
         // tag-edit line
-        var tagline = $('.tagline', rcmail.gui_objects.noteviewtitle).empty().show();
+        var tagline = $('.tagline', rcmail.gui_objects.noteviewtitle).empty()[readonly?'addClass':'removeClass']('disabled').show();
         $.each(typeof data.categories == 'object' && data.categories.length ? data.categories : [''], function(i,val){
             $('<input>')
                 .attr('name', 'tags[]')
@@ -797,7 +797,10 @@ function rcube_kolab_notes_ui(settings)
         });
 
         if (!data.categories || !data.categories.length) {
-            $('<span>').addClass('placeholder').html(rcmail.gettext('notags', 'kolab_notes')).appendTo(tagline);
+            $('<span>').addClass('placeholder')
+              .html(rcmail.gettext('notags', 'kolab_notes'))
+              .appendTo(tagline)
+              .click(function(e) { $(this).parent().find('.tagedit-list').trigger('click'); });
         }
 
         $('.tagline input.tag', rcmail.gui_objects.noteviewtitle).tagedit({
@@ -1093,7 +1096,7 @@ function rcube_kolab_notes_ui(settings)
     function reset_view()
     {
         me.selected_note = null;
-        $('.notetitle', rcmail.gui_objects.noteviewtitle).val('');
+        $('.notetitle', rcmail.gui_objects.noteviewtitle).val('').hide();
         $('.tagline, .dates', rcmail.gui_objects.noteviewtitle).hide();
         $(rcmail.gui_objects.noteseditform).hide();
         $(rcmail.gui_objects.notesdetailview).hide();
