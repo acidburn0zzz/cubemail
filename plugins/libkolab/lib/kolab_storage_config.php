@@ -103,14 +103,13 @@ class kolab_storage_config
     /**
      * Get configuration objects
      *
-     * @param array $filter      Search filter
-     * @param bool  $default     Enable to get objects only from default folder
-     * @param array $data_filter Additional object data filter
-     * @param int   $limit       Max. number of records (per-folder)
+     * @param array $filter  Search filter
+     * @param bool  $default Enable to get objects only from default folder
+     * @param int   $limit   Max. number of records (per-folder)
      *
      * @return array List of objects
      */
-    public function get_objects($filter = array(), $default = false, $data_filter = array(), $limit = 0)
+    public function get_objects($filter = array(), $default = false, $limit = 0)
     {
         $list = array();
 
@@ -126,12 +125,6 @@ class kolab_storage_config
             }
 
             foreach ($folder->select($filter) as $object) {
-                foreach ($data_filter as $key => $val) {
-                    if ($object[$key] != $val) {
-                        continue 2;
-                    }
-                }
-
                 $list[] = $object;
             }
         }
@@ -624,11 +617,13 @@ class kolab_storage_config
     public function get_tags($uid = '*')
     {
         if (!isset($this->tags)) {
-            $filter      = array(array('type', '=', 'relation'));
-            $default     = true;
-            $data_filter = array('category' => 'tag');
+            $default = true;
+            $filter  = array(
+                array('type', '=', 'relation'),
+                array('category', '=', 'tag')
+            );
 
-            $this->tags = $this->get_objects($filter, $default, $data_filter);
+            $this->tags = $this->get_objects($filter, $default);
         }
 
         if ($uid === '*') {

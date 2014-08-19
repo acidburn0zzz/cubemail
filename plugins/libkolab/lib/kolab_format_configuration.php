@@ -208,8 +208,14 @@ class kolab_format_configuration extends kolab_format
     {
         $tags = array();
 
-        if ($this->data['type'] == 'dictionary') {
+        switch ($this->data['type']) {
+        case 'dictionary':
             $tags = array($this->data['language']);
+            break;
+
+        case 'relation':
+            $tags = array('category:' . $this->data['category']);
+            break;
         }
 
         return $tags;

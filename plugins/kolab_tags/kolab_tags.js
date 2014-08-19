@@ -293,7 +293,7 @@ function tag_form_dialog(id)
 
         if (tag) {
             name_input.val(tag.name);
-            color_input.val(tag.color.replace(/^#/, ''));
+            color_input.val(tag.color ? tag.color.replace(/^#/, '') : '');
         }
     }
 

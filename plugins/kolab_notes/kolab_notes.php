@@ -1109,11 +1109,13 @@ class kolab_notes extends rcube_plugin
     {
         if (!isset($this->relations)) {
             $config      = kolab_storage_config::get_instance();
-            $filter      = array(array('type', '=', 'relation'));
             $default     = true;
-            $data_filter = array('category' => 'generic');
+            $filter      = array(
+                array('type', '=', 'relation'),
+                array('category', '=', 'generic')
+            );
 
-            $this->relations = $config->get_objects($filter, $default, $data_filter);
+            $this->relations = $config->get_objects($filter, $default);
         }
 
         if ($uid === null) {

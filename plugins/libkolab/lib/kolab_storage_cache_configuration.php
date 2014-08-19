@@ -37,4 +37,24 @@ class kolab_storage_cache_configuration extends kolab_storage_cache
 
         return $sql_data;
     }
+
+    /**
+     * Helper method to compose a valid SQL query from pseudo filter triplets
+     */
+    protected function _sql_where($query)
+    {
+        if (is_array($query)) {
+            foreach ($query as $idx => $param) {
+                // convert category filter
+                if ($param[0] == 'category') {
+                    $param[2] = array_map(function($n) { return 'category:' . $n; }, (array) $param[2]);
+
+                    $query[$idx][0] = 'tags';
+                    $query[$idx][2] = count($param[2]) > 1 ? $param[2] : $param[2][0];
+                }
+            }
+        }
+
+        return parent::_sql_where($query);
+    }
 }
