@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'Bestanden';
 $labels['saveall'] = 'Sla alles op in de cloud...';
 $labels['saveto'] = 'Sla op in de cloud...';
@@ -53,10 +60,12 @@ $labels['filedeleteconfirm'] = 'Weet u zeker dat u de geselecteerde bestanden wi
 $labels['filedeletenotice'] = 'Bestand(en) succesvol verwijderd.';
 $labels['filemovenotice'] = 'Bestand(en) succesvol verplaatst.';
 $labels['filecopynotice'] = 'Bestand(en) succesvol gekopieerd.';
+$labels['uploadsizeerror'] = 'Maximale bestandsgrootte ($size)  overschreden!';
 $labels['allfolders'] = 'Zoek in alle mappen';
 $labels['fileskip'] = 'Overslaan';
 $labels['fileskipall'] = 'Sla allen over';
 $labels['fileoverwrite'] = 'Overschrijven';
 $labels['fileoverwriteall'] = 'Overschrijf alle';
 $labels['filemoveconfirm'] = 'Deze actie overschrijft het volgende doelbestand: <b>$file</b>.';
+$labels['arialabelfileprops'] = 'Eigenschappen van bestand';
 ?>

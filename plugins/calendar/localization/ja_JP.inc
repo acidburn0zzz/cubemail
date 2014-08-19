@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'デフォルトビュー';
 $labels['time_format'] = '時刻表示形式';
 $labels['first_day'] = '最初の平日';
@@ -13,7 +19,6 @@ $labels['coloringmode0'] = 'カレンダーの説明';
 $labels['coloringmode1'] = 'カテゴリの説明';
 $labels['coloringmode2'] = 'アウトライン用カレンダー、コンテンツ用カテゴリ';
 $labels['coloringmode3'] = 'アウトライン用カレンダー、コンテンツ用カテゴリ';
-// calendar
 $labels['calendar'] = 'カレンダー';
 $labels['calendars'] = 'カレンダー';
 $labels['category'] = 'カテゴリ';
@@ -47,6 +52,7 @@ $labels['url'] = 'URL';
 $labels['date'] = '期日';
 $labels['start'] = '開始';
 $labels['end'] = '終了';
+$labels['repeat'] = '繰返し';
 $labels['selectdate'] = '日付選択';
 $labels['freebusy'] = '表示する';
 $labels['free'] = '空';
@@ -60,6 +66,8 @@ $labels['public'] = 'パブリック';
 $labels['private'] = 'プライベート';
 $labels['confidential'] = '親展';
 $labels['alarms'] = '通知';
+$labels['unknown'] = '不明';
+$labels['eventoptions'] = 'オプション';
 $labels['generated'] = '生成';
 $labels['printdescriptions'] = '説明印刷';
 $labels['parentcalendar'] = '内に挿入';
@@ -74,7 +82,6 @@ $labels['onemonthback'] = '1 ヶ月戻る';
 $labels['nmonthsback'] = '$nr ヶ月戻る';
 $labels['showurl'] = 'カレンダーURL表示';
 $labels['showurldescription'] = '以下のアドレスを使用して他のアプリケーションからカレンダーにアクセス(読込のみ)できます。iCal形式をサポートしたカレンダーソフトウェアへコピーアンドペーストができます。';
-// agenda view
 $labels['listrange'] = '表示範囲:';
 $labels['listsections'] = '分割:';
 $labels['smartsections'] = 'スマートセクション';
@@ -88,10 +95,8 @@ $labels['nextmonth'] = '来月';
 $labels['weekofyear'] = '週';
 $labels['pastevents'] = '以前';
 $labels['futureevents'] = '以降';
-// alarm/reminder settings
 $labels['defaultalarmtype'] = 'デフォルト通知設定';
 $labels['defaultalarmoffset'] = 'デフォルト通知時間';
-// attendees
 $labels['attendee'] = '参加者';
 $labels['role'] = 'ロール';
 $labels['availability'] = '利用可';
@@ -100,6 +105,7 @@ $labels['addattendee'] = '参加者追加';
 $labels['roleorganizer'] = '編成者';
 $labels['rolerequired'] = '要件';
 $labels['roleoptional'] = 'オプション';
+$labels['rolechair'] = 'Chair';
 $labels['cutypegroup'] = 'グループ';
 $labels['cutyperesource'] = 'リソース';
 $labels['availfree'] = '空';
@@ -124,24 +130,20 @@ $labels['eventupdatesubjectempty'] = 'あなたに関連するイベントが更
 $labels['eventupdatemailbody'] = "*\$title*\n\nいつ: \$date\n\n招待者: \$attendees\n\nあなたのカレンダーアプリケーションにインポートできるアップデートされた全イベントの詳細が添付されたiカレンダーファイルを見つけてください。";
 $labels['eventcancelsubject'] = '"$title" は変更されました';
 $labels['eventcancelmailbody'] = "*\$title*\n\nいつ: \$date\n\n招待者: \$attendees\n\nイベントが \$organizer によってキャンセルされました。\n\n更新されたイベントの詳細とともに添付されたiカレンダーファイルを見つけてください。";
-// invitation handling (overrides labels from libcalendaring)
 $labels['itipmailbodyaccepted'] = "\$sender は以下のイベントへの招待を承諾しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender は以下のイベントへの招待を仮承諾しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender は以下のイベントへの招待を辞退しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipdeclineevent'] = 'このイベントへの招待を辞退しますか?';
 $labels['eventcancelled'] = 'このイベントはキャンセルされました';
 $labels['saveincalendar'] = '保存';
-// resources
 $labels['resource'] = 'リソース';
 $labels['resourcedetails'] = '詳細';
-// event dialog tabs
 $labels['tabsummary'] = '要約';
 $labels['tabrecurrence'] = '繰返し';
 $labels['tabattendees'] = '参加者';
 $labels['tabresources'] = 'リソース';
 $labels['tabattachments'] = '添付';
 $labels['tabsharing'] = '共有';
-// messages
 $labels['deleteobjectconfirm'] = '本当にこのイベントを削除しますか?';
 $labels['deleteventconfirm'] = '本当にこのイベントを削除しますか?';
 $labels['deletecalendarconfirm'] = '本当にこのカレンダーを全イベントとともに削除しますか?';
@@ -167,8 +169,6 @@ $labels['importsuccess'] = '$nr イベントをインポートしました';
 $labels['importnone'] = 'インポートされたイベントはありません';
 $labels['importerror'] = 'インポート中にエラーが発生しました。';
 $labels['aclnorights'] = 'このカレンダーの管理権限がありません。';
-// recurrence form
-$labels['repeat'] = '繰返し';
 $labels['changeeventconfirm'] = 'イベント変更';
 $labels['removeeventconfirm'] = 'イベント削除';
 $labels['changerecurringeventwarning'] = 'これは繰返しイベントです。現在のイベントのみ、このイベントと今後の全イベント、全イベント、編集したい、もしくは新しいイベントとして保存したい?';
@@ -177,5 +177,5 @@ $labels['currentevent'] = '現在';
 $labels['futurevents'] = '今後';
 $labels['allevents'] = '全て';
 $labels['saveasnew'] = '新規保存';
-// birthdays calendar
+$labels['user'] = 'ユーザ';
 ?>

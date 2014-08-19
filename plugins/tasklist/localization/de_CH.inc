@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Aufgaben';
 $labels['lists'] = 'Aufgabenlisten';
 $labels['list'] = 'Liste';
@@ -14,6 +21,8 @@ $labels['title'] = 'Titel';
 $labels['description'] = 'Beschreibung';
 $labels['start'] = 'Beginn';
 $labels['alarms'] = 'Erinnerung';
+$labels['repeat'] = 'Wiederholung';
+$labels['status'] = 'Status';
 $labels['all'] = 'Alle';
 $labels['flagged'] = 'Markiert';
 $labels['complete'] = 'Erledigt';
@@ -43,12 +52,10 @@ $labels['listactions'] = 'Listenoptionen...';
 $labels['listname'] = 'Name';
 $labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'Importieren';
-// date words
 $labels['on'] = 'am';
 $labels['at'] = 'um';
 $labels['this'] = 'diesen';
 $labels['next'] = 'nächsten';
-// mesages
 $labels['savingdata'] = 'Daten werden gespeichert...';
 $labels['errorsaving'] = 'Fehler beim Speichern.';
 $labels['notasksfound'] = 'Für die aktuellen Kriterien wurden keine Aufgaben gefunden.';
@@ -56,3 +63,16 @@ $labels['invalidstartduedates'] = 'Beginn der Aufgabe darf nicht grösser als da
 $labels['deletetasktconfirm'] = 'Möchten Sie diese Aufgabe wirklich löschen?';
 $labels['deleteparenttasktconfirm'] = 'Möchten Sie diese Aufgabe inklusive aller Teilaufgaben wirklich löschen?';
 $labels['deletelistconfirm'] = 'Möchten Sie diese Liste mit allen Aufgaben wirklich löschen?';
+$labels['role'] = 'Rolle';
+$labels['availability'] = 'Verfüg.';
+$labels['confirmstate'] = 'Status';
+$labels['roleorganizer'] = 'Organisator';
+$labels['rolerequired'] = 'Erforderlich';
+$labels['roleoptional'] = 'Optional';
+$labels['rolechair'] = 'Chair';
+$labels['sendinvitations'] = 'Einladungen versenden';
+$labels['itipupdatesubject'] = '"$title" wurde aktualisiert';
+$labels['itipcancelsubject'] = '"$title" wurde abgesagt';
+$labels['andnmore'] = '$nr weitere...';
+$labels['attendeupdateesuccess'] = 'Teilnehmerstatus erfolgreich aktualisiert';
+$labels['itipinvalidrequest'] = 'Diese Einladung ist nicht mehr gültig';

@@ -1,8 +1,16 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Taken';
 $labels['lists'] = 'Takenlijsten';
 $labels['list'] = 'Takenlijst';
 $labels['tags'] = 'Labels';
+$labels['tasklistsubscribe'] = 'Permanent weergeven';
 $labels['newtask'] = 'Nieuwe Taak';
 $labels['createnewtask'] = 'Creer een nieuwe Taak (bijv. Zaterdag, gras maaien)';
 $labels['createfrommail'] = 'Als taak opslaan';
@@ -15,6 +23,9 @@ $labels['description'] = 'Beschrijving';
 $labels['datetime'] = 'Vóór';
 $labels['start'] = 'Begin';
 $labels['alarms'] = 'Herinnering';
+$labels['repeat'] = 'Herhaal';
+$labels['status'] = 'Status';
+$labels['status-cancelled'] = 'Afgelast';
 $labels['all'] = 'Alle';
 $labels['flagged'] = 'Gemarkeerd';
 $labels['complete'] = 'Compleet';
@@ -44,14 +55,11 @@ $labels['listactions'] = 'Lijst opties...';
 $labels['listname'] = 'Naam';
 $labels['showalarms'] = 'Laat herinneringen zien';
 $labels['import'] = 'Importeren';
-$labels['viewoptions'] = 'Bekijk opties';
 $labels['focusview'] = 'Bekijk alleen deze lijst';
-// date words
 $labels['on'] = 'op';
 $labels['at'] = 'om';
 $labels['this'] = 'deze';
 $labels['next'] = 'volgende';
-// mesages
 $labels['savingdata'] = 'Data wordt opgeslagen...';
 $labels['errorsaving'] = 'Fout in opslaan van data.';
 $labels['notasksfound'] = 'Geen taken gevonden voor de gegeven criteria';
@@ -60,3 +68,19 @@ $labels['deletetasktconfirm'] = 'Wilt u deze taak echt verwijderen?';
 $labels['deleteparenttasktconfirm'] = 'Wilt u deze taak en alle subtaken echt verwijderen?';
 $labels['deletelistconfirm'] = 'Wilt u deze lijst met alle taken echt verwijderen?';
 $labels['deletelistconfirmrecursive'] = 'Wilt u deze lijst en alle taken en subtaken echt verwijderen?';
+$labels['role'] = 'Rol';
+$labels['availability'] = 'Beschikb.';
+$labels['confirmstate'] = 'Status';
+$labels['roleorganizer'] = 'Organisatie';
+$labels['rolerequired'] = 'Verplicht';
+$labels['roleoptional'] = 'Optioneel';
+$labels['rolechair'] = 'Voorzitter';
+$labels['sendinvitations'] = 'Verzend uitnodigingen';
+$labels['itipupdatesubject'] = '"$title" is gewijzigd';
+$labels['itipcancelsubject'] = '"$title" is geannuleerd';
+$labels['andnmore'] = '$nr meer...';
+$labels['delegatedto'] = 'Gedelegeerd aan';
+$labels['delegatedfrom'] = 'Gedelegeerd door';
+$labels['comment'] = 'Opmerking';
+$labels['attendeupdateesuccess'] = 'Status van genodigde succesvol gewijzigd';
+$labels['itipinvalidrequest'] = 'Deze uitnodiging is niet langer geldig';

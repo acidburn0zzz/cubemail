@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Výchozí pohled';
 $labels['time_format'] = 'Formát data';
 $labels['timeslots'] = 'Time slots per hour';
@@ -14,7 +20,6 @@ $labels['coloringmode0'] = 'Podle kalendáře';
 $labels['coloringmode1'] = 'Podle kategorie';
 $labels['coloringmode2'] = 'Kalendář pro orámování, kategorie pro obsah';
 $labels['coloringmode3'] = 'Kategorie pro orámování, kalendář pro obsah';
-// calendar
 $labels['calendar'] = 'Kalendář';
 $labels['calendars'] = 'Kalendáře';
 $labels['category'] = 'Kategorie';
@@ -48,6 +53,7 @@ $labels['url'] = 'URL';
 $labels['date'] = 'Datum';
 $labels['start'] = 'Začátek';
 $labels['end'] = 'Konec';
+$labels['repeat'] = 'Opakování';
 $labels['selectdate'] = 'Vyberte datum';
 $labels['freebusy'] = 'Zobrazovat časový úsek jako';
 $labels['free'] = 'volno';
@@ -61,6 +67,7 @@ $labels['public'] = 'veřejné';
 $labels['private'] = 'soukromé';
 $labels['confidential'] = 'důvěrné';
 $labels['alarms'] = 'Připomenutí';
+$labels['unknown'] = 'neznámý';
 $labels['generated'] = 'vygenerováno';
 $labels['printdescriptions'] = 'Vytisknout popisy';
 $labels['parentcalendar'] = 'Vložit dovnitř';
@@ -75,7 +82,6 @@ $labels['onemonthback'] = '1 měsíc nazpátek';
 $labels['nmonthsback'] = '$nr měsíců nazpátek';
 $labels['showurl'] = 'Ukázat URL kalendáře';
 $labels['showurldescription'] = 'Tuto adresu použijte pro přístup (jen ke čtení) ke kalendáři z jiných aplikací. Můžete ji zkopírovat a vložit do jakéhokoli kalendářového softwaru, který podporuje formát iCal.';
-// agenda view
 $labels['listrange'] = 'Rozsah k zobrazení:';
 $labels['listsections'] = 'Rozdělit na:';
 $labels['smartsections'] = 'Chytré sekce';
@@ -89,18 +95,18 @@ $labels['nextmonth'] = 'Příští měsíc';
 $labels['weekofyear'] = 'Týden';
 $labels['pastevents'] = 'Minulost';
 $labels['futureevents'] = 'Budoucnost';
-// alarm/reminder settings
 $labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'Výchozí nastavení připomenutí';
 $labels['defaultalarmoffset'] = 'Výchozí čas připomenutí';
-// attendees
 $labels['attendee'] = 'Účastník';
+$labels['role'] = 'Role';
 $labels['availability'] = 'Dost.';
 $labels['confirmstate'] = 'Stav';
 $labels['addattendee'] = 'Přidat účastníka';
 $labels['roleorganizer'] = 'Organizátor';
 $labels['rolerequired'] = 'Povinný';
 $labels['roleoptional'] = 'Nepovinný';
+$labels['rolechair'] = 'Chair';
 $labels['cutyperesource'] = 'Prostředek';
 $labels['availfree'] = 'volno';
 $labels['availbusy'] = 'obsazeno';
@@ -124,7 +130,6 @@ $labels['eventupdatesubjectempty'] = 'Událost, která se vás týká, byla aktu
 $labels['eventupdatemailbody'] = "*\$title*\n\nKdy: \$date\n\nPozváni: \$attendees\n\nPodrobnosti o aktualizované události najdete v přiloženém souboru typu iCalendar. Můžete si ho naimportovat do kalendářového programu.";
 $labels['eventcancelsubject'] = 'Událost "$title" byla zrušena';
 $labels['eventcancelmailbody'] = "*\$title*\n\nKdy: \$date\n\nPozváni: \$attendees\n\nUdálost byla zrušena organizátorem (\$organizer).\n\nPodrobnosti najdete v přiloženém souboru ve formátu iCalendar.";
-// invitation handling (overrides labels from libcalendaring)
 $labels['itipmailbodyaccepted'] = "\$sender přijal(a) pozvání na tuto událost:\n\n*\$title*\n\nKdy: \$date\n\nPozváni: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender nezávazně přijal(a) pozvání na tuto událost:\n\n*\$title*\n\nKdy: \$date\n\nPozváni: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender odmítl(a) pozvání na tuto událost:\n\n*\$title*\n\nKdy: \$date\n\nPozváni: \$attendees";
@@ -132,15 +137,12 @@ $labels['itipdeclineevent'] = 'Opravdu chcete odmítnout pozvání na tuto udál
 $labels['notanattendee'] = 'Nejste na seznamu účastníků této události';
 $labels['eventcancelled'] = 'Tato událost byla zrušena';
 $labels['saveincalendar'] = 'uložit do';
-// resources
 $labels['resource'] = 'Prostředek';
-// event dialog tabs
 $labels['tabsummary'] = 'Souhrn';
 $labels['tabrecurrence'] = 'Opakování';
 $labels['tabattendees'] = 'Účastníci';
 $labels['tabattachments'] = 'Přílohy';
 $labels['tabsharing'] = 'Sdílení';
-// messages
 $labels['deleteobjectconfirm'] = 'Opravdu chcete smazat tuto událost?';
 $labels['deleteventconfirm'] = 'Opravdu chcete smazat tuto událost?';
 $labels['deletecalendarconfirm'] = 'Opravdu chcete smazat tento kalendář se všemi událostmi?';
@@ -167,8 +169,6 @@ $labels['importsuccess'] = 'Úspěšně importováno $nr událostí';
 $labels['importnone'] = 'Nebyly nalezeny žádné události k importu';
 $labels['importerror'] = 'Při importu došlo k chybě';
 $labels['aclnorights'] = 'Nemáte administrátorská práva k tomuto kalendáři.';
-// recurrence form
-$labels['repeat'] = 'Opakování';
 $labels['changeeventconfirm'] = 'Změnit událost';
 $labels['removeeventconfirm'] = 'Odstranit událost';
 $labels['changerecurringeventwarning'] = 'Toto je opakovaná událost. Chcete upravit jen toto konání, toto a všechna následující konání, úplně všechna konání nebo uložit událost jako novou?';
@@ -177,5 +177,4 @@ $labels['currentevent'] = 'Aktuální';
 $labels['futurevents'] = 'Budoucí';
 $labels['allevents'] = 'Všechny';
 $labels['saveasnew'] = 'Uložit jako novou';
-// birthdays calendar
 ?>

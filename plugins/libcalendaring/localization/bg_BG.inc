@@ -22,7 +22,6 @@ $labels['repeatinhrs'] = 'Repeat in $hrs hours';
 $labels['repeattomorrow'] = 'Repeat tomorrow';
 $labels['repeatinweek'] = 'Repeat in a week';
 $labels['showmore'] = 'Show more...';
-// itip related labels
 $labels['itipinvitation'] = 'Invitation to';
 $labels['itipupdate'] = 'Update of';
 $labels['itipcancellation'] = 'Отказано:';

@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Vista per defecte';
 $labels['time_format'] = 'Format de l\'hora';
 $labels['first_day'] = 'Primer dia de la setmana';
@@ -7,7 +13,6 @@ $labels['first_hour'] = 'Primera hora a mostrar';
 $labels['workinghours'] = 'Hores de feina';
 $labels['add_category'] = 'Afegeix categoria';
 $labels['remove_category'] = 'Suprimeix categoria';
-// calendar
 $labels['calendar'] = 'Calendari';
 $labels['calendars'] = 'Calendaris';
 $labels['category'] = 'Categoria';
@@ -48,18 +53,9 @@ $labels['public'] = 'públic';
 $labels['private'] = 'privat';
 $labels['confidential'] = 'confidencial';
 $labels['alarms'] = 'Recordatori';
-// agenda view
 $labels['weekofyear'] = 'Setmana';
-// alarm/reminder settings
-// attendees
 $labels['availfree'] = 'Lliure';
 $labels['availbusy'] = 'Ocupat';
 $labels['availoutofoffice'] = 'Fora de l\'oficina';
-// invitation handling (overrides labels from libcalendaring)
-// resources
-// event dialog tabs
 $labels['tabsummary'] = 'Resum';
-// messages
-// recurrence form
-// birthdays calendar
 ?>

@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Delegation plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
+ */
 $labels['tabtitle'] = 'Delegação';
 $labels['delegates'] = 'Delegados';
 $labels['delegate'] = 'Delegado';
@@ -10,6 +17,7 @@ $labels['note'] = 'Notas';
 $labels['yes'] = 'SIm';
 $labels['no'] = 'Não';
 $labels['read'] = 'Somente leitura';
+$labels['write'] = 'Gravar';
 $labels['adddelegate'] = 'Adicionar delegado';
 $labels['deletedelegate'] = 'Remover delegado';
 $labels['savingdata'] = 'Salvando dados...';

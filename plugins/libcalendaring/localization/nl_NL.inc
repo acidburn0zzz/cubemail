@@ -22,8 +22,6 @@ $labels['repeatinhrs'] = 'Herhaal over $hrs uur';
 $labels['repeattomorrow'] = 'Herhaal morgen';
 $labels['repeatinweek'] = 'Herhaal over een week';
 $labels['showmore'] = 'Toon meer...';
-
-// recurrence related labels
 $labels['frequency'] = 'Herhaal';
 $labels['never'] = 'nooit';
 $labels['daily'] = 'dagelijks';
@@ -51,8 +49,6 @@ $labels['fourth'] = 'vierde';
 $labels['last'] = 'laatste';
 $labels['dayofmonth'] = 'Dag van de maand';
 $labels['addrdate'] = 'Voeg herhaal datum toe';
-
-// itip related labels
 $labels['itipinvitation'] = 'Uitnodiging voor';
 $labels['itipupdate'] = 'Update van';
 $labels['itipcancellation'] = 'Afgelast:';

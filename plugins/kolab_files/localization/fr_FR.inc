@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'Fichiers';
 $labels['saveall'] = 'Enregistrer tout dans le nuage...';
 $labels['saveto'] = 'Enregistrer dans le nuage...';
@@ -53,10 +60,12 @@ $labels['filedeleteconfirm'] = 'Êtes-vous sûr de de vouloir supprimer les fich
 $labels['filedeletenotice'] = 'Le(s) fichier(s) ont été supprimé(s).';
 $labels['filemovenotice'] = 'Le(s) fichier(s) ont été déplacé(s).';
 $labels['filecopynotice'] = 'Le(s) fichier(s) ont été copié(s).';
+$labels['uploadsizeerror'] = 'La taille du fichier maximale ($size) est dépassée!';
 $labels['allfolders'] = 'Recherche dans tous les répertoires';
 $labels['fileskip'] = 'Ignorer';
 $labels['fileskipall'] = 'Ignorer tout';
 $labels['fileoverwrite'] = 'Écraser';
 $labels['fileoverwriteall'] = 'Écraser tout';
 $labels['filemoveconfirm'] = 'Cette action va écraser le fichier de destination : <b>$file</b>.';
+$labels['arialabelfileprops'] = 'Propriétés du fichier';
 ?>

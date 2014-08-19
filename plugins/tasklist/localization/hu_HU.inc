@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Feladatok';
 $labels['lists'] = 'Feladatlisták';
 $labels['list'] = 'Feladatlista';
@@ -15,6 +22,9 @@ $labels['description'] = 'Leírás';
 $labels['datetime'] = 'Határidő';
 $labels['start'] = 'Kezdet';
 $labels['alarms'] = 'Emlékeztető';
+$labels['repeat'] = 'Ismétlődik';
+$labels['status'] = 'Stát.';
+$labels['status-cancelled'] = 'Cancelled';
 $labels['all'] = 'Minden feladat';
 $labels['flagged'] = 'Jelölt';
 $labels['complete'] = 'Teljesített';
@@ -44,14 +54,11 @@ $labels['listactions'] = 'Lista beállítások...';
 $labels['listname'] = 'Név';
 $labels['showalarms'] = 'Emlékeztetők megjelenítése';
 $labels['import'] = 'Importálás';
-$labels['viewoptions'] = 'Opciók';
 $labels['focusview'] = 'Csak ezen lista megjelenítése';
-// date words
 $labels['on'] = 'dátum';
 $labels['at'] = 'időpont';
 $labels['this'] = 'ezen';
 $labels['next'] = 'következő';
-// mesages
 $labels['savingdata'] = 'Adatok mentése...';
 $labels['errorsaving'] = 'Az adatok mentése nem sikerült';
 $labels['notasksfound'] = 'A megadott kritériumoknak nem felelt meg egy feladat sem';
@@ -60,3 +67,19 @@ $labels['deletetasktconfirm'] = 'Biztos benne, hogy törölni szeretné ezt a fe
 $labels['deleteparenttasktconfirm'] = 'DBiztos benne, hogy törölni szeretné ezt a feladatot, az összes részfeladattal együtt?';
 $labels['deletelistconfirm'] = 'Biztos benne, hogy törölni szeretné ezt a listát, az összes benne lévő feladattal együtt?';
 $labels['deletelistconfirmrecursive'] = 'Biztos benne, hogy törölni szeretné ezt a listát, az összes benne lévő listával és feladattal együtt?';
+$labels['role'] = 'Szerepkör';
+$labels['availability'] = 'Elérh.';
+$labels['confirmstate'] = 'Stát.';
+$labels['roleorganizer'] = 'Szervező';
+$labels['rolerequired'] = 'Kötelező';
+$labels['roleoptional'] = 'Opcionális';
+$labels['rolechair'] = 'Elnöklő';
+$labels['sendinvitations'] = 'Meghívók küldése';
+$labels['itipupdatesubject'] = '$title - módosítva';
+$labels['itipcancelsubject'] = '$title - lemondva';
+$labels['andnmore'] = 'még $nr ...';
+$labels['delegatedto'] = 'Beosztva ide: ';
+$labels['delegatedfrom'] = 'Beosztva innen: ';
+$labels['comment'] = 'Comment';
+$labels['attendeupdateesuccess'] = 'A résztvevők adatai sikeresen frissítve';
+$labels['itipinvalidrequest'] = 'Ez a meghívás már érvénytelen';

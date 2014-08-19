@@ -22,8 +22,6 @@ $labels['repeatinhrs'] = '$hrs で繰返し';
 $labels['repeattomorrow'] = '明日繰返し';
 $labels['repeatinweek'] = '1週間で繰返し';
 $labels['showmore'] = 'さらに表示…';
-
-// recurrence related labels
 $labels['frequency'] = '繰返し';
 $labels['never'] = '繰返さない';
 $labels['daily'] = '毎日';
@@ -49,8 +47,6 @@ $labels['third'] = '第3週';
 $labels['fourth'] = '第4週';
 $labels['last'] = '最終週';
 $labels['dayofmonth'] = '日';
-
-// itip related labels
 $labels['itipinvitation'] = '招待する';
 $labels['itipupdate'] = '更新';
 $labels['itipcancellation'] = 'キャンセル';

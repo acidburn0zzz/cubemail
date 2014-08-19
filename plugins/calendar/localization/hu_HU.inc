@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Alapnézett nézet';
 $labels['time_format'] = 'Idő formátum';
 $labels['timeslots'] = 'Órák felbontása időrésekre';
@@ -14,7 +20,6 @@ $labels['coloringmode0'] = 'Naptár szerint';
 $labels['coloringmode1'] = 'Kategória szerint';
 $labels['coloringmode2'] = 'Naptár színe körvonal, kategória színe belsőrész';
 $labels['coloringmode3'] = 'Kategória színe körvonal, naptár színe belsőrész';
-// calendar
 $labels['calendar'] = 'Naptár';
 $labels['calendars'] = 'Naptárak';
 $labels['category'] = 'Kategória';
@@ -50,6 +55,7 @@ $labels['url'] = 'URL';
 $labels['date'] = 'Dátum';
 $labels['start'] = 'Kezdet';
 $labels['end'] = 'Vég';
+$labels['repeat'] = 'Ismétlődés';
 $labels['selectdate'] = 'Válasszon dátumot';
 $labels['freebusy'] = 'Foglaltság';
 $labels['free'] = 'Szabad';
@@ -66,6 +72,7 @@ $labels['private'] = 'privát';
 $labels['confidential'] = 'titkos';
 $labels['alarms'] = 'Emlékeztető';
 $labels['comment'] = 'Megjegyzés';
+$labels['unknown'] = 'Ismeretlen foglaltság';
 $labels['generated'] = 'készítve:';
 $labels['printdescriptions'] = 'Leírás nyomtatása';
 $labels['parentcalendar'] = 'Szülőnaptár';
@@ -81,7 +88,6 @@ $labels['nmonthsback'] = '$nr hónapra';
 $labels['showurl'] = 'Naptár URL címe';
 $labels['showurldescription'] = 'Ezen a címen érhető el (csak olvasásra!) a naptár más alkalmazások számára, iCal formátumban.';
 $labels['caldavurldescription'] = 'Másolja be ezt a címet egy <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a>-kompatibilis kliensbe (pl. Evolution vagy Mozilla Thunderbird) hogy kétirányú szinkronizációval tudjon a naptárához hozzáférni.';
-// agenda view
 $labels['listrange'] = 'Megjelenítés:';
 $labels['listsections'] = 'Felosztás:';
 $labels['smartsections'] = 'Áttekintve';
@@ -95,11 +101,9 @@ $labels['nextmonth'] = 'Jövő hónapban';
 $labels['weekofyear'] = 'Hét:';
 $labels['pastevents'] = 'Múltban';
 $labels['futureevents'] = 'Jövőben';
-// alarm/reminder settings
 $labels['showalarms'] = 'Emlékeztetők megjelenítése';
 $labels['defaultalarmtype'] = 'Alapértelmezett emlékeztető';
 $labels['defaultalarmoffset'] = 'Alapértelmezett emlékeztető ideje';
-// attendees
 $labels['attendee'] = 'Résztvevő';
 $labels['role'] = 'Szerepkör';
 $labels['availability'] = 'Elérh.';
@@ -138,7 +142,6 @@ $labels['eventupdatesubjectempty'] = 'Egy Önt érintő esemény módosítva let
 $labels['eventupdatemailbody'] = "Módosítás érkezett '\$title' eseményre vonatkozóan.\n\nIdőpont: \$date\nSzervező: \$organizer\nRésztvevők: \$attendees\n\n\nMellékletben egy frissített iCalendar naptárbejegyzés, mely tetszőleges naptárprogramba importálható.";
 $labels['eventcancelsubject'] = '$title - lemondva';
 $labels['eventcancelmailbody'] = "'\$title' eseményre \$organizer szervező visszavonta a meghívást.\n\nIdőpont: \$date\nRésztvevők: \$attendees\n\n\nMellékletben egy frissített iCalendar naptárbejegyzés, mely tetszőleges naptárprogramba importálható.";
-// invitation handling (overrides labels from libcalendaring)
 $labels['itipobjectnotfound'] = 'Az üzenetben hivatkozott esemény nem található a naptárban.';
 $labels['itipmailbodyaccepted'] = "\$sender elfogadta a meghívást '\$title' eseményre.\n\nIdőpont: \$date\nRésztvevők: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender feltételesen elfogadta a meghívást '\$title' eseményre.\n\nIdőpont: \$date\nRésztvevők: \$attendees";
@@ -150,7 +153,6 @@ $labels['notanattendee'] = 'Ön nem szerepel az esemény meghívottai között';
 $labels['eventcancelled'] = 'Az esemény le lett mondva';
 $labels['saveincalendar'] = 'Mentés naptárba';
 $labels['updatemycopy'] = 'Naptárbejegyzés frissítése';
-// resources
 $labels['resource'] = 'Eszközök';
 $labels['addresource'] = 'Eszköz foglalása';
 $labels['findresources'] = 'Eszközök keresése';
@@ -158,14 +160,12 @@ $labels['resourcedetails'] = 'Részletek';
 $labels['resourceavailability'] = 'Elérhetőség';
 $labels['resourceowner'] = 'Tulajdonos';
 $labels['resourceadded'] = 'Az eszköz le lett foglalva az eseményhez';
-// event dialog tabs
 $labels['tabsummary'] = 'Részletek';
 $labels['tabrecurrence'] = 'Ismétlődés';
 $labels['tabattendees'] = 'Résztvevők';
 $labels['tabresources'] = 'Eszközök';
 $labels['tabattachments'] = 'Csatolmányok';
 $labels['tabsharing'] = 'Megosztás';
-// messages
 $labels['deleteobjectconfirm'] = 'Biztos benne, hogy törölni szeretné ezt az eseményt?';
 $labels['deleteventconfirm'] = 'Biztos benne, hogy törölni szeretné ezt az eseményt?';
 $labels['deletecalendarconfirm'] = 'Biztos benne, hogy törölni szeretné ezt a naptárat, az összes benne lévő eseménnyel?';
@@ -193,8 +193,6 @@ $labels['importsuccess'] = '$nr esemény sikeresen importálva lett';
 $labels['importnone'] = 'Nem található importálható esemény.';
 $labels['importerror'] = 'Hiba importálás közben';
 $labels['aclnorights'] = 'Nincs adminisztrátori joga ehhez a naptárhoz';
-// recurrence form
-$labels['repeat'] = 'Ismétlődés';
 $labels['changeeventconfirm'] = 'Bejegyzés módosítása';
 $labels['removeeventconfirm'] = 'Bejegyzés törlése';
 $labels['changerecurringeventwarning'] = 'Ez egy ismétlődő esemény. Csak ezt az előfordulást szeretné módosítani, esetleg ezt az előfordulást az összes következővel, netán a teljes sorozatot, vagy új eseményként legyen mentve?';
@@ -203,11 +201,11 @@ $labels['currentevent'] = 'Csak ezt';
 $labels['futurevents'] = 'Ezt és a következőeket';
 $labels['allevents'] = 'Egész sorozatot';
 $labels['saveasnew'] = 'Mentés újként';
-// birthdays calendar
 $labels['birthdays'] = 'Születésnapok';
 $labels['birthdayscalendar'] = 'Születésnapi naptár';
 $labels['displaybirthdayscalendar'] = 'Születésnapok megjelenítése';
 $labels['birthdayscalendarsources'] = 'Alábbi címjegyzékekből:';
 $labels['birthdayeventtitle'] = '$name születésnapja';
 $labels['birthdayage'] = '$age éves';
+$labels['actiondelete'] = 'Deleted';
 ?>

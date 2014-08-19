@@ -22,8 +22,6 @@ $labels['repeatinhrs'] = 'Emlékeztessen újra $hrs óra múlva';
 $labels['repeattomorrow'] = 'Emlékeztessen újra holnap';
 $labels['repeatinweek'] = 'Emlékeztessen újra egy hét múlva';
 $labels['showmore'] = 'Tovább...';
-
-// recurrence related labels
 $labels['frequency'] = 'Ismétlődik';
 $labels['never'] = 'soha';
 $labels['daily'] = 'naponta';
@@ -51,8 +49,6 @@ $labels['fourth'] = 'negyedik';
 $labels['last'] = 'utolsó';
 $labels['dayofmonth'] = 'hónap napja';
 $labels['addrdate'] = 'Ismétlési dátum hozzáadása';
-
-// itip related labels
 $labels['itipinvitation'] = 'Új esemény:';
 $labels['itipupdate'] = 'Módosítva:';
 $labels['itipcancellation'] = 'Lemondva:';

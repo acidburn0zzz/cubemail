@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Tehtävät';
 $labels['lists'] = 'Tehtävätlistat';
 $labels['list'] = 'Tehtävälista';
@@ -14,6 +21,8 @@ $labels['description'] = 'Kuvaus';
 $labels['datetime'] = 'Erääntyy';
 $labels['start'] = 'Alkaa';
 $labels['alarms'] = 'Muistutus';
+$labels['status'] = 'Tila';
+$labels['status-cancelled'] = 'Peruttu';
 $labels['all'] = 'Kaikki';
 $labels['flagged'] = 'Liputettu';
 $labels['complete'] = 'Valmiina';
@@ -42,8 +51,6 @@ $labels['createlist'] = 'Lisää lista';
 $labels['listactions'] = 'Listan valinnat...';
 $labels['listname'] = 'Nimi';
 $labels['import'] = 'Tuo';
-// date words
-// mesages
 $labels['savingdata'] = 'Tallennetaan tietoja...';
 $labels['errorsaving'] = 'Tietojen tallenntaminen epäonnistui.';
 $labels['notasksfound'] = 'Ehtoja vastaavia tehtäviä ei löytynyt';
@@ -52,3 +59,14 @@ $labels['deletetasktconfirm'] = 'Haluatko varmasti poistaa tämän tehtävän?';
 $labels['deleteparenttasktconfirm'] = 'Haluatko varmasti poistaa tämän tehtävän kaikkine alitehtävineen?';
 $labels['deletelistconfirm'] = 'Haluatko varmasti poistaa tämän listan ja sen kaikki tehtävät?';
 $labels['deletelistconfirmrecursive'] = 'Haluatko varmasti poistaa tämän listan, sen alilistat ja tehtävät?';
+$labels['role'] = 'Rooli';
+$labels['confirmstate'] = 'Tila';
+$labels['roleorganizer'] = 'Järjestäjä';
+$labels['rolerequired'] = 'Vaadittu';
+$labels['roleoptional'] = 'Valinnainen';
+$labels['sendinvitations'] = 'Lähetä kutsut';
+$labels['itipupdatesubject'] = '"$title" on päivitetty';
+$labels['itipcancelsubject'] = '"$title" on peruttu';
+$labels['andnmore'] = '$nr lisää...';
+$labels['comment'] = 'Kommentti';
+$labels['itipinvalidrequest'] = 'Kutsu ei ole enää kelvollinen';

@@ -17,7 +17,6 @@ $labels['repeatinhrs'] = 'Toista $hrs tunnin päästä';
 $labels['repeattomorrow'] = 'Toista huomenna';
 $labels['repeatinweek'] = 'Toista viikon päästä';
 $labels['showmore'] = 'Näytä lisää...';
-// itip related labels
 $labels['itipcancellation'] = 'Peruttu:';
 $labels['itipaccepted'] = 'Hyväksy';
 $labels['itiptentative'] = 'Ehkä';

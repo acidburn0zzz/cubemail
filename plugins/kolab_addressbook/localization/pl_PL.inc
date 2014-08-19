@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Address Book plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
+ */
 $labels['initials'] = 'Inicjały';
 $labels['profession'] = 'Zawód';
 $labels['officelocation'] = 'Biuro';
@@ -29,6 +36,13 @@ $labels['personalfirst'] = 'najpierw prywatne książki adresowe';
 $labels['globalfirst'] = 'najpierw globalne książki adresowe';
 $labels['personalonly'] = 'tylko prywatne książki adresowe';
 $labels['globalonly'] = 'tylko globalne książki adresowe';
+$labels['findaddressbooks'] = 'Wyszukaj książki adresowe';
+$labels['searchterms'] = 'Szukana fraza';
+$labels['listsearchresults'] = 'Dodatkowe książki adresowe';
+$labels['foldersearchform'] = 'Formularz wyszukiwania książek adresowych';
+$labels['foldersubscribe'] = 'Dodaj do listy na stałe';
+$labels['nraddressbooksfound'] = 'znaleziono $nr książkek adresowych';
+$labels['noaddressbooksfound'] = 'Nie znaleziono żadnych książek adresowych';
 $messages['bookdeleteconfirm']  = 'Czy na pewno chcesz usunąć wybraną książkę i wszystkie kontakty?';
 $messages['bookdeleting'] = 'Usuwanie książki adresowej...';
 $messages['booksaving'] = 'Zapisywanie książki adresowej...';

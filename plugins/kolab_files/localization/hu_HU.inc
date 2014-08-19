@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'Fájlfelhő';
 $labels['saveall'] = 'Csatolmányok mentése a felhőbe...';
 $labels['saveto'] = 'Mentés a felhőbe...';
@@ -59,4 +66,5 @@ $labels['fileskipall'] = 'Mindegyik kihagyása';
 $labels['fileoverwrite'] = 'Felülírás';
 $labels['fileoverwriteall'] = 'Mindegyik felülírása';
 $labels['filemoveconfirm'] = 'Ezzel a művelettel felülíródik a fájl: <b>$file</b>.';
+$labels['arialabelfileprops'] = 'Fájl tulajdonságai';
 ?>

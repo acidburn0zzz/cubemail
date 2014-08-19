@@ -1,10 +1,12 @@
 <?php
 $labels['tabtitle'] = 'ActiveSync';
+$labels['activesynctitle'] = 'Zarządzaj urządzeniami ActiveSync';
 $labels['devices'] = 'Urządzenia';
 $labels['devicealias'] = 'Nazwa urządzenia';
 $labels['synchronize'] = 'Synchronizuj';
 $labels['withalarms'] = 'Z alarmami';
 $labels['syncsettings'] = 'Ustawienia synchronizacji';
+$labels['deviceconfig'] = 'Konfiguracja urządzenia';
 $labels['folderstosync'] = 'Foldery do synchronizacji';
 $labels['mail'] = 'Poczta';
 $labels['contact'] = 'Książki adresowe';
@@ -27,4 +29,5 @@ $labels['friendlyname'] = 'Przyjazna nazwa';
 $labels['os'] = 'System operacyjny';
 $labels['oslanguage'] = 'Język systemu';
 $labels['phonenumber'] = 'Numer telefonu';
+$labels['arialabeldeviceframe'] = 'Formularz ustawień synchronizacji urządzenia';
 ?>

@@ -1,8 +1,18 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Tâches';
 $labels['lists'] = 'Liste des tâches';
 $labels['list'] = 'Liste de tâche';
 $labels['tags'] = 'Étiquettes';
+$labels['tasklistsubscribe'] = 'Lister définitivement';
+$labels['listsearchresults'] = 'Listes de Tâche disponibles';
+$labels['findlists'] = 'Trouver listes de Tache....';
 $labels['newtask'] = 'Nouvelle tâche';
 $labels['createnewtask'] = 'Créer une nouvelle tâche (ex : Samedi, tondre la pelouse)';
 $labels['createfrommail'] = 'Sauvegarder comme une tâche';
@@ -15,6 +25,12 @@ $labels['description'] = 'Description';
 $labels['datetime'] = 'Fin';
 $labels['start'] = 'Début';
 $labels['alarms'] = 'Rappel';
+$labels['repeat'] = 'Répéter';
+$labels['status'] = 'Statut';
+$labels['status-needs-action'] = 'Action exigée';
+$labels['status-in-process'] = 'en traitement';
+$labels['status-completed'] = 'terminé';
+$labels['status-cancelled'] = 'Annulé';
 $labels['all'] = 'Tous';
 $labels['flagged'] = 'Marqué';
 $labels['complete'] = 'Terminé';
@@ -44,14 +60,11 @@ $labels['listactions'] = 'Liste des options';
 $labels['listname'] = 'Nom';
 $labels['showalarms'] = 'Afficher les rappels';
 $labels['import'] = 'Importer';
-$labels['viewoptions'] = 'Options d\'affichage';
 $labels['focusview'] = 'Afficher uniquement cette liste';
-// date words
 $labels['on'] = 'sur';
 $labels['at'] = 'à';
 $labels['this'] = 'ce';
 $labels['next'] = 'suivant';
-// mesages
 $labels['savingdata'] = 'Enregistrer...';
 $labels['errorsaving'] = 'Échec lors du sauvegardement des donnés';
 $labels['notasksfound'] = 'Pas de tâche trouvé avec les critères sélectionnés';
@@ -60,3 +73,18 @@ $labels['deletetasktconfirm'] = 'Êtes-vous sur de vouloir supprimer cette tâch
 $labels['deleteparenttasktconfirm'] = 'Êtes-vous sur de vouloir supprimer cette tâche et ses sous-tâches?';
 $labels['deletelistconfirm'] = 'Êtes-vous sur de vouloir supprimer cette liste et toutes ses tâches?';
 $labels['deletelistconfirmrecursive'] = 'Voulez-vous vraiment supprimer cette liste avec tous ses sous-listes et tâches?';
+$labels['aclnorights'] = 'Vous ne disposez pas des droits d´ administrateur pour cette liste de tâches.';
+$labels['role'] = 'Rôle';
+$labels['availability'] = 'Dispo.';
+$labels['confirmstate'] = 'Statut';
+$labels['roleorganizer'] = 'Organisateur';
+$labels['rolerequired'] = 'Requis';
+$labels['roleoptional'] = 'Optionel';
+$labels['rolechair'] = 'Chair';
+$labels['sendinvitations'] = 'Envoyer les invitations';
+$labels['itipupdatesubject'] = '"$title" a été modifié';
+$labels['itipcancelsubject'] = '"$title" a été annulé';
+$labels['andnmore'] = '$nr de plus...';
+$labels['comment'] = 'Commentaire';
+$labels['attendeupdateesuccess'] = 'Le statut des participants a été modifié';
+$labels['itipinvalidrequest'] = 'C\'est invitation n\'est plus valide.';

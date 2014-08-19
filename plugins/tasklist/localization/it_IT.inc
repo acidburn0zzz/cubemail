@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Attività';
 $labels['lists'] = 'Elenchi attività';
 $labels['list'] = 'Elenco attività';
@@ -15,6 +22,8 @@ $labels['description'] = 'Descrizione';
 $labels['datetime'] = 'Scadenza';
 $labels['start'] = 'Inizio';
 $labels['alarms'] = 'Promemoria';
+$labels['repeat'] = 'Frequenza';
+$labels['status'] = 'Stato';
 $labels['all'] = 'Tutto';
 $labels['flagged'] = 'Importanti';
 $labels['complete'] = 'Fatto';
@@ -44,12 +53,22 @@ $labels['listactions'] = 'Opzioni elenco...';
 $labels['listname'] = 'Nome';
 $labels['showalarms'] = 'Mostra promemoria';
 $labels['import'] = 'Importa';
-$labels['viewoptions'] = 'Vista opzioni';
 $labels['focusview'] = 'Mostra solo questo elenco';
-// date words
-// mesages
 $labels['savingdata'] = 'Salvataggio dati...';
 $labels['notasksfound'] = 'Nessuna attività trovata.';
 $labels['invalidstartduedates'] = 'La data di inizio non può essere successiva a quella di scadenza.';
 $labels['deletetasktconfirm'] = 'Eliminare davvero questa attività?';
 $labels['deleteparenttasktconfirm'] = 'Eliminare davvero questa attività e tutte le sotto-attività?';
+$labels['role'] = 'Ruolo';
+$labels['availability'] = 'Dispon.';
+$labels['confirmstate'] = 'Stato';
+$labels['roleorganizer'] = 'Organizzatore';
+$labels['rolerequired'] = 'Necessario';
+$labels['roleoptional'] = 'Facoltativo';
+$labels['rolechair'] = 'Presidente';
+$labels['sendinvitations'] = 'Manda inviti';
+$labels['itipupdatesubject'] = '"$title" è stato aggiornato';
+$labels['itipcancelsubject'] = '"$title" è stato annullato';
+$labels['andnmore'] = 'Altri $nr...';
+$labels['attendeupdateesuccess'] = 'Stato dei partecipanti aggiornato correttamente';
+$labels['itipinvalidrequest'] = 'Questo invito non è più valido';

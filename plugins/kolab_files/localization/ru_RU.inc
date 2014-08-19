@@ -1,5 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'Файлы';
+$labels['filepreview'] = 'Предпросмотр файла';
 $labels['saveall'] = 'Сохранить всё в облако...';
 $labels['saveto'] = 'Сохранить в облако...';
 $labels['saveas'] = 'Сохранить как:';
@@ -53,10 +61,23 @@ $labels['filedeleteconfirm'] = 'Вы уверены, что хотите уда�
 $labels['filedeletenotice'] = 'Файл(ы) удален(ы) успешно.';
 $labels['filemovenotice'] = 'Файл(ы) перемещен(ы) успешно.';
 $labels['filecopynotice'] = 'Файл(ы) скопирован(ы) успешно.';
+$labels['uploadsizeerror'] = 'Максимальный размер файла ($size) превышен!';
 $labels['allfolders'] = 'искать во всех папках';
 $labels['fileskip'] = 'Пропустить';
 $labels['fileskipall'] = 'Пропустить все';
 $labels['fileoverwrite'] = 'Перезаписать';
 $labels['fileoverwriteall'] = 'Перезаписать все';
 $labels['filemoveconfirm'] = 'Это действие перезапишет файл: <b>$file</b>.';
+$labels['arialabelsearchform'] = 'Искать файлы от';
+$labels['arialabelquicksearchbox'] = 'Искать';
+$labels['arialabellistoptions'] = 'Настройки списка файлов';
+$labels['arialabelfolderoptions'] = 'Действия с папками';
+$labels['arialabelfileeditform'] = 'Форма изменения файла';
+$labels['arialabelfoldercreateform'] = 'Форма создания файла';
+$labels['arialabelfolderlist'] = 'Выбор Папки/Коллекции';
+$labels['arialabelfileselectdialog'] = 'Диалог выбора файлов';
+$labels['arialabelattachmentoptions'] = 'Настройки сохранения вложений';
+$labels['arialabelfilesavedialog'] = 'Диалог сохранения файлов';
+$labels['arialabelfileprops'] = 'Свойства файла';
+$labels['arialabelfilecontent'] = 'Содержимое файла';
 ?>

@@ -1,5 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'Dateien';
+$labels['filepreview'] = 'Voransicht';
 $labels['saveall'] = 'Alle in die Cloud speichern...';
 $labels['saveto'] = 'In die Cloud speichern...';
 $labels['saveas'] = 'Speichern als:';
@@ -53,10 +61,14 @@ $labels['filedeleteconfirm'] = 'Sind Sie sicher, dass Sie die gewählten Dateien
 $labels['filedeletenotice'] = 'Datei(en) erfolgreich gelöscht.';
 $labels['filemovenotice'] = 'Datei(en) erfolgreich verschoben.';
 $labels['filecopynotice'] = 'Datei(en) erfolgreich kopiert.';
+$labels['uploadsizeerror'] = 'Maimale Dateigröße ($size) überschritten!';
 $labels['allfolders'] = 'suche in allen Ordnern';
 $labels['fileskip'] = 'Überspringen';
 $labels['fileskipall'] = 'Alle überspringen';
 $labels['fileoverwrite'] = 'Überschreiben';
 $labels['fileoverwriteall'] = 'Alle überschreiben';
 $labels['filemoveconfirm'] = 'Diese Aktion wird die Zieldatei <b>$file</b> überschreiben.';
+$labels['arialabelsearchform'] = 'Suchformular für Dateien';
+$labels['arialabelquicksearchbox'] = 'Sucheingabe';
+$labels['arialabelfileprops'] = 'Dateieigenschaften';
 ?>

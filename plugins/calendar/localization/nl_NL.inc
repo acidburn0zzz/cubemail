@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Standaard agenda';
 $labels['time_format'] = 'Tijdsformaat';
 $labels['timeslots'] = 'Tijdsdelen per uur';
@@ -14,7 +20,6 @@ $labels['coloringmode0'] = 'Volgens kalender';
 $labels['coloringmode1'] = 'Volgens categorie';
 $labels['coloringmode2'] = 'Kalender voor omtrek, categorie voor inhoud';
 $labels['coloringmode3'] = 'Categorie voor omtrek, kalender voor inhoud';
-// calendar
 $labels['calendar'] = 'Kalender';
 $labels['calendars'] = 'Kalenders';
 $labels['category'] = 'Categorie';
@@ -50,6 +55,7 @@ $labels['url'] = 'URL';
 $labels['date'] = 'Datum';
 $labels['start'] = 'Begin';
 $labels['end'] = 'Eind';
+$labels['repeat'] = 'Herhaal';
 $labels['selectdate'] = 'Kies datum';
 $labels['freebusy'] = 'Toon mij als';
 $labels['free'] = 'Vrij';
@@ -57,6 +63,8 @@ $labels['busy'] = 'Bezet';
 $labels['outofoffice'] = 'Niet Aanwezig';
 $labels['tentative'] = 'Misschien';
 $labels['status'] = 'Status';
+$labels['confirmed'] = 'Bevestigd';
+$labels['cancelled'] = 'Afgelast';
 $labels['priority'] = 'Prioriteit';
 $labels['sensitivity'] = 'Zichtbaarheid';
 $labels['public'] = 'publiek';
@@ -64,6 +72,8 @@ $labels['private'] = 'prive';
 $labels['confidential'] = 'vertrouwelijk';
 $labels['alarms'] = 'Herinnering';
 $labels['comment'] = 'Opmerking';
+$labels['unknown'] = 'Onbekend';
+$labels['eventoptions'] = 'Opties';
 $labels['generated'] = 'gegenereerd op';
 $labels['printdescriptions'] = 'Print beschrijvingen';
 $labels['parentcalendar'] = 'Voeg toe in';
@@ -79,7 +89,9 @@ $labels['nmonthsback'] = '$nr maanden terug';
 $labels['showurl'] = 'Toon kalender URL';
 $labels['showurldescription'] = 'Gebruik het volgende adres om uw kalendar te gebruiken (alleen lezen) in andere programma\'s. U kunt dit knippen en plakken in elk kalender programma dat het iCal formaat ondersteunt.';
 $labels['caldavurldescription'] = 'Kopieer dit adres in een <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> programma (bijv. Evolution of Mozilla Thunderbird) om deze specifieke kalender volledig te synchronizeren met je computer of mobiel apparaat.';
-// agenda view
+$labels['findcalendars'] = 'Vind agenda\'s...';
+$labels['calsearchresults'] = 'Beschikbare agenda\'s';
+$labels['calendarsubscribe'] = 'Permanent weergeven';
 $labels['listrange'] = 'Bereik om te tonen:';
 $labels['listsections'] = 'Verdeel in:';
 $labels['smartsections'] = 'Slimme secties';
@@ -93,11 +105,9 @@ $labels['nextmonth'] = 'Volgende maand';
 $labels['weekofyear'] = 'Week';
 $labels['pastevents'] = 'Verleden';
 $labels['futureevents'] = 'Toekomst';
-// alarm/reminder settings
 $labels['showalarms'] = 'Toon herinneringen';
 $labels['defaultalarmtype'] = 'Instelling standaard herinnering';
 $labels['defaultalarmoffset'] = 'Standaard herinneringstijd';
-// attendees
 $labels['attendee'] = 'Deelnemer';
 $labels['role'] = 'Rol';
 $labels['availability'] = 'Beschikb.';
@@ -136,7 +146,6 @@ $labels['eventupdatesubjectempty'] = 'Een afspraak is gewijzigd';
 $labels['eventupdatemailbody'] = "*\$title*\n\nWanneer: \$date\n\nGenodigden: \$attendees\n\nBijgevoegd vindt u een iCalendar bestand met de gewijzigde details omtrent de afspraak die u kunt importeren in uw kalender programma.";
 $labels['eventcancelsubject'] = '"$title" is geannuleerd';
 $labels['eventcancelmailbody'] = "*\$title*\n\nWanneer: \$date\n\nGenodigden: \$attendees\n\nDeze afspraak is geannuleerd door \$organizer.\n\nBijgevoegd vindt u een iCalendar bestand met de gewijzigde details omtrent de afspraak";
-// invitation handling (overrides labels from libcalendaring)
 $labels['itipobjectnotfound'] = 'De afspraak waaraan door dit bericht wordt gereferreerd is niet gevonden in uw kalender.';
 $labels['itipmailbodyaccepted'] = "\$sender heeft de uitnodiging geaccepteerd voor de volgende afspraak:\n\n*\$title*\n\nWanneer: \$date\n\nGenodigden: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender heeft onder voorbehoud de uitnodiging geaccepteerd voor de volgende afspraak:\n\n*\$title*\n\nWanneer: \$date\n\nGenodigden: \$attendees";
@@ -149,7 +158,6 @@ $labels['eventcancelled'] = 'Dit evenement is afgelast';
 $labels['saveincalendar'] = 'bewaar in';
 $labels['updatemycopy'] = 'Wijzig in mijn kalender';
 $labels['savetocalendar'] = 'Opslaan in kalender';
-// resources
 $labels['resource'] = 'Hulpmiddel';
 $labels['addresource'] = 'Voeg hulpmiddel toe';
 $labels['findresources'] = 'Vind hulpmiddelen';
@@ -157,14 +165,12 @@ $labels['resourcedetails'] = 'Details';
 $labels['resourceavailability'] = 'Beschikbaarheid';
 $labels['resourceowner'] = 'Eigenaar';
 $labels['resourceadded'] = 'Hulpmiddel is toegevoegd aan uw afspraak';
-// event dialog tabs
 $labels['tabsummary'] = 'Samenvatting';
 $labels['tabrecurrence'] = 'Herhaling';
 $labels['tabattendees'] = 'Deelnemers';
 $labels['tabresources'] = 'Middelen';
 $labels['tabattachments'] = 'Toebehoren';
 $labels['tabsharing'] = 'Delen';
-// messages
 $labels['deleteobjectconfirm'] = 'Weet je zeker dat je deze afspraak wilt verwijderen?';
 $labels['deleteventconfirm'] = 'Weet u zeker dat u deze afspraak wilt verwijderen?';
 $labels['deletecalendarconfirm'] = 'Weet u zeker dat u deze kalender samen met alle afspraken wilt verwijderen?';
@@ -183,6 +189,7 @@ $labels['importwarningexists'] = 'Een kopie van deze afspraak bevindt zich al in
 $labels['newerversionexists'] = 'Een nieuwere versie van deze afspraak bestaat! Bewerking afgebroken.';
 $labels['nowritecalendarfound'] = 'Geen kalender gevonden om de afspraak in op te slaan';
 $labels['importedsuccessfully'] = 'De afspraak is succesvol toegevoegd aan \'$calendar\'';
+$labels['updatedsuccessfully'] = 'Het bijwerken van de gebeurtenis in \'$calendar\' is geslaagd';
 $labels['attendeupdateesuccess'] = 'Status van genodigde succesvol gewijzigd';
 $labels['itipsendsuccess'] = 'Uitnodiging verstuurd aan de genodigden.';
 $labels['itipresponseerror'] = 'Antwoord op deze uitnodiging versturen is mislukt';
@@ -193,8 +200,6 @@ $labels['importsuccess'] = 'Succesvol $nr afspraken geïmporteerd';
 $labels['importnone'] = 'Geen afspraken gevonden om te importeren';
 $labels['importerror'] = 'Er is een fout tijdens het importeren opgetreden';
 $labels['aclnorights'] = 'U heeft geen administratieve rechten op deze kalender.';
-// recurrence form
-$labels['repeat'] = 'Herhaal';
 $labels['changeeventconfirm'] = 'Wijzig afspraak';
 $labels['removeeventconfirm'] = 'Verwijder afspraak';
 $labels['changerecurringeventwarning'] = 'Dit is een terugkerende afspraak. Wilt u alleen de huidige afspraak wijzigen, deze en alle toekomstige afspraken, alle afspraken of opslaan als een nieuwe afspraak?';
@@ -203,11 +208,12 @@ $labels['currentevent'] = 'Huidige';
 $labels['futurevents'] = 'Toekomstige';
 $labels['allevents'] = 'Alle';
 $labels['saveasnew'] = 'Bewaar als nieuw';
-// birthdays calendar
 $labels['birthdays'] = 'Verjaardagen';
 $labels['birthdayscalendar'] = 'Verjaardagskalender';
 $labels['displaybirthdayscalendar'] = 'Toon verjaardagskalender';
 $labels['birthdayscalendarsources'] = 'Uit deze adresboeken';
 $labels['birthdayeventtitle'] = 'verjaardag van $name';
 $labels['birthdayage'] = 'Leeftijd $age';
+$labels['user'] = 'Gebruiker';
+$labels['compare'] = 'Vergelijken';
 ?>

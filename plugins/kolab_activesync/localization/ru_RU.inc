@@ -1,5 +1,6 @@
 <?php
 $labels['tabtitle'] = 'Activesync';
+$labels['activesynctitle'] = 'Управление устройствами ActiveSync';
 $labels['devices'] = 'Устройства';
 $labels['devicealias'] = 'Имя устройства';
 $labels['synchronize'] = 'Синхронизовать';
@@ -28,4 +29,5 @@ $labels['friendlyname'] = 'Имя для отображения';
 $labels['os'] = 'Операционная система';
 $labels['oslanguage'] = 'Язык ОС';
 $labels['phonenumber'] = 'Телефон';
+$labels['arialabeldeviceframe'] = 'Форма управления настройками синхронизации';
 ?>

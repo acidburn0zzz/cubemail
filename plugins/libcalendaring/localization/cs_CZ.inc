@@ -22,8 +22,6 @@ $labels['repeatinhrs'] = 'Zopakovat za $hrs hodin';
 $labels['repeattomorrow'] = 'Zopakovat zítra';
 $labels['repeatinweek'] = 'Zopakovat za týden';
 $labels['showmore'] = 'Ukázat víc...';
-
-// recurrence related labels
 $labels['frequency'] = 'Opakovat';
 $labels['never'] = 'nikdy';
 $labels['daily'] = 'denně';
@@ -50,8 +48,6 @@ $labels['third'] = 'třetí';
 $labels['fourth'] = 'čtvrtý';
 $labels['last'] = 'poslední';
 $labels['dayofmonth'] = 'Den v měsíci';
-
-// itip related labels
 $labels['itipinvitation'] = 'Pozvání na událost';
 $labels['itipupdate'] = 'Aktualizace události';
 $labels['itipcancellation'] = 'Zrušeno:';

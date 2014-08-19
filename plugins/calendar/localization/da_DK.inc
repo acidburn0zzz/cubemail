@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Standardvisning';
 $labels['time_format'] = 'Tidsformat';
 $labels['first_day'] = 'Første ugedag';
@@ -13,7 +19,6 @@ $labels['coloringmode0'] = 'Ifølge kalender';
 $labels['coloringmode1'] = 'Ifølge kategori';
 $labels['coloringmode2'] = 'Kalender til oversigt, kategori til indhold';
 $labels['coloringmode3'] = 'Kategori til oversigt, kalender til indhold';
-// calendar
 $labels['calendar'] = 'Kalender';
 $labels['calendars'] = 'Kalendere';
 $labels['category'] = 'Kategori';
@@ -49,6 +54,7 @@ $labels['url'] = 'URL';
 $labels['date'] = 'Dato';
 $labels['start'] = 'Start';
 $labels['end'] = 'Slut';
+$labels['repeat'] = 'Gentag';
 $labels['selectdate'] = 'Vælg dato';
 $labels['freebusy'] = 'Vis mig som';
 $labels['free'] = 'Ledig';
@@ -64,6 +70,8 @@ $labels['public'] = 'offentlig';
 $labels['private'] = 'privat';
 $labels['confidential'] = 'fortrolig';
 $labels['alarms'] = 'Påmindelse';
+$labels['unknown'] = 'Ukendt';
+$labels['eventoptions'] = 'Tilvalg';
 $labels['generated'] = 'oprettet per';
 $labels['printdescriptions'] = 'Udskriv beskrivelser';
 $labels['parentcalendar'] = 'Indsæt indeni';
@@ -79,7 +87,6 @@ $labels['nmonthsback'] = '$nr måneder tilbage';
 $labels['showurl'] = 'Vis kalenderens URL';
 $labels['showurldescription'] = 'Brug følgende adresse for at tilgå din kalender (skrivebeskyttet) fra andre programmer.  Du kan kopiere og indsætet denne i ethvert kalenderprogram, der understøtter iCal-formatet.';
 $labels['caldavurldescription'] = 'Kopiér denne adresse til en <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a>-klientprogram (eks. Evolution eller Mozilla Thunderbird) for at synkronisere denne kalender komplet med din computer eller mobilenhed.';
-// agenda view
 $labels['listrange'] = 'Interval som skal vises:';
 $labels['listsections'] = 'Del op i:';
 $labels['smartsections'] = 'Smarte sektioner';
@@ -93,10 +100,8 @@ $labels['nextmonth'] = 'Næste måned';
 $labels['weekofyear'] = 'Uge';
 $labels['pastevents'] = 'Tidligere';
 $labels['futureevents'] = 'Fremtid';
-// alarm/reminder settings
 $labels['defaultalarmtype'] = 'Standardindstilling for påmindelse';
 $labels['defaultalarmoffset'] = 'Standardtidspunkt for påmindelse';
-// attendees
 $labels['attendee'] = 'Deltager';
 $labels['role'] = 'Rolle';
 $labels['availability'] = 'Tilg.';
@@ -132,7 +137,6 @@ $labels['eventupdatesubjectempty'] = 'Et arrangement der vedrører dig er blevet
 $labels['eventupdatemailbody'] = "*\$title*\n\nTidspunkt: \$date\n\nInviterede: \$attendees\n\nBemærk venligst vedhæftede iCalendar-fil med alle detaljer om arrangementet, som du kan importere til dit kalenderprogram.";
 $labels['eventcancelsubject'] = '"$title" er blevet aflyst';
 $labels['eventcancelmailbody'] = "*\$title*\n\nTidspunkt: \$date\n\nInviterede: \$attendees\n\nDette arrangement er blevet aflyst af \$organizer.\n\nBemærk venligst vedhæftede iCalendard-fil med de opdaterede detaljer om arrangementet.";
-// invitation handling (overrides labels from libcalendaring)
 $labels['itipmailbodyaccepted'] = "\$sender har accepteret invitationen til det følgende arrangement:\n\n*\$title*\n\nTidspunkt: \$date\n\nInviterede: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender har forsøgsvist accepteret invitationen til det følgende arrangement:\n\n*\$title*\n\nTidspunkt: \$date\n\nInviterede: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender har afvist invitationen til det følgende arrangement:\n\n*\$title*\n\nTidspunkt: \$date\n\nInviterede: \$attendees";
@@ -141,17 +145,14 @@ $labels['declinedeleteconfirm'] = 'Vil du også slette dette afviste arrangement
 $labels['notanattendee'] = 'Du er ikke opført som deltager for dette arrangement';
 $labels['eventcancelled'] = 'Arrangementet er blevet aflyst';
 $labels['saveincalendar'] = 'gem i';
-// resources
 $labels['resource'] = 'Ressource';
 $labels['resourcedetails'] = 'Detaljer';
-// event dialog tabs
 $labels['tabsummary'] = 'Resumé';
 $labels['tabrecurrence'] = 'Gentagelse';
 $labels['tabattendees'] = 'Deltagere';
 $labels['tabresources'] = 'Ressourcer';
 $labels['tabattachments'] = 'Vedhæftninger';
 $labels['tabsharing'] = 'Deling';
-// messages
 $labels['deleteobjectconfirm'] = 'Sikker på at du vil slette dette arrangement?';
 $labels['deleteventconfirm'] = 'Sikker på at du vil slette dette arrangement?';
 $labels['deletecalendarconfirm'] = 'Sikker på at du vil slette denne kalender med alle dets arrangementer?';
@@ -179,8 +180,6 @@ $labels['importsuccess'] = 'Gennemførte import af $nr arrangementer';
 $labels['importnone'] = 'Fandt ingen arrangementer som kunne importeres';
 $labels['importerror'] = 'Der opstod en fejl under import';
 $labels['aclnorights'] = 'Du har ikke administratorrettigheder for denne kalender.';
-// recurrence form
-$labels['repeat'] = 'Gentag';
 $labels['changeeventconfirm'] = 'Tilpas arrangement';
 $labels['removeeventconfirm'] = 'Fjern arrangement';
 $labels['changerecurringeventwarning'] = 'Dette er et tilbagevendende arrangement. Ønsker du kun at redige det aktuelle arrangement, dette og alle fremtidige forekomster, alle forekomster eller gemme det som et nyt arrangement?';
@@ -189,5 +188,6 @@ $labels['currentevent'] = 'Nuværende';
 $labels['futurevents'] = 'Fremtid';
 $labels['allevents'] = 'Alle';
 $labels['saveasnew'] = 'Gem som ny';
-// birthdays calendar
+$labels['user'] = 'Bruger';
+$labels['actiondelete'] = 'Slettet';
 ?>

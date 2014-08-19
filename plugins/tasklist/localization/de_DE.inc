@@ -1,9 +1,23 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Aufgaben';
 $labels['lists'] = 'Aufgabenlisten';
 $labels['list'] = 'Aufgabenliste';
 $labels['tags'] = 'Schlagworte';
+$labels['tasklistsubscribe'] = 'Permanent anzeigen';
+$labels['listsearchresults'] = 'Verfügbare Aufgaben';
+$labels['findlists'] = 'Finde Aufgabenlisten,..';
+$labels['searchterms'] = 'Suchbegriffe';
+$labels['notasklistsfound'] = 'Keine Aufgabenlisten gefunden';
+$labels['nrtasklistsfound'] = '$nr Aufgabenlisten gefunden';
 $labels['newtask'] = 'Neue Aufgabe';
+$labels['createtask'] = 'Aufgabe erstellen <Enter>';
 $labels['createnewtask'] = 'Neue Aufgabe erstellen (z.B. Samstag, Rasen mähen)';
 $labels['createfrommail'] = 'Aufgabe speichern';
 $labels['mark'] = 'Markieren';
@@ -13,8 +27,16 @@ $labels['delete'] = 'Löschen';
 $labels['title'] = 'Titel';
 $labels['description'] = 'Beschreibung';
 $labels['datetime'] = 'Fällig';
+$labels['duetime'] = 'Frist';
 $labels['start'] = 'Beginn';
+$labels['starttime'] = 'Startzeit';
 $labels['alarms'] = 'Erinnerung';
+$labels['repeat'] = 'Wiederholung';
+$labels['status'] = 'Status';
+$labels['status-needs-action'] = 'Braucht Aktion';
+$labels['status-in-process'] = 'In Bearbeitung';
+$labels['status-completed'] = 'Erledigt';
+$labels['status-cancelled'] = 'Gekündigt';
 $labels['all'] = 'Alle';
 $labels['flagged'] = 'Markiert';
 $labels['complete'] = 'Abgeschlossen';
@@ -34,6 +56,7 @@ $labels['addsubtask'] = 'Teilaufgabe hinzufügen';
 $labels['deletetask'] = 'Aufgabe löschen';
 $labels['deletethisonly'] = 'Nur diese Aufgabe löschen';
 $labels['deletewithchilds'] = 'Mit allen Teilaufgaben löschen';
+$labels['taskactions'] = 'Aufgabeneinstellungen...';
 $labels['tabsummary'] = 'Titel';
 $labels['tabrecurrence'] = 'Wiederholung';
 $labels['tabattachments'] = 'Anhänge';
@@ -44,14 +67,11 @@ $labels['listactions'] = 'Listeneinstellungen…';
 $labels['listname'] = 'Name';
 $labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'Importieren';
-$labels['viewoptions'] = 'Ansicht-Einstellungen';
 $labels['focusview'] = 'Nur diese Liste anzeigen';
-// date words
 $labels['on'] = 'am';
 $labels['at'] = 'um';
 $labels['this'] = 'dies';
 $labels['next'] = 'weiter';
-// mesages
 $labels['savingdata'] = 'Daten werden gespeichert…';
 $labels['errorsaving'] = 'Daten konnten nicht gespeichert werden.';
 $labels['notasksfound'] = 'Keine Aufgabe erfüllt die angelegten Kriterien';
@@ -60,3 +80,28 @@ $labels['deletetasktconfirm'] = 'Diese Aufgabe wirklich löschen?';
 $labels['deleteparenttasktconfirm'] = 'Diese Aufgabe wirklich mit allen Teilaufgaben löschen?';
 $labels['deletelistconfirm'] = 'Diese Aufgabenliste wirklich mit allen Aufgaben löschen?';
 $labels['deletelistconfirmrecursive'] = 'Soll diese Liste wirklich mit allen Aufgaben und Unterlisten gelöscht werden?';
+$labels['aclnorights'] = 'Der Zugriff auf diese Aufgabenliste erfordert Administrator-Rechte.';
+$labels['quickaddinput'] = 'Neue Aufgabe Datum und Titel';
+$labels['arialabelquickaddbox'] = 'Neue Aufgabe schnell hinzufügen';
+$labels['arialabelsearchform'] = 'Suchformular für Aufgaben';
+$labels['arialabelquicksearchbox'] = 'Sucheingabe für Aufgaben';
+$labels['arialabellistsearchform'] = 'Sucheingabe für Aufgabenlisten';
+$labels['arialabeltaskselector'] = 'Listenmodus';
+$labels['arialabeltasklisting'] = 'Aufgabenliste';
+$labels['role'] = 'Rolle';
+$labels['availability'] = 'Verfüg.';
+$labels['confirmstate'] = 'Status';
+$labels['roleorganizer'] = 'Organisator';
+$labels['rolerequired'] = 'Erforderlich';
+$labels['roleoptional'] = 'Optional';
+$labels['rolechair'] = 'Stuhl';
+$labels['sendinvitations'] = 'Einladungen versenden';
+$labels['itipupdatesubject'] = '"$title" wurde aktualisiert';
+$labels['itipcancelsubject'] = '"$title" wurde abgesagt';
+$labels['itipcomment'] = 'Kommentar zur Einladungs-/Benachrichtigungsnachricht';
+$labels['andnmore'] = '$nr weitere...';
+$labels['delegatedto'] = 'Delegiert an:';
+$labels['delegatedfrom'] = 'Delegiert von:';
+$labels['comment'] = 'Kommentar';
+$labels['attendeupdateesuccess'] = 'Teilnehmerstatus erfolgreich aktualisiert';
+$labels['itipinvalidrequest'] = 'Diese Einladung ist nicht mehr gültig.';

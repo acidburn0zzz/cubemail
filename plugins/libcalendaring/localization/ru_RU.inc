@@ -22,8 +22,6 @@ $labels['repeatinhrs'] = 'Повторить через $hrs часов';
 $labels['repeattomorrow'] = 'Повторить завтра';
 $labels['repeatinweek'] = 'Повторить через неделю';
 $labels['showmore'] = 'Показать больше...';
-
-// recurrence related labels
 $labels['frequency'] = 'Повторить';
 $labels['never'] = 'никогда';
 $labels['daily'] = 'ежедневно';
@@ -50,8 +48,6 @@ $labels['third'] = 'третий(ую)';
 $labels['fourth'] = 'четвертый(ую)';
 $labels['last'] = 'последний(ую)';
 $labels['dayofmonth'] = 'День месяца';
-
-// itip related labels
 $labels['itipinvitation'] = 'Приглашение на';
 $labels['itipupdate'] = 'Обновление';
 $labels['itipcancellation'] = 'Отменённый:';

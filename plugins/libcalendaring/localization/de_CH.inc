@@ -22,8 +22,6 @@ $labels['repeatinhrs'] = 'Wiederholung in $hrs Stunden';
 $labels['repeattomorrow'] = 'Wiederholung morgen';
 $labels['repeatinweek'] = 'Wiederholung in einer Woche';
 $labels['showmore'] = 'Mehr anzeigen...';
-
-// recurrence related labels
 $labels['frequency'] = 'Wiederholung';
 $labels['never'] = 'nie';
 $labels['daily'] = 'täglich';
@@ -51,8 +49,6 @@ $labels['fourth'] = 'vierter';
 $labels['last'] = 'letzter';
 $labels['dayofmonth'] = 'Tag des Montats';
 $labels['addrdate'] = 'Datum hinzufügen';
-
-// itip related labels
 $labels['itipinvitation'] = 'Einladung zu';
 $labels['itipupdate'] = 'Aktialisiert:';
 $labels['itipcancellation'] = 'Abgesagt:';

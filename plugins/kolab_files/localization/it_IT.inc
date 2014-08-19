@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'File';
 $labels['saveall'] = 'Salva tutti nel cloud...';
 $labels['saveto'] = 'Salva nel cloud...';
@@ -58,4 +65,5 @@ $labels['fileskipall'] = 'Salta tutti';
 $labels['fileoverwrite'] = 'Sovrascrivi';
 $labels['fileoverwriteall'] = 'Sovrascrivi tutti';
 $labels['filemoveconfirm'] = 'Questa azione sovrascriverà i file di destinazione: <b>$file</b>.';
+$labels['arialabelfileprops'] = 'Proprietà file';
 ?>

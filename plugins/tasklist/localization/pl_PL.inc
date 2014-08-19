@@ -1,8 +1,17 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Zadania';
 $labels['lists'] = 'Listy zadań';
 $labels['list'] = 'Lista zadań';
 $labels['tags'] = 'Tagi';
+$labels['tasklistsubscribe'] = 'Dodaj do listy na stałe';
+$labels['searchterms'] = 'Szukana fraza';
 $labels['newtask'] = 'Nowe zadanie';
 $labels['createnewtask'] = 'Utwórz nowe zadanie (n.p. sobota, skosić trawnik)';
 $labels['createfrommail'] = 'Zapisz jako zadanie';
@@ -14,7 +23,13 @@ $labels['title'] = 'Tytuł';
 $labels['description'] = 'Opis';
 $labels['datetime'] = 'Termin';
 $labels['start'] = 'Start';
+$labels['starttime'] = 'Początek';
 $labels['alarms'] = 'Przypomnienie';
+$labels['repeat'] = 'Powtórz';
+$labels['status'] = 'Status';
+$labels['status-cancelled'] = 'Anulowany';
+$labels['created'] = 'Utworzono';
+$labels['changed'] = 'Ostatnia modyfikacja';
 $labels['all'] = 'Wszystkie';
 $labels['flagged'] = 'Oflagowane';
 $labels['complete'] = 'Ukończone';
@@ -44,14 +59,11 @@ $labels['listactions'] = 'Opcje listy...';
 $labels['listname'] = 'Nazwa';
 $labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'Importuj';
-$labels['viewoptions'] = 'Opcje widoku';
 $labels['focusview'] = 'Pokaż tylko tę listę';
-// date words
 $labels['on'] = 'na';
 $labels['at'] = 'w';
 $labels['this'] = 'ten';
 $labels['next'] = 'następny';
-// mesages
 $labels['savingdata'] = 'Zapisuję dane...';
 $labels['errorsaving'] = 'Błąd podczas zapisu danych.';
 $labels['notasksfound'] = 'Nie znaleziono zadań spełniających kryteria';
@@ -60,3 +72,20 @@ $labels['deletetasktconfirm'] = 'Na pewno chcesz usunąć to zadanie ?';
 $labels['deleteparenttasktconfirm'] = 'Na pewno chcesz usunąć to zadanie z wszystkimi podzadaniami ?';
 $labels['deletelistconfirm'] = 'Na pewno chcesz usunąć tą listę z wszystkimi zadaniami ?';
 $labels['deletelistconfirmrecursive'] = 'Czy na pewno chcesz usunąć tą listę wraz z wszystkimi zadaniami oraz pod-listami?';
+$labels['role'] = 'Rola';
+$labels['availability'] = 'Dostępny';
+$labels['confirmstate'] = 'Status';
+$labels['roleorganizer'] = 'Organizator';
+$labels['rolerequired'] = 'Wymagany';
+$labels['roleoptional'] = 'Opcjonalny';
+$labels['rolechair'] = 'Przewodniczący';
+$labels['sendinvitations'] = 'Wyślij zaproszenia';
+$labels['itipupdatesubject'] = '"$title" zostało zaktualizowane';
+$labels['itipcancelsubject'] = '"$title" zostało anulowane';
+$labels['itipcomment'] = 'Komentarz zaproszenia/powiadomienia';
+$labels['andnmore'] = '$nr więcej...';
+$labels['delegatedto'] = 'Oddelegowany do:';
+$labels['delegatedfrom'] = 'Oddelegowany z:';
+$labels['comment'] = 'Komentarz';
+$labels['attendeupdateesuccess'] = 'Zaktualizowano status uczestnika.';
+$labels['itipinvalidrequest'] = 'To zaproszenie nie jest już aktualne.';

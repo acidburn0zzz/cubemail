@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'Tiedostot';
 $labels['saveall'] = 'Tallenna kaikki pilveen...';
 $labels['saveto'] = 'Tallenna pilveen...';
@@ -58,4 +65,5 @@ $labels['fileskipall'] = 'Ohita kaikki';
 $labels['fileoverwrite'] = 'Korvaa';
 $labels['fileoverwriteall'] = 'Korvaa kaikki';
 $labels['filemoveconfirm'] = 'Tämä toiminto korvaa kohdetiedoston: <b>$file</b>.';
+$labels['arialabelfileprops'] = 'Tiedoston ominaisuudet';
 ?>

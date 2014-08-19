@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Изглед по подразбиране';
 $labels['time_format'] = 'Формат на часовете';
 $labels['timeslots'] = 'Time slots per hour';
@@ -14,7 +20,6 @@ $labels['coloringmode0'] = 'Според календара';
 $labels['coloringmode1'] = 'Относно категорията';
 $labels['coloringmode2'] = 'Календар за очертание, категория за съдържание';
 $labels['coloringmode3'] = 'Категория за очертание, календар за съдържание';
-// calendar
 $labels['calendar'] = 'Календар';
 $labels['calendars'] = 'Календари';
 $labels['category'] = 'Категория';
@@ -48,6 +53,7 @@ $labels['url'] = 'URL';
 $labels['date'] = 'Дата';
 $labels['start'] = 'Начало';
 $labels['end'] = 'Край';
+$labels['repeat'] = 'Repeat';
 $labels['selectdate'] = 'Избор на дата';
 $labels['freebusy'] = 'Показване като';
 $labels['free'] = 'Свободно';
@@ -61,6 +67,7 @@ $labels['public'] = 'публично';
 $labels['private'] = 'частно';
 $labels['confidential'] = 'конфиденциално';
 $labels['alarms'] = 'Напомняне';
+$labels['unknown'] = 'Неизвестно';
 $labels['generated'] = 'генерирано в';
 $labels['printdescriptions'] = 'Печат на описанията';
 $labels['parentcalendar'] = 'Внасяне вътре';
@@ -74,7 +81,6 @@ $labels['onemonthback'] = '1 месец назад';
 $labels['nmonthsback'] = '$nr месеца назад';
 $labels['showurl'] = 'Показване на URL на календара';
 $labels['showurldescription'] = 'Използвайте следния адрес, за да достъпвате (само за четене) вашия календар от други приложения. Можете да копирате и поставяте това във всеки календарен софтуер, поддържащ форматът iCal';
-// agenda view
 $labels['listrange'] = 'Оразмеряване към екран:';
 $labels['listsections'] = 'Разделяне на:';
 $labels['smartsections'] = 'Интелигентни секции';
@@ -88,11 +94,9 @@ $labels['nextmonth'] = 'Следващия месец';
 $labels['weekofyear'] = 'Седмица';
 $labels['pastevents'] = 'Минали';
 $labels['futureevents'] = 'Бъдещи';
-// alarm/reminder settings
 $labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'Настройка за напомняне по подразбиране';
 $labels['defaultalarmoffset'] = 'Време за напомняне по подразбиране';
-// attendees
 $labels['attendee'] = 'Участник';
 $labels['role'] = 'Роля';
 $labels['availability'] = 'Avail.';
@@ -101,6 +105,7 @@ $labels['addattendee'] = 'Добавяне на участник';
 $labels['roleorganizer'] = 'Организатор';
 $labels['rolerequired'] = 'Задължителен';
 $labels['roleoptional'] = 'По избор';
+$labels['rolechair'] = 'Chair';
 $labels['cutyperesource'] = 'Resource';
 $labels['availfree'] = 'Свободно';
 $labels['availbusy'] = 'Заето';
@@ -110,25 +115,22 @@ $labels['availoutofoffice'] = 'Извън офиса';
 $labels['sendinvitations'] = 'Изпращане на покани';
 $labels['sendnotifications'] = 'Известяване на участниците относно промените';
 $labels['sendcancellation'] = 'Известяване на участниците относно отмяна на събития';
-// invitation handling (overrides labels from libcalendaring)
+$labels['eventupdatesubject'] = '"$title" has been updated';
+$labels['eventcancelsubject'] = '"$title" has been canceled';
 $labels['itipdeclineevent'] = 'Искате ли да отхвърлите поканата за това събитие?';
 $labels['saveincalendar'] = 'запазване в';
-// resources
 $labels['resource'] = 'Resource';
-// event dialog tabs
 $labels['tabsummary'] = 'Заглавие';
 $labels['tabrecurrence'] = 'Recurrence';
 $labels['tabattendees'] = 'Участници';
 $labels['tabattachments'] = 'Прикрепени файлове';
 $labels['tabsharing'] = 'Споделяне';
-// messages
 $labels['deleteobjectconfirm'] = 'Наистина ли искате да премахнете това събитие?';
 $labels['deleteventconfirm'] = 'Наистина ли искате да премахнете това събитие?';
 $labels['deletecalendarconfirm'] = 'Наистина ли искате да премахнете този календар с всичките му събития?';
 $labels['savingdata'] = 'Запазване на данни...';
 $labels['errorsaving'] = 'Неуспешно записването на промените.';
-// recurrence form
-$labels['recurrencend'] = 'до';
+$labels['attendeupdateesuccess'] = 'Successfully updated the participant\'s status';
+$labels['itipinvalidrequest'] = 'This invitation is no longer valid';
 $labels['futurevents'] = 'Бъдещи';
-// birthdays calendar
 ?>

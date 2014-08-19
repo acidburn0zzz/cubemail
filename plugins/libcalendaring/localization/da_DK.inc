@@ -22,8 +22,6 @@ $labels['repeatinhrs'] = 'Gentag om $hrs timer';
 $labels['repeattomorrow'] = 'Gentag i morgen';
 $labels['repeatinweek'] = 'Gentag om en uge';
 $labels['showmore'] = 'Vis mere ...';
-
-// recurrence related labels
 $labels['frequency'] = 'Gentag';
 $labels['never'] = 'aldrig';
 $labels['daily'] = 'dagligt';
@@ -49,8 +47,6 @@ $labels['third'] = 'tredje';
 $labels['fourth'] = 'fjerde';
 $labels['last'] = 'sidste';
 $labels['dayofmonth'] = 'Dag på måneden';
-
-// itip related labels
 $labels['itipinvitation'] = 'Invitation til';
 $labels['itipupdate'] = 'Opdatering per';
 $labels['itipcancellation'] = 'Aflyst:';

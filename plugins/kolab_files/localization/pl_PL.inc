@@ -1,5 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'Pliki';
+$labels['filepreview'] = 'Podgląd pliku';
 $labels['saveall'] = 'Zapisz wszystkie w chmurze...';
 $labels['saveto'] = 'Zapisz w chmurze...';
 $labels['saveas'] = 'Zapisz jako:';
@@ -53,10 +61,23 @@ $labels['filedeleteconfirm'] = 'Czy na pewno chcesz usunąć wybrane pliki?';
 $labels['filedeletenotice'] = 'Plik(i) zostały usunięte.';
 $labels['filemovenotice'] = 'Plik(i) zostały przeniesione.';
 $labels['filecopynotice'] = 'Plik(i) zostały skopiowane.';
+$labels['uploadsizeerror'] = 'Przekroczono maksymalny rozmiar pliku ($size)! ';
 $labels['allfolders'] = 'szukaj we wszystkich folderach';
 $labels['fileskip'] = 'Omiń';
 $labels['fileskipall'] = 'Omiń wszystkie';
 $labels['fileoverwrite'] = 'Nadpisz';
 $labels['fileoverwriteall'] = 'Nadpisz wszystkie';
 $labels['filemoveconfirm'] = 'Akcja ta nadpisze docelowy plik: <b>$file</b>.';
+$labels['arialabelsearchform'] = 'Formularz wyszukiwania plików';
+$labels['arialabelquicksearchbox'] = 'Fraza wyszukiwania';
+$labels['arialabellistoptions'] = 'Opcje listy plików';
+$labels['arialabelfolderoptions'] = 'Akcje folderów';
+$labels['arialabelfileeditform'] = 'Formularz edycji pliku';
+$labels['arialabelfoldercreateform'] = 'Formularz tworzenia folderów';
+$labels['arialabelfolderlist'] = 'Wybór foldera/kolekcji';
+$labels['arialabelfileselectdialog'] = 'Okno wyboru pliku';
+$labels['arialabelattachmentoptions'] = 'Opcje zapisu załączników';
+$labels['arialabelfilesavedialog'] = 'Okno zapisu plików';
+$labels['arialabelfileprops'] = 'Właściwości pliku';
+$labels['arialabelfilecontent'] = 'Treść pliku';
 ?>

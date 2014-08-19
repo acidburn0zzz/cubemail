@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Vue par défaut';
 $labels['time_format'] = 'Format de l\'heure';
 $labels['first_day'] = 'Premier jour de la semaine';
@@ -13,7 +19,6 @@ $labels['coloringmode0'] = 'Selon l\'agenda';
 $labels['coloringmode1'] = 'Selon la catégorie';
 $labels['coloringmode2'] = 'Calendrier en contour, catégorie en contenu';
 $labels['coloringmode3'] = 'Catégorie en contour, calendrier en contenu';
-// calendar
 $labels['calendar'] = 'Agenda';
 $labels['calendars'] = 'Agendas';
 $labels['category'] = 'Catégorie';
@@ -48,6 +53,7 @@ $labels['url'] = 'URL';
 $labels['date'] = 'Date';
 $labels['start'] = 'Début';
 $labels['end'] = 'Fin';
+$labels['repeat'] = 'Répéter';
 $labels['selectdate'] = 'Sélectionner une date';
 $labels['freebusy'] = 'Montrez moi comme';
 $labels['free'] = 'Libre';
@@ -63,6 +69,9 @@ $labels['public'] = 'publique';
 $labels['private'] = 'privée';
 $labels['confidential'] = 'Confidentiel';
 $labels['alarms'] = 'Rappel';
+$labels['comment'] = 'Commentaire';
+$labels['unknown'] = 'Inconnu';
+$labels['eventoptions'] = 'Options';
 $labels['generated'] = 'généré à';
 $labels['printdescriptions'] = 'Imprimer les descriptions';
 $labels['parentcalendar'] = 'Ajouter à l\'intérieur';
@@ -78,7 +87,7 @@ $labels['nmonthsback'] = '$nr mois précédents';
 $labels['showurl'] = 'Afficher l\'URL de l\'agenda';
 $labels['showurldescription'] = 'Utilisez l\'adresse suivante pour accéder(lecture seule) à votre agenda depuis une autre application. Vous pouvez copier/coller celle-ci dans n\'importe quel agenda électronique gérant le format iCal.';
 $labels['caldavurldescription'] = 'Copiez cette adresse vers une application client (comme Evolution ou Mozilla Thunderbird) compatible <a href="http://fr.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> pour synchroniser ce calendrier avec votre ordinateur ou votre smartphone.';
-// agenda view
+$labels['calendarsubscribe'] = 'Lister définitivement';
 $labels['listrange'] = 'Intervalle à afficher :';
 $labels['listsections'] = 'Diviser en :';
 $labels['smartsections'] = 'Section intelligente';
@@ -92,11 +101,9 @@ $labels['nextmonth'] = 'Mois prochain';
 $labels['weekofyear'] = 'Semaine';
 $labels['pastevents'] = 'Passé';
 $labels['futureevents'] = 'Futur';
-// alarm/reminder settings
 $labels['showalarms'] = 'Afficher les rappels';
 $labels['defaultalarmtype'] = 'Paramètre de rappel par défaut';
 $labels['defaultalarmoffset'] = 'Durée de rappel par défaut';
-// attendees
 $labels['attendee'] = 'Participant';
 $labels['role'] = 'Rôle';
 $labels['availability'] = 'Dispo.';
@@ -132,7 +139,6 @@ $labels['eventupdatesubjectempty'] = 'Un évènement vous concernant a été mod
 $labels['eventupdatemailbody'] = "*\$title*\n\nQuand: \$date\n\nParticipants: \$attendees\n\nVous trouverez ci-joint un fichier iCalendar avec tous les modifications de l'évènement que vous pourrez importer dans votre agenda électronique.";
 $labels['eventcancelsubject'] = '"$title" a été annulé';
 $labels['eventcancelmailbody'] = "*\$title*\n\nQuand: \$date\n\nParticipants: \$attendees\n\nL'évènement a été annulé par \$organizer.\n\nVous trouverez en pièce jointe un fichier iCalendar avec les modifications de l'évènement que vous pourrez importer dans votre agenda électronique.";
-// invitation handling (overrides labels from libcalendaring)
 $labels['itipmailbodyaccepted'] = "\$sender a accepté l'invitation à l'évènement suivant :\n\n*\$title*\n\nQuand: \$date\n\nParticipants: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender a accepté provisoirement l'invitation à l'évènement suivant :\n\n*\$title*\n\nQuand: \$date\n\nParticipants: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender a refusé l'invitation à l'évènement suivant :\n\n*\$title*\n\nQuand: \$date\n\nParticipants: \$attendees";
@@ -141,17 +147,14 @@ $labels['declinedeleteconfirm'] = 'Voulez-vous aussi supprimer cet évènement a
 $labels['notanattendee'] = 'Vous n\'êtes pas dans la liste des participants à cet évènement';
 $labels['eventcancelled'] = 'L\'évènement a été annulé';
 $labels['saveincalendar'] = 'Enregistrer sous';
-// resources
 $labels['resource'] = 'Ressource';
 $labels['resourcedetails'] = 'Détails';
-// event dialog tabs
 $labels['tabsummary'] = 'Résumé';
 $labels['tabrecurrence'] = 'Récurrence';
 $labels['tabattendees'] = 'Participants';
 $labels['tabresources'] = 'Ressources';
 $labels['tabattachments'] = 'Pièces jointes';
 $labels['tabsharing'] = 'Partage';
-// messages
 $labels['deleteobjectconfirm'] = 'Voulez-vous vraiment supprimer cet évènement?';
 $labels['deleteventconfirm'] = 'Voulez-vous vraiment supprimer cet évènement?';
 $labels['deletecalendarconfirm'] = 'Voulez-vous vraiment supprimer cet agenda et tous ses évènements?';
@@ -177,8 +180,6 @@ $labels['importsuccess'] = '$nr évènements importés.';
 $labels['importnone'] = 'Pas d\'évènements à importer';
 $labels['importerror'] = 'Une erreur est arrivée lors de l\'import';
 $labels['aclnorights'] = 'Vous n\'avez pas les droits d\'administration sur cet agenda.';
-// recurrence form
-$labels['repeat'] = 'Répéter';
 $labels['changeeventconfirm'] = 'Modifier l\'évènement';
 $labels['removeeventconfirm'] = 'Supprimer l\'évènement';
 $labels['changerecurringeventwarning'] = 'Ceci est un évènement récurant. Voulez vous éditer seulement cette occurrence, celle-ci et toutes les suivantes, toutes les occurrences ou l\'enregistrer comme un nouvel évènement? ';
@@ -187,5 +188,7 @@ $labels['currentevent'] = 'Cette occurrence';
 $labels['futurevents'] = 'Cette occurrence et toutes les suivantes';
 $labels['allevents'] = 'Toutes les occurrences';
 $labels['saveasnew'] = 'Enregistrer comme un nouvel évènement';
-// birthdays calendar
+$labels['user'] = 'Utilisateur';
+$labels['operation'] = 'Action';
+$labels['actiondelete'] = 'Supprimé';
 ?>

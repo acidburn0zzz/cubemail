@@ -1,5 +1,11 @@
 <?php
-// preferences
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Domyślny widok';
 $labels['time_format'] = 'Format czasu';
 $labels['timeslots'] = 'Time slots per hour';
@@ -14,7 +20,13 @@ $labels['coloringmode0'] = 'Zgodnie z kalendarzem';
 $labels['coloringmode1'] = 'Zgodnie z kategorią';
 $labels['coloringmode2'] = 'Kalendarz dla obramowania, kategoria dla środka';
 $labels['coloringmode3'] = 'Kategoria dla obramowania, kalendarz dla środka';
-// calendar
+$labels['afternothing'] = 'Nie rób nic';
+$labels['aftertrash'] = 'Przenieś do Kosza';
+$labels['afterdelete'] = 'Usuń wiadomość';
+$labels['afterflagdeleted'] = 'Oznacz jako usunięta';
+$labels['aftermoveto'] = 'Przenieś do...';
+$labels['itipoptions'] = 'Zaproszenia';
+$labels['afteraction'] = 'Wiadomość jest przetwarzana po zaproszeniu lub aktualizacji';
 $labels['calendar'] = 'Kalendarz';
 $labels['calendars'] = 'Kalendarze';
 $labels['category'] = 'Kategoria';
@@ -49,21 +61,33 @@ $labels['location'] = 'Położenie';
 $labels['url'] = 'Adres URL';
 $labels['date'] = 'Data';
 $labels['start'] = 'Początek';
+$labels['starttime'] = 'Początek';
 $labels['end'] = 'Koniec';
+$labels['endtime'] = 'Koniec';
+$labels['repeat'] = 'Powtórz';
 $labels['selectdate'] = 'Wybierz datę';
 $labels['freebusy'] = 'Pokaż mnie jako';
 $labels['free'] = 'Wolny';
 $labels['busy'] = 'Zajęty';
 $labels['outofoffice'] = 'Poza biurem';
 $labels['tentative'] = 'Niepewny';
+$labels['mystatus'] = 'Mój status';
 $labels['status'] = 'Status';
+$labels['confirmed'] = 'Potwierdzony';
+$labels['cancelled'] = 'Anulowany';
 $labels['priority'] = 'Priorytet';
 $labels['sensitivity'] = 'Poufność';
 $labels['public'] = 'publiczny';
 $labels['private'] = 'prywatny';
 $labels['confidential'] = 'poufny';
 $labels['alarms'] = 'Przypomnienie';
+$labels['comment'] = 'Komentarz';
+$labels['created'] = 'Utworzono';
+$labels['changed'] = 'Ostatnia modyfikacja';
+$labels['unknown'] = 'Nieznany';
+$labels['eventoptions'] = 'Opcje';
 $labels['generated'] = 'wygenerowano';
+$labels['eventhistory'] = 'Historia';
 $labels['printdescriptions'] = 'Drukuj opisy';
 $labels['parentcalendar'] = 'Wstaw wewnątrz';
 $labels['searchearlierdates'] = '« Szukaj wcześniejszych zdarzeń';
@@ -78,7 +102,17 @@ $labels['nmonthsback'] = '$nr miesięcy wstecz';
 $labels['showurl'] = 'Pokaż adres URL kalendarza';
 $labels['showurldescription'] = 'Używaj tego adresu aby dostać się do kalendarza z innych programów (w trybie tylko-do-odczytu). Możesz wkleić go do dowolnej aplikacji obsługującej format iCal.';
 $labels['caldavurldescription'] = 'Skopiuj ten adres do aplikacji obsługującej format <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> (np. Evolution lub Mozilla Thunderbird) aby zsynchronizować wybrany kalendarz z twoim komputerem lub urządzeniem przenośnym.';
-// agenda view
+$labels['findcalendars'] = 'Wyszukaj kalendarze...';
+$labels['searchterms'] = 'Szukana fraza';
+$labels['calsearchresults'] = 'Dostępne kalendarze';
+$labels['calendarsubscribe'] = 'Dodaj do listy na stałe';
+$labels['nocalendarsfound'] = 'Nie znaleziono żadych kalendarzy';
+$labels['nrcalendarsfound'] = 'znaleziono $nr kalendarzy';
+$labels['quickview'] = 'Pokaż tylko ten kalendarz';
+$labels['invitationspending'] = 'Oczekujące zaproszenia';
+$labels['invitationsdeclined'] = 'Odrzucone zaproszenia';
+$labels['changepartstat'] = 'Zmień status uczestnika';
+$labels['rsvpcomment'] = 'Treść zaproszenia';
 $labels['listrange'] = 'Zakres do pokazania:';
 $labels['listsections'] = 'Podziel na:';
 $labels['smartsections'] = 'Inteligentne sekcje';
@@ -87,16 +121,15 @@ $labels['today'] = 'Dzisiaj';
 $labels['tomorrow'] = 'Jutro';
 $labels['thisweek'] = 'Bieżący tydzień';
 $labels['nextweek'] = 'Następny tydzień';
+$labels['prevweek'] = 'Poprzedni tydzień';
 $labels['thismonth'] = 'Bieżący miesiąc';
 $labels['nextmonth'] = 'Następny miesiąc';
 $labels['weekofyear'] = 'Tydzień';
 $labels['pastevents'] = 'Przeszłe';
 $labels['futureevents'] = 'Przyszłe';
-// alarm/reminder settings
 $labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'Domyślne powiadomienie';
 $labels['defaultalarmoffset'] = 'Domyślny czas powiadomienia';
-// attendees
 $labels['attendee'] = 'Uczestnik';
 $labels['role'] = 'Rola';
 $labels['availability'] = 'Dostępny';
@@ -116,6 +149,8 @@ $labels['availbusy'] = 'Zajęty';
 $labels['availunknown'] = 'Nieznany';
 $labels['availtentative'] = 'Niepewny';
 $labels['availoutofoffice'] = 'Poza biurem';
+$labels['delegatedto'] = 'Oddelegowany do:';
+$labels['delegatedfrom'] = 'Oddelegowany z:';
 $labels['scheduletime'] = 'Sprawdź dostępność';
 $labels['sendinvitations'] = 'Wyślij zaproszenia';
 $labels['sendnotifications'] = 'Powiadom uczestników o zmianach';
@@ -124,6 +159,7 @@ $labels['onlyworkinghours'] = 'Sprawdź dostępność w moich godzinach pracy';
 $labels['reqallattendees'] = 'Wymagany/wszyscy uczestnicy';
 $labels['prevslot'] = 'Poprzedni przedział';
 $labels['nextslot'] = 'Następny przedział';
+$labels['suggestedslot'] = 'Sugerowany przedział';
 $labels['noslotfound'] = 'Nie znaleziono wolnego przedziału czasu';
 $labels['invitationsubject'] = 'Zostałeś zaproszony do "$title"';
 $labels['invitationmailbody'] = "*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees\n\nW załączeniu plik w formacie iCalendar ze szczegółami zdarzenia, który możesz zaimportować do twojej aplikacji kalendarza.";
@@ -133,26 +169,33 @@ $labels['eventupdatesubjectempty'] = 'Zdarzenie które cię dotyczy zostało zak
 $labels['eventupdatemailbody'] = "*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees\n\nW załączeniu plik w formacie iCalendar zawierający zaktualizowane szczegóły zdarzenia, które możesz zaimportować do swojej aplikacji kalendarza.";
 $labels['eventcancelsubject'] = '"$title" zostało anulowane';
 $labels['eventcancelmailbody'] = "*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees\n\nZdarzenie zostało anulowane przez \$organizer.\n\nW załączeniu plik w formacie iCalendar ze zaktualizowanymi szczegółami zdarzenia.";
-// invitation handling (overrides labels from libcalendaring)
+$labels['itipobjectnotfound'] = 'W twoim kalendarzu nie znaleziono zdarzenia związanego z tą wiadomością.';
 $labels['itipmailbodyaccepted'] = "\$sender zaakceptował zaproszenie do następującego zdarzenia:\n\n*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender warunkowo zaakceptował zaproszenie do następującego zdarzenia:\n\n*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender odrzucił zaproszenie na następujące zdarzenie:\n\n*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees";
+$labels['itipmailbodycancel'] = "\$sender odrzucił twój udział w zastępującym zdarzeniu:\n\n*\$title*\n\nKiedy: \$date";
 $labels['itipdeclineevent'] = 'Czy chcesz odrzucić zaproszenie na to zdarzenie?';
 $labels['declinedeleteconfirm'] = 'Czy chcesz także usunąć to odrzucone zdarzenie ze swojego kalendarza?';
+$labels['itipcomment'] = 'Komentarz zaproszenia/powiadomienia';
+$labels['itipcommenttitle'] = 'Komentarz ten będzie dołączony do wiadomości wysłanej do uczestników zdarzenia';
 $labels['notanattendee'] = 'Nie jesteś na liście uczestników tego zdarzenia';
 $labels['eventcancelled'] = 'Zdarzenie zostało anulowane';
 $labels['saveincalendar'] = 'zapisz w';
-// resources
+$labels['updatemycopy'] = 'Uaktualnij w moim kalendarzu';
+$labels['savetocalendar'] = 'Zapisz do kalendarza';
 $labels['resource'] = 'Zasób';
+$labels['addresource'] = 'Rezerwuj zasób';
+$labels['findresources'] = 'Wyszukaj zasoby';
 $labels['resourcedetails'] = 'Szczegóły';
-// event dialog tabs
+$labels['resourceavailability'] = 'Dostępność';
+$labels['resourceowner'] = 'Właściciel';
+$labels['resourceadded'] = 'Zasób został dodany do twojego zdarzenia';
 $labels['tabsummary'] = 'Podsumowanie';
 $labels['tabrecurrence'] = 'Powtarzalność';
 $labels['tabattendees'] = 'Uczestnicy';
 $labels['tabresources'] = 'Zasoby';
 $labels['tabattachments'] = 'Załączniki';
 $labels['tabsharing'] = 'Udostępnianie';
-// messages
 $labels['deleteobjectconfirm'] = 'Czy na pewno chcesz usunąć to zdarzenie?';
 $labels['deleteventconfirm'] = 'Czy na pewno chcesz usunąć to zdarzenie?';
 $labels['deletecalendarconfirm'] = 'Czy na pewno chcesz usunąć ten kalendarz z wszystkimi zadaniami?';
@@ -167,9 +210,11 @@ $labels['successremoval'] = 'Zdarzenie zostało usunięte.';
 $labels['successrestore'] = 'Zdarzenie zostało przywrócone.';
 $labels['errornotifying'] = 'Nie udało się wysłać powiadomień do uczestników zdarzenia';
 $labels['errorimportingevent'] = 'Nie udało się zaimportować zdarzenia';
+$labels['importwarningexists'] = 'Kopia tego zdarzenia już istnieje w twoim kalendarzu.';
 $labels['newerversionexists'] = 'Istnieje nowsza wersja tego zdarzenia ! Przerwano.';
 $labels['nowritecalendarfound'] = 'Nie znaleziono kalendarza aby zapisać zdarzenie.';
 $labels['importedsuccessfully'] = 'Zdarzenie dodano do \'$calendar\'';
+$labels['updatedsuccessfully'] = 'Zdarzenie zostało pomyślnie zaktualizowane w \'$calendar\'';
 $labels['attendeupdateesuccess'] = 'Zaktualizowano status uczestnika.';
 $labels['itipsendsuccess'] = 'Wysłano zaproszenia do uczestników.';
 $labels['itipresponseerror'] = 'Nie udało się wysłać odpowiedzi na to zaproszenie.';
@@ -180,8 +225,6 @@ $labels['importsuccess'] = 'Zaimportowano $nr zdarzeń.';
 $labels['importnone'] = 'Nie znaleziono zdarzeń do zaimportowania.';
 $labels['importerror'] = 'Wystąpił błąd podczas importu.';
 $labels['aclnorights'] = 'Nie masz uprawnień administracyjnych dla tego kalendarza.';
-// recurrence form
-$labels['repeat'] = 'Powtórz';
 $labels['changeeventconfirm'] = 'Zmień zdarzenie';
 $labels['removeeventconfirm'] = 'Usuń zdarzenie';
 $labels['changerecurringeventwarning'] = 'To jest zdarzenie powtarzalne. Czy chcesz zmienić bieżące zdarzenie, bieżące i przyszłe, wszystkie, a może zapisać je jako nowe zdarzenie?';
@@ -190,11 +233,35 @@ $labels['currentevent'] = 'Bieżące';
 $labels['futurevents'] = 'Przyszłe';
 $labels['allevents'] = 'Wszystkie';
 $labels['saveasnew'] = 'Zapisz jako nowe';
-// birthdays calendar
 $labels['birthdays'] = 'Birthdays';
 $labels['birthdayscalendar'] = 'Birthdays Calendar';
 $labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
 $labels['birthdayscalendarsources'] = 'From these address books';
 $labels['birthdayeventtitle'] = '$name\'s Birthday';
 $labels['birthdayage'] = 'Age $age';
+$labels['eventchangelog'] = 'Historia zmian';
+$labels['eventdiff'] = 'Zmiany od wersji $rev';
+$labels['revision'] = 'Wersja';
+$labels['user'] = 'Użytkownik';
+$labels['operation'] = 'Akcja';
+$labels['actionappend'] = 'Zapisane';
+$labels['actionmove'] = 'Przeniesione';
+$labels['actiondelete'] = 'Usunięte';
+$labels['compare'] = 'Porównaj';
+$labels['showrevision'] = 'Pokaż tą wersję';
+$labels['restore'] = 'Przywróć tą wersję';
+$labels['eventnotfound'] = 'Nie udało się wczytać zdarzenia';
+$labels['eventchangelognotavailable'] = 'Historia zmian jest niedostępna dla tego zdarzenia';
+$labels['eventdiffnotavailable'] = 'Nie można porównać wybranych wersji';
+$labels['eventrestoreconfirm'] = 'Czy na pewno chcesz przywrócić wersję $rev tego zdarzenia? Bierzące zdarzenie zostanie zastąpione starszą wersją.';
+$labels['arialabelminical'] = 'Wybór daty kalendarza';
+$labels['arialabelcalendarview'] = 'Podgląd kalendarza';
+$labels['arialabelsearchform'] = 'Formularz wyszukiwania zdarzeń';
+$labels['arialabelquicksearchbox'] = 'Fraza wyszukiwania zdarzeń';
+$labels['arialabelcalsearchform'] = 'Formularz wyszukiwania kalendarzy';
+$labels['calendaractions'] = 'Akcje kalendarzy';
+$labels['arialabeleventattendees'] = 'Lista uczestników zdarzenia';
+$labels['arialabeleventresources'] = 'Lista zasobów zdarzenia';
+$labels['arialabelresourcesearchform'] = 'Formularz wyszukiwania zasobów';
+$labels['arialabelresourceselection'] = 'Dostępne zasoby';
 ?>
