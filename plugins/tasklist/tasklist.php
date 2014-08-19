@@ -63,6 +63,7 @@ class tasklist extends rcube_plugin
     private $collapsed_tasks = array();
     private $itip;
     private $ical;
+    private $driver_name;
 
 
     /**
@@ -174,7 +175,7 @@ class tasklist extends rcube_plugin
         if (is_object($this->driver))
             return;
 
-        $driver_name = $this->rc->config->get('tasklist_driver', 'database');
+        $driver_name  = $this->rc->config->get('tasklist_driver', 'database');
         $driver_class = 'tasklist_' . $driver_name . '_driver';
 
         require_once($this->home . '/drivers/tasklist_driver.php');
@@ -187,6 +188,8 @@ class tasklist extends rcube_plugin
             $this->driver = new $driver_class($this);
             break;
         }
+
+        $this->driver_name = $driver_name;
 
         $this->rc->output->set_env('tasklist_driver', $driver_name);
     }
@@ -948,13 +951,22 @@ class tasklist extends rcube_plugin
     private function tasks_data($records, $f, &$tags)
     {
         $data = $tags = $this->task_tree = $this->task_titles = array();
+
+        if ($this->driver_name == 'kolab') {
+            $config = kolab_storage_config::get_instance();
+            $tags   = $config->apply_tags($records);
+        }
+
         foreach ($records as $rec) {
             if ($rec['parent_id']) {
                 $this->task_tree[$rec['id']] = $rec['parent_id'];
             }
+
             $this->encode_task($rec);
-            if (!empty($rec['tags']))
+
+            if ($this->driver_name != 'kolab' && !empty($rec['tags'])) {
                 $tags = array_merge($tags, (array)$rec['tags']);
+            }
 
             // apply filter; don't trust the driver on this :-)
             if ((!$f && !$this->driver->is_complete($rec)) || ($rec['mask'] & $f))

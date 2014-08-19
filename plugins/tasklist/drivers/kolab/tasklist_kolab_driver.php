@@ -558,7 +558,7 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function get_task($prop)
     {
-        $id = is_array($prop) ? ($prop['uid'] ?: $prop['id']) : $prop;
+        $id      = is_array($prop) ? ($prop['uid'] ?: $prop['id']) : $prop;
         $list_id = is_array($prop) ? $prop['list'] : null;
         $folders = $list_id ? array($list_id => $this->get_folder($list_id)) : $this->folders;
 
@@ -571,6 +571,11 @@ class tasklist_kolab_driver extends tasklist_driver
                 $this->tasks[$id]['list'] = $list_id;
                 break;
             }
+        }
+
+        // assign tags
+        if ($this->tasks[$id]) {
+            $this->tasks[$id]['tags'] = $this->get_tags($this->tasks[$id]['uid']);
         }
 
         return $this->tasks[$id];
@@ -760,6 +765,27 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
+     * Get task tags
+     */
+    private function get_tags($uid)
+    {
+        $config = kolab_storage_config::get_instance();
+        $tags   = $config->get_tags($uid);
+        $tags   = array_map(function($v) { return $v['name']; }, $tags);
+
+        return $tags;
+    }
+
+    /**
+     * Update task tags
+     */
+    private function save_tags($uid, $tags)
+    {
+        $config = kolab_storage_config::get_instance();
+        $config->save_tags($uid, $tags);
+    }
+
+    /**
      * Convert from Kolab_Format to internal representation
      */
     private function _to_rcube_task($record)
@@ -768,9 +794,8 @@ class tasklist_kolab_driver extends tasklist_driver
             'id' => $record['uid'],
             'uid' => $record['uid'],
             'title' => $record['title'],
-#            'location' => $record['location'],
+//            'location' => $record['location'],
             'description' => $record['description'],
-            'tags' => array_filter((array)$record['categories']),
             'flagged' => $record['priority'] == 1,
             'complete' => floatval($record['complete'] / 100),
             'status' => $record['status'],
@@ -779,6 +804,11 @@ class tasklist_kolab_driver extends tasklist_driver
             'attendees' => $record['attendees'],
             'organizer' => $record['organizer'],
             'sequence' => $record['sequence'],
+            // old categories will be replaced by tags
+            'categories' => $record['categories'],
+            // keep mailbox which is needed to convert
+            // categories to tags in kolab_storage_config::apply_tags()
+            '_mailbox' => $record['_mailbox'],
         );
 
         // convert from DateTime to internal date format
@@ -842,7 +872,6 @@ class tasklist_kolab_driver extends tasklist_driver
     private function _from_rcube_task($task, $old = array())
     {
         $object = $task;
-        $object['categories'] = (array)$task['tags'];
 
         if (!empty($task['date'])) {
             $object['due'] = rcube_utils::anytodatetime($task['date'].' '.$task['time'], $this->plugin->timezone);
@@ -954,6 +983,10 @@ class tasklist_kolab_driver extends tasklist_driver
         if (!$list_id || !($folder = $this->get_folder($list_id)))
             return false;
 
+        // tags are stored separately
+        $tags = $task['tags'];
+        unset($task['tags']);
+
         // moved from another folder
         if ($task['_fromlist'] && ($fromfolder = $this->get_folder($task['_fromlist']))) {
             if (!$fromfolder->move($task['id'], $folder->name))
@@ -975,7 +1008,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         // generate new task object from RC input
         $object = $this->_from_rcube_task($task, $old);
-        $saved = $folder->save($object, 'task', $task['id']);
+        $saved  = $folder->save($object, 'task', $task['id']);
 
         if (!$saved) {
             raise_error(array(
@@ -986,8 +1019,12 @@ class tasklist_kolab_driver extends tasklist_driver
             $saved = false;
         }
         else {
+            // save tags in configuration.relation object
+            $this->save_tags($object['uid'], $tags);
+
             $task = $this->_to_rcube_task($object);
             $task['list'] = $list_id;
+            $task['tags'] = (array) $tags;
             $this->tasks[$task['id']] = $task;
         }
 
@@ -1029,7 +1066,15 @@ class tasklist_kolab_driver extends tasklist_driver
         if (!$list_id || !($folder = $this->get_folder($list_id)))
             return false;
 
-        return $folder->delete($task['id']);
+        $status = $folder->delete($task['id']);
+
+        if ($status) {
+            // remove tag assignments
+            // @TODO: don't do this when undelete feature will be implemented
+            $this->save_tags($task['id'], null);
+        }
+
+        return $status;
     }
 
     /**
