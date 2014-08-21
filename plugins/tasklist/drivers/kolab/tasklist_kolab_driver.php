@@ -809,6 +809,17 @@ class tasklist_kolab_driver extends tasklist_driver
             $task['alarms'] = $record['alarms'];
         }
 
+        if (!empty($task['attendees'])) {
+            foreach ((array)$task['attendees'] as $i => $attendee) {
+                if (is_array($attendee['delegated-from'])) {
+                    $task['attendees'][$i]['delegated-from'] = join(', ', $attendee['delegated-from']);
+                }
+                if (is_array($attendee['delegated-to'])) {
+                    $task['attendees'][$i]['delegated-to'] = join(', ', $attendee['delegated-to']);
+                }
+            }
+        }
+
         if (!empty($record['_attachments'])) {
             foreach ($record['_attachments'] as $key => $attachment) {
                 if ($attachment !== false) {

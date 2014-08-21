@@ -1830,7 +1830,7 @@ function rcube_tasklist_ui(settings)
             $('#task-rsvp .itip-reply-comment textarea').hide().val('');
 
             if (rec.organizer && !organizer) {
-                $('#task-organizer').show().children('.task-text').html(task_attendee_html(rec.organizer));
+                $('#task-organizer').show().children('.task-text').html(task_attendee_html($.extend(rec.organizer, { role:'ORGANIZER' })));
             }
         }
 
