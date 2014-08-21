@@ -1044,6 +1044,11 @@ function rcube_tasklist_ui(settings)
         append_tags(rec.tags || []);
         update_tagcloud();
         fix_tree_toggles();
+
+        // refresh currently displayed task details dialog
+        if ($('#taskshow').is(':visible') && me.selected_task && me.selected_task.id == rec.id) {
+            task_show_dialog(rec.id);
+        }
     }
 
     /**
