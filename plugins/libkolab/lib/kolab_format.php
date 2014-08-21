@@ -45,7 +45,7 @@ abstract class kolab_format
     protected $version = '3.0';
 
     const KTYPE_PREFIX = 'application/x-vnd.kolab.';
-    const PRODUCT_ID   = 'Roundcube-libkolab-0.9';
+    const PRODUCT_ID   = 'Roundcube-libkolab-1.1';
 
     /**
      * Factory method to instantiate a kolab_format object of the given type and version
