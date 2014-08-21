@@ -1,13 +1,5 @@
 <?php
 
-/**
- * Localizations for the Kolab Notes plugin
- *
- * Copyright (C) 2014, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
- */
-
 $labels = array();
 $labels['navtitle'] = 'Notes';
 $labels['tags'] = 'Tags';
@@ -51,7 +43,7 @@ $labels['deletenotesconfirm'] = 'Do you really want to delete the selected notes
 $labels['deletenotebookconfirm'] = 'Do you really want to delete this notebook with all its notes? This action cannot be undone.';
 $labels['discardunsavedchanges'] = 'The current note has not yet been saved. Discard the changes?';
 $labels['invalidlistproperties'] = 'Invalid notebook properties! Please set a valid name.';
-$labels['entertitle'] = 'Please enter a title for this note.';
+$labels['entertitle'] = 'Please enter a title for this note!';
 $labels['aclnorights'] = 'You do not have administrator rights for this notebook.';
 
 $labels['arialabelnoteslist'] = 'List of notes';
