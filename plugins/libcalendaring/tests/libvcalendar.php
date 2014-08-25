@@ -321,6 +321,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('-1D:DISPLAY',  $task['alarms'],  "Taks alarm value");
         $this->assertEquals('IN-PROCESS',   $task['status'],  "Task status property");
         $this->assertEquals(1, count($task['x-custom']),      "Custom properties");
+        $this->assertEquals(4, count($task['categories']));
     }
 
     /**

@@ -471,7 +471,7 @@ class libvcalendar implements Iterator
 
             case 'CATEGORY':
             case 'CATEGORIES':
-                $event['categories'] = $prop->getParts();
+                $event['categories'] = array_merge((array)$event['categories'], $prop->getParts());
                 break;
 
             case 'CLASS':
