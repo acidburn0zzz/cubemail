@@ -1357,6 +1357,7 @@ function rcube_kolab_notes_ui(settings)
         $(rcmail.gui_objects.noteviewtitle).droppable({
             drop: function(event, ui){
                 $('#tagedit-input').val(ui.draggable.data('value')).trigger('transformToTag');
+                $('.tagline .placeholder', rcmail.gui_objects.noteviewtitle).hide();
             },
             addClasses: false
         })
