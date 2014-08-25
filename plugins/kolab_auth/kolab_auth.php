@@ -83,8 +83,30 @@ class kolab_auth extends rcube_plugin
         }
     }
 
+    /**
+     * Startup hook handler
+     */
     public function startup($args)
     {
+        $rcmail = rcube::get_instance();
+
+        // Check access rights when logged in as another user
+        if (!empty($_SESSION['kolab_auth_admin']) && $rcmail->task != 'login' && $rcmail->task != 'logout') {
+            $tasks = $rcmail->config->get('kolab_auth_allowed_tasks');
+            // access to specified task is forbidden,
+            // redirect to the first task on the list
+            if (!empty($tasks)) {
+                if (!in_array($rcmail->task, (array) $tasks)) {
+                    header('Location: ?_task=' . array_shift($tasks));
+                    die;
+                }
+
+                // add script that will remove disabled taskbar buttons
+                $this->add_hook('render_page', array($this, 'render_page'));
+            }
+        }
+
+        // load per-user settings
         $this->load_user_role_plugins_and_settings();
 
         return $args;
@@ -631,6 +653,28 @@ class kolab_auth extends rcube_plugin
         }
 
         return $args;
+    }
+
+    /**
+     * Action executed before the page is rendered to add an onload script
+     * that will remove all taskbar buttons for disabled tasks
+     */
+    public function render_page($args)
+    {
+        $rcmail  = rcube::get_instance();
+        $tasks   = $rcmail->config->get('kolab_auth_allowed_tasks');
+        $tasks[] = 'logout';
+
+        // disable buttons in taskbar
+        $script = "
+        \$('a').filter(function() {
+            var ev = \$(this).attr('onclick');
+            return ev && ev.match(/'switch-task','([a-z]+)'/)
+                && \$.inArray(RegExp.\$1, " . json_encode($tasks) . ") < 0;
+        }).remove();
+        ";
+
+        $rcmail->output->add_script($script, 'docready');
     }
 
     /**

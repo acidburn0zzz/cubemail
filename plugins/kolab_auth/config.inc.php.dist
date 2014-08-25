@@ -50,6 +50,11 @@ $config['kolab_auth_role_value'] = '';
 // which adds privilege to login as another user.
 $config['kolab_auth_group'] = '';
 
+// List of tasks to which admin has access when logged in as another user.
+// To limit usage to Settings only use: array('settings'). Default: array() - all tasks.
+// When defined all non-authorized requests will be redirected to first task on the list.
+$config['kolab_auth_allowed_tasks'] = array();
+
 // Enable plugins on a role-by-role basis. In this example, the 'acl' plugin
 // is enabled for people with a 'cn=professional-user,dc=mykolab,dc=ch' role.
 //
