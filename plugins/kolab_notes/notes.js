@@ -410,8 +410,10 @@ function rcube_kolab_notes_ui(settings)
     function edit_note(uid, action)
     {
         if (!uid) {
+            me.selected_note = null;
             if (noteslist)
                 noteslist.clear_selection();
+
             me.selected_note = {
                 list: me.selected_list,
                 uid: null,
@@ -1235,6 +1237,9 @@ function rcube_kolab_notes_ui(settings)
                     setTimeout(function(){
                         dialog.parent().find('.ui-button:visible').first().addClass('mainaction').focus();
                     }, 10);
+                },
+                close: function(event, ui) {
+                    $(this).dialog('destroy').remove();
                 }
             };
 
