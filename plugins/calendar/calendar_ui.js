@@ -2279,14 +2279,17 @@ function rcube_calendar_ui(settings)
     // quick-filter the loaded resource data
     var resource_search = function()
     {
-      var dataset, rec, q = $('#resourcesearchbox').val().toLowerCase();
-      if (q.length && resources_data) {
-        dataset = [];
+      var dn, rec, dataset = [],
+        q = $('#resourcesearchbox').val().toLowerCase();
 
+      if (q.length && resources_data) {
         // search by iterating over all resource records
-        for (var dn in resources_data) {
+        for (dn in resources_data) {
           rec = resources_data[dn];
-          if (String(rec.name).toLowerCase().indexOf(q) >= 0 || String(rec.email).toLowerCase() == q) {
+          if ((rec.name && String(rec.name).toLowerCase().indexOf(q) >= 0)
+            || (rec.email && String(rec.email).toLowerCase().indexOf(q) >= 0)
+            || (rec.description && String(rec.description).toLowerCase().indexOf(q) >= 0)
+          ) {
             dataset.push(rec.ID);
           }
         }
