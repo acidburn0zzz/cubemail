@@ -7,32 +7,30 @@
 // Note: Mail folders will be also subscribed.
 
 // Default Configuration folder
-$rcmail_config['kolab_folders_configuration_default'] = '';
+$config['kolab_folders_configuration_default'] = '';
 // Default Calendar folder
-$rcmail_config['kolab_folders_event_default'] = '';
+$config['kolab_folders_event_default'] = '';
 // Default Contacts (Addressbook) folder
-$rcmail_config['kolab_folders_contact_default'] = '';
+$config['kolab_folders_contact_default'] = '';
 // Default Tasks folder
-$rcmail_config['kolab_folders_task_default'] = '';
+$config['kolab_folders_task_default'] = '';
 // Default Notes folder
-$rcmail_config['kolab_folders_note_default'] = '';
+$config['kolab_folders_note_default'] = '';
 // Default Journal folder
-$rcmail_config['kolab_folders_journal_default'] = '';
+$config['kolab_folders_journal_default'] = '';
 // Default Files folder
-$rcmail_config['kolab_folders_file_default'] = '';
+$config['kolab_folders_file_default'] = '';
 // Default FreeBusy folder
-$rcmail_config['kolab_folders_freebusy_default'] = '';
+$config['kolab_folders_freebusy_default'] = '';
 
 // INBOX folder
-$rcmail_config['kolab_folders_mail_inbox'] = '';
+$config['kolab_folders_mail_inbox'] = '';
 // Drafts folder
-$rcmail_config['kolab_folders_mail_drafts'] = '';
+$config['kolab_folders_mail_drafts'] = '';
 // Sent folder
-$rcmail_config['kolab_folders_mail_sentitems'] = '';
+$config['kolab_folders_mail_sentitems'] = '';
 // Trash folder
-$rcmail_config['kolab_folders_mail_wastebasket'] = '';
+$config['kolab_folders_mail_wastebasket'] = '';
 // Others folders
-$rcmail_config['kolab_folders_mail_outbox'] = '';
-$rcmail_config['kolab_folders_mail_junkemail'] = '';
-
-?>
+$config['kolab_folders_mail_outbox'] = '';
+$config['kolab_folders_mail_junkemail'] = '';
