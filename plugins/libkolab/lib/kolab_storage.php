@@ -245,13 +245,16 @@ class kolab_storage
     }
 
     /**
-     *
+     * Returns Free-busy server URL
      */
     public static function get_freebusy_server()
     {
-        return unslashify(self::$config->get('kolab_freebusy_server', 'https://' . $_SESSION['imap_host'] . '/freebusy'));
-    }
+        $url = 'https://' . $_SESSION['imap_host'] . '/freebusy';
+        $url = self::$config->get('kolab_freebusy_server', $url);
+        $url = rcube_utils::resolve_url($url);
 
+        return unslashify($url);
+    }
 
     /**
      * Compose an URL to query the free/busy status for the given user
@@ -260,7 +263,6 @@ class kolab_storage
     {
         return self::get_freebusy_server() . '/' . $email . '.ifb';
     }
-
 
     /**
      * Creates folder ID from folder name
@@ -275,7 +277,6 @@ class kolab_storage
             self::id_encode($folder) :
             asciiwords(strtr($folder, '/.-', '___'));
     }
-
 
     /**
      * Encode the given ID to a safe ascii representation
@@ -299,7 +300,6 @@ class kolab_storage
     {
       return base64_decode(str_pad(strtr($id, '-_', '+/'), strlen($id) % 4, '=', STR_PAD_RIGHT));
     }
-
 
     /**
      * Return the (first) path of the requested IMAP namespace
