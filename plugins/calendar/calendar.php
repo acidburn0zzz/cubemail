@@ -1800,13 +1800,14 @@ class calendar extends rcube_plugin
       
       // which template to use for mail text
       $is_new = !in_array($attendee['email'], $old_attendees);
+      $is_rsvp = $is_new || $event['sequence'] > $old['sequence'];
       $bodytext = $is_cancelled ? 'eventcancelmailbody' : ($is_new ? 'invitationmailbody' : 'eventupdatemailbody');
       $subject  = $is_cancelled ? 'eventcancelsubject'  : ($is_new ? 'invitationsubject' : ($event['title'] ? 'eventupdatesubject':'eventupdatesubjectempty'));
 
       $event['comment'] = $comment;
 
       // finally send the message
-      if ($itip->send_itip_message($event, $method, $attendee, $subject, $bodytext, $message))
+      if ($itip->send_itip_message($event, $method, $attendee, $subject, $bodytext, $message, $is_rsvp))
         $sent++;
       else
         $sent = -100;

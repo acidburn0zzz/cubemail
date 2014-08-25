@@ -734,11 +734,12 @@ class tasklist extends rcube_plugin
 
             // which template to use for mail text
             $is_new   = !in_array($attendee['email'], $old_attendees);
+            $is_rsvp  = $is_new || $task['sequence'] > $old['sequence'];
             $bodytext = $is_cancelled ? 'itipcancelmailbody' : ($is_new ? 'invitationmailbody' : 'itipupdatemailbody');
             $subject  = $is_cancelled ? 'itipcancelsubject'  : ($is_new ? 'invitationsubject' : ($task['title'] ? 'itipupdatesubject' : 'itipupdatesubjectempty'));
 
             // finally send the message
-            if ($itip->send_itip_message($object, $method, $attendee, $subject, $bodytext, $message))
+            if ($itip->send_itip_message($object, $method, $attendee, $subject, $bodytext, $message, $is_rsvp))
                 $sent++;
             else
                 $sent = -100;

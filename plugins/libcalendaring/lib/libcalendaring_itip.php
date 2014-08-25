@@ -92,7 +92,7 @@ class libcalendaring_itip
      * @param object  Mail_mime object with message data
      * @return boolean True on success, false on failure
      */
-    public function send_itip_message($event, $method, $recipient, $subject, $bodytext, $message = null)
+    public function send_itip_message($event, $method, $recipient, $subject, $bodytext, $message = null, $rsvp = true)
     {
         if (!$this->sender['name'])
             $this->sender['name'] = $this->sender['email'];
@@ -125,7 +125,7 @@ class libcalendaring_itip
             'vars' => array(
                 'title' => $event['title'],
                 'date' => $this->lib->event_date_text($event, true),
-                'attendees' => join(', ', $attendees_list),
+                'attendees' => join(",\n ", $attendees_list),
                 'sender' => $this->sender['name'],
                 'organizer' => $this->sender['name'],
             )
@@ -136,7 +136,7 @@ class libcalendaring_itip
         // }
 
         // append links for direct invitation replies
-        if ($method == 'REQUEST' && ($token = $this->store_invitation($event, $recipient['email']))) {
+        if ($method == 'REQUEST' && $rsvp && ($token = $this->store_invitation($event, $recipient['email']))) {
             $mailbody .= "\n\n" . $this->gettext(array(
                 'name' => 'invitationattendlinks',
                 'vars' => array('url' => $this->plugin->get_url(array('action' => 'attend', 't' => $token))),
