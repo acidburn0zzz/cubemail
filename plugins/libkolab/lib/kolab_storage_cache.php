@@ -265,8 +265,10 @@ class kolab_storage_cache
 
             // fetch from IMAP if not present in cache
             if (empty($this->objects[$msguid])) {
-                $result = $this->_fetch(array($msguid), $type, $foldername);
-                $this->objects = array($msguid => $result[0]);  // store only this object in memory (#2827)
+                if ($object = $this->folder->read_object($msguid, $type ?: '*', $foldername)) {
+                    $this->objects = array($msguid => $object);
+                    $this->set($msguid, $object);
+                }
             }
         }
 

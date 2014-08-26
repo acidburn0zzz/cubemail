@@ -125,6 +125,7 @@ class kolab_storage_config
             }
 
             foreach ($folder->select($filter) as $object) {
+                unset($object['_formatobj']);
                 $list[] = $object;
             }
         }
@@ -626,20 +627,24 @@ class kolab_storage_config
             // use faster method
             if ($uid && $uid != '*') {
                 $filter[] = array('member', '=', $uid);
-                return $this->get_objects($filter, $default);
+                $tags = $this->get_objects($filter, $default);
             }
-
-            $this->tags = $this->get_objects($filter, $default);
+            else {
+                $this->tags = $tags = $this->get_objects($filter, $default);
+            }
+        }
+        else {
+            $tags = $this->tags;
         }
 
         if ($uid === '*') {
-            return $this->tags;
+            return $tags;
         }
 
         $result = array();
         $search = self::build_member_url($uid);
 
-        foreach ($this->tags as $tag) {
+        foreach ($tags as $tag) {
             if (in_array($search, (array) $tag['members'])) {
                 $result[] = $tag;
             }

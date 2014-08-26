@@ -39,6 +39,28 @@ class kolab_storage_cache_configuration extends kolab_storage_cache
     }
 
     /**
+     * Select Kolab objects filtered by the given query
+     *
+     * @param array Pseudo-SQL query as list of filter parameter triplets
+     * @param boolean Set true to only return UIDs instead of complete objects
+     * @return array List of Kolab data objects (each represented as hash array) or UIDs
+     */
+    public function select($query = array(), $uids = false)
+    {
+        // modify query for IMAP search: query param 'type' is actually a subtype
+        if (!$this->ready) {
+            foreach ($query as $i => $tuple) {
+                if ($tuple[0] == 'type') {
+                    $tuple[2] = 'configuration.' . $tuple[2];
+                    $query[$i] = $tuple;
+                }
+            }
+        }
+
+        return parent::select($query, $uids);
+    }
+
+    /**
      * Helper method to compose a valid SQL query from pseudo filter triplets
      */
     protected function _sql_where($query)
