@@ -83,7 +83,7 @@ class kolab_notes extends rcube_plugin
             $this->add_hook('storage_init', array($this, 'storage_init'));
             $this->add_hook('message_compose', array($this, 'mail_message_compose'));
 
-            if ($args['action'] == 'show' || $args['action'] == 'preview') {
+            if (in_array($args['action'], array('show', 'preview', 'print'))) {
                 $this->add_hook('message_load', array($this, 'mail_message_load'));
                 $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
             }
