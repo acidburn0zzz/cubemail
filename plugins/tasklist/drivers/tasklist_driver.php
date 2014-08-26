@@ -157,6 +157,13 @@ abstract class tasklist_driver
     abstract function list_tasks($filter, $lists = null);
 
     /**
+     * Get a list of tags to assign tasks to
+     *
+     * @return array List of tags
+     */
+    abstract function get_tags();
+
+    /**
      * Get a list of pending alarms to be displayed to the user
      *
      * @param  integer Current time (unix timestamp)

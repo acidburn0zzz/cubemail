@@ -36,6 +36,7 @@ class tasklist_kolab_driver extends tasklist_driver
     private $lists;
     private $folders = array();
     private $tasks   = array();
+    private $tags    = array();
 
 
     /**
@@ -441,6 +442,20 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
+     * Get a list of tags to assign tasks to
+     *
+     * @return array List of tags
+     */
+    public function get_tags()
+    {
+        $config = kolab_storage_config::get_instance();
+        $tags   = $config->get_tags();
+        $backend_tags = array_map(function($v) { return $v['name']; }, $tags);
+
+        return array_values(array_unique(array_merge($this->tags, $backend_tags)));
+    }
+
+    /**
      * Get number of tasks matching the given filter
      *
      * @param array List of lists to count tasks of
@@ -530,11 +545,15 @@ class tasklist_kolab_driver extends tasklist_driver
             $query[] = array('changed', '>=', $filter['since']);
         }
 
+        // load all tags into memory first
+        kolab_storage_config::get_instance()->get_tags();
+
         foreach ($lists as $list_id) {
             if (!$folder = $this->get_folder($list_id)) {
                 continue;
             }
             foreach ($folder->select($query) as $record) {
+                $this->load_tags($record);
                 $task = $this->_to_rcube_task($record);
                 $task['list'] = $list_id;
 
@@ -567,15 +586,11 @@ class tasklist_kolab_driver extends tasklist_driver
             if (is_numeric($list_id) || !$folder)
                 continue;
             if (!$this->tasks[$id] && ($object = $folder->get_object($id))) {
+                $this->load_tags($object);
                 $this->tasks[$id] = $this->_to_rcube_task($object);
                 $this->tasks[$id]['list'] = $list_id;
                 break;
             }
-        }
-
-        // assign tags
-        if ($this->tasks[$id]) {
-            $this->tasks[$id]['tags'] = $this->get_tags($this->tasks[$id]['uid']);
         }
 
         return $this->tasks[$id];
@@ -767,13 +782,21 @@ class tasklist_kolab_driver extends tasklist_driver
     /**
      * Get task tags
      */
-    private function get_tags($uid)
+    private function load_tags(&$object)
     {
-        $config = kolab_storage_config::get_instance();
-        $tags   = $config->get_tags($uid);
-        $tags   = array_map(function($v) { return $v['name']; }, $tags);
-
-        return $tags;
+        // this task hasn't been migrated yet
+        if (!empty($object['categories'])) {
+            // OPTIONAL: call kolab_storage_config::apply_tags() to migrate the object
+            $object['tags'] = (array)$object['categories'];
+            if (!empty($object['tags'])) {
+                $this->tags = array_merge($this->tags, $object['tags']);
+            }
+        }
+        else {
+            $config = kolab_storage_config::get_instance();
+            $tags   = $config->get_tags($object['uid']);
+            $object['tags'] = array_map(function($v) { return $v['name']; }, $tags);
+        }
     }
 
     /**
@@ -804,11 +827,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'attendees' => $record['attendees'],
             'organizer' => $record['organizer'],
             'sequence' => $record['sequence'],
-            // old categories will be replaced by tags
-            'categories' => $record['categories'],
-            // keep mailbox which is needed to convert
-            // categories to tags in kolab_storage_config::apply_tags()
-            '_mailbox' => $record['_mailbox'],
+            'tags' => $record['tags'],
         );
 
         // convert from DateTime to internal date format

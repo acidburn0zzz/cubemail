@@ -34,6 +34,7 @@ class tasklist_database_driver extends tasklist_driver
     private $plugin;
     private $lists = array();
     private $list_ids = '';
+    private $tags = array();
 
     private $db_tasks = 'tasks';
     private $db_lists = 'tasklists';
@@ -211,6 +212,16 @@ class tasklist_database_driver extends tasklist_driver
     public function search_lists($query, $source)
     {
         return array();
+    }
+
+    /**
+     * Get a list of tags to assign tasks to
+     *
+     * @return array List of tags
+     */
+    public function get_tags()
+    {
+        return array_values(array_unique($this->tags, SORT_STRING));
     }
 
     /**
@@ -516,6 +527,10 @@ class tasklist_database_driver extends tasklist_driver
         // decode serialze recurrence rules
         if ($rec['recurrence']) {
             $rec['recurrence'] = $this->unserialize_recurrence($rec['recurrence']);
+        }
+
+        if (!empty($rec['tags'])) {
+            $this->tags = array_merge($this->tags, (array)$rec['tags']);
         }
 
         unset($rec['task_id'], $rec['tasklist_id'], $rec['created']);

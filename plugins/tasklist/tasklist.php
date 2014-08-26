@@ -63,7 +63,6 @@ class tasklist extends rcube_plugin
     private $collapsed_tasks = array();
     private $itip;
     private $ical;
-    private $driver_name;
 
 
     /**
@@ -188,8 +187,6 @@ class tasklist extends rcube_plugin
             $this->driver = new $driver_class($this);
             break;
         }
-
-        $this->driver_name = $driver_name;
 
         $this->rc->output->set_env('tasklist_driver', $driver_name);
     }
@@ -942,21 +939,22 @@ class tasklist extends rcube_plugin
 
         }
 */
-        $data = $this->tasks_data($this->driver->list_tasks($filter, $lists), $f, $tags);
-        $this->rc->output->command('plugin.data_ready', array('filter' => $f, 'lists' => $lists, 'search' => $search, 'data' => $data, 'tags' => array_values(array_unique($tags))));
+        $data = $this->tasks_data($this->driver->list_tasks($filter, $lists), $f);
+        $this->rc->output->command('plugin.data_ready', array(
+            'filter' => $f,
+            'lists' => $lists,
+            'search' => $search,
+            'data' => $data,
+            'tags' => $this->driver->get_tags(),
+        ));
     }
 
     /**
      * Prepare and sort the given task records to be sent to the client
      */
-    private function tasks_data($records, $f, &$tags)
+    private function tasks_data($records, $f)
     {
-        $data = $tags = $this->task_tree = $this->task_titles = array();
-
-        if ($this->driver_name == 'kolab') {
-            $config = kolab_storage_config::get_instance();
-            $tags   = $config->apply_tags($records);
-        }
+        $data = $this->task_tree = $this->task_titles = array();
 
         foreach ($records as $rec) {
             if ($rec['parent_id']) {
@@ -964,10 +962,6 @@ class tasklist extends rcube_plugin
             }
 
             $this->encode_task($rec);
-
-            if ($this->driver_name != 'kolab' && !empty($rec['tags'])) {
-                $tags = array_merge($tags, (array)$rec['tags']);
-            }
 
             // apply filter; don't trust the driver on this :-)
             if ((!$f && !$this->driver->is_complete($rec)) || ($rec['mask'] & $f))
@@ -1221,7 +1215,7 @@ class tasklist extends rcube_plugin
 
         $updates = $this->driver->list_tasks($filter, $lists);
         if (!empty($updates)) {
-            $this->rc->output->command('plugin.refresh_tasks', $this->tasks_data($updates, 255, $tags), true);
+            $this->rc->output->command('plugin.refresh_tasks', $this->tasks_data($updates, 255), true);
 
             // update counts
             $counts = $this->driver->count_tasks($lists);
