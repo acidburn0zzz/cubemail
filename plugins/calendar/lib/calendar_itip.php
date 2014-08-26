@@ -34,6 +34,8 @@ class calendar_itip extends libcalendaring_itip
   function __construct($plugin, $domain = 'calendar')
   {
     parent::__construct($plugin, $domain);
+
+    $this->db_itipinvitations = $this->rc->db->table_name('itipinvitations');
   }
 
   /**
@@ -59,7 +61,7 @@ class calendar_itip extends libcalendaring_itip
   public function get_invitation($token)
   {
     if ($parts = $this->decode_token($token)) {
-      $result = $this->rc->db->query("SELECT * FROM itipinvitations WHERE token=?", $parts['base']);
+      $result = $this->rc->db->query("SELECT * FROM $this->db_itipinvitations WHERE token=?", $parts['base']);
       if ($result && ($rec = $this->rc->db->fetch_assoc($result))) {
         $rec['event'] = unserialize($rec['event']);
         $rec['attendee'] = $parts['attendee'];
@@ -110,7 +112,7 @@ class calendar_itip extends libcalendaring_itip
       
       // update record in DB
       $query = $this->rc->db->query(
-        "UPDATE itipinvitations
+        "UPDATE $this->db_itipinvitations
          SET event=?
          WHERE token=?",
         self::serialize_event($invitation['event']),
@@ -148,10 +150,10 @@ class calendar_itip extends libcalendaring_itip
       return $token;
 
     // delete old entry
-    $this->rc->db->query("DELETE FROM itipinvitations WHERE token=?", $base);
+    $this->rc->db->query("DELETE FROM $this->db_itipinvitations WHERE token=?", $base);
 
     $query = $this->rc->db->query(
-      "INSERT INTO itipinvitations
+      "INSERT INTO $this->db_itipinvitations
        (token, event_uid, user_id, event, expires)
        VALUES(?, ?, ?, ?, ?)",
       $base,
@@ -178,7 +180,7 @@ class calendar_itip extends libcalendaring_itip
   {
     // flag invitation record as cancelled
     $this->rc->db->query(
-      "UPDATE itipinvitations
+      "UPDATE $this->db_itipinvitations
        SET cancelled=1
        WHERE event_uid=? AND user_id=?",
        $event['uid'],

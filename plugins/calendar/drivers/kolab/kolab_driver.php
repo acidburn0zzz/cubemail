@@ -1066,7 +1066,7 @@ class kolab_driver extends calendar_driver
     if (!empty($candidates)) {
       $alarm_ids = array_map(array($this->rc->db, 'quote'), array_keys($candidates));
       $result = $this->rc->db->query(sprintf(
-          "SELECT * FROM kolab_alarms
+          "SELECT * FROM " . $this->rc->db->table_name('kolab_alarms') . "
            WHERE alarm_id IN (%s) AND user_id=?",
            join(',', $alarm_ids),
            $this->rc->db->now()
@@ -1103,7 +1103,7 @@ class kolab_driver extends calendar_driver
   {
     // delete old alarm entry
     $this->rc->db->query(
-      "DELETE FROM kolab_alarms
+      "DELETE FROM " . $this->rc->db->table_name('kolab_alarms') . "
        WHERE alarm_id=? AND user_id=?",
        $alarm_id,
        $this->rc->user->ID
@@ -1113,7 +1113,7 @@ class kolab_driver extends calendar_driver
     $notifyat = $snooze > 0 ? date('Y-m-d H:i:s', time() + $snooze) : null;
 
     $query = $this->rc->db->query(
-      "INSERT INTO kolab_alarms
+      "INSERT INTO " . $this->rc->db->table_name('kolab_alarms') . "
        (alarm_id, user_id, dismissed, notifyat)
        VALUES(?, ?, ?, ?)",
       $alarm_id,
@@ -1776,7 +1776,7 @@ class kolab_driver extends calendar_driver
   {
     $db = $this->rc->get_dbh();
     foreach (array('kolab_alarms', 'itipinvitations') as $table) {
-      $db->query("DELETE FROM $table WHERE user_id=?", $args['user']->ID);
+      $db->query("DELETE FROM " . $this->rc->db->table_name($table) . " WHERE user_id=?", $args['user']->ID);
     }
   }
 }
