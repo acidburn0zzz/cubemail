@@ -81,9 +81,12 @@ class kolab_notes extends rcube_plugin
         }
         else if ($args['task'] == 'mail') {
             $this->add_hook('storage_init', array($this, 'storage_init'));
-            $this->add_hook('message_load', array($this, 'mail_message_load'));
             $this->add_hook('message_compose', array($this, 'mail_message_compose'));
-            $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
+
+            if ($args['action'] == 'show' || $args['action'] == 'preview') {
+                $this->add_hook('message_load', array($this, 'mail_message_load'));
+                $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
+            }
 
             // add 'Append note' item to message menu
             if ($this->api->output->type == 'html' && $_REQUEST['_rel'] != 'note') {
@@ -906,8 +909,9 @@ class kolab_notes extends rcube_plugin
      */
     public function mail_message_load($p)
     {
-        $this->message       = $p['object'];
-        $this->message_notes = $this->get_message_notes($this->message->headers, $this->message->folder);
+        if (!$p['object']->headers->others['x-kolab-type']) {
+            $this->message_notes = $this->get_message_notes($p['object']->headers, $p['object']->folder);
+        }
     }
 
     /**
