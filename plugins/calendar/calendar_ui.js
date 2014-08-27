@@ -726,7 +726,7 @@ function rcube_calendar_ui(settings)
       event_attendees = [];
       attendees_list = $('#edit-attendees-table > tbody').html('');
       resources_list = $('#edit-resources-table > tbody').html('');
-      $('#edit-attendees-notify')[(allow_invitations && (settings.itip_notify & 2) ? 'show' : 'hide')]();
+      $('#edit-attendees-notify')[(allow_invitations && has_attendees(event) && (settings.itip_notify & 2) ? 'show' : 'hide')]();
       $('#edit-localchanges-warning')[(has_attendees(event) && !(allow_invitations || (calendar.owner && is_organizer(event, calendar.owner))) ? 'show' : 'hide')]();
 
       var load_attendees_tab = function()

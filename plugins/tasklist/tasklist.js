@@ -1985,7 +1985,7 @@ function rcube_tasklist_ui(settings)
 
         task_attendees = [];
         attendees_list = $('#edit-attendees-table > tbody').html('');
-        $('#edit-attendees-notify')[(allow_invitations && (settings.itip_notify & 2) ? 'show' : 'hide')]();
+        $('#edit-attendees-notify')[(allow_invitations && has_attendees(rec) && (settings.itip_notify & 2) ? 'show' : 'hide')]();
         $('#edit-localchanges-warning')[(has_attendees(rec) && !(allow_invitations || (rec.owner && is_organizer(rec, rec.owner))) ? 'show' : 'hide')]();
 
         // attendees (aka assignees)
