@@ -542,7 +542,7 @@ function rcube_tasklist_ui(settings)
                     t: me.selected_task,
                     filter: filtermask,
                     status: response,
-                    noreply: $('#noreply-task-rsvp').prop('checked') ? 1 : 0,
+                    noreply: $('#noreply-task-rsvp:checked').length ? 1 : 0,
                     comment: $('#reply-comment-task-rsvp').val()
                 });
 
@@ -637,7 +637,7 @@ function rcube_tasklist_ui(settings)
       $('#edit-attendees-invite').change(function() {
         $('#edit-attendees-donotify,input.edit-attendee-reply').prop('checked', this.checked);
         // hide/show comment field
-        $('.attendees-commentbox')[this.checked ? 'show' : 'hide']();
+        $('#taskeditform .attendees-commentbox')[this.checked ? 'show' : 'hide']();
       });
 
       // delegate change task to "send invitations" checkbox
@@ -1076,17 +1076,28 @@ function rcube_tasklist_ui(settings)
     var save_task_confirm = function(rec, action, updates)
     {
         var data = $.extend({}, rec, updates || {}),
-          notify = false, partstat = false, html = '';
+          notify = false, partstat = false, html = '',
+          do_confirm = settings.itip_notify & 2;
 
         // task has attendees, ask whether to notify them
         if (has_attendees(rec) && is_organizer(rec)) {
             notify = true;
-            html = rcmail.gettext('changeconfirmnotifications', 'tasklist');
+            if (do_confirm) {
+                html = rcmail.gettext('changeconfirmnotifications', 'tasklist');
+            }
+            else {
+                data._notify = settings.itip_notify;
+            }
         }
         // ask whether to change my partstat and notify organizer
         else if (data._status_before !== undefined && data.status && data._status_before != data.status && is_attendee(rec)) {
           partstat = true;
-          html = rcmail.gettext('partstatupdatenotification', 'tasklist');
+          if (do_confirm) {
+              html = rcmail.gettext('partstatupdatenotification', 'tasklist');
+          }
+          else if (settings.itip_notify & 1) {
+              data._reportpartstat = data.status == 'CANCELLED' ? 'DECLINED' : data.status;
+          }
         }
 
         // remove to avoid endless recursion
@@ -1622,7 +1633,7 @@ function rcube_tasklist_ui(settings)
 
         // send invitation checkbox
         var invbox = '<input type="checkbox" class="edit-attendee-reply" value="' + Q(data.email) +'" title="' + Q(rcmail.gettext('tasklist.sendinvitations')) + '" '
-            + (!data.noreply ? 'checked="checked" ' : '') + '/>';
+            + (!data.noreply && settings.itip_notify & 1 ? 'checked="checked" ' : '') + '/>';
 
         if (data['delegated-to'])
             tooltip = rcmail.gettext('delegatedto', 'tasklist') + data['delegated-to'];
@@ -1637,7 +1648,7 @@ function rcube_tasklist_ui(settings)
 
         var html = '<td class="name">' + dispname + '</td>' +
             '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
-            (data.cutype != 'RESOURCE' ? '<td class="sendmail">' + (readonly || !invbox ? '' : invbox) + '</td>' : '') +
+            (data.cutype != 'RESOURCE' ? '<td class="invite">' + (readonly || !invbox ? '' : invbox) + '</td>' : '') +
             '<td class="options">' + (readonly ? '' : dellink) + '</td>';
 
         var tr = $('<tr>')
@@ -1654,7 +1665,7 @@ function rcube_tasklist_ui(settings)
         tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); });
         tr.find('input.edit-attendee-reply').click(function() {
             var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
-            $('p.attendees-commentbox')[enabled ? 'show' : 'hide']();
+            $('#taskeditform .attendees-commentbox')[enabled ? 'show' : 'hide']();
         });
 
         task_attendees.push(data);
@@ -1940,8 +1951,8 @@ function rcube_tasklist_ui(settings)
         var invite = $('#edit-attendees-invite').get(0);
         var comment = $('#edit-attendees-comment');
 
-        notify.checked = has_attendees(rec);
-        invite.checked = true;
+        invite.checked = settings.itip_notify & 1 > 0;
+        notify.checked = has_attendees(rec) && invite.checked;
 
         // tag-edit line
         var tagline = $(rcmail.gui_objects.edittagline).empty();
@@ -1974,7 +1985,7 @@ function rcube_tasklist_ui(settings)
 
         task_attendees = [];
         attendees_list = $('#edit-attendees-table > tbody').html('');
-        $('#edit-attendees-notify')[(notify.checked && allow_invitations ? 'show' : 'hide')]();
+        $('#edit-attendees-notify')[(allow_invitations && (settings.itip_notify & 2) ? 'show' : 'hide')]();
         $('#edit-localchanges-warning')[(has_attendees(rec) && !(allow_invitations || (rec.owner && is_organizer(rec, rec.owner))) ? 'show' : 'hide')]();
 
         // attendees (aka assignees)
@@ -1992,14 +2003,12 @@ function rcube_tasklist_ui(settings)
 
             // make sure comment box is visible if at least one attendee has reply enabled
             // or global "send invitations" checkbox is checked
-            if (reply_selected || $('#edit-attendees-invite:checked').length) {
-                $('p.attendees-commentbox').show();
-            }
+            $('#taskeditform .attendees-commentbox')[(reply_selected || invite.checked ? 'show' : 'hide')]();
 
             // select the correct organizer identity
             var identity_id = 0;
             $.each(settings.identities, function(i,v) {
-                if (rec.organizer && v == rec.organizer.email) {
+                if (!rec.organizer || v == rec.organizer.email) {
                     identity_id = i;
                     return false;
                 }
@@ -2112,7 +2121,7 @@ function rcube_tasklist_ui(settings)
                             need_invitation = true;
                             delete data.attendees[i]['noreply'];
                         }
-                        else {
+                        else if (settings.itip_notify > 0) {
                             data.attendees[i].noreply = 1;
                         }
                     }
@@ -2121,8 +2130,11 @@ function rcube_tasklist_ui(settings)
 
             // tell server to send notifications
             if ((data.attendees.length || (rec.id && rec.attendees.length)) && allow_invitations && (notify.checked || invite.checked || need_invitation)) {
-                data._notify = 1;
+                data._notify = settings.itip_notify;
                 data._comment = comment.val();
+            }
+            else if (data._notify) {
+                delete data._notify;
             }
 
             if (save_task(data, action))

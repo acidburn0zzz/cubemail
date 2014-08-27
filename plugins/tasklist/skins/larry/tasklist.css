@@ -892,13 +892,13 @@ a.morelink:hover {
 	text-align: right;
 }
 
-#taskedit .edit-attendees-table th.sendmail,
-#taskedit .edit-attendees-table td.sendmail {
+#taskedit .edit-attendees-table th.invite,
+#taskedit .edit-attendees-table td.invite {
 	width: 48px;
 	padding: 2px;
 }
 
-#taskedit .edit-attendees-table th.sendmail label {
+#taskedit .edit-attendees-table th.invite label {
 	display: inline-block;
 	position: relative;
 	top: 4px;

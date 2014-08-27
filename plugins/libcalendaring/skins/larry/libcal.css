@@ -59,8 +59,11 @@ span.edit-alarm-set {
 
 a.reply-comment-toggle {
 	display: inline-block;
-	margin-left: 1em;
 	color: #666;
+}
+
+label.noreply-toggle + a.reply-comment-toggle {
+	margin-left: 1em;
 }
 
 .itip-reply-comment textarea {

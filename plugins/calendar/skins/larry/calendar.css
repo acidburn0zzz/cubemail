@@ -978,13 +978,13 @@ td.topalign {
 	padding: 2px 4px;
 }
 
-#eventedit .edit-attendees-table th.sendmail,
-#eventedit .edit-attendees-table td.sendmail {
+#eventedit .edit-attendees-table th.invite,
+#eventedit .edit-attendees-table td.invite {
 	width: 44px;
 	padding: 2px;
 }
 
-#eventedit .edit-attendees-table th.sendmail label {
+#eventedit .edit-attendees-table th.invite label {
 	display: inline-block;
 	position: relative;
 	top: 4px;

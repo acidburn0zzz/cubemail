@@ -2,12 +2,11 @@
 /**
  * User Interface class for the Calendar plugin
  *
- * @version @package_version@
  * @author Lazlo Westerhof <hello@lazlo.me>
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
  * Copyright (C) 2010, Lazlo Westerhof <hello@lazlo.me>
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -706,10 +705,17 @@ class calendar_ui
     $table->add_header('availability', $this->cal->gettext('availability'));
     $table->add_header('confirmstate', $this->cal->gettext('confirmstate'));
     if ($invitations) {
-      $table->add_header(array('class' => 'sendmail', 'title' => $this->cal->gettext('sendinvitations')),
+      $table->add_header(array('class' => 'invite', 'title' => $this->cal->gettext('sendinvitations')),
         $invite->show(1) . html::label('edit-attendees-invite', $this->cal->gettext('sendinvitations')));
     }
     $table->add_header('options', '');
+
+    // hide invite column if disabled by config
+    $itip_notify = (int)$this->rc->config->get('calendar_itip_send_option', $this->cal->defaults['calendar_itip_send_option']);
+    if ($invitations && !($itip_notify & 2)) {
+        $css = sprintf('#%s td.invite, #%s th.invite { display:none !important }', $attrib['id'], $attrib['id']);
+        $this->rc->output->add_footer(html::tag('style', array('type' => 'text/css'), $css));
+    }
 
     return $table->show($attrib);
   }

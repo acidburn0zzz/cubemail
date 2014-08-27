@@ -836,8 +836,8 @@ td.topalign {
 	padding-right: 4px;
 }
 
-.edit-attendees-table th.sendmail,
-.edit-attendees-table td.sendmail {
+.edit-attendees-table th.invite,
+.edit-attendees-table td.invite {
 	width: 24px;
 	padding: 2px;
 	white-space: nowrap;
@@ -845,7 +845,7 @@ td.topalign {
 	text-overflow: hidden;
 }
 
-#eventedit .edit-attendees-table th.sendmail label {
+#eventedit .edit-attendees-table th.invite label {
 	display: none;
 }
 

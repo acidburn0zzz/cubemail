@@ -688,8 +688,8 @@ function rcube_calendar_ui(settings)
       var invite = $('#edit-attendees-invite').get(0);
       var comment = $('#edit-attendees-comment');
 
-      notify.checked = has_attendees(event);
-      invite.checked = true;
+      invite.checked = settings.itip_notify & 1 > 0;
+      notify.checked = has_attendees(event) && invite.checked;
 
       if (event.allDay) {
         starttime.val("12:00").hide();
@@ -726,7 +726,7 @@ function rcube_calendar_ui(settings)
       event_attendees = [];
       attendees_list = $('#edit-attendees-table > tbody').html('');
       resources_list = $('#edit-resources-table > tbody').html('');
-      $('#edit-attendees-notify')[(notify.checked && allow_invitations ? 'show' : 'hide')]();
+      $('#edit-attendees-notify')[(allow_invitations && (settings.itip_notify & 2) ? 'show' : 'hide')]();
       $('#edit-localchanges-warning')[(has_attendees(event) && !(allow_invitations || (calendar.owner && is_organizer(event, calendar.owner))) ? 'show' : 'hide')]();
 
       var load_attendees_tab = function()
@@ -743,8 +743,7 @@ function rcube_calendar_ui(settings)
 
         // make sure comment box is visible if at least one attendee has reply enabled
         // or global "send invitations" checkbox is checked
-        if (reply_selected || $('#edit-attendees-invite:checked').length)
-          $('p.attendees-commentbox').show();
+        $('#eventedit .attendees-commentbox')[(reply_selected || invite.checked ? 'show' : 'hide')]();
 
         // select the correct organizer identity
         var identity_id = 0;
@@ -840,7 +839,7 @@ function rcube_calendar_ui(settings)
                 need_invitation = true;
                 delete data.attendees[i]['noreply'];
               }
-              else {
+              else if (settings.itip_notify > 0) {
                 data.attendees[i].noreply = 1;
               }
             }
@@ -849,7 +848,7 @@ function rcube_calendar_ui(settings)
 
         // tell server to send notifications
         if ((data.attendees.length || (event.id && event.attendees.length)) && allow_invitations && (notify.checked || invite.checked || need_invitation)) {
-          data._notify = 1;
+          data._notify = settings.itip_notify;
           data._comment = comment.val();
         }
 
@@ -1924,7 +1923,7 @@ function rcube_calendar_ui(settings)
 
       // send invitation checkbox
       var invbox = '<input type="checkbox" class="edit-attendee-reply" value="' + Q(data.email) +'" title="' + Q(rcmail.gettext('calendar.sendinvitations')) + '" '
-        + (!data.noreply ? 'checked="checked" ' : '') + '/>';
+        + (!data.noreply && settings.itip_notify & 1 ? 'checked="checked" ' : '') + '/>';
 
       if (data['delegated-to'])
         tooltip = rcmail.gettext('delegatedto', 'calendar') + data['delegated-to'];
@@ -1941,7 +1940,7 @@ function rcube_calendar_ui(settings)
         '<td class="name">' + dispname + '</td>' +
         '<td class="availability"><img src="./program/resources/blank.gif" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
         '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
-        (data.cutype != 'RESOURCE' ? '<td class="sendmail">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
+        (data.cutype != 'RESOURCE' ? '<td class="invite">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
         '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
 
       var table = rcmail.env.calendar_resources && data.cutype == 'RESOURCE' ? resources_list : attendees_list;
@@ -1959,7 +1958,7 @@ function rcube_calendar_ui(settings)
       tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); });
       tr.find('input.edit-attendee-reply').click(function() {
         var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
-        $('p.attendees-commentbox')[enabled ? 'show' : 'hide']();
+        $('#eventedit .attendees-commentbox')[enabled ? 'show' : 'hide']();
       });
 
       // select organizer identity
@@ -2338,7 +2337,7 @@ function rcube_calendar_ui(settings)
 
         // submit status change to server
         var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val() }),
-          noreply = $('#noreply-event-rsvp').prop('checked') ? 1 : 0;
+          noreply = $('#noreply-event-rsvp:checked').length ? 1 : 0;
 
         if (settings.invitation_calendars) {
           update_event('rsvp', submit_data, { status:response, noreply:noreply });
@@ -2431,17 +2430,23 @@ function rcube_calendar_ui(settings)
       
       // event has attendees, ask whether to notify them
       if (has_attendees(event)) {
+        var checked = (settings.itip_notify & 1 ? ' checked="checked"' : '');
         if (is_organizer(event)) {
           notify = true;
-          html += '<div class="message">' +
-            '<label><input class="confirm-attendees-donotify" type="checkbox" checked="checked" value="1" name="notify" />&nbsp;' +
-            rcmail.gettext((action == 'remove' ? 'sendcancellation' : 'sendnotifications'), 'calendar') + 
-            '</label></div>';
+          if (settings.itip_notify & 2) {
+            html += '<div class="message">' +
+              '<label><input class="confirm-attendees-donotify" type="checkbox"' + checked + ' value="1" name="notify" />&nbsp;' +
+                rcmail.gettext((action == 'remove' ? 'sendcancellation' : 'sendnotifications'), 'calendar') + 
+              '</label></div>';
+          }
+          else {
+            data._notify = settings.itip_notify;
+          }
         }
         else if (action == 'remove' && is_attendee(event)) {
           decline = true;
           html += '<div class="message">' +
-            '<label><input class="confirm-attendees-decline" type="checkbox" checked="checked" value="1" name="decline" />&nbsp;' +
+            '<label><input class="confirm-attendees-decline" type="checkbox"' + checked + ' value="1" name="decline" />&nbsp;' +
             rcmail.gettext('itipdeclineevent', 'calendar') + 
             '</label></div>';
         }
@@ -2466,14 +2471,15 @@ function rcube_calendar_ui(settings)
       if (html) {
         var $dialog = $('<div>').html(html);
       
-        $dialog.find('a.button').button().click(function(e){
+        $dialog.find('a.button').button().click(function(e) {
           data._savemode = String(this.href).replace(/.+#/, '');
-          if ($dialog.find('input.confirm-attendees-donotify').get(0))
-            data._notify = notify && $dialog.find('input.confirm-attendees-donotify').get(0).checked ? 1 : 0;
-          if (decline && $dialog.find('input.confirm-attendees-decline:checked'))
+          data._notify = settings.itip_notify;
+          if ($dialog.find('input.confirm-attendees-donotify').length)
+            data._notify = $dialog.find('input.confirm-attendees-donotify').get(0).checked ? 1 : 0;
+          if (decline && $dialog.find('input.confirm-attendees-decline:checked').length)
             data.decline = 1;
           update_event(action, data);
-          $dialog.dialog("destroy").hide();
+          $dialog.dialog("close");
           return false;
         });
         
@@ -2483,7 +2489,7 @@ function rcube_calendar_ui(settings)
           buttons.push({
             text: rcmail.gettext((action == 'remove' ? 'remove' : 'save'), 'calendar'),
             click: function() {
-              data._notify = notify && $dialog.find('input.confirm-attendees-donotify').get(0).checked ? 1 : 0;
+              data._notify = notify && $dialog.find('input.confirm-attendees-donotify:checked').length ? 1 : 0;
               data.decline = decline && $dialog.find('input.confirm-attendees-decline:checked').length ? 1 : 0;
               update_event(action, data);
               $(this).dialog("close");
@@ -3809,7 +3815,7 @@ function rcube_calendar_ui(settings)
       $('#edit-attendees-invite').change(function() {
         $('#edit-attendees-donotify,input.edit-attendee-reply').prop('checked', this.checked);
         // hide/show comment field
-        $('.attendees-commentbox')[this.checked ? 'show' : 'hide']();
+        $('#eventedit .attendees-commentbox')[this.checked ? 'show' : 'hide']();
       });
 
       // delegate change event to "send invitations" checkbox

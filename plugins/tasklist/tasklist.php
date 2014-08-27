@@ -203,6 +203,10 @@ class tasklist extends rcube_plugin
         $oldrec = $rec;
         $success = $refresh = false;
 
+        // force notify if hidden + active
+        if ((int)$this->rc->config->get('calendar_itip_send_option', 3) === 1 && empty($rec['_reportpartstat']))
+            $rec['_notify'] = 1;
+
         switch ($action) {
         case 'new':
             $oldrec = null;
@@ -575,7 +579,8 @@ class tasklist extends rcube_plugin
         }
 
         // set organizer from identity selector
-        if (isset($rec['_identity']) && ($identity = $this->rc->user->get_identity($rec['_identity']))) {
+        if ((isset($rec['_identity']) || (!empty($rec['attendees']) && empty($rec['organizer']))) &&
+                ($identity = $this->rc->user->get_identity($rec['_identity']))) {
             $rec['organizer'] = array('name' => $identity['name'], 'email' => $identity['email']);
         }
 
@@ -696,6 +701,7 @@ class tasklist extends rcube_plugin
 
         $itip   = $this->load_itip();
         $emails = $this->lib->get_user_emails();
+        $itip_notify = (int)$this->rc->config->get('calendar_itip_send_option', 3);
 
         // add comment to the iTip attachment
         $task['comment'] = $comment;
@@ -725,7 +731,7 @@ class tasklist extends rcube_plugin
             }
 
             // skip if notification is disabled for this attendee
-            if ($attendee['noreply']) {
+            if ($attendee['noreply'] && $itip_notify & 2) {
                 continue;
             }
 

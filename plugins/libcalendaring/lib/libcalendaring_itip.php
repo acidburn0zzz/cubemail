@@ -563,11 +563,19 @@ class libcalendaring_itip
      */
     public function itip_rsvp_options_ui($dom_id, $disable = false)
     {
+        $itip_sending = $this->rc->config->get('calendar_itip_send_option', 3);
+
+        // itip sending is entirely disabled
+        if ($itip_sending === 0) {
+            return '';
+        }
         // add checkbox to suppress itip reply message
-        $rsvp_additions = html::label(array('class' => 'noreply-toggle'),
-            html::tag('input', array('type' => 'checkbox', 'id' => 'noreply-'.$dom_id, 'value' => 1, 'disabled' => $disable))
-            . ' ' . $this->gettext('itipsuppressreply')
-        );
+        else if ($itip_sending >= 2) {
+            $rsvp_additions = html::label(array('class' => 'noreply-toggle'),
+                html::tag('input', array('type' => 'checkbox', 'id' => 'noreply-'.$dom_id, 'value' => 1, 'disabled' => $disable, 'checked' => ($itip_sending & 1) == 0))
+                . ' ' . $this->gettext('itipsuppressreply')
+            );
+        }
 
         // add input field for reply comment
         $rsvp_additions .= html::a(array('href' => '#toggle', 'class' => 'reply-comment-toggle'), $this->gettext('itipeditresponse'));

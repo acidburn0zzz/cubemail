@@ -805,7 +805,7 @@ rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status, dom_id
 
     var noreply = 0, comment = '';
     if (dom_id) {
-      noreply = $('#noreply-'+dom_id).prop('checked') ? 1 : 0;
+      noreply = $('#noreply-'+dom_id+':checked').length ? 1 : 0;
       if (!noreply)
         comment = $('#reply-comment-'+dom_id).val();
     }

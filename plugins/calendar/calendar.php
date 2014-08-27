@@ -54,6 +54,7 @@ class calendar extends rcube_plugin
     'calendar_event_coloring'  => 0,
     'calendar_time_indicator'  => true,
     'calendar_allow_invite_shared' => false,
+    'calendar_itip_send_option'    => 3,
     'calendar_itip_after_action'   => 0,
   );
 
@@ -829,7 +830,10 @@ class calendar extends rcube_plugin
     // don't notify if modifying a recurring instance (really?)
     if ($event['_savemode'] && $event['_savemode'] != 'all' && $event['_notify'])
       unset($event['_notify']);
-    
+    // force notify if hidden + active
+    else if ((int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']) === 1)
+      $event['_notify'] = 1;
+
     // read old event data in order to find changes
     if (($event['_notify'] || $event['decline']) && $action != 'new')
       $old = $this->driver->get_event($event);
@@ -933,6 +937,7 @@ class calendar extends rcube_plugin
         break;
 
       case "rsvp":
+        $itip_sending = $this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']);
         $status = get_input_value('status', RCUBE_INPUT_GPC);
         $reply_comment = $event['comment'];
         $ev = $this->driver->get_event($event);
@@ -940,7 +945,7 @@ class calendar extends rcube_plugin
         $event = $ev;
 
         if ($success = $this->driver->edit_rsvp($event, $status)) {
-          $noreply = intval(get_input_value('noreply', RCUBE_INPUT_GPC)) || $status == 'needs-action';
+          $noreply = intval(get_input_value('noreply', RCUBE_INPUT_GPC)) || $status == 'needs-action' || $itip_sending === 0;
           $reload = $event['calendar'] != $ev['calendar'] ? 2 : 1;
           $organizer = null;
           $emails = $this->get_user_emails();
@@ -1475,6 +1480,7 @@ class calendar extends rcube_plugin
     $settings['time_indicator'] = (int)$this->rc->config->get('calendar_time_indicator', $this->defaults['calendar_time_indicator']);
     $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', $this->defaults['calendar_allow_invite_shared']);
     $settings['invitation_calendars'] = (bool)$this->rc->config->get('kolab_invitation_calendars', false);
+    $settings['itip_notify'] = (int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']);
 
     // get user identity to create default attendee
     if ($this->ui->screen == 'calendar') {
@@ -1771,6 +1777,7 @@ class calendar extends rcube_plugin
 
     $itip = $this->load_itip();
     $emails = $this->get_user_emails();
+    $itip_notify = (int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']);
 
     // add comment to the iTip attachment
     $event['comment'] = $comment;
@@ -1795,7 +1802,7 @@ class calendar extends rcube_plugin
         continue;
 
       // skip if notification is disabled for this attendee
-      if ($attendee['noreply'])
+      if ($attendee['noreply'] && $itip_notify & 2)
         continue;
       
       // which template to use for mail text
@@ -2391,12 +2398,14 @@ class calendar extends rcube_plugin
    */
   public function mail_import_itip()
   {
+    $itip_sending = $this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']);
+
     $uid     = get_input_value('_uid', RCUBE_INPUT_POST);
     $mbox    = get_input_value('_mbox', RCUBE_INPUT_POST);
     $mime_id = get_input_value('_part', RCUBE_INPUT_POST);
     $status  = get_input_value('_status', RCUBE_INPUT_POST);
     $delete  = intval(get_input_value('_del', RCUBE_INPUT_POST));
-    $noreply = intval(get_input_value('_noreply', RCUBE_INPUT_POST)) || $status == 'needs-action';
+    $noreply = intval(get_input_value('_noreply', RCUBE_INPUT_POST)) || $status == 'needs-action' || $itip_sending === 0;
 
     $error_msg = $this->gettext('errorimportingevent');
     $success = false;

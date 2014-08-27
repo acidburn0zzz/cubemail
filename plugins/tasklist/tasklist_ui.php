@@ -72,6 +72,7 @@ class tasklist_ui
         $settings = array();
 
         $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', 0);
+        $settings['itip_notify']   = (int)$this->rc->config->get('calendar_itip_send_option', 3);
         $settings['sort_col']      = $this->rc->config->get('tasklist_sort_col', '');
         $settings['sort_order']    = $this->rc->config->get('tasklist_sort_order', 'asc');
 
@@ -450,10 +451,17 @@ class tasklist_ui
         $table->add_header('name', $this->plugin->gettext($attrib['coltitle'] ?: 'attendee'));
         $table->add_header('confirmstate', $this->plugin->gettext('confirmstate'));
         if ($invitations) {
-            $table->add_header(array('class' => 'sendmail', 'title' => $this->plugin->gettext('sendinvitations')),
+            $table->add_header(array('class' => 'invite', 'title' => $this->plugin->gettext('sendinvitations')),
                 $invite->show(1) . html::label('edit-attendees-invite', $this->plugin->gettext('sendinvitations')));
         }
         $table->add_header('options', '');
+
+        // hide invite column if disabled by config
+        $itip_notify = (int)$this->rc->config->get('calendar_itip_send_option', 3);
+        if ($invitations && !($itip_notify & 2)) {
+            $css = sprintf('#%s td.invite, #%s th.invite { display:none !important }', $attrib['id'], $attrib['id']);
+            $this->rc->output->add_footer(html::tag('style', array('type' => 'text/css'), $css));
+        }
 
         return $table->show($attrib);
     }

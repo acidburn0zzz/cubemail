@@ -113,6 +113,21 @@ $config['calendar_allow_invite_shared'] = false;
 // this can be the case if invitations are sent to mailing lists or alias email addresses.
 $config['calendar_allow_itip_uninvited'] = true;
 
+// controls the visibility/default of the checkbox controlling the sending of iTip invitations
+// 0 = hidden  + disabled
+// 1 = hidden  + active
+// 2 = visible + unchecked
+// 3 = visible + active
+$config['calendar_itip_send_option'] = 3;
+
+// Action taken after iTip request is handled. Possible values:
+// 0 - no action
+// 1 - move to Trash
+// 2 - delete the message
+// 3 - flag as deleted
+// folder_name - move the message to the specified folder
+$config['calendar_itip_after_action'] = 0;
+
 // enable asynchronous free-busy triggering after data changed
 $config['calendar_freebusy_trigger'] = false;
 
@@ -144,13 +159,5 @@ $config['kolab_invitation_calendars'] = true;
 
 // LDAP directory configuration to find avilable resources for events
 // $config['calendar_resources_directory'] = array(/* ldap_public-like address book configuration */);
-
-// Action taken after iTip request is handled. Possible values:
-// 0 - no action
-// 1 - move to Trash
-// 2 - delete the message
-// 3 - flag as deleted
-// folder_name - move the message to the specified folder
-$config['calendar_itip_after_action'] = 0;
 
 ?>
