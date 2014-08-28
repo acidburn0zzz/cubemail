@@ -1,4 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'Eddig';
+$labels['at'] = 'időpont';
 $labels['alarmemail'] = 'E-mail küldése';
 $labels['alarmdisplay'] = 'Üzenet megjelenítése';
 $labels['alarmdisplayoption'] = 'Üzenet';
@@ -11,7 +20,6 @@ $labels['trigger-D'] = 'nappal előtte';
 $labels['trigger+M'] = 'perccel utána';
 $labels['trigger+H'] = 'órával utána';
 $labels['trigger+D'] = 'nappal utána';
-$labels['addalarm'] = 'emlékeztető hozzáadása';
 $labels['alarmtitle'] = 'Következő események';
 $labels['dismissall'] = 'Az összes emlékeztető mellőzése';
 $labels['dismiss'] = 'Nem emlékettet újra';
@@ -56,6 +64,7 @@ $labels['itipreply'] = 'Válasz';
 $labels['itipaccepted'] = 'Elfogadás';
 $labels['itiptentative'] = 'Feltételes';
 $labels['itipdeclined'] = 'Elutasítás';
+$labels['itipdelegated'] = 'Meghatalmazott:';
 $labels['itipcomment'] = 'Megjegyzés';
 $labels['itipeditresponse'] = 'Kérem, adjon meg egy választ';
 $labels['itipsendercomment'] = 'A feladó megjegyzése: ';

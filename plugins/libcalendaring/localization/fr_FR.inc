@@ -1,4 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'Jusqu\'à';
+$labels['at'] = 'à';
 $labels['alarmemail'] = 'Envoyer un email';
 $labels['alarmdisplay'] = 'Voir le message';
 $labels['alarmdisplayoption'] = 'Message';
@@ -11,7 +20,6 @@ $labels['trigger-D'] = 'jours avant';
 $labels['trigger+M'] = 'minutes après';
 $labels['trigger+H'] = 'heures après';
 $labels['trigger+D'] = 'jours après';
-$labels['addalarm'] = 'ajouter alarme';
 $labels['alarmtitle'] = 'Evénements à venir';
 $labels['dismissall'] = 'Tout supprimer';
 $labels['dismiss'] = 'Abandonner';
@@ -28,6 +36,7 @@ $labels['daily'] = 'Quotidienne';
 $labels['weekly'] = 'Hebdomadaire';
 $labels['monthly'] = 'Mensuelle';
 $labels['yearly'] = 'Annuelle';
+$labels['rdate'] = 'on dates';
 $labels['every'] = 'Tous les';
 $labels['days'] = 'jour(s)';
 $labels['weeks'] = 'semaine(s)';
@@ -47,6 +56,7 @@ $labels['third'] = 'troisième';
 $labels['fourth'] = 'quatrième';
 $labels['last'] = 'dernier';
 $labels['dayofmonth'] = 'Jour du mois';
+$labels['addrdate'] = 'Add repeat date';
 $labels['itipinvitation'] = 'Invitation à';
 $labels['itipupdate'] = 'Mise à jour de';
 $labels['itipcancellation'] = 'Annulation:';
@@ -54,6 +64,7 @@ $labels['itipreply'] = 'Répondre à';
 $labels['itipaccepted'] = 'Accepter';
 $labels['itiptentative'] = 'Peut-être';
 $labels['itipdeclined'] = 'Refuser';
+$labels['itipdelegated'] = 'Déléguer';
 $labels['itipsubjectaccepted'] = '"$title" a été accepté par $name';
 $labels['itipsubjecttentative'] = '"$title" a été accepté provisoirement par $name';
 $labels['itipsubjectdeclined'] = '"$title" a été refusé par $name';

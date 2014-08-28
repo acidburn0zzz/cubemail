@@ -70,5 +70,14 @@ $labels['fileoverwriteall'] = 'Alle überschreiben';
 $labels['filemoveconfirm'] = 'Diese Aktion wird die Zieldatei <b>$file</b> überschreiben.';
 $labels['arialabelsearchform'] = 'Suchformular für Dateien';
 $labels['arialabelquicksearchbox'] = 'Sucheingabe';
+$labels['arialabellistoptions'] = 'Dateilisten Optionen';
+$labels['arialabelfolderoptions'] = 'Ordner Aktionen';
+$labels['arialabelfileeditform'] = 'Datei Bearbeiten Maske';
+$labels['arialabelfoldercreateform'] = 'Ordner Erstellen Maske';
+$labels['arialabelfolderlist'] = 'Ordner / Sammlungs Auswahl';
+$labels['arialabelfileselectdialog'] = 'Datei Auswahl Dialog';
+$labels['arialabelattachmentoptions'] = 'Anhänge speichern Optionen';
+$labels['arialabelfilesavedialog'] = 'Datei(en) speichern Dialog';
 $labels['arialabelfileprops'] = 'Dateieigenschaften';
+$labels['arialabelfilecontent'] = 'Datei Inhalt';
 ?>

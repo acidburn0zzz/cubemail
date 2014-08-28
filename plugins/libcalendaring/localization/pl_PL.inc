@@ -1,8 +1,19 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'dopóki';
+$labels['at'] = 'w';
 $labels['alarmemail'] = 'Wyślij e-mail';
 $labels['alarmdisplay'] = 'Pokaż wiadomość';
+$labels['alarmaudio'] = 'Odtwórz dźwięk';
 $labels['alarmdisplayoption'] = 'Wiadomość';
 $labels['alarmemailoption'] = 'E-mail';
+$labels['alarmaudiooption'] = 'Dźwięk';
 $labels['alarmat'] = 'o $datetime';
 $labels['trigger@'] = 'w dniu';
 $labels['trigger-M'] = 'minut(y) przed';
@@ -11,7 +22,8 @@ $labels['trigger-D'] = 'dni przed';
 $labels['trigger+M'] = 'minut po';
 $labels['trigger+H'] = 'godzin(y) po';
 $labels['trigger+D'] = 'dni po';
-$labels['addalarm'] = 'dodaj alarm';
+$labels['addalarm'] = 'Dodaj alarm';
+$labels['removealarm'] = 'Usuń alarm';
 $labels['alarmtitle'] = 'Nadchodzące zdarzenia';
 $labels['dismissall'] = 'Odrzuć wszystkie';
 $labels['dismiss'] = 'Odrzuć';
@@ -41,6 +53,7 @@ $labels['onevery'] = 'W każdy';
 $labels['onsamedate'] = 'W tej samej dacie';
 $labels['forever'] = 'zawsze';
 $labels['recurrencend'] = 'dopóki';
+$labels['untilenddate'] = 'do daty';
 $labels['forntimes'] = '$nr raz(y)';
 $labels['first'] = 'pierwszy';
 $labels['second'] = 'drugi';
@@ -48,6 +61,8 @@ $labels['third'] = 'trzeci';
 $labels['fourth'] = 'czwarty';
 $labels['last'] = 'ostatni';
 $labels['dayofmonth'] = 'Dzień miesiąca';
+$labels['addrdate'] = 'Add repeat date';
+$labels['except'] = 'oprócz';
 $labels['itipinvitation'] = 'Zaproszenie do';
 $labels['itipupdate'] = 'Aktualizacja';
 $labels['itipcancellation'] = 'Anulowano:';
@@ -55,15 +70,38 @@ $labels['itipreply'] = 'Odpowiedź do';
 $labels['itipaccepted'] = 'Akceptuj';
 $labels['itiptentative'] = 'Może';
 $labels['itipdeclined'] = 'Odrzuć';
+$labels['itipdelegated'] = 'Pełnomocnik';
+$labels['itipneeds-action'] = 'Odłóż';
+$labels['itipcomment'] = 'Twoja odpowiedź';
+$labels['itipeditresponse'] = 'Wprowadź treść odpowiedzi';
+$labels['itipsendercomment'] = 'Komentarz nadawcy:';
+$labels['itipsuppressreply'] = 'Nie wysyłaj odpowiedzi';
+$labels['itipobjectnotfound'] = 'W twoim koncie nie znaleziono obiektu powiązanego z tą wiadomością.';
 $labels['itipsubjectaccepted'] = '"$title" zostało zaakceptowane przez $name';
 $labels['itipsubjecttentative'] = '"$title" zostało warunkowo zaakceptowane przez $name';
 $labels['itipsubjectdeclined'] = '"$title" zostało odrzucone przez $name';
+$labels['itipsubjectcancel'] = 'Twój udział w "$title" został anulowany';
+$labels['itipnewattendee'] = 'To jest odpowiedź od nowego uczestnika';
 $labels['updateattendeestatus'] = 'Zaktualizuj status uczestnika';
 $labels['acceptinvitation'] = 'Czy akceptujesz to zdarzenie?';
+$labels['acceptattendee'] = 'Akceptuj uczestnika';
+$labels['declineattendee'] = 'Odrzuć uczestnika';
+$labels['declineattendeeconfirm'] = 'Wprowadź wiadomość dla odrzuconego uczestnika (opcjonalnie):';
 $labels['youhaveaccepted'] = 'Zaakceptowałeś to zaproszenie';
 $labels['youhavetentative'] = 'Zaakceptowałeś to zdarzenie warunkowo';
 $labels['youhavedeclined'] = 'Odrzuciłeś to zdarzenie';
+$labels['youhavepreviouslyaccepted'] = 'Poprzednio zaakceptowałeś to zaproszenie';
+$labels['youhavepreviouslytentative'] = 'Poprzednio zaakceptowałeś to zaproszenie warunkowo';
+$labels['youhavepreviouslydeclined'] = 'Poprzednio odrzuciłeś to zaproszenie';
+$labels['youhavepreviouslydelegated'] = 'Poprzednio oddelegowałeś to zaproszenie';
+$labels['attendeeaccepted'] = 'Uczestnik zaakceptował';
+$labels['attendeetentative'] = 'Uczestnik zaakceptował warunkowo';
+$labels['attendeedeclined'] = 'Uczestnik odrzucił';
+$labels['attendeedelegated'] = 'Uczestnik oddelegował do $delegatedto';
 $labels['notanattendee'] = 'Nie jesteś na liście uczestników tego zdarzenia';
+$labels['outdatedinvitation'] = 'To zaproszenie zostało zastąpione nową wersją';
 $labels['importtocalendar'] = 'Zapisz w moim kalendarzu';
 $labels['removefromcalendar'] = 'Usuń z mojego kalendarza';
+$labels['updatemycopy'] = 'Uaktualnij moją kopię';
+$labels['deleteobjectconfirm'] = 'Czy na pewno chcesz usunąć ten obiekt?';
 $labels['savingdata'] = 'Zapisuję dane...';

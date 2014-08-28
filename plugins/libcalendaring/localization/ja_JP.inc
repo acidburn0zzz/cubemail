@@ -1,4 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'まで';
+$labels['at'] = 'の';
 $labels['alarmemail'] = 'メール送信';
 $labels['alarmdisplay'] = 'メッセージ表示';
 $labels['alarmdisplayoption'] = 'メッセージ';
@@ -11,7 +20,6 @@ $labels['trigger-D'] = '分後';
 $labels['trigger+M'] = '分後';
 $labels['trigger+H'] = '時間後';
 $labels['trigger+D'] = '日後';
-$labels['addalarm'] = 'アラーム追加';
 $labels['alarmtitle'] = '今後のイベント';
 $labels['dismissall'] = '全て削除';
 $labels['dismiss'] = '削除';
@@ -28,6 +36,7 @@ $labels['daily'] = '毎日';
 $labels['weekly'] = '毎週';
 $labels['monthly'] = '毎月';
 $labels['yearly'] = '毎年';
+$labels['rdate'] = 'on dates';
 $labels['every'] = 'いつでも';
 $labels['days'] = '日(s)';
 $labels['weeks'] = '週(s)';
@@ -47,6 +56,7 @@ $labels['third'] = '第3週';
 $labels['fourth'] = '第4週';
 $labels['last'] = '最終週';
 $labels['dayofmonth'] = '日';
+$labels['addrdate'] = 'Add repeat date';
 $labels['itipinvitation'] = '招待する';
 $labels['itipupdate'] = '更新';
 $labels['itipcancellation'] = 'キャンセル';
@@ -54,6 +64,7 @@ $labels['itipreply'] = '返信';
 $labels['itipaccepted'] = '承諾';
 $labels['itiptentative'] = 'たぶん';
 $labels['itipdeclined'] = '辞退';
+$labels['itipdelegated'] = '委任者';
 $labels['itipsubjectaccepted'] = '$name が "$title" を承諾しました';
 $labels['itipsubjecttentative'] = '$name が "$title" を仮承諾しました';
 $labels['itipsubjectdeclined'] = '$name が "$title" を辞退しました';

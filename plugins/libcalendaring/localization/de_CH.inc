@@ -1,4 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'bis';
+$labels['at'] = 'um';
 $labels['alarmemail'] = 'E-Mail senden';
 $labels['alarmdisplay'] = 'Nachricht anzeigen';
 $labels['alarmdisplayoption'] = 'Nachricht';
@@ -11,7 +20,6 @@ $labels['trigger-D'] = 'Tage davor';
 $labels['trigger+M'] = 'Minuten danach';
 $labels['trigger+H'] = 'Stunden danach';
 $labels['trigger+D'] = 'Tage danach';
-$labels['addalarm'] = 'Erinnerung hinzufügen';
 $labels['alarmtitle'] = 'Anstehende Termine';
 $labels['dismissall'] = 'Alle ignorieren';
 $labels['dismiss'] = 'Ignorieren';
@@ -56,6 +64,7 @@ $labels['itipreply'] = 'Antwort zu';
 $labels['itipaccepted'] = 'Akzeptieren';
 $labels['itiptentative'] = 'Mit Vorbehalt';
 $labels['itipdeclined'] = 'Ablehnen';
+$labels['itipdelegated'] = 'Vertreter';
 $labels['itipsubjectaccepted'] = 'Einladung zu "$title" wurde von $name angenommen';
 $labels['itipsubjecttentative'] = 'Einladung zu "$title" wurde von $name mit Vorbehalt angenommen';
 $labels['itipsubjectdeclined'] = 'Einladung zu "$title" wurde von $name abgelehnt';

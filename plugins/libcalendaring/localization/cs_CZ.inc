@@ -1,4 +1,12 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'do';
 $labels['alarmemail'] = 'Poslat e-mail';
 $labels['alarmdisplay'] = 'Zobrazit zprávu';
 $labels['alarmdisplayoption'] = 'Zpráva';
@@ -11,7 +19,6 @@ $labels['trigger-D'] = 'dnů před';
 $labels['trigger+M'] = 'minut po';
 $labels['trigger+H'] = 'hodin po';
 $labels['trigger+D'] = 'dnů po';
-$labels['addalarm'] = 'přidat upozornění';
 $labels['alarmtitle'] = 'Blížící se události';
 $labels['dismissall'] = 'Zrušit vše';
 $labels['dismiss'] = 'Zrušit';
@@ -48,6 +55,7 @@ $labels['third'] = 'třetí';
 $labels['fourth'] = 'čtvrtý';
 $labels['last'] = 'poslední';
 $labels['dayofmonth'] = 'Den v měsíci';
+$labels['addrdate'] = 'Add repeat date';
 $labels['itipinvitation'] = 'Pozvání na událost';
 $labels['itipupdate'] = 'Aktualizace události';
 $labels['itipcancellation'] = 'Zrušeno:';

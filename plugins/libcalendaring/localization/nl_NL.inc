@@ -1,4 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'tot';
+$labels['at'] = 'om';
 $labels['alarmemail'] = 'Verzend E-mail';
 $labels['alarmdisplay'] = 'Bericht weergeven';
 $labels['alarmdisplayoption'] = 'Bericht';
@@ -11,7 +20,6 @@ $labels['trigger-D'] = 'dagen voor';
 $labels['trigger+M'] = 'minuten na';
 $labels['trigger+H'] = 'uren na';
 $labels['trigger+D'] = 'dagen na';
-$labels['addalarm'] = 'alarm toevoegen';
 $labels['alarmtitle'] = 'Aankomende evenementen';
 $labels['dismissall'] = 'Dismiss all';
 $labels['dismiss'] = 'Dismiss';
@@ -56,6 +64,7 @@ $labels['itipreply'] = 'Reply to';
 $labels['itipaccepted'] = 'Accepteer';
 $labels['itiptentative'] = 'Misschien';
 $labels['itipdeclined'] = 'Afwijzen';
+$labels['itipdelegated'] = 'Gedelegeerde';
 $labels['itipcomment'] = 'Uw antwoord';
 $labels['itipeditresponse'] = 'Voeg een antwoord tekst toe';
 $labels['itipsendercomment'] = 'Opmerking van verzender:';

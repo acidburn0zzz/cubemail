@@ -1,4 +1,13 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'indtil';
+$labels['at'] = 'ved';
 $labels['alarmemail'] = 'Afsend e-post';
 $labels['alarmdisplay'] = 'Vis besked';
 $labels['alarmdisplayoption'] = 'Besked';
@@ -11,7 +20,6 @@ $labels['trigger-D'] = 'dage før';
 $labels['trigger+M'] = 'minutter efter';
 $labels['trigger+H'] = 'timer efter';
 $labels['trigger+D'] = 'dage efter';
-$labels['addalarm'] = 'tilføj alarm';
 $labels['alarmtitle'] = 'Kommende arrangementer';
 $labels['dismissall'] = 'Afvis alle';
 $labels['dismiss'] = 'Afvis';
@@ -54,6 +62,7 @@ $labels['itipreply'] = 'Svar til';
 $labels['itipaccepted'] = 'Acceptér';
 $labels['itiptentative'] = 'Måske';
 $labels['itipdeclined'] = 'Afvis';
+$labels['itipdelegated'] = 'Delegér';
 $labels['itipsubjectaccepted'] = '"$title" er blevet accepteret af $name';
 $labels['itipsubjecttentative'] = '"$title" er blevet forsøgsvist accepteret af $name';
 $labels['itipsubjectdeclined'] = '"$title" af blevet afvist af $name';

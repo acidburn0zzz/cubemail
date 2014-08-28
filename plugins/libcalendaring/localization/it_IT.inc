@@ -1,4 +1,12 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'fino al';
 $labels['alarmemail'] = 'Spedisci email';
 $labels['alarmdisplay'] = 'Mostra messaggio';
 $labels['alarmdisplayoption'] = 'Messaggio';
@@ -10,7 +18,6 @@ $labels['trigger-D'] = 'giorni prima';
 $labels['trigger+M'] = 'minuti dopo';
 $labels['trigger+H'] = 'ore dopo';
 $labels['trigger+D'] = 'giorni dopo';
-$labels['addalarm'] = 'aggiungi allarme';
 $labels['alarmtitle'] = 'Prossimi eventi';
 $labels['dismissall'] = 'Scarta tutti';
 $labels['dismiss'] = 'Scarta';
@@ -47,6 +54,7 @@ $labels['third'] = 'terzo';
 $labels['fourth'] = 'quarto';
 $labels['last'] = 'ultimo';
 $labels['dayofmonth'] = 'Giorno del mese';
+$labels['addrdate'] = 'Add repeat date';
 $labels['itipinvitation'] = 'Invito a';
 $labels['itipupdate'] = 'Aggiornamento di';
 $labels['itipcancellation'] = 'Annullato:';
@@ -54,6 +62,7 @@ $labels['itipreply'] = 'Rispondi a';
 $labels['itipaccepted'] = 'Accetta';
 $labels['itiptentative'] = 'Forse';
 $labels['itipdeclined'] = 'Rifiuta';
+$labels['itipdelegated'] = 'Delegato';
 $labels['itipobjectnotfound'] = 'L\'oggetto a cui si riferisce questo messaggio non è stato trovato nel tuo account.';
 $labels['itipsubjectaccepted'] = '"$title" è stato accettato da $name';
 $labels['itipsubjecttentative'] = '"$title" è stato accettato con riserva da $name';

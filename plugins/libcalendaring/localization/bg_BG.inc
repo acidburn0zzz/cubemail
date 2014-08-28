@@ -1,4 +1,12 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'до';
 $labels['alarmemail'] = 'Send Email';
 $labels['alarmdisplay'] = 'Show message';
 $labels['alarmdisplayoption'] = 'Message';
@@ -11,7 +19,6 @@ $labels['trigger-D'] = 'days before';
 $labels['trigger+M'] = 'minutes after';
 $labels['trigger+H'] = 'hours after';
 $labels['trigger+D'] = 'days after';
-$labels['addalarm'] = 'add alarm';
 $labels['alarmtitle'] = 'Upcoming events';
 $labels['dismissall'] = 'Dismiss all';
 $labels['dismiss'] = 'Dismiss';
@@ -22,6 +29,32 @@ $labels['repeatinhrs'] = 'Repeat in $hrs hours';
 $labels['repeattomorrow'] = 'Repeat tomorrow';
 $labels['repeatinweek'] = 'Repeat in a week';
 $labels['showmore'] = 'Show more...';
+$labels['frequency'] = 'Repeat';
+$labels['never'] = 'never';
+$labels['daily'] = 'daily';
+$labels['weekly'] = 'weekly';
+$labels['monthly'] = 'monthly';
+$labels['yearly'] = 'annually';
+$labels['rdate'] = 'on dates';
+$labels['every'] = 'Every';
+$labels['days'] = 'day(s)';
+$labels['weeks'] = 'week(s)';
+$labels['months'] = 'month(s)';
+$labels['bydays'] = 'On';
+$labels['untildate'] = 'the';
+$labels['each'] = 'Each';
+$labels['onevery'] = 'On every';
+$labels['onsamedate'] = 'On the same date';
+$labels['forever'] = 'forever';
+$labels['recurrencend'] = 'до';
+$labels['forntimes'] = 'for $nr time(s)';
+$labels['first'] = 'first';
+$labels['second'] = 'second';
+$labels['third'] = 'third';
+$labels['fourth'] = 'fourth';
+$labels['last'] = 'last';
+$labels['dayofmonth'] = 'Day of month';
+$labels['addrdate'] = 'Add repeat date';
 $labels['itipinvitation'] = 'Invitation to';
 $labels['itipupdate'] = 'Update of';
 $labels['itipcancellation'] = 'Отказано:';
