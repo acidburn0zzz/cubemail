@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Address Book plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
+ */
 $labels['initials'] = 'Initialen';
 $labels['profession'] = 'Beroep';
 $labels['officelocation'] = 'Kantoorlocatie';
@@ -29,6 +36,7 @@ $labels['personalfirst'] = 'Eerst persoonlijke adresboek(en)';
 $labels['globalfirst'] = 'Eerst globale adresboek(en)';
 $labels['personalonly'] = 'Alleen persoonlijke adresboek(en)';
 $labels['globalonly'] = 'Alleen globale adresboek(en)';
+$labels['foldersubscribe'] = 'Permanent weergeven';
 $messages['bookdeleteconfirm']  = 'Weet u zeker dat u het geselecteerde adresboek inclusief inhoud wilt verwijderen?';
 $messages['bookdeleting'] = 'Adresboek aan het verwijderen...';
 $messages['booksaving'] = 'Adresboek aan het opslaan...';

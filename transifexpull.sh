@@ -3,7 +3,10 @@
 # In 'translator' mode files will contain empty translated texts
 # where translation is not available, we'll remove these later
 
-tx --debug pull -a --mode translator
+# --force is necessary to avoid timestamp issues
+# https://bugs.launchpad.net/ironic/+bug/1298645/comments/4
+
+tx --debug pull --force -a --mode translator
 
 PWD=`dirname "$0"`
 

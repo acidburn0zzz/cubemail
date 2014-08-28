@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Address Book plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
+ */
 $labels['initials'] = 'Iniciais';
 $labels['profession'] = 'Profissão';
 $labels['officelocation'] = 'Local de trabalho';
@@ -22,11 +29,14 @@ $labels['bookdelete'] = 'Remover catálogo de endereços';
 $labels['bookproperties'] = 'Propriedades do catálogo de endereços';
 $labels['bookname'] = 'Nome do catálogo';
 $labels['parentbook'] = 'Catalogo superior';
+$labels['bookshowurl'] = 'Exibir URL do CardDAV';
+$labels['carddavurldescription'] = 'Copie este endereço em um aplicativo cliente <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDav</a> para que possa sincronizar este específico endereço para seu computador ou dispositivo móvel.';
 $labels['addressbookprio'] = 'Seleção/comportamento do(s) catálogo de endereços';
 $labels['personalfirst'] = 'Catálogo(s) de endereço primeiro ';
 $labels['globalfirst'] = 'Catálogo de endereço(s) global primeiro';
 $labels['personalonly'] = 'Catálogo de endereço(s) pessoal apenas';
 $labels['globalonly'] = 'Catálogo(s) de endereço global apenas';
+$labels['foldersubscribe'] = 'Listar permanentemente';
 $messages['bookdeleteconfirm']  = 'Você realmente gostaria de remover o catálogo de endereços selecionado e todos os contatos que estão dentro dele?';
 $messages['bookdeleting'] = 'Removendo catálogo de endereço...';
 $messages['booksaving'] = 'Salvando catálogo de endereço...';

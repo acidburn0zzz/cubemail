@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Address Book plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
+ */
 $labels['initials'] = 'Initiales';
 $labels['profession'] = 'Profession';
 $labels['officelocation'] = 'Emplacement du bureau';
@@ -29,6 +36,7 @@ $labels['personalfirst'] = 'Carnet(s) d\'adresse personnel en premier';
 $labels['globalfirst'] = 'Carnet(s) d\'adresse global(aux) en premier';
 $labels['personalonly'] = 'Carnet(s) d\'adresse personnel seulement';
 $labels['globalonly'] = 'Carnet(s) d\'adresse global(aux) seulement';
+$labels['foldersubscribe'] = 'Lister définitivement';
 $messages['bookdeleteconfirm']  = 'Voulez-vous vraiment supprimer le carnet d\'adresse sélectionné et tous ses contacts?';
 $messages['bookdeleting'] = 'Suppression du carnet d\'adresse...';
 $messages['booksaving'] = 'Enregistrement du carnet d\'adresse...';

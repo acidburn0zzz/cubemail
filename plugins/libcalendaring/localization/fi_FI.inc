@@ -1,4 +1,12 @@
 <?php
+/**
+ * Localizations for the Kolab calendaring utilities plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
+ */
+$labels['until'] = 'kunnes';
 $labels['alarmemail'] = 'Lähetä sähköposti';
 $labels['alarmdisplay'] = 'Näytä viesti';
 $labels['alarmdisplayoption'] = 'Viesti';
@@ -6,7 +14,6 @@ $labels['alarmemailoption'] = 'Sähköposti';
 $labels['trigger-M'] = 'minuuttia ennen';
 $labels['trigger-H'] = 'tuntia ennen';
 $labels['trigger-D'] = 'päivää ennen';
-$labels['addalarm'] = 'lisää hälytys';
 $labels['alarmtitle'] = 'Tulevat tapahtumat';
 $labels['dismissall'] = 'Hylkää kaikki';
 $labels['dismiss'] = 'Hylkää';
@@ -17,10 +24,17 @@ $labels['repeatinhrs'] = 'Toista $hrs tunnin päästä';
 $labels['repeattomorrow'] = 'Toista huomenna';
 $labels['repeatinweek'] = 'Toista viikon päästä';
 $labels['showmore'] = 'Näytä lisää...';
+$labels['daily'] = 'päivittäin';
+$labels['weekly'] = 'viikottain';
+$labels['monthly'] = 'kuukausittain';
+$labels['yearly'] = 'vuosittain';
+$labels['forever'] = 'ikuisesti';
+$labels['recurrencend'] = 'kunnes';
 $labels['itipcancellation'] = 'Peruttu:';
 $labels['itipaccepted'] = 'Hyväksy';
 $labels['itiptentative'] = 'Ehkä';
 $labels['itipdeclined'] = 'Kieltäydy';
+$labels['itipdelegated'] = 'Edustaja';
 $labels['itipsubjectaccepted'] = '$name on hyväksynyt tapahtuman "$title"';
 $labels['itipsubjecttentative'] = '$name on alustavasti hyväkstynyt tapahtuman "$title"';
 $labels['itipsubjectdeclined'] = '$name on kieltäytynyt osallistumasta tapahtumaan "$title"';

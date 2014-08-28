@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['time_format'] = 'Format datuma';
 $labels['first_day'] = 'Prvi dan tjedna';
 $labels['first_hour'] = 'Prvi sat za prikaz';
