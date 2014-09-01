@@ -9,7 +9,7 @@
 $labels['tabtitle'] = 'Vertretung';
 $labels['delegationtitle'] = 'Verwalte Vertreter';
 $labels['delegates'] = 'Vertreter';
-$labels['delegate'] = 'Vertreten';
+$labels['delegate'] = 'Vertreter';
 $labels['mail'] = 'E-Mail';
 $labels['contact'] = 'Kontakte';
 $labels['event'] = 'Kalender';
