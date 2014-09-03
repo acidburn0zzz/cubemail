@@ -309,7 +309,21 @@ rcube_webmail.prototype.book_delete_done = function(id, recur)
 // action executed after book create/update
 rcube_webmail.prototype.book_update = function(data, old)
 {
-    var link, classes = [(data.group || ''), 'addressbook'];
+    var classes = ['addressbook'],
+        oldid = old ? rcmail.html_identifier_encode(old) : null,
+        content = $('<div class="subscribed">').append(
+            $('<a>').html(data.name).attr({
+                href: this.url('', { _source: data.id }),
+                rel: data.id,
+                onclick: "return rcmail.command('list', '" + data.id + "', this)"
+            }),
+            $('<span>').attr({
+                'class': 'subscribed',
+                role: 'checkbox',
+                'aria-checked': true,
+                title: this.gettext('kolab_addressbook.foldersubscribe')
+            })
+        );
 
     this.show_contentframe(false);
 
@@ -319,19 +333,17 @@ rcube_webmail.prototype.book_update = function(data, old)
     if (data.group)
         classes.push(data.group);
 
-    link = $('<a>').html(data.name)
-      .attr({
-        href: this.url('', { _source: data.id }),
-        rel: data.id,
-        onclick: "return rcmail.command('list', '" + data.id + "', this)"
-      });
-
     // update (remove old row)
     if (old) {
-      this.treelist.update(old, { id: data.id, html:link, classes: classes, parent:(old != data.id ? data.parent : null) }, data.group || true);
+        // is the folder subscribed?
+        if (!$('#rcmli' + oldid + ' > div.subscribed').length) {
+            content.removeClass('subscribed').find('span').attr('aria-checked', false);
+        }
+
+        this.treelist.update(old, {id: data.id, html: content, classes: classes, parent: (old != data.id ? data.parent : null)}, data.group || true);
     }
     else {
-      this.treelist.insert({ id: data.id, html:link, classes: classes, childlistclass: 'groups' }, data.parent, data.group || true);
+        this.treelist.insert({id: data.id, html: content, classes: classes, childlistclass: 'groups'}, data.parent, data.group || true);
     }
 
     this.env.contactfolders[data.id] = this.env.address_sources[data.id] = data;

@@ -627,7 +627,7 @@ class kolab_addressbook extends rcube_plugin
             $this->rc->output->show_message('kolab_addressbook.book'.$type.'d', 'confirmation');
             $this->rc->output->command('set_env', 'delimiter', $delimiter);
             $this->rc->output->command('book_update', array(
-                'id'       => kolab_storage::folder_id($folder),
+                'id'       => kolab_storage::folder_id($folder, true),
                 'name'     => $kolab_folder->get_foldername(),
                 'readonly' => false,
                 'editable' => true,
@@ -636,7 +636,7 @@ class kolab_addressbook extends rcube_plugin
                 'group'    => $kolab_folder->get_namespace(),
                 'parent'   => kolab_storage::folder_id($kolab_folder->get_parent()),
                 'kolab'    => true,
-            ), kolab_storage::folder_id($prop['oldname']));
+            ), kolab_storage::folder_id($prop['oldname'], true));
 
             $this->rc->output->send('iframe');
         }
@@ -762,7 +762,7 @@ class kolab_addressbook extends rcube_plugin
                 }
             }
         }
-        
+
         if ($success) {
             $this->rc->output->show_message('successfullysaved', 'confirmation');
         }
@@ -790,7 +790,7 @@ class kolab_addressbook extends rcube_plugin
             $this->rc->output->command('set_rowcount', rcmail_get_rowcount_text(new rcube_result_set()));
             $this->rc->output->command('set_env', 'delimiter', $delimiter);
             $this->rc->output->command('list_contacts_clear');
-            $this->rc->output->command('book_delete_done', kolab_storage::folder_id($folder));
+            $this->rc->output->command('book_delete_done', kolab_storage::folder_id($folder, true));
         }
         else {
             $this->rc->output->show_message('kolab_addressbook.bookdeleteerror', 'error');

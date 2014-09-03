@@ -103,6 +103,7 @@ class kolab_addressbook_ui
                 'kolab_addressbook.listsearchresults',
                 'kolab_addressbook.nraddressbooksfound',
                 'kolab_addressbook.noaddressbooksfound',
+                'kolab_addressbook.foldersubscribe',
                 'resetsearch');
         }
         // book create/edit form
