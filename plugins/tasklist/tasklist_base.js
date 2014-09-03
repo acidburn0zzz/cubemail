@@ -120,13 +120,4 @@ window.rcmail && rcmail.env.task == 'mail' && rcmail.addEventListener('init', fu
             rcmail.enable_command('attachment-save-task', is_ics);
         }
     });
-
-    // add contextmenu item
-    if (window.rcm_contextmenu_register_command) {
-        rcm_contextmenu_register_command(
-            'tasklist-create-from-mail',
-            function(cmd,el){ tasks.create_from_mail() },
-            'tasklist.createfrommail',
-            'moveto');
-        }
 });

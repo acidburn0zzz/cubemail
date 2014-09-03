@@ -135,3 +135,7 @@
 	padding-right: 36px;
 }
 
+/* for contextmenu */
+#directorylist a.contextRow {
+	background-color: #C7E3EF;
+}

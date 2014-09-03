@@ -620,24 +620,16 @@ class kolab_addressbook extends rcube_plugin
         }
 
         if ($result) {
-            $storage = $this->rc->get_storage();
-            $delimiter = $storage->get_hierarchy_delimiter();
             $kolab_folder = kolab_storage::get_folder($folder);
+
+            // get folder/addressbook properties
+            $abook = new rcube_kolab_contacts($folder);
+            $props = $this->abook_prop(kolab_storage::folder_id($folder, true), $abook);
+            $props['parent'] = kolab_storage::folder_id($kolab_folder->get_parent(), true);
 
             $this->rc->output->show_message('kolab_addressbook.book'.$type.'d', 'confirmation');
             $this->rc->output->command('set_env', 'delimiter', $delimiter);
-            $this->rc->output->command('book_update', array(
-                'id'       => kolab_storage::folder_id($folder, true),
-                'name'     => $kolab_folder->get_foldername(),
-                'readonly' => false,
-                'editable' => true,
-                'groups'   => true,
-                'realname' => rcube_charset::convert($folder, 'UTF7-IMAP'), // IMAP folder name
-                'group'    => $kolab_folder->get_namespace(),
-                'parent'   => kolab_storage::folder_id($kolab_folder->get_parent()),
-                'kolab'    => true,
-            ), kolab_storage::folder_id($prop['oldname'], true));
-
+            $this->rc->output->command('book_update', $props, kolab_storage::folder_id($prop['oldname'], true));
             $this->rc->output->send('iframe');
         }
 

@@ -125,15 +125,6 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
           rcmail.enable_command('attachment-save-calendar', mimetype == 'text/calendar' || mimetype == 'text/x-vcalendar' || mimetype == 'application/ics');
         }
       });
-
-      // add contextmenu item
-      if (window.rcm_contextmenu_register_command) {
-        rcm_contextmenu_register_command(
-          'calendar-create-from-mail',
-          function(cmd,el){ cal.create_from_mail() },
-          'calendar.createfrommail',
-          'moveto');
-      }
     }
   }
 
