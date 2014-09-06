@@ -133,4 +133,5 @@ $labels['errorsaving'] = 'Неуспешно записването на про�
 $labels['attendeupdateesuccess'] = 'Successfully updated the participant\'s status';
 $labels['itipinvalidrequest'] = 'This invitation is no longer valid';
 $labels['futurevents'] = 'Бъдещи';
+$labels['allevents'] = 'All';
 ?>

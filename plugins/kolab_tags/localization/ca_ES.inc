@@ -6,6 +6,9 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
+$labels['tags'] = 'Etiquetes';
 $labels['edit'] = 'Edita';
+$labels['delete'] = 'Suprimeix';
 $labels['tagname'] = 'Nom';
 $labels['tagcolor'] = 'Color';
+$labels['saving'] = 'S\'estan desant les dades...';

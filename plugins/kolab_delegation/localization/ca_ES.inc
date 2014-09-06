@@ -7,4 +7,6 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
 $labels['event'] = 'Calendaris';
+$labels['task'] = 'Tasques';
+$labels['savingdata'] = 'S\'estan desant les dades...';
 ?>

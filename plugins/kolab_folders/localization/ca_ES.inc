@@ -7,4 +7,5 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
 $labels['foldertypeevent'] = 'Calendari';
+$labels['foldertypetask'] = 'Tasques';
 ?>

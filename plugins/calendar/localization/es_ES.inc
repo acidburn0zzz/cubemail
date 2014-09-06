@@ -44,6 +44,7 @@ $labels['tabsharing'] = 'Sharing';
 $labels['savingdata'] = 'Guardando datos...';
 $labels['attendeupdateesuccess'] = 'Successfully updated the participant\'s status';
 $labels['itipinvalidrequest'] = 'This invitation is no longer valid';
+$labels['allevents'] = 'All';
 $labels['user'] = 'Usuario';
 $labels['operation'] = 'Acción';
 ?>

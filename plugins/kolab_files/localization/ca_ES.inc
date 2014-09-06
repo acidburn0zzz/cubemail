@@ -8,6 +8,7 @@
  */
 $labels['save'] = 'Desa';
 $labels['cancel'] = 'Cancel·la';
+$labels['folderinside'] = 'Insereix dins';
 $labels['name'] = 'Nom';
 $labels['edit'] = 'Edita';
 $labels['save'] = 'Desa';
