@@ -30,6 +30,7 @@ class tasklist_kolab_driver extends tasklist_driver
     public $attendees   = true;
     public $undelete    = false; // task undelete action
     public $alarm_types = array('DISPLAY','AUDIO');
+    public $search_more_results;
 
     private $rc;
     private $plugin;
@@ -153,7 +154,7 @@ class tasklist_kolab_driver extends tasklist_driver
     public function get_lists(&$tree = null)
     {
         // attempt to create a default list for this user
-        if (empty($this->lists)) {
+        if (empty($this->lists) && !isset($this->search_more_results)) {
             $prop = array('name' => 'Tasks', 'color' => '0000CC', 'default' => true);
             if ($this->create_list($prop))
                 $this->_read_lists(true);
