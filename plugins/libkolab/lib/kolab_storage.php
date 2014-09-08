@@ -1534,6 +1534,16 @@ class kolab_storage
                     $folders[$foldername] = new kolab_storage_folder_user($foldername, $other_ns);
                 }
             }
+
+            // for every (subscribed) user folder, list all (unsubscribed) subfolders
+            foreach ($folders as $userfolder) {
+                foreach ((array)self::list_folders($userfolder->name . $delimiter, '*', $type, false, $folderdata) as $foldername) {
+                    if (!$folders[$foldername]) {
+                        $folders[$foldername] = new kolab_storage_folder($foldername, $folderdata[$foldername]);
+                        $userfolder->children[] = $folders[$foldername];
+                    }
+                }
+            }
         }
 
         return $folders;

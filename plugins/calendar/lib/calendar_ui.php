@@ -298,6 +298,8 @@ class calendar_ui
       $classes[] = 'readonly';
     if ($prop['subscribed'])
       $classes[] = 'subscribed';
+    if ($prop['subscribed'] === 2)
+      $classes[] = 'partial';
     if ($prop['class'])
       $classes[] = $prop['class'];
 

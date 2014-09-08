@@ -289,6 +289,11 @@ pre {
 	background-position: -16px -110px;
 }
 
+#calendars .treelist div.subscribed.partial a.subscribed,
+#calendars .treelist div.subscribed.partial a.subscribed:focus {
+	background-position: -16px -148px;
+}
+
 #calendars .treelist li a.quickview {
 	display: inline-block;
 	position: absolute;

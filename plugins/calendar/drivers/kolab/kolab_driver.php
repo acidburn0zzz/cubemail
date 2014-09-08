@@ -93,10 +93,13 @@ class kolab_driver extends calendar_driver
     $this->calendars = array();
 
     foreach ($folders as $folder) {
-      if ($folder instanceof kolab_storage_folder_user)
+      if ($folder instanceof kolab_storage_folder_user) {
         $calendar = new kolab_user_calendar($folder->name, $this->cal);
-      else
+        $calendar->subscriptions = count($folder->children) > 0;
+      }
+      else {
         $calendar = new kolab_calendar($folder->name, $this->cal);
+      }
 
       if ($calendar->ready) {
         $this->calendars[$calendar->id] = $calendar;
@@ -210,7 +213,7 @@ class kolab_driver extends calendar_driver
       }
 
       if ($cal->subscriptions) {
-        $calendars[$cal->id]['subscribed'] = (bool)$cal->is_subscribed();
+        $calendars[$cal->id]['subscribed'] = $cal->is_subscribed();
       }
     }
 
@@ -488,6 +491,7 @@ class kolab_driver extends calendar_driver
         foreach (kolab_storage::list_user_folders($user, 'event', false) as $foldername) {
           $cal = new kolab_calendar($foldername, $this->cal);
           $this->calendars[$cal->id] = $cal;
+          $calendar->subscriptions = true;
         }
       }
 

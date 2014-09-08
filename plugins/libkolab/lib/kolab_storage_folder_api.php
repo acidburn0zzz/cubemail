@@ -326,5 +326,14 @@ abstract class kolab_storage_folder_api
         return $subscribed ? kolab_storage::folder_subscribe($this->name) : kolab_storage::folder_unsubscribe($this->name);
     }
 
+    /**
+     * Return folder name as string representation of this object
+     *
+     * @return string Full IMAP folder name
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
 }
 

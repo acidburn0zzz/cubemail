@@ -149,7 +149,8 @@ function kolab_folderlist(node, p)
             prop = search_results[id],
             parent_id = prop.parent || null,
             has_children = node.children && node.children.length,
-            dom_node = has_children ? li.children().first().clone(true, true) : li.children().first();
+            dom_node = has_children ? li.children().first().clone(true, true) : li.children().first(),
+            childs = [];
 
         // find parent node and insert at the right place
         if (parent_id && me.get_node(parent_id)) {
@@ -171,18 +172,58 @@ function kolab_folderlist(node, p)
                 .removeClass('virtual');
         }
         else {
+            // copy childs, too
+            if (has_children && prop.group == 'other user') {
+                for (var cid, j=0; j < node.children.length; j++) {
+                    if ((cid = node.children[j].id) && search_results[cid]) {
+                        childs.push(search_results_widget.get_node(cid));
+                    }
+                }
+            }
+
             // move this result item to the main list widget
             me.insert({
                 id: id,
                 classes: [ prop.group || '' ],
                 virtual: prop.virtual,
                 html: dom_node,
+                level: node.level,
+                collapsed: true,
+                children: childs
             }, parent_id, prop.group);
         }
 
         delete prop.html;
         prop.active = active;
         me.triggerEvent('insert-item', { id: id, data: prop, item: li });
+
+        // register childs, too
+        if (childs.length) {
+            for (var cid, j=0; j < node.children.length; j++) {
+                if ((cid = node.children[j].id) && search_results[cid]) {
+                    prop = search_results[cid];
+                    delete prop.html;
+                    prop.active = false;
+                    me.triggerEvent('insert-item', { id: cid, data: prop });
+                }
+            }
+        }
+    }
+
+    // update the given item's parent's (partial) subscription state
+    function parent_subscription_status(li)
+    {
+        var top_li = li.closest(me.container.children('li')),
+            all_childs = $('li > div:not(.treetoggle)', top_li),
+            subscribed = all_childs.filter('.subscribed').length;
+
+        if (subscribed == 0) {
+            top_li.children('div:first').removeClass('subscribed partial');
+        }
+        else {
+            top_li.children('div:first')
+                .addClass('subscribed')[subscribed < all_childs.length ? 'addClass' : 'removeClass']('partial');
+        }
     }
 
     // do some magic when search is performed on the widget
@@ -242,21 +283,39 @@ function kolab_folderlist(node, p)
     this.container.on('click', 'a.subscribed, span.subscribed', function(e){
         var li = $(this).closest('li'),
             id = li.attr('id').replace(new RegExp('^'+p.id_prefix), ''),
-            div = li.children().first();
+            div = li.children().first(),
+            is_subscribed;
 
-        if (me.is_search())
+        if (me.is_search()) {
           id = id.replace(/--xsR$/, '');
+          li = $(me.get_item(id, true));
+          div = $(div).add(li.children().first());
+        }
 
         if (p.id_decode)
             id = p.id_decode(id);
 
         div.toggleClass('subscribed');
-        $(this).attr('aria-checked', div.hasClass('subscribed') ? 'true' : 'false');
-        me.triggerEvent('subscribe', { id: id, subscribed: div.hasClass('subscribed'), item: li });
+        is_subscribed = div.hasClass('subscribed');
+        $(this).attr('aria-checked', is_subscribed ? 'true' : 'false');
+        me.triggerEvent('subscribe', { id: id, subscribed: is_subscribed, item: li });
+
+        // update subscribe state of all 'virtual user' child folders
+        if (li.hasClass('other user')) {
+            $('ul li > div', li).each(function() {
+                $(this)[is_subscribed ? 'addClass' : 'removeClass']('subscribed');
+                $('.subscribed', div).attr('aria-checked', is_subscribed ? 'true' : 'false');
+            });
+            div.removeClass('partial');
+        }
+        // propagate subscription state to parent  'virtual user' folder
+        else if (li.closest('li.other.user').length) {
+            parent_subscription_status(li);
+        }
 
         e.stopPropagation();
         return false;
-    })
+    });
 
 }
 

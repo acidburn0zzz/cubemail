@@ -26,6 +26,7 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
     protected static $ldapcache = array();
 
     public $ldaprec;
+    public $type;
 
     /**
      * Default constructor
@@ -85,13 +86,28 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
     }
 
     /**
-     * Check subscription status of this folder
+     * Check subscription status of this folder.
+     * Subscription of a virtual user folder depends on the subscriptions of subfolders.
      *
      * @return boolean True if subscribed, false if not
      */
     public function is_subscribed()
     {
-        return kolab_storage::folder_is_subscribed($this->name, true);
+        if (!empty($this->type)) {
+            $children = $subscribed = 0;
+            $delimiter = $this->imap->get_hierarchy_delimiter();
+            foreach ((array)kolab_storage::list_folders($this->name . $delimiter, '*', $this->type, false) as $subfolder) {
+                if (kolab_storage::folder_is_subscribed($subfolder)) {
+                    $subscribed++;
+                }
+                $children++;
+            }
+            if ($subscribed > 0) {
+                return $subscribed == $children ? true : 2;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -103,9 +119,17 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
      */
     public function subscribe($subscribed)
     {
-        return $subscribed ?
-            kolab_storage::folder_subscribe($this->name, true) :
-            kolab_storage::folder_unsubscribe($this->name, true);
+        $success = false;
+
+        // (un)subscribe all subfolders of a given type
+        if (!empty($this->type)) {
+            $delimiter = $this->imap->get_hierarchy_delimiter();
+            foreach ((array)kolab_storage::list_folders($this->name . $delimiter, '*', $this->type, false) as $subfolder) {
+                $success |= ($subscribed ? kolab_storage::folder_subscribe($subfolder) : kolab_storage::folder_unsubscribe($subfolder));
+            }
+        }
+
+        return $success;
     }
 
 }

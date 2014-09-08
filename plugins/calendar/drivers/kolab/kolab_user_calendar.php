@@ -51,6 +51,7 @@ class kolab_user_calendar extends kolab_calendar
     }
 
     $this->ready = !empty($this->userdata['kolabtargetfolder']);
+    $this->storage->type = 'event';
 
     if ($this->ready) {
       // ID is derrived from the user's kolabtargetfolder attribute
@@ -141,6 +142,15 @@ class kolab_user_calendar extends kolab_calendar
     return false;
   }
 
+  /**
+   * Check subscription status of this folder
+   *
+   * @return boolean True if subscribed, false if not
+   */
+  public function is_subscribed()
+  {
+    return $this->storage->is_subscribed();
+  }
 
   /**
    * Update properties of this calendar folder
@@ -201,7 +211,7 @@ class kolab_user_calendar extends kolab_calendar
 
     // aggregate all calendar folders the user shares (but are not subscribed)
     foreach (kolab_storage::list_user_folders($this->userdata, 'event', false) as $foldername) {
-      if (!kolab_storage::folder_is_subscribed($foldername, true)) {
+      if (!empty($_REQUEST['_quickview']) || !kolab_storage::folder_is_subscribed($foldername, true)) {
         $cal = new kolab_calendar($foldername, $this->cal);
         foreach ($cal->list_events($start, $end, $search, 1) as $event) {
           $this->events[$event['id']] = $event;
@@ -302,7 +312,7 @@ class kolab_user_calendar extends kolab_calendar
             'id'        => md5($this->id . $from->format('U') . '/' . $to->format('U')),
             'calendar'  => $this->id,
             'changed'   => $fb['created'] ?: new DateTime(),
-            'title'     => $titlemap[$type] ?: $type,
+            'title'     => $this->get_name() . ' ' . ($titlemap[$type] ?: $type),
             'start'     => $from,
             'end'       => $to,
             'free_busy' => $statusmap[$type] ?: 'busy',
