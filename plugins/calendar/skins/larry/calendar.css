@@ -1703,7 +1703,8 @@ a.dropdown-link:after {
 	font-size: 1em !important;
 }
 
-.fc-type-freebusy {
+.fc-event-hori.fc-type-freebusy,
+.fc-event-vert.fc-type-freebusy {
 	opacity: 0.55;
 	color: #fff !important;
 
@@ -1724,15 +1725,22 @@ a.dropdown-link:after {
 	cursor: default !important;
 }
 
-.fc-type-freebusy .fc-event-skin,
-.fc-type-freebusy .fc-event-inner {
+.fc-event-row.fc-type-freebusy td {
+	color: #999;
+}
+
+.fc-event-hori.fc-type-freebusy .fc-event-skin,
+.fc-event-hori.fc-type-freebusy .fc-event-inner,
+.fc-event-vert.fc-type-freebusy .fc-event-skin,
+.fc-event-vert.fc-type-freebusy .fc-event-inner {
 	background-color: transparent !important;
 	border-color: #444 !important;
 	color: #fff !important;
 	text-shadow: 0 1px 1px #000;
 }
 
-.fc-type-freebusy .fc-event-title {
+.fc-event-hori.fc-type-freebusy .fc-event-title,
+.fc-event-vert.fc-type-freebusy .fc-event-title {
 	position: absolute;
 	top: -5000px;
 }
