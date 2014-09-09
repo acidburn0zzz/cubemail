@@ -342,6 +342,7 @@ body.tasklist.attachmentwin #mainscreen {
 #tasklistsbox .treelist div > a.quickview:focus,
 #tasklistsbox .treelist li div:hover > a.quickview {
 	background-position: -20px -101px;
+	background-color: transparent !important;
 }
 
 #tasklistsbox .treelist li div.focusview > a.quickview {

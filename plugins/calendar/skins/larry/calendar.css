@@ -311,6 +311,7 @@ pre {
 #calendars .treelist div > a.quickview:focus,
 #calendars .treelist li div:hover > a.quickview {
 	background-position: 0 -128px;
+	background-color: transparent !important;
 }
 
 #calendars .treelist li div.focusview > a.quickview {
