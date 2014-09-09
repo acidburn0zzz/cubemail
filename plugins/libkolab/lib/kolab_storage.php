@@ -1104,8 +1104,10 @@ class kolab_storage
         self::setup();
 
         // return in-memory cached result
-        if (is_array(self::$typedata['*']) && array_key_exists($folder, self::$typedata['*'])) {
-            return self::$typedata['*'][$folder];
+        foreach (self::$typedata as $typedata) {
+            if (array_key_exists($folder, $typedata)) {
+                return $typedata[$folder];
+            }
         }
 
         $metadata = self::$imap->get_metadata($folder, array(self::CTYPE_KEY, self::CTYPE_KEY_PRIVATE));
