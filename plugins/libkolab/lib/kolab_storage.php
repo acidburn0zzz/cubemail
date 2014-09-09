@@ -1049,7 +1049,8 @@ class kolab_storage
                         foreach ((array)self::$imap->get_metadata('%', $type_keys) as $folder => $metadata) {
                             if (!in_array($folder, $blacklist)) {
                                 $folderdata[$folder] = $metadata;
-                                if ($data = self::$imap->get_metadata($folder.$delimiter.'*', $type_keys)) {
+                                $opts = self::$imap->folder_attributes($folder);
+                                if (!in_array('\\HasNoChildren', $opts) && ($data = self::$imap->get_metadata($folder.$delimiter.'*', $type_keys))) {
                                     $folderdata += $data;
                                 }
                             }
