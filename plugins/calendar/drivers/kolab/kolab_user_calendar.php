@@ -211,7 +211,7 @@ class kolab_user_calendar extends kolab_calendar
 
     // aggregate all calendar folders the user shares (but are not subscribed)
     foreach (kolab_storage::list_user_folders($this->userdata, 'event', false) as $foldername) {
-      if (!empty($_REQUEST['_quickview']) || !kolab_storage::folder_is_subscribed($foldername, true)) {
+      if (!empty($_REQUEST['_quickview']) || !kolab_storage::folder_is_active($foldername)) {
         $cal = new kolab_calendar($foldername, $this->cal);
         foreach ($cal->list_events($start, $end, $search, 1) as $event) {
           $this->events[$event['id']] = $event;
