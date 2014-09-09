@@ -210,7 +210,7 @@ class kolab_driver extends calendar_driver
           'children' => true,  // TODO: determine if that folder indeed has child folders
           'parent'   => $parent_id,
           'caldavurl' => $cal->get_caldav_url(),
-          'removable' => true,
+          'removable' => !$cal->default,
         );
       }
 
