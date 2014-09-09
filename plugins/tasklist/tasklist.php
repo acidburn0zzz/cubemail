@@ -837,8 +837,8 @@ class tasklist extends rcube_plugin
             $success = $this->driver->subscribe_list($list);
             break;
 
-        case 'remove':
-            if (($success = $this->driver->remove_list($list)))
+        case 'delete':
+            if (($success = $this->driver->delete_list($list)))
                 $this->rc->output->command('plugin.destroy_tasklist', $list);
             break;
 

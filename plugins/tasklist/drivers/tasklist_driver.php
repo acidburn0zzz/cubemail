@@ -124,7 +124,7 @@ abstract class tasklist_driver
      *      id: list Identifier
      * @return boolean True on success, Fales on failure
      */
-    abstract function remove_list($prop);
+    abstract function delete_list($prop);
 
     /**
      * Search for shared or otherwise not listed tasklists the user has access

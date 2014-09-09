@@ -177,6 +177,7 @@ class kolab_driver extends calendar_driver
           'readonly' => true,
           'group'    => 'other',
           'class'    => 'user',
+          'removable' => true,
         );
       }
       else if ($cal->virtual) {
@@ -209,6 +210,7 @@ class kolab_driver extends calendar_driver
           'children' => true,  // TODO: determine if that folder indeed has child folders
           'parent'   => $parent_id,
           'caldavurl' => $cal->get_caldav_url(),
+          'removable' => true,
         );
       }
 
@@ -418,6 +420,16 @@ class kolab_driver extends calendar_driver
         $ret |= $cal->storage->subscribe(intval($prop['permanent']));
       if (isset($prop['active']))
         $ret |= $cal->storage->activate(intval($prop['active']));
+
+      // apply to child folders, too
+      if ($prop['recursive']) {
+        foreach ((array)kolab_storage::list_folders($cal->storage->name, '*', 'event') as $subfolder) {
+          if (isset($prop['permanent']))
+            ($prop['permanent'] ? kolab_storage::folder_subscribe($subfolder) : kolab_storage::folder_unsubscribe($subfolder));
+          if (isset($prop['active']))
+            ($prop['active'] ? kolab_storage::folder_activate($subfolder) : kolab_storage::folder_deactivate($subfolder));
+        }
+      }
       return $ret;
     }
     else {
@@ -435,9 +447,9 @@ class kolab_driver extends calendar_driver
   /**
    * Delete the given calendar with all its contents
    *
-   * @see calendar_driver::remove_calendar()
+   * @see calendar_driver::delete_calendar()
    */
-  public function remove_calendar($prop)
+  public function delete_calendar($prop)
   {
     if ($prop['id'] && ($cal = $this->get_calendar($prop['id']))) {
       $folder = $cal->get_realname();

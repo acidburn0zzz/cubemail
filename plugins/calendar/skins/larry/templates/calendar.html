@@ -69,7 +69,10 @@
 	<h3 id="aria-label-calendaroptions" class="voice"><roundcube:label name="calendar.calendaractions" /></h3>
 	<ul id="calendaroptionsmenu-menu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-calendaroptions">
 		<li role="menuitem"><roundcube:button command="calendar-edit" label="calendar.edit" classAct="active" /></li>
+		<li role="menuitem"><roundcube:button command="calendar-delete" label="delete" classAct="active" /></li>
+		<roundcube:if condition="env:calendar_driver == 'kolab'" />
 		<li role="menuitem"><roundcube:button command="calendar-remove" label="calendar.remove" classAct="active" /></li>
+		<roundcube:endif />
 		<li role="menuitem"><roundcube:button command="calendar-showurl" label="calendar.showurl" classAct="active" /></li>
 		<roundcube:if condition="env:calendar_driver == 'kolab'" />
 		<li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>

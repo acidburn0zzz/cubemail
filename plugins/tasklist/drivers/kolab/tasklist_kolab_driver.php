@@ -143,7 +143,8 @@ class tasklist_kolab_driver extends tasklist_driver
             'virtual' => $folder->virtual,
             'children' => true,  // TODO: determine if that folder indeed has child folders
             'subscribed' => (bool)$folder->is_subscribed(),
-            'group'    => $folder->default ? 'default' : $folder->get_namespace(),
+            'removable' => !$folder->default,
+            'group' => $folder->default ? 'default' : $folder->get_namespace(),
             'class' => trim($folder->get_namespace() . ($folder->default ? ' default' : '')),
         );
     }
@@ -361,6 +362,16 @@ class tasklist_kolab_driver extends tasklist_driver
                 $ret |= $folder->subscribe(intval($prop['permanent']));
             if (isset($prop['active']))
                 $ret |= $folder->activate(intval($prop['active']));
+
+            // apply to child folders, too
+            if ($prop['recursive']) {
+                foreach ((array)kolab_storage::list_folders($folder->name, '*', 'task') as $subfolder) {
+                    if (isset($prop['permanent']))
+                        ($prop['permanent'] ? kolab_storage::folder_subscribe($subfolder) : kolab_storage::folder_unsubscribe($subfolder));
+                    if (isset($prop['active']))
+                        ($prop['active'] ? kolab_storage::folder_activate($subfolder) : kolab_storage::folder_deactivate($subfolder));
+                }
+            }
             return $ret;
         }
         return false;
@@ -373,7 +384,7 @@ class tasklist_kolab_driver extends tasklist_driver
      *      id: list Identifier
      * @return boolean True on success, Fales on failure
      */
-    public function remove_list($prop)
+    public function delete_list($prop)
     {
         if ($prop['id'] && ($folder = $this->get_folder($prop['id']))) {
           if (kolab_storage::folder_delete($folder->name))

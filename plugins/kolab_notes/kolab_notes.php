@@ -855,6 +855,16 @@ class kolab_notes extends rcube_plugin
                         $success |= $folder->subscribe(intval($list['permanent']));
                     if (isset($list['active']))
                         $success |= $folder->activate(intval($list['active']));
+
+                    // apply to child folders, too
+                    if ($list['recursive']) {
+                        foreach ((array)kolab_storage::list_folders($folder->name, '*', 'node') as $subfolder) {
+                            if (isset($list['permanent']))
+                                ($list['permanent'] ? kolab_storage::folder_subscribe($subfolder) : kolab_storage::folder_unsubscribe($subfolder));
+                            if (isset($list['active']))
+                                ($list['active'] ? kolab_storage::folder_activate($subfolder) : kolab_storage::folder_deactivate($subfolder));
+                        }
+                    }
                 }
                 break;
         }

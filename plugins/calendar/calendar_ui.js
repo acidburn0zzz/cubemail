@@ -2776,8 +2776,15 @@ function rcube_calendar_ui(settings)
 
     this.calendar_remove = function(calendar)
     {
+      this.calendar_destroy_source(calendar.id);
+      rcmail.http_post('calendar', { action:'subscribe', c:{ id:calendar.id, active:0, permanent:0, recursive:1 } });
+      return true;
+    };
+
+    this.calendar_delete = function(calendar)
+    {
       if (confirm(rcmail.gettext(calendar.children ? 'deletecalendarconfirmrecursive' : 'deletecalendarconfirm', 'calendar'))) {
-        rcmail.http_post('calendar', { action:'remove', c:{ id:calendar.id } });
+        rcmail.http_post('calendar', { action:'delete', c:{ id:calendar.id } });
         return true;
       }
       return false;
@@ -2803,8 +2810,8 @@ function rcube_calendar_ui(settings)
       // delete all calendars in the list
       for (var i=0; i < delete_ids.length; i++) {
         id = delete_ids[i];
+        calendars_list.remove(id);
         fc.fullCalendar('removeEventSource', this.calendars[id]);
-        $('#rcmlical' + id).remove();
         $('#edit-calendar option[value="'+id+'"]').remove();
         delete this.calendars[id];
       }
@@ -3349,7 +3356,8 @@ function rcube_calendar_ui(settings)
       if (node && node.id && me.calendars[node.id]) {
         me.select_calendar(node.id, true);
         rcmail.enable_command('calendar-edit', 'calendar-showurl', true);
-        rcmail.enable_command('calendar-remove', !me.calendars[node.id].readonly);
+        rcmail.enable_command('calendar-delete', !me.calendars[node.id].readonly);
+        rcmail.enable_command('calendar-remove', me.calendars[node.id] && me.calendars[node.id].removable);
       }
     });
     calendars_list.addEventListener('insert-item', function(p) {
@@ -3903,6 +3911,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.register_command('calendar-create', function(){ cal.calendar_edit_dialog(null); }, true);
   rcmail.register_command('calendar-edit', function(){ cal.calendar_edit_dialog(cal.calendars[cal.selected_calendar]); }, false);
   rcmail.register_command('calendar-remove', function(){ cal.calendar_remove(cal.calendars[cal.selected_calendar]); }, false);
+  rcmail.register_command('calendar-delete', function(){ cal.calendar_delete(cal.calendars[cal.selected_calendar]); }, false);
   rcmail.register_command('events-import', function(){ cal.import_events(cal.calendars[cal.selected_calendar]); }, true);
   rcmail.register_command('calendar-showurl', function(){ cal.showurl(cal.calendars[cal.selected_calendar]); }, false);
   rcmail.register_command('event-download', function(){ cal.event_download(cal.selected_event); }, true);

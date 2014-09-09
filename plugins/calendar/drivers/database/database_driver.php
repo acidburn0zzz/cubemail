@@ -229,9 +229,9 @@ class database_driver extends calendar_driver
   /**
    * Delete the given calendar with all its contents
    *
-   * @see calendar_driver::remove_calendar()
+   * @see calendar_driver::delete_calendar()
    */
-  public function remove_calendar($prop)
+  public function delete_calendar($prop)
   {
     if (!$this->calendars[$prop['id']])
       return false;

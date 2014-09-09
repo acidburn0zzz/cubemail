@@ -164,7 +164,7 @@ abstract class calendar_driver
    *      id: Calendar Identifier
    * @return boolean True on success, Fales on failure
    */
-  abstract function remove_calendar($prop);
+  abstract function delete_calendar($prop);
 
   /**
    * Search for shared or otherwise not listed calendars the user has access

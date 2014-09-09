@@ -59,6 +59,7 @@ function rcube_kolab_notes_ui(settings)
         }, false);
         rcmail.register_command('list-create', function(){ list_edit_dialog(null); }, true);
         rcmail.register_command('list-edit', function(){ list_edit_dialog(me.selected_list); }, false);
+        rcmail.register_command('list-delete', function(){ list_delete(me.selected_list); }, false);
         rcmail.register_command('list-remove', function(){ list_remove(me.selected_list); }, false);
         rcmail.register_command('list-sort', list_set_sort, true);
         rcmail.register_command('save', save_note, true);
@@ -112,7 +113,8 @@ function rcube_kolab_notes_ui(settings)
             var id = node.id;
             if (me.notebooks[id] && id != me.selected_list) {
                 warn_unsaved_changes(function(){
-                    rcmail.enable_command('createnote', 'list-edit', 'list-remove', me.notebooks[id].editable);
+                    rcmail.enable_command('createnote', 'list-edit', 'list-delete', me.notebooks[id].editable);
+                    rcmail.enable_command('list-remove', !me.notebooks[id].default);
                     fetch_notes(id);  // sets me.selected_list
                 },
                 function(){
@@ -554,16 +556,26 @@ function rcube_kolab_notes_ui(settings)
         }
     }
 
+    /**
+     * 
+     */
+    function list_delete(id)
+    {
+        var list = me.notebooks[id];
+        if (list && confirm(rcmail.gettext('deletenotebookconfirm', 'kolab_notes'))) {
+            saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
+            rcmail.http_post('list', { _do: 'delete', _list: { id: list.id } });
+        }
+    }
 
     /**
      * 
      */
     function list_remove(id)
     {
-        var list = me.notebooks[id];
-        if (list && confirm(rcmail.gettext('deletenotebookconfirm', 'kolab_notes'))) {
-            saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
-            rcmail.http_post('list', { _do: 'delete', _list: { id: list.id } });
+        if (me.notebooks[id]) {
+            list_destroy(me.notebooks[id]);
+            rcmail.http_post('list', { _do:'subscribe', _list:{ id:id, permanent:0, recursive:1 } });
         }
     }
 

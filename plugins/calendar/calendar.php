@@ -770,8 +770,8 @@ class calendar extends rcube_plugin
         $success = $this->driver->edit_calendar($cal);
         $reload = true;
         break;
-      case "remove":
-        if ($success = $this->driver->remove_calendar($cal))
+      case "delete":
+        if ($success = $this->driver->delete_calendar($cal))
           $this->rc->output->command('plugin.destroy_source', array('id' => $cal['id']));
         break;
       case "subscribe":

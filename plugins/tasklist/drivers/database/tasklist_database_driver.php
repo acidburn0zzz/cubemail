@@ -173,9 +173,9 @@ class tasklist_database_driver extends tasklist_driver
      *
      * @param array Hash array with list properties
      * @return boolean True on success, Fales on failure
-     * @see tasklist_driver::remove_list()
+     * @see tasklist_driver::delete_list()
      */
-    public function remove_list($prop)
+    public function delete_list($prop)
     {
         $list_id = $prop['id'];
 
