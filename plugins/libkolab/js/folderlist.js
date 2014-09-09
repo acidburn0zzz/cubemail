@@ -68,7 +68,7 @@ function kolab_folderlist(node, p)
                           id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '');
                       if (p.id_decode)
                           id = p.id_decode(id);
-                      node = search_results_widget.get_node(id),
+                      node = search_results_widget.get_node(id);
                       has_children = node.children && node.children.length;
 
                       e.stopPropagation();
@@ -81,6 +81,11 @@ function kolab_folderlist(node, p)
                           li.children().first()
                               .toggleClass('subscribed')
                               .find('input[type=checkbox]').get(0).checked = true;
+
+                          if (has_children && search_results[id].group == 'other user') {
+                              li.find('ul li > div').addClass('subscribed')
+                                  .find('a.subscribed').attr('aria-checked', 'true');;
+                          }
                       }
                       else if (!this.checked) {
                           return;
@@ -95,6 +100,11 @@ function kolab_folderlist(node, p)
                       }
                       else {
                           li.remove();
+                      }
+
+                      // set partial subscription status
+                      if (search_results[id].subscribed && search_results[id].parent && search_results[id].group == 'other') {
+                          parent_subscription_status($(me.get_item(id, true)));
                       }
 
                       // set focus to cloned checkbox
