@@ -572,6 +572,12 @@ a.miniColors-trigger {
 	margin-bottom: 0.3em;
 }
 
+#eventshow #event-url .event-text {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
 #event-rsvp .itip-reply-controls {
 	margin-top: 0.5em;
 }
