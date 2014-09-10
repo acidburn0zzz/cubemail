@@ -6,7 +6,7 @@
 <script type="text/javascript" src="/functions.js"></script>
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="./plugins/calendar/skins/classic/iehacks.css" /><![endif]-->
 </head>
-<body class="calendarmain">
+<roundcube:if condition="env:extwin" /><body class="calendarmain extwin"><roundcube:else /><body class="calendarmain"><roundcube:endif />
 
 <roundcube:include file="/includes/taskbar.html" />
 <roundcube:include file="/includes/header.html" />

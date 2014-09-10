@@ -201,6 +201,7 @@ $labels['eventcancelled'] = 'The event has been cancelled';
 $labels['saveincalendar'] = 'save in';
 $labels['updatemycopy'] = 'Update in my calendar';
 $labels['savetocalendar'] = 'Save to calendar';
+$labels['openpreview'] = 'Check Calendar';
 
 // resources
 $labels['resource'] = 'Resource';

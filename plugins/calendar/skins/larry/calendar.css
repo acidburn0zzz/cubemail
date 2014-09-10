@@ -1,7 +1,7 @@
 /**
  * Roundcube Calendar plugin styles for skin "Larry"
  *
- * Copyright (c) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (c) 2012-2014, Kolab Systems AG <contact@kolabsys.com>
  * Screendesign by FLINT / Büro für Gestaltung, bueroflint.com
  *
  * The contents are subject to the Creative Commons Attribution-ShareAlike
@@ -2016,9 +2016,15 @@ div.calendar-invitebox input.button {
 	margin-right: 0.5em;
 }
 
+div.calendar-invitebox input.button.preview {
+	margin-left: 1em;
+	margin-right: 0;
+}
+
 div.calendar-invitebox .folder-select {
 	font-weight: 10px;
 	margin-left: 1em;
+	white-space: nowrap;
 }
 
 div.calendar-invitebox .rsvp-status {

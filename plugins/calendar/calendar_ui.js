@@ -599,7 +599,7 @@ function rcube_calendar_ui(settings)
       me.dialog_resize($dialog.get(0), $dialog.height(), 420);
 
       // add link for "more options" drop-down
-      if (!temp) {
+      if (!temp && !event.temporary) {
         $('<a>')
           .attr('href', '#')
           .html(rcmail.gettext('eventoptions','calendar'))
@@ -2339,7 +2339,19 @@ function rcube_calendar_ui(settings)
         var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val() }),
           noreply = $('#noreply-event-rsvp:checked').length ? 1 : 0;
 
-        if (settings.invitation_calendars) {
+        // import event from mail (temporary iTip event)
+        if (submit_data._mbox && submit_data._uid) {
+          me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
+          rcmail.http_post('mailimportitip', {
+            _mbox: submit_data._mbox,
+            _uid:  submit_data._uid,
+            _part: submit_data._part,
+            _status:  response,
+            _noreply: noreply,
+            _comment: submit_data.comment
+          });
+        }
+        else if (settings.invitation_calendars) {
           update_event('rsvp', submit_data, { status:response, noreply:noreply });
         }
         else {
@@ -3089,6 +3101,25 @@ function rcube_calendar_ui(settings)
       return query;
     };
 
+    // callback after an iTip message event was imported
+    this.itip_message_processed = function(data)
+    {
+      // remove temporary iTip source
+      fc.fullCalendar('removeEventSource', this.calendars['--invitation--itip']);
+
+      $('#eventshow:ui-dialog').dialog('close');
+      this.selected_event = null;
+
+      // refresh destination calendar source
+      this.refresh({ source:data.calendar, refetch:true });
+
+      this.unlock_saving();
+
+      // process 'after_action' in mail task
+      if (window.opener && window.opener.rcube_libcalendaring)
+        window.opener.rcube_libcalendaring.itip_message_processed(data);
+    };
+
     // reload the calendar view by keeping the current date/view selection
     this.reload_view = function()
     {
@@ -3462,7 +3493,20 @@ function rcube_calendar_ui(settings)
     var viewdate = new Date();
     if (rcmail.env.date)
       viewdate.setTime(fromunixtime(rcmail.env.date));
-    
+
+    // add source with iTip event data for rendering
+    if (rcmail.env.itip_events && rcmail.env.itip_events.length) {
+      me.calendars['--invitation--itip'] = {
+        events: rcmail.env.itip_events,
+        className: 'fc-event-cal---invitation--itip',
+        color: '#fff',
+        textColor: '#333',
+        editable: false,
+        attendees: true
+      };
+      event_sources.push(me.calendars['--invitation--itip']);
+    }
+
     // initalize the fullCalendar plugin
     var fc = $('#calendar').fullCalendar($.extend({}, fullcalendar_defaults, {
       header: {
@@ -3940,6 +3984,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.addEventListener('plugin.render_event_changelog', function(data){ cal.render_event_changelog(data); });
   rcmail.addEventListener('plugin.event_show_diff', function(data){ cal.event_show_diff(data); });
   rcmail.addEventListener('plugin.event_show_revision', function(data){ cal.event_show_dialog(data, null, true); });
+  rcmail.addEventListener('plugin.itip_message_processed', function(data){ cal.itip_message_processed(data); });
   rcmail.addEventListener('requestrefresh', function(q){ return cal.before_refresh(q); });
 
   // let's go

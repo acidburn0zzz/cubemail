@@ -892,6 +892,7 @@ rcube_libcalendaring.fetch_itip_object_status = function(p)
 rcube_libcalendaring.update_itip_object_status = function(p)
 {
   rcmail.env.rsvp_saved = p.saved;
+  rcmail.env.itip_existing = p.existing;
 
   // hide all elements first
   $('#itip-buttons-'+p.id+' > div').hide();
@@ -951,6 +952,17 @@ rcube_libcalendaring.itip_after_action = function(action)
   else {
     rc.move_messages(action === 1 ? rc.env.trash_mailbox : action);
   }
+};
+
+/**
+ * Open the calendar preview for the current iTip event
+ */
+rcube_libcalendaring.open_itip_preview = function(url, msgref)
+{
+  if (!rcmail.env.itip_existing)
+    url += '&itip=' + escape(msgref);
+
+  var win = rcmail.open_window(url);
 };
 
 

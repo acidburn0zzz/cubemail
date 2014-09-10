@@ -5,7 +5,7 @@
 <roundcube:include file="/includes/links.html" />
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="/this/iehacks.css" /><![endif]-->
 </head>
-<body class="calendarmain">
+<roundcube:if condition="env:extwin" /><body class="calendarmain extwin"><roundcube:else /><body class="calendarmain"><roundcube:endif />
 
 <roundcube:include file="/includes/header.html" />
 

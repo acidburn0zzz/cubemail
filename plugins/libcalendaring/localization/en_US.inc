@@ -134,6 +134,7 @@ $labels['outdatedinvitation'] = 'This invitation has been replaced by a newer ve
 $labels['importtocalendar'] = 'Save to my calendar';
 $labels['removefromcalendar'] = 'Remove from my calendar';
 $labels['updatemycopy'] = 'Update my copy';
+$labels['openpreview'] = 'Open Preview';
 
 $labels['deleteobjectconfirm'] = 'Do you really want to delete this object?';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined object from your account?';

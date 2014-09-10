@@ -361,6 +361,7 @@ class libcalendaring_itip
       return array(
           'uid' => $event['uid'],
           'id' => asciiwords($event['uid'], true),
+          'existing' => $existing ? true : false,
           'saved' => $existing ? true : false,
           'latest' => $latest,
           'status' => $status,
@@ -372,7 +373,7 @@ class libcalendaring_itip
     /**
      * Build inline UI elements for iTip messages
      */
-    public function mail_itip_inline_ui($event, $method, $mime_id, $task, $message_date = null)
+    public function mail_itip_inline_ui($event, $method, $mime_id, $task, $message_date = null, $preview_url = null)
     {
         $buttons = array();
         $dom_id = asciiwords($event['uid'], true);
@@ -448,6 +449,17 @@ class libcalendaring_itip
                     'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . JQ($mime_id) . "', '$task', '$method', '$dom_id')",
                     'value' => $this->gettext('itip' . $method),
                 ));
+            }
+
+            // add button to open calendar/preview
+            if (!empty($preview_url)) {
+              $msgref = $this->lib->ical_message->folder . '/' . $this->lib->ical_message->uid . '#' . $mime_id;
+              $rsvp_buttons .= html::tag('input', array(
+                  'type' => 'button',
+                  'class' => "button preview",
+                  'onclick' => "rcube_libcalendaring.open_itip_preview('" . JQ($preview_url) . "', '" . JQ($msgref) . "')",
+                  'value' => $this->gettext('openpreview'),
+              ));
             }
 
             // 2. update the local copy with minor changes

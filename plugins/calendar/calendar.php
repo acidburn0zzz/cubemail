@@ -309,9 +309,12 @@ class calendar extends rcube_plugin
     $view = get_input_value('view', RCUBE_INPUT_GPC);
     if (in_array($view, array('agendaWeek', 'agendaDay', 'month', 'table')))
       $this->rc->output->set_env('view', $view);
-    
+
     if ($date = get_input_value('date', RCUBE_INPUT_GPC))
       $this->rc->output->set_env('date', $date);
+
+    if ($msgref = get_input_value('itip', RCUBE_INPUT_GPC))
+      $this->rc->output->set_env('itip_events', $this->itip_events($msgref));
 
     $this->rc->output->send("calendar.calendar");
   }
@@ -1120,6 +1123,43 @@ class calendar extends rcube_plugin
     );
     echo $this->encode($events, !empty($query));
     exit;
+  }
+
+  /**
+   * Load event data from an iTip message attachment
+   */
+  public function itip_events($msgref)
+  {
+    $path = explode('/', $msgref);
+    $msg = array_pop($path);
+    $mbox = join('/', $path);
+    list($uid, $mime_id) = explode('#', $msg);
+    $events = array();
+
+    if ($event = $this->lib->mail_get_itip_object($mbox, $uid, $mime_id, 'event')) {
+      $partstat = 'NEEDS-ACTION';
+/*
+      $user_emails = $this->lib->get_user_emails();
+      foreach ($event['attendees'] as $attendee) {
+        if (in_array($attendee['email'], $user_emails)) {
+          $partstat = $attendee['status'];
+          break;
+        }
+      }
+*/
+      $event['id'] = $event['uid'];
+      $event['temporary'] = true;
+      $event['readonly'] = true;
+      $event['calendar'] = '--invitation--itip';
+      $event['className'] = 'fc-invitation-' . strtolower($partstat);
+      $event['_mbox'] = $mbox;
+      $event['_uid']  = $uid;
+      $event['_part'] = $mime_id;
+
+      $events[] = $this->_client_event($event, true);
+    }
+
+    return $events;
   }
 
   /**
@@ -2357,7 +2397,8 @@ class calendar extends rcube_plugin
             $ical_objects->method,
             $ical_objects->mime_id . ':' . $idx,
             'calendar',
-            rcube_utils::anytodatetime($ical_objects->message_date)
+            rcube_utils::anytodatetime($ical_objects->message_date),
+            $this->rc->url(array('task' => 'calendar')) . '&view=agendaDay&date=' . $event['start']->format('U')
           )
         );
       }
@@ -2566,6 +2607,7 @@ class calendar extends rcube_plugin
     }
 
     if ($success || $dontsave) {
+      $metadata['calendar'] = $event['calendar'];
       $metadata['nosave'] = $dontsave;
       $metadata['rsvp'] = intval($metadata['rsvp']);
       $metadata['after_action'] = $this->rc->config->get('calendar_itip_after_action', $this->defaults['calendar_itip_after_action']);
