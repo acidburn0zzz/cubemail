@@ -592,6 +592,12 @@ div.form-section,
 	padding-right: 0.5em;
 }
 
+.calendarmain .eventdialog #event-url .event-text {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
 #eventedit .formtable td.label {
 	min-width: 6em;
 }
