@@ -107,6 +107,11 @@ if (window.rcmail) {
                         rcmail.http_post('plugin.book-subscribe', { _source:node.id, _permanent:source.subscribed?1:0 });
                     }
                 })
+                .addEventListener('remove', function(node) {
+                    if (rcmail.env.address_sources[node.id]) {
+                        rcmail.book_remove(node.id);
+                    }
+                })
                 .addEventListener('insert-item', function(data) {
                     // register new address source
                     rcmail.env.address_sources[data.id] = rcmail.env.contactfolders[data.id] = data.data;
@@ -131,11 +136,12 @@ if (window.rcmail) {
 // (De-)activates address book management commands
 rcube_webmail.prototype.set_book_actions = function()
 {
-    var source = this.env.source,
+    var source = !this.env.group ? this.env.source : null,
         sources = this.env.address_sources;
 
     this.enable_command('book-create', true);
     this.enable_command('book-edit', 'book-delete', source && sources[source] && sources[source].kolab && sources[source].editable);
+    this.enable_command('book-remove', source && sources[source] && sources[source].kolab && sources[source].removable);
     this.enable_command('book-showurl', source && sources[source] && sources[source].carddavurl);
 };
 
@@ -147,6 +153,15 @@ rcube_webmail.prototype.book_create = function()
 rcube_webmail.prototype.book_edit = function()
 {
     this.book_show_contentframe('edit');
+};
+
+rcube_webmail.prototype.book_remove = function(id)
+{
+    if (!id) id = this.env.source;
+    if (id != '' && rcmail.env.address_sources[id]) {
+        rcmail.book_delete_done(id, true);
+        rcmail.http_post('plugin.book-subscribe', { _source:id, _permanent:0, _recursive:1 });
+    }
 };
 
 rcube_webmail.prototype.book_delete = function()
@@ -343,7 +358,7 @@ function kolab_addressbook_contextmenu()
             menu_source: ['#directorylist-footer', '#groupoptionsmenu']
         }, {
             'activate': function(p) {
-                var source = rcmail.env.source,
+                var source = !rcmail.env.group ? rcmail.env.source : null,
                     sources = rcmail.env.address_sources;
 
                 if (p.command == 'book-create') {
@@ -354,8 +369,16 @@ function kolab_addressbook_contextmenu()
                     return !!(source && sources[source] && sources[source].kolab && sources[source].editable);
                 }
 
+                if (p.command == 'book-remove') {
+                    return !!(source && sources[source] && sources[source].kolab && sources[source].removable);
+                }
+
                 if (p.command == 'book-showurl') {
                     return !!(source && sources[source] && sources[source].carddavurl);
+                }
+
+                if (p.command == 'group-rename' || p.command == 'group-delete') {
+                    return !!(rcmail.env.group && sources[rcmail.env.source] && sources[rcmail.env.source].editable);
                 }
 
                 return false;
@@ -367,10 +390,15 @@ function kolab_addressbook_contextmenu()
                 rcmail.env.kolab_old_source = rcmail.env.source;
                 rcmail.env.kolab_old_group = rcmail.env.group;
 
-                var onclick = $(p.source).attr('onclick');
+                var elem = $(p.source), onclick = elem.attr('onclick');
                 if (onclick && onclick.match(rcmail.context_menu_command_pattern)) {
                     rcmail.env.source = RegExp.$2;
                     rcmail.env.group = null;
+                }
+                else if (elem.parent().hasClass('contactgroup')) {
+                    var grp = String(elem.attr('rel')).split(':');
+                    rcmail.env.source = grp[0];
+                    rcmail.env.group = grp[1];
                 }
             },
             'aftercommand': function(p) {
@@ -380,7 +408,7 @@ function kolab_addressbook_contextmenu()
         }
     );
 
-    $('#directorylist div > a').off('contextmenu').on('contextmenu', function(e) {
+    $('#directorylist').off('contextmenu').on('contextmenu', 'div > a, li.contactgroup > a', function(e) {
         $(this).blur();
         rcm_show_menu(e, this, $(this).attr('rel'), menu);
     });
