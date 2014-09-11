@@ -2110,6 +2110,44 @@ div.calendar-invitebox .rsvp-status.needs-action {
 	background-position: 2px 0;
 }
 
+div.calendar-invitebox .calendar-agenda-preview {
+	display: none;
+	border-top: 1px solid #dfdfdf;
+	margin-top: 1em;
+	padding-top: 0.6em;
+}
+
+div.calendar-invitebox .calendar-agenda-preview h3.preview-title {
+	margin: 0 0 0.5em 0;
+	font-size: 12px;
+	color: #333;
+}
+
+div.calendar-invitebox .calendar-agenda-preview .event-row {
+	color: #777;
+	padding: 2px 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+div.calendar-invitebox .calendar-agenda-preview .event-row.current {
+	color: #333;
+	font-weight: bold;
+}
+
+div.calendar-invitebox .calendar-agenda-preview .event-row.no-event {
+	font-style: italic;
+}
+
+div.calendar-invitebox .calendar-agenda-preview .event-date {
+	display: inline-block;
+	min-width: 8em;
+	margin-right: 1em;
+	white-space: nowrap;
+}
+
+
 /* iTIP attend reply page */
 
 .calendaritipattend .centerbox {

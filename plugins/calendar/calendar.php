@@ -2237,6 +2237,37 @@ class calendar extends rcube_plugin
       $response['select'] = html::tag('input', array('type' => 'hidden', 'name' => 'calendar', 'id' => 'itip-saveto', 'value' => ''));
     }
 
+    // render small agenda view for the respective day
+    if ($data['method'] == 'REQUEST' && !empty($data['date']) && $response['action'] == 'rsvp') {
+      $event_start = rcube_utils::anytodatetime($data['date']);
+      $day_start = new Datetime(gmdate('Y-m-d 00:00', $data['date']), $this->lib->timezone);
+      $day_end = new Datetime(gmdate('Y-m-d 23:59', $data['date']), $this->lib->timezone);
+
+      // get events on that day from the user's personal calendars
+      $calendars = $this->driver->list_calendars(false, true);
+      $events = $this->driver->load_events($day_start->format('U'), $day_end->format('U'), null, array_keys($calendars));
+      usort($events, function($a, $b) { return $a['start'] > $b['start'] ? 1 : -1; });
+
+      $before = $after = array();
+      foreach ($events as $event) {
+        // TODO: skip events with free_busy == 'free' ?
+        if ($event['uid'] == $data['uid'] || $event['end'] < $day_start || $event['start'] > $day_end)
+          continue;
+        else if ($event['start'] < $event_start)
+          $before[] = $this->mail_agenda_event_row($event);
+        else
+          $after[] = $this->mail_agenda_event_row($event);
+      }
+
+      $response['append'] = array(
+        'selector' => '.calendar-agenda-preview',
+        'replacements' => array(
+          '%before%' => !empty($before) ? join("\n", array_slice($before,  -3)) : html::div('event-row no-event', $this->gettext('noearlierevents')),
+          '%after%'  => !empty($after)  ? join("\n", array_slice($after, 0, 3)) : html::div('event-row no-event', $this->gettext('nolaterevents')),
+        ),
+      );
+    }
+
     $this->rc->output->command('plugin.update_itip_object_status', $response);
   }
 
@@ -2338,6 +2369,21 @@ class calendar extends rcube_plugin
     $hidden = new html_hiddenfield(array('name' => "_t", 'value' => $this->token));
     return html::tag('form', array('action' => $this->rc->url(array('task' => 'calendar', 'action' => 'attend')), 'method' => 'post', 'noclose' => true) + $attrib) . $hidden->show();
   }
+
+  /**
+   * 
+   */
+  private function mail_agenda_event_row($event, $class = '')
+  {
+    $time = $event['all-day'] ? $this->gettext('allday') :
+      $this->rc->format_date($event['start'], $this->rc->config->get('time_format')) . ' - ' .
+        $this->rc->format_date($event['end'], $this->rc->config->get('time_format'));
+
+    return html::div(rtrim('event-row ' . $class),
+      html::span('event-date', $time) .
+      html::span('event-title', Q($event['title']))
+    );
+  }
   
   /**
    * 
@@ -2391,6 +2437,16 @@ class calendar extends rcube_plugin
 
       // get prepared inline UI for this event object
       if ($ical_objects->method) {
+        $append = '';
+
+        // prepare a small agenda preview to be filled with actual event data on async request
+        if ($ical_objects->method == 'REQUEST') {
+          $append = html::div('calendar-agenda-preview',
+            html::tag('h3', 'preview-title', $this->gettext('agenda') . ' ' .
+              html::span('date', $this->rc->format_date($event['start'], $this->rc->config->get('date_format')))
+            ) . '%before%' . $this->mail_agenda_event_row($event, 'current') . '%after%');
+        }
+
         $html .= html::div('calendar-invitebox',
           $this->itip->mail_itip_inline_ui(
             $event,
@@ -2399,7 +2455,7 @@ class calendar extends rcube_plugin
             'calendar',
             rcube_utils::anytodatetime($ical_objects->message_date),
             $this->rc->url(array('task' => 'calendar')) . '&view=agendaDay&date=' . $event['start']->format('U')
-          )
+          ) . $append
         );
       }
 

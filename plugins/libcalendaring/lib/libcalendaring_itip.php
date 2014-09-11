@@ -434,6 +434,9 @@ class libcalendaring_itip
             $emails = $this->lib->get_user_emails();
             $title = $event['sequence'] > 0 ? $this->gettext('itipupdate') : $this->gettext('itipinvitation');
             $metadata['rsvp'] = true;
+            if (is_object($event['start'])) {
+                $metadata['date'] = $event['start']->format('U');
+            }
 
             // check for X-KOLAB-INVITATIONTYPE property and only show accept/decline buttons
             if (self::get_custom_property($event, 'X-KOLAB-INVITATIONTYPE') == 'CONFIRMATION') {

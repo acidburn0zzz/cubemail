@@ -202,6 +202,8 @@ $labels['saveincalendar'] = 'save in';
 $labels['updatemycopy'] = 'Update in my calendar';
 $labels['savetocalendar'] = 'Save to calendar';
 $labels['openpreview'] = 'Check Calendar';
+$labels['noearlierevents'] = 'No earlier events';
+$labels['nolaterevents'] = 'No later events';
 
 // resources
 $labels['resource'] = 'Resource';
