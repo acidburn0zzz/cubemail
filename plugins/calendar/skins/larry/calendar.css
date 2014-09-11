@@ -218,7 +218,7 @@ pre {
 	position: absolute;
 	top: 7px;
 	left: 38px;
-	right: 60px;
+	right: 45px;
 	cursor: default;
 	background: url(images/calendars.png) right 20px no-repeat;
 	overflow: hidden;
@@ -259,11 +259,36 @@ pre {
 	box-shadow: inset 0px 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
+#calendars .treelist div span.actions {
+	display: inline-block;
+	position: absolute;
+	top: 2px;
+	right: 22px;
+	padding: 5px 20px 0 6px;
+	min-width: 40px;
+	height: 19px;
+	text-align: right;
+}
+
+#calendars .treelist div:hover span.actions {
+	top: 1px;
+	right: 21px;
+	border: 1px solid #c6c6c6;
+	border-radius: 4px;
+	background: #f7f7f7;
+	background: -moz-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f9f9f9), color-stop(100%,#e6e6e6));
+	background: -o-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: -ms-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e6e6e6', GradientType=0);
+}
+
 #calendars .treelist li a.subscribed {
 	display: inline-block;
 	position: absolute;
-	top: 7px;
-	right: 24px;
+	top: 5px;
+	right: 3px;
 	height: 16px;
 	width: 16px;
 	padding: 0;
@@ -273,14 +298,8 @@ pre {
 	cursor: pointer;
 }
 
-#calendars .treelist div > a.quickview:focus,
-#calendars .treelist div > a.subscribed:focus {
-	border-radius: 3px;
-	outline: 2px solid rgba(30,150,192, 0.5);
-}
-
-#calendars .treelist div:hover > a.subscribed,
-#calendars .treelist div > a.subscribed:focus {
+#calendars .treelist div:hover a.subscribed,
+#calendars .treelist div a.subscribed:focus {
 	background-position: 0 -110px;
 }
 
@@ -294,13 +313,19 @@ pre {
 	background-position: -16px -148px;
 }
 
-#calendars .treelist li a.quickview {
+#calendars .treelist div a.remove:focus,
+#calendars .treelist div a.quickview:focus,
+#calendars .treelist div a.subscribed:focus {
+	border-radius: 3px;
+	outline: 2px solid rgba(30,150,192, 0.5);
+}
+
+#calendars .treelist div a.remove,
+#calendars .treelist div a.quickview {
 	display: inline-block;
-	position: absolute;
-	top: 6px;
-	right: 42px;
 	width: 16px;
 	height: 16px;
+	margin-right: 4px;
 	padding: 0;
 	background: url(images/calendars.png) -100px 0 no-repeat;
 	overflow: hidden;
@@ -308,14 +333,20 @@ pre {
 	cursor: pointer;
 }
 
-#calendars .treelist div > a.quickview:focus,
-#calendars .treelist li div:hover > a.quickview {
-	background-position: 0 -128px;
+#calendars .treelist div a.quickview:focus,
+#calendars .treelist div:hover a.quickview {
+	background-position: 0 -148px;
 	background-color: transparent !important;
 }
 
-#calendars .treelist li div.focusview > a.quickview {
-	background-position: -18px -128px;
+#calendars .treelist div a.remove:focus,
+#calendars .treelist div:hover a.remove {
+	background-position: -16px -168px;
+	background-color: transparent !important;
+}
+
+#calendars .searchresults .treelist div a.remove {
+	display: none;
 }
 
 #calendars .treelist li input {

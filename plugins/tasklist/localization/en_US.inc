@@ -19,7 +19,7 @@ $labels['findlists'] = 'Find tasklists...';
 $labels['searchterms'] = 'Search terms';
 $labels['notasklistsfound'] = 'No tasklists found';
 $labels['nrtasklistsfound'] = '$nr tasklists found';
-$labels['removelist'] = 'Remove';
+$labels['removelist'] = 'Remove from list';
 
 $labels['newtask'] = 'New Task';
 $labels['createtask'] = 'Create Task <Enter>';

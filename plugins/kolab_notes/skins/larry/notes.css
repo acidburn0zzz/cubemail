@@ -325,7 +325,8 @@
 	position: relative;
 }
 
-.notesview #notebooks li > div.folder {
+.notesview #notebooks li > div.folder,
+.notesview #notebooksbox .searchresults li > div.folder {
 	position: relative;
 	padding: 0;
 	height: 28px;
@@ -354,11 +355,37 @@
 	padding-top: 3px;
 }
 
-.notesview #notebooksbox .treelist li a.subscribed {
+.notesview #notebooksbox .treelist div span.actions {
 	display: inline-block;
 	position: absolute;
-	top: 6px;
-	right: 5px;
+	top: 2px;
+	right: 2px;
+	padding: 5px 20px 0 6px;
+	min-width: 20px;
+	height: 19px;
+	text-align: right;
+}
+
+.notesview #notebooksbox .treelist div:hover span.actions {
+	top: 1px;
+	right: 1px;
+	border: 1px solid #c6c6c6;
+	border-radius: 4px;
+	background: #f7f7f7;
+	background: -moz-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f9f9f9), color-stop(100%,#e6e6e6));
+	background: -o-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: -ms-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e6e6e6', GradientType=0);
+}
+
+.notesview #notebooksbox .treelist div a.remove,
+.notesview #notebooksbox .treelist div a.subscribed {
+	display: inline-block;
+	position: absolute;
+	top: 5px;
+	right: 4px;
 	height: 16px;
 	width: 16px;
 	padding: 0;
@@ -368,18 +395,35 @@
 	cursor: pointer;
 }
 
-.notesview #notebooksbox .treelist div > a.subscribed:focus,
-.notesview #notebooksbox .treelist div:hover > a.subscribed {
-	background-position: 2px -266px;
+.notesview #notebooksbox .treelist div a.subscribed:focus,
+.notesview #notebooksbox .treelist div:hover a.subscribed {
+	background-position: 0 -266px;
 }
 
 .notesview #notebooksbox .treelist div.subscribed a.subscribed {
 	background-position: -16px -266px;
 }
 
-.notesview #notebooksbox .treelist li a.subscribed:focus {
+.notesview #notebooksbox .treelist div a.remove {
+	position: relative;
+	top: 0;
+	left: 0;
+	margin-right: 4px;
+}
+
+.notesview #notebooksbox .treelist div a.remove:focus,
+.notesview #notebooksbox .treelist div:hover a.remove {
+	background-position: 0 -284px;
+}
+
+.notesview #notebooksbox .treelist div a.remove:focus,
+.notesview #notebooksbox .treelist div a.subscribed:focus {
 	border-radius: 3px;
 	outline: 2px solid rgba(30,150,192, 0.5);
+}
+
+.notesview #notebooksbox .searchresults .treelist div a.remove {
+	display: none;
 }
 
 .notesview #notebooksbox .treelist input {

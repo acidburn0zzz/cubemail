@@ -217,9 +217,15 @@ class kolab_notes_ui
                     ''
                 ) .
                 html::span('handle', '') .
-                (isset($prop['subscribed']) ?
-                    html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('foldersubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') :
-                    ''
+                html::span('actions',
+                    (!$prop['default'] ?
+                        html::a(array('href' => '#', 'class' => 'remove', 'title' => $this->plugin->gettext('removelist')), ' ') :
+                        ''
+                    ) .
+                    (isset($prop['subscribed']) ?
+                        html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('foldersubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') :
+                        ''
+                    )
                 )
             )
         );

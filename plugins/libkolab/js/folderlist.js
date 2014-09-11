@@ -290,16 +290,16 @@ function kolab_folderlist(node, p)
         }
     });
 
-    this.container.on('click', 'a.subscribed, span.subscribed', function(e){
+    this.container.on('click', 'a.subscribed, span.subscribed', function(e) {
         var li = $(this).closest('li'),
             id = li.attr('id').replace(new RegExp('^'+p.id_prefix), ''),
             div = li.children().first(),
             is_subscribed;
 
         if (me.is_search()) {
-          id = id.replace(/--xsR$/, '');
-          li = $(me.get_item(id, true));
-          div = $(div).add(li.children().first());
+            id = id.replace(/--xsR$/, '');
+            li = $(me.get_item(id, true));
+            div = $(div).add(li.children().first());
         }
 
         if (p.id_decode)
@@ -327,6 +327,23 @@ function kolab_folderlist(node, p)
         return false;
     });
 
+    this.container.on('click', 'a.remove', function(e) {
+      var li = $(this).closest('li'),
+          id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '');
+
+      if (me.is_search()) {
+          id = id.replace(/--xsR$/, '');
+          li = $(me.get_item(id, true));
+      }
+
+      if (p.id_decode)
+          id = p.id_decode(id);
+
+      me.triggerEvent('remove', { id: id, item: li });
+
+      e.stopPropagation();
+      return false;
+    });
 }
 
 // link prototype from base class

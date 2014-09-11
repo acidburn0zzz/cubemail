@@ -166,6 +166,11 @@ function rcube_tasklist_ui(settings)
                 rcmail.http_post('tasklist', { action:'subscribe', l:{ id:p.id, active:list.active?1:0, permanent:list.subscribed?1:0 } });
             }
         });
+        tasklists_widget.addEventListener('remove', function(p) {
+            if (me.tasklists[p.id] && me.tasklists[p.id].removable) {
+                list_remove(p.id);
+            }
+        });
         tasklists_widget.addEventListener('insert-item', function(p) {
             var list = p.data;
             if (list && list.id && !list.virtual) {

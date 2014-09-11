@@ -130,6 +130,11 @@ function rcube_kolab_notes_ui(settings)
                 rcmail.http_post('list', { _do:'subscribe', _list:{ id:p.id, permanent:list.subscribed?1:0 } });
             }
         });
+        notebookslist.addEventListener('remove', function(p) {
+            if (me.notebooks[p.id] && !me.notebooks[p.id].default) {
+                list_remove(p.id);
+            }
+        });
         notebookslist.addEventListener('insert-item', function(p) {
             var list = p.data;
             if (list && list.id && !list.virtual) {

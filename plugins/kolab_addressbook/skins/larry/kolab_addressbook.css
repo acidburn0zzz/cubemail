@@ -76,9 +76,9 @@
 	cursor: pointer;
 }
 
-#directorylistbox ul.treelist div > span.subscribed:focus,
-#directorylistbox ul.treelist div:hover > span.subscribed {
-	background-position: 2px -160px;
+#directorylistbox ul.treelist div span.subscribed:focus,
+#directorylistbox ul.treelist div:hover span.subscribed {
+	background-position: 0px -160px;
 }
 
 #directorylistbox ul.treelist div.subscribed span.subscribed {

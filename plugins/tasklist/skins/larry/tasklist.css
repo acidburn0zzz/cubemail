@@ -302,36 +302,54 @@ body.tasklist.attachmentwin #mainscreen {
 	background: url(sprites.png) right 20px no-repeat;
 }
 
-#tasklistsbox .treelist li a.quickview {
+#tasklistsbox .treelist div span.actions {
 	display: inline-block;
 	position: absolute;
-	top: 6px;
-	right: 24px;
+	top: 2px;
+	right: 2px;
+	padding: 5px 20px 0 6px;
+	min-width: 40px;
+	height: 19px;
+	text-align: right;
+}
+
+#tasklistsbox .treelist div:hover span.actions {
+	top: 1px;
+	right: 1px;
+	border: 1px solid #c6c6c6;
+	border-radius: 4px;
+	background: #f7f7f7;
+	background: -moz-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f9f9f9), color-stop(100%,#e6e6e6));
+	background: -o-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: -ms-linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	background: linear-gradient(top, #f9f9f9 0%, #e6e6e6 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e6e6e6', GradientType=0);
+}
+
+#tasklistsbox .treelist div a.remove,
+#tasklistsbox .treelist div a.quickview,
+#tasklistsbox .treelist div a.subscribed {
+	display: inline-block;
 	width: 16px;
 	height: 16px;
 	padding: 0;
+	margin-right: 4px;
 	background: url(sprites.png) -200px 0 no-repeat;
 	overflow: hidden;
 	text-indent: -5000px;
 	cursor: pointer;
 }
 
-#tasklistsbox .treelist li a.subscribed {
-	display: inline-block;
+#tasklistsbox .treelist div a.subscribed {
 	position: absolute;
-	top: 6px;
-	right: 5px;
-	height: 16px;
-	width: 16px;
-	padding: 0;
-	background: url(sprites.png) -100px 0 no-repeat;
-	overflow: hidden;
-	text-indent: -5000px;
-	cursor: pointer;
+	top: 5px;
+	right: 4px;
+	margin: 0;
 }
 
-#tasklistsbox .treelist div > a.subscribed:focus,
-#tasklistsbox .treelist div:hover > a.subscribed {
+#tasklistsbox .treelist div a.subscribed:focus,
+#tasklistsbox .treelist div:hover a.subscribed {
 	background-position: -2px -215px;
 }
 
@@ -339,20 +357,28 @@ body.tasklist.attachmentwin #mainscreen {
 	background-position: -20px -215px;
 }
 
-#tasklistsbox .treelist div > a.quickview:focus,
-#tasklistsbox .treelist li div:hover > a.quickview {
+#tasklistsbox .treelist div a.quickview:focus,
+#tasklistsbox .treelist div:hover a.quickview {
 	background-position: -20px -101px;
 	background-color: transparent !important;
 }
 
-#tasklistsbox .treelist li div.focusview > a.quickview {
+#tasklistsbox .treelist div a.remove:focus,
+#tasklistsbox .treelist div:hover a.remove {
+	background-position: -2px -371px;
+	background-color: transparent !important;
+}
+
+#tasklistsbox .treelist div.focusview a.quickview {
 	background-position: -2px -101px;
 }
 
-#tasklistsbox .searchresults .treelist li a.quickview {
+#tasklistsbox .searchresults .treelist div a.remove,
+#tasklistsbox .searchresults .treelist div a.quickview {
 	display: none;
 }
 
+#tasklistsbox .treelist div a.remove:focus,
 #tasklistsbox .treelist div a.quickview:focus,
 #tasklistsbox .treelist div a.subscribed:focus {
 	border-radius: 3px;

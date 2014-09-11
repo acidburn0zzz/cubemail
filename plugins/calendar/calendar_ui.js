@@ -3411,6 +3411,11 @@ function rcube_calendar_ui(settings)
         rcmail.http_post('calendar', { action:'subscribe', c:{ id:p.id, active:cal.active?1:0, permanent:cal.subscribed?1:0 } });
       }
     });
+    calendars_list.addEventListener('remove', function(p) {
+      if (me.calendars[p.id] && me.calendars[p.id].removable) {
+        me.calendar_remove(me.calendars[p.id]);
+      }
+    });
     calendars_list.addEventListener('search-complete', function(data) {
       if (data.length)
         rcmail.display_message(rcmail.gettext('nrcalendarsfound','calendar').replace('$nr', data.length), 'voice');
