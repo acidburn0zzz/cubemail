@@ -60,7 +60,7 @@ class kolab_addressbook_ui
             }
 
             // Add actions on address books
-            $options = array('book-create', 'book-edit', 'book-delete');
+            $options = array('book-create', 'book-edit', 'book-delete', 'book-remove');
             $idx     = 0;
 
             if ($this->rc->config->get('kolab_addressbook_carddav_url')) {

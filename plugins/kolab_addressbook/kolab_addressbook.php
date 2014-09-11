@@ -164,6 +164,7 @@ class kolab_addressbook extends rcube_plugin
                 'group'    => $abook->get_namespace(),
                 'subscribed' => $abook->is_subscribed(),
                 'carddavurl' => $abook->get_carddav_url(),
+                'removable' => true,
                 'kolab'    => true,
             );
         }

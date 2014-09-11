@@ -30,6 +30,7 @@ $labels['settings'] = 'Settings';
 $labels['bookcreate'] = 'Create address book';
 $labels['bookedit'] = 'Edit address book';
 $labels['bookdelete'] = 'Delete address book';
+$labels['bookremove'] = 'Remove from list';
 $labels['bookproperties'] = 'Address book properties';
 $labels['bookname'] = 'Book name';
 $labels['parentbook'] = 'Superior book';
