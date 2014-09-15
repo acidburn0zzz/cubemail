@@ -244,6 +244,7 @@ class kolab_addressbook extends rcube_plugin
 
         if (!$source['virtual']) {
             $jsdata[$id] = $source;
+            $jsdata[$id]['name'] = html_entity_decode($source['name'], ENT_NOQUOTES);
         }
 
         // set class name(s)
