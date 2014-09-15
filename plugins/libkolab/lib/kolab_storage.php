@@ -1562,8 +1562,6 @@ class kolab_storage
     {
         $db = rcmail::get_instance()->get_dbh();
         $prefix = 'imap://' . urlencode($args['username']) . '@' . $args['host'] . '/%';
-        $db->query("DELETE FROM " . $db->table_name('kolab_folders') . " WHERE resource LIKE ?", $prefix);
+        $db->query("DELETE FROM " . $db->table_name('kolab_folders', true) . " WHERE `resource` LIKE ?", $prefix);
     }
-
 }
-

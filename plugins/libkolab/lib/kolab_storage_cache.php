@@ -96,8 +96,8 @@ class kolab_storage_cache
      */
     public function select_by_id($folder_id)
     {
-        $folders_table = $this->db->table_name('kolab_folders');
-        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT * FROM $folders_table WHERE folder_id=?", $folder_id));
+        $folders_table = $this->db->table_name('kolab_folders', true);
+        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT * FROM $folders_table WHERE `folder_id` = ?", $folder_id));
         if ($sql_arr) {
             $this->metadata = $sql_arr;
             $this->folder_id = $sql_arr['folder_id'];
@@ -188,7 +188,7 @@ class kolab_storage_cache
 
                     // read cache index
                     $sql_result = $this->db->query(
-                        "SELECT msguid, uid FROM $this->cache_table WHERE folder_id=?",
+                        "SELECT `msguid`, `uid` FROM `{$this->cache_table}` WHERE `folder_id` = ?",
                         $this->folder_id
                     );
 
@@ -211,7 +211,7 @@ class kolab_storage_cache
                     if (!empty($del_index)) {
                         $quoted_ids = join(',', array_map(array($this->db, 'quote'), $del_index));
                         $this->db->query(
-                            "DELETE FROM $this->cache_table WHERE folder_id=? AND msguid IN ($quoted_ids)",
+                            "DELETE FROM `{$this->cache_table}` WHERE `folder_id` = ? AND `msguid` IN ($quoted_ids)",
                             $this->folder_id
                         );
                     }
@@ -252,8 +252,8 @@ class kolab_storage_cache
                 $this->_read_folder_data();
 
                 $sql_result = $this->db->query(
-                    "SELECT * FROM $this->cache_table ".
-                    "WHERE folder_id=? AND msguid=?",
+                    "SELECT * FROM `{$this->cache_table}` ".
+                    "WHERE `folder_id` = ? AND `msguid` = ?",
                     $this->folder_id,
                     $msguid
                 );
@@ -298,7 +298,7 @@ class kolab_storage_cache
         // remove old entry
         if ($this->ready) {
             $this->_read_folder_data();
-            $this->db->query("DELETE FROM $this->cache_table WHERE folder_id=? AND msguid=?",
+            $this->db->query("DELETE FROM `{$this->cache_table}` WHERE `folder_id` = ? AND `msguid` = ?",
                 $this->folder_id, $msguid);
         }
 
@@ -345,13 +345,13 @@ class kolab_storage_cache
                     $cols[$idx] = "$col = ?";
                 }
 
-                $query = "UPDATE $this->cache_table SET " . implode(', ', $cols)
-                    . " WHERE folder_id = ? AND msguid = ?";
+                $query = "UPDATE `{$this->cache_table}` SET " . implode(', ', $cols)
+                    . " WHERE `folder_id` = ? AND `msguid` = ?";
                 $args[] = $this->folder_id;
                 $args[] = $olduid;
             }
             else {
-                $query = "INSERT INTO $this->cache_table (created, " . implode(', ', $cols)
+                $query = "INSERT INTO `{$this->cache_table}` (`created`, " . implode(', ', $cols)
                     . ") VALUES (" . $this->db->now() . str_repeat(', ?', count($cols)) . ")";
             }
 
@@ -388,8 +388,8 @@ class kolab_storage_cache
                 $this->_read_folder_data();
 
                 $this->db->query(
-                    "UPDATE $this->cache_table SET folder_id=?, msguid=? ".
-                    "WHERE folder_id=? AND msguid=?",
+                    "UPDATE `{$this->cache_table}` SET `folder_id` = ?, `msguid` = ? ".
+                    "WHERE `folder_id` = ? AND `msguid` = ?",
                     $target->cache->get_folder_id(),
                     $new_msguid,
                     $this->folder_id,
@@ -421,7 +421,7 @@ class kolab_storage_cache
         $this->_read_folder_data();
 
         $result = $this->db->query(
-            "DELETE FROM $this->cache_table WHERE folder_id=?",
+            "DELETE FROM `{$this->cache_table}` WHERE `folder_id` = ?",
             $this->folder_id
         );
 
@@ -443,8 +443,8 @@ class kolab_storage_cache
 
         // resolve new message UID in target folder
         $this->db->query(
-            "UPDATE $this->folders_table SET resource=? ".
-            "WHERE resource=?",
+            "UPDATE `{$this->folders_table}` SET `resource` = ? ".
+            "WHERE `resource` = ?",
             $target->get_resource_uri(),
             $this->resource_uri
         );
@@ -468,8 +468,8 @@ class kolab_storage_cache
 
             // fetch full object data on one query if a small result set is expected
             $fetchall = !$uids && ($this->limit ? $this->limit[0] : $this->count($query)) < 500;
-            $sql_query = "SELECT " . ($fetchall ? '*' : 'msguid AS _msguid, uid') . " FROM $this->cache_table ".
-                         "WHERE folder_id=? " . $this->_sql_where($query);
+            $sql_query = "SELECT " . ($fetchall ? '*' : '`msguid` AS _msguid, `uid`') . " FROM `{$this->cache_table}` ".
+                         "WHERE `folder_id` = ? " . $this->_sql_where($query);
             if (!empty($this->order_by)) {
                 $sql_query .= ' ORDER BY ' . $this->order_by;
             }
@@ -551,8 +551,8 @@ class kolab_storage_cache
             $this->_read_folder_data();
 
             $sql_result = $this->db->query(
-                "SELECT COUNT(*) AS numrows FROM $this->cache_table ".
-                "WHERE folder_id=? " . $this->_sql_where($query),
+                "SELECT COUNT(*) AS numrows FROM `{$this->cache_table}` ".
+                "WHERE `folder_id` = ?" . $this->_sql_where($query),
                 $this->folder_id
             );
 
@@ -807,12 +807,18 @@ class kolab_storage_cache
         }
 
         if ($buffer && (!$msguid || (strlen($buffer) + strlen($line) > $this->max_sql_packet()))) {
-            $extra_cols = $this->extra_cols ? ', ' . join(', ', $this->extra_cols) : '';
+            $extra_cols = '';
+            if ($this->extra_cols) {
+                $extra_cols = array_map(function($n) { return "`{$n}`"; }, $this->extra_cols);
+                $extra_cols = ', ' . join(', ', $extra_cols);
+            }
+
             $result = $this->db->query(
-                "INSERT INTO $this->cache_table ".
-                " (folder_id, msguid, uid, created, changed, data, xml, tags, words $extra_cols)".
+                "INSERT INTO `{$this->cache_table}` ".
+                " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `xml`, `tags`, `words` $extra_cols)".
                 " VALUES $buffer"
             );
+
             if (!$this->db->affected_rows($result)) {
                 rcube::raise_error(array(
                     'code' => 900, 'type' => 'php',
@@ -849,13 +855,20 @@ class kolab_storage_cache
         if (!empty($this->folder_id) || !$this->ready)
             return;
 
-        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT folder_id, synclock, ctag FROM $this->folders_table WHERE resource=?", $this->resource_uri));
+        $sql_arr = $this->db->fetch_assoc($this->db->query(
+                "SELECT `folder_id`, `synclock`, `ctag`"
+                . " FROM `{$this->folders_table}` WHERE `resource` = ?",
+                $this->resource_uri
+        ));
+
         if ($sql_arr) {
             $this->metadata = $sql_arr;
             $this->folder_id = $sql_arr['folder_id'];
         }
         else {
-            $this->db->query("INSERT INTO $this->folders_table (resource, type) VALUES (?, ?)", $this->resource_uri, $this->folder->type);
+            $this->db->query("INSERT INTO `{$this->folders_table}` (`resource`, `type`)"
+                . " VALUES (?, ?)", $this->resource_uri, $this->folder->type);
+
             $this->folder_id = $this->db->insert_id('kolab_folders');
             $this->metadata = array();
         }
@@ -870,7 +883,7 @@ class kolab_storage_cache
             return;
 
         $this->_read_folder_data();
-        $sql_query = "SELECT synclock, ctag FROM $this->folders_table WHERE folder_id=?";
+        $sql_query = "SELECT `synclock`, `ctag` FROM `{$this->folders_table}` WHERE `folder_id` = ?";
 
         // abort if database is not set-up
         if ($this->db->is_error()) {
@@ -887,7 +900,7 @@ class kolab_storage_cache
         }
 
         // set lock
-        $this->db->query("UPDATE $this->folders_table SET synclock = ? WHERE folder_id = ?", time(), $this->folder_id);
+        $this->db->query("UPDATE `{$this->folders_table}` SET `synclock` = ? WHERE `folder_id` = ?", time(), $this->folder_id);
     }
 
     /**
@@ -899,7 +912,7 @@ class kolab_storage_cache
             return;
 
         $this->db->query(
-            "UPDATE $this->folders_table SET synclock = 0, ctag = ? WHERE folder_id = ?",
+            "UPDATE `{$this->folders_table}` SET `synclock` = 0, `ctag` = ? WHERE `folder_id` = ?",
             $this->metadata['ctag'],
             $this->folder_id
         );
@@ -921,8 +934,8 @@ class kolab_storage_cache
             $this->_read_folder_data();
 
             $sql_result = $this->db->query(
-                "SELECT msguid FROM $this->cache_table ".
-                "WHERE folder_id=? AND uid=? ORDER BY msguid DESC",
+                "SELECT `msguid` FROM `{$this->cache_table}` ".
+                "WHERE `folder_id` = ? AND `uid` = ? ORDER BY `msguid` DESC",
                 $this->folder_id,
                 $uid
             );
