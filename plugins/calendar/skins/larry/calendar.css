@@ -2019,7 +2019,7 @@ fieldset #calendarcategories div {
 	background: url(images/ical-attachment.png) 2px 1px no-repeat;
 }
 
-#messagemenu li a.calendarlink span.calendar,
+ul.toolbarmenu li a.calendarlink span.calendar,
 #attachmentmenu li a.calendarlink span.calendar {
 	background-position: 0px -2197px;
 }
