@@ -468,7 +468,7 @@ class kolab_storage_cache
 
             // fetch full object data on one query if a small result set is expected
             $fetchall = !$uids && ($this->limit ? $this->limit[0] : $this->count($query)) < 500;
-            $sql_query = "SELECT " . ($fetchall ? '*' : '`msguid` AS _msguid, `uid`') . " FROM `{$this->cache_table}` ".
+            $sql_query = "SELECT " . ($fetchall ? '*' : '`msguid` AS `_msguid`, `uid`') . " FROM `{$this->cache_table}` ".
                          "WHERE `folder_id` = ? " . $this->_sql_where($query);
             if (!empty($this->order_by)) {
                 $sql_query .= ' ORDER BY ' . $this->order_by;
@@ -551,7 +551,7 @@ class kolab_storage_cache
             $this->_read_folder_data();
 
             $sql_result = $this->db->query(
-                "SELECT COUNT(*) AS numrows FROM `{$this->cache_table}` ".
+                "SELECT COUNT(*) AS `numrows` FROM `{$this->cache_table}` ".
                 "WHERE `folder_id` = ?" . $this->_sql_where($query),
                 $this->folder_id
             );
