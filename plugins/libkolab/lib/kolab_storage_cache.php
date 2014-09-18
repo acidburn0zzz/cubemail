@@ -789,6 +789,40 @@ class kolab_storage_cache
         $line = '';
         if ($object) {
             $sql_data = $this->_serialize($object);
+
+            // Skip multifolder insert for Oracle, we can't put long data inline
+            if ($this->db->db_provider == 'oracle') {
+                $extra_cols = '';
+                if ($this->extra_cols) {
+                    $extra_cols = array_map(function($n) { return "`{$n}`"; }, $this->extra_cols);
+                    $extra_cols = ', ' . join(', ', $extra_cols);
+                    $extra_args = str_repeat(', ?', count($this->extra_cols));
+                }
+
+                $params = array($this->folder_id, $msguid, $object['uid'], $sql_data['changed'],
+                    $sql_data['data'], $sql_data['xml'], $sql_data['tags'], $sql_data['words']);
+
+                foreach ($this->extra_cols as $col) {
+                    $params[] = $sql_data[$col];
+                }
+
+                $result = $this->db->query(
+                    "INSERT INTO `{$this->cache_table}` "
+                    . " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `xml`, `tags`, `words` $extra_cols)"
+                    . " VALUES (?, ?, ?, " . $this->db->now() . ", ?, ?, ?, ?, ? $extra_args)",
+                    $params
+                );
+
+                if (!$this->db->affected_rows($result)) {
+                    rcube::raise_error(array(
+                        'code' => 900, 'type' => 'php',
+                        'message' => "Failed to write to kolab cache"
+                    ), true);
+                }
+
+                return;
+            }
+
             $values = array(
                 $this->db->quote($this->folder_id),
                 $this->db->quote($msguid),
