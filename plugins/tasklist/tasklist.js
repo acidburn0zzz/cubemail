@@ -2838,6 +2838,10 @@ function rcube_tasklist_ui(settings)
 
         if (focusview) {
             li.addClass('focusview').find('a.quickview').attr('aria-checked', 'true');
+            $('body').addClass('quickview-active');
+        }
+        else {
+            $('body').removeClass('quickview-active');
         }
     }
 

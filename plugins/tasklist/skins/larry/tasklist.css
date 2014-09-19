@@ -302,6 +302,15 @@ body.tasklist.attachmentwin #mainscreen {
 	background: url(sprites.png) right 20px no-repeat;
 }
 
+.quickview-active #tasklistsbox .treelist li input,
+.quickview-active #tasklistsbox .treelist li span.listname {
+	opacity: 0.35;
+}
+
+.quickview-active #tasklistsbox .treelist div.focusview span.listname {
+	opacity: 1.0;
+}
+
 #tasklistsbox .treelist div span.actions {
 	display: inline-block;
 	position: absolute;
@@ -491,9 +500,14 @@ body.tasklist.attachmentwin #mainscreen {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	padding-bottom: 28px;
 	background: rgba(255, 255, 255, 0.2);
 	overflow: visible;
+}
+
+.quickview-active #tasksview {
+	background-image: url('images/focusview.png');
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 #message.statusbar {
