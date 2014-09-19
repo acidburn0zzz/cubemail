@@ -1,5 +1,5 @@
 /*!
- * FullCalendar v1.6.4-rcube-1.1
+ * FullCalendar v1.6.4-rcube-1.1.2
  * Docs & License: http://arshaw.com/fullcalendar/
  * (c) 2013 Adam Shaw, 2014 Kolab Systems AG
  */
@@ -940,6 +940,7 @@ function EventManager(options, _sources) {
 	t.fetchEvents = fetchEvents;
 	t.addEventSource = addEventSource;
 	t.removeEventSource = removeEventSource;
+  t.removeEventSources = removeEventSources;
 	t.updateEvent = updateEvent;
 	t.renderEvent = renderEvent;
 	t.removeEvents = removeEvents;
@@ -1150,6 +1151,12 @@ function EventManager(options, _sources) {
 			return !isSourcesEqual(e.source, source);
 		});
 		reportEvents(cache);
+	}
+
+
+	function removeEventSources() {
+		sources = [];
+		removeEvents();
 	}
 	
 	

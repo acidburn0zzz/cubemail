@@ -40,6 +40,7 @@ function rcube_calendar_ui(settings)
     this.search_request = null;
     this.saving_lock;
     this.calendars = {};
+    this.quickview_sources = [];
 
 
     /***  private vars  ***/
@@ -66,7 +67,6 @@ function rcube_calendar_ui(settings)
     var freebusy_ui = { workinhoursonly:false, needsupdate:false };
     var freebusy_data = {};
     var current_view = null;
-    var quickview_calendar;
     var exec_deferred = bw.ie6 ? 5 : 1;
     var sensitivitylabels = { 'public':rcmail.gettext('public','calendar'), 'private':rcmail.gettext('private','calendar'), 'confidential':rcmail.gettext('confidential','calendar') };
     var ui_loading = rcmail.set_busy(true, 'loading');
@@ -2410,10 +2410,6 @@ function rcube_calendar_ui(settings)
         event.temp = true;
         event.className = 'fc-event-cal-'+data.calendar+' fc-event-temp';
         fc.fullCalendar(data.id ? 'updateEvent' : 'renderEvent', event);
-
-        if (data.id && me.quickview_active && me.quickview_active == data.calendar) {
-          quickview_calendar.fullCalendar('updateEvent', $.extend(quickview_calendar.fullCalendar('clientEvents', event._id)[0] || {}, event));
-        }
       }
     };
 
@@ -2621,55 +2617,114 @@ function rcube_calendar_ui(settings)
     };
 
     // opens the given calendar in a popup dialog
-    this.quickview = function(id)
+    this.quickview = function(id, shift)
     {
-      $('#quickview-calendar:ui-dialog').dialog('close');
+      var src, in_quickview = false;
+      $.each(this.quickview_sources, function(i,cal) {
+        if (cal.id == id) {
+          in_quickview = true;
+          src = cal;
+        }
+      });
 
-      var src, cal = this.calendars[id], date = fc.fullCalendar('getDate'),
-        h = $(window).height() - 50,
-        me = this;
-
-      // clone and modify calendar properties
-      src = $.extend({}, cal);
-      src.editable = false;
-      src.url += '&_quickview=1';
-
-      quickview_calendar = $('<div>')
-        .attr('id', 'quickview-calendar')
-        .dialog({
-          modal: true,
-          width: Math.min(1000, $(window).width() - 100),
-          height: h,
-          title: cal.name.replace('&raquo;', '»').replace('&nbsp;', ' '),
-          open: function() {
-            setTimeout(function() { quickview_calendar.find('.fc-button-next').first().focus(); }, 10);
-          },
-          close: function() {
-            quickview_calendar.dialog('destroy').fullCalendar('destroy').remove();
-            me.quickview_active = null;
-          },
-          resize: function(e) {
-            // adjust height when dialog resizes
-            quickview_calendar.fullCalendar('option', 'height', quickview_calendar.height() + 8);
+      // remove source from quickview
+      if (in_quickview && shift) {
+        this.quickview_sources = $.grep(this.quickview_sources, function(src) { return src.id != id; });
+      }
+      else {
+        if (!shift) {
+          // remove all current quickview event sources
+          if (this.quickview_active) {
+            fc.fullCalendar('removeEventSources');
           }
-        })
-        .fullCalendar($.extend({}, fullcalendar_defaults, {
-          header: {
-            left: 'agendaDay,agendaWeek,month,table',
-            center: 'title',
-            right: 'prev,next today'
-          },
-          height: h - 50,
-          defaultView: fc.fullCalendar('getView').name || fullcalendar_defaults.defaultView,
-          listRange: fc.fullCalendar('option', 'listRange'),
-          listSections: fc.fullCalendar('option', 'listSections'),
-          date: date.getDate(),
-          month: date.getMonth(),
-          year: date.getFullYear(),
-          eventSources: [ src ]
-        }));
 
-        me.quickview_active = id;
+          this.quickview_sources = [];
+
+          // uncheck all active quickview icons
+          calendars_list.container.find('div.focusview')
+            .add('#calendars .searchresults div.focusview')
+            .removeClass('focusview')
+              .find('a.quickview').attr('aria-checked', 'false');
+        }
+
+        if (!in_quickview) {
+          // clone and modify calendar properties
+          src = $.extend({}, this.calendars[id]);
+          src.url += '&_quickview=1';
+          this.quickview_sources.push(src);
+        }
+      }
+
+      // disable quickview
+      if (this.quickview_active && !this.quickview_sources.length) {
+        // register regular calendar event sources
+        $.each(this.calendars, function(k, cal) {
+          if (cal.active)
+            fc.fullCalendar('addEventSource', cal);
+        });
+
+        this.quickview_active = false;
+        $('body').removeClass('quickview-active');
+
+        // uncheck all active quickview icons
+        calendars_list.container.find('div.focusview')
+          .add('#calendars .searchresults div.focusview')
+          .removeClass('focusview')
+            .find('a.quickview').attr('aria-checked', 'false');
+      }
+      // activate quickview
+      else if (!this.quickview_active) {
+        // remove regular calendar event sources
+        fc.fullCalendar('removeEventSources');
+
+        // register quickview event sources
+        $.each(this.quickview_sources, function(i, src) {
+          fc.fullCalendar('addEventSource', src);
+        });
+
+        this.quickview_active = true;
+        $('body').addClass('quickview-active');
+      }
+      // update quickview sources
+      else if (in_quickview) {
+        fc.fullCalendar('removeEventSource', src);
+      }
+      else if (src) {
+        fc.fullCalendar('addEventSource', src);
+      }
+
+      // activate quickview icon
+      if (this.quickview_active) {
+        $(calendars_list.get_item(id)).find('.calendar').first()
+          .add('#calendars .searchresults .cal-' + id)
+          [in_quickview ? 'removeClass' : 'addClass']('focusview')
+            .find('a.quickview').attr('aria-checked', in_quickview ? 'false' : 'true');
+      }
+    };
+
+    // disable quickview mode
+    function reset_quickview()
+    {
+      // remove all current quickview event sources
+      if (me.quickview_active) {
+        fc.fullCalendar('removeEventSources');
+        me.quickview_sources = [];
+      }
+
+      // register regular calendar event sources
+      $.each(me.calendars, function(k, cal) {
+        if (cal.active)
+          fc.fullCalendar('addEventSource', cal);
+      });
+
+      // uncheck all active quickview icons
+      calendars_list.container.find('div.focusview')
+        .add('#calendars .searchresults div.focusview')
+        .removeClass('focusview')
+          .find('a.quickview').attr('aria-checked', 'false');
+
+      me.quickview_active = false;
+      $('body').removeClass('quickview-active');
     };
 
     //public method to show the print dialog.
@@ -3040,16 +3095,23 @@ function rcube_calendar_ui(settings)
 
       if (source && (p.refetch || (p.update && !source.active))) {
         // activate event source if new event was added to an invisible calendar
-        if (!source.active) {
+        if (this.quickview_active) {
+          // map source to the quickview_sources equivalent
+          $.each(this.quickview_sources, function(src) {
+            if (src.id == source.id) {
+              source = src;
+              return false;
+            }
+          });
+          fc.fullCalendar('refetchEvents', source);
+        }
+        else if (!source.active) {
           source.active = true;
           fc.fullCalendar('addEventSource', source);
           $('#rcmlical' + source.id + ' input').prop('checked', true);
         }
         else
           fc.fullCalendar('refetchEvents', source);
-
-        if (this.quickview_active)
-          quickview_calendar.fullCalendar('refetchEvents');
       }
       // add/update single event object
       else if (source && p.update) {
@@ -3057,9 +3119,6 @@ function rcube_calendar_ui(settings)
         event.temp = false;
         event.editable = 0;
 
-        // update quickview
-        if (this.quickview_active)
-          update_view(quickview_calendar, event, source);
           // update fish-eye view
         if (this.fisheye_date)
           update_view($('#fish-eye-view'), event, source);
@@ -3075,16 +3134,10 @@ function rcube_calendar_ui(settings)
       // refetch all calendars
       else if (p.refetch) {
         fc.fullCalendar('refetchEvents');
-        if (this.quickview_active)
-          quickview_calendar.fullCalendar('refetchEvents');
       }
 
       // remove temp events
       fc.fullCalendar('removeEvents', function(e){ return e.temp; });
-
-      if (this.quickview_active) {
-        quickview_calendar.fullCalendar('removeEvents', function(e){ return e.temp; });
-      }
     };
 
     // modify query parameters for refresh requests
@@ -3159,6 +3212,9 @@ function rcube_calendar_ui(settings)
         if (q != '') {
           var id = 'search-'+q;
           var sources = [];
+          
+          if (me.quickview_active)
+            reset_quickview();
           
           if (this._search_message)
             rcmail.hide_message(this._search_message);
@@ -3431,12 +3487,19 @@ function rcube_calendar_ui(settings)
           event.data.subscribed = false;
           add_calendar_source(event.data);
         }
-        me.quickview(event.data.id);
+        me.quickview(event.data.id, event.shiftKey || event.metaKey || event.ctrlKey);
       }
     });
 
     // init (delegate) event handler on calendar list checkboxes
-    $(rcmail.gui_objects.calendarslist).on('click', 'input[type=checkbox]', function(e){
+    $(rcmail.gui_objects.calendarslist).on('click', 'input[type=checkbox]', function(e) {
+      e.stopPropagation();
+
+      if (me.quickview_active) {
+        this.checked = !this.checked;
+        return false;
+      }
+
       var id = this.value;
       if (me.calendars[id]) {  // add or remove event source on click
         var action;
@@ -3457,8 +3520,6 @@ function rcube_calendar_ui(settings)
         // add/remove event source
         fc.fullCalendar(action, me.calendars[id]);
         rcmail.http_post('calendar', { action:'subscribe', c:{ id:id, active:me.calendars[id].active?1:0 } });
-
-        e.stopPropagation();
       }
     })
     .on('keypress', 'input[type=checkbox]', function(e) {
@@ -3476,7 +3537,7 @@ function rcube_calendar_ui(settings)
         id = id.replace(/--xsR$/, '');
 
       if (me.calendars[id])
-        me.quickview(id);
+        me.quickview(id, e.shiftKey || e.metaKey || e.ctrlKey);
 
       e.stopPropagation();
       return false;

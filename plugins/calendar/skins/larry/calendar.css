@@ -227,6 +227,16 @@ pre {
 	color: #004458;
 }
 
+.quickview-active #calendars .treelist div input,
+.quickview-active #calendars .treelist div .calname {
+	opacity: 0.35;
+}
+
+.quickview-active #calendars .treelist div.focusview .calname {
+	opacity: 1.0;
+	background-image: none;
+}
+
 #calendars .treelist li div.virtual > span.calname {
 	color: #aaa;
 	top: 4px;
@@ -335,8 +345,12 @@ pre {
 
 #calendars .treelist div a.quickview:focus,
 #calendars .treelist div:hover a.quickview {
-	background-position: 0 -148px;
+	background-position: 0 -128px;
 	background-color: transparent !important;
+}
+
+#calendars .treelist div.focusview a.quickview {
+	background-position: -16px -128px;
 }
 
 #calendars .treelist div a.remove:focus,
@@ -1590,6 +1604,12 @@ a.dropdown-link:after {
 	background: #fff;
 }
 
+.calendarmain.quickview-active .fc-content {
+	background-image: url('images/focusview.png');
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
 #fish-eye-view .fc-content {
 	top: 2px;
 	bottom: 2px;
@@ -1889,7 +1909,11 @@ div.fc-event-location {
 }
 
 .fc-sat, .fc-sun {
-	background-color: #fdfdfd;
+	background-color: rgba(198,198,198, 0.08);
+}
+
+.calendarmain .fc-state-highlight {
+	background-color: rgba(233,198,14, 0.12);
 }
 
 .fc-widget-header {

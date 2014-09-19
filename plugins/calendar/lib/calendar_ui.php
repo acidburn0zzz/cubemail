@@ -312,7 +312,7 @@ class calendar_ui
           html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
           html::span('actions', 
             ($prop['removable'] ? html::a(array('href' => '#', 'class' => 'remove', 'title' => $this->cal->gettext('removelist')), ' ') : '') .
-            html::a(array('href' => '#', 'class' => 'quickview', 'title' => $this->cal->gettext('quickview'), 'role' => 'button'), '') .
+            html::a(array('href' => '#', 'class' => 'quickview', 'title' => $this->cal->gettext('quickview'), 'role' => 'checkbox', 'aria-checked' => 'false'), '') .
             (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->cal->gettext('calendarsubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') : '')
           ) .
           html::span(array('class' => 'handle', 'style' => "background-color: #" . ($prop['color'] ?: 'f00')), '&nbsp;')
