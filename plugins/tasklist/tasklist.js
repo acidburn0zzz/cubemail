@@ -62,7 +62,8 @@ function rcube_tasklist_ui(settings)
     var filtermask = FILTER_MASK_ALL;
     var loadstate = { filter:-1, lists:'', search:null };
     var idcount = 0;
-    var focusview;
+    var focusview = false;
+    var focusview_lists = [];
     var saving_lock;
     var ui_loading;
     var taskcounts = {};
@@ -200,7 +201,7 @@ function rcube_tasklist_ui(settings)
                 rcmail.http_post('tasklist', { action:'subscribe', l:{ id:id, active:list.active?1:0 } });
 
                 // disable focusview
-                if (!this.checked && focusview == id) {
+                if (!this.checked && focusview && $.inArray(id, focusview_lists) >= 0) {
                     set_focusview(null);
                 }
 
@@ -227,7 +228,7 @@ function rcube_tasklist_ui(settings)
             if (tasklists_widget.is_search())
               id = id.replace(/--xsR$/, '');
 
-            set_focusview(focusview == id ? null : id);
+            set_focusview(id, e.shiftKey || e.metaKey || e.ctrlKey);
             e.stopPropagation();
             return false;
         });
@@ -2393,8 +2394,8 @@ function rcube_tasklist_ui(settings)
         var match = !filtermask || (filtermask & rec.mask) == filtermask;
 
         // in focusview mode, only tasks from the selected list are allowed
-        if (focusview && rec.list != focusview)
-            match = false;
+        if (focusview)
+            match = $.inArray(rec.list, focusview_lists) >= 0;
 
         if (match && tagsfilter.length) {
             match = rec.tags && rec.tags.length;
@@ -2815,16 +2816,31 @@ function rcube_tasklist_ui(settings)
     /**
      * Enable/disable focusview mode for the given list
      */
-    function set_focusview(id)
+    function set_focusview(id, shift)
     {
-        if (focusview && focusview != id) {
-            $(tasklists_widget.get_item(focusview)).find('.tasklist').first().removeClass('focusview')
-                .find('a.quickview').attr('aria-checked', 'false');
+        var in_focus = $.inArray(id, focusview_lists) >= 0,
+            li = $(tasklists_widget.get_item(id)).find('.tasklist').first();
+
+        // remove list from focusview
+        if (in_focus && shift && id !== null) {
+            focusview_lists = $.grep(focusview_lists, function(list_id) { return list_id != id; });
+        }
+        else {
+            if (!shift || id === null) {
+                focusview_lists = [];
+
+                // uncheck all active focusview icons
+                tasklists_widget.container.find('div.focusview')
+                    .removeClass('focusview')
+                    .find('a.quickview').attr('aria-checked', 'false');
+            }
+
+            if (!in_focus && id !== null) {
+                focusview_lists.push(id)
+            }
         }
 
-        focusview = id;
-
-        var li = $(tasklists_widget.get_item(id)).find('.tasklist').first();
+        focusview = focusview_lists.length > 0;
 
         // activate list if necessary
         if (focusview && !me.tasklists[id].active) {
@@ -2837,7 +2853,8 @@ function rcube_tasklist_ui(settings)
         list_tasks(null);
 
         if (focusview) {
-            li.addClass('focusview').find('a.quickview').attr('aria-checked', 'true');
+            li[in_focus ? 'removeClass' : 'addClass']('focusview')
+                .find('a.quickview').attr('aria-checked', in_focus ? 'false' : 'true');
             $('body').addClass('quickview-active');
         }
         else {
