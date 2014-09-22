@@ -237,7 +237,7 @@ abstract class kolab_format_xcal extends kolab_format
 
                 if ($type == 'EMAIL') {
                     $valarm['attendees'] = array();
-                    $attvec = $this->obj->attendees();
+                    $attvec = $alarm->attendees();
                     for ($j=0; $j < $attvec->size(); $j++) {
                         $cr = $attvec->get($j);
                         $valarm['attendees'][] = $cr->email();
