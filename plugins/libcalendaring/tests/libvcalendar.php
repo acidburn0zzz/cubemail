@@ -523,8 +523,10 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals(false, $vtz);
 
         // DateTimezone as input data
-        $vtz = libvcalendar::get_vtimezone(new DateTimezone('Europe/Istanbul'));
+        $vtz = libvcalendar::get_vtimezone(new DateTimezone('Pacific/Chatham'));
         $this->assertInstanceOf('\Sabre\VObject\Component', $vtz);
+        $this->assertContains('TZOFFSETFROM:+1245', $vtz->serialize());
+        $this->assertContains('TZOFFSETTO:+1345', $vtz->serialize());
     }
 
     function get_attachment_data($id, $event)
