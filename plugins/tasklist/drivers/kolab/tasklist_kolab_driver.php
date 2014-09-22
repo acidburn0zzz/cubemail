@@ -711,12 +711,10 @@ class tasklist_kolab_driver extends tasklist_driver
         // get alarm information stored in local database
         if (!empty($candidates)) {
             $alarm_ids = array_map(array($this->rc->db, 'quote'), array_keys($candidates));
-            $result = $this->rc->db->query(sprintf(
-                "SELECT * FROM " . $this->rc->db->table_name('kolab_alarms') . "
-                 WHERE alarm_id IN (%s) AND user_id=?",
-                 join(',', $alarm_ids),
-                 $this->rc->db->now()
-                ),
+            $result = $this->rc->db->query("SELECT *"
+                . " FROM " . $this->rc->db->table_name('kolab_alarms', true)
+                . " WHERE `alarm_id` IN (" . join(',', $alarm_ids) . ")"
+                    . " AND `user_id` = ?",
                 $this->rc->user->ID
             );
 
@@ -751,8 +749,8 @@ class tasklist_kolab_driver extends tasklist_driver
     {
         // delete old alarm entry
         $this->rc->db->query(
-            "DELETE FROM " . $this->rc->db->table_name('kolab_alarms') . "
-             WHERE alarm_id=? AND user_id=?",
+            "DELETE FROM " . $this->rc->db->table_name('kolab_alarms', true) . "
+             WHERE `alarm_id` = ? AND `user_id` = ?",
             $id,
             $this->rc->user->ID
         );
@@ -761,9 +759,9 @@ class tasklist_kolab_driver extends tasklist_driver
         $notifyat = $snooze > 0 ? date('Y-m-d H:i:s', time() + $snooze) : null;
 
         $query = $this->rc->db->query(
-            "INSERT INTO " . $this->rc->db->table_name('kolab_alarms') . "
-             (alarm_id, user_id, dismissed, notifyat)
-             VALUES(?, ?, ?, ?)",
+            "INSERT INTO " . $this->rc->db->table_name('kolab_alarms', true) . "
+             (`alarm_id`, `user_id`, `dismissed`, `notifyat`)
+             VALUES (?, ?, ?, ?)",
             $id,
             $this->rc->user->ID,
             $snooze > 0 ? 0 : 1,
@@ -782,8 +780,8 @@ class tasklist_kolab_driver extends tasklist_driver
     {
         // delete alarm entry
         $this->rc->db->query(
-            "DELETE FROM " . $this->rc->db->table_name('kolab_alarms') . "
-             WHERE alarm_id=? AND user_id=?",
+            "DELETE FROM " . $this->rc->db->table_name('kolab_alarms', true) . "
+             WHERE `alarm_id` = ? AND `user_id` = ?",
             $id,
             $this->rc->user->ID
         );
