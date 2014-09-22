@@ -685,6 +685,25 @@ abstract class calendar_driver
   }
 
   /**
+   * Store alarm dismissal for birtual birthay events
+   *
+   * @param  string  Event identifier
+   * @param  integer Suspend the alarm for this number of seconds
+   */
+  public function dismiss_birthday_alarm($event_id, $snooze = 0)
+  {
+    $rcmail = rcmail::get_instance();
+    $cache  = $rcmail->get_cache('calendar.birthdayalarms', 'db', 86400 * 30);
+    $cache->remove($event_id);
+
+    // compute new notification time or disable if not snoozed
+    $notifyat = $snooze > 0 ? time() + $snooze : null;
+    $cache->set($event_id, array('snooze' => $snooze, 'notifyat' => $notifyat));
+
+    return true;
+  }
+
+  /**
    * Handler for user_delete plugin hook
    *
    * @param array Hash array with hook arguments
