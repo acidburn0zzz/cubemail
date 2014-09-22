@@ -550,7 +550,7 @@ function rcube_calendar_ui(settings)
         buttons[rcmail.gettext('edit', 'calendar')] = function() {
           event_edit_dialog('edit', event);
         };
-        buttons[rcmail.gettext('remove', 'calendar')] = function() {
+        buttons[rcmail.gettext('delete', 'calendar')] = function() {
           me.delete_event(event);
           $dialog.dialog('close');
         };
@@ -2495,7 +2495,7 @@ function rcube_calendar_ui(settings)
 
         if (!event.recurrence) {
           buttons.push({
-            text: rcmail.gettext((action == 'remove' ? 'remove' : 'save'), 'calendar'),
+            text: rcmail.gettext((action == 'remove' ? 'delete' : 'save'), 'calendar'),
             click: function() {
               data._notify = notify && $dialog.find('input.confirm-attendees-donotify:checked').length ? 1 : 0;
               data.decline = decline && $dialog.find('input.confirm-attendees-decline:checked').length ? 1 : 0;
