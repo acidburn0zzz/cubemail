@@ -28,6 +28,7 @@ $labels['sentitems'] = 'Sent';
 $labels['outbox'] = 'Outbox';
 $labels['wastebasket'] = 'Trash';
 $labels['junkemail'] = 'Junk';
+$labels['confidential'] = 'Confidential';
 
 $messages['defaultfolderexists'] = 'There is already default folder of specified type';
 

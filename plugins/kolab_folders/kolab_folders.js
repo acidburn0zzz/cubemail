@@ -50,47 +50,23 @@ window.rcmail && rcmail.env.action == 'folders' && rcmail.addEventListener('init
 });
 
 window.rcmail && rcmail.env.action != 'folders' && $(document).ready(function() {
-    // IE doesn't allow setting OPTION's display/visibility
-    // We'll need to remove SELECT's options, see below
-    if (bw.ie) {
-        rcmail.env.subtype_html = $('#_subtype').html();
-    }
-
     // Add onchange handler for folder type SELECT, and call it on form init
     $('#_ctype').change(function() {
         var type = $(this).val(),
             sub = $('#_subtype'),
-            subtype = sub.val();
+            subtypes = rcmail.env.kolab_folder_subtypes[type] || {};
 
-        // For IE we need to revert the whole SELECT to the original state
-        if (bw.ie) {
-            sub.html(rcmail.env.subtype_html).val(subtype);
-        }
+        // reset subtype selector
+        sub.html('<option value=""></option>');
 
-        // For non-mail folders we must hide mail-specific subtypes
-        $('option', sub).each(function() {
-            var opt = $(this), val = opt.val();
-            if (val == '')
-                return;
-            // there's no mail.default
-            if (val == 'default' && type != 'mail') {
-                opt.show();
-                return;
-            };
-
-            if (type == 'mail' && val != 'default')
-                opt.show();
-            else if (bw.ie)
-                opt.remove();
-            else
-                opt.hide();
+        // append available subtypes for the given folder type
+        $.each(subtypes, function(val, label) {
+            $('<option>').attr('value', val).text(label).appendTo(sub);
         });
 
         // And re-set subtype
-        if (type != 'mail' && subtype != '' && subtype != 'default') {
-            sub.val('');
-        }
-    }).change();
+        sub.val(rcmail.env.kolab_folder_subtype);
+    });
 });
 
 function kolab_folders_filter(filter)

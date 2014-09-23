@@ -27,7 +27,17 @@ class kolab_folders extends rcube_plugin
     public $task = '?(?!login).*';
 
     public $types      = array('mail', 'event', 'journal', 'task', 'note', 'contact', 'configuration', 'file', 'freebusy');
-    public $mail_types = array('inbox', 'drafts', 'sentitems', 'outbox', 'wastebasket', 'junkemail');
+    public $subtypes   = array(
+        'mail'          => array('inbox', 'drafts', 'sentitems', 'outbox', 'wastebasket', 'junkemail'),
+        'event'         => array('default', 'confidential'),
+        'task'          => array('default', 'confidential'),
+        'journal'       => array('default'),
+        'note'          => array('default'),
+        'contact'       => array('default'),
+        'configuration' => array('default'),
+        'file'          => array('default'),
+        'freebusy'      => array('default'),
+    );
     public $act_types  = array('event', 'task');
 
     private $rc;
@@ -248,6 +258,7 @@ class kolab_folders extends rcube_plugin
         // build type SELECT fields
         $type_select = new html_select(array('name' => '_ctype', 'id' => '_ctype'));
         $sub_select  = new html_select(array('name' => '_subtype', 'id' => '_subtype'));
+        $sub_select->add('', '');
 
         foreach ($this->types as $type) {
             $type_select->add($this->gettext('foldertype'.$type), $type);
@@ -257,10 +268,14 @@ class kolab_folders extends rcube_plugin
             $type_select->add($ctype, $ctype);
         }
 
-        $sub_select->add('', '');
-        $sub_select->add($this->gettext('default'), 'default');
-        foreach ($this->mail_types as $type) {
-            $sub_select->add($this->gettext($type), $type);
+        $sub_types = array();
+        foreach ($this->subtypes as $ftype => $subtypes) {
+            $sub_types[$ftype] = array_combine($subtypes, array_map(array($this, 'gettext'), $subtypes));
+
+            // fill options for the current folder type
+            if ($ftype == $ctype || $ftype == $new_ctype) {
+                $sub_select->add(array_values($sub_types[$ftype]), $subtypes);
+            }
         }
 
         $args['form']['props']['fieldsets']['settings']['content']['foldertype'] = array(
@@ -268,6 +283,9 @@ class kolab_folders extends rcube_plugin
             'value' => $type_select->show(isset($new_ctype) ? $new_ctype : $ctype)
                 . $sub_select->show(isset($new_subtype) ? $new_subtype : $subtype),
         );
+
+        $this->rc->output->set_env('kolab_folder_subtypes', $sub_types);
+        $this->rc->output->set_env('kolab_folder_subtype', isset($new_subtype) ? $new_subtype : $subtype);
 
         return $args;
     }
@@ -312,7 +330,7 @@ class kolab_folders extends rcube_plugin
             }
         }
         // Subtype sanity-checks
-        else if ($subtype && ($ctype != 'mail' || !in_array($subtype, $this->mail_types))) {
+        else if ($subtype && (!($subtypes = $this->subtypes[$ctype]) || !in_array($subtype, $subtypes))) {
             $subtype = '';
         }
 
