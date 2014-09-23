@@ -144,6 +144,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'children' => true,  // TODO: determine if that folder indeed has child folders
             'subscribed' => (bool)$folder->is_subscribed(),
             'removable' => !$folder->default,
+            'subtype'  => $folder->subtype,
             'group' => $folder->default ? 'default' : $folder->get_namespace(),
             'class' => trim($folder->get_namespace() . ($folder->default ? ' default' : '')),
         );

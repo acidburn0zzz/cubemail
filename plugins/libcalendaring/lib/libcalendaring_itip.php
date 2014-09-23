@@ -434,6 +434,8 @@ class libcalendaring_itip
             $emails = $this->lib->get_user_emails();
             $title = $event['sequence'] > 0 ? $this->gettext('itipupdate') : $this->gettext('itipinvitation');
             $metadata['rsvp'] = true;
+            $metadata['sensitivity'] = $event['sensitivity'];
+
             if (is_object($event['start'])) {
                 $metadata['date'] = $event['start']->format('U');
             }
@@ -620,6 +622,10 @@ class libcalendaring_itip
         if ($event['location']) {
             $table->add('label', $this->plugin->gettext('location'), $this->domain);
             $table->add('location', Q($event['location']));
+        }
+        if ($event['sensitivity'] && $event['sensitivity'] != 'public') {
+            $table->add('label', $this->plugin->gettext('sensitivity'), $this->domain);
+            $table->add('sensitivity', ucfirst($this->plugin->gettext($event['sensitivity'])) . '!');
         }
         if ($event['comment']) {
             $table->add('label', $this->plugin->gettext('comment'), $this->domain);

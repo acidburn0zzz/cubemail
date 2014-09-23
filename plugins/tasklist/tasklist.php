@@ -1459,17 +1459,21 @@ class tasklist extends rcube_plugin
     /**
      * Get properties of the tasklist this user has specified as default
      */
-    public function get_default_tasklist($writeable = false)
+    public function get_default_tasklist($writeable = false, $confidential = false)
     {
-//        $default_id = $this->rc->config->get('tasklist_default_list');
         $lists = $this->driver->get_lists();
-//        $list  = $calendars[$default_id] ?: null;
+        $list = null;
 
         if (!$list || ($writeable && !$list['editable'])) {
             foreach ($lists as $l) {
-                if ($l['default']) {
+                if ($confidential && $l['subtype'] == 'confidential') {
                     $list = $l;
                     break;
+                }
+                if ($l['default']) {
+                    $list = $l;
+                    if (!$confidential)
+                        break;
                 }
 
                 if (!$writeable || $l['editable']) {
@@ -1514,10 +1518,10 @@ class tasklist extends rcube_plugin
             // find writeable tasklist to store task
             $cal_id = !empty($_REQUEST['_list']) ? rcube_utils::get_input_value('_list', rcube_utils::INPUT_POST) : null;
             $lists  = $this->driver->get_lists();
-            $list   = $lists[$cal_id] ?: $this->get_default_tasklist(true);
 
             foreach ($tasks as $task) {
                 // save to tasklist
+                $list   = $lists[$cal_id] ?: $this->get_default_tasklist(true, $task['sensitivity'] == 'confidential');
                 if ($list && $list['editable'] && $task['_type'] == 'task') {
                     $task = $this->from_ical($task);
                     $task['list'] = $list['id'];
@@ -1568,7 +1572,7 @@ class tasklist extends rcube_plugin
             // find writeable list to store the task
             $list_id = !empty($_REQUEST['_folder']) ? rcube_utils::get_input_value('_folder', rcube_utils::INPUT_POST) : null;
             $lists   = $this->driver->get_lists();
-            $list    = $lists[$list_id] ?: $this->get_default_tasklist(true);
+            $list    = $lists[$list_id] ?: $this->get_default_tasklist(true, $task['sensitivity'] == 'confidential');
 
             $metadata = array(
                 'uid'      => $task['uid'],
@@ -1780,9 +1784,9 @@ class tasklist extends rcube_plugin
         }
 
         if ($select) {
-            $default_list = $this->get_default_tasklist(true);
+            $default_list = $this->get_default_tasklist(true, $data['sensitivity'] == 'confidential');
             $response['select'] = html::span('folder-select', $this->gettext('saveintasklist') . '&nbsp;' .
-                $select->show($this->rc->config->get('tasklist_default_list', $default_list['id'])));
+                $select->show($default_list['id']));
         }
 
         $this->rc->output->command('plugin.update_itip_object_status', $response);

@@ -1186,6 +1186,10 @@ div.tasklist-invitebox {
 	background: url(images/tasklist.png) 6px 5px no-repeat #fef893;
 }
 
+div.tasklist-invitebox td {
+	padding: 2px;
+}
+
 div.tasklist-invitebox td.ititle {
 	font-weight: bold;
 	padding-right: 0.5em;

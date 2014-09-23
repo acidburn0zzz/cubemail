@@ -2061,9 +2061,18 @@ div.calendar-invitebox td.ititle {
 	padding-right: 0.5em;
 }
 
+div.calendar-invitebox td {
+	padding: 2px;
+}
+
 div.calendar-invitebox td.label {
 	color: #666;
 	padding-right: 1em;
+}
+
+div.calendar-invitebox td.sensitivity {
+	color: #d31400;
+	font-weight: bold;
 }
 
 #event-rsvp .rsvp-buttons,

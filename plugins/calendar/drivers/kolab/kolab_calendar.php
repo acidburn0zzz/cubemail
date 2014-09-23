@@ -101,6 +101,7 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     $this->default = $this->storage->default;
+    $this->subtype = $this->storage->subtype;
   }
 
 

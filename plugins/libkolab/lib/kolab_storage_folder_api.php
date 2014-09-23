@@ -41,6 +41,12 @@ abstract class kolab_storage_folder_api
     public $type;
 
     /**
+     * The subtype of this folder.
+     * @var string
+     */
+    public $subtype;
+
+    /**
      * Is this folder set to be the default for its type
      * @var boolean
      */
