@@ -540,8 +540,7 @@ class kolab_folders extends rcube_plugin
 
         // get configured defaults
         foreach ($this->types as $type) {
-            $subtypes = $type == 'mail' ? $this->mail_types : array('default');
-            foreach ($subtypes as $subtype) {
+            foreach ((array)$this->subtypes[$type] as $subtype) {
                 $opt_name = 'kolab_folders_' . $type . '_' . $subtype;
                 if ($folder = $this->rc->config->get($opt_name)) {
                     // convert configuration value to UTF7-IMAP charset
