@@ -211,17 +211,16 @@ class kolab_user_calendar extends kolab_calendar
 
     // aggregate all calendar folders the user shares (but are not subscribed)
     foreach (kolab_storage::list_user_folders($this->userdata, 'event', false) as $foldername) {
-      if (!empty($_REQUEST['_quickview']) || !kolab_storage::folder_is_active($foldername)) {
-        $cal = new kolab_calendar($foldername, $this->cal);
-        foreach ($cal->list_events($start, $end, $search, 1) as $event) {
-          $this->events[$event['id']] = $event;
-          $this->timeindex[$this->time_key($event)] = $event['id'];
-        }
+      $cal = new kolab_calendar($foldername, $this->cal);
+      foreach ($cal->list_events($start, $end, $search, 1) as $event) {
+        $this->events[$event['id']] = $event;
+        $this->timeindex[$this->time_key($event)] = $event['id'];
       }
     }
 
     // get events from the user's free/busy feed (for quickview only)
-    if (!empty($_REQUEST['_quickview']) && empty($search)) {
+    $fbview = $this->cal->rc->config->get('calendar_include_freebusy_data', 1);
+    if ($fbview && ($fbview == 1 || !empty($_REQUEST['_quickview'])) && empty($search)) {
       $this->fetch_freebusy($limit_changed);
     }
 

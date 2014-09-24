@@ -131,6 +131,12 @@ $config['calendar_itip_after_action'] = 0;
 // enable asynchronous free-busy triggering after data changed
 $config['calendar_freebusy_trigger'] = false;
 
+// free-busy information will be displayed for user calendars if available
+// 0 - no free-busy information
+// 1 - enabled in all views
+// 2 - only in quickview
+$config['calendar_include_freebusy_data'] = 1;
+
 // SMTP server host used to send (anonymous) itip messages.
 // Set to '' in order to use PHP's mail() function for email delivery.
 // To override the SMTP port or connection method, provide a full URL like 'tls://somehost:587'
