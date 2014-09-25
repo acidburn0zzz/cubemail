@@ -119,9 +119,12 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         // generate a folder UID and set it to IMAP
         $uid = rtrim(chunk_split(md5($this->name . $this->get_owner() . uniqid('-', true)), 12, '-'), '-');
-        $this->set_uid($uid);
+        if ($this->set_uid($uid)) {
+            return $uid;
+        }
 
-        return $uid;
+        // create hash from folder name if we can't write the UID metadata
+        return md5($this->name . $this->get_owner());
     }
 
     /**
