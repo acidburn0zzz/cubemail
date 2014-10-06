@@ -1295,7 +1295,7 @@ class kolab_driver extends calendar_driver
     set_time_limit(0);
     ignore_user_abort(true);
 
-    $cal = get_input_value('source', RCUBE_INPUT_GPC);
+    $cal = rcube_utils::get_input_value('source', rcube_utils::INPUT_GPC);
     if (!($cal = $this->get_calendar($cal)))
       return false;
 
@@ -1751,7 +1751,7 @@ class kolab_driver extends calendar_driver
    */
   public function calendar_acl_form()
   {
-    $calid = get_input_value('_id', RCUBE_INPUT_GPC);
+    $calid = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
     if ($calid && ($cal = $this->get_calendar($calid))) {
       $folder = $cal->get_realname(); // UTF7
       $color  = $cal->get_color();

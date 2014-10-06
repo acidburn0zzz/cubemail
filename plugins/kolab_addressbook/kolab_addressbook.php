@@ -239,7 +239,7 @@ class kolab_addressbook extends rcube_plugin
      */
     protected function addressbook_list_item($id, $source, &$jsdata, $search_mode = false)
     {
-        $folder = $this->folders[$id];
+        $folder  = $this->folders[$id];
         $current = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GPC);
 
         if (!$source['virtual']) {
@@ -564,7 +564,7 @@ class kolab_addressbook extends rcube_plugin
         $key           = 'kolab_addressbook_prio';
 
         if (!in_array('kolab_addressbook_prio', $dont_override) || !isset($_POST['_'.$key])) {
-            $args['prefs'][$key] = (int) get_input_value('_'.$key, RCUBE_INPUT_POST);
+            $args['prefs'][$key] = (int) rcube_utils::get_input_value('_'.$key, rcube_utils::INPUT_POST);
         }
 
         return $args;
@@ -576,7 +576,7 @@ class kolab_addressbook extends rcube_plugin
      */
     public function book_actions()
     {
-        $action = trim(get_input_value('_act', RCUBE_INPUT_GPC));
+        $action = trim(rcube_utils::get_input_value('_act', rcube_utils::INPUT_GPC));
 
         if ($action == 'create') {
             $this->ui->book_edit();
@@ -596,9 +596,9 @@ class kolab_addressbook extends rcube_plugin
     public function book_save()
     {
         $prop = array(
-            'name'    => trim(get_input_value('_name', RCUBE_INPUT_POST)),
-            'oldname' => trim(get_input_value('_oldname', RCUBE_INPUT_POST, true)), // UTF7-IMAP
-            'parent'  => trim(get_input_value('_parent', RCUBE_INPUT_POST, true)), // UTF7-IMAP
+            'name'    => trim(rcube_utils::get_input_value('_name', rcube_utils::INPUT_POST)),
+            'oldname' => trim(rcube_utils::get_input_value('_oldname', rcube_utils::INPUT_POST, true)), // UTF7-IMAP
+            'parent'  => trim(rcube_utils::get_input_value('_parent', rcube_utils::INPUT_POST, true)), // UTF7-IMAP
             'type'    => 'contact',
             'subscribed' => true,
         );
@@ -649,14 +649,14 @@ class kolab_addressbook extends rcube_plugin
     public function book_search()
     {
         $results = array();
-        $query = rcube_utils::get_input_value('q', RCUBE_INPUT_GPC);
-        $source = rcube_utils::get_input_value('source', RCUBE_INPUT_GPC);
+        $query = rcube_utils::get_input_value('q', rcube_utils::INPUT_GPC);
+        $source = rcube_utils::get_input_value('source', rcube_utils::INPUT_GPC);
 
         kolab_storage::$encode_ids = true;
         $search_more_results = false;
         $this->sources = array();
         $this->folders = array();
-    
+
         // find unsubscribed IMAP folders that have "event" type
         if ($source == 'folders') {
             foreach ((array)kolab_storage::search_folders('contact', $query, array('other')) as $folder) {
@@ -728,7 +728,7 @@ class kolab_addressbook extends rcube_plugin
             $this->rc->output->show_message('autocompletemore', 'info');
         }
 
-        $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', RCUBE_INPUT_GPC));
+        $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC));
     }
 
     /**
@@ -737,7 +737,7 @@ class kolab_addressbook extends rcube_plugin
     public function book_subscribe()
     {
         $success = false;
-        $id = rcube_utils::get_input_value('_source', RCUBE_INPUT_GPC);
+        $id = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GPC);
 
         if ($id && ($folder = kolab_storage::get_folder(kolab_storage::id_decode($id)))) {
             if (isset($_POST['_permanent']))
@@ -773,7 +773,7 @@ class kolab_addressbook extends rcube_plugin
      */
     private function book_delete()
     {
-        $folder = trim(get_input_value('_source', RCUBE_INPUT_GPC, true, 'UTF7-IMAP'));
+        $folder = trim(rcube_utils::get_input_value('_source', rcube_utils::INPUT_GPC, true, 'UTF7-IMAP'));
 
         if (kolab_storage::folder_delete($folder)) {
             $storage = $this->rc->get_storage();

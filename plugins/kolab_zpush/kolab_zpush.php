@@ -90,8 +90,8 @@ class kolab_zpush extends rcube_plugin
     public function json_command()
     {
         $storage = $this->rc->get_storage();
-        $cmd     = get_input_value('cmd', RCUBE_INPUT_GPC);
-        $imei    = get_input_value('id', RCUBE_INPUT_GPC);
+        $cmd     = rcube_utils::get_input_value('cmd', rcube_utils::INPUT_GPC);
+        $imei    = rcube_utils::get_input_value('id', rcube_utils::INPUT_GPC);
 
         switch ($cmd) {
         case 'load':
@@ -117,12 +117,12 @@ class kolab_zpush extends rcube_plugin
             break;
 
         case 'save':
+            $syncmode     = intval(rcube_utils::get_input_value('syncmode', rcube_utils::INPUT_POST));
+            $laxpic       = intval(rcube_utils::get_input_value('laxpic', rcube_utils::INPUT_POST));
+            $devicealias  = rcube_utils::get_input_value('devicealias', rcube_utils::INPUT_POST, true);
+            $subsciptions = rcube_utils::get_input_value('subscribed', rcube_utils::INPUT_POST);
             $devices = $this->list_devices();
-            $syncmode = intval(get_input_value('syncmode', RCUBE_INPUT_POST));
-            $devicealias = get_input_value('devicealias', RCUBE_INPUT_POST, true);
-            $laxpic = intval(get_input_value('laxpic', RCUBE_INPUT_POST));
-            $subsciptions = get_input_value('subscribed', RCUBE_INPUT_POST);
-            $err = false;
+            $err     = false;
 
             if ($device = $devices[$imei]) {
                 // update device config if changed

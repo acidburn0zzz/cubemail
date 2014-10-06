@@ -70,10 +70,10 @@ class kolab_notes_ui
             'print_template' => $this->rc->url('print'),
         );
 
-        if ($list = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC)) {
+        if ($list = rcube_utils::get_input_value('_list', rcube_utils::INPUT_GPC)) {
             $settings['selected_list'] = $list;
         }
-        if ($uid = rcube_utils::get_input_value('_id', RCUBE_INPUT_GPC)) {
+        if ($uid = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC)) {
             $settings['selected_uid'] = $uid;
         }
 
@@ -409,7 +409,7 @@ class kolab_notes_ui
      */
     public function folder_acl_form()
     {
-        $folder = rcube_utils::get_input_value('_folder', RCUBE_INPUT_GPC);
+        $folder = rcube_utils::get_input_value('_folder', rcube_utils::INPUT_GPC);
 
         if (strlen($folder)) {
             $storage = $this->rc->get_storage();

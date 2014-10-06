@@ -387,7 +387,7 @@ class kolab_notes extends rcube_plugin
     public function dialog_view()
     {
         // resolve message reference
-        if ($msgref = rcube_utils::get_input_value('_msg', RCUBE_INPUT_GPC, true)) {
+        if ($msgref = rcube_utils::get_input_value('_msg', rcube_utils::INPUT_GPC, true)) {
             $storage = $this->rc->get_storage();
             list($uid, $folder) = explode('-', $msgref, 2);
             if ($message = $storage->get_message_headers($msgref)) {
@@ -408,8 +408,8 @@ class kolab_notes extends rcube_plugin
      */
     public function notes_fetch()
     {
-        $search = rcube_utils::get_input_value('_q', RCUBE_INPUT_GPC, true);
-        $list   = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC);
+        $search = rcube_utils::get_input_value('_q', rcube_utils::INPUT_GPC, true);
+        $list   = rcube_utils::get_input_value('_list', rcube_utils::INPUT_GPC);
 
         $data = $this->notes_data($this->list_notes($list, $search), $tags);
 
@@ -492,8 +492,8 @@ class kolab_notes extends rcube_plugin
     public function note_record()
     {
         $data = $this->get_note(array(
-            'uid'  => rcube_utils::get_input_value('_id', RCUBE_INPUT_GPC),
-            'list' => rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC),
+            'uid'  => rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC),
+            'list' => rcube_utils::get_input_value('_list', rcube_utils::INPUT_GPC),
         ));
 
         // encode for client use
@@ -586,8 +586,8 @@ class kolab_notes extends rcube_plugin
      */
     public function note_action()
     {
-        $action = rcube_utils::get_input_value('_do', RCUBE_INPUT_POST);
-        $note   = rcube_utils::get_input_value('_data', RCUBE_INPUT_POST, true);
+        $action = rcube_utils::get_input_value('_do', rcube_utils::INPUT_POST);
+        $note   = rcube_utils::get_input_value('_data', rcube_utils::INPUT_POST, true);
 
         $success = false;
         switch ($action) {
@@ -759,12 +759,12 @@ class kolab_notes extends rcube_plugin
      */
     public function list_action()
     {
-        $action  = rcube_utils::get_input_value('_do', RCUBE_INPUT_GPC);
-        $list    = rcube_utils::get_input_value('_list', RCUBE_INPUT_GPC, true);
+        $action  = rcube_utils::get_input_value('_do', rcube_utils::INPUT_GPC);
+        $list    = rcube_utils::get_input_value('_list', rcube_utils::INPUT_GPC, true);
         $success = $update_cmd = false;
 
         if (empty($action)) {
-            $action = rcube_utils::get_input_value('action', RCUBE_INPUT_GPC);
+            $action = rcube_utils::get_input_value('action', rcube_utils::INPUT_GPC);
         }
 
         switch ($action) {
@@ -828,7 +828,7 @@ class kolab_notes extends rcube_plugin
             case 'search':
                 $this->load_ui();
                 $results = array();
-                foreach ((array)$this->search_lists(rcube_utils::get_input_value('q', RCUBE_INPUT_GPC), rcube_utils::get_input_value('source', RCUBE_INPUT_GPC)) as $id => $prop) {
+                foreach ((array)$this->search_lists(rcube_utils::get_input_value('q', rcube_utils::INPUT_GPC), rcube_utils::get_input_value('source', rcube_utils::INPUT_GPC)) as $id => $prop) {
                     $editname = $prop['editname'];
                     unset($prop['editname']);  // force full name to be displayed
 
@@ -845,7 +845,7 @@ class kolab_notes extends rcube_plugin
                     $this->rc->output->show_message('autocompletemore', 'info');
                 }
 
-                $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', RCUBE_INPUT_GPC));
+                $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC));
                 return;
 
             case 'subscribe':

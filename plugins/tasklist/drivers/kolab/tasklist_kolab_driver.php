@@ -1286,7 +1286,7 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function folder_acl_form()
     {
-        $folder = rcube_utils::get_input_value('_folder', RCUBE_INPUT_GPC);
+        $folder = rcube_utils::get_input_value('_folder', rcube_utils::INPUT_GPC);
 
         if (strlen($folder)) {
             $storage = $this->rc->get_storage();

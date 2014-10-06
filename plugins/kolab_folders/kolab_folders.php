@@ -212,8 +212,8 @@ class kolab_folders extends rcube_plugin
         $mbox = strlen($args['name']) ? $args['name'] : $args['parent_name'];
 
         if (isset($_POST['_ctype'])) {
-            $new_ctype   = trim(get_input_value('_ctype', RCUBE_INPUT_POST));
-            $new_subtype = trim(get_input_value('_subtype', RCUBE_INPUT_POST));
+            $new_ctype   = trim(rcube_utils::get_input_value('_ctype', rcube_utils::INPUT_POST));
+            $new_subtype = trim(rcube_utils::get_input_value('_subtype', rcube_utils::INPUT_POST));
         }
 
         // Get type of the folder or the parent
@@ -301,8 +301,8 @@ class kolab_folders extends rcube_plugin
         }
 
         // Folder create/update with form
-        $ctype     = trim(get_input_value('_ctype', RCUBE_INPUT_POST));
-        $subtype   = trim(get_input_value('_subtype', RCUBE_INPUT_POST));
+        $ctype     = trim(rcube_utils::get_input_value('_ctype', rcube_utils::INPUT_POST));
+        $subtype   = trim(rcube_utils::get_input_value('_subtype', rcube_utils::INPUT_POST));
         $mbox      = $args['record']['name'];
         $old_mbox  = $args['record']['oldname'];
         $subscribe = $args['record']['subscribe'];

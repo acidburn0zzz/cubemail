@@ -197,9 +197,9 @@ class tasklist extends rcube_plugin
      */
     public function task_action()
     {
-        $filter = intval(get_input_value('filter', RCUBE_INPUT_GPC));
-        $action = get_input_value('action', RCUBE_INPUT_GPC);
-        $rec    = get_input_value('t', RCUBE_INPUT_POST, true);
+        $filter = intval(rcube_utils::get_input_value('filter', rcube_utils::INPUT_GPC));
+        $action = rcube_utils::get_input_value('action', rcube_utils::INPUT_GPC);
+        $rec    = rcube_utils::get_input_value('t', rcube_utils::INPUT_POST, true);
         $oldrec = $rec;
         $success = $refresh = false;
 
@@ -272,7 +272,7 @@ class tasklist extends rcube_plugin
               break;
 
         case 'delete':
-            $mode  = intval(get_input_value('mode', RCUBE_INPUT_POST));
+            $mode  = intval(rcube_utils::get_input_value('mode', rcube_utils::INPUT_POST));
             $oldrec = $this->driver->get_task($rec);
             if ($success = $this->driver->delete_task($rec, false)) {
                 // delete/modify all childs
@@ -315,7 +315,7 @@ class tasklist extends rcube_plugin
 
         case 'collapse':
             foreach (explode(',', $rec['id']) as $rec_id) {
-                if (intval(get_input_value('collapsed', RCUBE_INPUT_GPC))) {
+                if (intval(rcube_utils::get_input_value('collapsed', rcube_utils::INPUT_GPC))) {
                     $this->collapsed_tasks[] = $rec_id;
                 }
                 else {
@@ -329,13 +329,13 @@ class tasklist extends rcube_plugin
             return;  // avoid further actions
 
         case 'rsvp':
-            $status = get_input_value('status', RCUBE_INPUT_GPC);
+            $status = rcube_utils::get_input_value('status', rcube_utils::INPUT_GPC);
             $task = $this->driver->get_task($rec);
             $task['attendees'] = $rec['attendees'];
             $rec = $task;
 
             if ($success = $this->driver->edit_task($rec)) {
-                $noreply = intval(get_input_value('noreply', RCUBE_INPUT_GPC)) || $status == 'needs-action';
+                $noreply = intval(rcube_utils::get_input_value('noreply', rcube_utils::INPUT_GPC)) || $status == 'needs-action';
 
                 if (!$noreply) {
                     // let the reply clause further down send the iTip message
@@ -377,7 +377,7 @@ class tasklist extends rcube_plugin
                 $status = strtolower($sender['status']);
 
                 if (!empty($_POST['comment']))
-                    $task['comment'] = get_input_value('comment', RCUBE_INPUT_POST);
+                    $task['comment'] = rcube_utils::get_input_value('comment', rcube_utils::INPUT_POST);
 
                 $itip = $this->load_itip();
                 $itip->set_sender_email($sender['email']);
@@ -797,8 +797,8 @@ class tasklist extends rcube_plugin
      */
     public function tasklist_action()
     {
-        $action = get_input_value('action', RCUBE_INPUT_GPC);
-        $list  = get_input_value('l', RCUBE_INPUT_GPC, true);
+        $action  = rcube_utils::get_input_value('action', rcube_utils::INPUT_GPC);
+        $list    = rcube_utils::get_input_value('l', rcube_utils::INPUT_GPC, true);
         $success = false;
 
         if (isset($list['showalarms']))
@@ -845,7 +845,10 @@ class tasklist extends rcube_plugin
         case 'search':
             $this->load_ui();
             $results = array();
-            foreach ((array)$this->driver->search_lists(get_input_value('q', RCUBE_INPUT_GPC), get_input_value('source', RCUBE_INPUT_GPC)) as $id => $prop) {
+            $query   = rcube_utils::get_input_value('q', rcube_utils::INPUT_GPC);
+            $source  = rcube_utils::get_input_value('source', rcube_utils::INPUT_GPC);
+
+            foreach ((array)$this->driver->search_lists($query, $source) as $id => $prop) {
                 $editname = $prop['editname'];
                 unset($prop['editname']);  // force full name to be displayed
                 $prop['active'] = false;
@@ -863,7 +866,7 @@ class tasklist extends rcube_plugin
                 $this->rc->output->show_message('autocompletemore', 'info');
             }
 
-            $this->rc->output->command('multi_thread_http_response', $results, get_input_value('_reqid', RCUBE_INPUT_GPC));
+            $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC));
             return;
         }
 
@@ -881,7 +884,7 @@ class tasklist extends rcube_plugin
     public function fetch_counts()
     {
         if (isset($_REQUEST['lists'])) {
-            $lists = get_input_value('lists', RCUBE_INPUT_GPC);
+            $lists = rcube_utils::get_input_value('lists', rcube_utils::INPUT_GPC);
         }
         else {
             foreach ($this->driver->get_lists() as $list) {
@@ -909,10 +912,10 @@ class tasklist extends rcube_plugin
      */
     public function fetch_tasks()
     {
-        $f = intval(get_input_value('filter', RCUBE_INPUT_GPC));
-        $search = get_input_value('q', RCUBE_INPUT_GPC);
+        $f = intval(rcube_utils::get_input_value('filter', rcube_utils::INPUT_GPC));
+        $search = rcube_utils::get_input_value('q', rcube_utils::INPUT_GPC);
+        $lists  = rcube_utils::get_input_value('lists', rcube_utils::INPUT_GPC);
         $filter = array('mask' => $f, 'search' => $search);
-        $lists = get_input_value('lists', RCUBE_INPUT_GPC);;
 /*
         // convert magic date filters into a real date range
         switch ($f) {
@@ -1214,10 +1217,10 @@ class tasklist extends rcube_plugin
 
         $filter = array(
             'since'  => $attr['last'],
-            'search' => get_input_value('q', RCUBE_INPUT_GPC),
-            'mask'   => intval(get_input_value('filter', RCUBE_INPUT_GPC)) & self::FILTER_MASK_COMPLETE,
+            'search' => rcube_utils::get_input_value('q', rcube_utils::INPUT_GPC),
+            'mask'   => intval(rcube_utils::get_input_value('filter', rcube_utils::INPUT_GPC)) & self::FILTER_MASK_COMPLETE,
         );
-        $lists = get_input_value('lists', RCUBE_INPUT_GPC);;
+        $lists = rcube_utils::get_input_value('lists', rcube_utils::INPUT_GPC);;
 
         $updates = $this->driver->list_tasks($filter, $lists);
         if (!empty($updates)) {
@@ -1286,9 +1289,9 @@ class tasklist extends rcube_plugin
             return $this->lib->attachment_loading_page();
         }
 
-        $task = get_input_value('_t', RCUBE_INPUT_GPC);
-        $list = get_input_value('_list', RCUBE_INPUT_GPC);
-        $id   = get_input_value('_id', RCUBE_INPUT_GPC);
+        $task = rcube_utils::get_input_value('_t', rcube_utils::INPUT_GPC);
+        $list = rcube_utils::get_input_value('_list', rcube_utils::INPUT_GPC);
+        $id   = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
 
         $task = array('id' => $task, 'list' => $list);
         $attachment = $this->driver->get_attachment($id, $task);
@@ -1316,8 +1319,8 @@ class tasklist extends rcube_plugin
 
     public function mail_message2task()
     {
-        $uid = get_input_value('_uid', RCUBE_INPUT_POST);
-        $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+        $uid  = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
+        $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
         $task = array();
 
         // establish imap connection

@@ -327,8 +327,8 @@ class kolab_delegation extends rcube_plugin
 
         // Delegate delete
         if ($this->rc->action == 'plugin.delegation-delete') {
-            $id      = get_input_value('id', RCUBE_INPUT_GPC);
-            $success = $engine->delegate_delete($id, (bool) get_input_value('acl', RCUBE_INPUT_GPC));
+            $id      = rcube_utils::get_input_value('id', rcube_utils::INPUT_GPC);
+            $success = $engine->delegate_delete($id, (bool) rcube_utils::get_input_value('acl', rcube_utils::INPUT_GPC));
 
             if ($success) {
                 $this->rc->output->show_message($this->gettext('deletesuccess'), 'confirmation');
@@ -340,8 +340,8 @@ class kolab_delegation extends rcube_plugin
         }
         // Delegate add/update
         else if ($this->rc->action == 'plugin.delegation-save') {
-            $id  = get_input_value('id', RCUBE_INPUT_GPC);
-            $acl = get_input_value('folders', RCUBE_INPUT_GPC);
+            $id  = rcube_utils::get_input_value('id', rcube_utils::INPUT_GPC);
+            $acl = rcube_utils::get_input_value('folders', rcube_utils::INPUT_GPC);
 
             // update
             if ($id) {
@@ -358,7 +358,7 @@ class kolab_delegation extends rcube_plugin
             }
             // new
             else {
-                $login    = get_input_value('newid', RCUBE_INPUT_GPC);
+                $login    = rcube_utils::get_input_value('newid', rcube_utils::INPUT_GPC);
                 $delegate = $engine->delegate_get_by_name($login);
                 $success  = $engine->delegate_add($delegate, $acl);
 
@@ -376,8 +376,8 @@ class kolab_delegation extends rcube_plugin
         }
         // Delegate autocompletion
         else if ($this->rc->action == 'plugin.delegation-autocomplete') {
-            $search = get_input_value('_search', RCUBE_INPUT_GPC, true);
-            $reqid  = get_input_value('_reqid', RCUBE_INPUT_GPC);
+            $search = rcube_utils::get_input_value('_search', rcube_utils::INPUT_GPC, true);
+            $reqid  = rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC);
             $users  = $engine->list_users($search);
 
             $this->rc->output->command('ksearch_query_results', $users, $search, $reqid);
@@ -418,7 +418,7 @@ class kolab_delegation extends rcube_plugin
     {
         $engine   = $this->engine();
         $table    = new html_table(array('cols' => 2));
-        $id       = get_input_value('_id', RCUBE_INPUT_GPC);
+        $id       = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
         $field_id = 'delegate';
 
         if ($id) {
@@ -457,7 +457,7 @@ class kolab_delegation extends rcube_plugin
         }
 
         $engine = $this->engine();
-        $id     = get_input_value('_id', RCUBE_INPUT_GPC);
+        $id     = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
 
         if ($id) {
             $delegate = $engine->delegate_get($id);

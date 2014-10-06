@@ -123,15 +123,15 @@ class kolab_activesync extends rcube_plugin
      */
     public function json_command()
     {
-        $cmd  = get_input_value('cmd', RCUBE_INPUT_POST);
-        $imei = get_input_value('id', RCUBE_INPUT_POST);
+        $cmd  = rcube_utils::get_input_value('cmd', rcube_utils::INPUT_POST);
+        $imei = rcube_utils::get_input_value('id', rcube_utils::INPUT_POST);
 
         switch ($cmd) {
         case 'save':
             $devices       = $this->list_devices();
             $device        = $devices[$imei];
-            $subscriptions = (array) get_input_value('subscribed', RCUBE_INPUT_POST);
-            $devicealias   = get_input_value('devicealias', RCUBE_INPUT_POST, true);
+            $subscriptions = (array) rcube_utils::get_input_value('subscribed', rcube_utils::INPUT_POST);
+            $devicealias   = rcube_utils::get_input_value('devicealias', rcube_utils::INPUT_POST, true);
             $device['ALIAS'] = $devicealias;
 
             $err = !$this->device_update($device, $imei);
@@ -173,8 +173,8 @@ class kolab_activesync extends rcube_plugin
             break;
 
         case 'update':
-            $subscription = (int) get_input_value('flag', RCUBE_INPUT_POST);
-            $folder       = get_input_value('folder', RCUBE_INPUT_POST);
+            $subscription = (int) rcube_utils::get_input_value('flag', rcube_utils::INPUT_POST);
+            $folder       = rcube_utils::get_input_value('folder', rcube_utils::INPUT_POST);
 
             $err = !$this->folder_set($folder, $imei, $subscription);
 
@@ -233,7 +233,7 @@ class kolab_activesync extends rcube_plugin
         $this->register_handler('plugin.deviceconfigform', array($this->ui, 'device_config_form'));
         $this->register_handler('plugin.foldersubscriptions', array($this->ui, 'folder_subscriptions'));
 
-        $imei    = get_input_value('_id', RCUBE_INPUT_GPC);
+        $imei    = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
         $devices = $this->list_devices();
 
         if ($device = $devices[$imei]) {
