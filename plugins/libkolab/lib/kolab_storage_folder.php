@@ -933,9 +933,12 @@ class kolab_storage_folder
      */
     public function move($uid, $target_folder)
     {
+        if (is_string($target_folder))
+            $target_folder = kolab_storage::get_folder($target_folder);
+
         if ($msguid = $this->cache->uid2msguid($uid)) {
             $this->cache->bypass(true);
-            $result = $this->imap->move_message($msguid, $target_folder, $this->name);
+            $result = $this->imap->move_message($msguid, $target_folder->name, $this->name);
             $this->cache->bypass(false);
 
             if ($result) {

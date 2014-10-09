@@ -732,7 +732,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         // moved from another folder
         if ($task['_fromlist'] && ($fromfolder = $this->folders[$task['_fromlist']])) {
-            if (!$fromfolder->move($task['id'], $folder->name))
+            if (!$fromfolder->move($task['id'], $folder))
                 return false;
 
             unset($task['_fromlist']);
@@ -785,7 +785,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         // execute move command
         if ($task['_fromlist'] && ($fromfolder = $this->folders[$task['_fromlist']])) {
-            return $fromfolder->move($task['id'], $folder->name);
+            return $fromfolder->move($task['id'], $folder);
         }
 
         return false;
