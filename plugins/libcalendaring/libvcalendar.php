@@ -435,15 +435,17 @@ class libvcalendar implements Iterator
                 if (!$params['INTERVAL'])
                     $params['INTERVAL'] = 1;
 
-                $event['recurrence'] = $params;
+                $event['recurrence'] = array_filter($params);
                 break;
 
             case 'EXDATE':
-                $event['recurrence']['EXDATE'] = array_merge((array)$event['recurrence']['EXDATE'], self::convert_datetime($prop, true));
+                if (!empty($prop->value))
+                    $event['recurrence']['EXDATE'] = array_merge((array)$event['recurrence']['EXDATE'], self::convert_datetime($prop, true));
                 break;
 
             case 'RDATE':
-                $event['recurrence']['RDATE'] = array_merge((array)$event['recurrence']['RDATE'], self::convert_datetime($prop, true));
+                if (!empty($prop->value))
+                    $event['recurrence']['RDATE'] = array_merge((array)$event['recurrence']['RDATE'], self::convert_datetime($prop, true));
                 break;
 
             case 'RECURRENCE-ID':
