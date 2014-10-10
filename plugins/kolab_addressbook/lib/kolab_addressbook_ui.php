@@ -133,8 +133,8 @@ class kolab_addressbook_ui
      */
     public function book_form($attrib)
     {
-        $action = trim(rcube:utils::get_input_value('_act', rcube_utils::INPUT_GPC));
-        $folder = trim(rcube:utils::get_input_value('_source', rcube_utils::INPUT_GPC, true)); // UTF8
+        $action = trim(rcube_utils::get_input_value('_act', rcube_utils::INPUT_GPC));
+        $folder = trim(rcube_utils::get_input_value('_source', rcube_utils::INPUT_GPC, true)); // UTF8
 
         $hidden_fields[] = array('name' => '_source', 'value' => $folder);
 
@@ -144,9 +144,9 @@ class kolab_addressbook_ui
 
         if ($this->rc->action == 'plugin.book-save') {
             // save error
-            $name      = trim(rcube:utils::get_input_value('_name', rcube_utils::INPUT_GPC, true)); // UTF8
-            $old       = trim(rcube:utils::get_input_value('_oldname', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
-            $path_imap = trim(rcube:utils::get_input_value('_parent', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
+            $name      = trim(rcube_utils::get_input_value('_name', rcube_utils::INPUT_GPC, true)); // UTF8
+            $old       = trim(rcube_utils::get_input_value('_oldname', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
+            $path_imap = trim(rcube_utils::get_input_value('_parent', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
 
             $hidden_fields[] = array('name' => '_oldname', 'value' => $old);
 
