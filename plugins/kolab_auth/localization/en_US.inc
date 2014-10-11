@@ -9,5 +9,6 @@
  */
 
 $labels['loginas'] = 'Login As';
+$labels['loginasnotallowed'] = 'No privileges to login as $user';
 
 ?>

@@ -29,6 +29,9 @@ $config['kolab_auth_name']         = array('name', 'cn');
 $config['kolab_auth_email']        = array('email');
 $config['kolab_auth_organization'] = array('organization');
 
+// Role field (from fieldmap configuration)
+$config['kolab_auth_role'] = 'role';
+
 // Template for user names displayed in the UI.
 // You can use all attributes from the 'fieldmap' property of the 'kolab_auth_addressbook' configuration
 $config['kolab_auth_user_displayname'] = '{name} ({ou})';
@@ -40,20 +43,17 @@ $config['kolab_auth_admin_password'] = '';
 // Enable audit logging for abuse of administrative privileges.
 $config['kolab_auth_auditlog'] = false;
 
-// Role field (from fieldmap configuration)
-$config['kolab_auth_role'] = 'role';
-// The required value for the role attribute to contain should the user be allowed
-// to login as another user.
-$config['kolab_auth_role_value'] = '';
-
-// Administrative group name to which user must be assigned to
-// which adds privilege to login as another user.
-$config['kolab_auth_group'] = '';
-
-// List of tasks to which admin has access when logged in as another user.
-// To limit usage to Settings only use: array('settings'). Default: array() - all tasks.
-// When defined all non-authorized requests will be redirected to first task on the list.
-$config['kolab_auth_allowed_tasks'] = array();
+// As set of rules to define the required rights on the target entry
+// which allow an admin user to login as another user (the target).
+// The effective rights value refers to either entry level attribute level rights:
+//  * entry:[read|add|delete]
+//  * attrib:<attribute-name>:[read|write|delete]
+$config['kolab_auth_admin_rights'] = array(
+    // Roundcube task => required effective right
+    'settings'        => 'entry:read',
+    'mail'            => 'entry:delete',
+    'addressbook'     => 'entry:delete',
+);
 
 // Enable plugins on a role-by-role basis. In this example, the 'acl' plugin
 // is enabled for people with a 'cn=professional-user,dc=mykolab,dc=ch' role.
