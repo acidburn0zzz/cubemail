@@ -53,6 +53,8 @@ $config['kolab_auth_admin_rights'] = array(
     'settings'        => 'entry:read',
     'mail'            => 'entry:delete',
     'addressbook'     => 'entry:delete',
+    // or use a wildcard entry like this:
+    '*'               => 'entry:read',
 );
 
 // Enable plugins on a role-by-role basis. In this example, the 'acl' plugin

@@ -96,13 +96,15 @@ class kolab_auth extends rcube_plugin
             // redirect to the first task on the list
             if (!empty($_SESSION['kolab_auth_allowed_tasks'])) {
                 $tasks = (array)$_SESSION['kolab_auth_allowed_tasks'];
-                if (!in_array($args['task'], $tasks)) {
+                if (!in_array($args['task'], $tasks) && !in_array('*', $tasks)) {
                     header('Location: ?_task=' . array_shift($tasks));
                     die;
                 }
 
                 // add script that will remove disabled taskbar buttons
-                $this->add_hook('render_page', array($this, 'render_page'));
+                if (!in_array('*', $tasks)) {
+                    $this->add_hook('render_page', array($this, 'render_page'));
+                }
             }
         }
 
