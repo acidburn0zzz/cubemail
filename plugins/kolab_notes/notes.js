@@ -902,7 +902,7 @@ function rcube_kolab_notes_ui(settings)
                 $('.notetitle', rcmail.gui_objects.noteviewtitle).focus().select();
 
             // read possibly re-formatted content back from editor for later comparison
-            me.selected_note.description = editor.getContent({ format:'html' }).replace(/^<p><\/p>/, '');
+            me.selected_note.description = editor.getContent({ format:'html' }).replace(/^\s*(<p><\/p>\n*)?/, '');
             is_html = true;
         }
         else {
@@ -1169,7 +1169,7 @@ function rcube_kolab_notes_ui(settings)
             listselect = $('option:selected', rcmail.gui_objects.notebooks);
         var savedata = {
             title: trim($('.notetitle', rcmail.gui_objects.noteviewtitle).val()),
-            description: editor ? editor.getContent({ format:'html' }).replace(/^<p><\/p>/, '') : $('#notecontent').val(),
+            description: editor ? editor.getContent({ format:'html' }).replace(/^\s*(<p><\/p>\n*)?/, '') : $('#notecontent').val(),
             list: listselect.length ? listselect.val() : me.selected_note.list || me.selected_list,
             uid: me.selected_note.uid,
             tags: []
