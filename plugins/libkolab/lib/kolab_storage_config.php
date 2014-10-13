@@ -780,7 +780,7 @@ class kolab_storage_config
         // get UIDs of assigned notes
         foreach ($this->get_objects($filter, $default) as $relation) {
             // we don't need to update members if the URI is found
-            if (in_array($uri, $relation['members'])) {
+            if (!in_array($uri, $relation['members'])) {
                 // update members...
                 $messages = kolab_storage_config::resolve_members($relation);
                 // ...and check again
@@ -789,7 +789,7 @@ class kolab_storage_config
                 }
             }
 
-            // find note UID(s)
+            // find groupware object UID(s)
             foreach ($relation['members'] as $member) {
                 if (strpos($member, 'urn:uuid:') === 0) {
                     $uids[] = substr($member, 9);
