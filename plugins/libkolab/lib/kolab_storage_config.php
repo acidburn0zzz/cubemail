@@ -699,7 +699,7 @@ class kolab_storage_config
 
             // make sure the object_uri is still a member
             if (!in_array($object_uri, $members)) {
-                $members[$obejct_uri];
+                $members[$object_uri];
             }
 
             // remove relation if no other members remain
