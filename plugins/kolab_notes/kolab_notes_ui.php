@@ -102,7 +102,7 @@ class kolab_notes_ui
 
         $this->rc->output->set_env('kolab_notes_settings', $settings);
 
-        $this->rc->output->add_label('save','cancel');
+        $this->rc->output->add_label('save','cancel','delete');
     }
 
     public function folders($attrib)

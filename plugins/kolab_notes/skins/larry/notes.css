@@ -530,14 +530,26 @@
 }
 
 .notesview .attachmentslist li.message.eml {
+	position: relative;
 	display: inline-block;
 	background-image: url(sprites.png);
 	background-position: -6px -128px;
 	margin-right: 1em;
+	padding-right: 28px;
 }
 
 .notesview .attachmentslist li.message a.messagelink {
 	padding-left: 24px;
+	padding-right: 0;
+}
+
+.notesview .attachmentslist li.message a.delete {
+	background-position: -6px -378px;
+}
+
+.notesview .attachmentslist li.deleted a.messagelink,
+.notesview .attachmentslist li.deleted a.messagelink:hover {
+	text-decoration: line-through;
 }
 
 ul.toolbarmenu li .appendnote span.icon {
