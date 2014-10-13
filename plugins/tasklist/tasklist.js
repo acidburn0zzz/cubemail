@@ -558,6 +558,12 @@ function rcube_tasklist_ui(settings)
             }
         });
 
+        // register click handler for message links
+        $('#task-links, #taskedit-links').on('click', 'li a.messagelink', function(e) {
+            rcmail.open_window(this.href);
+            return false;
+        });
+
         // handle global document clicks: close popup menus
         $(document.body).click(clear_popups);
 
@@ -1778,6 +1784,13 @@ function rcube_tasklist_ui(settings)
             }
         }
 
+        // build attachments list
+        $('#task-links').hide();
+        if ($.isArray(rec.links) && rec.links.length) {
+            task_show_links(rec.links || [], $('#task-links').children('.task-text'));
+            $('#task-links').show();
+        }
+
         // list task attendees
         if (list.attendees && rec.attendees) {
 /*
@@ -1983,6 +1996,14 @@ function rcube_tasklist_ui(settings)
 
         // set alarm(s)
         me.set_alarms_edit('#taskedit-alarms', action != 'new' && rec.valarms ? rec.valarms : []);
+
+        if ($.isArray(rec.links) && rec.links.length) {
+            task_show_links(rec.links, $('#taskedit-links .task-text'), true);
+            $('#taskedit-links').show();
+        }
+        else {
+            $('#taskedit-links').hide();
+        }
 
         // set recurrence
         me.set_recurrence_edit(rec);
@@ -2266,6 +2287,53 @@ function rcube_tasklist_ui(settings)
         $(elem.parentNode).hide();
         me.selected_task.deleted_attachments.push(id);
         delete rcmail.env.attachments[id];
+    }
+
+    /**
+     *
+     */
+    function task_show_links(links, container, edit)
+    {
+        var dellink, ul = $('<ul>').addClass('attachmentslist');
+
+        $.each(links, function(i, link) {
+            var li = $('<li>').addClass('link')
+                .addClass('message eml')
+                .append($('<a>')
+                    .attr('href', link.mailurl)
+                    .addClass('messagelink')
+                    .text(link.subject || link.uri)
+                )
+                .appendTo(ul);
+
+            // add icon to remove the link
+            if (edit) {
+                $('<a>')
+                    .attr('href', '#delete')
+                    .attr('title', rcmail.gettext('removelink','tasklist'))
+                    .addClass('delete')
+                    .text(rcmail.gettext('delete'))
+                    .click({ uri:link.uri }, function(e) {
+                        remove_link(this, e.data.uri);
+                        return false;
+                    })
+                    .appendTo(li);
+            }
+        });
+
+        container.empty().append(ul);
+    }
+
+    /**
+     *
+     */
+    function remove_link(elem, uri)
+    {
+        // remove the link item matching the given uri
+        me.selected_task.links = $.grep(me.selected_task.links, function(link) { return link.uri != uri; });
+
+        // remove UI list item
+        $(elem).hide().closest('li').addClass('deleted');
     }
 
     /**

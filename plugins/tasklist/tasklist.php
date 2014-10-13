@@ -564,6 +564,11 @@ class tasklist extends rcube_plugin
 
         $rec['attachments'] = $attachments;
 
+        // convert link references into simple URIs
+        if (array_key_exists('links', $rec)) {
+            $rec['links'] = array_map(function($link) { return is_array($link) ? $link['uri'] : strval($link); }, (array)$rec['links']);
+        }
+
         // convert invalid data
         if (isset($rec['attendees']) && !is_array($rec['attendees']))
             $rec['attendees'] = array();
@@ -1045,6 +1050,15 @@ class tasklist extends rcube_plugin
             $rec['attachments'][$k]['classname'] = rcube_utils::file2class($attachment['mimetype'], $attachment['name']);
         }
 
+        // convert link URIs references into structs
+        if (array_key_exists('links', $rec)) {
+            foreach ((array)$rec['links'] as $i => $link) {
+                if (strpos($link, 'imap://') === 0) {
+                    $rec['links'][$i] = $this->get_message_reference($link);
+                }
+            }
+        }
+
         if (!is_array($rec['tags']))
             $rec['tags'] = (array)$rec['tags'];
         sort($rec['tags'], SORT_LOCALE_STRING);
@@ -1163,7 +1177,7 @@ class tasklist extends rcube_plugin
         $this->rc->output->set_env('autocomplete_threads', (int)$this->rc->config->get('autocomplete_threads', 0));
         $this->rc->output->set_env('autocomplete_max', (int)$this->rc->config->get('autocomplete_max', 15));
         $this->rc->output->set_env('autocomplete_min_length', $this->rc->config->get('autocomplete_min_length'));
-        $this->rc->output->add_label('autocompletechars', 'autocompletemore', 'libcalendaring.expandattendeegroup', 'libcalendaring.expandattendeegroupnodata');
+        $this->rc->output->add_label('autocompletechars', 'autocompletemore', 'delete', 'libcalendaring.expandattendeegroup', 'libcalendaring.expandattendeegroupnodata');
 
         $this->rc->output->set_pagetitle($this->gettext('navtitle'));
         $this->rc->output->send('tasklist.mainview');
@@ -1335,8 +1349,12 @@ class tasklist extends rcube_plugin
 
             $this->load_driver();
 
+            // add a reference to the email message
+            if ($msguri = $this->driver->get_message_uri($message->headers, $mbox)) {
+                $task['links'] = array($this->get_message_reference($msguri));
+            }
             // copy mail attachments to task
-            if ($message->attachments && $this->driver->attachments) {
+            else if ($message->attachments && $this->driver->attachments) {
                 if (!is_array($_SESSION[self::SESSION_KEY]) || $_SESSION[self::SESSION_KEY]['id'] != $task['id']) {
                     $_SESSION[self::SESSION_KEY] = array();
                     $_SESSION[self::SESSION_KEY]['id'] = $task['id'];
@@ -1486,6 +1504,45 @@ class tasklist extends rcube_plugin
         }
 
         return $list ?: $first;
+    }
+
+    /**
+     * Resolve the email message reference from the given URI
+     */
+    public function get_message_reference($uri, $resolve = false)
+    {
+        if (strpos($uri, 'imap:///') === 0) {
+            $url = parse_url(substr($uri, 8));
+            parse_str($url['query'], $params);
+
+            $path = explode('/', $url['path']);
+            $uid  = array_pop($path);
+            $folder = join('/', array_map('rawurldecode', $path));
+        }
+
+        if ($folder && $uid) {
+            // TODO: check if folder/uid still references an existing message
+            // TODO: validate message or resovle the new URI using the message-id parameter
+
+            $linkref = array(
+                'folder'  => $folder,
+                'uid'     => $uid,
+                'subject' => $params['subject'],
+                'uri'     => $uri,
+                'mailurl' => $this->rc->url(array(
+                    'task'   => 'mail',
+                    'action' => 'show',
+                    'mbox'   => $folder,
+                    'uid'    => $uid,
+                    'rel'    => 'task',
+                ))
+            );
+        }
+        else {
+            $linkref = array();
+        }
+
+        return $linkref;
     }
 
     /**

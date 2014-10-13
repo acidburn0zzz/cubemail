@@ -288,6 +288,20 @@ abstract class tasklist_driver
     public function get_attachment_body($id, $task) { }
 
     /**
+     * Build a URI representing the given message reference
+     *
+     * @param object rcube_message_header Instance holding the message headers
+     * @param string IMAP folder the message resides in
+     *
+     * @return string An URI referencing the given IMAP message
+     */
+    public function get_message_uri($headers, $folder)
+    {
+        // to be implemented by the derived classes
+        return false;
+    }
+
+    /**
      * Helper method to determine whether the given task is considered "complete"
      *
      * @param array  $task  Hash array with event properties:

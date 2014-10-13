@@ -820,6 +820,59 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
+     * Find messages linked with a task record
+     */
+    private function get_links($uid)
+    {
+        $config = kolab_storage_config::get_instance();
+        return array_map(array($this, '_convert_message_uri'), $config->get_object_links($uid));
+    }
+
+    /**
+     *
+     */
+    private function save_links($uid, $links)
+    {
+        // make sure we have a valid array
+        if (empty($links)) {
+            $links = array();
+        }
+
+        // convert the given (simplified) message links into absolute IMAP URIs
+        $links = array_map(function($link) {
+            $url = parse_url(substr($link, 8));
+            parse_str($url['query'], $linkref);
+
+            $path = explode('/', $url['path']);
+            $linkref['uid'] = array_pop($path);
+            $linkref['folder'] = join('/', array_map('rawurldecode', $path));
+
+            return kolab_storage_config::build_member_url($linkref);
+        }, $links);
+
+        $config = kolab_storage_config::get_instance();
+        $remove = array_diff($config->get_object_links($uid), $links);
+        return $config->save_object_links($uid, $links, $remove);
+    }
+
+    /**
+     * Simplify the given message URI by converting the mailbox
+     * part into a relative IMAP path valid for the current user.
+     */
+    protected function _convert_message_uri($uri)
+    {
+        if (strpos($uri, 'imap:///') === 0) {
+            $linkref = kolab_storage_config::parse_member_url($uri);
+
+            return 'imap:///' . implode('/', array_map('rawurlencode', explode('/', $linkref['folder']))) .
+                '/' . $linkref['uid'] .
+                '?' . http_build_query($linkref['params'], '', '&');
+        }
+
+        return $uri;
+    }
+
+    /**
      * Convert from Kolab_Format to internal representation
      */
     private function _to_rcube_task($record)
@@ -839,6 +892,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'organizer' => $record['organizer'],
             'sequence' => $record['sequence'],
             'tags' => $record['tags'],
+            'links' => $this->get_links($record['uid']),
         );
 
         // convert from DateTime to internal date format
@@ -1013,9 +1067,10 @@ class tasklist_kolab_driver extends tasklist_driver
         if (!$list_id || !($folder = $this->get_folder($list_id)))
             return false;
 
-        // tags are stored separately
+        // email links and tags are stored separately
+        $links = $task['links'];
         $tags = $task['tags'];
-        unset($task['tags']);
+        unset($task['tags'], $task['links']);
 
         // moved from another folder
         if ($task['_fromlist'] && ($fromfolder = $this->get_folder($task['_fromlist']))) {
@@ -1049,6 +1104,8 @@ class tasklist_kolab_driver extends tasklist_driver
             $saved = false;
         }
         else {
+            // save links in configuration.relation object
+            $this->save_links($object['uid'], $links);
             // save tags in configuration.relation object
             $this->save_tags($object['uid'], $tags);
 
@@ -1167,6 +1224,17 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         return false;
+    }
+
+    /**
+     * Build a URI representing the given message reference
+     *
+     * @see tasklist_driver::get_message_uri()
+     */
+    public function get_message_uri($headers, $folder)
+    {
+        $uri = kolab_storage_config::get_message_uri($headers, $folder);
+        return $this->_convert_message_uri($uri);
     }
 
     /**

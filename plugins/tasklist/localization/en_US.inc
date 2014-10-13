@@ -37,6 +37,7 @@ $labels['start'] = 'Start';
 $labels['starttime'] = 'Start time';
 $labels['alarms'] = 'Reminder';
 $labels['repeat'] = 'Repeat';
+$labels['links'] = 'References';
 $labels['status'] = 'Status';
 $labels['status-needs-action'] = 'Needs action';
 $labels['status-in-process'] = 'In process';
@@ -61,6 +62,7 @@ $labels['mytasks'] = 'My tasks';
 $labels['mytaskstitle'] = 'Tasks assigned to you';
 $labels['nodate'] = 'no date';
 $labels['removetag'] = 'Remove';
+$labels['removelink'] = 'Remove email reference';
 $labels['auto'] = 'Auto';
 
 $labels['taskdetails'] = 'Details';
