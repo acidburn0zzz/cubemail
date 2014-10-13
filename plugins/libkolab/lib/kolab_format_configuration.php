@@ -241,6 +241,10 @@ class kolab_format_configuration extends kolab_format
             else if (!empty($member['params']['message-id'])) {
                 $words[] = $member['params']['message-id'];
             }
+            else {
+                // derive message identifier from URI
+                $words[] = md5($url);
+            }
         }
 
         return $words;

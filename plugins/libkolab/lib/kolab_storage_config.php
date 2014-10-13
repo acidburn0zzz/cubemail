@@ -351,6 +351,8 @@ class kolab_storage_config
                 'params' => $params,
             );
         }
+
+        return false;
     }
 
     /**
@@ -765,9 +767,15 @@ class kolab_storage_config
         $filter  = array(
             array('type', '=', 'relation'),
             array('category', '=', 'generic'),
-            // @TODO: what if Message-Id (and Date) does not exist?
-            array('member', '=', $message->get('message-id', false)),
         );
+
+        // query by message-id
+        $member_id = $message->get('message-id', false);
+        if (empty($member_id)) {
+            // derive message identifier from URI
+            $member_id = md5($uri);
+        }
+        array('member', '=', $member_id);
 
         // get UIDs of assigned notes
         foreach ($this->get_objects($filter, $default) as $relation) {
