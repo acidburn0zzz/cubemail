@@ -722,7 +722,7 @@ class kolab_storage_config
         }
 
         // create a new relation
-        if (!$done) {
+        if (!$done && !empty($links)) {
             $relation = array(
                 'members'  => array_merge($links, array($object_uri)),
                 'category' => 'generic',
@@ -775,7 +775,7 @@ class kolab_storage_config
             // derive message identifier from URI
             $member_id = md5($uri);
         }
-        array('member', '=', $member_id);
+        $filter[] = array('member', '=', $member_id);
 
         // get UIDs of assigned notes
         foreach ($this->get_objects($filter, $default) as $relation) {
