@@ -760,6 +760,8 @@ class kolab_storage_config
      */
     public function get_message_relations($message, $folder, $type)
     {
+        static $_cache = array();
+
         $result  = array();
         $uids    = array();
         $default = true;
@@ -777,24 +779,32 @@ class kolab_storage_config
         }
         $filter[] = array('member', '=', $member_id);
 
-        // get UIDs of assigned notes
-        foreach ($this->get_objects($filter, $default) as $relation) {
-            // we don't need to update members if the URI is found
-            if (!in_array($uri, $relation['members'])) {
-                // update members...
-                $messages = kolab_storage_config::resolve_members($relation);
-                // ...and check again
-                if (empty($messages[$folder]) || !in_array($message->uid, $messages[$folder])) {
-                    continue;
+        if (!isset($_cache[$uri])) {
+            // get UIDs of related groupware objects
+            foreach ($this->get_objects($filter, $default) as $relation) {
+                // we don't need to update members if the URI is found
+                if (!in_array($uri, $relation['members'])) {
+                    // update members...
+                    $messages = kolab_storage_config::resolve_members($relation);
+                    // ...and check again
+                    if (empty($messages[$folder]) || !in_array($message->uid, $messages[$folder])) {
+                        continue;
+                    }
+                }
+
+                // find groupware object UID(s)
+                foreach ($relation['members'] as $member) {
+                    if (strpos($member, 'urn:uuid:') === 0) {
+                        $uids[] = substr($member, 9);
+                    }
                 }
             }
 
-            // find groupware object UID(s)
-            foreach ($relation['members'] as $member) {
-                if (strpos($member, 'urn:uuid:') === 0) {
-                    $uids[] = substr($member, 9);
-                }
-            }
+            // remember this lookup
+            $_cache[$uri] = $uids;
+        }
+        else {
+            $uids = $_cache[$uri];
         }
 
         // get kolab objects of specified type
