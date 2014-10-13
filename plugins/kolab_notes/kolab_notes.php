@@ -998,46 +998,9 @@ class kolab_notes extends rcube_plugin
 
     private function save_links($uid, $links)
     {
-        $config    = kolab_storage_config::get_instance();
-        $search    = kolab_storage_config::build_member_url($uid);
-        $relations = $this->get_relations($uid);
-
-        // @TODO: here we support only one-way relations, i.e.
-        // such relation can contain only note and mail members
-        // So, when we remove a note member the whole relation
-        // will be removed
-
-        foreach ($relations as $relation) {
-            if (empty($links)) {
-                $config->delete($relation['uid']);
-            }
-            else {
-                // make relation members up-to-date
-                kolab_storage_config::resolve_members($relation);
-
-                // assign all links to one relation, others will be removed
-                $members = array_merge($links, array($search));
-                $diff1   = array_diff($members, $relation['members']);
-                $diff1   = array_diff($relation['members'], $members);
-
-                if (count($diff1) || count($diff2)) {
-                    $relation['members'] = $members;
-                    $config->save($relation, 'relation');
-                }
-
-                $links = null;
-            }
-        }
-
-        // create a new relation
-        if (!empty($links)) {
-            $relation = array(
-                'members'  => array_merge($links, array($search)),
-                'category' => 'generic',
-            );
-
-            $config->save($relation, 'relation');
-        }
+        $config = kolab_storage_config::get_instance();
+        $remove = array_diff($config->get_object_links($uid), $links);
+        return $config->save_object_links($uid, $links, $remove);
     }
 
     /**
@@ -1045,23 +1008,8 @@ class kolab_notes extends rcube_plugin
      */
     private function get_links($uid)
     {
-        $result = array();
-        $search = kolab_storage_config::build_member_url($uid);
-
-        foreach ($this->get_relations($uid) as $relation) {
-            if (in_array($search, (array) $relation['members'])) {
-                // make relation members up-to-date
-                kolab_storage_config::resolve_members($relation);
-
-                foreach ($relation['members'] as $member) {
-                    if ($member != $search) {
-                        $result[] = $member;
-                    }
-                }
-            }
-        }
-
-        return array_unique($result);
+        $config = kolab_storage_config::get_instance();
+        return $config->get_object_links($uid);
     }
 
     /**
@@ -1089,22 +1037,6 @@ class kolab_notes extends rcube_plugin
         }
 
         return $result;
-    }
-
-    /**
-     * Find relation objects referring to specified note
-     */
-    private function get_relations($uid)
-    {
-        $config      = kolab_storage_config::get_instance();
-        $default     = true;
-        $filter      = array(
-            array('type', '=', 'relation'),
-            array('category', '=', 'generic'),
-            array('member', '=', $uid),
-        );
-
-        return $config->get_objects($filter, $default, 100);
     }
 
     /**

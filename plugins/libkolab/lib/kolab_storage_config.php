@@ -654,6 +654,100 @@ class kolab_storage_config
     }
 
     /**
+     * Find objects linked with the given groupware object through a relation
+     *
+     * @param string Object UUID
+     * @param array List of related URIs
+     */
+    public function get_object_links($uid)
+    {
+        $links = array();
+        $object_uri = self::build_member_url($uid);
+
+        foreach ($this->get_relations_for_member($uid) as $relation) {
+            if (in_array($object_uri, (array) $relation['members'])) {
+                // make relation members up-to-date
+                kolab_storage_config::resolve_members($relation);
+
+                foreach ($relation['members'] as $member) {
+                    if ($member != $object_uri) {
+                        $links[] = $member;
+                    }
+                }
+            }
+        }
+
+        return array_unique($links);
+    }
+
+    /**
+     *
+     */
+    public function save_object_links($uid, $links, $remove = array())
+    {
+        $object_uri = self::build_member_url($uid);
+        $relations = $this->get_relations_for_member($uid);
+        $done = false;
+
+        foreach ($relations as $relation) {
+            // make relation members up-to-date
+            kolab_storage_config::resolve_members($relation);
+
+            // remove and add links
+            $members = array_diff($relation['members'], (array)$remove);
+            $members = array_unique(array_merge($members, $links));
+
+            // make sure the object_uri is still a member
+            if (!in_array($object_uri, $members)) {
+                $members[$obejct_uri];
+            }
+
+            // remove relation if no other members remain
+            if (count($members) <= 1) {
+                $done = $this->delete($relation['uid']);
+            }
+            // update relation object if members changed
+            else if (count(array_diff($members, $relation['members'])) || count(array_diff($relation['members'], $members))) {
+                $relation['members'] = $members;
+                $done = $this->save($relation, 'relation');
+                $links = array();
+            }
+            // no changes, we're happy
+            else {
+                $done = true;
+                $links = array();
+            }
+        }
+
+        // create a new relation
+        if (!$done) {
+            $relation = array(
+                'members'  => array_merge($links, array($object_uri)),
+                'category' => 'generic',
+            );
+
+            $ret = $this->save($relation, 'relation');
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Find relation objects referring to specified note
+     */
+    public function get_relations_for_member($uid, $reltype = 'generic')
+    {
+        $default = true;
+        $filter  = array(
+            array('type', '=', 'relation'),
+            array('category', '=', $reltype),
+            array('member', '=', $uid),
+        );
+
+        return $this->get_objects($filter, $default, 100);
+    }
+
+    /**
      * Find kolab objects assigned to specified e-mail message
      *
      * @param rcube_message $message E-mail message
