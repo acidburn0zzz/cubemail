@@ -92,6 +92,23 @@ class tasklist_ui
             'emails' => ';' . strtolower(join(';', $identity['emails']))
         );
 
+        if ($list = rcube_utils::get_input_value('_list', rcube_utils::INPUT_GPC)) {
+            $settings['selected_list'] = $list;
+        }
+        if ($list && ($id = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC))) {
+            $settings['selected_id'] = $id;
+
+            // check if the referenced task is completed
+            $task = $this->plugin->driver->get_task(array('id' => $id, 'list' => $list));
+            console($id, $task);
+            if ($task && $this->plugin->driver->is_complete($task)) {
+                $settings['selected_filter'] = 'complete';
+            }
+        }
+        else if ($filter = rcube_utils::get_input_value('_filter', rcube_utils::INPUT_GPC)) {
+            $settings['selected_filter'] = $filter;
+        }
+
         return $settings;
     }
 

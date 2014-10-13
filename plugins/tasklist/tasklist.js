@@ -137,6 +137,11 @@ function rcube_tasklist_ui(settings)
     {
         // initialize task list selectors
         for (var id in me.tasklists) {
+            if (settings.selected_list && me.tasklists[settings.selected_list] && !me.tasklists[settings.selected_list].active) {
+                me.tasklists[settings.selected_list].active = true;
+                me.selected_list = settings.selected_list;
+                $(rcmail.gui_objects.tasklistslist).find("input[value='"+settings.selected_list+"']").prop('checked', true);
+            }
             if (me.tasklists[id].editable && (!me.selected_list || me.tasklists[id].default || (me.tasklists[id].active && !me.tasklists[me.selected_list].active))) {
                 me.selected_list = id;
             }
@@ -269,10 +274,9 @@ function rcube_tasklist_ui(settings)
         $('#taskviewsortmenu .by-' + (settings.sort_col || 'auto')).attr('aria-checked', 'true').addClass('selected');
         $('#taskviewsortmenu .sortorder.' + (settings.sort_order || 'asc')).attr('aria-checked', 'true').addClass('selected');
 
-
         // start loading tasks
         fetch_counts();
-        list_tasks();
+        list_tasks(settings.selected_filter);
 
         // register event handlers for UI elements
         $('#taskselector a').click(function(e) {
@@ -768,6 +772,19 @@ function rcube_tasklist_ui(settings)
 
         append_tags(response.tags || []);
         render_tasklist();
+
+        // show selected task dialog
+        if (settings.selected_id) {
+            if (listdata[settings.selected_id]) {
+                task_show_dialog(settings.selected_id);
+                delete settings.selected_id;
+            }
+
+            // remove _id from window location
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, rcmail.url('', { _list: me.selected_list }));
+            }
+        }
 
         rcmail.set_busy(false, 'loading', ui_loading);
     }

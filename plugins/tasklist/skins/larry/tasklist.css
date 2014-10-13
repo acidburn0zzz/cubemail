@@ -1337,6 +1337,46 @@ div.tasklist-invitebox .rsvp-status.accepted,
 	background-position: 2px -220px;
 }
 
+div.messagetasklinks {
+	margin: 8px 8px;
+	padding: 4px 8px;
+	border: 1px solid #dfdfdf;
+	background: #fafafa;
+	border-radius: 4px;
+}
+
+div.messagetasklinks span.messagetaskref {
+	position: relative;
+	display: inline-block;
+	margin-right: 1em;
+	padding-right: 24px;
+}
+
+div.messagetasklinks a.messagetasklink {
+	position: relative;
+	display: inline-block;
+	color: #333;
+	font-weight: bold;
+	padding: 3px 0 2px 22px;
+	text-shadow: 0px 1px 1px #fff;
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 16em;
+	background: url(buttons.png) -6px -115px no-repeat;
+}
+
+div.messagetasklinks span.messagetaskref.complete a.messagetasklink {
+	text-decoration: line-through;
+}
+
+div.messagetasklinks span.messagetaskref input.complete {
+	position: absolute;
+	top: 1px;
+	right: 2px;
+}
+
 
 /** Special hacks for IE7 **/
 /** They need to be in this file to also affect the task-create dialog embedded in mail view **/

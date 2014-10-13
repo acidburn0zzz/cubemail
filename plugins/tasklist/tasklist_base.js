@@ -30,6 +30,7 @@ function rcube_tasklist(settings)
     /* private vars */
     var ui_loaded = false;
     var me = this;
+    var mywin = window;
 
     /*  public members  */
     this.ui;
@@ -79,6 +80,18 @@ function rcube_tasklist(settings)
     function mail2task_dialog(prop)
     {
         this.ui.edit_task(null, 'new', prop);
+        rcmail.addEventListener('responseaftertask', refresh_mailview);
+    }
+
+    /**
+     * Reload the mail view/preview to update the tasks listing
+     */
+    function refresh_mailview(e)
+    {
+        var win = rcmail.env.contentframe ? rcmail.get_frame_window(rcmail.env.contentframe) : mywin;
+        if (win && e.response.action == 'task') {
+            win.location.reload();
+        }
     }
 
     // handler for attachment-save-tasklist commands
@@ -95,6 +108,21 @@ function rcube_tasklist(settings)
       }
     }
 
+    // register event handlers on linked task items in message view
+    // the checkbox allows to mark a task as complete 
+    if (rcmail.env.action == 'show' || rcmail.env.action == 'preview') {
+        $('div.messagetasklinks input.complete').click(function(e) {
+            var $this = $(this);
+            $(this).closest('.messagetaskref').toggleClass('complete');
+
+            // submit change to server
+            rcmail.http_post('tasks/task', {
+                action: 'complete',
+                t: { id:this.value, list:$this.attr('data-list') },
+                complete: this.checked?1:0
+            }, rcmail.set_busy(true, 'tasklist.savingdata'));
+        });
+    }
 }
 
 /* tasklist plugin initialization (for email task) */

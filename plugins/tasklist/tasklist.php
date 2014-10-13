@@ -61,6 +61,7 @@ class tasklist extends rcube_plugin
     public $home;  // declare public to be used in other classes
 
     private $collapsed_tasks = array();
+    private $message_tasks = array();
     private $itip;
     private $ical;
 
@@ -125,6 +126,9 @@ class tasklist extends rcube_plugin
         }
         else if ($args['task'] == 'mail') {
             if ($args['action'] == 'show' || $args['action'] == 'preview') {
+                if ($this->rc->config->get('tasklist_mail_embed', true)) {
+                    $this->add_hook('message_load', array($this, 'mail_message_load'));
+                }
                 $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
             }
 
@@ -204,7 +208,8 @@ class tasklist extends rcube_plugin
         $success = $refresh = false;
 
         // force notify if hidden + active
-        if ((int)$this->rc->config->get('calendar_itip_send_option', 3) === 1 && empty($rec['_reportpartstat']))
+        $itip_send_option = (int)$this->rc->config->get('calendar_itip_send_option', 3);
+        if ($itip_send_option === 1 && empty($rec['_reportpartstat']))
             $rec['_notify'] = 1;
 
         switch ($action) {
@@ -219,6 +224,24 @@ class tasklist extends rcube_plugin
                 $this->cleanup_task($rec);
             }
             break;
+
+        case 'complete':
+            $complete = intval(rcube_utils::get_input_value('complete', rcube_utils::INPUT_POST));
+            if (!($rec = $this->driver->get_task($rec))) {
+                break;
+            }
+
+            $rec['status'] = $complete ? 'COMPLETED' : ($rec['complete'] > 0 ? 'IN-PROCESS' : 'NEEDS-ACTION');
+
+            // sent itip notifications if enabled (no user interaction here)
+            if (($itip_send_option & 1)) {
+                if ($this->is_attendee($rec)) {
+                    $rec['_reportpartstat'] = $rec['status'];
+                }
+                else if ($this->is_organizer($rec)) {
+                    $rec['_notify'] = 1;
+                }
+            }
 
         case 'edit':
             $rec = $this->prepare_task($rec);
@@ -1437,7 +1460,36 @@ class tasklist extends rcube_plugin
             }
         }
 
-        // prepend event boxes to message body
+        // list linked tasks
+        $links = array();
+        foreach ($this->message_tasks as $task) {
+            $checkbox = new html_checkbox(array(
+                'name' => 'completed',
+                'class' => 'complete',
+                'title' => $this->gettext('complete'),
+                'data-list' => $task['list'],
+            ));
+            $complete = $this->driver->is_complete($task);
+            $links[] = html::span('messagetaskref' . ($complete ? ' complete' : ''),
+                $checkbox->show($complete ? $task['uid'] : null, array('value' => $task['uid'])) . ' ' .
+                html::a(array(
+                    'href' => $this->rc->url(array(
+                        'task' => 'tasks',
+                        'list' => $task['list'],
+                        'id' => $task['uid'],
+                        'complete' => $complete?1:null,
+                    )),
+                    'class' => 'messagetasklink',
+                    'rel' => $task['uid'] . '@' . $task['list'],
+                    'target' => '_blank',
+                ), Q($task['title']))
+            );
+        }
+        if (count($links)) {
+            $html .= html::div('messagetasklinks', join("\n", $links));
+        }
+
+        // prepend iTip/relation boxes to message body
         if ($html) {
             $this->load_ui();
             $this->ui->init();
@@ -1463,6 +1515,17 @@ class tasklist extends rcube_plugin
         }
 
         return $p;
+    }
+
+    /**
+     * Lookup backend storage and find notes associated with the given message
+     */
+    public function mail_message_load($p)
+    {
+        if (!$p['object']->headers->others['x-kolab-type']) {
+            $this->load_driver();
+            $this->message_tasks = $this->driver->get_message_related_tasks($p['object']->headers, $p['object']->folder);
+        }
     }
 
     /**

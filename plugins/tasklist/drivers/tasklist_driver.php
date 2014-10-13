@@ -290,8 +290,8 @@ abstract class tasklist_driver
     /**
      * Build a URI representing the given message reference
      *
-     * @param object rcube_message_header Instance holding the message headers
-     * @param string IMAP folder the message resides in
+     * @param object $headers rcube_message_header instance holding the message headers
+     * @param string $folder  IMAP folder the message resides in
      *
      * @return string An URI referencing the given IMAP message
      */
@@ -299,6 +299,20 @@ abstract class tasklist_driver
     {
         // to be implemented by the derived classes
         return false;
+    }
+
+    /**
+     * Find tasks assigned to a specified message
+     *
+     * @param object $message rcube_message_header instance
+     * @param string $folder  IMAP folder the message resides in
+     *
+     * @param array List of linked task objects
+     */
+    public function get_message_related_tasks($headers, $folder)
+    {
+        // to be implemented by the derived classes
+        return array();
     }
 
     /**

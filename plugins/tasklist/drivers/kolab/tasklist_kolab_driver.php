@@ -1238,6 +1238,25 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
+     * Find tasks assigned to a specified message
+     *
+     * @see tasklist_driver::get_message_related_tasks()
+     */
+    public function get_message_related_tasks($headers, $folder)
+    {
+        $config = kolab_storage_config::get_instance();
+        $result = $config->get_message_relations($headers, $folder, 'task');
+
+        foreach ($result as $idx => $rec) {
+            $task = $this->_to_rcube_task($rec);
+            $task['list'] = kolab_storage::folder_id($rec['_mailbox']);
+            $result[$idx] = $task;
+        }
+
+        return $result;
+    }
+
+    /**
      * 
      */
     public function tasklist_edit_form($action, $list, $fieldprop)
