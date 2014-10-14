@@ -231,6 +231,7 @@ class tasklist extends rcube_plugin
                 break;
             }
 
+            $oldrec = $rec;
             $rec['status'] = $complete ? 'COMPLETED' : ($rec['complete'] > 0 ? 'IN-PROCESS' : 'NEEDS-ACTION');
 
             // sent itip notifications if enabled (no user interaction here)
@@ -762,7 +763,6 @@ class tasklist extends rcube_plugin
             if ($attendee['noreply'] && $itip_notify & 2) {
                 continue;
             }
-
             // which template to use for mail text
             $is_new   = !in_array($attendee['email'], $old_attendees);
             $is_rsvp  = $is_new || $task['sequence'] > $old['sequence'];
@@ -1524,6 +1524,18 @@ class tasklist extends rcube_plugin
         if (!$p['object']->headers->others['x-kolab-type']) {
             $this->load_driver();
             $this->message_tasks = $this->driver->get_message_related_tasks($p['object']->headers, $p['object']->folder);
+
+            // sort message tasks by completeness and due date
+            $driver = $this->driver;
+            array_walk($this->message_tasks, array($this, 'encode_task'));
+            usort($this->message_tasks, function($a, $b) use ($driver) {
+                $a_complete = intval($driver->is_complete($a));
+                $b_complete = intval($driver->is_complete($b));
+                $d = $a_complete - $b_complete;
+                if (!$d) $d = $b['_hasdate'] - $a['_hasdate'];
+                if (!$d) $d = $a['datetime'] - $b['datetime'];
+                return $d;
+            });
         }
     }
 

@@ -166,7 +166,7 @@ $labels['itipdeclinetask'] = 'Decline your assignment to this task to the organi
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined task from your tasks list?';
 $labels['itipcomment'] = 'Invitation/notification comment';
 $labels['itipcommenttitle'] = 'This comment will be attached to the invitation/notification message sent to assignees';
-$labels['itipsendsuccess'] = 'Invitation sent to assignees';
+$labels['itipsendsuccess'] = 'Notification sent to assignees';
 $labels['errornotifying'] = 'Failed to send notifications to task assignees';
 $labels['removefromcalendar'] = 'Remove from my tasks';
 
