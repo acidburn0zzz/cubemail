@@ -67,6 +67,7 @@ function rcube_calendar_ui(settings)
     var freebusy_ui = { workinhoursonly:false, needsupdate:false };
     var freebusy_data = {};
     var current_view = null;
+    var count_sources = [];
     var exec_deferred = bw.ie6 ? 5 : 1;
     var sensitivitylabels = { 'public':rcmail.gettext('public','calendar'), 'private':rcmail.gettext('private','calendar'), 'confidential':rcmail.gettext('confidential','calendar') };
     var ui_loading = rcmail.set_busy(true, 'loading');
@@ -3123,6 +3124,8 @@ function rcube_calendar_ui(settings)
         }
         else
           fc.fullCalendar('refetchEvents', source);
+
+        fetch_counts();
       }
       // add/update single event object
       else if (source && p.update) {
@@ -3145,6 +3148,7 @@ function rcube_calendar_ui(settings)
       // refetch all calendars
       else if (p.refetch) {
         fc.fullCalendar('refetchEvents');
+        fetch_counts();
       }
 
       // remove temp events
@@ -3163,6 +3167,28 @@ function rcube_calendar_ui(settings)
         query.q = this.search_query;
 
       return query;
+    };
+
+    // callback from server providing event counts
+    this.update_counts = function(p)
+    {
+      $.each(p.counts, function(cal, count) {
+        var li = calendars_list.get_item(cal),
+          bubble = $(li).children('.calendar').find('span.count');
+
+        if (!bubble.length && count > 0) {
+          bubble = $('<span>')
+            .addClass('count')
+            .appendTo($(li).children('.calendar').first())
+        }
+
+        if (count > 0) {
+          bubble.text(count).show();
+        }
+        else {
+          bubble.text('').hide();
+        }
+      });
     };
 
     // callback after an iTip message event was imported
@@ -3415,6 +3441,16 @@ function rcube_calendar_ui(settings)
       }
     }
 
+    // fetch counts for some calendars from the server
+    var fetch_counts = function()
+    {
+      if (count_sources.length) {
+        setTimeout(function() {
+          rcmail.http_request('calendar/count', { source:count_sources });
+        }, 500);
+      }
+    };
+
 
     /***  startup code  ***/
 
@@ -3430,6 +3466,9 @@ function rcube_calendar_ui(settings)
 
       if (active) {
         event_sources.push(this.calendars[id]);
+      }
+      if (cal.counts) {
+        count_sources.push(id);
       }
 
       if (!cal.readonly && !this.selected_calendar) {
@@ -4005,6 +4044,9 @@ function rcube_calendar_ui(settings)
     // initialize more UI elements (deferred)
     window.setTimeout(init_calendar_ui, exec_deferred);
 
+    // fetch counts for some calendars
+    fetch_counts();
+
     // add proprietary css styles if not IE
     if (!bw.ie)
       $('div.fc-content').addClass('rcube-fc-content');
@@ -4055,6 +4097,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.addEventListener('plugin.refresh_calendar', function(p){ cal.refresh(p); });
   rcmail.addEventListener('plugin.import_success', function(p){ cal.import_success(p); });
   rcmail.addEventListener('plugin.import_error', function(p){ cal.import_error(p); });
+  rcmail.addEventListener('plugin.update_counts', function(p){ cal.update_counts(p); });
   rcmail.addEventListener('plugin.reload_view', function(p){ cal.reload_view(p); });
   rcmail.addEventListener('plugin.resource_data', function(p){ cal.resource_data_load(p); });
   rcmail.addEventListener('plugin.resource_owner', function(p){ cal.resource_owner_load(p); });

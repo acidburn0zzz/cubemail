@@ -844,6 +844,20 @@ class database_driver extends calendar_driver
   }
 
   /**
+   * Get number of events in the given calendar
+   *
+   * @param  mixed   List of calendar IDs to count events (either as array or comma-separated string)
+   * @param  integer Date range start (unix timestamp)
+   * @param  integer Date range end (unix timestamp)
+   * @return array   Hash array with counts grouped by calendar ID
+   */
+  public function count_events($calendars, $start, $end = null)
+  {
+      // not implemented
+      return array();
+  }
+
+  /**
    * Convert sql record into a rcube style event object
    */
   private function _read_postprocess($event)

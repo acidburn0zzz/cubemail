@@ -199,20 +199,6 @@ class kolab_invitation_calendar
    */
   public function list_events($start, $end, $search = null, $virtual = 1, $query = array())
   {
-    // convert to DateTime for comparisons
-    try {
-      $start_dt = new DateTime('@'.$start);
-    }
-    catch (Exception $e) {
-      $start_dt = new DateTime('@0');
-    }
-    try {
-      $end_dt = new DateTime('@'.$end);
-    }
-    catch (Exception $e) {
-      $end_dt = new DateTime('today +10 years');
-    }
-
     // get email addresses of the current user
     $user_emails = $this->cal->get_user_emails();
     $subquery = array();
@@ -232,7 +218,7 @@ class kolab_invitation_calendar
       foreach ($cal->list_events($start, $end, $search, 1, $query, array(array($subquery, 'OR'))) as $event) {
         $match = false;
 
-        // post-filter events to skip pending and declined invitations
+        // post-filter events to match out partstats
         if (is_array($event['attendees'])) {
           foreach ($event['attendees'] as $attendee) {
             if (in_array($attendee['email'], $user_emails) && in_array($attendee['status'], $this->partstats)) {
@@ -252,6 +238,36 @@ class kolab_invitation_calendar
     }
 
     return $events;
+  }
+
+  /**
+   *
+   * @param  integer Date range start (unix timestamp)
+   * @param  integer Date range end (unix timestamp)
+   * @return integer Count
+   */
+  public function count_events($start, $end = null)
+  {
+    // get email addresses of the current user
+    $user_emails = $this->cal->get_user_emails();
+    $subquery = array();
+    foreach ($user_emails as $email) {
+      foreach ($this->partstats as $partstat) {
+        $subquery[] = array('tags', '=', 'x-partstat:' . $email . ':' . strtolower($partstat));
+      }
+    }
+
+    // aggregate counts from all calendar folders
+    $count = 0;
+    foreach (kolab_storage::list_folders('', '*', 'event', null) as $foldername) {
+      $cal = new kolab_calendar($foldername, $this->cal);
+      if ($cal->get_namespace() == 'other')
+        continue;
+
+      $count += $cal->count_events($start, $end, array(array($subquery, 'OR')));
+    }
+
+    return $count;
   }
 
   /**

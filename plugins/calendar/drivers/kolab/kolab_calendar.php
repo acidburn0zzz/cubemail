@@ -334,6 +334,51 @@ class kolab_calendar extends kolab_storage_folder_api
     return $events;
   }
 
+  /**
+   *
+   * @param  integer Date range start (unix timestamp)
+   * @param  integer Date range end (unix timestamp)
+   * @param  array   Additional query to filter events
+   * @return integer Count
+   */
+  public function count_events($start, $end = null, $filter_query = null)
+  {
+    // convert to DateTime for comparisons
+    try {
+      $start = new DateTime('@'.$start);
+    }
+    catch (Exception $e) {
+      $start = new DateTime('@0');
+    }
+    if ($end) {
+      try {
+        $end = new DateTime('@'.$end);
+      }
+      catch (Exception $e) {
+        $end = null;
+      }
+    }
+
+    // query Kolab storage
+    $query[] = array('dtend',   '>=', $start);
+    
+    if ($end)
+      $query[] = array('dtstart', '<=', $end);
+
+    // add query to exclude pending/declined invitations
+    if (empty($filter_query)) {
+      foreach ($this->cal->get_user_emails() as $email) {
+        $query[] = array('tags', '!=', 'x-partstat:' . $email . ':needs-action');
+        $query[] = array('tags', '!=', 'x-partstat:' . $email . ':declined');
+      }
+    }
+    else if (is_array($filter_query)) {
+      $query = array_merge($query, $filter_query);
+    }
+
+    // we rely the Kolab storage query (no post-filtering)
+    return $this->storage->count($query);
+  }
 
   /**
    * Create a new event record

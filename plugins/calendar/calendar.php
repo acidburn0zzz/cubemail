@@ -132,6 +132,7 @@ class calendar extends rcube_plugin
       $this->register_action('index', array($this, 'calendar_view'));
       $this->register_action('event', array($this, 'event_action'));
       $this->register_action('calendar', array($this, 'calendar_action'));
+      $this->register_action('count', array($this, 'count_events'));
       $this->register_action('load_events', array($this, 'load_events'));
       $this->register_action('export_events', array($this, 'export_events'));
       $this->register_action('import_events', array($this, 'import_events'));
@@ -1139,6 +1140,27 @@ class calendar extends rcube_plugin
   }
 
   /**
+   * Handler for requests fetching event counts for calendars
+   */
+  public function count_events()
+  {
+    // don't update session on these requests (avoiding race conditions)
+    $this->rc->session->nowrite = true;
+
+    $start = rcube_utils::get_input_value('start', rcube_utils::INPUT_GET);
+    if (!$start)
+      $start = (new DateTime('today 00:00:00', $this->timezone))->format('U');
+
+    $counts = $this->driver->count_events(
+      rcube_utils::get_input_value('source', rcube_utils::INPUT_GET),
+      $start,
+      rcube_utils::get_input_value('end', rcube_utils::INPUT_GET)
+    );
+
+    $this->rc->output->command('plugin.update_counts', array('counts' => $counts));
+  }
+
+  /**
    * Load event data from an iTip message attachment
    */
   public function itip_events($msgref)
@@ -1187,6 +1209,8 @@ class calendar extends rcube_plugin
         return;
     }
 
+    $counts = array();
+
     foreach ($this->driver->list_calendars(true) as $cal) {
       $events = $this->driver->load_events(
         rcube_utils::get_input_value('start', rcube_utils::INPUT_GPC),
@@ -1201,6 +1225,16 @@ class calendar extends rcube_plugin
         $this->rc->output->command('plugin.refresh_calendar',
           array('source' => $cal['id'], 'update' => $this->_client_event($event)));
       }
+
+      // refresh count for this calendar
+      if ($cal['counts']) {
+        $today = new DateTime('today 00:00:00', $this->timezone);
+        $counts += $this->driver->count_events($cal['id'], $today->format('U'));
+      }
+    }
+
+    if (!empty($counts)) {
+      $this->rc->output->command('plugin.update_counts', array('counts' => $counts));
     }
   }
 

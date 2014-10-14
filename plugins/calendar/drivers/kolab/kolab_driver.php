@@ -243,6 +243,10 @@ class kolab_driver extends calendar_driver
             'children' => false,
           );
 
+          if ($id == self::INVITATIONS_CALENDAR_PENDING) {
+            $calendars[$id]['counts'] = true;
+          }
+
           if (is_object($tree)) {
             $tree->children[] = $cal;
           }
@@ -1027,6 +1031,32 @@ class kolab_driver extends calendar_driver
     }
 
     return $events;
+  }
+
+  /**
+   * Get number of events in the given calendar
+   *
+   * @param  mixed   List of calendar IDs to count events (either as array or comma-separated string)
+   * @param  integer Date range start (unix timestamp)
+   * @param  integer Date range end (unix timestamp)
+   * @return array   Hash array with counts grouped by calendar ID
+   */
+  public function count_events($calendars, $start, $end = null)
+  {
+      $counts = array();
+
+      if ($calendars && is_string($calendars))
+        $calendars = explode(',', $calendars);
+      else if (!$calendars)
+        $calendars = array_keys($this->calendars);
+
+      foreach ($calendars as $cid) {
+        if ($storage = $this->get_calendar($cid)) {
+            $counts[$cid] = $storage->count_events($start, $end);
+        }
+      }
+
+      return $counts;
   }
 
   /**

@@ -221,7 +221,7 @@ pre {
 	right: 45px;
 	cursor: default;
 	background: url(images/calendars.png) right 20px no-repeat;
-	overflow: hidden;
+	overflow-x: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	color: #004458;
@@ -275,9 +275,10 @@ pre {
 	top: 2px;
 	right: 22px;
 	padding: 5px 20px 0 6px;
-	min-width: 40px;
+/*	min-width: 40px; */
 	height: 19px;
 	text-align: right;
+	z-index: 4;
 }
 
 #calendars .treelist div:hover span.actions {
@@ -424,6 +425,30 @@ pre {
 	background-position: right -92px;
 }
 */
+
+#calendars .treelist .calendar .count {
+	position: absolute;
+	display: inline-block;
+	top: 5px;
+	right: 68px;
+	min-width: 1.3em;
+	padding: 2px 4px;
+	background: #005d76;
+	background: -moz-linear-gradient(top, #005d76 0%, #004558 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#005d76), color-stop(100%,#004558));
+	background: -o-linear-gradient(top, #005d76 0%, #004558 100%);
+	background: -ms-linear-gradient(top, #005d76 0%, #004558 100%);
+	background: linear-gradient(to bottom, #005d76 0%, #004558 100%);
+	-webkit-box-shadow: inset 0 1px 1px 0 #002635;
+	box-shadow: inset 0 1px 1px 0 #002635;
+	border-radius: 10px;
+	color: #fff;
+	text-align: center;
+	font-style: normal;
+	font-weight: bold;
+	text-shadow: none;
+	z-index: 3;
+}
 
 #calendars .searchresults {
 	background: #b0ccd7;

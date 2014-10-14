@@ -268,8 +268,8 @@ abstract class calendar_driver
   /**
    * Get events from source.
    *
-   * @param  integer Event's new start (unix timestamp)
-   * @param  integer Event's new end (unix timestamp)
+   * @param  integer Date range start (unix timestamp)
+   * @param  integer Date range end (unix timestamp)
    * @param  string  Search query (optional)
    * @param  mixed   List of calendar IDs to load events from (either as array or comma-separated string)
    * @param  boolean Include virtual/recurring events (optional)
@@ -277,6 +277,16 @@ abstract class calendar_driver
    * @return array A list of event objects (see header of this file for struct of an event)
    */
   abstract function load_events($start, $end, $query = null, $calendars = null, $virtual = 1, $modifiedsince = null);
+
+  /**
+   * Get number of events in the given calendar
+   *
+   * @param  mixed   List of calendar IDs to count events (either as array or comma-separated string)
+   * @param  integer Date range start (unix timestamp)
+   * @param  integer Date range end (unix timestamp)
+   * @return array   Hash array with counts grouped by calendar ID
+   */
+  abstract function count_events($calendars, $start, $end = null);
 
   /**
    * Get a list of pending alarms to be displayed to the user

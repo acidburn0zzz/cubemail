@@ -240,6 +240,18 @@ class kolab_user_calendar extends kolab_calendar
   }
 
   /**
+   *
+   * @param  integer Date range start (unix timestamp)
+   * @param  integer Date range end (unix timestamp)
+   * @return integer Count
+   */
+  public function count_events($start, $end = null)
+  {
+    // not implemented
+    return 0;
+  }
+
+  /**
    * Helper method to fetch free/busy data for the user and turn it into calendar data
    */
   private function fetch_freebusy($limit_changed = null)
