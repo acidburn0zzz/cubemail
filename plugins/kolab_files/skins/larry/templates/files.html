@@ -26,7 +26,7 @@
 <div id="quicksearchbar" class="quicksearchbox" role="search" aria-labelledby="aria-label-searchform">
     <h2 id="aria-label-searchform" class="voice"><roundcube:label name="kolab_files.arialabelsearchform" /></h2>
     <label for="quicksearchbox" class="voice"><roundcube:label name="arialabelquicksearchbox" /></label>
-    <roundcube:button name="filesearchmenulink" id="filesearchmenulink" class="iconbutton searchoptions" onclick="return UI.toggle_popup('filesearchmenu', event)" title="searchmod" label="options" aria-haspopup="true" aria-expanded="false" aria-owns="filesearchmenu-menu" />
+    <roundcube:button name="filesearchmenulink" id="filesearchmenulink" class="iconbutton searchoptions" onclick="UI.toggle_popup('filesearchmenu', event); return false" title="searchmod" label="options" aria-haspopup="true" aria-expanded="false" aria-owns="filesearchmenu-menu" />
     <roundcube:object name="file-search-form" id="quicksearchbox" />
     <roundcube:button command="files-search-reset" id="searchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 </div>
@@ -60,6 +60,9 @@
         <li role="menuitem"><roundcube:button command="files-folder-edit" label="edit" classAct="active" /></li>
 -->
         <li role="menuitem"><roundcube:button command="files-folder-delete" label="delete" classAct="active" /></li>
+        <roundcube:if condition="!empty(env:external_sources)" />
+        <li role="menuitem"><roundcube:button command="folder-mount" label="kolab_files.foldermount" classAct="active" /></li>
+        <roundcube:endif />
         <li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
         <roundcube:container name="filesfolderoptions" id="folderoptionsmenu" />
     </ul>
@@ -69,14 +72,21 @@
     <h3 id="aria-label-foldercreateform" class="voice"><roundcube:label name="kolab_files.arialabelfoldercreateform" /></h3>
     <roundcube:object name="folder-create-form" />
 </div>
+<div id="files-folder-mount-dialog" role="dialog" aria-labelledby="aria-label-foldermountform" aria-hidden="true">
+    <h3 id="aria-label-foldermountform" class="voice"><roundcube:label name="kolab_files.arialabelfoldermountform" /></h3>
+    <roundcube:object name="folder-mount-form" />
+</div>
 <div id="files-file-edit-dialog" role="dialog" aria-labelledby="aria-label-fileeditform" aria-hidden="true">
     <h3 id="aria-label-fileeditform" class="voice"><roundcube:label name="kolab_files.arialabelfileeditform" /></h3>
     <roundcube:object name="file-edit-form" />
 </div>
+<div id="files-folder-auth-dialog" role="dialog" aria-labelledby="aria-label-folderauthform" aria-hidden="true">
+    <h3 id="aria-label-folderauthform" class="voice"><roundcube:label name="kolab_files.arialabelfolderauthform" /></h3>
+</div>
 
 <div id="listoptions" class="propform popupdialog" data-editable="true" role="dialog" aria-labelledby="aria-label-listoptions" aria-hidden="true">
     <h3 id="aria-label-listoptions" class="voice"><roundcube:label name="kolab_files.arialabellistoptions" /></h3>
-<roundcube:if condition="!in_array('kolab_files_list_cols', (array)config:dont_override)" />
+    <roundcube:if condition="!in_array('kolab_files_list_cols', (array)config:dont_override)" />
     <fieldset class="floating">
         <legend><roundcube:label name="listcolumns" /></legend>
         <ul class="proplist">
