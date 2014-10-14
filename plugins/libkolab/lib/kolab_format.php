@@ -174,7 +174,7 @@ abstract class kolab_format
         if (!self::supports($version))
             return PEAR::raiseError("No support for Kolab format version " . $version);
 
-        $type = preg_replace('/configuration\.[a-z.]+$/', 'configuration', $type);
+        $type = preg_replace('/configuration\.[a-z._]+$/', 'configuration', $type);
         $suffix = preg_replace('/[^a-z]+/', '', $type);
         $classname = 'kolab_format_' . $suffix;
         if (class_exists($classname))
