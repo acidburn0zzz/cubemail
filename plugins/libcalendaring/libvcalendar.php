@@ -415,8 +415,8 @@ class libvcalendar implements Iterator
                     $event['cancelled'] = true;
                 else if ($prop->value == 'COMPLETED')
                     $event['complete'] = 100;
-                else
-                    $event['status'] = strval($prop->value);
+
+                $event['status'] = strval($prop->value);
                 break;
 
             case 'PRIORITY':

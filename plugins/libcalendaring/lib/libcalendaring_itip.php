@@ -625,7 +625,11 @@ class libcalendaring_itip
         }
         if ($event['sensitivity'] && $event['sensitivity'] != 'public') {
             $table->add('label', $this->plugin->gettext('sensitivity'), $this->domain);
-            $table->add('sensitivity', ucfirst($this->plugin->gettext($event['sensitivity'])) . '!');
+            $table->add('sensitivity', ucfirst($this->plugin->gettext($event['sensitivity'], $this->domain)) . '!');
+        }
+        if ($event['status'] == 'COMPLETED' || $event['status'] == 'CANCELLED') {
+            $table->add('label', $this->plugin->gettext('status'), $this->domain);
+            $table->add('status', $this->plugin->gettext('status-' . strtolower($event['status']), $this->domain));
         }
         if ($event['comment']) {
             $table->add('label', $this->plugin->gettext('comment'), $this->domain);
