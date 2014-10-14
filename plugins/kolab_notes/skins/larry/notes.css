@@ -575,6 +575,6 @@ div.kolabmessagenotes a.kolabnotesref {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 12em;
+	max-width: 16em;
 	background: url(sprites.png) -6px -151px no-repeat;
 }

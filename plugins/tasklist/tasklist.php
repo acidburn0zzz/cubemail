@@ -1470,23 +1470,22 @@ class tasklist extends rcube_plugin
                 'data-list' => $task['list'],
             ));
             $complete = $this->driver->is_complete($task);
-            $links[] = html::span('messagetaskref' . ($complete ? ' complete' : ''),
-                $checkbox->show($complete ? $task['uid'] : null, array('value' => $task['uid'])) . ' ' .
+            $links[] = html::tag('li', 'messagetaskref' . ($complete ? ' complete' : ''),
+                $checkbox->show($complete ? $task['id'] : null, array('value' => $task['id'])) . ' ' .
                 html::a(array(
                     'href' => $this->rc->url(array(
                         'task' => 'tasks',
                         'list' => $task['list'],
-                        'id' => $task['uid'],
-                        'complete' => $complete?1:null,
+                        'id' => $task['id'],
                     )),
                     'class' => 'messagetasklink',
-                    'rel' => $task['uid'] . '@' . $task['list'],
+                    'rel' => $task['id'] . '@' . $task['list'],
                     'target' => '_blank',
                 ), Q($task['title']))
             );
         }
         if (count($links)) {
-            $html .= html::div('messagetasklinks', join("\n", $links));
+            $html .= html::div('messagetasklinks', html::tag('ul', 'tasklist', join("\n", $links)));
         }
 
         // prepend iTip/relation boxes to message body

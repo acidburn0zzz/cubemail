@@ -100,7 +100,6 @@ class tasklist_ui
 
             // check if the referenced task is completed
             $task = $this->plugin->driver->get_task(array('id' => $id, 'list' => $list));
-            console($id, $task);
             if ($task && $this->plugin->driver->is_complete($task)) {
                 $settings['selected_filter'] = 'complete';
             }

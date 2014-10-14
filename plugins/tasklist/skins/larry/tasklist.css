@@ -1338,18 +1338,36 @@ div.tasklist-invitebox .rsvp-status.accepted,
 }
 
 div.messagetasklinks {
+	position: relative;
 	margin: 8px 8px;
-	padding: 4px 8px;
+	padding: 4px 8px 4px 30px;
 	border: 1px solid #dfdfdf;
 	background: #fafafa;
 	border-radius: 4px;
 }
 
-div.messagetasklinks span.messagetaskref {
-	position: relative;
-	display: inline-block;
-	margin-right: 1em;
-	padding-right: 24px;
+div.messagetasklinks::before {
+	content: " ";
+	position: absolute;
+	top: 4px;
+	left: 8px;
+	width: 18px;
+	height: 18px;
+	background: url(buttons.png) -6px -115px no-repeat;
+}
+
+div.messagetasklinks ul.tasklist {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+div.messagetasklinks .messagetaskref {
+	display: block;
+	margin-bottom: 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 div.messagetasklinks a.messagetasklink {
@@ -1357,24 +1375,21 @@ div.messagetasklinks a.messagetasklink {
 	display: inline-block;
 	color: #333;
 	font-weight: bold;
-	padding: 3px 0 2px 22px;
+	padding: 3px 0 2px 2px;
 	text-shadow: 0px 1px 1px #fff;
 	text-decoration: none;
 	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	max-width: 16em;
-	background: url(buttons.png) -6px -115px no-repeat;
+	vertical-align: middle;
 }
 
-div.messagetasklinks span.messagetaskref.complete a.messagetasklink {
+div.messagetasklinks .messagetaskref.complete a.messagetasklink {
 	text-decoration: line-through;
+	text-shadow: none;
+	color: #666;
 }
 
-div.messagetasklinks span.messagetaskref input.complete {
-	position: absolute;
-	top: 1px;
-	right: 2px;
+div.messagetasklinks .messagetaskref input.complete {
+	vertical-align: middle;
 }
 
 
