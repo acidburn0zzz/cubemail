@@ -1148,8 +1148,10 @@ class calendar extends rcube_plugin
     $this->rc->session->nowrite = true;
 
     $start = rcube_utils::get_input_value('start', rcube_utils::INPUT_GET);
-    if (!$start)
-      $start = (new DateTime('today 00:00:00', $this->timezone))->format('U');
+    if (!$start) {
+      $start = new DateTime('today 00:00:00', $this->timezone);
+      $start = $start->format('U');
+    }
 
     $counts = $this->driver->count_events(
       rcube_utils::get_input_value('source', rcube_utils::INPUT_GET),
