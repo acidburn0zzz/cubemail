@@ -29,6 +29,9 @@ class kolab_files_engine
     private $timeout = 600;
     private $sort_cols = array('name', 'mtime', 'size');
 
+    const API_VERSION = 2;
+
+
     /**
      * Class constructor
      */
@@ -621,7 +624,7 @@ class kolab_files_engine
             }
 
             // Go with authenticate request
-            $url->setQueryVariables(array('method' => 'authenticate'));
+            $url->setQueryVariables(array('method' => 'authenticate', 'version' => self::API_VERSION));
             $request->setUrl($url);
             $request->setAuth($this->rc->user->get_username(), $this->rc->decrypt($_SESSION['password']));
             $response = $request->send();
