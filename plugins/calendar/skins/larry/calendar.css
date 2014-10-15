@@ -858,7 +858,7 @@ a.miniColors-trigger {
 }
 
 #event-changelog-table .revision {
-	width: 5em;
+	width: 7em;
 }
 
 #event-changelog-table .date {
@@ -881,13 +881,15 @@ a.miniColors-trigger {
 
 #event-changelog-table td a.iconbutton.restore,
 #event-changelog-table td a.iconbutton.preview {
+	width: 16px;
+	margin-right: 2px;
 	background-image: url(images/calendars.png);
-	background-position: 1px -147px;
+	background-position: -1px -147px;
 }
 
 #event-changelog-table td a.iconbutton.restore {
 	background-image: url(images/calendars.png);
-	background-position: 1px -167px;
+	background-position: -1px -167px;
 }
 
 #event-changelog-table tr.first td a.iconbutton {
