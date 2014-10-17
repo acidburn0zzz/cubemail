@@ -51,6 +51,9 @@
         <li><roundcube:button command="files-folder-edit" label="edit" classAct="active" /></li>
 -->
         <li><roundcube:button command="files-folder-delete" label="delete" classAct="active" /></li>
+        <roundcube:if condition="!empty(env:external_sources)" />
+        <li><roundcube:button command="folder-mount" label="kolab_files.foldermount" classAct="active" /></li>
+        <roundcube:endif />
         <li><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
         <roundcube:container name="filesfolderoptions" id="folderoptionsmenu" />
     </ul>
@@ -59,8 +62,13 @@
 <div id="files-folder-create-dialog">
     <roundcube:object name="folder-create-form" />
 </div>
+<div id="files-folder-mount-dialog">
+    <roundcube:object name="folder-mount-form" />
+</div>
 <div id="files-file-edit-dialog">
     <roundcube:object name="file-edit-form" />
+</div>
+<div id="files-folder-auth-dialog">
 </div>
 
 <div id="listoptions" class="propform popupdialog">

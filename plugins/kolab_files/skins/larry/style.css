@@ -274,6 +274,8 @@
 #files-dialog,
 #files-compose-dialog,
 #files-file-edit-dialog,
+#files-folder-mount-dialog,
+#files-folder-auth-dialog,
 #files-folder-create-dialog {
   display: none;
 }
@@ -342,4 +344,40 @@ a.filesaveall {
 
 ul.toolbarmenu li span.saveas {
   background: url(images/buttons.png) -5px -253px no-repeat;
+}
+
+
+table.propform td.source.selected {
+  background-color: #c7e3ef;
+}
+
+table.propform td.source div {
+  display: inline-block;
+  padding-left: 3px;
+  vertical-align: middle;
+}
+
+table.propform td.source .name {
+  font-weight: bold;
+}
+
+table.propform td.source .description {
+  font-size: 9px;
+  color: #666;
+}
+
+table.propform td.source img {
+  vertical-align: middle;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  margin: 3px;
+  background-image: -moz-linear-gradient(center top, #888, #333);
+  background-image: -webkit-linear-gradient(top, #888, #333);
+  background-image: -ms-linear-gradient(top, #888, #333);
+}
+
+table.propform td.source table.propform td {
+  border-bottom: 0;
+  padding: 2px 10px;
+  background-color: inherit;
 }

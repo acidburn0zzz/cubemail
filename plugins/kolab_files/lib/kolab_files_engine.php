@@ -26,7 +26,7 @@ class kolab_files_engine
 {
     private $plugin;
     private $rc;
-    private $timeout = 60;
+    private $timeout = 600;
     private $sort_cols = array('name', 'mtime', 'size');
 
     /**
@@ -34,9 +34,10 @@ class kolab_files_engine
      */
     public function __construct($plugin, $url)
     {
-        $this->url    = $url;
-        $this->plugin = $plugin;
-        $this->rc     = $plugin->rc;
+        $this->url     = $url;
+        $this->plugin  = $plugin;
+        $this->rc      = $plugin->rc;
+        $this->timeout = $this->rc->config->get('session_lifetime') * 60;
     }
 
     /**
@@ -85,11 +86,15 @@ class kolab_files_engine
 
             $this->plugin->add_label('save', 'cancel', 'saveto',
                 'saveall', 'fromcloud', 'attachsel', 'selectfiles', 'attaching',
-                'collection_audio', 'collection_video', 'collection_image', 'collection_document'
+                'collection_audio', 'collection_video', 'collection_image', 'collection_document',
+                'folderauthtitle', 'authenticating'
             );
         }
         else if ($this->rc->task == 'files') {
             $template = 'files';
+
+            // get list of external sources
+            $this->get_external_storage_drivers();
         }
 
         // add taskbar button
@@ -114,6 +119,7 @@ class kolab_files_engine
             // register template objects for dialogs (and main interface)
             $this->rc->output->add_handlers(array(
                 'folder-create-form' => array($this, 'folder_create_form'),
+                'folder-mount-form'  => array($this, 'folder_mount_form'),
                 'file-search-form'   => array($this, 'file_search_form'),
                 'file-edit-form'     => array($this, 'file_edit_form'),
                 'filelist'           => array($this, 'file_list'),
@@ -165,9 +171,9 @@ class kolab_files_engine
         $select_parent = new html_select(array('id' => 'folder-parent', 'name' => 'parent'));
         $table         = new html_table(array('cols' => 2, 'class' => 'propform'));
 
-        $table->add('title', html::label('folder-name', Q($this->plugin->gettext('foldername'))));
+        $table->add('title', html::label('folder-name', rcube::Q($this->plugin->gettext('foldername'))));
         $table->add(null, $input_name->show());
-        $table->add('title', html::label('folder-parent', Q($this->plugin->gettext('folderinside'))));
+        $table->add('title', html::label('folder-parent', rcube::Q($this->plugin->gettext('folderinside'))));
         $table->add(null, $select_parent->show());
 
         $out = $table->show();
@@ -184,6 +190,72 @@ class kolab_files_engine
     }
 
     /**
+     * Template object for folder mounting form
+     */
+    public function folder_mount_form($attrib)
+    {
+        $sources = $this->rc->output->get_env('external_sources');
+
+        if (empty($sources) || !is_array($sources)) {
+            return '';
+        }
+
+        $attrib['name'] = 'folder-mount-form';
+        if (empty($attrib['id'])) {
+            $attrib['id'] = 'folder-mount-form';
+        }
+
+        // build form content
+        $table        = new html_table(array('cols' => 2, 'class' => 'propform'));
+        $input_name   = new html_inputfield(array('id' => 'folder-mount-name', 'name' => 'name', 'size' => 30));
+        $input_driver = new html_radiobutton(array('name' => 'driver', 'size' => 30));
+
+        $table->add('title', html::label('folder-mount-name', rcube::Q($this->plugin->gettext('name'))));
+        $table->add(null, $input_name->show());
+
+        foreach ($sources as $key => $source) {
+            $id    = 'source-' . $key;
+            $form  = new html_table(array('cols' => 2, 'class' => 'propform driverform'));
+
+            foreach ((array) $source['form'] as $idx => $label) {
+                $iid = $id . '-' . $idx;
+                $type  = stripos($idx, 'pass') !== false ? 'html_passwordfield' : 'html_inputfield';
+                $input = new $type(array('size' => 30));
+
+                $form->add('title', html::label($iid, rcube::Q($label)));
+                $form->add(null, $input->show('', array(
+                        'id'   => $iid,
+                        'name' => $key . '[' . $idx . ']'
+                )));
+            }
+
+            $row = $input_driver->show(null, array('value' => $key))
+                . html::img(array('src' => $source['image'], 'alt' => $key, 'title' => $source['name']))
+                . html::div(null, html::span('name', rcube::Q($source['name']))
+                    . html::br()
+                    . html::span('description', rcube::Q($source['description']))
+                    . $form->show()
+                );
+
+            $table->add(array('id' => $id, 'colspan' => 2, 'class' => 'source'), $row);
+        }
+
+        $out = $table->show();
+
+        // add form tag around text field
+        if (empty($attrib['form'])) {
+            $out = $this->rc->output->form_tag($attrib, $out);
+        }
+
+        $this->plugin->add_label('foldermounting', 'foldermountnotice', 'foldermount',
+            'save', 'cancel', 'folderauthtitle', 'authenticating'
+        );
+        $this->rc->output->add_gui_object('folder-mount-form', $attrib['id']);
+
+        return $out;
+    }
+
+    /**
      * Template object for file_edit form
      */
     public function file_edit_form($attrib)
@@ -193,10 +265,10 @@ class kolab_files_engine
             $attrib['id'] = 'file-edit-form';
         }
 
-        $input_name    = new html_inputfield(array('id' => 'file-name', 'name' => 'name', 'size' => 30));
-        $table         = new html_table(array('cols' => 2, 'class' => 'propform'));
+        $input_name = new html_inputfield(array('id' => 'file-name', 'name' => 'name', 'size' => 30));
+        $table      = new html_table(array('cols' => 2, 'class' => 'propform'));
 
-        $table->add('title', html::label('file-name', Q($this->plugin->gettext('filename'))));
+        $table->add('title', html::label('file-name', rcube::Q($this->plugin->gettext('filename'))));
         $table->add(null, $input_name->show());
 
         $out = $table->show();
@@ -360,7 +432,7 @@ class kolab_files_engine
                 $col_name = $list_menu;
                 break;
             default:
-                $col_name = Q($this->plugin->gettext($col));
+                $col_name = rcube::Q($this->plugin->gettext($col));
             }
 
             // make sort links
@@ -503,6 +575,7 @@ class kolab_files_engine
             }
         }
         catch (Exception $e) {
+            rcube::raise_error($e, true, false);
             $quota = array('total' => 0, 'percent' => 0);
         }
 
@@ -522,12 +595,12 @@ class kolab_files_engine
         $time  = $_SESSION['kolab_files_time'];
 
         if ($token && time() - $this->timeout < $time) {
-            return $token;
+            if (time() - $time <= $this->timeout / 2) {
+                return $token;
+            }
         }
 
-        if (!($request = $this->get_request())) {
-            return $token;
-        }
+        $request = $this->get_request(array('method' => 'ping'), $token);
 
         try {
             $url = $request->getUrl();
@@ -942,7 +1015,7 @@ class kolab_files_engine
                     ));
                 }
                 else {
-                    $button = Q($this->rc->gettext('delete'));
+                    $button = rcube::Q($this->rc->gettext('delete'));
                 }
 
                 $content = html::a(array(
@@ -952,7 +1025,7 @@ class kolab_files_engine
                     'class' => 'delete',
                 ), $button);
 
-                $content .= Q($attachment['name']);
+                $content .= rcube::Q($attachment['name']);
 
                 $this->rc->output->command('add2attachment_list', "rcmfile$id", array(
                     'html'      => $content,
@@ -1008,5 +1081,35 @@ class kolab_files_engine
         }
 
         return $mimetypes;
+    }
+
+    /**
+     * Get list of available external storage drivers
+     */
+    protected function get_external_storage_drivers()
+    {
+        // first get configured sources from Chwala
+        $token   = $this->get_api_token();
+        $request = $this->get_request(array('method' => 'folder_types'), $token);
+
+        // send request to the API
+        try {
+            $response = $request->send();
+            $status   = $response->getStatus();
+            $body     = @json_decode($response->getBody(), true);
+
+            if ($status == 200 && $body['status'] == 'OK') {
+                $sources = $body['result'];
+            }
+            else {
+                throw new Exception($body['reason']);
+            }
+        }
+        catch (Exception $e) {
+            rcube::raise_error($e, true, false);
+            return;
+        }
+
+        $this->rc->output->set_env('external_sources', $sources);
     }
 }

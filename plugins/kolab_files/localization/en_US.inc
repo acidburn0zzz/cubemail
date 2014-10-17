@@ -11,6 +11,7 @@ $labels['fromcloud'] = 'From cloud...';
 $labels['selectfiles'] = 'Select file(s) to attach...';
 $labels['attachsel'] = 'Attach selected';
 $labels['foldercreate'] = 'Create folder';
+$labels['foldermount'] = 'Add storage';
 $labels['folderrename'] = 'Rename folder';
 $labels['folderdelete'] = 'Delete folder';
 
@@ -42,11 +43,15 @@ $labels['collection_document'] = 'Documents';
 
 $labels['uploading'] = 'Uploading file(s)...';
 $labels['attaching'] = 'Attaching file(s)...';
+$labels['authenticating'] = 'Authenticating...';
 $labels['foldercreating'] = 'Creating folder...';
+$labels['foldermounting'] = 'Adding external storage...';
 $labels['folderdeleting'] = 'Deleting folder...';
 $labels['folderdeleteconfirm'] = 'Are you sure you want to delete selected folder?';
 $labels['folderdeletenotice'] = 'Folder deleted successfully.';
 $labels['foldercreatenotice'] = 'Folder created successfully.';
+$labels['foldermountnotice'] = 'Storage added successfully.';
+$labels['folderauthtitle'] = 'Logon to $title';
 $labels['saveallnotice'] = 'Successfully saved $n file(s).';
 $labels['saveallerror'] = 'Saving $n file(s) failed.';
 $labels['attacherror'] = 'Failed to attach file(s) from the cloud';
