@@ -136,4 +136,28 @@ class kolab_format_configuration extends kolab_format
         return $tags;
     }
 
+    /**
+     * Callback for kolab_storage_cache to get words to index for fulltext search
+     *
+     * @return array List of words to save in cache
+     */
+    public function get_words()
+    {
+        $words = array();
+
+        foreach ((array)$this->data['members'] as $url) {
+            $member = kolab_storage_config::parse_member_url($url);
+
+            if (empty($member)) {
+                if (strpos($url, 'urn:uuid:') === 0) {
+                    $words[] = substr($url, 9);
+                }
+            }
+            else if (!empty($member['params']['message-id'])) {
+                $words[] = $member['params']['message-id'];
+            }
+        }
+
+        return $words;
+    }
 }
