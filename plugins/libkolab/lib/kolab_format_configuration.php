@@ -32,10 +32,12 @@ class kolab_format_configuration extends kolab_format
     protected $write_func = 'writeConfiguration';
 
     private $type_map = array(
-        'dictionary' => Configuration::TypeDictionary,
-        'category' => Configuration::TypeCategoryColor,
+        'category'    => Configuration::TypeCategoryColor,
+        'dictionary'  => Configuration::TypeDictionary,
+        'file_driver' => Configuration::TypeFileDriver,
     );
 
+    private $driver_settings_fields = array('host', 'port', 'username', 'password');
 
     /**
      * Set properties to the kolabformat object
@@ -60,6 +62,22 @@ class kolab_format_configuration extends kolab_format
             $categories = new vectorcategorycolor;
             $this->obj = new Configuration($categories);
             break;
+
+        case 'file_driver':
+            $driver = new FileDriver($object['driver'], $object['title']);
+
+            $driver->setEnabled((bool) $object['enabled']);
+
+            foreach ($this->driver_settings_fields as $field) {
+                $value = $object[$field];
+                if ($value !== null) {
+                    $driver->{'set' . ucfirst($field)}($value);
+                }
+            }
+
+            $this->obj = new Configuration($driver);
+            break;
+
         default:
             return false;
         }
@@ -110,6 +128,19 @@ class kolab_format_configuration extends kolab_format
 
         case 'category':
             // TODO: implement this
+            break;
+
+        case 'file_driver':
+            $driver = $this->obj->file_driver();
+
+            $object['driver']  = $driver->driver();
+            $object['title']   = $driver->title();
+            $object['enabled'] = $driver->enabled();
+
+            foreach ($this->driver_settings_fields as $field) {
+                $object[$field] = $driver->{$field}();
+            }
+
             break;
         }
 
