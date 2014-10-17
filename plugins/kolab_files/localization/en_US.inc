@@ -81,6 +81,9 @@ $labels['fileoverwrite'] = 'Overwrite';
 $labels['fileoverwriteall'] = 'Overwrite all';
 $labels['filemoveconfirm'] = 'This action is going to overwrite the destination file: <b>$file</b>.';
 
+$labels['storepasswords'] = 'remember password';
+$labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
+
 $labels['arialabelsearchform'] = 'Files search form';
 $labels['arialabelquicksearchbox'] = 'Search input';
 $labels['arialabellistoptions'] = 'Files list options';

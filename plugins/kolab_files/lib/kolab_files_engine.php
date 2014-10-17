@@ -123,6 +123,7 @@ class kolab_files_engine
             $this->rc->output->add_handlers(array(
                 'folder-create-form' => array($this, 'folder_create_form'),
                 'folder-mount-form'  => array($this, 'folder_mount_form'),
+                'folder-auth-options'=> array($this, 'folder_auth_options'),
                 'file-search-form'   => array($this, 'file_search_form'),
                 'file-edit-form'     => array($this, 'file_edit_form'),
                 'filelist'           => array($this, 'file_list'),
@@ -243,7 +244,7 @@ class kolab_files_engine
             $table->add(array('id' => $id, 'colspan' => 2, 'class' => 'source'), $row);
         }
 
-        $out = $table->show();
+        $out = $table->show() . $this->folder_auth_options(array('suffix' => '-form'));
 
         // add form tag around text field
         if (empty($attrib['form'])) {
@@ -256,6 +257,23 @@ class kolab_files_engine
         $this->rc->output->add_gui_object('folder-mount-form', $attrib['id']);
 
         return $out;
+    }
+
+    /**
+     * Template object for folder authentication options
+     */
+    public function folder_auth_options($attrib)
+    {
+        $checkbox = new html_checkbox(array(
+            'name'  => 'store_passwords',
+            'value' => '1',
+            'id'    => 'auth-pass-checkbox' . $attrib['suffix'],
+        ));
+
+        return html::div('auth-options', $checkbox->show(). '&nbsp;'
+            . html::label('auth-pass-checkbox' . $attrib['suffix'], $this->plugin->gettext('storepasswords'))
+            . html::span('description', $this->plugin->gettext('storepasswordsdesc'))
+        );
     }
 
     /**

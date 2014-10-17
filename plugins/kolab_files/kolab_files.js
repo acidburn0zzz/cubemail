@@ -385,6 +385,10 @@ function kolab_files_folder_mount_dialog()
       }
     });
 
+    $('.auth-options input', dialog).each(function() {
+      args[this.name] = this.type == 'checkbox' && !this.checked ? '' : this.value;
+    });
+
     file_api.folder_mount(args);
     kolab_dialog_close(this);
   };
@@ -1025,7 +1029,7 @@ function kolab_files_ui()
 
     elem.html('').append(list);
 
-    this.env.folders = this.folder_list_parse(response.result ? response.result.list : []);
+    this.env.folders = this.folder_list_parse(response.result && response.result.list ? response.result.list : response.result);
 
     $.each(this.env.folders, function(i, f) {
       list.append(file_api.folder_list_row(i, f));
@@ -1835,13 +1839,13 @@ function kolab_files_ui()
       content = this.folder_list_auth_form(driver);
 
     dialog.find('table.propform').remove();
-    dialog.append(content);
+    $('.options', dialog).before(content);
 
     args.buttons[this.t('kolab_files.save')] = function() {
       var data = {folder: label, list: 1};
 
       $('input', dialog).each(function() {
-        data[this.name] = this.value;
+        data[this.name] = this.type == 'checkbox' && !this.checked ? '' : this.value;
       });
 
       file_api.open_dialog = this;
