@@ -1839,7 +1839,7 @@ function kolab_files_ui()
       content = this.folder_list_auth_form(driver);
 
     dialog.find('table.propform').remove();
-    $('.options', dialog).before(content);
+    $('.auth-options', dialog).before(content);
 
     args.buttons[this.t('kolab_files.save')] = function() {
       var data = {folder: label, list: 1};
