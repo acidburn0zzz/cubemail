@@ -56,9 +56,7 @@
 <div id="folderoptions" class="popupmenu" data-editable="true" aria-hidden="true">
     <h3 id="aria-label-folderoptions" class="voice"><roundcube:label name="kolab_files.folderoptions" /></h3>
     <ul id="folderoptionsmenu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-folderoptions">
-<!--
-        <li role="menuitem"><roundcube:button command="files-folder-edit" label="edit" classAct="active" /></li>
--->
+        <li role="menuitem"><roundcube:button command="folder-rename" label="rename" classAct="active" /></li>
         <li role="menuitem"><roundcube:button command="files-folder-delete" label="delete" classAct="active" /></li>
         <roundcube:if condition="!empty(env:external_sources)" />
         <li role="menuitem"><roundcube:button command="folder-mount" label="kolab_files.foldermount" classAct="active" /></li>
@@ -71,6 +69,10 @@
 <div id="files-folder-create-dialog" role="dialog" aria-labelledby="aria-label-foldercreateform" aria-hidden="true">
     <h3 id="aria-label-foldercreateform" class="voice"><roundcube:label name="kolab_files.arialabelfoldercreateform" /></h3>
     <roundcube:object name="folder-create-form" />
+</div>
+<div id="files-folder-edit-dialog" role="dialog" aria-labelledby="aria-label-foldereditform" aria-hidden="true">
+    <h3 id="aria-label-foldereditform" class="voice"><roundcube:label name="kolab_files.arialabelfoldereditform" /></h3>
+    <roundcube:object name="folder-edit-form" />
 </div>
 <div id="files-folder-mount-dialog" role="dialog" aria-labelledby="aria-label-foldermountform" aria-hidden="true">
     <h3 id="aria-label-foldermountform" class="voice"><roundcube:label name="kolab_files.arialabelfoldermountform" /></h3>

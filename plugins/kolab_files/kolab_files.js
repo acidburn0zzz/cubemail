@@ -99,7 +99,8 @@ window.rcmail && rcmail.addEventListener('init', function() {
 
       rcmail.gui_objects.filelist.parentNode.onmousedown = function(e) { return kolab_files_click_on_list(e); };
 
-      rcmail.enable_command('menu-open', 'menu-save', 'files-sort', 'files-search', 'files-search-reset', 'folder-create', true);
+      rcmail.enable_command('menu-open', 'menu-save', 'files-sort', 'files-search', 'files-search-reset',
+        'folder-create', 'folder-rename', true);
 
       rcmail.file_list.init();
       kolab_files_list_coltypes();
@@ -360,6 +361,60 @@ function kolab_files_folder_create_dialog()
     if (i == file_api.env.folder)
       option.attr('selected', true);
   });
+};
+
+// folder edit dialog
+function kolab_files_folder_edit_dialog()
+{
+  var dialog = $('#files-folder-edit-dialog'),
+    buttons = {}, options = [],
+    separator = file_api.env.directory_separator,
+    arr = file_api.env.folder.split(separator),
+    folder = arr.pop(),
+    path = arr.join(separator),
+    select = $('select[name="parent"]', dialog).html(''),
+    input = $('input[name="name"]', dialog).val(folder);
+
+  buttons[rcmail.gettext('kolab_files.save')] = function () {
+    var folder = '', name = input.val(), parent = select.val();
+
+    if (!name)
+      return;
+
+    if (parent)
+      folder = parent + separator;
+
+    folder += name;
+
+    file_api.folder_rename(file_api.env.folder, folder);
+    kolab_dialog_close(this);
+  };
+
+  buttons[rcmail.gettext('kolab_files.cancel')] = function () {
+    kolab_dialog_close(this);
+  };
+
+  // show dialog window
+  kolab_dialog_show(dialog, {
+    title: rcmail.gettext('kolab_files.folderedit'),
+    buttons: buttons
+  });
+
+  // Fix submitting form with Enter
+  $('form', dialog).submit(kolab_dialog_submit_handler);
+
+  // build parent selector
+  options.push($('<option>').val('').text('---'));
+  $.each(file_api.env.folders, function(i, f) {
+    var n, name = escapeHTML(f.name);
+
+    for (n=0; n<f.depth; n++)
+      name = '&nbsp;&nbsp;&nbsp;' + name;
+
+    options.push($('<option>').val(i).html(name));
+  });
+
+  select.append(options).val(path);
 };
 
 // folder mounting dialog
@@ -957,6 +1012,11 @@ rcube_webmail.prototype.folder_create = function()
   kolab_files_folder_create_dialog();
 };
 
+rcube_webmail.prototype.folder_rename = function()
+{
+  kolab_files_folder_edit_dialog();
+};
+
 rcube_webmail.prototype.folder_mount = function()
 {
   kolab_files_folder_mount_dialog();
@@ -1154,6 +1214,30 @@ function kolab_files_ui()
     this.display_message('kolab_files.foldercreatenotice', 'confirmation');
 
     // refresh folders list
+    this.folder_list();
+  };
+
+  // folder rename request
+  this.folder_rename = function(folder, new_name)
+  {
+    if (folder == new_name)
+      return;
+
+    this.env.folder_rename = new_name;
+    this.req = this.set_busy(true, 'kolab_files.folderupdating');
+    this.request('folder_move', {folder: folder, 'new': new_name}, 'folder_rename_response');
+  };
+
+  // folder create response handler
+  this.folder_rename_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    this.display_message('kolab_files.folderupdatenotice', 'confirmation');
+
+    // refresh folders and files list
+    this.env.folder = this.env.folder_rename;
     this.folder_list();
   };
 
