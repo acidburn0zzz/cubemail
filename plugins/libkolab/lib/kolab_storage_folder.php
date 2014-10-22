@@ -444,7 +444,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
         // get XML part
         foreach ((array)$message->attachments as $part) {
             if (!$xml && ($part->mimetype == $content_type || preg_match('!application/([a-z.]+\+)?xml!', $part->mimetype))) {
-                $xml = $part->body ? $part->body : $message->get_part_content($part->mime_id);
+                $xml = $message->get_part_body($part->mime_id, true);
             }
             else if ($part->filename || $part->content_id) {
                 $key  = $part->content_id ? trim($part->content_id, '<>') : $part->filename;

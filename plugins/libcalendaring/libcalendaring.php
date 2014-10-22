@@ -1281,7 +1281,7 @@ class libcalendaring extends rcube_plugin
             foreach ($this->ical_parts as $mime_id) {
                 $part    = $this->ical_message->mime_parts[$mime_id];
                 $charset = $part->ctype_parameters['charset'] ?: RCMAIL_CHARSET;
-                $this->mail_ical_parser->import($this->ical_message->get_part_content($mime_id), $charset);
+                $this->mail_ical_parser->import($this->ical_message->get_part_body($mime_id, true), $charset);
 
                 // stop on the part that has an iTip method specified
                 if (count($this->mail_ical_parser->objects) && $this->mail_ical_parser->method) {

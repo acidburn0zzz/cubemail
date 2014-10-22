@@ -903,7 +903,7 @@ class kolab_files_engine
 
             // save attachment to file
             if ($fp = fopen($path, 'w+')) {
-                $message->get_part_content($attach_prop->mime_id, $fp, true);
+                $message->get_part_body($attach_prop->mime_id, false, 0, $fp);
             }
             else {
                 $errors[] = true;
