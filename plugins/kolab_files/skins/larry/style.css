@@ -276,7 +276,8 @@
 #files-file-edit-dialog,
 #files-folder-mount-dialog,
 #files-folder-auth-dialog,
-#files-folder-create-dialog {
+#files-folder-create-dialog,
+#files-folder-edit-dialog {
   display: none;
 }
 

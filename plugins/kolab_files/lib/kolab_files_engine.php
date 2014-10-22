@@ -122,6 +122,7 @@ class kolab_files_engine
             // register template objects for dialogs (and main interface)
             $this->rc->output->add_handlers(array(
                 'folder-create-form' => array($this, 'folder_create_form'),
+                'folder-edit-form'   => array($this, 'folder_edit_form'),
                 'folder-mount-form'  => array($this, 'folder_mount_form'),
                 'folder-auth-options'=> array($this, 'folder_auth_options'),
                 'file-search-form'   => array($this, 'file_search_form'),
@@ -189,6 +190,38 @@ class kolab_files_engine
 
         $this->plugin->add_label('foldercreating', 'foldercreatenotice', 'create', 'foldercreate', 'cancel');
         $this->rc->output->add_gui_object('folder-create-form', $attrib['id']);
+
+        return $out;
+    }
+
+    /**
+     * Template object for folder editing form
+     */
+    public function folder_edit_form($attrib)
+    {
+        $attrib['name'] = 'folder-edit-form';
+        if (empty($attrib['id'])) {
+            $attrib['id'] = 'folder-edit-form';
+        }
+
+        $input_name    = new html_inputfield(array('id' => 'folder-edit-name', 'name' => 'name', 'size' => 30));
+        $select_parent = new html_select(array('id' => 'folder-edit-parent', 'name' => 'parent'));
+        $table         = new html_table(array('cols' => 2, 'class' => 'propform'));
+
+        $table->add('title', html::label('folder-name', rcube::Q($this->plugin->gettext('foldername'))));
+        $table->add(null, $input_name->show());
+        $table->add('title', html::label('folder-parent', rcube::Q($this->plugin->gettext('folderinside'))));
+        $table->add(null, $select_parent->show());
+
+        $out = $table->show();
+
+        // add form tag around text field
+        if (empty($attrib['form'])) {
+            $out = $this->rc->output->form_tag($attrib, $out);
+        }
+
+        $this->plugin->add_label('folderupdating', 'folderupdatenotice', 'save', 'folderedit', 'cancel');
+        $this->rc->output->add_gui_object('folder-edit-form', $attrib['id']);
 
         return $out;
     }
