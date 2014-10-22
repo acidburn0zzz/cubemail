@@ -99,8 +99,7 @@ window.rcmail && rcmail.addEventListener('init', function() {
 
       rcmail.gui_objects.filelist.parentNode.onmousedown = function(e) { return kolab_files_click_on_list(e); };
 
-      rcmail.enable_command('menu-open', 'menu-save', 'files-sort', 'files-search', 'files-search-reset',
-        'folder-create', 'folder-rename', true);
+      rcmail.enable_command('menu-open', 'menu-save', 'files-sort', 'files-search', 'files-search-reset', 'folder-create', true);
 
       rcmail.file_list.init();
       kolab_files_list_coltypes();
@@ -1143,14 +1142,14 @@ function kolab_files_ui()
     if (is_collection) {
       var found = $('#folder-collection-' + folder, list).addClass('selected');
 
-      rcmail.enable_command('files-folder-delete', 'files-upload', false);
+      rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-upload', false);
       this.env.folder = null;
       rcmail.command('files-list', {collection: folder});
     }
     else {
       var found = $('#' + this.env.folders[folder].id, list).addClass('selected');
 
-      rcmail.enable_command('files-folder-delete', 'files-upload', true);
+      rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-upload', true);
       this.env.folder = folder;
       this.env.collection = null;
       rcmail.command('files-list', {folder: folder});
@@ -1274,7 +1273,7 @@ function kolab_files_ui()
       return;
 
     this.env.folder = null;
-    rcmail.enable_command('files-folder-delete', 'files-folder-rename', 'files-list', false);
+    rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-list', false);
     this.display_message('kolab_files.folderdeletenotice', 'confirmation');
 
     // refresh folders list

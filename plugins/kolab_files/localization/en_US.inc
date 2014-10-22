@@ -22,7 +22,6 @@ $labels['attachsel'] = 'Attach selected';
 $labels['foldercreate'] = 'Create folder';
 $labels['folderedit'] = 'Edit folder';
 $labels['foldermount'] = 'Add storage';
-$labels['folderrename'] = 'Rename folder';
 $labels['folderdelete'] = 'Delete folder';
 
 $labels['folderinside'] = 'Insert inside';
