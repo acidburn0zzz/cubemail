@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Folders plugin
  *
@@ -6,6 +7,9 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
+
+$labels = array();
+
 $labels['folderctype'] = 'Ordnerinhalt';
 $labels['foldertypemail'] = 'E-Mail';
 $labels['foldertypeevent'] = 'Kalender';
@@ -16,6 +20,7 @@ $labels['foldertypecontact'] = 'Kontakte';
 $labels['foldertypeconfiguration'] = 'Konfiguration';
 $labels['foldertypefile'] = 'Dateien';
 $labels['foldertypefreebusy'] = 'Frei/Belegt';
+
 $labels['default'] = 'Standard';
 $labels['inbox'] = 'Posteingang';
 $labels['drafts'] = 'Entwürfe';
@@ -23,5 +28,8 @@ $labels['sentitems'] = 'Gesendet';
 $labels['outbox'] = 'Postausgang';
 $labels['wastebasket'] = 'Mülleimer';
 $labels['junkemail'] = 'Spam';
+$labels['confidential'] = 'Vertraulich';
+
 $messages['defaultfolderexists'] = 'Es gibt bereits einen Standardordner dieses Typs';
+
 ?>

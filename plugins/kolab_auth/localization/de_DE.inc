@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Auth plugin
  *
@@ -6,5 +7,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_auth/
  */
+
 $labels['loginas'] = 'Anmelden als';
+$labels['loginasnotallowed'] = 'Keine Privilegien zum Anmelden als $user';
+
 ?>
