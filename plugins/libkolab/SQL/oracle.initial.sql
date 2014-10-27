@@ -25,7 +25,7 @@ BEFORE INSERT ON "kolab_folders" FOR EACH ROW
 BEGIN
     :NEW."folder_id" := "kolab_folders_seq".nextval;
 END;
-
+/
 
 CREATE TABLE "kolab_cache_contact" (
     "folder_id" number NOT NULL
