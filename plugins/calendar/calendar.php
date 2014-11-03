@@ -1495,6 +1495,8 @@ class calendar extends rcube_plugin
    */
   function ical_feed_export()
   {
+    $session_exists = !empty($_SESSION['user_id']);
+
     // process HTTP auth info
     if (!empty($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
       $_POST['_user'] = $_SERVER['PHP_AUTH_USER']; // used for rcmail::autoselect_host()
@@ -1539,7 +1541,8 @@ class calendar extends rcube_plugin
     }
 
     // don't save session data
-    session_destroy();
+    if (!$session_exists)
+      session_destroy();
     exit;
   }
 
