@@ -56,3 +56,4 @@ $labels['arialabelnotesoptionsmenu'] = 'Notebook actions menu';
 $labels['arialabelnotebookform'] = 'Notebook properties';
 $labels['arialabelmessagereferences'] = 'Linked email messages';
 $labels['arialabelfolderearchform'] = 'Notebooks search form';
+$labels['arialabelnoteform'] = 'Note edit form';
