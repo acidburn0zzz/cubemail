@@ -600,7 +600,7 @@ function rcube_calendar_ui(settings)
       me.dialog_resize($dialog.get(0), $dialog.height(), 420);
 
       // add link for "more options" drop-down
-      if (!temp && !event.temporary) {
+      if (!temp && !event.temporary && event.calendar != '_resource') {
         $('<a>')
           .attr('href', '#')
           .html(rcmail.gettext('eventoptions','calendar'))
