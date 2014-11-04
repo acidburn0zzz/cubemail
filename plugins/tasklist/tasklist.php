@@ -277,16 +277,19 @@ class tasklist extends rcube_plugin
                   $r = $rec;
                   $r['id'] = $id;
                   if ($this->driver->move_task($r)) {
-                      $refresh[] = $this->driver->get_task($r);
+                      $new_task = $this->driver->get_task($r);
+                      $new_task['tempid'] = $id;
+                      $refresh[] = $new_task;
                       $success = true;
 
                       // move all childs, too
-                      foreach ($this->driver->get_childs(array('id' => $rec['id'], 'list' => $rec['_fromlist']), true) as $cid) {
+                      foreach ($this->driver->get_childs(array('id' => $id, 'list' => $rec['_fromlist']), true) as $cid) {
                           $child = $rec;
                           $child['id'] = $cid;
                           if ($this->driver->move_task($child)) {
                               $r = $this->driver->get_task($child);
                               if ((bool)($filter & self::FILTER_MASK_COMPLETE) == $this->driver->is_complete($r)) {
+                                  $r['tempid'] = $cid;
                                   $refresh[] = $r;
                               }
                           }

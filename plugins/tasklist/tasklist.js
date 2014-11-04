@@ -1873,7 +1873,7 @@ function rcube_tasklist_ui(settings)
                     .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
             }
 */
-            var show_rsvp = rsvp && !is_organizer(rec) && rec.status != 'CANCELLED';
+            var show_rsvp = rsvp && list.editable && !is_organizer(rec) && rec.status != 'CANCELLED';
             $('#task-rsvp')[(show_rsvp ? 'show' : 'hide')]();
             $('#task-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
 
