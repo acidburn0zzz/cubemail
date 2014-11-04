@@ -1675,17 +1675,23 @@ class calendar extends rcube_plugin
 
   /**
    * TEMPORARY: generate random event data for testing
-   * Create events by opening http://<roundcubeurl>/?_task=calendar&_action=randomdata&_num=500
+   * Create events by opening http://<roundcubeurl>/?_task=calendar&_action=randomdata&_num=500&_date=2014-08-01&_dev=120
    */
   public function generate_randomdata()
   {
+    @set_time_limit(0);
+
     $num   = $_REQUEST['_num'] ? intval($_REQUEST['_num']) : 100;
+    $date  = $_REQUEST['_date'] ?: 'now';
+    $dev   = $_REQUEST['_dev'] ?: 30;
     $cats  = array_keys($this->driver->list_categories());
     $cals  = $this->driver->list_calendars(true);
     $count = 0;
 
     while ($count++ < $num) {
-      $start = round((time() + rand(-2600, 2600) * 1000) / 300) * 300;
+      $spread = intval($dev) * 86400; // days
+      $refdate = strtotime($date);
+      $start = round(($refdate + rand(-$spread, $spread)) / 600) * 600;
       $duration = round(rand(30, 360) / 30) * 30 * 60;
       $allday = rand(0,20) > 18;
       $alarm = rand(-30,12) * 5;
