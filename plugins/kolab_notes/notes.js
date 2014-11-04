@@ -219,9 +219,28 @@ function rcube_kolab_notes_ui(settings)
                 // move dragged notes to this folder
                 if (folder_drop_target) {
                     noteslist.draglayer.hide();
-                    move_notes(folder_drop_target);
-                    noteslist.clear_selection();
-                    reset_view();
+
+                    // check unsaved changes first
+                    var new_folder_id = folder_drop_target;
+                    warn_unsaved_changes(
+                        // ok
+                        function() {
+                            move_notes(new_folder_id);
+                            reset_view();
+                            noteslist.clear_selection();
+                        },
+                        // nok
+                        undefined,
+                        // beforesave
+                        function(savedata) {
+                            savedata.list = new_folder_id;
+
+                            // remove from list and thus avoid being moved (again)
+                            var id = me.selected_note.id;
+                            noteslist.remove_row(id);
+                            delete notesdata[id];
+                        }
+                    );
                 }
                 folder_drop_target = null;
             })
@@ -1094,7 +1113,7 @@ function rcube_kolab_notes_ui(settings)
     {
         data.id = rcmail.html_identifier_encode(data.uid);
 
-        var row, is_new = notesdata[data.id] == undefined
+        var row, is_new = (notesdata[data.id] == undefined && data.list == me.selected_list);
         notesdata[data.id] = data;
 
         if (is_new || me.selected_note && data.id == me.selected_note.id) {
@@ -1142,13 +1161,18 @@ function rcube_kolab_notes_ui(settings)
     /**
      * Collect data from the edit form and submit it to the server
      */
-    function save_note()
+    function save_note(beforesave)
     {
         if (!me.selected_note) {
             return false;
         }
 
         var savedata = get_save_data();
+
+        // run savedata through the given callback function
+        if (typeof beforesave == 'function') {
+            beforesave(savedata);
+        }
 
         // add reference to old list if changed
         if (me.selected_note.list && savedata.list != me.selected_note.list) {
@@ -1227,7 +1251,7 @@ function rcube_kolab_notes_ui(settings)
     /**
      * Check for unsaved changes and warn the user
      */
-    function warn_unsaved_changes(ok, nok)
+    function warn_unsaved_changes(ok, nok, beforesave)
     {
         if (typeof ok != 'function')
             ok = function(){ };
@@ -1248,8 +1272,9 @@ function rcube_kolab_notes_ui(settings)
             buttons.push({
                 text: rcmail.gettext('save'),
                 click: function() {
-                    save_note();
+                    save_note(beforesave);
                     dialog.dialog('close');
+                    rcmail.busy = false;  // don't block next action
                     ok();
                 }
             });
