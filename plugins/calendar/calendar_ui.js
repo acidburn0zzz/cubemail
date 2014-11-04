@@ -2779,6 +2779,8 @@ function rcube_calendar_ui(settings)
               $('#edit-attendees-form .attendees-invitebox').show();
             }
           }
+          // reset autocompletion on tab change (#3389)
+          rcmail.ksearch_blur();
         }
       });
       $('#edit-enddate').datepicker(datepicker_settings);
