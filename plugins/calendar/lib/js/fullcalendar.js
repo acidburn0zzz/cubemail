@@ -1,5 +1,5 @@
 /*!
- * FullCalendar v1.6.4-rcube-1.1.2
+ * FullCalendar v1.6.4-rcube-1.1.3
  * Docs & License: http://arshaw.com/fullcalendar/
  * (c) 2013 Adam Shaw, 2014 Kolab Systems AG
  */
@@ -140,7 +140,7 @@ var rtlDefaults = {
 
 ;;
 
-var fc = $.fullCalendar = { version: "1.6.4-rcube-1.0" };
+var fc = $.fullCalendar = { version: "1.6.4-rcube-1.1.3" };
 var fcViews = fc.views = {};
 
 
@@ -257,9 +257,9 @@ function Calendar(element, options, eventSources) {
 	var suggestedViewHeight;
 	var resizeUID = 0;
 	var ignoreWindowResize = 0;
+	var lazyRendering = false;
 	var date = new Date();
 	var events = [];
-	var lazyRendering = false;
 	var _dragElement;
 	
 	
@@ -512,6 +512,9 @@ function Calendar(element, options, eventSources) {
 
 	function refetchEvents(source, lazy) { // can be called as an API method
 		lazyRendering = lazy || false;
+		if (!lazyRendering) {
+			clearEvents();
+		}
 		fetchAndRenderEvents(source);
 	}
 
