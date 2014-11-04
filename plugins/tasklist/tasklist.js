@@ -2602,6 +2602,12 @@ function rcube_tasklist_ui(settings)
                 name = $('#taskedit-tasklistame').prop('disabled', list.norename||false).val(list.editname || list.name);
                 alarms = $('#taskedit-showalarms').prop('checked', list.showalarms).get(0);
                 name.select();
+
+                // suppress form submission with <Enter>
+                editform.on('submit', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
             }
         });
 
