@@ -795,8 +795,8 @@ class database_driver extends calendar_driver
   {
     if (empty($calendars))
       $calendars = array_keys($this->calendars);
-    else if (is_string($calendars))
-      $calendars = explode(',', $calendars);
+    else if (!is_array($calendars))
+      $calendars = explode(',', strval($calendars));
       
     // only allow to select from calendars of this use
     $calendar_ids = array_map(array($this->rc->db, 'quote'), array_intersect($calendars, array_keys($this->calendars)));
