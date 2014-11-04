@@ -3105,6 +3105,9 @@ function rcube_calendar_ui(settings)
         }
       }
 
+      // remove temp events
+      fc.fullCalendar('removeEvents', function(e){ return e.temp; });
+
       if (source && (p.refetch || (p.update && !source.active))) {
         // activate event source if new event was added to an invisible calendar
         if (this.quickview_active) {
@@ -3115,7 +3118,7 @@ function rcube_calendar_ui(settings)
               return false;
             }
           });
-          fc.fullCalendar('refetchEvents', source);
+          fc.fullCalendar('refetchEvents', source, true);
         }
         else if (!source.active) {
           source.active = true;
@@ -3123,7 +3126,7 @@ function rcube_calendar_ui(settings)
           $('#rcmlical' + source.id + ' input').prop('checked', true);
         }
         else
-          fc.fullCalendar('refetchEvents', source);
+          fc.fullCalendar('refetchEvents', source, true);
 
         fetch_counts();
       }
@@ -3147,12 +3150,9 @@ function rcube_calendar_ui(settings)
       }
       // refetch all calendars
       else if (p.refetch) {
-        fc.fullCalendar('refetchEvents');
+        fc.fullCalendar('refetchEvents', undefined, true);
         fetch_counts();
       }
-
-      // remove temp events
-      fc.fullCalendar('removeEvents', function(e){ return e.temp; });
     };
 
     // modify query parameters for refresh requests

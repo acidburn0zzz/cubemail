@@ -259,6 +259,7 @@ function Calendar(element, options, eventSources) {
 	var ignoreWindowResize = 0;
 	var date = new Date();
 	var events = [];
+	var lazyRendering = false;
 	var _dragElement;
 	
 	
@@ -509,8 +510,8 @@ function Calendar(element, options, eventSources) {
 	// TODO: going forward, most of this stuff should be directly handled by the view
 
 
-	function refetchEvents(source) { // can be called as an API method
-		clearEvents();
+	function refetchEvents(source, lazy) { // can be called as an API method
+		lazyRendering = lazy || false;
 		fetchAndRenderEvents(source);
 	}
 
@@ -556,6 +557,10 @@ function Calendar(element, options, eventSources) {
 
 	// called when event data arrives
 	function reportEvents(_events) {
+		if (lazyRendering) {
+			clearEvents();
+			lazyRendering = false;
+		}
 		events = _events;
 		renderEvents();
 	}
