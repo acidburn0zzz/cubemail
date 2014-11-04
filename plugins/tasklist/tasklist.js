@@ -593,7 +593,14 @@ function rcube_tasklist_ui(settings)
      */
     function init_taskedit()
     {
-        $('#taskedit').tabs();
+        $('#taskedit').tabs({
+            activate: function(event, ui) {
+                // reset autocompletion on tab change (#3389)
+                if (ui.oldPanel.selector == '#taskedit-panel-attendees') {
+                    rcmail.ksearch_blur();
+                }
+            }
+        });
 
         var completeness_slider_change = function(e, ui){
           var v = completeness_slider.slider('value');
@@ -2205,6 +2212,7 @@ function rcube_tasklist_ui(settings)
           closeOnEscape: false,
           title: rcmail.gettext((action == 'edit' ? 'edittask' : 'newtask'), 'tasklist'),
           close: function() {
+              rcmail.ksearch_blur();
               editform.hide().appendTo(document.body);
               $dialog.dialog('destroy').remove();
           },

@@ -906,7 +906,6 @@ function rcube_calendar_ui(settings)
           editform.hide().attr('aria-hidden', 'true').appendTo(document.body);
           $dialog.dialog("destroy").remove();
           rcmail.ksearch_blur();
-          rcmail.ksearch_destroy();
           freebusy_data = {};
           rcmail.env.comm_path = comm_path_before;  // restore comm_path
           if (op_elem)
@@ -3893,6 +3892,10 @@ function rcube_calendar_ui(settings)
               add_attendee($.extend({ role:'ORGANIZER' }, settings.identity));
               $('#edit-attendees-form .attendees-invitebox').show();
             }
+          }
+          // reset autocompletion on tab change (#3389)
+          if (ui.oldPanel.selector == '#event-panel-attendees' || ui.oldPanel.selector == '#event-panel-resources') {
+            rcmail.ksearch_blur();
           }
         }
       });
