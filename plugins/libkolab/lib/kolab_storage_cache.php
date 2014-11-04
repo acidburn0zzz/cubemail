@@ -26,6 +26,8 @@ class kolab_storage_cache
 {
     const DB_DATE_FORMAT = 'Y-m-d H:i:s';
 
+    public $sync_complete = false;
+
     protected $db;
     protected $imap;
     protected $folder;
@@ -158,7 +160,14 @@ class kolab_storage_cache
             return;
 
         // increase time limit
-        @set_time_limit($this->max_sync_lock_time);
+        @set_time_limit($this->max_sync_lock_time - 60);
+
+        // get effective time limit we have for synchronization (~70% of the execution time)
+        $time_limit = ini_get('max_execution_time') * 0.7;
+        $sync_start = time();
+
+        // assume sync will be completed
+        $this->sync_complete = true;
 
         if (!$this->ready) {
             // kolab cache is disabled, synchronize IMAP mailbox cache only
@@ -199,9 +208,16 @@ class kolab_storage_cache
                     }
 
                     // fetch new objects from imap
+                    $i = 0;
                     foreach (array_diff($imap_index, $old_index) as $msguid) {
                         if ($object = $this->folder->read_object($msguid, '*')) {
                             $this->_extended_insert($msguid, $object);
+
+                            // check time limit and abort sync if running too long
+                            if (++$i % 50 == 0 && time() - $sync_start > $time_limit) {
+                                $this->sync_complete = false;
+                                break;
+                            }
                         }
                     }
                     $this->_extended_insert(0, null);
@@ -217,7 +233,9 @@ class kolab_storage_cache
                     }
 
                     // update ctag value (will be written to database in _sync_unlock())
-                    $this->metadata['ctag'] = $this->folder->get_ctag();
+                    if ($this->sync_complete) {
+                        $this->metadata['ctag'] = $this->folder->get_ctag();
+                    }
                 }
 
                 $this->bypass(false);
