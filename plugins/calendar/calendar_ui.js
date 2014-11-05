@@ -445,7 +445,7 @@ function rcube_calendar_ui(settings)
 
       if (event.status) {
         var status_lc = String(event.status).toLowerCase();
-        $('#event-status').show().children('.event-text').html(Q(rcmail.gettext(status_lc,'calendar')));
+        $('#event-status').show().children('.event-text').html(Q(rcmail.gettext('status-'+status_lc,'calendar')));
         $dialog.addClass('status-'+status_lc);
       }
       if (event.sensitivity && event.sensitivity != 'public') {
@@ -868,7 +868,7 @@ function rcube_calendar_ui(settings)
       };
 
       if (event.id) {
-        buttons[rcmail.gettext('remove', 'calendar')] = function() {
+        buttons[rcmail.gettext('delete', 'calendar')] = function() {
           me.delete_event(event);
           $dialog.dialog('close');
         };

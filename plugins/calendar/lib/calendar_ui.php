@@ -407,8 +407,8 @@ class calendar_ui
     $attrib['name'] = 'status';
     $select = new html_select($attrib);
     $select->add('---', '');
-    $select->add($this->cal->gettext('confirmed'), 'CONFIRMED');
-    $select->add($this->cal->gettext('cancelled'), 'CANCELLED');
+    $select->add($this->cal->gettext('status-confirmed'), 'CONFIRMED');
+    $select->add($this->cal->gettext('status-cancelled'), 'CANCELLED');
     //$select->add($this->cal->gettext('tentative'), 'TENTATIVE');
     return $select->show(null);
   }
