@@ -262,6 +262,7 @@ class libcalendaring_itip
      *
      * @param array Event object to delegate
      * @param mixed Delegatee as string or hash array with keys 'name' and 'mailto'
+     * @param boolean The delegator's RSVP flag
      * @return boolean True on success, False on failure
      */
     public function delegate_to(&$event, $delegate, $rsvp = false)
@@ -301,6 +302,7 @@ class libcalendaring_itip
               $delegate_index = $i;
               break;
           }
+          // TODO: remove previous delegatee (i.e. attendee that has DELEGATED-FROM == $me)
         }
 
         // set/add delegate attendee with RSVP=TRUE and DELEGATED-FROM parameter
@@ -635,7 +637,7 @@ class libcalendaring_itip
         // add localized texts for the delegation dialog
         if (in_array('delegated', $actions)) {
             foreach (array('itipdelegated','itipcomment','delegateinvitation',
-                  'delegateto','delegatersvpme','delegateinvalidaddress') as $label) {
+                  'delegateto','delegatersvpme','delegateinvalidaddress','cancel') as $label) {
                 $this->rc->output->command('add_label', "itip.$label", $this->gettext($label));
             }
         }

@@ -2638,7 +2638,7 @@ class calendar extends rcube_plugin
           }
           else if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
             $event['attendees'][$i]['status'] = strtoupper($status);
-            if ($event['attendees'][$i]['status'] != 'NEEDS-ACTION')
+            if (!in_array($event['attendees'][$i]['status'], array('NEEDS-ACTION','DELEGATED')))
               unset($event['attendees'][$i]['rsvp']);  // remove RSVP attribute
             $metadata['attendee'] = $attendee['email'];
             $metadata['rsvp'] = $attendee['role'] != 'NON-PARTICIPANT';

@@ -2349,7 +2349,7 @@ function rcube_calendar_ui(settings)
 
               if (data['delegated-to']) {
                 delete data['delegated-to'];
-                if (data.role == 'NON-PARTICIPANT' && status != 'DECLINED')
+                if (data.role == 'NON-PARTICIPANT' && data.status != 'DECLINED')
                   data.role = 'REQ-PARTICIPANT';
               }
             }

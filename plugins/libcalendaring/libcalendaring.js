@@ -916,7 +916,8 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
             rcm.env.recipients_delimiter = '';
         },
         close: function(event, ui) {
-            rcmail.ksearch_blur();
+            rcm = rcmail.is_framed() ? parent.rcmail : rcmail;
+            rcm.ksearch_blur();
             $(this).remove();
         }
     });
