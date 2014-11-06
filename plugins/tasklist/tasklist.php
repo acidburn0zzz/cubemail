@@ -120,6 +120,7 @@ class tasklist extends rcube_plugin
             $this->register_action('itip-status', array($this, 'task_itip_status'));
             $this->register_action('itip-remove', array($this, 'task_itip_remove'));
             $this->register_action('itip-decline-reply', array($this, 'mail_itip_decline_reply'));
+            $this->register_action('itip-delegate', array($this, 'mail_itip_delegate'));
             $this->add_hook('refresh', array($this, 'refresh'));
 
             $this->collapsed_tasks = array_filter(explode(',', $this->rc->config->get('tasklist_collapsed_tasks', '')));
@@ -245,6 +246,7 @@ class tasklist extends rcube_plugin
             }
 
         case 'edit':
+            $oldrec = $this->driver->get_task($rec);
             $rec = $this->prepare_task($rec);
             $clone = $this->handle_recurrence($rec, $this->driver->get_task($rec));
             if ($success = $this->driver->edit_task($rec)) {
@@ -357,13 +359,24 @@ class tasklist extends rcube_plugin
 
         case 'rsvp':
             $status = rcube_utils::get_input_value('status', rcube_utils::INPUT_GPC);
+            $noreply = intval(rcube_utils::get_input_value('noreply', rcube_utils::INPUT_GPC)) || $status == 'needs-action';
             $task = $this->driver->get_task($rec);
             $task['attendees'] = $rec['attendees'];
+            $task['_type'] = 'task';
+
+            // send invitation to delegatee + add it as attendee
+            if ($status == 'delegated' && $rec['to']) {
+                $itip = $this->load_itip();
+                if ($itip->delegate_to($task, $rec['to'], (bool)$rec['rsvp'])) {
+                    $this->rc->output->show_message('tasklist.itipsendsuccess', 'confirmation');
+                    $refresh[] = $task;
+                    $noreply = false;
+                }
+            }
+
             $rec = $task;
 
             if ($success = $this->driver->edit_task($rec)) {
-                $noreply = intval(rcube_utils::get_input_value('noreply', rcube_utils::INPUT_GPC)) || $status == 'needs-action';
-
                 if (!$noreply) {
                     // let the reply clause further down send the iTip message
                     $rec['_reportpartstat'] = $status;
@@ -439,7 +452,7 @@ class tasklist extends rcube_plugin
         if (!$this->itip) {
             require_once realpath(__DIR__ . '/../libcalendaring/lib/libcalendaring_itip.php');
             $this->itip = new libcalendaring_itip($this, 'tasklist');
-            $this->itip->set_rsvp_actions(array('accepted','declined'));
+            $this->itip->set_rsvp_actions(array('accepted','declined','delegated'));
             $this->itip->set_rsvp_status(array('accepted','tentative','declined','delegated','in-process','completed'));
         }
 
@@ -1701,15 +1714,45 @@ class tasklist extends rcube_plugin
 
         $error_msg = $this->gettext('errorimportingtask');
         $success   = false;
+        $delegate = null;
+
+        if ($status == 'delegated') {
+            $delegates = rcube_mime::decode_address_list(rcube_utils::get_input_value('_to', rcube_utils::INPUT_POST, true), 1, false);
+            $delegate  = reset($delegates);
+
+            if (empty($delegate) || empty($delegate['mailto'])) {
+                $this->rc->output->command('display_message', $this->gettext('libcalendaring.delegateinvalidaddress'), 'error');
+                return;
+            }
+        }
 
         // successfully parsed tasks?
         if ($task = $this->lib->mail_get_itip_object($mbox, $uid, $mime_id, 'task')) {
             $task = $this->from_ical($task);
 
+            // forward iTip request to delegatee
+            if ($delegate) {
+                $rsvpme = intval(rcube_utils::get_input_value('_rsvp', rcube_utils::INPUT_POST));
+
+                $itip = $this->load_itip();
+                if ($itip->delegate_to($task, $delegate, $rsvpme ? true : false)) {
+                    $this->rc->output->show_message('tasklist.itipsendsuccess', 'confirmation');
+                }
+                else {
+                    $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+                }
+            }
+
             // find writeable list to store the task
             $list_id = !empty($_REQUEST['_folder']) ? rcube_utils::get_input_value('_folder', rcube_utils::INPUT_POST) : null;
             $lists   = $this->driver->get_lists();
-            $list    = $lists[$list_id] ?: $this->get_default_tasklist(true, $task['sensitivity'] == 'confidential');
+            $list    = $lists[$list_id];
+            $dontsave = ($_REQUEST['_folder'] === '' && $task['_method'] == 'REQUEST');
+
+            // select default list except user explicitly selected 'none'
+            if (!$list && !$dontsave) {
+                $list = $this->get_default_tasklist(true, $task['sensitivity'] == 'confidential');
+            }
 
             $metadata = array(
                 'uid'      => $task['uid'],
@@ -1732,7 +1775,7 @@ class tasklist extends rcube_plugin
                         $reply_sender         = $attendee['email'];
 
                         $task['attendees'][$i]['status'] = strtoupper($status);
-                        if ($task['attendees'][$i]['status'] != 'NEEDS-ACTION') {
+                        if (!in_array($task['attendees'][$i]['status'], array('NEEDS-ACTION','DELEGATED'))) {
                             unset($task['attendees'][$i]['rsvp']);  // remove RSVP attribute
                         }
                     }
@@ -1850,7 +1893,7 @@ class tasklist extends rcube_plugin
                     $error_msg = null;
                 }
             }
-            else if ($status == 'declined') {
+            else if ($status == 'declined' || $dontsave) {
                 $error_msg = null;
             }
             else {
@@ -1858,9 +1901,11 @@ class tasklist extends rcube_plugin
             }
         }
 
-        if ($success) {
-            $message = $task['_method'] == 'REPLY' ? 'attendeupdateesuccess' : ($deleted ? 'successremoval' : ($existing ? 'updatedsuccessfully' : 'importedsuccessfully'));
-            $this->rc->output->command('display_message', $this->gettext(array('name' => $message, 'vars' => array('list' => $list['name']))), 'confirmation');
+        if ($success || $dontsave) {
+            if ($success) {
+                $message = $task['_method'] == 'REPLY' ? 'attendeupdateesuccess' : ($deleted ? 'successremoval' : ($existing ? 'updatedsuccessfully' : 'importedsuccessfully'));
+                $this->rc->output->command('display_message', $this->gettext(array('name' => $message, 'vars' => array('list' => $list['name']))), 'confirmation');
+            }
 
             $metadata['rsvp']         = intval($metadata['rsvp']);
             $metadata['after_action'] = $this->rc->config->get('calendar_itip_after_action', 0);
@@ -1891,7 +1936,17 @@ class tasklist extends rcube_plugin
     /****  Task invitation plugin hooks ****/
 
     /**
-     * Handler for calendar/itip-status requests
+     * Handler for task/itip-delegate requests
+     */
+    function mail_itip_delegate()
+    {
+        // forward request to mail_import_itip() with the right status
+        $_POST['_status'] = $_REQUEST['_status'] = 'delegated';
+        $this->mail_import_itip();
+    }
+
+    /**
+     * Handler for task/itip-status requests
      */
     public function task_itip_status()
     {
@@ -1906,17 +1961,12 @@ class tasklist extends rcube_plugin
         if (!$existing && $response['action'] == 'rsvp' || $response['action'] == 'import') {
             $lists  = $this->driver->get_lists();
             $select = new html_select(array('name' => 'tasklist', 'id' => 'itip-saveto', 'is_escaped' => true));
-            $num    = 0;
+            $select->add('--', '');
 
             foreach ($lists as $list) {
                 if ($list['editable']) {
                     $select->add($list['name'], $list['id']);
-                    $num++;
                 }
-            }
-
-            if ($num <= 1) {
-                $select = null;
             }
         }
 
@@ -1930,7 +1980,7 @@ class tasklist extends rcube_plugin
     }
 
     /**
-     * Handler for calendar/itip-remove requests
+     * Handler for task/itip-remove requests
      */
     public function task_itip_remove()
     {

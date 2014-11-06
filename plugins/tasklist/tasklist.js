@@ -533,17 +533,41 @@ function rcube_tasklist_ui(settings)
             }
         });
 
-        // init RSVP widget
-        $('#task-rsvp input.button').click(function(e) {
-            var response = $(this).attr('rel');
-
+        /**
+         *
+         */
+        function task_rsvp(response, delegate)
+        {
             if (me.selected_task && me.selected_task.attendees && response) {
+                // bring up delegation dialog
+                if (response == 'delegated' && !delegate) {
+                    rcube_libcalendaring.itip_delegate_dialog(function(data) {
+                        $('#reply-comment-task-rsvp').val(data.comment);
+                        data.rsvp = data.rsvp ? 1 : '';
+                        task_rsvp('delegated', data);
+                    });
+                    return;
+                }
+
                 // update attendee status
                 for (var data, i=0; i < me.selected_task.attendees.length; i++) {
                     data = me.selected_task.attendees[i];
                     if (settings.identity.emails.indexOf(';'+String(data.email).toLowerCase()) >= 0) {
                         data.status = response.toUpperCase();
-                        delete data.rsvp;  // unset RSVP flag
+
+                        if (data.status == 'DELEGATED') {
+                              data['delegated-to'] = delegate.to;
+                        }
+                        else {
+                            delete data.rsvp;  // unset RSVP flag
+
+                            if (data['delegated-to']) {
+                              delete data['delegated-to'];
+                              if (data.role == 'NON-PARTICIPANT' && data.status != 'DECLINED') {
+                                  data.role = 'REQ-PARTICIPANT';
+                              }
+                            }
+                        }
                     }
                 }
 
@@ -551,7 +575,7 @@ function rcube_tasklist_ui(settings)
                 saving_lock = rcmail.set_busy(true, 'tasklist.savingdata');
                 rcmail.http_post('tasks/task', {
                     action: 'rsvp',
-                    t: me.selected_task,
+                    t: $.extend({}, me.selected_task, (delegate || {})),
                     filter: filtermask,
                     status: response,
                     noreply: $('#noreply-task-rsvp:checked').length ? 1 : 0,
@@ -560,6 +584,11 @@ function rcube_tasklist_ui(settings)
 
                 task_show_dialog(me.selected_task.id);
             }
+        }
+
+        // init RSVP widget
+        $('#task-rsvp input.button').click(function(e) {
+            task_rsvp($(this).attr('rel'))
         });
 
         // register click handler for message links

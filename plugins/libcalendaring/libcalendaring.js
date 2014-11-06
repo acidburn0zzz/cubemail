@@ -863,7 +863,7 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
                 rcmail.gettext('itip.itipcomment') + '"></textarea>' + 
         '</div>' +
         '<div class="form-section">' +
-            (selector ? selector.html() : '') +
+            (selector && selector.length ? selector.html() : '') +
         '</div>' +
     '</form>';
 

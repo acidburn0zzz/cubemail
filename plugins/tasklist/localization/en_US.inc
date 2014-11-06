@@ -153,6 +153,8 @@ $labels['itipmailbodydeclined'] = "\$sender has declined the assignment to the f
 $labels['itipmailbodycancel'] = "\$sender has rejected your assignment to the following task:\n\n*\$title*\n\nDue: \$date";
 $labels['itipmailbodyin-process'] = "\$sender has set the status of the following task to in-process:\n\n*\$title*\n\nDue: \$date";
 $labels['itipmailbodycompleted'] = "\$sender has completed the following task:\n\n*\$title*\n\nDue: \$date";
+$labels['itipmailbodydelegated'] = "\$sender has delegated the following task:\n\n*\$title*\n\nDue: \$date";
+$labels['itipmailbodydelegatedto'] = "\$sender has delegated the following task to you:\n\n*\$title*\n\nDue: \$date";
 
 $labels['attendeeaccepted'] = 'Assignee has accepted';
 $labels['attendeetentative'] = 'Assignee has tentatively accepted';
