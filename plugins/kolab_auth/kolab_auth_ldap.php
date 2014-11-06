@@ -310,7 +310,8 @@ class kolab_auth_ldap extends rcube_ldap_generic
                 if ($limit && $limit <= $i) {
                     break;
                 }
-                $dn        = key($result->entries(true));
+
+                $dn        = $entry['dn'];
                 $entry     = rcube_ldap_generic::normalize_entry($entry);
                 $list[$dn] = $this->field_mapping($dn, $entry);
                 $i++;
