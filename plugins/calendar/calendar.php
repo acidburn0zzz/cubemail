@@ -2671,10 +2671,11 @@ class calendar extends rcube_plugin
           if ($event['_method'] == 'REPLY') {
             // try to identify the attendee using the email sender address
             $existing_attendee = -1;
+            $existing_attendee_emails = array();
             foreach ($existing['attendees'] as $i => $attendee) {
+              $existing_attendee_emails[] = $attendee['email'];
               if ($event['_sender'] && ($attendee['email'] == $event['_sender'] || $attendee['email'] == $event['_sender_utf'])) {
                 $existing_attendee = $i;
-                break;
               }
             }
             $event_attendee = null;
@@ -2684,7 +2685,15 @@ class calendar extends rcube_plugin
                 $metadata['fallback'] = $attendee['status'];
                 $metadata['attendee'] = $attendee['email'];
                 $metadata['rsvp'] = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
-                break;
+                if ($attendee['status'] != 'DELEGATED') {
+                  break;
+                }
+              }
+              // also copy delegate attendee
+              else if (!empty($attendee['delegated-from']) &&
+                       (stripos($attendee['delegated-from'], $event['_sender']) !== false || stripos($attendee['delegated-from'], $event['_sender_utf']) !== false) &&
+                       (!in_array($attendee['email'], $existing_attendee_emails))) {
+                $existing['attendees'][] = $attendee;
               }
             }
             

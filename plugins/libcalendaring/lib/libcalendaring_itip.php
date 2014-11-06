@@ -197,24 +197,34 @@ class libcalendaring_itip
     public function compose_itip_message($event, $method)
     {
         $from = rcube_idn_to_ascii($this->sender['email']);
-        $from_utf = rcube_idn_to_utf8($from);
+        $from_utf = rcube_utils::idn_to_utf8($from);
         $sender = format_email_recipient($from, $this->sender['name']);
 
         // truncate list attendees down to the recipient of the iTip Reply.
         // constraints for a METHOD:REPLY according to RFC 5546
         if ($method == 'REPLY') {
-            $replying_attendee = null; $reply_attendees = array();
+            $replying_attendee = null;
+            $reply_attendees = array();
             foreach ($event['attendees'] as $attendee) {
                 if ($attendee['role'] == 'ORGANIZER') {
                     $reply_attendees[] = $attendee;
                 }
-                else if (strcasecmp($attedee['email'], $from) == 0 || strcasecmp($attendee['email'], $from_utf) == 0) {
+                else if (strcasecmp($attendee['email'], $from) == 0 || strcasecmp($attendee['email'], $from_utf) == 0) {
                     $replying_attendee = $attendee;
-                    unset($replying_attendee['rsvp']);  // unset the RSVP attribute
+                    if ($attendee['status'] != 'DELEGATED') {
+                        unset($replying_attendee['rsvp']);  // unset the RSVP attribute
+                    }
+                }
+                // include attendees relevant for delegation (RFC 5546, Section 4.2.5)
+                else if ((!empty($attendee['delegated-to']) &&
+                            (strcasecmp($attendee['delegated-to'], $from) == 0 || strcasecmp($attendee['delegated-to'], $from_utf) == 0)) ||
+                         (!empty($attendee['delegated-from']) &&
+                            (strcasecmp($attendee['delegated-from'], $from) == 0 || strcasecmp($attendee['delegated-from'], $from_utf) == 0))) {
+                    $reply_attendees[] = $attendee;
                 }
             }
             if ($replying_attendee) {
-                $reply_attendees[] = $replying_attendee;
+                array_unshift($reply_attendees, $replying_attendee);
                 $event['attendees'] = $reply_attendees;
             }
         }
@@ -454,7 +464,8 @@ class libcalendaring_itip
             $title = $this->gettext('itipreply');
 
             foreach ($event['attendees'] as $attendee) {
-                if (!empty($attendee['email']) && $attendee['role'] != 'ORGANIZER') {
+                if (!empty($attendee['email']) && $attendee['role'] != 'ORGANIZER' &&
+                      (empty($event['_sender']) || ($attendee['email'] == $event['_sender'] || $attendee['email'] == $event['_sender_utf']))) {
                     $metadata['attendee'] = $attendee['email'];
                     $rsvp_status = strtoupper($attendee['status']);
                     if ($attendee['delegated-to'])

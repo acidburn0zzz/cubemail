@@ -59,6 +59,7 @@ class libcalendaring extends rcube_plugin
     );
 
     private static $instance;
+    private static $email_regex = '/([a-z0-9][a-z0-9\-\.\+\_]*@[^&@"\'.][^@&"\']*\\.([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}))/';
 
     private $mail_ical_parser;
 
@@ -1287,6 +1288,15 @@ class libcalendaring extends rcube_plugin
                 if (count($this->mail_ical_parser->objects) && $this->mail_ical_parser->method) {
                     $this->mail_ical_parser->message_date = $this->ical_message->headers->date;
                     $this->mail_ical_parser->mime_id = $mime_id;
+
+                    // store the message's sender address for comparisons
+                    $this->mail_ical_parser->sender = preg_match(self::$email_regex, $this->ical_message->headers->from, $m) ? $m[1] : '';
+                    if (!empty($this->mail_ical_parser->sender)) {
+                        foreach ($this->mail_ical_parser->objects as $i => $object) {
+                            $this->mail_ical_parser->objects[$i]['_sender'] = $this->mail_ical_parser->sender;
+                            $this->mail_ical_parser->objects[$i]['_sender_utf'] = rcube_utils::idn_to_utf8($this->mail_ical_parser->sender);
+                        }
+                    }
                     break;
                 }
             }
@@ -1335,8 +1345,8 @@ class libcalendaring extends rcube_plugin
                 $object['_method'] = $parser->method;
 
             // store the message's sender address for comparisons
-            $object['_sender'] = preg_match('/([a-z0-9][a-z0-9\-\.\+\_]*@[^&@"\'.][^@&"\']*\\.([^\\x00-\\x40\\x5b-\\x60\\x7b-\\x7f]{2,}|xn--[a-z0-9]{2,}))/', $headers->from, $m) ? $m[1] : '';
-            $object['_sender_utf'] = rcube_idn_to_utf8($object['_sender']);
+            $object['_sender'] = preg_match(self::$email_regex, $headers->from, $m) ? $m[1] : '';
+            $object['_sender_utf'] = rcube_utils::idn_to_utf8($object['_sender']);
 
             return $object;
         }

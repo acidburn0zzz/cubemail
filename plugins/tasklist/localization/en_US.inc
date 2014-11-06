@@ -171,6 +171,7 @@ $labels['itipcommenttitle'] = 'This comment will be attached to the invitation/n
 $labels['itipsendsuccess'] = 'Notification sent to assignees';
 $labels['errornotifying'] = 'Failed to send notifications to task assignees';
 $labels['removefromcalendar'] = 'Remove from my tasks';
+$labels['delegateinvitation'] = 'Delegate assignment';
 
 $labels['andnmore'] = '$nr more...';
 $labels['delegatedto'] = 'Delegated to: ';
