@@ -90,6 +90,7 @@ class libcalendaring_itip
      * @param string  Mail subject
      * @param string  Mail body text label
      * @param object  Mail_mime object with message data
+     * @param boolean Request RSVP
      * @return boolean True on success, false on failure
      */
     public function send_itip_message($event, $method, $recipient, $subject, $bodytext, $message = null, $rsvp = true)
@@ -98,7 +99,7 @@ class libcalendaring_itip
             $this->sender['name'] = $this->sender['email'];
 
         if (!$message)
-            $message = $this->compose_itip_message($event, $method);
+            $message = $this->compose_itip_message($event, $method, $rsvp);
 
         $mailto = rcube_idn_to_ascii($recipient['email']);
 
@@ -192,9 +193,10 @@ class libcalendaring_itip
      *
      * @param array   Event object to send
      * @param string  iTip method (REQUEST|REPLY|CANCEL)
+     * @param boolean Request RSVP
      * @return object Mail_mime object with message data
      */
-    public function compose_itip_message($event, $method)
+    public function compose_itip_message($event, $method, $rsvp = true)
     {
         $from = rcube_idn_to_ascii($this->sender['email']);
         $from_utf = rcube_utils::idn_to_utf8($from);
@@ -228,11 +230,11 @@ class libcalendaring_itip
                 $event['attendees'] = $reply_attendees;
             }
         }
-        // set RSVP=TRUE for every attendee if not set
+        // set RSVP for every attendee
         else if ($method == 'REQUEST') {
             foreach ($event['attendees'] as $i => $attendee) {
-                if (!isset($attendee['rsvp'])) {
-                    $event['attendees'][$i]['rsvp']= true;
+                if ($attendee['status'] != 'DELEGATED') {
+                    $event['attendees'][$i]['rsvp']= $rsvp ? true : null;
                 }
             }
         }

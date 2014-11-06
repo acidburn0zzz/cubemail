@@ -1642,7 +1642,9 @@ class calendar extends rcube_plugin
     foreach ((array)$event['attendees'] as $i => $attendee) {
       if ($attendee['role'] == 'ORGANIZER') {
         $organizer = $attendee;
-        break;
+      }
+      if ($attendee['status'] == 'DELEGATED' && $attendee['rsvp'] == false) {
+        $event['attendees'][$i]['noreply'] = true;
       }
     }
 
@@ -1895,7 +1897,7 @@ class calendar extends rcube_plugin
 
     // compose multipart message using PEAR:Mail_Mime
     $method = $action == 'remove' ? 'CANCEL' : 'REQUEST';
-    $message = $itip->compose_itip_message($event, $method);
+    $message = $itip->compose_itip_message($event, $method, $event['sequence'] > $old['sequence']);
 
     // list existing attendees from $old event
     $old_attendees = array();
@@ -1915,7 +1917,11 @@ class calendar extends rcube_plugin
       // skip if notification is disabled for this attendee
       if ($attendee['noreply'] && $itip_notify & 2)
         continue;
-      
+
+      // skip if this attendee has delegated and set RSVP=FALSE
+      if ($attendee['status'] == 'DELEGATED' && $attendee['rsvp'] === false)
+        continue;
+
       // which template to use for mail text
       $is_new = !in_array($attendee['email'], $old_attendees);
       $is_rsvp = $is_new || $event['sequence'] > $old['sequence'];
@@ -2639,7 +2645,8 @@ class calendar extends rcube_plugin
           else if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
             $event['attendees'][$i]['status'] = strtoupper($status);
             if (!in_array($event['attendees'][$i]['status'], array('NEEDS-ACTION','DELEGATED')))
-              unset($event['attendees'][$i]['rsvp']);  // remove RSVP attribute
+              $event['attendees'][$i]['rsvp'] = false;  // unset RSVP attribute
+
             $metadata['attendee'] = $attendee['email'];
             $metadata['rsvp'] = $attendee['role'] != 'NON-PARTICIPANT';
             $reply_sender = $attendee['email'];
@@ -2696,7 +2703,17 @@ class calendar extends rcube_plugin
                 $existing['attendees'][] = $attendee;
               }
             }
-            
+
+            // if delegatee has declined, set delegator's RSVP=True
+            if ($event_attendee && $event_attendee['status'] == 'DECLINED' && $event_attendee['delegated-from']) {
+              foreach ($existing['attendees'] as $i => $attendee) {
+                if ($attendee['email'] == $event_attendee['delegated-from']) {
+                  $existing['attendees'][$i]['rsvp'] = true;
+                  break;
+                }
+              }
+            }
+
             // found matching attendee entry in both existing and new events
             if ($existing_attendee >= 0 && $event_attendee) {
               $existing['attendees'][$existing_attendee] = $event_attendee;

@@ -757,7 +757,7 @@ class tasklist extends rcube_plugin
         // compose multipart message using PEAR:Mail_Mime
         $method  = $action == 'delete' ? 'CANCEL' : 'REQUEST';
         $object = $this->to_libcal($task);
-        $message = $itip->compose_itip_message($object, $method);
+        $message = $itip->compose_itip_message($object, $method, $task['sequence'] > $old['sequence']);
 
         // list existing attendees from the $old task
         $old_attendees = array();
@@ -779,6 +779,12 @@ class tasklist extends rcube_plugin
             if ($attendee['noreply'] && $itip_notify & 2) {
                 continue;
             }
+
+            // skip if this attendee has delegated and set RSVP=FALSE
+            if ($attendee['status'] == 'DELEGATED' && $attendee['rsvp'] === false) {
+                continue;
+            }
+
             // which template to use for mail text
             $is_new   = !in_array($attendee['email'], $old_attendees);
             $is_rsvp  = $is_new || $task['sequence'] > $old['sequence'];
@@ -1776,7 +1782,7 @@ class tasklist extends rcube_plugin
 
                         $task['attendees'][$i]['status'] = strtoupper($status);
                         if (!in_array($task['attendees'][$i]['status'], array('NEEDS-ACTION','DELEGATED'))) {
-                            unset($task['attendees'][$i]['rsvp']);  // remove RSVP attribute
+                            $task['attendees'][$i]['rsvp'] = false;  // unset RSVP attribute
                         }
                     }
                 }
@@ -1830,6 +1836,16 @@ class tasklist extends rcube_plugin
                                      (stripos($attendee['delegated-from'], $task['_sender']) !== false || stripos($attendee['delegated-from'], $task['_sender_utf']) !== false) &&
                                      (!in_array($attendee['email'], $existing_attendee_emails))) {
                                 $existing['attendees'][] = $attendee;
+                            }
+                        }
+
+                        // if delegatee has declined, set delegator's RSVP=True
+                        if ($task_attendee && $task_attendee['status'] == 'DECLINED' && $task_attendee['delegated-from']) {
+                            foreach ($existing['attendees'] as $i => $attendee) {
+                                if ($attendee['email'] == $task_attendee['delegated-from']) {
+                                    $existing['attendees'][$i]['rsvp'] = true;
+                                    break;
+                                }
                             }
                         }
 
