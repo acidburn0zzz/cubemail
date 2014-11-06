@@ -98,6 +98,8 @@ $labels['itipsubjectdeclined'] = '"$title" has been declined by $name';
 $labels['itipsubjectin-process'] = '"$title" is in-process by $name';
 $labels['itipsubjectcompleted'] = '"$title" was completed by $name';
 $labels['itipsubjectcancel'] = 'Your participation in "$title" has been cancelled';
+$labels['itipsubjectdelegated'] = '"$title" has been delegated by $name';
+$labels['itipsubjectdelegatedto'] = '"$title" has been delegated to you by $name';
 
 $labels['itipnewattendee'] = 'This is a reply from a new participant';
 $labels['updateattendeestatus'] = 'Update the participant\'s status';
@@ -138,6 +140,11 @@ $labels['openpreview'] = 'Open Preview';
 
 $labels['deleteobjectconfirm'] = 'Do you really want to delete this object?';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined object from your account?';
+
+$labels['delegateinvitation'] = 'Delegate Invitation';
+$labels['delegateto'] = 'Delegate to';
+$labels['delegatersvpme'] = 'Keep me informed about updates of this incidence';
+$labels['delegateinvalidaddress'] = 'Please enter a valid email address for the delegate';
 
 $labels['savingdata'] = 'Saving data...';
 

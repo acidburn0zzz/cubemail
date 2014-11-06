@@ -803,6 +803,22 @@ rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status, dom_id
         del = confirm(rcmail.gettext('itip.declinedeleteconfirm'));
     }
 
+    // open dialog for iTip delegation
+    if (status == 'delegated') {
+        rcube_libcalendaring.itip_delegate_dialog(function(data) {
+            rcmail.http_post(task + '/itip-delegate', {
+                _uid: rcmail.env.uid,
+                _mbox: rcmail.env.mailbox,
+                _part: mime_id,
+                _to: data.to,
+                _rsvp: data.rsvp ? 1 : 0,
+                _comment: data.comment,
+                _folder: data.target
+            }, rcmail.set_busy(true, 'itip.savingdata'));
+        }, $('#rsvp-'+dom_id+' .folder-select'));
+        return false;
+    }
+
     var noreply = 0, comment = '';
     if (dom_id) {
       noreply = $('#noreply-'+dom_id+':checked').length ? 1 : 0;
@@ -822,6 +838,90 @@ rcube_libcalendaring.add_from_itip_mail = function(mime_id, task, status, dom_id
       }, rcmail.set_busy(true, 'itip.savingdata'));
 
     return false;
+};
+
+/**
+ * Helper function to render the iTip delegation dialog
+ * and trigger a callback function when submitted.
+ */
+rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
+{
+    // show dialog for entering the delegatee address and comment
+    var html = '<form class="itip-dialog-form" action="javascript:void()">' +
+        '<div class="form-section">' +
+            '<label for="itip-delegate-to">' + rcmail.gettext('itip.delegateto') + '</label><br/>' +
+            '<input type="text" id="itip-delegate-to" class="text" size="40" value="" />' +
+        '</div>' +
+        '<div class="form-section">' +
+            '<label for="itip-delegate-rsvp">' +
+                '<input type="checkbox" id="itip-delegate-rsvp" class="checkbox" size="40" value="" />' +
+                rcmail.gettext('itip.delegatersvpme') +
+            '</label>' +
+        '</div>' +
+        '<div class="form-section">' +
+            '<textarea id="itip-delegate-comment" class="itip-comment" cols="40" rows="8" placeholder="' +
+                rcmail.gettext('itip.itipcomment') + '"></textarea>' + 
+        '</div>' +
+        '<div class="form-section">' +
+            (selector ? selector.html() : '') +
+        '</div>' +
+    '</form>';
+
+    var dialog, buttons = [];
+    buttons.push({
+        text: rcmail.gettext('itipdelegated', 'itip'),
+        click: function() {
+            var doc = window.parent.document,
+                delegatee = String($('#itip-delegate-to', doc).val()).replace(/(^\s+)|(\s+$)/, '');
+
+            if (delegatee != '' && rcube_check_email(delegatee, true)) {
+                callback({
+                    to: delegatee,
+                    rsvp: $('#itip-delegate-rsvp', doc).prop('checked'),
+                    comment: $('#itip-delegate-comment', doc).val(),
+                    target: $('#itip-saveto', doc).val()
+                });
+
+                setTimeout(function() { dialog.dialog("close"); }, 500);
+            }
+            else {
+                alert(rcmail.gettext('itip.delegateinvalidaddress'));
+                $('#itip-delegate-to', doc).focus();
+            }
+        }
+    });
+
+    buttons.push({
+        text: rcmail.gettext('cancel', 'itip'),
+        click: function() {
+            dialog.dialog('close');
+        }
+    });
+
+    dialog = rcmail.show_popup_dialog(html, rcmail.gettext('delegateinvitation', 'itip'), buttons, {
+        width: 460,
+        open: function(event, ui) {
+            $(this).parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().addClass('mainaction');
+            $(this).find('#itip-saveto').val('');
+
+            // initialize autocompletion
+            var ac_props, rcm = rcmail.is_framed() ? parent.rcmail : rcmail;
+            if (rcmail.env.autocomplete_threads > 0) {
+                ac_props = {
+                    threads: rcmail.env.autocomplete_threads,
+                    sources: rcmail.env.autocomplete_sources
+                };
+            }
+            rcm.init_address_input_events($(this).find('#itip-delegate-to').focus(), ac_props);
+            rcm.env.recipients_delimiter = '';
+        },
+        close: function(event, ui) {
+            rcmail.ksearch_blur();
+            $(this).remove();
+        }
+    });
+
+    return dialog;
 };
 
 /**
@@ -870,7 +970,7 @@ rcube_libcalendaring.decline_attendee_reply = function(mime_id, task)
     dialog = rcmail.show_popup_dialog(html, rcmail.gettext('declineattendee', 'itip'), buttons, {
         width: 460,
         open: function() {
-            $(this).parent().find('.ui-button').first().addClass('mainaction');
+            $(this).parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().addClass('mainaction');
             $('#itip-decline-comment').focus();
         }
     });

@@ -30,7 +30,7 @@ class libcalendaring_itip
     protected $sender;
     protected $domain;
     protected $itip_send = false;
-    protected $rsvp_actions = array('accepted','tentative','declined');
+    protected $rsvp_actions = array('accepted','tentative','declined','delegated');
     protected $rsvp_status  = array('accepted','tentative','declined','delegated');
 
     function __construct($plugin, $domain = 'libcalendaring')
@@ -257,6 +257,61 @@ class libcalendaring_itip
         return $message;
     }
 
+    /**
+     * Forward the given iTip event as delegation to another person
+     *
+     * @param array Event object to delegate
+     * @param mixed Delegatee as string or hash array with keys 'name' and 'mailto'
+     * @return boolean True on success, False on failure
+     */
+    public function delegate_to(&$event, $delegate, $rsvp = false)
+    {
+        if (is_string($delegate)) {
+            $delegates = rcube_mime::decode_address_list($delegate, 1, false);
+            if (count($delegates) > 0) {
+                $delegate = reset($delegates);
+            }
+        }
+
+        $emails = $this->lib->get_user_emails();
+        $me = $this->rc->user->get_identity();
+
+        // find/create the delegate attendee
+        $delegate_attendee = array(
+            'email' => $delegate['mailto'],
+            'name'  => $delegate['name'],
+            'role'  => 'REQ-PARTICIPANT',
+        );
+        $delegate_index = count($event['attendees']);
+
+        foreach ($event['attendees'] as $i => $attendee) {
+          // set myself the DELEGATED-TO parameter
+          if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+              $event['attendees'][$i]['delegated-to'] = $delegate['mailto'];
+              $event['attendees'][$i]['status'] = 'DELEGATED';
+              $event['attendees'][$i]['role'] = 'NON-PARTICIPANT';
+              $event['attendees'][$i]['rsvp'] = $rsvp;
+
+              $me['email'] = $attendee['email'];
+              $delegate_attendee['role'] = $attendee['role'];
+          }
+          // the disired delegatee is already listed as an attendee
+          else if (stripos($delegate['mailto'], $attendee['email']) !== false && $attendee['role'] != 'ORGANIZER') {
+              $delegate_attendee = $attendee;
+              $delegate_index = $i;
+              break;
+          }
+        }
+
+        // set/add delegate attendee with RSVP=TRUE and DELEGATED-FROM parameter
+        $delegate_attendee['rsvp'] = true;
+        $delegate_attendee['status'] = 'NEEDS-ACTION';
+        $delegate_attendee['delegated-from'] = $me['email'];
+        $event['attendees'][$delegate_index] = $delegate_attendee;
+
+        $this->set_sender_email($me['email']);
+        return $this->send_itip_message($event, 'REQUEST', $delegate_attendee, 'itipsubjectdelegatedto', 'itipmailbodydelegatedto');
+    }
 
     /**
      * Handler for calendar/itip-status requests
@@ -332,7 +387,7 @@ class libcalendaring_itip
                 $html = html::div('rsvp-status ' . $status_lc, $this->gettext(array(
                     'name' => 'attendee' . $status_lc,
                     'vars' => array(
-                        'delegatedto' => Q($attendee['delegated-to'] ?: '?'),
+                        'delegatedto' => Q($event['delegated-to'] ?: ($attendee['delegated-to'] ?: '?')),
                     )
                 )));
               }
@@ -400,6 +455,8 @@ class libcalendaring_itip
                 if (!empty($attendee['email']) && $attendee['role'] != 'ORGANIZER') {
                     $metadata['attendee'] = $attendee['email'];
                     $rsvp_status = strtoupper($attendee['status']);
+                    if ($attendee['delegated-to'])
+                        $metadata['delegated-to'] = $attendee['delegated-to'];
                     break;
                 }
             }
@@ -498,6 +555,11 @@ class libcalendaring_itip
 
             $buttons[] = html::div(array('id' => 'rsvp-'.$dom_id, 'class' => 'rsvp-buttons', 'style' => 'display:none'), $rsvp_buttons);
             $buttons[] = html::div(array('id' => 'update-'.$dom_id, 'style' => 'display:none'), $update_button);
+
+            // prepare autocompletion for delegation dialog
+            if (in_array('delegated', $this->rsvp_actions)) {
+                $this->rc->autocomplete_init();
+            }
         }
         // for CANCEL messages, we can:
         else if ($method == 'CANCEL') {
@@ -530,8 +592,6 @@ class libcalendaring_itip
             $buttons[] = html::div(array('id' => 'import-'.$dom_id, 'style' => 'display:none'), $import_button);
         }
 
-        // TODO: add option/checkbox to delete this message after update
-
         // pass some metadata about the event and trigger the asynchronous status check
         $metadata['fallback'] = $rsvp_status;
         $metadata['rsvp'] = intval($metadata['rsvp']);
@@ -539,7 +599,9 @@ class libcalendaring_itip
         $this->rc->output->add_script("rcube_libcalendaring.fetch_itip_object_status(" . json_serialize($metadata) . ")", 'docready');
 
         // get localized texts from the right domain
-        foreach (array('savingdata','deleteobjectconfirm','declinedeleteconfirm','declineattendee','declineattendeeconfirm','cancel') as $label) {
+        foreach (array('savingdata','deleteobjectconfirm','declinedeleteconfirm','declineattendee',
+            'cancel','itipdelegated','declineattendeeconfirm','itipcomment','delegateinvitation',
+            'delegateto','delegatersvpme','delegateinvalidaddress') as $label) {
           $this->rc->output->command('add_label', "itip.$label", $this->gettext($label));
         }
 
@@ -569,6 +631,14 @@ class libcalendaring_itip
         }
 
         $buttons .= html::div('itip-reply-controls', $this->itip_rsvp_options_ui($attrib['id']));
+
+        // add localized texts for the delegation dialog
+        if (in_array('delegated', $actions)) {
+            foreach (array('itipdelegated','itipcomment','delegateinvitation',
+                  'delegateto','delegatersvpme','delegateinvalidaddress') as $label) {
+                $this->rc->output->command('add_label', "itip.$label", $this->gettext($label));
+            }
+        }
 
         return html::div($attrib,
             html::div('label', $this->gettext('acceptinvitation')) .

@@ -150,6 +150,7 @@ class calendar extends rcube_plugin
       $this->register_action('itip-status', array($this, 'event_itip_status'));
       $this->register_action('itip-remove', array($this, 'event_itip_remove'));
       $this->register_action('itip-decline-reply', array($this, 'mail_itip_decline_reply'));
+      $this->register_action('itip-delegate', array($this, 'mail_itip_delegate'));
       $this->register_action('resources-list', array($this, 'resources_list'));
       $this->register_action('resources-owner', array($this, 'resources_owner'));
       $this->register_action('resources-calendar', array($this, 'resources_calendar'));
@@ -239,7 +240,7 @@ class calendar extends rcube_plugin
       $this->itip = new calendar_itip($this);
       
       if ($this->rc->config->get('kolab_invitation_calendars'))
-        $this->itip->set_rsvp_actions(array('accepted','tentative','declined','needs-action'));
+        $this->itip->set_rsvp_actions(array('accepted','tentative','declined','delegated','needs-action'));
     }
 
     return $this->itip;
@@ -957,6 +958,16 @@ class calendar extends rcube_plugin
 
         $ev = $this->driver->get_event($event);
         $ev['attendees'] = $event['attendees'];
+
+        // send invitation to delegatee + add it as attendee
+        if ($status == 'delegated' && $event['to']) {
+          $itip = $this->load_itip();
+          if ($itip->delegate_to($ev, $event['to'], (bool)$event['rsvp'])) {
+            $this->rc->output->show_message('calendar.itipsendsuccess', 'confirmation');
+            $noreply = false;
+          }
+        }
+
         $event = $ev;
 
         if ($success = $this->driver->edit_rsvp($event, $status)) {
@@ -974,6 +985,7 @@ class calendar extends rcube_plugin
               $reply_sender = $attendee['email'];
             }
           }
+
           if (!$noreply) {
             $itip = $this->load_itip();
             $itip->set_sender_email($reply_sender);
@@ -2567,9 +2579,36 @@ class calendar extends rcube_plugin
 
     $error_msg = $this->gettext('errorimportingevent');
     $success = false;
+    $delegate = null;
+
+    if ($status == 'delegated') {
+      $delegates = rcube_mime::decode_address_list(rcube_utils::get_input_value('_to', rcube_utils::INPUT_POST, true), 1, false);
+      $delegate  = reset($delegates);
+
+      if (empty($delegate) || empty($delegate['mailto'])) {
+        $this->rc->output->command('display_message', $this->gettext('libcalendaring.delegateinvalidaddress'), 'error');
+        return;
+      }
+    }
 
     // successfully parsed events?
     if ($event = $this->lib->mail_get_itip_object($mbox, $uid, $mime_id, 'event')) {
+      // forward iTip request to delegatee
+      if ($delegate) {
+        $rsvpme = intval(rcube_utils::get_input_value('_rsvp', rcube_utils::INPUT_POST));
+
+        $itip = $this->load_itip();
+        if ($itip->delegate_to($event, $delegate, $rsvpme ? true : false)) {
+          $this->rc->output->show_message('calendar.itipsendsuccess', 'confirmation');
+        }
+        else {
+          $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
+        }
+
+        // the delegator is set to non-participant, thus save as non-blocking
+        $event['free_busy'] = 'free';
+      }
+
       // find writeable calendar to store event
       $cal_id = !empty($_REQUEST['_folder']) ? rcube_utils::get_input_value('_folder', rcube_utils::INPUT_POST) : null;
       $dontsave = ($_REQUEST['_folder'] === '' && $event['_method'] == 'REQUEST');
@@ -2692,14 +2731,14 @@ class calendar extends rcube_plugin
             if ($event['_method'] == 'CANCEL')
               $event['status'] = 'CANCELLED';
             // show me as free when declined (#1670)
-            if ($status == 'declined' || $event['status'] == 'CANCELLED')
+            if ($status == 'declined' || $event['status'] == 'CANCELLED' || $event_attendee['role'] == 'NON-PARTICIPANT')
               $event['free_busy'] = 'free';
 
             $success = $this->driver->edit_event($event);
           }
           else if (!empty($status)) {
             $existing['attendees'] = $event['attendees'];
-            if ($status == 'declined')  // show me as free when declined (#1670)
+            if ($status == 'declined' || $event_attendee['role'] == 'NON-PARTICIPANT')  // show me as free when declined (#1670)
               $existing['free_busy'] = 'free';
             $success = $this->driver->edit_event($existing);
           }
@@ -2778,6 +2817,16 @@ class calendar extends rcube_plugin
     else {
       $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
     }
+  }
+
+  /**
+   * Handler for calendar/itip-delegate requests
+   */
+  function mail_itip_delegate()
+  {
+    // forward request to mail_import_itip() with the right status
+    $_POST['_status'] = $_REQUEST['_status'] = 'delegated';
+    $this->mail_import_itip();
   }
 
   /**

@@ -2323,20 +2323,41 @@ function rcube_calendar_ui(settings)
     }
 
     // when the user accepts or declines an event invitation
-    var event_rsvp = function(response)
+    var event_rsvp = function(response, delegate)
     {
       if (me.selected_event && me.selected_event.attendees && response) {
+        // bring up delegation dialog
+        if (response == 'delegated' && !delegate) {
+          rcube_libcalendaring.itip_delegate_dialog(function(data) {
+            data.rsvp = data.rsvp ? 1 : '';
+            event_rsvp('delegated', data);
+          });
+          return;
+        }
+
         // update attendee status
         for (var data, i=0; i < me.selected_event.attendees.length; i++) {
           data = me.selected_event.attendees[i];
           if (settings.identity.emails.indexOf(';'+String(data.email).toLowerCase()) >= 0) {
             data.status = response.toUpperCase();
-            delete data.rsvp;  // unset RSVP flag
+
+            if (data.status == 'DELEGATED') {
+              data['delegated-to'] = delegate.to;
+            }
+            else {
+              delete data.rsvp;  // unset RSVP flag
+
+              if (data['delegated-to']) {
+                delete data['delegated-to'];
+                if (data.role == 'NON-PARTICIPANT' && status != 'DECLINED')
+                  data.role = 'REQ-PARTICIPANT';
+              }
+            }
           }
         }
 
         // submit status change to server
-        var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val() }),
+        var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val() }, (delegate || {})),
           noreply = $('#noreply-event-rsvp:checked').length ? 1 : 0;
 
         // import event from mail (temporary iTip event)
@@ -2347,6 +2368,8 @@ function rcube_calendar_ui(settings)
             _uid:  submit_data._uid,
             _part: submit_data._part,
             _status:  response,
+            _to: (delegate ? delegate.to : null),
+            _rsvp: (delegate && delegate.rsvp) ? 1 : 0,
             _noreply: noreply,
             _comment: submit_data.comment
           });

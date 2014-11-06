@@ -156,3 +156,11 @@ label.noreply-toggle + a.reply-comment-toggle {
 	margin-top: -1.4em;
 }
 
+.itip-dialog-form input.text {
+	width: 98%;
+}
+
+.itip-dialog-form label > input.checkbox {
+	margin-left: 0;
+	margin-right: 10px;
+}
