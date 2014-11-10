@@ -122,7 +122,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('REQUEST', $ical->method, "iTip method");
 
         // attendees
-        $this->assertEquals(2, count($event['attendees']), "Attendees list (including organizer)");
+        $this->assertEquals(3, count($event['attendees']), "Attendees list (including organizer)");
         $organizer = $event['attendees'][0];
         $this->assertEquals('ORGANIZER', $organizer['role'], 'Organizer ROLE');
         $this->assertEquals('Rolf Test', $organizer['name'], 'Organizer name');
@@ -131,7 +131,16 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('REQ-PARTICIPANT', $attendee['role'], 'Attendee ROLE');
         $this->assertEquals('NEEDS-ACTION', $attendee['status'], 'Attendee STATUS');
         $this->assertEquals('rolf2@mykolab.com', $attendee['email'], 'Attendee mailto:');
+        $this->assertEquals('carl@mykolab.com', $attendee['delegated-from'], 'Attendee delegated-from');
         $this->assertTrue($attendee['rsvp'], 'Attendee RSVP');
+
+        $delegator = $event['attendees'][2];
+        $this->assertEquals('NON-PARTICIPANT',   $delegator['role'], 'Delegator ROLE');
+        $this->assertEquals('DELEGATED',         $delegator['status'], 'Delegator STATUS');
+        $this->assertEquals('INDIVIDUAL',        $delegator['cutype'], 'Delegator CUTYPE');
+        $this->assertEquals('carl@mykolab.com',  $delegator['email'], 'Delegator mailto:');
+        $this->assertEquals('rolf2@mykolab.com', $delegator['delegated-to'], 'Delegator delegated-to');
+        $this->assertFalse($delegator['rsvp'],   'Delegator RSVP');
 
         // attachments
         $this->assertEquals(1, count($event['attachments']), "Embedded attachments");
@@ -153,6 +162,14 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(2, count($rrule['EXDATE']),          "Recurrence EXDATEs");
         $this->assertInstanceOf('DateTime', $rrule['EXDATE'][0], "Recurrence EXDATE as DateTime");
+
+        $this->assertTrue(is_array($rrule['EXCEPTIONS']));
+        $this->assertEquals(1, count($rrule['EXCEPTIONS']), "Recurrence Exceptions");
+
+        $exception = $rrule['EXCEPTIONS'][0];
+        $this->assertEquals($event['uid'],  $event['uid'], "Exception UID");
+        $this->assertEquals('Recurring Test (Exception)',  $exception['title'], "Exception title");
+        $this->assertInstanceOf('DateTime', $exception['start'], "Exception start");
 
         // categories, class
         $this->assertEquals('libcalendaring tests', join(',', (array)$event['categories']), "Event categories");
@@ -368,11 +385,11 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertContains('SEQUENCE:' . $event['sequence'],           $ics, "Export Sequence number");
         $this->assertContains('CLASS:CONFIDENTIAL',                       $ics, "Sensitivity => Class");
         $this->assertContains('DESCRIPTION:*Exported by',                 $ics, "Export Description");
-        $this->assertContains('ORGANIZER;CN=Rolf Test:mailto:rolf@',    $ics, "Export organizer");
+        $this->assertContains('ORGANIZER;CN=Rolf Test:mailto:rolf@',      $ics, "Export organizer");
         $this->assertRegExp('/ATTENDEE.*;ROLE=REQ-PARTICIPANT/',          $ics, "Export Attendee ROLE");
         $this->assertRegExp('/ATTENDEE.*;PARTSTAT=NEEDS-ACTION/',         $ics, "Export Attendee Status");
         $this->assertRegExp('/ATTENDEE.*;RSVP=TRUE/',                     $ics, "Export Attendee RSVP");
-        $this->assertRegExp('/ATTENDEE.*:mailto:rolf2@/',                 $ics, "Export Attendee mailto:");
+        $this->assertRegExp('/:mailto:rolf2@/',                           $ics, "Export Attendee mailto:");
 
         $rrule = $event['recurrence'];
         $this->assertRegExp('/RRULE:.*FREQ='.$rrule['FREQ'].'/',          $ics, "Export Recurrence Frequence");
@@ -424,6 +441,8 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
 
         // add exceptions
         $event = $events[0];
+        unset($event['recurrence']['EXCEPTIONS']);
+
         $exception1 = $event;
         $exception1['start'] = clone $event['start'];
         $exception1['start']->setDate(2013, 8, 14);
