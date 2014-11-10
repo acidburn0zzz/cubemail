@@ -428,6 +428,7 @@ class kolab_notes_ui
      */
     public function print_template()
     {
+        header('Content-Type: text/html; charset=' . RCUBE_CHARSET);
         $this->rc->output->reset(true);
         echo $this->rc->output->parse('kolab_notes.print', false, false);
         exit;
