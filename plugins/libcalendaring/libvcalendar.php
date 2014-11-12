@@ -653,6 +653,11 @@ class libvcalendar implements Iterator
             unset($event['end']);
         }
 
+        // some iTip CANCEL messages only contain the start date
+        if (!$event['end'] && $event['start'] && $this->method == 'CANCEL') {
+            $event['end'] = clone $event['start'];
+        }
+
         // minimal validation
         if (empty($event['uid']) || ($event['_type'] == 'event' && empty($event['start']) != empty($event['end']))) {
             throw new VObject\ParseException('Object validation failed: missing mandatory object properties');
