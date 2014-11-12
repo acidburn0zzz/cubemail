@@ -36,8 +36,16 @@ class libvcalendar implements Iterator
     private $attach_uri = null;
     private $prodid = '-//Roundcube libcalendaring//Sabre//Sabre VObject//EN';
     private $type_component_map = array('event' => 'VEVENT', 'task' => 'VTODO');
-    private $attendee_keymap = array('name' => 'CN', 'status' => 'PARTSTAT', 'role' => 'ROLE',
-        'cutype' => 'CUTYPE', 'rsvp' => 'RSVP', 'delegated-from' => 'DELEGATED-FROM', 'delegated-to' => 'DELEGATED-TO');
+    private $attendee_keymap = array(
+        'name'   => 'CN',
+        'status' => 'PARTSTAT',
+        'role'   => 'ROLE',
+        'cutype' => 'CUTYPE',
+        'rsvp'   => 'RSVP',
+        'delegated-from'  => 'DELEGATED-FROM',
+        'delegated-to'    => 'DELEGATED-TO',
+        'schedule-status' => 'SCHEDULE-STATUS',
+    );
     private $iteratorkey = 0;
     private $charset;
     private $forward_exceptions;
@@ -1138,12 +1146,14 @@ class libvcalendar implements Iterator
             else if (!empty($attendee['email'])) {
                 if (isset($attendee['rsvp']))
                     $attendee['rsvp'] = $attendee['rsvp'] ? 'TRUE' : null;
-                $ve->add('ATTENDEE', 'mailto:' . $attendee['email'], array_filter(self::map_keys($attendee, $this->attendee_keymap)));
+                $ve->add('ATTENDEE', 'mailto:' . $attendee['email'],
+                    array_filter(self::map_keys($attendee, $this->attendee_keymap)));
             }
         }
 
         if ($event['organizer']) {
-            $ve->add('ORGANIZER', 'mailto:' . $event['organizer']['email'], self::map_keys($event['organizer'], array('name' => 'CN')));
+            $ve->add('ORGANIZER', 'mailto:' . $event['organizer']['email'],
+                array_filter(self::map_keys($event['organizer'], $this->attendee_keymap)));
         }
 
         foreach ((array)$event['url'] as $url) {
