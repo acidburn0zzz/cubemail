@@ -366,7 +366,7 @@ abstract class kolab_format_xcal extends kolab_format
 
                 // set attendee RSVP if missing
                 if (!isset($attendee['rsvp'])) {
-                    $object['attendees'][$i]['rsvp'] = $attendee['rsvp'] = true;
+                    $object['attendees'][$i]['rsvp'] = $attendee['rsvp'] = $reschedule;
                 }
 
                 $att = new Attendee;
