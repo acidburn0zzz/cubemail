@@ -500,7 +500,7 @@ class libvcalendar implements Iterator
                     }
                 }
                 $attendee = self::map_keys($params, array_flip($this->attendee_keymap));
-                $attendee['email'] = preg_replace('/^mailto:/i', '', $value);
+                $attendee['email'] = preg_replace('!^mailto:!i', '', $value);
 
                 if ($prop->name == 'ORGANIZER') {
                     $attendee['role'] = 'ORGANIZER';
@@ -583,11 +583,9 @@ class libvcalendar implements Iterator
 
                 switch ($prop->name) {
                 case 'TRIGGER':
-                    foreach ($prop->parameters() as $pname => $pvalue) {
-                        if ($pname == 'VALUE' && $pvalue == 'DATE-TIME') {
-                            $trigger = '@' . $prop->getDateTime()->format('U');
-                            $alarm['trigger'] = $prop->getDateTime();
-                        }
+                    if ($prop['VALUE'] == 'DATE-TIME') {
+                        $trigger = '@' . $prop->getDateTime()->format('U');
+                        $alarm['trigger'] = $prop->getDateTime();
                     }
                     if (!$trigger && ($values = libcalendaring::parse_alaram_value($value))) {
                         $trigger = $values[2];
@@ -616,7 +614,7 @@ class libvcalendar implements Iterator
                     break;
 
                 case 'ATTENDEE':
-                    $alarm['attendees'][] = preg_replace('/^mailto:/i', '', $value);
+                    $alarm['attendees'][] = preg_replace('!^mailto:!i', '', $value);
                     break;
 
                 case 'ATTACH':
@@ -688,7 +686,7 @@ class libvcalendar implements Iterator
                 break;
 
             case 'ORGANIZER':
-                $this->freebusy['organizer'] = preg_replace('/^mailto:/i', '', $value);
+                $this->freebusy['organizer'] = preg_replace('!^mailto:!i', '', $value);
                 break;
 
             case 'FREEBUSY':
@@ -813,7 +811,7 @@ class libvcalendar implements Iterator
      * @param boolean Set as UTC date
      * @param boolean Set as VALUE=DATE property
      */
-    public function datetime_prop($cal, $name, $dt, $utc = false, $dateonly = null)
+    public function datetime_prop($cal, $name, $dt, $utc = false, $dateonly = null, $set_type = false)
     {
         if ($utc) {
             $dt->setTimeZone(new \DateTimeZone('UTC'));
@@ -823,11 +821,13 @@ class libvcalendar implements Iterator
             $is_utc = ($tz = $dt->getTimezone()) && in_array($tz->getName(), array('UTC','GMT','Z'));
         }
         $is_dateonly = $dateonly === null ? (bool)$dt->_dateonly : (bool)$dateonly;
-        $vdt = $cal->createProperty($name);
-        $vdt->setValue($dt);
+        $vdt = $cal->createProperty($name, $dt, null, $is_dateonly ? 'DATE' : 'DATE-TIME');
 
         if ($is_dateonly) {
             $vdt['VALUE'] = 'DATE';
+        }
+        else if ($set_type) {
+            $vdt['VALUE'] = 'DATE-TIME';
         }
 
         // register timezone for VTIMEZONE block
@@ -1055,7 +1055,7 @@ class libvcalendar implements Iterator
                 $va = $cal->createComponent('VALARM');
                 $va->action = $alarm['action'];
                 if ($alarm['trigger'] instanceof DateTime) {
-                    $va->add($this->datetime_prop($cal, 'TRIGGER', $alarm['trigger'], true));
+                    $va->add($this->datetime_prop($cal, 'TRIGGER', $alarm['trigger'], true, null, true));
                 }
                 else {
                     $va->add('TRIGGER', $alarm['trigger']);
@@ -1090,7 +1090,7 @@ class libvcalendar implements Iterator
             if ($val[3])
                 $va->add('TRIGGER', $val[3]);
             else if ($val[0] instanceof DateTime)
-                $va->add($this->datetime_prop($cal, 'TRIGGER', $val[0]));
+                $va->add($this->datetime_prop($cal, 'TRIGGER', $val[0], true, null, true));
             $ve->add($va);
         }
 
