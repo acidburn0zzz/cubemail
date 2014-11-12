@@ -218,13 +218,14 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('DISPLAY', $event['valarms'][0]['action'],  "First alarm action");
         $this->assertEquals('This is the first event reminder', $event['valarms'][0]['description'],  "First alarm text");
 
-        $this->assertEquals(2, count($event['valarms']), "List all VALARM blocks");
+        $this->assertEquals(3, count($event['valarms']), "List all VALARM blocks");
 
         $valarm = $event['valarms'][1];
         $this->assertEquals(1, count($valarm['attendees']), "Email alarm attendees");
         $this->assertEquals('EMAIL', $valarm['action'],  "Second alarm item (action)");
         $this->assertEquals('-P1D',  $valarm['trigger'], "Second alarm item (trigger)");
         $this->assertEquals('This is the reminder message',  $valarm['summary'], "Email alarm text");
+        $this->assertInstanceOf('DateTime', $event['valarms'][2]['trigger'], "Absolute trigger date/time");
 
         // test alarms export
         $ics = $ical->export(array($event));
@@ -233,6 +234,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertContains('DESCRIPTION:This is the first event reminder',    $ics, "Alarm description");
         $this->assertContains('SUMMARY:This is the reminder message',            $ics, "Email alarm summary");
         $this->assertContains('ATTENDEE:mailto:reminder-recipient@example.org',  $ics, "Email alarm recipient");
+        $this->assertContains('TRIGGER;VALUE=DATE-TIME:20130812',  $ics, "Date-Time trigger");
     }
 
     /**
