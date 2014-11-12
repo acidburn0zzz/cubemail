@@ -25,7 +25,7 @@
  * for the JavaScript code in this file.
  */
 
-window.rcmail && rcmail.addEventListener('init', function() {
+window.rcmail && window.files_api && rcmail.addEventListener('init', function() {
   if (rcmail.task == 'mail') {
     // mail compose
     if (rcmail.env.action == 'compose') {
@@ -994,7 +994,7 @@ rcube_webmail.prototype.files_print = function()
 
 rcube_webmail.prototype.files_set_quota = function(p)
 {
-  if (p.total) {
+  if (p.total && window.file_api) {
     p.used *= 1024;
     p.total *= 1024;
     p.title = file_api.file_size(p.used) + ' / ' + file_api.file_size(p.total)
