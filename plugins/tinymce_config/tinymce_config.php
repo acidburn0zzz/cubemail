@@ -3,7 +3,7 @@
 /**
  * Sample plugin to configure TinyMCE editor
  *
- * Copyright (C) 2011-2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,27 +22,27 @@
  */
 class tinymce_config extends rcube_plugin
 {
-  public $task = 'mail|settings';
+    public $task = 'mail|settings';
 
-  function init()
-  {
-    $this->add_hook('html_editor', array($this, 'config'));
-  }
+    function init()
+    {
+        $this->add_hook('html_editor', array($this, 'config'));
+    }
 
-  function config($args)
-  {
-    $rcmail = rcube::get_instance();
+    function config($args)
+    {
+        $config = array(
+            'forced_root_block' => '',
+            'force_p_newlines' => false,
+            'force_br_newlines' => true,
+        );
 
-    $config = array(
-        'forced_root_block' => '',
-        'force_p_newlines' => false,
-        'force_br_newlines' => true,
-    );
+        $rcmail = rcube::get_instance();
+        $var    = 'window.rcmail_editor_settings';
+        $script = sprintf("$var = \$.extend($var, %s);", json_encode($config));
 
-    $script = sprintf('$.extend(window.rcmail_editor_settings, %s);', json_encode($config));
+        $rcmail->output->add_script($script, 'foot');
 
-    $rcmail->output->add_script($script, 'foot');
-
-    return $args;
-  }
+        return $args;
+    }
 }
