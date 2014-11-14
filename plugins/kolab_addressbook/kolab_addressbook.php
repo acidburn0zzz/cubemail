@@ -248,7 +248,9 @@ class kolab_addressbook extends rcube_plugin
         }
 
         // set class name(s)
-        $classes = array($source['group'] ?: '000', 'addressbook');
+        $classes = array('addressbook');
+        if ($source['group'])
+            $classes[] = $source['group'];
         if ($current === $id)
             $classes[] = 'selected';
         if ($source['readonly'])
