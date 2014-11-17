@@ -127,18 +127,34 @@ class kolab_auth extends rcube_plugin
 
             foreach ($args['result'] as $name => $config) {
                 if (in_array($name, $kolab_books) || in_array('*', $kolab_books)) {
-                    $args['result'][$name]['base_dn']        = self::parse_ldap_vars($config['base_dn']);
-                    $args['result'][$name]['search_base_dn'] = self::parse_ldap_vars($config['search_base_dn']);
-                    $args['result'][$name]['bind_dn']        = str_replace('%dn', $_SESSION['kolab_dn'], $config['bind_dn']);
-
-                    if (!empty($config['groups'])) {
-                        $args['result'][$name]['groups']['base_dn'] = self::parse_ldap_vars($config['groups']['base_dn']);
-                    }
+                    $args['result'][$name] = $this->patch_ldap_config($config);
                 }
             }
         }
+        else if ($args['name'] == 'kolab_users_directory' && !empty($args['result'])) {
+            console($args);
+            $args['result'] = $this->patch_ldap_config($args['result']);
+        }
 
         return $args;
+    }
+
+    /**
+     * Helper method to patch the given LDAP directory config with user-specific values
+     */
+    protected function patch_ldap_config($config)
+    {
+        if (is_array($config)) {
+            $config['base_dn']        = self::parse_ldap_vars($config['base_dn']);
+            $config['search_base_dn'] = self::parse_ldap_vars($config['search_base_dn']);
+            $config['bind_dn']        = str_replace('%dn', $_SESSION['kolab_dn'], $config['bind_dn']);
+
+            if (!empty($config['groups'])) {
+                $config['groups']['base_dn'] = self::parse_ldap_vars($config['groups']['base_dn']);
+            }
+        }
+
+        return $config;
     }
 
     /**
