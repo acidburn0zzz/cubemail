@@ -132,7 +132,6 @@ class kolab_auth extends rcube_plugin
             }
         }
         else if ($args['name'] == 'kolab_users_directory' && !empty($args['result'])) {
-            console($args);
             $args['result'] = $this->patch_ldap_config($args['result']);
         }
 
