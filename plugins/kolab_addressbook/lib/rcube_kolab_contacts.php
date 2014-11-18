@@ -345,7 +345,7 @@ class rcube_kolab_contacts extends rcube_addressbook
             }
         }
         else {
-            $this->_fetch_contacts($query = array(), true);
+            $this->_fetch_contacts($query = 'contact', true);
         }
 
         if ($fetch_all) {
