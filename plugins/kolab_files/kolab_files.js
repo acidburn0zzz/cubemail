@@ -857,6 +857,41 @@ kolab_files_drag_hover = function(e)
   elem[e.type == 'dragover' ? 'addClass' : 'removeClass']('hover');
 };
 
+// returns localized file size
+kolab_files_file_size = function(size)
+{
+  var i, units = ['GB', 'MB', 'KB', 'B'];
+
+  size = file_api.file_size(size);
+
+  for (i = 0; i < units.length; i++)
+    if (size.toUpperCase().indexOf(units[i]) > 0)
+      return size.replace(units[i], rcmail.gettext(units[i]));
+
+  return size;
+};
+
+kolab_files_progress_str = function(param)
+{
+  var current, total = file_api.file_size(param.total).toUpperCase();
+
+  if (total.indexOf('GB') > 0)
+    current = parseFloat(param.current/1073741824).toFixed(1);
+  else if (total.indexOf('MB') > 0)
+    current = parseFloat(param.current/1048576).toFixed(1);
+  else if (total.indexOf('KB') > 0)
+    current = parseInt(param.current/1024);
+  else
+    current = param.current;
+
+  total = kolab_files_file_size(param.total);
+
+  return rcmail.gettext('uploadprogress')
+    .replace(/\$percent/, param.percent + '%')
+    .replace(/\$current/, current)
+    .replace(/\$total/, total);
+};
+
 
 /***********************************************************/
 /**********              Commands                 **********/
@@ -1062,6 +1097,7 @@ rcube_webmail.prototype.folder_mount = function()
 function kolab_files_ui()
 {
   this.requests = {};
+  this.uploads = [];
 
 /*
   // Called on "session expired" session
@@ -1832,7 +1868,7 @@ function kolab_files_ui()
         response = {status: 'ERROR'};
       }
 
-      rcmail.hide_message(event.data.ts);
+      file_api.file_upload_progress_stop(event.data.ts);
 
       // refresh the list on upload success
       file_api.file_upload_response(response);
@@ -1858,7 +1894,7 @@ function kolab_files_ui()
         size += files[i].size || files[i].fileSize;
 
       if (size > maxsize) {
-        alert(rcmail.get_label('kolab_files.uploadsizeerror').replace('$size', this.file_size(maxsize)));
+        alert(rcmail.get_label('kolab_files.uploadsizeerror').replace('$size', kolab_files_file_size(maxsize)));
         return false;
       }
     }
@@ -1869,21 +1905,25 @@ function kolab_files_ui()
   // post the given form to a hidden iframe
   this.file_upload_form = function(form, action, onload)
   {
-    var ts = rcmail.display_message(rcmail.get_label('kolab_files.uploading'), 'loading', 1000),
-      frame_name = 'fileupload'+ts;
-/*
+    var ts = new Date().getTime(),
+      frame_name = 'fileupload' + ts;
+
     // upload progress support
-    if (this.env.upload_progress_name) {
-      var fname = this.env.upload_progress_name,
+    if (rcmail.env.files_progress_name) {
+      var fname = rcmail.env.files_progress_name,
         field = $('input[name='+fname+']', form);
 
       if (!field.length) {
         field = $('<input>').attr({type: 'hidden', name: fname});
         field.prependTo(form);
       }
+
       field.val(ts);
+      this.file_upload_progress(ts, true);
     }
-*/
+
+    rcmail.display_progress({name: ts});
+
     // have to do it this way for IE
     // otherwise the form will be posted to a new window
     if (document.all) {
@@ -1903,7 +1943,7 @@ function kolab_files_ui()
 
     $(form).attr({
       target: frame_name,
-      action: this.env.url + this.url(action, {folder: this.env.folder, token: this.env.token, uploadid:ts}),
+      action: this.env.url + this.url(action, {folder: this.env.folder, token: this.env.token}),
       method: 'POST'
     }).attr(form.encoding ? 'encoding' : 'enctype', 'multipart/form-data')
       .submit();
@@ -1913,21 +1953,26 @@ function kolab_files_ui()
   // compose a multipart form data and submit it to the server
   this.file_drop = function(e)
   {
+    var files = e.target.files || e.dataTransfer.files;
+
+    if (!files || !files.length || !this.file_upload_size_check(files))
+      return;
+
     // prepare multipart form data composition
-    var files = e.target.files || e.dataTransfer.files,
+    var ts = new Date().getTime(),
       formdata = window.FormData ? new FormData() : null,
       fieldname = 'file[]',
       boundary = '------multipartformboundary' + (new Date).getTime(),
       dashdash = '--', crlf = '\r\n',
       multipart = dashdash + boundary + crlf;
 
-    if (!files || !files.length || !this.file_upload_size_check(files))
-      return;
-
     // inline function to submit the files to the server
     var submit_data = function() {
-      var multiple = files.length > 1,
-        ts = rcmail.display_message(rcmail.get_label('kolab_files.uploading'), 'loading', 1000);
+      var multiple = files.length > 1;
+
+      rcmail.display_progress({name: ts});
+      if (rcmail.env.files_progress_name)
+        file_api.file_upload_progress(ts, true);
 
       // complete multipart content and post request
       multipart += dashdash + boundary + dashdash + crlf;
@@ -1942,12 +1987,12 @@ function kolab_files_ui()
         data: formdata || multipart,
         headers: {'X-Session-Token': file_api.env.token},
         success: function(data) {
+          file_api.file_upload_progress_stop(ts);
           file_api.file_upload_response(data);
-          rcmail.hide_message(ts);
         },
         error: function(o, status, err) {
+          file_api.file_upload_progress_stop(ts);
           rcmail.http_error(o, status, err);
-          rcmail.hide_message(ts);
         },
         xhr: function() {
           var xhr = jQuery.ajaxSettings.xhr();
@@ -1957,6 +2002,16 @@ function kolab_files_ui()
         }
       });
     };
+
+    // upload progress supported (and handler exists)
+    // add progress ID to the request - need to be added before files
+    if (rcmail.env.files_progress_name) {
+      if (formdata)
+        formdata.append(rcmail.env.files_progress_name, ts);
+      else
+        multipart += 'Content-Disposition: form-data; name="' + rcmail.env.files_progress_name + '"'
+          + crlf + crlf + ts + crlf + dashdash + boundary + crlf;
+    }
 
     // get contents of all dropped files
     var f, j, i = 0, last = files.length - 1;
@@ -1997,6 +2052,50 @@ function kolab_files_ui()
       }
 
       j++;
+    }
+  };
+
+  // upload progress requests
+  this.file_upload_progress = function(id, init)
+  {
+    if (init && id)
+      this.uploads[id] = this.env.folder;
+
+    setTimeout(function() {
+      if (id && file_api.uploads[id])
+        file_api.request('upload_progress', {id: id}, 'file_upload_progress_response');
+    }, rcmail.env.files_progress_time * 1000);
+  };
+
+  // upload progress response
+  this.file_upload_progress_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    var param = response.result;
+
+    if (!param.id || !this.uploads[param.id])
+      return;
+
+    if (param.total) {
+      param.name = param.id;
+
+      if (!param.done)
+        param.text = kolab_files_progress_str(param);
+
+      rcmail.display_progress(param);
+    }
+
+    if (!param.done && param.total)
+      this.file_upload_progress(param.id);
+  };
+
+  this.file_upload_progress_stop = function(id)
+  {
+    if (id && this.uploads[id]) {
+      delete this.uploads[id];
+      rcmail.display_progress({name: id});
     }
   };
 
