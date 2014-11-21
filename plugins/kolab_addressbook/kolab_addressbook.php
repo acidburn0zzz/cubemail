@@ -102,7 +102,6 @@ class kolab_addressbook extends rcube_plugin
     public function address_sources($p)
     {
         $abook_prio = $this->addressbook_prio();
-        $undelete   = $this->rc->config->get('undo_timeout');
 
         // Disable all global address books
         // Assumes that all non-kolab_addressbook sources are global
@@ -239,7 +238,6 @@ class kolab_addressbook extends rcube_plugin
      */
     protected function addressbook_list_item($id, $source, &$jsdata, $search_mode = false)
     {
-        $folder  = $this->folders[$id];
         $current = rcube_utils::get_input_value('_source', rcube_utils::INPUT_GPC);
 
         if (!$source['virtual']) {
@@ -433,7 +431,6 @@ class kolab_addressbook extends rcube_plugin
             }
 
             // convert to UTF8 and sort
-            $names = array();
             foreach ($folders as $folder) {
                 // create instance of rcube_contacts
                 $abook_id = $folder->id;
@@ -632,7 +629,6 @@ class kolab_addressbook extends rcube_plugin
             $props['parent'] = kolab_storage::folder_id($kolab_folder->get_parent(), true);
 
             $this->rc->output->show_message('kolab_addressbook.book'.$type.'d', 'confirmation');
-            $this->rc->output->command('set_env', 'delimiter', $delimiter);
             $this->rc->output->command('book_update', $props, kolab_storage::folder_id($prop['oldname'], true));
             $this->rc->output->send('iframe');
         }

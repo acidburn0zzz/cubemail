@@ -148,7 +148,6 @@ class kolab_calendar extends kolab_storage_folder_api
    */
   public function get_caldav_url()
   {
-    $url = null;
     if ($template = $this->cal->rc->config->get('calendar_caldav_url', null)) {
       return strtr($template, array(
         '%h' => $_SERVER['HTTP_HOST'],

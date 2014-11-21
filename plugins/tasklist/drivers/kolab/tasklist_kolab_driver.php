@@ -92,7 +92,7 @@ class tasklist_kolab_driver extends tasklist_driver
         $prefs = $this->rc->config->get('kolab_tasklists', array());
 
         foreach ($folders as $folder) {
-            $tasklist = $this->folder_props($folder, $delim, $prefs);
+            $tasklist = $this->folder_props($folder, $prefs);
 
             $this->lists[$tasklist['id']] = $tasklist;
             $this->folders[$tasklist['id']] = $folder;
@@ -103,7 +103,7 @@ class tasklist_kolab_driver extends tasklist_driver
     /**
      * Derive list properties from the given kolab_storage_folder object
      */
-    protected function folder_props($folder, $delim, $prefs)
+    protected function folder_props($folder, $prefs)
     {
         if ($folder->get_namespace() == 'personal') {
             $norename = false;
@@ -179,7 +179,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         $lists = array();
         foreach ($folders as $folder) {
-            $list_id = $folder->id; #kolab_storage::folder_id($folder->name);
+            $list_id   = $folder->id; // kolab_storage::folder_id($folder->name);
             $imap_path = explode($delim, $folder->name);
 
             // find parent
@@ -225,7 +225,7 @@ class tasklist_kolab_driver extends tasklist_driver
             }
             else {
                 if (!$this->lists[$list_id]) {
-                    $this->lists[$list_id] = $this->folder_props($folder, $delim, $prefs);
+                    $this->lists[$list_id] = $this->folder_props($folder, $prefs);
                     $this->folders[$list_id] = $folder;
                 }
                 $this->lists[$list_id]['parent'] = $parent_id;
@@ -249,7 +249,7 @@ class tasklist_kolab_driver extends tasklist_driver
             $folder = kolab_storage::get_folder(kolab_storage::id_decode($id));
             if ($folder->type) {
                 $this->folders[$id] = $folder;
-                $this->lists[$id] = $this->folder_props($folder, $this->rc->get_storage()->get_hierarchy_delimiter(), $this->rc->config->get('kolab_tasklists', array()));
+                $this->lists[$id] = $this->folder_props($folder, $this->rc->config->get('kolab_tasklists', array()));
             }
         }
 
@@ -295,7 +295,7 @@ class tasklist_kolab_driver extends tasklist_driver
         }
         else {
             $folder = kolab_storage::get_folder($folder);
-            $prop += $this->folder_props($folder, $this->rc->get_storage()->get_hierarchy_delimiter(), array());
+            $prop += $this->folder_props($folder, array());
         }
 
         return $id;
@@ -413,13 +413,11 @@ class tasklist_kolab_driver extends tasklist_driver
         $this->search_more_results = false;
         $this->lists = $this->folders = array();
 
-        $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
-
         // find unsubscribed IMAP folders that have "event" type
         if ($source == 'folders') {
             foreach ((array)kolab_storage::search_folders('task', $query, array('other')) as $folder) {
                 $this->folders[$folder->id] = $folder;
-                $this->lists[$folder->id] = $this->folder_props($folder, $delim, array());
+                $this->lists[$folder->id] = $this->folder_props($folder, array());
             }
         }
         // search other user's namespace via LDAP
@@ -435,11 +433,11 @@ class tasklist_kolab_driver extends tasklist_driver
                 if (count($folders)) {
                     $userfolder = new kolab_storage_folder_user($user['kolabtargetfolder'], '', $user);
                     $this->folders[$userfolder->id] = $userfolder;
-                    $this->lists[$userfolder->id] = $this->folder_props($userfolder, $delim, array());
+                    $this->lists[$userfolder->id] = $this->folder_props($userfolder, array());
 
                     foreach ($folders as $folder) {
                         $this->folders[$folder->id] = $folder;
-                        $this->lists[$folder->id] = $this->folder_props($folder, $delim, array());
+                        $this->lists[$folder->id] = $this->folder_props($folder, array());
                         $count++;
                     }
                 }

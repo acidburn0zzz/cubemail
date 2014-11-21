@@ -463,7 +463,7 @@ class kolab_files_engine
             $inner   = $this->rc->gettext('listoptions');
 
             if (is_string($attrib['optionsmenuicon']) && $attrib['optionsmenuicon'] != 'true') {
-                $inner = html::img(array('src' => $skin_path . $attrib['optionsmenuicon'], 'alt' => $RCMAIL->gettext('listoptions')));
+                $inner = html::img(array('src' => $skin_path . $attrib['optionsmenuicon'], 'alt' => $this->rc->gettext('listoptions')));
             }
 
             $list_menu = html::a(array(

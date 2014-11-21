@@ -403,13 +403,13 @@ class kolab_storage
             'oldname' => $oldname, 'newname' => $newname));
 
         $oldfolder = self::get_folder($oldname);
-        $active = self::folder_is_active($oldname);
-        $success = self::$imap->rename_folder($oldname, $newname);
+        $active    = self::folder_is_active($oldname);
+        $success   = self::$imap->rename_folder($oldname, $newname);
         self::$last_error = self::$imap->get_error_str();
 
         // pass active state to new folder name
         if ($success && $active) {
-            self::set_state($oldnam, false);
+            self::set_state($oldname, false);
             self::set_state($newname, true);
         }
 
@@ -1086,7 +1086,7 @@ class kolab_storage
             return $types[self::CTYPE_KEY_PRIVATE];
         }
         else if (!empty($types[self::CTYPE_KEY])) {
-            list($ctype, $suffix) = explode('.', $types[self::CTYPE_KEY]);
+            list($ctype, ) = explode('.', $types[self::CTYPE_KEY]);
             return $ctype;
         }
         return null;
@@ -1464,7 +1464,7 @@ class kolab_storage
         $user_attrib = self::$config->get('kolab_users_id_attrib', self::$config->get('kolab_auth_login', 'mail'));
 
         array_walk($results, function(&$user, $dn) use ($root, $user_attrib) {
-            list($localpart, $domain) = explode('@', $user[$user_attrib]);
+            list($localpart, ) = explode('@', $user[$user_attrib]);
             $user['kolabtargetfolder'] = $root . $localpart;
         });
 

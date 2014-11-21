@@ -353,7 +353,7 @@ class libcalendaring_itip
         if ($existing) {
           $rsvp = $event['rsvp'];
           $emails = $this->lib->get_user_emails();
-          foreach ($existing['attendees'] as $i => $attendee) {
+          foreach ($existing['attendees'] as $attendee) {
             if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
               $status = strtoupper($attendee['status']);
               break;

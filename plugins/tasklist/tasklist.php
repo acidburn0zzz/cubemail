@@ -1605,7 +1605,7 @@ class tasklist extends rcube_plugin
     /**
      * Resolve the email message reference from the given URI
      */
-    public function get_message_reference($uri, $resolve = false)
+    public function get_message_reference($uri)
     {
         if (strpos($uri, 'imap:///') === 0) {
             $url = parse_url(substr($uri, 8));
@@ -1657,7 +1657,7 @@ class tasklist extends rcube_plugin
 
         if ($uid && $mime_id) {
             $part    = $imap->get_message_part($uid, $mime_id);
-            $headers = $imap->get_message_headers($uid);
+//            $headers = $imap->get_message_headers($uid);
 
             if ($part->ctype_parameters['charset']) {
                 $charset = $part->ctype_parameters['charset'];

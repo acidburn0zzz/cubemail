@@ -1186,7 +1186,7 @@ class database_driver extends calendar_driver
           " WHERE user_id=?",
           $user->ID);
 
-      while ($row = $db->fetch_assoc($calendars)) {
+      while ($row = $db->fetch_assoc($events)) {
           $event_ids[] = $row['event_id'];
       }
 

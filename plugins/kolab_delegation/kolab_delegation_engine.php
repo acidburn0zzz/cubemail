@@ -67,7 +67,6 @@ class kolab_delegation_engine
         }
 
         $list = $this->list_delegates();
-        $user = $this->user();
 
         // add delegate to the list
         $list = array_keys((array)$list);
@@ -448,7 +447,7 @@ class kolab_delegation_engine
             // sort users index
             asort($keys, SORT_LOCALE_STRING);
             // re-sort users according to index
-            foreach ($keys as $idx => $val) {
+            foreach (array_keys($keys) as $idx) {
                 $keys[$idx] = $users[$idx];
             }
             $users = array_values($keys);

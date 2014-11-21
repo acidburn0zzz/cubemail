@@ -154,7 +154,7 @@ class kolab_tags_engine
 
             // ...filter members by folder/uid prefix
             foreach ((array) $tag['members'] as $idx => $member) {
-                foreach ($filter as $folder => $members) {
+                foreach ($filter as $members) {
                     // list of prefixes
                     if (is_array($members)) {
                         foreach ($members as $message) {

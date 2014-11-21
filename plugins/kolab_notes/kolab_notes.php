@@ -893,7 +893,7 @@ class kolab_notes extends rcube_plugin
         if (!empty($args['param']['with_notes'])) {
             $uids = explode(',', $args['param']['with_notes']);
             $list = $args['param']['notes_list'];
-            $attachments = array();
+
             foreach ($uids as $uid) {
                 if ($note = $this->get_note(array('uid' => $uid, 'list' => $list))) {
                     $args['attachments'][] = array(

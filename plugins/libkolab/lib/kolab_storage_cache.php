@@ -431,7 +431,7 @@ class kolab_storage_cache
     /**
      * Remove all objects from local cache
      */
-    public function purge($type = null)
+    public function purge()
     {
         if (!$this->ready) {
             return true;

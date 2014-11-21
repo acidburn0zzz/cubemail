@@ -88,8 +88,6 @@ class kolab_auth extends rcube_plugin
      */
     public function startup($args)
     {
-        $rcmail = rcube::get_instance();
-
         // Check access rights when logged in as another user
         if (!empty($_SESSION['kolab_auth_admin']) && $args['task'] != 'login' && $args['task'] != 'logout') {
             // access to specified task is forbidden,

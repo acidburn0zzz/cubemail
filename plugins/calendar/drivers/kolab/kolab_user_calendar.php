@@ -225,7 +225,7 @@ class kolab_user_calendar extends kolab_calendar
     }
 
     $events = array();
-    foreach ($this->events as $id => $event) {
+    foreach ($this->events as $event) {
       // list events in requested time window
       if ($event['start'] <= $end_dt && $event['end'] >= $start_dt &&
            (!$limit_changed || !$event['changed'] || $event['changed'] >= $limit_changed)) {
@@ -310,8 +310,6 @@ class kolab_user_calendar extends kolab_calendar
       $ical = $this->cal->get_ical();
       $ical->import($fbdata);
       if ($fb = $ical->freebusy) {
-        $result = array();
-
         // consider 'changed >= X' queries
         if ($limit_changed && $fb['created'] && $fb['created'] < $limit_changed) {
           return 0;

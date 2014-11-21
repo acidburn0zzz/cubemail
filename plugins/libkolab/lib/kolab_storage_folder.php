@@ -360,7 +360,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
                         $object['_formatobj']->get_attachments($object);
                     }
 
-                    foreach ($object['_attachments'] as $k => $attach) {
+                    foreach ($object['_attachments'] as $attach) {
                         if ($attach['id'] == $part) {
                             if ($print)   echo $attach['content'];
                             else if ($fp) fwrite($fp, $attach['content']);
@@ -882,7 +882,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
         if (!empty($object['_attachments']) && ($mem_limit = parse_bytes(ini_get('memory_limit'))) > 0) {
             $memory = function_exists('memory_get_usage') ? memory_get_usage() : 16*1024*1024; // safe value: 16MB
 
-            foreach ($object['_attachments'] as $id => $attachment) {
+            foreach ($object['_attachments'] as $attachment) {
                 $memory += $attachment['size'];
             }
 

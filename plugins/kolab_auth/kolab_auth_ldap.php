@@ -57,8 +57,6 @@ class kolab_auth_ldap extends rcube_ldap_generic
     */
     private function _connect()
     {
-        $rcube = rcube::get_instance();
-
         // try to connect + bind for every host configured
         // with OpenLDAP 2.x ldap_connect() always succeeds but ldap_bind will fail if host isn't reachable
         // see http://www.php.net/manual/en/function.ldap-connect.php

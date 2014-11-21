@@ -98,7 +98,7 @@ class kolab_format_event extends kolab_format_xcal
             $vexceptions = new vectorevent;
             foreach((array)$object['recurrence']['EXCEPTIONS'] as $exception) {
                 $exevent = new kolab_format_event;
-                $exevent->set($this->compact_exception($exception, $object));  // only save differing values
+                $exevent->set($this->compact_exception($exception));  // only save differing values
                 $exevent->obj->setRecurrenceID(self::get_datetime($exception['start'], null, true), (bool)$exception['thisandfuture']);
                 $vexceptions->push($exevent->obj);
             }
@@ -207,7 +207,7 @@ class kolab_format_event extends kolab_format_xcal
     /**
      * Remove some attributes from the exception container
      */
-    private function compact_exception($exception, $master)
+    private function compact_exception($exception)
     {
       $forbidden = array('recurrence','organizer','attendees','sequence');
 

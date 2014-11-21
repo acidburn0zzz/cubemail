@@ -318,7 +318,7 @@ class libvcalendar implements Iterator
                     if (!$seen[$object['uid']]++) {
                         // parse recurrence exceptions
                         if ($object['recurrence']) {
-                            foreach ($vobject->children as $i => $component) {
+                            foreach ($vobject->children as $component) {
                                 if ($component->name == 'VEVENT' && isset($component->{'RECURRENCE-ID'})) {
                                     $object['recurrence']['EXCEPTIONS'][] = $this->_to_array($component);
                                 }
@@ -391,7 +391,6 @@ class libvcalendar implements Iterator
         }
 
         // map other attributes to internal fields
-        $_attendees = array();
         foreach ($ve->children as $prop) {
             if (!($prop instanceof VObject\Property))
                 continue;
@@ -857,7 +856,6 @@ class libvcalendar implements Iterator
      */
     public function export($objects, $method = null, $write = false, $get_attachment = false, $with_timezones = true)
     {
-        $memory_limit = parse_bytes(ini_get('memory_limit'));
         $this->method = $method;
 
         // encapsulate in VCALENDAR container
@@ -1095,10 +1093,13 @@ class libvcalendar implements Iterator
         if ($event['comment'])
             $ve->add('COMMENT', $event['comment']);
 
+        $memory_limit = parse_bytes(ini_get('memory_limit'));
+
         // export attachments
         if (!empty($event['attachments'])) {
             foreach ((array)$event['attachments'] as $attach) {
                 // check available memory and skip attachment export if we can't buffer it
+                // @todo: use rcube_utils::mem_check()
                 if (is_callable($get_attachment) && $memory_limit > 0 && ($memory_used = function_exists('memory_get_usage') ? memory_get_usage() : 16*1024*1024)
                     && $attach['size'] && $memory_used + $attach['size'] * 3 > $memory_limit) {
                     continue;

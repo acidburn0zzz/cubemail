@@ -213,7 +213,6 @@ class rcube_kolab_contacts extends rcube_addressbook
      */
     public function get_carddav_url()
     {
-      $url = null;
       $rcmail = rcmail::get_instance();
       if ($template = $rcmail->config->get('kolab_addressbook_carddav_url', null)) {
         return strtr($template, array(
@@ -443,7 +442,7 @@ class rcube_kolab_contacts extends rcube_addressbook
         $this->filter = array('fields' => $fields, 'value' => $value, 'mode' => $mode, 'ids' => array());
 
         // search by iterating over all records in dataset
-        foreach ($this->dataset as $i => $record) {
+        foreach ($this->dataset as $record) {
             $contact = $this->_to_rcube_contact($record);
             $id = $contact['ID'];
 

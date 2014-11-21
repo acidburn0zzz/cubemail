@@ -61,7 +61,6 @@ class calendar extends rcube_plugin
   private $ical;
   private $itip;
   private $driver;
-  private $ics_parts = array();
 
 
   /**
@@ -2469,7 +2468,7 @@ class calendar extends rcube_plugin
   public function mail_messages_list($p)
   {
     if (in_array('attachment', (array)$p['cols']) && !empty($p['messages'])) {
-      foreach ($p['messages'] as $i => $header) {
+      foreach ($p['messages'] as $header) {
         $part = new StdClass;
         $part->mimetype = $header->ctype;
         if (libcalendaring::part_is_vcalendar($part)) {
@@ -2873,7 +2872,7 @@ class calendar extends rcube_plugin
       $part = $imap->get_message_part($uid, $mime_id);
       if ($part->ctype_parameters['charset'])
         $charset = $part->ctype_parameters['charset'];
-      $headers = $imap->get_message_headers($uid);
+//      $headers = $imap->get_message_headers($uid);
 
       if ($part) {
         $events = $this->get_ical()->import($part, $charset);
