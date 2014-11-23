@@ -365,7 +365,14 @@ class rcube_kolab_contacts extends rcube_addressbook
             }
         }
         else if (isset($this->dataset)) {
-            $this->result->count = isset($query) ? $this->storagefolder->count($query) : 0;
+            // get all records count, skip the query if possible
+            if (!isset($query) || count($this->dataset) < $this->page_size) {
+                $this->result->count = count($this->dataset) + $this->page_size * ($this->list_page - 1);
+            }
+            else {
+                $this->result->count = $this->storagefolder->count($query);
+            }
+
             foreach ($this->dataset as $idx => $record) {
                 $this->result->add($this->_to_rcube_contact($record));
             }
