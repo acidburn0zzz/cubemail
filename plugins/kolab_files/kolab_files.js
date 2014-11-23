@@ -819,6 +819,9 @@ kolab_files_drag_drop_init = function(container)
     return;
   }
 
+  if (!container.length)
+    return;
+
   $(document.body).bind('dragover dragleave drop', function(e) {
     if (!file_api.env.folder)
       return;
