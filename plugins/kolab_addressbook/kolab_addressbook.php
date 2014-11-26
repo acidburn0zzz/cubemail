@@ -36,10 +36,10 @@ class kolab_addressbook extends rcube_plugin
     private $rc;
     private $ui;
 
-    const GLOBAL_FIRST   = 0;
+    const GLOBAL_FIRST = 0;
     const PERSONAL_FIRST = 1;
-    const GLOBAL_ONLY    = 2;
-    const PERSONAL_ONLY  = 3;
+    const GLOBAL_ONLY = 2;
+    const PERSONAL_ONLY = 3;
 
     /**
      * Startup method of a Roundcube plugin
@@ -381,7 +381,7 @@ class kolab_addressbook extends rcube_plugin
             $folder = kolab_storage::get_folder($id);
 
             // try with unencoded (old-style) identifier
-            if (!$folder || ($folder->type != 'contact' && $id != $p['id'])) {
+            if ((!$folder || $folder->type != 'contact') && $id != $p['id']) {
                 $folder = kolab_storage::get_folder($p['id']);
             }
 
