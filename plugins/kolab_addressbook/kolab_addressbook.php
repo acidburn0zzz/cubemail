@@ -36,10 +36,10 @@ class kolab_addressbook extends rcube_plugin
     private $rc;
     private $ui;
 
-    const GLOBAL_FIRST = 0;
+    const GLOBAL_FIRST   = 0;
     const PERSONAL_FIRST = 1;
-    const GLOBAL_ONLY = 2;
-    const PERSONAL_ONLY = 3;
+    const GLOBAL_ONLY    = 2;
+    const PERSONAL_ONLY  = 3;
 
     /**
      * Startup method of a Roundcube plugin
@@ -371,22 +371,22 @@ class kolab_addressbook extends rcube_plugin
     public function get_address_book($p)
     {
         if ($p['id']) {
-            $this->_list_sources();
-            if ($this->sources[$p['id']]) {
-                $p['instance'] = $this->sources[$p['id']];
+            $id = kolab_storage::id_decode($p['id']);
+
+            // check for falsely base64 decoded identifier
+            if (preg_match('![^A-Za-z0-9=/+&._ -]!', $id)) {
+                $id = $p['id'];
             }
-            else {
-                $id = kolab_storage::id_decode($p['id']);
-                if (preg_match('![^A-Za-z0-9=/+&._ -]!', $id))  // check for falsely base64 decoded identifier
-                    $id = $p['id'];
-                $folder = kolab_storage::get_folder($id);
-                if ($folder->type != 'contact' && $id != $p['id']) {  // try with unencoded (old-style) identifier
-                    $folder = kolab_storage::get_folder($p['id']);
-                }
-                if ($folder->type) {
-                    $this->sources[$p['id']] = new rcube_kolab_contacts($folder->name);
-                    $p['instance'] = $this->sources[$p['id']];
-                }
+
+            $folder = kolab_storage::get_folder($id);
+
+            // try with unencoded (old-style) identifier
+            if (!$folder || ($folder->type != 'contact' && $id != $p['id'])) {
+                $folder = kolab_storage::get_folder($p['id']);
+            }
+
+            if ($folder && $folder->type == 'contact') {
+                $p['instance'] = new rcube_kolab_contacts($folder->name);
             }
         }
 
