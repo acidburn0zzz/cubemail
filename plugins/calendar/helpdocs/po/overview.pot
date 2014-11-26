@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Roundcube Webmail Help 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-26 22:28+0100\n"
+"POT-Creation-Date: 2014-11-26 23:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -122,6 +122,10 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:95
 msgid "Events can be organized in different calendars which are all displayed in the lower left list. Use the checkboxes in that list to show or hide events from the specific calendars in the main view."
+msgstr ""
+
+#: ../../en_US/_plugins/calendar/overview.rst:100
+msgid "Beside your personal calendars, the list also displays calendars shared by other users or ones that are shared amongst your workgroup. Small icons in the list give a hint about the origin and some of them are possibly read-only which is denoted with a small lock icon."
 msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:106

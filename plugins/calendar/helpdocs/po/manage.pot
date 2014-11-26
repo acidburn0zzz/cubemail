@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Roundcube Webmail Help 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-26 22:28+0100\n"
+"POT-Creation-Date: 2014-11-26 23:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -226,6 +226,18 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/manage.rst:150
 msgid "Invitations will be sent out when you click *Save* and the event is created."
+msgstr ""
+
+#: ../../en_US/_plugins/calendar/manage.rst:158
+msgid "Find Availability"
+msgstr ""
+
+#: ../../en_US/_plugins/calendar/manage.rst:160
+msgid "Once all the participants are added to the list, you see the individual availability status for each one of them, given that this information is available. In case not everybody is free, click the *Find availability...* button to open the scheduling dialog. In that dialog, detailed availability information for all participants is displayed. Use the *Previous/Next Slot* buttons to find the next time slot where all required participants are available. Or drag the gray area representing the event duration with the mouse to manually select a free slot."
+msgstr ""
+
+#: ../../en_US/_plugins/calendar/manage.rst:166
+msgid "Click *Select* to copy the rescheduled date/time back into the event form and to close this dialog."
 msgstr ""
 
 #: ../../en_US/_plugins/calendar/manage.rst:170

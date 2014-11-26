@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Roundcube Webmail Help 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-26 22:28+0100\n"
+"POT-Creation-Date: 2014-11-26 23:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -102,6 +102,18 @@ msgstr ""
 
 #: ../../en_US/_plugins/tasks/manage.rst:53
 msgid "``Tasklist``: The list the task is saved in. Change it to move an event from one list to another."
+msgstr ""
+
+#: ../../en_US/_plugins/tasks/manage.rst:58
+msgid "**Attachments**"
+msgstr ""
+
+#: ../../en_US/_plugins/tasks/manage.rst:60
+msgid "Append files and documents related to this task directly as attachments. Switch to the Attachments tab to upload files to the current task or to remove them again. Adding files works pretty much the same as :ref:`attaching them to email messages <mail-compose-attachments>`: first select a file from your local disk and click *Upload* in order to attach it."
+msgstr ""
+
+#: ../../en_US/_plugins/tasks/manage.rst:65
+msgid "Don't forget to finally save the changes by clicking *Save* in the edit dialog. Switching back and forth the tabs will not yet save the data."
 msgstr ""
 
 #: ../../en_US/_plugins/tasks/manage.rst:72

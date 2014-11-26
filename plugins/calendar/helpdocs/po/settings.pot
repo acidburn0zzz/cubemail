@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Roundcube Webmail Help 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-26 22:28+0100\n"
+"POT-Creation-Date: 2014-11-26 23:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,6 +58,14 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:27
 msgid "When opening the day or week view, the listing of events starts at this time. Of course all hours of a day are visible by scrolling further up."
+msgstr ""
+
+#: ../../en_US/_plugins/calendar/settings.rst:33
+msgid "**Working hours**"
+msgstr ""
+
+#: ../../en_US/_plugins/calendar/settings.rst:33
+msgid "This time range will be used in the :ref:`availability finder <calendar-availability-finder>` when automatically selecting free slots for a meeting."
 msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:40
