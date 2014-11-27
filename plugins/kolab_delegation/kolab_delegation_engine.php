@@ -540,21 +540,6 @@ class kolab_delegation_engine
     }
 
     /**
-     * Returns current user identities
-     *
-     * @return array List of identities
-     */
-    public function user_identities()
-    {
-        // cache result in-memory, we need it more than once
-        if ($this->identities === null) {
-            $this->identities = $this->rc->user->list_identities();
-        }
-
-        return $this->identities;
-    }
-
-    /**
      * Update LDAP record of current user
      *
      * @param array List of delegates
@@ -596,7 +581,7 @@ class kolab_delegation_engine
 
         $delegators = $this->list_delegators();
         $use_subs   = $this->rc->config->get('kolab_use_subscriptions');
-        $identities = $this->user_identities();
+        $identities = $this->rc->user->list_emails();
         $emails     = array();
         $uids       = array();
 
@@ -611,10 +596,7 @@ class kolab_delegation_engine
             // get user name from default identity
             if (!$idx) {
                 $default = array(
-                    'name'           => $ident['name'],
-//                    'organization'   => $ident['organization'],
-//                    'signature'      => $ident['signature'],
-//                    'html_signature' => $ident['html_signature'],
+                    'name' => $ident['name'],
                 );
             }
             $emails[$ident['identity_id']] = $ident['email'];
@@ -738,7 +720,7 @@ class kolab_delegation_engine
             return;
         }
 
-        $identities = $this->user_identities();
+        $identities = $this->rc->user->list_emails();
         $emails     = $_SESSION['delegators'][$context];
 
         foreach ($identities as $ident) {
@@ -768,7 +750,7 @@ class kolab_delegation_engine
         }
         // return only user addresses (exclude all delegators addresses)
         else if (!empty($_SESSION['delegators'])) {
-            $identities = $this->user_identities();
+            $identities = $this->rc->user->list_emails();
             $emails[]   = $this->rc->user->get_username();
 
             foreach ($identities as $identity) {

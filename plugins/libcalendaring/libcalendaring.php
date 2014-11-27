@@ -381,7 +381,7 @@ class libcalendaring extends rcube_plugin
         }
 
         $emails[] = $this->rc->user->get_username();
-        foreach ($this->rc->user->list_identities() as $identity) {
+        foreach ($this->rc->user->list_emails() as $identity) {
             $emails[] = strtolower($identity['email']);
         }
 

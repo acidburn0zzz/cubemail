@@ -375,7 +375,7 @@ class calendar_ui
   {
     $attrib['name'] = 'identity';
     $select         = new html_select($attrib);
-    $identities     = $this->rc->user->list_identities();
+    $identities     = $this->rc->user->list_emails();
 
     foreach ($identities as $ident) {
         $select->add(format_email_recipient($ident['email'], $ident['name']), $ident['identity_id']);

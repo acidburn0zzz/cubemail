@@ -77,7 +77,7 @@ class tasklist_ui
         $settings['sort_order']    = $this->rc->config->get('tasklist_sort_order', 'asc');
 
         // get user identity to create default attendee
-        foreach ($this->rc->user->list_identities() as $rec) {
+        foreach ($this->rc->user->list_emails() as $rec) {
             if (!$identity)
                 $identity = $rec;
 
@@ -118,7 +118,7 @@ class tasklist_ui
     {
         $attrib['name'] = 'identity';
         $select         = new html_select($attrib);
-        $identities     = $this->rc->user->list_identities();
+        $identities     = $this->rc->user->list_emails();
 
         foreach ($identities as $ident) {
             $select->add(format_email_recipient($ident['email'], $ident['name']), $ident['identity_id']);

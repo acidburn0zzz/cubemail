@@ -1588,7 +1588,7 @@ class calendar extends rcube_plugin
 
     // get user identity to create default attendee
     if ($this->ui->screen == 'calendar') {
-      foreach ($this->rc->user->list_identities() as $rec) {
+      foreach ($this->rc->user->list_emails() as $rec) {
         if (!$identity)
           $identity = $rec;
         $identity['emails'][] = $rec['email'];
