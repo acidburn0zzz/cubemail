@@ -17,7 +17,6 @@ $labels['fromcloud'] = 'Uit de cloud...';
 $labels['selectfiles'] = 'Selecteer bestand(en) om toe te voegen...';
 $labels['attachsel'] = 'Voeg het geselekteerde toe';
 $labels['foldercreate'] = 'Creëer map';
-$labels['folderrename'] = 'Hernoem map';
 $labels['folderdelete'] = 'Verwijder map';
 $labels['folderinside'] = 'Insert inside';
 $labels['foldername'] = 'Map naam';

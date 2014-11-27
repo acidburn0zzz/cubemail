@@ -3,23 +3,24 @@
 # This file is distributed under the same license as the Roundcube Webmail Help package.
 # 
 # Translators:
+# Ettore Atalan <atalanttore@googlemail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Kolab Groupware Solution\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-26 23:28+0100\n"
-"PO-Revision-Date: 2014-11-26 22:26+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: German (Germany) (http://www.transifex.com/projects/p/kolab/language/de_DE/)\n"
+"PO-Revision-Date: 2014-11-26 23:11+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"Language-Team: German (http://www.transifex.com/projects/p/kolab/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: de_DE\n"
+"Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../../en_US/_plugins/tasks/overview.rst:6
 msgid "Overview"
-msgstr ""
+msgstr "Übersicht"
 
 #: ../../en_US/_plugins/tasks/overview.rst:8
 msgid ""
@@ -30,7 +31,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/tasks/overview.rst:16
 msgid "The Tasks List"
-msgstr ""
+msgstr "Die Aufgabenliste"
 
 #: ../../en_US/_plugins/tasks/overview.rst:18
 msgid ""
@@ -65,11 +66,11 @@ msgstr ""
 
 #: ../../en_US/_plugins/tasks/overview.rst:39
 msgid "Control the List"
-msgstr ""
+msgstr "Listensteuerung"
 
 #: ../../en_US/_plugins/tasks/overview.rst:42
 msgid "Quick Filters"
-msgstr ""
+msgstr "Schnellfilter"
 
 #: ../../en_US/_plugins/tasks/overview.rst:44
 msgid ""
@@ -80,7 +81,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/tasks/overview.rst:50
 msgid "Tags"
-msgstr ""
+msgstr "Schlagworte"
 
 #: ../../en_US/_plugins/tasks/overview.rst:52
 msgid ""
@@ -93,7 +94,7 @@ msgstr ""
 #: ../../en_US/_plugins/tasks/overview.rst:57
 #: ../../en_US/_plugins/tasks/overview.rst:83
 msgid "Task Lists"
-msgstr ""
+msgstr "Aufgabenliste"
 
 #: ../../en_US/_plugins/tasks/overview.rst:59
 msgid ""
@@ -107,7 +108,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/tasks/overview.rst:68
 msgid "Searching Tasks"
-msgstr ""
+msgstr "Aufgabensuche"
 
 #: ../../en_US/_plugins/tasks/overview.rst:70
 msgid ""
@@ -144,7 +145,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/tasks/overview.rst:92
 msgid "Create a Task List"
-msgstr ""
+msgstr "Aufgabenliste erstellten"
 
 #: ../../en_US/_plugins/tasks/overview.rst:94
 msgid "Click the + icon in the tasklists box footer."
@@ -156,11 +157,11 @@ msgstr ""
 
 #: ../../en_US/_plugins/tasks/overview.rst:96
 msgid "Click *Save* to create it."
-msgstr ""
+msgstr "Klicken Sie auf *Speichern* zum Erstellen."
 
 #: ../../en_US/_plugins/tasks/overview.rst:101
 msgid "Edit List Names and Settings"
-msgstr ""
+msgstr "Listennamen und Einstellungen bearbeiten"
 
 #: ../../en_US/_plugins/tasks/overview.rst:103
 #: ../../en_US/_plugins/tasks/overview.rst:111
@@ -183,7 +184,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/tasks/overview.rst:109
 msgid "Remove entire Task Lists"
-msgstr ""
+msgstr "Gesamte Aufgabenliste entfernen"
 
 #: ../../en_US/_plugins/tasks/overview.rst:112
 msgid ""

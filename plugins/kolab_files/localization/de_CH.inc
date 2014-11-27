@@ -7,6 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
 $labels['files'] = 'Dateien';
+$labels['create'] = 'Erstellen';
 $labels['save'] = 'Speichern';
 $labels['cancel'] = 'Abbrechen';
 $labels['folderinside'] = 'Erstellen in';

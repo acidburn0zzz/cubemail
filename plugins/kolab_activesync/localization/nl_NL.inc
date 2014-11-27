@@ -1,5 +1,6 @@
 <?php
 $labels['tabtitle'] = 'Activesync';
+$labels['activesynctitle'] = 'Beheer Activesync-apparaten';
 $labels['devices'] = 'Apparaten';
 $labels['devicealias'] = 'Apparaat naam';
 $labels['synchronize'] = 'Synchronizeren';

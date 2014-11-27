@@ -7,6 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
 $labels['files'] = 'Fichiers';
+$labels['filepreview'] = 'Fichier d\'aperçu';
 $labels['saveall'] = 'Enregistrer tout dans le nuage...';
 $labels['saveto'] = 'Enregistrer dans le nuage...';
 $labels['saveas'] = 'Enregistrer sous:';
@@ -17,7 +18,6 @@ $labels['fromcloud'] = 'Depuis le nuage...';
 $labels['selectfiles'] = 'Sélectionnez le(s) fichier(s) à attacher..';
 $labels['attachsel'] = 'Attachement sélectionné';
 $labels['foldercreate'] = 'Nouveau répertoire';
-$labels['folderrename'] = 'Renommer le répertoire';
 $labels['folderdelete'] = 'Supprimer le répertoire';
 $labels['folderinside'] = 'Ajouter à l\'intérieur';
 $labels['foldername'] = 'Nom du répertoire';
@@ -67,5 +67,16 @@ $labels['fileskipall'] = 'Ignorer tout';
 $labels['fileoverwrite'] = 'Écraser';
 $labels['fileoverwriteall'] = 'Écraser tout';
 $labels['filemoveconfirm'] = 'Cette action va écraser le fichier de destination : <b>$file</b>.';
+$labels['arialabelsearchform'] = 'Zone de recherche des fichiers';
+$labels['arialabelquicksearchbox'] = 'Champ de recherche';
+$labels['arialabellistoptions'] = 'Liste d\'options des fichiers';
+$labels['arialabelfolderoptions'] = 'Actions de dossier';
+$labels['arialabelfileeditform'] = 'Zone d\'édition de fichier';
+$labels['arialabelfoldercreateform'] = 'Zone de création de dossier';
+$labels['arialabelfolderlist'] = 'Sélection de dossier';
+$labels['arialabelfileselectdialog'] = ' Fenêtre de dialogue de sélection de fichier.';
+$labels['arialabelattachmentoptions'] = 'Options d\'enregistrement des pièces jointes';
+$labels['arialabelfilesavedialog'] = 'Boite de dialogue d\'enregistrement de fichier(s)';
 $labels['arialabelfileprops'] = 'Propriétés du fichier';
+$labels['arialabelfilecontent'] = 'Contenu de fichier';
 ?>

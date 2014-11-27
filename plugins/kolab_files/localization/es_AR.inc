@@ -18,7 +18,6 @@ $labels['fromcloud'] = 'De la nube...';
 $labels['selectfiles'] = 'Seleccionar archivo(s) para adjuntar...';
 $labels['attachsel'] = 'Adjunto seleccionado';
 $labels['foldercreate'] = 'Crear carpeta';
-$labels['folderrename'] = 'Renombrar carpeta';
 $labels['folderdelete'] = 'Eliminar carpeta';
 $labels['folderinside'] = 'Insertar dentro';
 $labels['foldername'] = 'Nombre de carpeta';

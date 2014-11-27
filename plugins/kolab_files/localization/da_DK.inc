@@ -17,7 +17,6 @@ $labels['fromcloud'] = 'Fra sky...';
 $labels['selectfiles'] = 'Vælg fil(er) til vedhæftning...';
 $labels['attachsel'] = 'Vedhæfte den valgte';
 $labels['foldercreate'] = 'Opret mappe';
-$labels['folderrename'] = 'Omdøb mappe';
 $labels['folderdelete'] = 'Slet mappe';
 $labels['folderinside'] = 'Indsæt indeni';
 $labels['foldername'] = 'Mappenavn';

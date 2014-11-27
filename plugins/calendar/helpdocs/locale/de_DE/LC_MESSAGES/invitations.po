@@ -3,18 +3,19 @@
 # This file is distributed under the same license as the Roundcube Webmail Help package.
 # 
 # Translators:
+# Ettore Atalan <atalanttore@googlemail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Kolab Groupware Solution\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-26 23:28+0100\n"
-"PO-Revision-Date: 2014-11-26 22:16+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: German (Germany) (http://www.transifex.com/projects/p/kolab/language/de_DE/)\n"
+"PO-Revision-Date: 2014-11-26 22:55+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"Language-Team: German (http://www.transifex.com/projects/p/kolab/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: de_DE\n"
+"Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../../en_US/_plugins/calendar/invitations.rst:8
@@ -31,7 +32,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/invitations.rst:17
 msgid "Receive Event Invitations"
-msgstr ""
+msgstr "Termineinladungen erhalten"
 
 #: ../../en_US/_plugins/calendar/invitations.rst:19
 msgid ""
@@ -41,7 +42,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/invitations.rst:25
 msgid "Accept/Decline Invitations"
-msgstr ""
+msgstr "Einladungen annehmen/ablehnen"
 
 #: ../../en_US/_plugins/calendar/invitations.rst:27
 msgid ""
@@ -74,7 +75,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/invitations.rst:43
 msgid "Process Invitation Replies"
-msgstr ""
+msgstr "Einladungsantworten abarbeiten"
 
 #: ../../en_US/_plugins/calendar/invitations.rst:45
 msgid ""

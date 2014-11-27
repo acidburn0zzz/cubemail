@@ -7,6 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
 $labels['tags'] = 'Etichette';
+$labels['add'] = 'Aggiungi';
 $labels['edit'] = 'Modifica';
 $labels['delete'] = 'Elimina';
 $labels['tagname'] = 'Nome';

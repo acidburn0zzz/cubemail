@@ -15,6 +15,7 @@ $labels['foldertypenote'] = 'Muistiot';
 $labels['foldertypecontact'] = 'Yhteystiedot';
 $labels['foldertypeconfiguration'] = 'Asetukset';
 $labels['foldertypefile'] = 'Tiedostot';
+$labels['foldertypefreebusy'] = 'Vapaa-varattu';
 $labels['default'] = 'Oletus';
 $labels['inbox'] = 'Saapuneet';
 $labels['drafts'] = 'Luonnokset';
@@ -22,4 +23,6 @@ $labels['sentitems'] = 'Lähetetyt';
 $labels['outbox'] = 'Lähtevät';
 $labels['wastebasket'] = 'Roskakori';
 $labels['junkemail'] = 'Roskaposti';
+$labels['confidential'] = 'Luottamuksellinen';
+$messages['defaultfolderexists'] = 'Määritetylle tyypille on jo olemassa oletuskansio';
 ?>

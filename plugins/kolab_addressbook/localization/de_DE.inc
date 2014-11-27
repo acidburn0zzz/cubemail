@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab Address Book plugin
  *
@@ -7,8 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
  */
-
-$labels = array();
 $labels['initials'] = 'Initialen';
 $labels['profession'] = 'Berufsbezeichnung';
 $labels['officelocation'] = 'Büro Adresse';
@@ -26,7 +23,6 @@ $labels['typeisdn'] = 'ISDN';
 $labels['typettytdd'] = 'Schreibtelefon';
 $labels['typecallback'] = 'Rückruf';
 $labels['settings'] = 'Einstellungen';
-
 $labels['bookcreate'] = 'Adressbuch anlegen';
 $labels['bookedit'] = 'Adressbuch bearbeiten';
 $labels['bookdelete'] = 'Adressbuch löschen';
@@ -36,13 +32,11 @@ $labels['bookname'] = 'Name des Buches';
 $labels['parentbook'] = 'Übergeordnetes Buch';
 $labels['bookshowurl'] = 'CardDAV URL anzeigen';
 $labels['carddavurldescription'] = 'Diese Adresse in einen <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a>-Klienten kopieren, um dasAdressbuch mit einem Computer oder mobilen Gerät zu synchronisieren.';
-
 $labels['addressbookprio'] = 'Reihenfolge der Adressbücher';
 $labels['personalfirst'] = 'Private(s) Adressbuch/Adressbücher zuerst';
 $labels['globalfirst'] = 'Globale(s) Adressbuch/Adressbücher zuerst';
 $labels['personalonly'] = 'Nur persönliche(s) Adressbuch/Adressbücher';
 $labels['globalonly'] = 'Nur globale(s) Adressbuch/Adressbücher';
-
 $labels['findaddressbooks'] = 'Adressbücher finden';
 $labels['searchterms'] = 'Suchbegriffe';
 $labels['listsearchresults'] = 'Zusätzliche Adressbücher';
@@ -50,7 +44,6 @@ $labels['foldersearchform'] = 'Suchformular für Adressbuch';
 $labels['foldersubscribe'] = 'Permanent anzeigen';
 $labels['nraddressbooksfound'] = '$nr Adressbücher gefunden';
 $labels['noaddressbooksfound'] = 'Keine Adressbücher gefunden';
-
 $messages['bookdeleteconfirm']  = 'Soll das gewählte Adressbuch und alle Kontakte darin wirklich gelöscht werden?';
 $messages['bookdeleting'] = 'Adressbuch wird gelöscht...';
 $messages['booksaving'] = 'Adressbuch wird gespeichert...';
@@ -62,5 +55,4 @@ $messages['bookupdateerror'] = 'Fehler beim Aktualisieren des Adressbuchs.';
 $messages['bookcreateerror'] = 'Fehler beim Anlegen des Adressbuchs.';
 $messages['nobooknamewarning'] = 'Bitte den Namen des Adressbuchs angeben.';
 $messages['noemailnamewarning'] = 'Bitte E-Mail-Adresse oder Namen des Kontakts angeben.';
-
 ?>

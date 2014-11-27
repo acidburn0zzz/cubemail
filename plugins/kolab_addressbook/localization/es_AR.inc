@@ -26,6 +26,7 @@ $labels['settings'] = 'Configuraciones';
 $labels['bookcreate'] = 'Crear libreta de direcciones';
 $labels['bookedit'] = 'Editar libreta de direcciones';
 $labels['bookdelete'] = 'Eliminar libreta de direcciones';
+$labels['bookremove'] = 'Eliminar de la lista';
 $labels['bookproperties'] = 'Propiedades de libreta de direcciones';
 $labels['bookname'] = 'Nombre de libro';
 $labels['parentbook'] = 'Libro superior';

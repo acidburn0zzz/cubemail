@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab Files plugin
  *
@@ -7,7 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
-
 $labels['files'] = 'Dateien';
 $labels['filepreview'] = 'Voransicht';
 $labels['saveall'] = 'Alle in die Cloud speichern...';
@@ -20,16 +18,12 @@ $labels['fromcloud'] = 'Aus der Cloud...';
 $labels['selectfiles'] = 'Datei(en) zum Anhängen auswählen...';
 $labels['attachsel'] = 'Ausgewählte anhängen';
 $labels['foldercreate'] = 'Ordner erstellen';
-$labels['folderedit'] = 'Edit folder';
-$labels['foldermount'] = 'Add storage';
 $labels['folderdelete'] = 'Ordner löschen';
-
 $labels['folderinside'] = 'Erstellen in';
 $labels['foldername'] = 'Ordnername';
 $labels['name'] = 'Name';
 $labels['mtime'] = 'Geändert';
 $labels['type'] = 'Typ';
-
 $labels['upload'] = 'Hochladen';
 $labels['uploadfile'] = 'Datei(en) hochladen';
 $labels['get'] = 'Herunterladen';
@@ -44,25 +38,17 @@ $labels['save'] = 'Speichern';
 $labels['savefile'] = 'Datei speichern';
 $labels['printfile'] = 'Datei drucken';
 $labels['fileedit'] = 'Dateieigenschaften';
-
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
 $labels['collection_image'] = 'Bilder';
 $labels['collection_document'] = 'Dokumente';
-
 $labels['uploading'] = 'Lade Datei(en) hoch...';
 $labels['attaching'] = 'Hänge Datei(en) an...';
-$labels['authenticating'] = 'Authenticating...';
 $labels['foldercreating'] = 'Erstelle Ordner...';
-$labels['folderupdating'] = 'Updating folder...';
-$labels['foldermounting'] = 'Adding external storage...';
 $labels['folderdeleting'] = 'Lösche Ordner...';
 $labels['folderdeleteconfirm'] = 'Sind Sie sicher, dass Sie den gewählten Ordner löschen möchten?';
 $labels['folderdeletenotice'] = 'Ordner erfolgreich gelöscht.';
-$labels['folderupdatenotice'] = 'Folder updated successfully.';
 $labels['foldercreatenotice'] = 'Ordner erfolgreich erstellt.';
-$labels['foldermountnotice'] = 'Storage added successfully.';
-$labels['folderauthtitle'] = 'Logon to $title';
 $labels['saveallnotice'] = '$n Datei(en) erfolgreich gespeichert.';
 $labels['saveallerror'] = 'Speichern von $n Datei(en) fehlgeschlagen.';
 $labels['attacherror'] = 'Anhängen von Datei(en) aus der Cloud fehlgeschlagen.';
@@ -75,31 +61,22 @@ $labels['filedeletenotice'] = 'Datei(en) erfolgreich gelöscht.';
 $labels['filemovenotice'] = 'Datei(en) erfolgreich verschoben.';
 $labels['filecopynotice'] = 'Datei(en) erfolgreich kopiert.';
 $labels['uploadsizeerror'] = 'Maimale Dateigröße ($size) überschritten!';
-
 $labels['allfolders'] = 'suche in allen Ordnern';
 $labels['fileskip'] = 'Überspringen';
 $labels['fileskipall'] = 'Alle überspringen';
 $labels['fileoverwrite'] = 'Überschreiben';
 $labels['fileoverwriteall'] = 'Alle überschreiben';
 $labels['filemoveconfirm'] = 'Diese Aktion wird die Zieldatei <b>$file</b> überschreiben.';
-
-$labels['storepasswords'] = 'remember password';
-$labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
-
 $labels['arialabelsearchform'] = 'Suchformular für Dateien';
 $labels['arialabelquicksearchbox'] = 'Sucheingabe';
 $labels['arialabellistoptions'] = 'Dateilisten Optionen';
 $labels['arialabelfolderoptions'] = 'Ordner Aktionen';
 $labels['arialabelfileeditform'] = 'Datei Bearbeiten Maske';
 $labels['arialabelfoldercreateform'] = 'Ordner Erstellen Maske';
-$labels['arialabelfoldereditform'] = 'Folder editing form';
-$labels['arialabelfoldermountform'] = 'External storage form';
-$labels['arialabelfolderauthform'] = 'External storage authentication form';
 $labels['arialabelfolderlist'] = 'Ordner / Sammlungs Auswahl';
 $labels['arialabelfileselectdialog'] = 'Datei Auswahl Dialog';
 $labels['arialabelattachmentoptions'] = 'Anhänge speichern Optionen';
 $labels['arialabelfilesavedialog'] = 'Datei(en) speichern Dialog';
 $labels['arialabelfileprops'] = 'Dateieigenschaften';
 $labels['arialabelfilecontent'] = 'Datei Inhalt';
-
 ?>

@@ -23,5 +23,6 @@ $labels['sentitems'] = 'Verzonden';
 $labels['outbox'] = 'Te versturen';
 $labels['wastebasket'] = 'Prullenbak';
 $labels['junkemail'] = 'Ongewenst';
+$labels['confidential'] = 'Vertrouwelijk';
 $messages['defaultfolderexists'] = 'Er is reeds een standaard map voor dit type inhoud';
 ?>

@@ -17,7 +17,6 @@ $labels['fromcloud'] = 'Fájlfelhőből...';
 $labels['selectfiles'] = 'Csatolmányok kiválasztása...';
 $labels['attachsel'] = 'Jelölt fájlok csatolása';
 $labels['foldercreate'] = 'Mappa létrehozása';
-$labels['folderrename'] = 'Mappa átnevezése';
 $labels['folderdelete'] = 'Mappa törlése';
 $labels['folderinside'] = 'Almappa ide';
 $labels['foldername'] = 'Mappa neve';

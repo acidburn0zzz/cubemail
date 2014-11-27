@@ -7,6 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
  */
 $labels['until'] = 'do';
+$labels['at'] = 'v';
 $labels['alarmemail'] = 'Poslat e-mail';
 $labels['alarmdisplay'] = 'Zobrazit zprávu';
 $labels['alarmdisplayoption'] = 'Zpráva';

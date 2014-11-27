@@ -26,6 +26,7 @@ $labels['settings'] = 'Настройки';
 $labels['bookcreate'] = 'Создать адресную книгу';
 $labels['bookedit'] = 'Редактировать адресную книгу';
 $labels['bookdelete'] = 'Удалить адресную книгу';
+$labels['bookremove'] = 'Удалить из списка';
 $labels['bookproperties'] = 'Параметры адресной книги';
 $labels['bookname'] = 'Название книги';
 $labels['parentbook'] = 'Родительская книга';

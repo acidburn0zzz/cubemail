@@ -31,6 +31,7 @@ $labels['findnotebooks'] = 'Encontrar libretas de notas...';
 $labels['listsearchresults'] = 'Libretas de notas adicionales';
 $labels['nrnotebooksfound'] = '$nr libretas de notas encontradas';
 $labels['nonotebooksfound'] = 'No se encontraron libretas de notas';
+$labels['removelist'] = 'Eliminar de la lista';
 $labels['savingdata'] = 'Guardando...';
 $labels['recordnotfound'] = 'Registro no encontrado';
 $labels['norecordsfound'] = 'No se encontraron notas';

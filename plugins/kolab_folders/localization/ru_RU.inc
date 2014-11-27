@@ -23,5 +23,6 @@ $labels['sentitems'] = 'Отправленные';
 $labels['outbox'] = 'Исходящие';
 $labels['wastebasket'] = 'Корзина';
 $labels['junkemail'] = 'Спам';
+$labels['confidential'] = 'Конфиденциально';
 $messages['defaultfolderexists'] = 'Уже назначен ящик по умолчанию для указанного типа';
 ?>

@@ -18,7 +18,6 @@ $labels['fromcloud'] = 'Z chmury...';
 $labels['selectfiles'] = 'Wybierz pliki do załączenia...';
 $labels['attachsel'] = 'Załącz wybrane';
 $labels['foldercreate'] = 'Utwórz folder';
-$labels['folderrename'] = 'Zmień nazwę folderu';
 $labels['folderdelete'] = 'Usuń folder';
 $labels['folderinside'] = 'Wstaw wewnątrz';
 $labels['foldername'] = 'Nazwa folderu';

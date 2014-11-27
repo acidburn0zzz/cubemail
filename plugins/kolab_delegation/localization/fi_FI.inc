@@ -7,6 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
 $labels['tabtitle'] = 'Edustus';
+$labels['delegationtitle'] = 'Hallitse edustajia';
 $labels['delegates'] = 'Edustajat';
 $labels['delegate'] = 'Edustaja';
 $labels['mail'] = 'Sähköposti';
@@ -30,4 +31,6 @@ $labels['updatesuccess'] = 'Edustaja päivitettiin onnistuneesti.';
 $labels['updateerror'] = 'Edustajan päivittäminen ei onnistunut.';
 $labels['createsuccess'] = 'Edustaja lisättiin onnistuneesti.';
 $labels['createerror'] = 'Edustajan lisääminen ei onnistunut.';
+$labels['arialabeldelegatedelete'] = 'Edustajien poistoikkuna';
+$labels['arialabeldelegateform'] = 'Edustajien ominaisuuslomake';
 ?>
