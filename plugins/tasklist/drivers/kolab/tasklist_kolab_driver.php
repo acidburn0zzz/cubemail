@@ -490,7 +490,7 @@ class tasklist_kolab_driver extends tasklist_driver
                 continue;
             }
             foreach ($folder->select(array(array('tags','!~','x-complete'))) as $record) {
-                $rec = $this->_to_rcube_task($record, $list_id);
+                $rec = $this->_to_rcube_task($record, $list_id, false);
 
                 if ($this->is_complete($rec))  // don't count complete tasks
                     continue;
@@ -691,7 +691,7 @@ class tasklist_kolab_driver extends tasklist_driver
                 if (!($record['valarms'] || $record['alarms']) || $record['status'] == 'COMPLETED' || $record['complete'] == 100)  // don't trust query :-)
                     continue;
 
-                $task = $this->_to_rcube_task($record, $lid);
+                $task = $this->_to_rcube_task($record, $lid, false);
 
                 // add to list if alarm is set
                 $alarm = libcalendaring::get_next_alarm($task, 'task');
@@ -923,7 +923,7 @@ class tasklist_kolab_driver extends tasklist_driver
     /**
      * Convert from Kolab_Format to internal representation
      */
-    private function _to_rcube_task($record, $list_id)
+    private function _to_rcube_task($record, $list_id, $all = true)
     {
         $id_prefix = $list_id . ':';
         $task = array(
@@ -941,9 +941,13 @@ class tasklist_kolab_driver extends tasklist_driver
             'organizer' => $record['organizer'],
             'sequence' => $record['sequence'],
             'tags' => $record['tags'],
-            'links' => $this->get_links($record['uid']),
             'list' => $list_id,
         );
+
+        // we can sometimes skip this expensive operation
+        if ($all) {
+            $task['links'] = $this->get_links($task['uid']);
+        }
 
         // convert from DateTime to internal date format
         if (is_a($record['due'], 'DateTime')) {
