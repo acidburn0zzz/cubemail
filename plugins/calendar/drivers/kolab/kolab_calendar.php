@@ -679,7 +679,7 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     // set current user as ORGANIZER
-    $identity = $this->cal->rc->user->get_identity();
+    $identity = $this->cal->rc->user->list_emails(true);
     if (empty($event['attendees']) && $identity['email'])
       $event['attendees'] = array(array('role' => 'ORGANIZER', 'name' => $identity['name'], 'email' => $identity['email']));
 

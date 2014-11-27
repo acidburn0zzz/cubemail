@@ -41,7 +41,7 @@ class libcalendaring_itip
         $this->domain = $domain;
 
         $hook = $this->rc->plugins->exec_hook('calendar_load_itip',
-            array('identity' => $this->rc->user->get_identity()));
+            array('identity' => $this->rc->user->list_emails(true)));
         $this->sender = $hook['identity'];
 
         $this->plugin->add_hook('message_before_send', array($this, 'before_send_hook'));
@@ -287,7 +287,7 @@ class libcalendaring_itip
         }
 
         $emails = $this->lib->get_user_emails();
-        $me = $this->rc->user->get_identity();
+        $me     = $this->rc->user->list_emails(true);
 
         // find/create the delegate attendee
         $delegate_attendee = array(

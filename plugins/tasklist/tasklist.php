@@ -1789,7 +1789,7 @@ class tasklist extends rcube_plugin
 
                 // add attendee with this user's default identity if not listed
                 if (!$reply_sender) {
-                    $sender_identity = $this->rc->user->get_identity();
+                    $sender_identity = $this->rc->user->list_emails(true);
                     $task['attendees'][] = array(
                         'name'   => $sender_identity['name'],
                         'email'  => $sender_identity['email'],
