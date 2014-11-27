@@ -97,7 +97,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
         }
 
         // compose fully qualified ressource uri for this instance
-        $this->resource_uri = 'imap://' . urlencode($this->get_owner()) . '@' . $this->imap->options['host'] . '/' . $subpath;
+        $this->resource_uri = 'imap://' . urlencode($this->get_owner(true)) . '@' . $this->imap->options['host'] . '/' . $subpath;
         return $this->resource_uri;
     }
 
