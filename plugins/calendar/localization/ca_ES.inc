@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for Kolab Calendar plugin
  *
@@ -6,6 +7,10 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
  */
+
+$labels = array();
+
+// preferences
 $labels['default_view'] = 'Vista per defecte';
 $labels['time_format'] = 'Format de l\'hora';
 $labels['timeslots'] = 'Espais de temps per hora';
@@ -27,6 +32,8 @@ $labels['afterflagdeleted'] = 'Marca\'l com a suprimit';
 $labels['aftermoveto'] = 'Mou a...';
 $labels['itipoptions'] = 'Invitacions a esdeveniments';
 $labels['afteraction'] = 'S\'envia un missatge després d\'una invitació o una actualització';
+
+// calendar
 $labels['calendar'] = 'Calendari';
 $labels['calendars'] = 'Calendaris';
 $labels['category'] = 'Categoria';
@@ -44,6 +51,7 @@ $labels['new_event'] = 'Nou esdeveniment';
 $labels['edit_event'] = 'Edita esdeveniment';
 $labels['edit'] = 'Edita';
 $labels['save'] = 'Desa';
+$labels['removelist'] = 'Remove from list';
 $labels['cancel'] = 'Cancel·la';
 $labels['select'] = 'Selecciona';
 $labels['print'] = 'Imprimeix';
@@ -112,6 +120,8 @@ $labels['invitationspending'] = 'Invitacions pendents';
 $labels['invitationsdeclined'] = 'Invitacions declinades';
 $labels['changepartstat'] = 'Canvia l\'estat d\'un participant';
 $labels['rsvpcomment'] = 'Text d\'invitació';
+
+// agenda view
 $labels['listrange'] = 'Rang per mostrar:';
 $labels['listsections'] = 'Divideix en:';
 $labels['smartsections'] = 'Seccions petites';
@@ -126,9 +136,13 @@ $labels['nextmonth'] = 'Mes vinent';
 $labels['weekofyear'] = 'Setmana';
 $labels['pastevents'] = 'Passat';
 $labels['futureevents'] = 'Futur';
+
+// alarm/reminder settings
 $labels['showalarms'] = 'Mostra els recordatoris';
 $labels['defaultalarmtype'] = 'Recordatori per defecte';
 $labels['defaultalarmoffset'] = 'Temps de recordatori per defecte';
+
+// attendees
 $labels['attendee'] = 'Participant';
 $labels['role'] = 'Rol';
 $labels['availability'] = 'Disp.';
@@ -168,20 +182,32 @@ $labels['eventupdatesubjectempty'] = 'Un esdeveniment que us afecta ha estat act
 $labels['eventupdatemailbody'] = "*\$title*\n\nQuan: \$date\n\nConvidats: \$attendees\n\nSi us plau cerqueu el fitxer iCalendar adjunt dins dels detalls actualitzats de l'esdeveniment per poder-lo importar a la vostra aplicació de calendari.";
 $labels['eventcancelsubject'] = '"$title" ha estat cancel·lat';
 $labels['eventcancelmailbody'] = "*\$title*\n\nQuan: \$date\n\nConvidats: \$attendees\n\nL'esdeveniment ha estat cancel·lat per \$organizer.\n\nSi us plau cerqueu el fitxer iCalendar adjunt amb els detalls actualitzats de l'esdeveniment.";
+
+// invitation handling (overrides labels from libcalendaring)
 $labels['itipobjectnotfound'] = 'L\'esdeveniment que fa referència aquest missatge no s\'ha trobat al vostre calendari.';
+
 $labels['itipmailbodyaccepted'] = "\$sender ha acceptat la invitació al següent esdeveniment:\n\n*\$title*\n\nQuan: \$date\n\nConvidats: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender ha acceptat provisionalment la invitació al següent esdeveniment:\n\n*\$title*\n\nQuan: \$date\n\nConvidats: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender ha declinat la invitació al següent esdeveniment:\n\n*\$title*\n\nQuan: \$date\n\nConvidats: \$attendees";
 $labels['itipmailbodycancel'] = "\$sender ha rebutjat la vostra participació en el següent esdeveniment:\n\n*\$title*\n\nQuan: \$date";
+$labels['itipmailbodydelegated'] = "\$sender has delegated the participation in the following event:\n\n*\$title*\n\nWhen: \$date";
+$labels['itipmailbodydelegatedto'] = "\$sender has delegated the participation in the following event to you:\n\n*\$title*\n\nWhen: \$date";
+
 $labels['itipdeclineevent'] = 'Voleu declinar la vostra invitació a aquest esdeveniment?';
 $labels['declinedeleteconfirm'] = 'Voleu també suprimir aquest esdeveniment declinat del vostre calendari?';
 $labels['itipcomment'] = 'Comentari de la invitació/notificació';
 $labels['itipcommenttitle'] = 'Aquest comentari serà adjuntat al missatge d\'invitació/notificació que s\'envia als participants';
+
 $labels['notanattendee'] = 'No sou a la llista d\'assistents d\'aquest esdeveniment';
 $labels['eventcancelled'] = 'L\'esdeveniment s\'ha cancel·lat.';
 $labels['saveincalendar'] = 'desa a';
 $labels['updatemycopy'] = 'Actualitza en el meu calendari';
 $labels['savetocalendar'] = 'Desa al calendari';
+$labels['openpreview'] = 'Check Calendar';
+$labels['noearlierevents'] = 'No earlier events';
+$labels['nolaterevents'] = 'No later events';
+
+// resources
 $labels['resource'] = 'Recurs';
 $labels['addresource'] = 'Recurs de llibre';
 $labels['findresources'] = 'Cerca recursos';
@@ -189,12 +215,16 @@ $labels['resourcedetails'] = 'Detalls';
 $labels['resourceavailability'] = 'Disponibilitat';
 $labels['resourceowner'] = 'Propietari';
 $labels['resourceadded'] = 'El recurs ha estat afegit al vostre esdeveniment';
+
+// event dialog tabs
 $labels['tabsummary'] = 'Resum';
 $labels['tabrecurrence'] = 'Periodicitat';
 $labels['tabattendees'] = 'Participants';
 $labels['tabresources'] = 'Recursos';
 $labels['tabattachments'] = 'Fitxers adjunts';
 $labels['tabsharing'] = 'Compartit';
+
+// messages
 $labels['deleteobjectconfirm'] = 'Esteu segur de voler suprimir aquest esdeveniment?';
 $labels['deleteventconfirm'] = 'Esteu segur de voler suprimir aquest esdeveniment?';
 $labels['deletecalendarconfirm'] = 'Esteu segurs de voler suprimir aquest calendari amb tots els seus esdeveniments?';
@@ -224,18 +254,25 @@ $labels['importsuccess'] = 'S\'han importat correctament $nr esdeveniments';
 $labels['importnone'] = 'No s\'ha trobat cap esdeveniment per importar';
 $labels['importerror'] = 'Hi ha hagut un error mentre s\'importava';
 $labels['aclnorights'] = 'No teniu drets d\'administrador en aquest calendari.';
+
 $labels['changeeventconfirm'] = 'Canvia l\'esdeveniment';
+$labels['removeeventconfirm'] = 'Delete event';
 $labels['changerecurringeventwarning'] = 'Aquest és un esdeveniment periòdic. Voleu editar només l\'esdeveniment actual, aquesta i totes les futures ocurrències, totes les ocurrències o desar-lo com un esdeveniment nou?';
+$labels['removerecurringeventwarning'] = 'This is a recurring event. Would you like to delete the current event only, this and all future occurences or all occurences of this event?';
 $labels['currentevent'] = 'Actual';
 $labels['futurevents'] = 'Futurs';
 $labels['allevents'] = 'Tots';
 $labels['saveasnew'] = 'Desa com a nou';
+
+// birthdays calendar
 $labels['birthdays'] = 'Aniversaris';
 $labels['birthdayscalendar'] = 'Calendari d\'aniversaris';
 $labels['displaybirthdayscalendar'] = 'Mostra el calendari d\'aniversaris';
 $labels['birthdayscalendarsources'] = 'D\'aquestes llibretes d\'adreces';
 $labels['birthdayeventtitle'] = 'Aniversari de $name';
 $labels['birthdayage'] = 'Edat $age';
+
+// history dialog
 $labels['eventchangelog'] = 'Canvia historial';
 $labels['eventdiff'] = 'Canvis de revisions $rev';
 $labels['revision'] = 'Revisió';
@@ -251,6 +288,9 @@ $labels['eventnotfound'] = 'No s\'han pogut carregar les dades d\'aquest esdeven
 $labels['eventchangelognotavailable'] = 'No està disponible canviar l\'historial d\'aquest esdeveniment';
 $labels['eventdiffnotavailable'] = 'No és possible comparar les revisions seleccionades';
 $labels['eventrestoreconfirm'] = 'Esteu segurs de voler restaurar la revisió $rev d\'aquest esdeveniment? Això substituirà l\'actual esdeveniment per una versió antiga.';
+
+
+// (hidden) titles and labels for accessibility annotations
 $labels['arialabelminical'] = 'Selecció de la data del calendari';
 $labels['arialabelcalendarview'] = 'Vista del calendari';
 $labels['arialabelsearchform'] = 'Formulari per cercar esdeveniments';
@@ -261,4 +301,5 @@ $labels['arialabeleventattendees'] = 'Llista de participants de l\'esdeveniment'
 $labels['arialabeleventresources'] = 'Llista de recursos de l\'esdeveniment';
 $labels['arialabelresourcesearchform'] = 'Formulari de cerca de recursos';
 $labels['arialabelresourceselection'] = 'Recursos disponibles';
+
 ?>

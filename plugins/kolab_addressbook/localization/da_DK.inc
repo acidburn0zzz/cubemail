@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Address Book plugin
  *
@@ -6,6 +7,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
  */
+
+$labels = array();
 $labels['initials'] = 'Initialer';
 $labels['profession'] = 'Stilling';
 $labels['officelocation'] = 'Arbejdsplads';
@@ -23,19 +26,31 @@ $labels['typeisdn'] = 'ISDN';
 $labels['typettytdd'] = 'TTY/TDD';
 $labels['typecallback'] = 'Tilbagekald';
 $labels['settings'] = 'Indstillinger';
+
 $labels['bookcreate'] = 'Opret adressebog';
 $labels['bookedit'] = 'Redigér adressebog';
 $labels['bookdelete'] = 'Slet adressebog';
+$labels['bookremove'] = 'Remove from list';
 $labels['bookproperties'] = 'Egenskaber for adressebog';
 $labels['bookname'] = 'Navn på bog';
 $labels['parentbook'] = 'Overordnet bog';
 $labels['bookshowurl'] = 'Vis CardDAV-URL';
 $labels['carddavurldescription'] = 'Kopiér denne adresse til et <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a>-klientprogram for komplet synkronisering af denne specifikke adressebog med din maskine eller mobilenhed.';
+
 $labels['addressbookprio'] = 'Markering/adfærd for adressebøger';
 $labels['personalfirst'] = 'Personlige adressebøger først';
 $labels['globalfirst'] = 'Globale adressebøger først';
 $labels['personalonly'] = 'Kun personlige adresse';
 $labels['globalonly'] = 'Kun globale adressebøger';
+
+$labels['findaddressbooks'] = 'Find address books';
+$labels['searchterms'] = 'Search terms';
+$labels['listsearchresults'] = 'Additional address books';
+$labels['foldersearchform'] = 'Address book search form';
+$labels['foldersubscribe'] = 'List permanently';
+$labels['nraddressbooksfound'] = '$nr address books found';
+$labels['noaddressbooksfound'] = 'No address books found';
+
 $messages['bookdeleteconfirm']  = 'Vil du virkelig slette den valgte adressebog og alle kontakterne i den?';
 $messages['bookdeleting'] = 'Sletter adressebog...';
 $messages['booksaving'] = 'Gemmer adressebog...';
@@ -47,4 +62,5 @@ $messages['bookupdateerror'] = 'Der opstod en fejl under opdatering af adressebo
 $messages['bookcreateerror'] = 'Der opstod en fejl under oprettelse af adressebogen.';
 $messages['nobooknamewarning'] = 'Angiv venligst navnet på adressebogen.';
 $messages['noemailnamewarning'] = 'Angiv venligst e-postadresse eller kontaktnavn.';
+
 ?>

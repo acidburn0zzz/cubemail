@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Address Book plugin
  *
@@ -6,6 +7,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
  */
+
+$labels = array();
 $labels['initials'] = 'Megszólítás';
 $labels['profession'] = 'Foglalkozás';
 $labels['officelocation'] = 'Irodai cím';
@@ -23,19 +26,31 @@ $labels['typeisdn'] = 'ISDN';
 $labels['typettytdd'] = 'Pager';
 $labels['typecallback'] = 'Pager';
 $labels['settings'] = 'Beállítások';
+
 $labels['bookcreate'] = 'Címjegyzék létrehozása';
 $labels['bookedit'] = 'Címjegyzék szerkesztése';
 $labels['bookdelete'] = 'Címjegyzék törlése';
+$labels['bookremove'] = 'Remove from list';
 $labels['bookproperties'] = 'Címjegyzék tulajdonságai';
 $labels['bookname'] = 'Címjegyzékmappa neve';
 $labels['parentbook'] = 'Szülőmappa';
 $labels['bookshowurl'] = 'Címjegyzék URL címe';
 $labels['carddavurldescription'] = 'Másolja be ezt a címet egy <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a>-kompatibilis kliensbe hogy kétirányú szinkronizációval tudjon a címjegyzékéhez onnan is hozzáférni.';
+
 $labels['addressbookprio'] = 'Címjegyzék használatának módja';
 $labels['personalfirst'] = 'Saját címjegyzék előbb';
 $labels['globalfirst'] = 'Központi címjegyzék előbb';
 $labels['personalonly'] = 'Csak saját címjegyzék';
 $labels['globalonly'] = 'Csak központi címjegyzék';
+
+$labels['findaddressbooks'] = 'Find address books';
+$labels['searchterms'] = 'Search terms';
+$labels['listsearchresults'] = 'Additional address books';
+$labels['foldersearchform'] = 'Address book search form';
+$labels['foldersubscribe'] = 'List permanently';
+$labels['nraddressbooksfound'] = '$nr address books found';
+$labels['noaddressbooksfound'] = 'No address books found';
+
 $messages['bookdeleteconfirm']  = 'Biztos benne, hogy törölni szeretné a kiválasztott címjegyzékett a benne lévő összes kapcsolattal?';
 $messages['bookdeleting'] = 'Címjegyzék törlése...';
 $messages['booksaving'] = 'Címjegyzék mentése...';
@@ -47,4 +62,5 @@ $messages['bookupdateerror'] = 'A címjegyzék frissítése során hiba lépett 
 $messages['bookcreateerror'] = 'A címjegyzék létrehozása során hiba lépett fel.';
 $messages['nobooknamewarning'] = 'Kérem, adja meg a címjegyzék nevét.';
 $messages['noemailnamewarning'] = 'Kérem, adja meg az e-mail címet vagy a kapcsolat nevét.';
+
 ?>
