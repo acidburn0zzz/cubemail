@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Tags plugin
  *
@@ -6,6 +7,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
+
 $labels['tags'] = 'Теги';
 $labels['unset'] = 'Снять все выделения';
 $labels['manage'] = 'Управление тегами...';

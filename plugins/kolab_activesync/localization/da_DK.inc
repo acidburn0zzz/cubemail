@@ -1,5 +1,7 @@
 <?php
+
 $labels['tabtitle'] = 'Activesync';
+$labels['activesynctitle'] = 'Manage Activesync devices';
 $labels['devices'] = 'Enheder';
 $labels['devicealias'] = 'Enhedsnavn';
 $labels['synchronize'] = 'Synkronisér';
@@ -28,4 +30,6 @@ $labels['friendlyname'] = 'Letlæseligt navn';
 $labels['os'] = 'Operativsystem';
 $labels['oslanguage'] = 'Sprog for OS';
 $labels['phonenumber'] = 'Telefonnummer';
+$labels['arialabeldeviceframe'] = 'Device synchronization settings form';
+
 ?>

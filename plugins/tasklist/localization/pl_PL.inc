@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Tasks plugin
  *
@@ -6,6 +7,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
  */
+
+$labels = array();
 $labels['navtitle'] = 'Zadania';
 $labels['lists'] = 'Listy zadań';
 $labels['list'] = 'Lista zadań';
@@ -16,6 +19,8 @@ $labels['findlists'] = 'Wyszukaj listy zadań...';
 $labels['searchterms'] = 'Szukana fraza';
 $labels['notasklistsfound'] = 'Nie znaleziono żanych list zadań';
 $labels['nrtasklistsfound'] = 'Znaleziono $nr list zadań';
+$labels['removelist'] = 'Remove from list';
+
 $labels['newtask'] = 'Nowe zadanie';
 $labels['createtask'] = 'Utwórz zadanie <Enter>';
 $labels['createnewtask'] = 'Utwórz nowe zadanie (n.p. sobota, skosić trawnik)';
@@ -27,15 +32,21 @@ $labels['delete'] = 'Usuń';
 $labels['title'] = 'Tytuł';
 $labels['description'] = 'Opis';
 $labels['datetime'] = 'Termin';
+$labels['duetime'] = 'Due time';
 $labels['start'] = 'Start';
 $labels['starttime'] = 'Początek';
 $labels['alarms'] = 'Przypomnienie';
 $labels['repeat'] = 'Powtórz';
+$labels['links'] = 'Reference';
 $labels['status'] = 'Status';
+$labels['status-needs-action'] = 'Needs action';
+$labels['status-in-process'] = 'In process';
+$labels['status-completed'] = 'Completed';
 $labels['status-cancelled'] = 'Anulowany';
 $labels['assignedto'] = 'Przypisane do';
 $labels['created'] = 'Utworzono';
 $labels['changed'] = 'Ostatnia modyfikacja';
+
 $labels['all'] = 'Wszystkie';
 $labels['flagged'] = 'Oflagowane';
 $labels['complete'] = 'Ukończone';
@@ -51,7 +62,9 @@ $labels['mytasks'] = 'Moje zadania';
 $labels['mytaskstitle'] = 'Zadania przypisane do ciebie';
 $labels['nodate'] = 'Bez daty';
 $labels['removetag'] = 'Usuń';
+$labels['removelink'] = 'Remove email reference';
 $labels['auto'] = 'Automatycznie';
+
 $labels['taskdetails'] = 'Szczegóły';
 $labels['newtask'] = 'Nowe zadanie';
 $labels['edittask'] = 'Edytuj zadanie';
@@ -63,11 +76,13 @@ $labels['deletetask'] = 'Usuń zadanie';
 $labels['deletethisonly'] = 'Usuń tylko to zadanie';
 $labels['deletewithchilds'] = 'Usuń z wszystkimi podzadaniami';
 $labels['taskactions'] = 'Opcje zadań...';
+
 $labels['tabsummary'] = 'Podsumowanie';
 $labels['tabrecurrence'] = 'Powtarzalność';
 $labels['tabassignments'] = 'Przypisania';
 $labels['tabattachments'] = 'Załączniki';
 $labels['tabsharing'] = 'Udostępnianie';
+
 $labels['editlist'] = 'Edytuj listę';
 $labels['createlist'] = 'Dodaj listę';
 $labels['listactions'] = 'Opcje listy...';
@@ -76,10 +91,14 @@ $labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'Importuj';
 $labels['viewactions'] = 'Podgląd akcji';
 $labels['focusview'] = 'Pokaż tylko tę listę';
+
+// date words
 $labels['on'] = 'na';
 $labels['at'] = 'w';
 $labels['this'] = 'ten';
 $labels['next'] = 'następny';
+
+// messages
 $labels['savingdata'] = 'Zapisuję dane...';
 $labels['errorsaving'] = 'Błąd podczas zapisu danych.';
 $labels['notasksfound'] = 'Nie znaleziono zadań spełniających kryteria';
@@ -92,6 +111,8 @@ $labels['aclnorights'] = 'Nie posiadasz praw administracyjnych do tej listy zada
 $labels['changetaskconfirm'] = 'Aktualizuj zadanie';
 $labels['changeconfirmnotifications'] = 'Czy chcesz powiadomić uczestników o tej modyfikacji?';
 $labels['partstatupdatenotification'] = 'Czy chcesz powiadomić organizatora o zmianie statusu?';
+
+// (hidden) titles and labels for accessibility annotations
 $labels['quickaddinput'] = 'Data i tytuł nowego zadania';
 $labels['arialabelquickaddbox'] = 'Szybkie tworzenie nowego zadania';
 $labels['arialabelsearchform'] = 'Formularz wyszukiwania zadań';
@@ -99,6 +120,8 @@ $labels['arialabelquicksearchbox'] = 'Fraza wyszukiwania';
 $labels['arialabellistsearchform'] = 'Formularz wyszukiwania list zadań';
 $labels['arialabeltaskselector'] = 'Tryb listy';
 $labels['arialabeltasklisting'] = 'Lista zadań';
+
+// attendees
 $labels['attendee'] = 'Przypisany';
 $labels['role'] = 'Rola';
 $labels['availability'] = 'Dostępny';
@@ -115,11 +138,57 @@ $labels['sendcancellation'] = 'Powiadom przypisanych o anulowaniu zadania';
 $labels['invitationsubject'] = 'Zostałeś przypisany do "$title"';
 $labels['invitationmailbody'] = "*\$title*\n\nDo kiedy: \$date\n\nPrzypisani: \$attendees\n\nW załączeniu plik w formacie iCalendar ze szczegółami zadania, który możesz zaimportować do twojej aplikacji listy zadań.";
 $labels['itipupdatesubject'] = '"$title" zostało zaktualizowane';
+$labels['itipupdatesubjectempty'] = 'A task that concerns you has been updated';
+$labels['itipupdatemailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nPlease find attached an iCalendar file with the updated task details which you can import to your tasks application.";
 $labels['itipcancelsubject'] = '"$title" zostało anulowane';
+$labels['itipcancelmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nThe task has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated task details.";
+$labels['saveintasklist'] = 'save in ';
+
+// invitation handling (overrides labels from libcalendaring)
+$labels['itipobjectnotfound'] = 'The task referred by this message was not found in your tasks list.';
+
+$labels['itipmailbodyaccepted'] = "\$sender has accepted the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
+$labels['itipmailbodytentative'] = "\$sender has tentatively accepted the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
+$labels['itipmailbodydeclined'] = "\$sender has declined the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
+$labels['itipmailbodycancel'] = "\$sender has rejected your assignment to the following task:\n\n*\$title*\n\nDue: \$date";
+$labels['itipmailbodyin-process'] = "\$sender has set the status of the following task to in-process:\n\n*\$title*\n\nDue: \$date";
+$labels['itipmailbodycompleted'] = "\$sender has completed the following task:\n\n*\$title*\n\nDue: \$date";
+$labels['itipmailbodydelegated'] = "\$sender has delegated the following task:\n\n*\$title*\n\nDue: \$date";
+$labels['itipmailbodydelegatedto'] = "\$sender has delegated the following task to you:\n\n*\$title*\n\nDue: \$date";
+
+$labels['attendeeaccepted'] = 'Assignee has accepted';
+$labels['attendeetentative'] = 'Assignee has tentatively accepted';
+$labels['attendeedeclined'] = 'Assignee has declined';
+$labels['attendeedelegated'] = 'Assignee has delegated to $delegatedto';
+$labels['attendeein-process'] = 'Assignee is in-process';
+$labels['attendeecompleted'] = 'Assignee has completed';
+
+$labels['acceptinvitation'] = 'Do you accept this assignment?';
+$labels['itipdeclinetask'] = 'Decline your assignment to this task to the organizer';
+$labels['declinedeleteconfirm'] = 'Do you also want to delete this declined task from your tasks list?';
 $labels['itipcomment'] = 'Komentarz zaproszenia/powiadomienia';
+$labels['itipcommenttitle'] = 'This comment will be attached to the invitation/notification message sent to assignees';
+$labels['itipsendsuccess'] = 'Notification sent to assignees';
+$labels['errornotifying'] = 'Failed to send notifications to task assignees';
+$labels['removefromcalendar'] = 'Remove from my tasks';
+$labels['delegateinvitation'] = 'Delegate assignment';
+
 $labels['andnmore'] = '$nr więcej...';
 $labels['delegatedto'] = 'Oddelegowany do:';
 $labels['delegatedfrom'] = 'Oddelegowany z:';
+$labels['savetotasklist'] = 'Save to tasks';
 $labels['comment'] = 'Komentarz';
+$labels['errorimportingtask'] = 'Failed to import task(s)';
+$labels['importwarningexists'] = 'A copy of this task already exists in your tasklist.';
+$labels['importsuccess'] = 'Successfully imported $nr tasks';
+$labels['newerversionexists'] = 'A newer version of this task already exists! Aborted.';
+$labels['nowritetasklistfound'] = 'No tasklist found to save the task';
+$labels['importedsuccessfully'] = 'The task was successfully added to \'$list\'';
+$labels['updatedsuccessfully'] = 'The task was successfully updated in \'$list\'';
 $labels['attendeupdateesuccess'] = 'Zaktualizowano status uczestnika.';
+$labels['itipresponseerror'] = 'Failed to send the response to this task assignment';
 $labels['itipinvalidrequest'] = 'To zaproszenie nie jest już aktualne.';
+$labels['sentresponseto'] = 'Successfully sent assignment response to $mailto';
+$labels['successremoval'] = 'The task has been deleted successfully.';
+
+$labels['arialabelsortmenu'] = 'Tasks sorting options';

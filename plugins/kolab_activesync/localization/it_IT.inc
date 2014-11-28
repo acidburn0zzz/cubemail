@@ -1,10 +1,13 @@
 <?php
+
 $labels['tabtitle'] = 'Activesync';
+$labels['activesynctitle'] = 'Gestisci dispositivi Activesync';
 $labels['devices'] = 'Dispositivi';
 $labels['devicealias'] = 'Nome dispositivo';
 $labels['synchronize'] = 'Sincronizza';
 $labels['withalarms'] = 'Con allarmi';
 $labels['syncsettings'] = 'Impostazioni sincronizzazione';
+$labels['deviceconfig'] = 'Configurazione del dispositivo';
 $labels['folderstosync'] = 'Cartelle da sincronizzare';
 $labels['mail'] = 'Email';
 $labels['contact'] = 'Rubriche';
@@ -13,6 +16,7 @@ $labels['task'] = 'Attività';
 $labels['note'] = 'Annotazioni';
 $labels['configuration'] = 'Configurazione';
 $labels['deletedevice'] = 'Elimina dispositivo';
+$labels['nodevices'] = 'Non vi sono al momento dispositivi registrati.<br/><br/>Per registrare un dispositivo, prima connettilo al server utilizzando <a href="http://wiki.kolab.org/Setup_ActiveSync">le istruzioni nel Wiki</a>. In seguito il dispositivo dovrebbe essere disponibile per la configurazione qui.';
 $labels['savingdata'] = 'Salvataggio dati...';
 $labels['savingerror'] = 'Impossibile salvare la configurazione';
 $labels['notsupported'] = 'Il tuo server non supporta i metadati/le annotazioni';
@@ -22,7 +26,10 @@ $labels['devicenotfound'] = 'Impossibile leggere la configurazione del dispositi
 $labels['devicetype'] = 'Tipo di dispositivo';
 $labels['acsversion'] = 'Versione protocollo';
 $labels['useragent'] = 'Agente utente';
+$labels['friendlyname'] = 'Nome descrittivo';
 $labels['os'] = 'Sistema operativo';
 $labels['oslanguage'] = 'Lingua SO';
 $labels['phonenumber'] = 'Numero di telefono';
+$labels['arialabeldeviceframe'] = 'Modulo impostazioni di sincronizzazione del dispositivo';
+
 ?>
