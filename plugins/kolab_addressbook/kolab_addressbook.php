@@ -466,8 +466,8 @@ class kolab_addressbook extends rcube_plugin
             $p['form']['personal']['content']['pkcs7publickey'] = array('size' => 70);
 
             // re-order fields according to the coltypes list
-            $p['form']['contact']['content']  = $this->_sort_form_fields($p['form']['contact']['content']);
-            $p['form']['personal']['content'] = $this->_sort_form_fields($p['form']['personal']['content']);
+            $p['form']['contact']['content']  = $this->_sort_form_fields($p['form']['contact']['content'], $GLOBALS['CONTACTS']);
+            $p['form']['personal']['content'] = $this->_sort_form_fields($p['form']['personal']['content'], $GLOBALS['CONTACTS']);
 
             /* define a separate section 'settings'
             $p['form']['settings'] = array(
@@ -485,12 +485,11 @@ class kolab_addressbook extends rcube_plugin
     }
 
 
-    private function _sort_form_fields($contents)
+    private function _sort_form_fields($contents, $source)
     {
-      $block    = array();
-      $contacts = reset($this->sources);
+      $block = array();
 
-      foreach (array_keys($contacts->coltypes) as $col) {
+      foreach (array_keys($source->coltypes) as $col) {
           if (isset($contents[$col]))
               $block[$col] = $contents[$col];
       }
