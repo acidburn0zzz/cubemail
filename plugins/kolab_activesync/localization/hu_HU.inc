@@ -1,5 +1,4 @@
 <?php
-
 $labels['tabtitle'] = 'Activesync';
 $labels['activesynctitle'] = 'Manage Activesync devices';
 $labels['devices'] = 'Készülékek';
@@ -31,5 +30,4 @@ $labels['os'] = 'Operációs rendszer';
 $labels['oslanguage'] = 'Készülék nyelve';
 $labels['phonenumber'] = 'Telefonszám';
 $labels['arialabeldeviceframe'] = 'Device synchronization settings form';
-
 ?>

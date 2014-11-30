@@ -6,4 +6,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
  */
+$labels['bookremove'] = 'Remove from list';
+$labels['searchterms'] = 'Search terms';
+$labels['foldersubscribe'] = 'List permanently';
 ?>

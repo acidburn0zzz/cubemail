@@ -44,6 +44,7 @@ $labels['new_event'] = 'Nou esdeveniment';
 $labels['edit_event'] = 'Edita esdeveniment';
 $labels['edit'] = 'Edita';
 $labels['save'] = 'Desa';
+$labels['removelist'] = 'Remove from list';
 $labels['cancel'] = 'Cancel·la';
 $labels['select'] = 'Selecciona';
 $labels['print'] = 'Imprimeix';

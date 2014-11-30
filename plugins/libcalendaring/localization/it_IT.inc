@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab calendaring utilities plugin
  *
@@ -7,14 +6,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
  */
-
-$labels = array();
-
-// words for spoken dates
 $labels['until'] = 'fino al';
 $labels['at'] = 'at';
-
-// alarms related labels
 $labels['alarmemail'] = 'Spedisci email';
 $labels['alarmdisplay'] = 'Mostra messaggio';
 $labels['alarmaudio'] = 'Play sound';
@@ -32,7 +25,6 @@ $labels['trigger+D'] = 'giorni dopo';
 $labels['triggerattime'] = 'at time';
 $labels['addalarm'] = 'Add alarm';
 $labels['removealarm'] = 'Remove alarm';
-
 $labels['alarmtitle'] = 'Prossimi eventi';
 $labels['dismissall'] = 'Scarta tutti';
 $labels['dismiss'] = 'Scarta';
@@ -42,10 +34,7 @@ $labels['repeatinhr'] = 'Ripeti tra 1 ora';
 $labels['repeatinhrs'] = 'Ripeti tra $hrs ore';
 $labels['repeattomorrow'] = 'Ripeti domani';
 $labels['repeatinweek'] = 'Ripeti tra una settimana';
-
 $labels['showmore'] = 'Mostra altro...';
-
-// recurrence related labels
 $labels['frequency'] = 'Frequenza';
 $labels['never'] = 'una volta';
 $labels['daily'] = 'quotidiana';
@@ -75,8 +64,6 @@ $labels['last'] = 'ultimo';
 $labels['dayofmonth'] = 'Giorno del mese';
 $labels['addrdate'] = 'Add repeat date';
 $labels['except'] = 'except';
-
-// itip related labels
 $labels['itipinvitation'] = 'Invito a';
 $labels['itipupdate'] = 'Aggiornamento di';
 $labels['itipcancellation'] = 'Annullato:';
@@ -90,7 +77,6 @@ $labels['itipcomment'] = 'Your response';
 $labels['itipeditresponse'] = 'Enter a response text';
 $labels['itipsendercomment'] = 'Sender\'s comment: ';
 $labels['itipsuppressreply'] = 'Do not send a response';
-
 $labels['itipobjectnotfound'] = 'L\'oggetto a cui si riferisce questo messaggio non è stato trovato nel tuo account.';
 $labels['itipsubjectaccepted'] = '"$title" è stato accettato da $name';
 $labels['itipsubjecttentative'] = '"$title" è stato accettato con riserva da $name';
@@ -100,14 +86,12 @@ $labels['itipsubjectcompleted'] = '"$title" was completed by $name';
 $labels['itipsubjectcancel'] = 'Your participation in "$title" has been cancelled';
 $labels['itipsubjectdelegated'] = '"$title" has been delegated by $name';
 $labels['itipsubjectdelegatedto'] = '"$title" has been delegated to you by $name';
-
 $labels['itipnewattendee'] = 'Questa è una risposta da un nuovo partecipante';
 $labels['updateattendeestatus'] = 'Aggiorna lo stato dei partecipanti';
 $labels['acceptinvitation'] = 'Accetti questo invito?';
 $labels['acceptattendee'] = 'Accept participant';
 $labels['declineattendee'] = 'Decline participant';
 $labels['declineattendeeconfirm'] = 'Enter a message to the declined participant (optional):';
-
 $labels['youhaveaccepted'] = 'Hai accettato questo invito';
 $labels['youhavetentative'] = 'Hai accettato con riserva questo invito';
 $labels['youhavedeclined'] = 'Hai rifiutato questo invito';
@@ -115,7 +99,6 @@ $labels['youhavedelegated'] = 'Hai delegato questo invito';
 $labels['youhavein-process'] = 'You are working on this assignment';
 $labels['youhavecompleted'] = 'You have completed this assignment';
 $labels['youhaveneeds-action'] = 'Your response to this invitation is still pending';
-
 $labels['youhavepreviouslyaccepted'] = 'You have previously accepted this invitation';
 $labels['youhavepreviouslytentative'] = 'You have previously accepted this invitation tentatively';
 $labels['youhavepreviouslydeclined'] = 'You have previously declined this invitation';
@@ -123,7 +106,6 @@ $labels['youhavepreviouslydelegated'] = 'You have previously delegated this invi
 $labels['youhavepreviouslyin-process'] = 'You have previously reported to work on this assignment';
 $labels['youhavepreviouslycompleted'] = 'You have previously completed this assignment';
 $labels['youhavepreviouslyneeds-action'] = 'Your response to this invitation is still pending';
-
 $labels['attendeeaccepted'] = 'Il partecipante ha accettato';
 $labels['attendeetentative'] = 'Il partecipante ha accettato con riserva';
 $labels['attendeedeclined'] = 'Il partecipante ha rifiutato';
@@ -132,25 +114,18 @@ $labels['attendeein-process'] = 'Participant is in-process';
 $labels['attendeecompleted'] = 'Participant has completed';
 $labels['notanattendee'] = 'Non sei nell\'elenco dei partecipanti per questo oggetto';
 $labels['outdatedinvitation'] = 'This invitation has been replaced by a newer version';
-
 $labels['importtocalendar'] = 'Salva nel mio calendario';
 $labels['removefromcalendar'] = 'Rimuovi dal mio calendario';
 $labels['updatemycopy'] = 'Aggiorna la mia copia';
 $labels['openpreview'] = 'Open Preview';
-
 $labels['deleteobjectconfirm'] = 'Vuoi davvero eliminare questo oggetto?';
 $labels['declinedeleteconfirm'] = 'Vuoi che l\'oggetto rifiutato venga eliminato anche dal tuo account?';
-
 $labels['delegateinvitation'] = 'Delegate Invitation';
 $labels['delegateto'] = 'Delegate to';
 $labels['delegatersvpme'] = 'Keep me informed about updates of this incidence';
 $labels['delegateinvalidaddress'] = 'Please enter a valid email address for the delegate';
-
 $labels['savingdata'] = 'Salvataggio dati...';
-
-// attendees labels
 $labels['expandattendeegroup'] = 'Substitute with group members';
 $labels['expandattendeegroupnodata'] = 'Unable to substitute this group. No members found.';
 $labels['expandattendeegrouperror'] = 'Unable to substitute this group. It might contain too many members.';
 $labels['expandattendeegroupsizelimit'] = 'This group contains too many members for substituting.';
-

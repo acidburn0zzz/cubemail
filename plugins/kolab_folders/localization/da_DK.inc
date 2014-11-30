@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab Folders plugin
  *
@@ -7,9 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
-
-$labels = array();
-
 $labels['folderctype'] = 'Indholdstype';
 $labels['foldertypemail'] = 'Post';
 $labels['foldertypeevent'] = 'Kalender';
@@ -20,7 +16,6 @@ $labels['foldertypecontact'] = 'Kontakter';
 $labels['foldertypeconfiguration'] = 'Konfiguration';
 $labels['foldertypefile'] = 'Filer';
 $labels['foldertypefreebusy'] = 'Ledig-optaget';
-
 $labels['default'] = 'Standard';
 $labels['inbox'] = 'Indbakke';
 $labels['drafts'] = 'Kladder';
@@ -29,7 +24,5 @@ $labels['outbox'] = 'Udbakke';
 $labels['wastebasket'] = 'Papirkurv';
 $labels['junkemail'] = 'Uønsket';
 $labels['confidential'] = 'Confidential';
-
 $messages['defaultfolderexists'] = 'Der er allerede en standardmapper med angive type';
-
 ?>

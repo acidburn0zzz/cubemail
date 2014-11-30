@@ -1,6 +1,4 @@
 <?php
-
-$labels = array();
 $labels['navtitle'] = 'ノート';
 $labels['tags'] = 'タグ';
 $labels['lists'] = 'Notebooks';
@@ -35,7 +33,6 @@ $labels['nrnotebooksfound'] = '$nr notebooks found';
 $labels['nonotebooksfound'] = 'No notebooks found';
 $labels['removelist'] = 'Remove from list';
 $labels['removelink'] = 'Remove email reference';
-
 $labels['savingdata'] = 'データを保存中…';
 $labels['recordnotfound'] = 'Record not found';
 $labels['norecordsfound'] = 'No notes found';
@@ -47,7 +44,6 @@ $labels['discardunsavedchanges'] = 'The current note has not yet been saved. Dis
 $labels['invalidlistproperties'] = 'Invalid notebook properties! Please set a valid name.';
 $labels['entertitle'] = 'Please enter a title for this note!';
 $labels['aclnorights'] = 'You do not have administrator rights for this notebook.';
-
 $labels['arialabelnoteslist'] = 'List of notes';
 $labels['arialabelnotesearchform'] = 'Notes search form';
 $labels['arialabelnotesquicksearchbox'] = 'Notes search input';

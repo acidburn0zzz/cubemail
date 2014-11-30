@@ -7,4 +7,5 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_auth/
  */
 $labels['loginas'] = 'Login come';
+$labels['loginasnotallowed'] = 'Nessun privilegio al login come $user';
 ?>

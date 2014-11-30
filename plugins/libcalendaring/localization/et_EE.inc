@@ -7,6 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
  */
 $labels['until'] = 'until';
+$labels['at'] = 'at';
 $labels['alarmemail'] = 'Send Email';
 $labels['alarmdisplay'] = 'Show message';
 $labels['alarmdisplayoption'] = 'Message';
@@ -55,4 +56,5 @@ $labels['fourth'] = 'fourth';
 $labels['last'] = 'last';
 $labels['dayofmonth'] = 'Day of month';
 $labels['addrdate'] = 'Add repeat date';
+$labels['itipdelegated'] = 'Delegate';
 $labels['savingdata'] = 'Saving data...';

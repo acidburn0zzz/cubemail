@@ -52,3 +52,4 @@ $labels['arialabelnotesoptionsmenu'] = 'Nabídka činností pro zápisník';
 $labels['arialabelnotebookform'] = 'Vlastnosti zápisníku';
 $labels['arialabelmessagereferences'] = 'Odkazované zprávy elektronické pošty';
 $labels['arialabelfolderearchform'] = 'Hledání zápisníků';
+$labels['arialabelnoteform'] = 'Úprava poznámky';

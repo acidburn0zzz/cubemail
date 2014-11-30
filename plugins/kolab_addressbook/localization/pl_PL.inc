@@ -26,6 +26,7 @@ $labels['settings'] = 'Ustawienia';
 $labels['bookcreate'] = 'Utwórz książkę adresową';
 $labels['bookedit'] = 'Edytuj książkę adresową';
 $labels['bookdelete'] = 'Usuń książkę adresową';
+$labels['bookremove'] = 'Remove from list';
 $labels['bookproperties'] = 'Właściwości książki adresowej';
 $labels['bookname'] = 'Nazwa książki';
 $labels['parentbook'] = 'Nadrzędna książka';

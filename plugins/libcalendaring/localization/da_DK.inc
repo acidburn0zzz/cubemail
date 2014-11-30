@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab calendaring utilities plugin
  *
@@ -7,14 +6,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
  */
-
-$labels = array();
-
-// words for spoken dates
 $labels['until'] = 'indtil';
 $labels['at'] = 'ved';
-
-// alarms related labels
 $labels['alarmemail'] = 'Afsend e-post';
 $labels['alarmdisplay'] = 'Vis besked';
 $labels['alarmaudio'] = 'Play sound';
@@ -32,7 +25,6 @@ $labels['trigger+D'] = 'dage efter';
 $labels['triggerattime'] = 'at time';
 $labels['addalarm'] = 'Add alarm';
 $labels['removealarm'] = 'Remove alarm';
-
 $labels['alarmtitle'] = 'Kommende arrangementer';
 $labels['dismissall'] = 'Afvis alle';
 $labels['dismiss'] = 'Afvis';
@@ -42,10 +34,7 @@ $labels['repeatinhr'] = 'Gentag om 1 time';
 $labels['repeatinhrs'] = 'Gentag om $hrs timer';
 $labels['repeattomorrow'] = 'Gentag i morgen';
 $labels['repeatinweek'] = 'Gentag om en uge';
-
 $labels['showmore'] = 'Vis mere ...';
-
-// recurrence related labels
 $labels['frequency'] = 'Gentag';
 $labels['never'] = 'aldrig';
 $labels['daily'] = 'dagligt';
@@ -75,8 +64,6 @@ $labels['last'] = 'sidste';
 $labels['dayofmonth'] = 'Dag på måneden';
 $labels['addrdate'] = 'Add repeat date';
 $labels['except'] = 'except';
-
-// itip related labels
 $labels['itipinvitation'] = 'Invitation til';
 $labels['itipupdate'] = 'Opdatering per';
 $labels['itipcancellation'] = 'Aflyst:';
@@ -90,7 +77,6 @@ $labels['itipcomment'] = 'Your response';
 $labels['itipeditresponse'] = 'Enter a response text';
 $labels['itipsendercomment'] = 'Sender\'s comment: ';
 $labels['itipsuppressreply'] = 'Do not send a response';
-
 $labels['itipobjectnotfound'] = 'The object referred by this message was not found in your account.';
 $labels['itipsubjectaccepted'] = '"$title" er blevet accepteret af $name';
 $labels['itipsubjecttentative'] = '"$title" er blevet forsøgsvist accepteret af $name';
@@ -100,14 +86,12 @@ $labels['itipsubjectcompleted'] = '"$title" was completed by $name';
 $labels['itipsubjectcancel'] = 'Your participation in "$title" has been cancelled';
 $labels['itipsubjectdelegated'] = '"$title" has been delegated by $name';
 $labels['itipsubjectdelegatedto'] = '"$title" has been delegated to you by $name';
-
 $labels['itipnewattendee'] = 'This is a reply from a new participant';
 $labels['updateattendeestatus'] = 'Opdatér status for deltagere';
 $labels['acceptinvitation'] = 'Vil du acceptere denne invitation?';
 $labels['acceptattendee'] = 'Accept participant';
 $labels['declineattendee'] = 'Decline participant';
 $labels['declineattendeeconfirm'] = 'Enter a message to the declined participant (optional):';
-
 $labels['youhaveaccepted'] = 'Du har accepteret denne invitation';
 $labels['youhavetentative'] = 'Du har forsøgsvist accepteret denne invitation';
 $labels['youhavedeclined'] = 'Du har afvist denne invitation';
@@ -115,7 +99,6 @@ $labels['youhavedelegated'] = 'You have delegated this invitation';
 $labels['youhavein-process'] = 'You are working on this assignment';
 $labels['youhavecompleted'] = 'You have completed this assignment';
 $labels['youhaveneeds-action'] = 'Your response to this invitation is still pending';
-
 $labels['youhavepreviouslyaccepted'] = 'You have previously accepted this invitation';
 $labels['youhavepreviouslytentative'] = 'You have previously accepted this invitation tentatively';
 $labels['youhavepreviouslydeclined'] = 'You have previously declined this invitation';
@@ -123,7 +106,6 @@ $labels['youhavepreviouslydelegated'] = 'You have previously delegated this invi
 $labels['youhavepreviouslyin-process'] = 'You have previously reported to work on this assignment';
 $labels['youhavepreviouslycompleted'] = 'You have previously completed this assignment';
 $labels['youhavepreviouslyneeds-action'] = 'Your response to this invitation is still pending';
-
 $labels['attendeeaccepted'] = 'Participant has accepted';
 $labels['attendeetentative'] = 'Participant has tentatively accepted';
 $labels['attendeedeclined'] = 'Participant has declined';
@@ -132,25 +114,18 @@ $labels['attendeein-process'] = 'Participant is in-process';
 $labels['attendeecompleted'] = 'Participant has completed';
 $labels['notanattendee'] = 'You\'re not listed as an attendee of this object';
 $labels['outdatedinvitation'] = 'This invitation has been replaced by a newer version';
-
 $labels['importtocalendar'] = 'Gem i min kalender';
 $labels['removefromcalendar'] = 'Fjern fra min kalender';
 $labels['updatemycopy'] = 'Update my copy';
 $labels['openpreview'] = 'Open Preview';
-
 $labels['deleteobjectconfirm'] = 'Do you really want to delete this object?';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined object from your account?';
-
 $labels['delegateinvitation'] = 'Delegate Invitation';
 $labels['delegateto'] = 'Delegate to';
 $labels['delegatersvpme'] = 'Keep me informed about updates of this incidence';
 $labels['delegateinvalidaddress'] = 'Please enter a valid email address for the delegate';
-
 $labels['savingdata'] = 'Gemmer data...';
-
-// attendees labels
 $labels['expandattendeegroup'] = 'Substitute with group members';
 $labels['expandattendeegroupnodata'] = 'Unable to substitute this group. No members found.';
 $labels['expandattendeegrouperror'] = 'Unable to substitute this group. It might contain too many members.';
 $labels['expandattendeegroupsizelimit'] = 'This group contains too many members for substituting.';
-

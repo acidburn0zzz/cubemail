@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab calendaring utilities plugin
  *
@@ -7,14 +6,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
  */
-
-$labels = array();
-
-// words for spoken dates
 $labels['until'] = 'Eddig';
 $labels['at'] = 'időpont';
-
-// alarms related labels
 $labels['alarmemail'] = 'E-mail küldése';
 $labels['alarmdisplay'] = 'Üzenet megjelenítése';
 $labels['alarmaudio'] = 'Play sound';
@@ -32,7 +25,6 @@ $labels['trigger+D'] = 'nappal utána';
 $labels['triggerattime'] = 'at time';
 $labels['addalarm'] = 'Add alarm';
 $labels['removealarm'] = 'Remove alarm';
-
 $labels['alarmtitle'] = 'Következő események';
 $labels['dismissall'] = 'Az összes emlékeztető mellőzése';
 $labels['dismiss'] = 'Nem emlékettet újra';
@@ -42,10 +34,7 @@ $labels['repeatinhr'] = 'Emlékeztessen újra 1 óra múlva';
 $labels['repeatinhrs'] = 'Emlékeztessen újra $hrs óra múlva';
 $labels['repeattomorrow'] = 'Emlékeztessen újra holnap';
 $labels['repeatinweek'] = 'Emlékeztessen újra egy hét múlva';
-
 $labels['showmore'] = 'Tovább...';
-
-// recurrence related labels
 $labels['frequency'] = 'Ismétlődik';
 $labels['never'] = 'soha';
 $labels['daily'] = 'naponta';
@@ -75,8 +64,6 @@ $labels['last'] = 'utolsó';
 $labels['dayofmonth'] = 'hónap napja';
 $labels['addrdate'] = 'Ismétlési dátum hozzáadása';
 $labels['except'] = 'except';
-
-// itip related labels
 $labels['itipinvitation'] = 'Új esemény:';
 $labels['itipupdate'] = 'Módosítva:';
 $labels['itipcancellation'] = 'Lemondva:';
@@ -90,7 +77,6 @@ $labels['itipcomment'] = 'Megjegyzés';
 $labels['itipeditresponse'] = 'Kérem, adjon meg egy választ';
 $labels['itipsendercomment'] = 'A feladó megjegyzése: ';
 $labels['itipsuppressreply'] = 'Do not send a response';
-
 $labels['itipobjectnotfound'] = 'A hivatkozott elem nem található az Ön fiókjában.';
 $labels['itipsubjectaccepted'] = '$title - elfogadva';
 $labels['itipsubjecttentative'] = '$title - feltételesen elfogadva';
@@ -100,14 +86,12 @@ $labels['itipsubjectcompleted'] = '"$title" was completed by $name';
 $labels['itipsubjectcancel'] = '$title - lemondva';
 $labels['itipsubjectdelegated'] = '"$title" has been delegated by $name';
 $labels['itipsubjectdelegatedto'] = '"$title" has been delegated to you by $name';
-
 $labels['itipnewattendee'] = 'Válasz új résztvevőtől';
 $labels['updateattendeestatus'] = 'A résztvevő státuszának frissítése';
 $labels['acceptinvitation'] = 'Elfogadja ezt a meghívást?';
 $labels['acceptattendee'] = 'Részvétel elfogadása';
 $labels['declineattendee'] = 'Részvétel elutasítása';
 $labels['declineattendeeconfirm'] = 'Megjegyzés az elutasított részvevőnek (opcionális):';
-
 $labels['youhaveaccepted'] = 'Ön elfogadta ezt a meghívást';
 $labels['youhavetentative'] = 'Ön feltételesen elfogadta ezt a meghívást';
 $labels['youhavedeclined'] = 'Ön elutasította ezt a meghívást';
@@ -115,7 +99,6 @@ $labels['youhavedelegated'] = 'Ön meghatalmazással továbbadta ezt a meghívá
 $labels['youhavein-process'] = 'You are working on this assignment';
 $labels['youhavecompleted'] = 'You have completed this assignment';
 $labels['youhaveneeds-action'] = 'Your response to this invitation is still pending';
-
 $labels['youhavepreviouslyaccepted'] = 'You have previously accepted this invitation';
 $labels['youhavepreviouslytentative'] = 'You have previously accepted this invitation tentatively';
 $labels['youhavepreviouslydeclined'] = 'You have previously declined this invitation';
@@ -123,7 +106,6 @@ $labels['youhavepreviouslydelegated'] = 'You have previously delegated this invi
 $labels['youhavepreviouslyin-process'] = 'You have previously reported to work on this assignment';
 $labels['youhavepreviouslycompleted'] = 'You have previously completed this assignment';
 $labels['youhavepreviouslyneeds-action'] = 'Your response to this invitation is still pending';
-
 $labels['attendeeaccepted'] = 'A résztvevő elfogadta';
 $labels['attendeetentative'] = 'A résztvevő feltételesen elfogadta';
 $labels['attendeedeclined'] = 'A résztvevő elutasította';
@@ -132,25 +114,18 @@ $labels['attendeein-process'] = 'Participant is in-process';
 $labels['attendeecompleted'] = 'Participant has completed';
 $labels['notanattendee'] = 'Ön nem szerepel az esemény meghívottai között';
 $labels['outdatedinvitation'] = 'This invitation has been replaced by a newer version';
-
 $labels['importtocalendar'] = 'Mentés naptárba';
 $labels['removefromcalendar'] = 'Törlés a naptárból';
 $labels['updatemycopy'] = 'Naptárbejegyzés frissítése';
 $labels['openpreview'] = 'Open Preview';
-
 $labels['deleteobjectconfirm'] = 'Biztos benne, hogy törölni szeretné ezt az elemet?';
 $labels['declinedeleteconfirm'] = 'Biztos benne, hogy törölni szeretné ezt az elutasított elemet a fiókjából?';
-
 $labels['delegateinvitation'] = 'Delegate Invitation';
 $labels['delegateto'] = 'Delegate to';
 $labels['delegatersvpme'] = 'Keep me informed about updates of this incidence';
 $labels['delegateinvalidaddress'] = 'Please enter a valid email address for the delegate';
-
 $labels['savingdata'] = 'Adatok mentése...';
-
-// attendees labels
 $labels['expandattendeegroup'] = 'Substitute with group members';
 $labels['expandattendeegroupnodata'] = 'Unable to substitute this group. No members found.';
 $labels['expandattendeegrouperror'] = 'Unable to substitute this group. It might contain too many members.';
 $labels['expandattendeegroupsizelimit'] = 'This group contains too many members for substituting.';
-

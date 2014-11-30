@@ -44,6 +44,7 @@ $labels['new_event'] = 'Nowe zdarzenie';
 $labels['edit_event'] = 'Edytuj zdarzenie';
 $labels['edit'] = 'Edytuj';
 $labels['save'] = 'Zapisz';
+$labels['removelist'] = 'Remove from list';
 $labels['cancel'] = 'Anuluj';
 $labels['select'] = 'Wybierz';
 $labels['print'] = 'Drukuj';

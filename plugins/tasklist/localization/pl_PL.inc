@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab Tasks plugin
  *
@@ -7,8 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
  */
-
-$labels = array();
 $labels['navtitle'] = 'Zadania';
 $labels['lists'] = 'Listy zadań';
 $labels['list'] = 'Lista zadań';
@@ -20,7 +17,6 @@ $labels['searchterms'] = 'Szukana fraza';
 $labels['notasklistsfound'] = 'Nie znaleziono żanych list zadań';
 $labels['nrtasklistsfound'] = 'Znaleziono $nr list zadań';
 $labels['removelist'] = 'Remove from list';
-
 $labels['newtask'] = 'Nowe zadanie';
 $labels['createtask'] = 'Utwórz zadanie <Enter>';
 $labels['createnewtask'] = 'Utwórz nowe zadanie (n.p. sobota, skosić trawnik)';
@@ -46,7 +42,6 @@ $labels['status-cancelled'] = 'Anulowany';
 $labels['assignedto'] = 'Przypisane do';
 $labels['created'] = 'Utworzono';
 $labels['changed'] = 'Ostatnia modyfikacja';
-
 $labels['all'] = 'Wszystkie';
 $labels['flagged'] = 'Oflagowane';
 $labels['complete'] = 'Ukończone';
@@ -64,7 +59,6 @@ $labels['nodate'] = 'Bez daty';
 $labels['removetag'] = 'Usuń';
 $labels['removelink'] = 'Remove email reference';
 $labels['auto'] = 'Automatycznie';
-
 $labels['taskdetails'] = 'Szczegóły';
 $labels['newtask'] = 'Nowe zadanie';
 $labels['edittask'] = 'Edytuj zadanie';
@@ -76,13 +70,11 @@ $labels['deletetask'] = 'Usuń zadanie';
 $labels['deletethisonly'] = 'Usuń tylko to zadanie';
 $labels['deletewithchilds'] = 'Usuń z wszystkimi podzadaniami';
 $labels['taskactions'] = 'Opcje zadań...';
-
 $labels['tabsummary'] = 'Podsumowanie';
 $labels['tabrecurrence'] = 'Powtarzalność';
 $labels['tabassignments'] = 'Przypisania';
 $labels['tabattachments'] = 'Załączniki';
 $labels['tabsharing'] = 'Udostępnianie';
-
 $labels['editlist'] = 'Edytuj listę';
 $labels['createlist'] = 'Dodaj listę';
 $labels['listactions'] = 'Opcje listy...';
@@ -91,14 +83,10 @@ $labels['showalarms'] = 'Show reminders';
 $labels['import'] = 'Importuj';
 $labels['viewactions'] = 'Podgląd akcji';
 $labels['focusview'] = 'Pokaż tylko tę listę';
-
-// date words
 $labels['on'] = 'na';
 $labels['at'] = 'w';
 $labels['this'] = 'ten';
 $labels['next'] = 'następny';
-
-// messages
 $labels['savingdata'] = 'Zapisuję dane...';
 $labels['errorsaving'] = 'Błąd podczas zapisu danych.';
 $labels['notasksfound'] = 'Nie znaleziono zadań spełniających kryteria';
@@ -111,8 +99,6 @@ $labels['aclnorights'] = 'Nie posiadasz praw administracyjnych do tej listy zada
 $labels['changetaskconfirm'] = 'Aktualizuj zadanie';
 $labels['changeconfirmnotifications'] = 'Czy chcesz powiadomić uczestników o tej modyfikacji?';
 $labels['partstatupdatenotification'] = 'Czy chcesz powiadomić organizatora o zmianie statusu?';
-
-// (hidden) titles and labels for accessibility annotations
 $labels['quickaddinput'] = 'Data i tytuł nowego zadania';
 $labels['arialabelquickaddbox'] = 'Szybkie tworzenie nowego zadania';
 $labels['arialabelsearchform'] = 'Formularz wyszukiwania zadań';
@@ -120,8 +106,6 @@ $labels['arialabelquicksearchbox'] = 'Fraza wyszukiwania';
 $labels['arialabellistsearchform'] = 'Formularz wyszukiwania list zadań';
 $labels['arialabeltaskselector'] = 'Tryb listy';
 $labels['arialabeltasklisting'] = 'Lista zadań';
-
-// attendees
 $labels['attendee'] = 'Przypisany';
 $labels['role'] = 'Rola';
 $labels['availability'] = 'Dostępny';
@@ -143,10 +127,7 @@ $labels['itipupdatemailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attend
 $labels['itipcancelsubject'] = '"$title" zostało anulowane';
 $labels['itipcancelmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nThe task has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated task details.";
 $labels['saveintasklist'] = 'save in ';
-
-// invitation handling (overrides labels from libcalendaring)
 $labels['itipobjectnotfound'] = 'The task referred by this message was not found in your tasks list.';
-
 $labels['itipmailbodyaccepted'] = "\$sender has accepted the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender has tentatively accepted the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender has declined the assignment to the following task:\n\n*\$title*\n\nDue: \$date\n\nAssignees: \$attendees";
@@ -155,14 +136,12 @@ $labels['itipmailbodyin-process'] = "\$sender has set the status of the followin
 $labels['itipmailbodycompleted'] = "\$sender has completed the following task:\n\n*\$title*\n\nDue: \$date";
 $labels['itipmailbodydelegated'] = "\$sender has delegated the following task:\n\n*\$title*\n\nDue: \$date";
 $labels['itipmailbodydelegatedto'] = "\$sender has delegated the following task to you:\n\n*\$title*\n\nDue: \$date";
-
 $labels['attendeeaccepted'] = 'Assignee has accepted';
 $labels['attendeetentative'] = 'Assignee has tentatively accepted';
 $labels['attendeedeclined'] = 'Assignee has declined';
 $labels['attendeedelegated'] = 'Assignee has delegated to $delegatedto';
 $labels['attendeein-process'] = 'Assignee is in-process';
 $labels['attendeecompleted'] = 'Assignee has completed';
-
 $labels['acceptinvitation'] = 'Do you accept this assignment?';
 $labels['itipdeclinetask'] = 'Decline your assignment to this task to the organizer';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined task from your tasks list?';
@@ -172,7 +151,6 @@ $labels['itipsendsuccess'] = 'Notification sent to assignees';
 $labels['errornotifying'] = 'Failed to send notifications to task assignees';
 $labels['removefromcalendar'] = 'Remove from my tasks';
 $labels['delegateinvitation'] = 'Delegate assignment';
-
 $labels['andnmore'] = '$nr więcej...';
 $labels['delegatedto'] = 'Oddelegowany do:';
 $labels['delegatedfrom'] = 'Oddelegowany z:';
@@ -190,5 +168,4 @@ $labels['itipresponseerror'] = 'Failed to send the response to this task assignm
 $labels['itipinvalidrequest'] = 'To zaproszenie nie jest już aktualne.';
 $labels['sentresponseto'] = 'Successfully sent assignment response to $mailto';
 $labels['successremoval'] = 'The task has been deleted successfully.';
-
 $labels['arialabelsortmenu'] = 'Tasks sorting options';

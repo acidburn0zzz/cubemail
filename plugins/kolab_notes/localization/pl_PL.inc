@@ -1,6 +1,4 @@
 <?php
-
-$labels = array();
 $labels['navtitle'] = 'Notatki';
 $labels['tags'] = 'Tagi';
 $labels['lists'] = 'Notatniki';
@@ -35,7 +33,6 @@ $labels['nrnotebooksfound'] = 'znaleziono $n notatników';
 $labels['nonotebooksfound'] = 'Nie znaleziono żadnych notatników';
 $labels['removelist'] = 'Remove from list';
 $labels['removelink'] = 'Remove email reference';
-
 $labels['savingdata'] = 'Zapisuję dane...';
 $labels['recordnotfound'] = 'Nie znaleziono rekordu';
 $labels['norecordsfound'] = 'Nie znaleziono żadnych notatek';
@@ -47,7 +44,6 @@ $labels['discardunsavedchanges'] = 'Bieżąca notatka nie została jeszcze zapis
 $labels['invalidlistproperties'] = 'Błędne właściwości notatnika! Proszę wprowadzić poprawną nazwę.';
 $labels['entertitle'] = 'Proszę wprowadzić tytuł tej notatki!';
 $labels['aclnorights'] = 'Nie posiadasz uprawnień administracyjnych do tego notatnika.';
-
 $labels['arialabelnoteslist'] = 'Lista notatek';
 $labels['arialabelnotesearchform'] = 'Formularz wyszukiwania notatek';
 $labels['arialabelnotesquicksearchbox'] = 'Fraza wyszukiwania';

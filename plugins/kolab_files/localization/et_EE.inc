@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab Files plugin
  *
@@ -7,7 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
-
 $labels['files'] = 'Files';
 $labels['filepreview'] = 'File preview';
 $labels['saveall'] = 'Save all to cloud...';
@@ -23,13 +21,11 @@ $labels['foldercreate'] = 'Create folder';
 $labels['folderedit'] = 'Edit folder';
 $labels['foldermount'] = 'Add storage';
 $labels['folderdelete'] = 'Delete folder';
-
 $labels['folderinside'] = 'Insert inside';
 $labels['foldername'] = 'Folder name';
 $labels['name'] = 'Nimi';
 $labels['mtime'] = 'Modified';
 $labels['type'] = 'Type';
-
 $labels['upload'] = 'Upload';
 $labels['uploadfile'] = 'Upload file(s)';
 $labels['get'] = 'Download';
@@ -44,12 +40,10 @@ $labels['save'] = 'Salvesta';
 $labels['savefile'] = 'Save file';
 $labels['printfile'] = 'Print file';
 $labels['fileedit'] = 'File properties';
-
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
 $labels['collection_image'] = 'Images';
 $labels['collection_document'] = 'Documents';
-
 $labels['uploading'] = 'Uploading file(s)...';
 $labels['attaching'] = 'Attaching file(s)...';
 $labels['authenticating'] = 'Authenticating...';
@@ -75,17 +69,14 @@ $labels['filedeletenotice'] = 'File(s) deleted successfully.';
 $labels['filemovenotice'] = 'File(s) moved successfully.';
 $labels['filecopynotice'] = 'File(s) copied successfully.';
 $labels['uploadsizeerror'] = 'Maximum file size ($size) exceeded!';
-
 $labels['allfolders'] = 'search in all folders';
 $labels['fileskip'] = 'Skip';
 $labels['fileskipall'] = 'Skip all';
 $labels['fileoverwrite'] = 'Overwrite';
 $labels['fileoverwriteall'] = 'Overwrite all';
 $labels['filemoveconfirm'] = 'This action is going to overwrite the destination file: <b>$file</b>.';
-
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
-
 $labels['arialabelsearchform'] = 'Files search form';
 $labels['arialabelquicksearchbox'] = 'Search input';
 $labels['arialabellistoptions'] = 'Files list options';
@@ -101,5 +92,4 @@ $labels['arialabelattachmentoptions'] = 'Attachment save options';
 $labels['arialabelfilesavedialog'] = 'File(s) saving dialog';
 $labels['arialabelfileprops'] = 'File properties';
 $labels['arialabelfilecontent'] = 'File content';
-
 ?>

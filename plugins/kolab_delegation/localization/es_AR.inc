@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab Delegation plugin
  *
@@ -7,9 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
-
-$labels = array();
-
 $labels['tabtitle'] = 'Delegación';
 $labels['delegationtitle'] = 'Administrar delegados';
 $labels['delegates'] = 'Delegados';
@@ -35,8 +31,6 @@ $labels['updatesuccess'] = 'El delegado fue actualizado exitosamente.';
 $labels['updateerror'] = 'No se puede actualizar el delegado.';
 $labels['createsuccess'] = 'El delegado fue agregado exitosamente.';
 $labels['createerror'] = 'No se puede agregar el delegado.';
-
 $labels['arialabeldelegatedelete'] = 'Diálogo de eliminación de delegado';
 $labels['arialabeldelegateform'] = 'Formulario de propiedades del delegado';
-
 ?>

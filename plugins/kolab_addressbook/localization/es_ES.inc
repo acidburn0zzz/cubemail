@@ -9,4 +9,7 @@
 $labels['initials'] = 'Iniciales';
 $labels['typecompany'] = 'Compania';
 $labels['settings'] = 'Servicios';
+$labels['bookremove'] = 'Remove from list';
+$labels['searchterms'] = 'Search terms';
+$labels['foldersubscribe'] = 'List permanently';
 ?>
