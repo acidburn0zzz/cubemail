@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for Kolab Calendar plugin
  *
@@ -7,10 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
  */
-
-$labels = array();
-
-// preferences
 $labels['default_view'] = 'デフォルトビュー';
 $labels['time_format'] = '時刻表示形式';
 $labels['timeslots'] = 'Time slots per hour';
@@ -25,15 +20,6 @@ $labels['coloringmode0'] = 'カレンダーの説明';
 $labels['coloringmode1'] = 'カテゴリの説明';
 $labels['coloringmode2'] = 'アウトライン用カレンダー、コンテンツ用カテゴリ';
 $labels['coloringmode3'] = 'アウトライン用カレンダー、コンテンツ用カテゴリ';
-$labels['afternothing'] = 'Do nothing';
-$labels['aftertrash'] = 'Move to Trash';
-$labels['afterdelete'] = 'Delete the message';
-$labels['afterflagdeleted'] = 'Flag as deleted';
-$labels['aftermoveto'] = 'Move to...';
-$labels['itipoptions'] = 'Event Invitations';
-$labels['afteraction'] = 'After an invitation or update message is processed';
-
-// calendar
 $labels['calendar'] = 'カレンダー';
 $labels['calendars'] = 'カレンダー';
 $labels['category'] = 'カテゴリ';
@@ -51,7 +37,6 @@ $labels['new_event'] = '新規イベント';
 $labels['edit_event'] = 'イベント編集';
 $labels['edit'] = '編集';
 $labels['save'] = '保存';
-$labels['removelist'] = 'Remove from list';
 $labels['cancel'] = 'キャンセル';
 $labels['select'] = '選択';
 $labels['print'] = '印刷';
@@ -68,9 +53,7 @@ $labels['location'] = '場所';
 $labels['url'] = 'URL';
 $labels['date'] = '期日';
 $labels['start'] = '開始';
-$labels['starttime'] = 'Start time';
 $labels['end'] = '終了';
-$labels['endtime'] = 'End time';
 $labels['repeat'] = '繰返し';
 $labels['selectdate'] = '日付選択';
 $labels['freebusy'] = '表示する';
@@ -78,23 +61,16 @@ $labels['free'] = '空';
 $labels['busy'] = 'ビジー';
 $labels['outofoffice'] = '外出';
 $labels['tentative'] = '仮';
-$labels['mystatus'] = 'My status';
 $labels['status'] = '状態';
-$labels['status-confirmed'] = 'Confirmed';
-$labels['status-cancelled'] = 'Cancelled';
 $labels['priority'] = '優先度';
 $labels['sensitivity'] = 'プライバシー';
 $labels['public'] = 'パブリック';
 $labels['private'] = 'プライベート';
 $labels['confidential'] = '親展';
 $labels['alarms'] = '通知';
-$labels['comment'] = 'Comment';
-$labels['created'] = 'Created';
-$labels['changed'] = 'Last Modified';
 $labels['unknown'] = '不明';
 $labels['eventoptions'] = 'オプション';
 $labels['generated'] = '生成';
-$labels['eventhistory'] = 'History';
 $labels['printdescriptions'] = '説明印刷';
 $labels['parentcalendar'] = '内に挿入';
 $labels['searchearlierdates'] = '<< 以前のイベントを検索';
@@ -109,19 +85,6 @@ $labels['nmonthsback'] = '$nr ヶ月戻る';
 $labels['showurl'] = 'カレンダーURL表示';
 $labels['showurldescription'] = '以下のアドレスを使用して他のアプリケーションからカレンダーにアクセス(読込のみ)できます。iCal形式をサポートしたカレンダーソフトウェアへコピーアンドペーストができます。';
 $labels['caldavurldescription'] = 'Copy this address to a <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> client application (e.g. Evolution or Mozilla Thunderbird) to fully synchronize this specific calendar with your computer or mobile device.';
-$labels['findcalendars'] = 'Find calendars...';
-$labels['searchterms'] = 'Search terms';
-$labels['calsearchresults'] = 'Available Calendars';
-$labels['calendarsubscribe'] = 'List permanently';
-$labels['nocalendarsfound'] = 'No calendars found';
-$labels['nrcalendarsfound'] = '$nr calendars found';
-$labels['quickview'] = 'View only this calendar';
-$labels['invitationspending'] = 'Pending invitations';
-$labels['invitationsdeclined'] = 'Declined invitations';
-$labels['changepartstat'] = 'Change participant status';
-$labels['rsvpcomment'] = 'Invitation text';
-
-// agenda view
 $labels['listrange'] = '表示範囲:';
 $labels['listsections'] = '分割:';
 $labels['smartsections'] = 'スマートセクション';
@@ -130,19 +93,14 @@ $labels['today'] = '今日';
 $labels['tomorrow'] = '明日';
 $labels['thisweek'] = '今週';
 $labels['nextweek'] = '来週';
-$labels['prevweek'] = 'Previous week';
 $labels['thismonth'] = '今月';
 $labels['nextmonth'] = '来月';
 $labels['weekofyear'] = '週';
 $labels['pastevents'] = '以前';
 $labels['futureevents'] = '以降';
-
-// alarm/reminder settings
 $labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'デフォルト通知設定';
 $labels['defaultalarmoffset'] = 'デフォルト通知時間';
-
-// attendees
 $labels['attendee'] = '参加者';
 $labels['role'] = 'ロール';
 $labels['availability'] = '利用可';
@@ -162,8 +120,6 @@ $labels['availbusy'] = 'ビジー';
 $labels['availunknown'] = '不明';
 $labels['availtentative'] = '仮';
 $labels['availoutofoffice'] = '外出';
-$labels['delegatedto'] = 'Delegated to: ';
-$labels['delegatedfrom'] = 'Delegated from: ';
 $labels['scheduletime'] = '利用可検索';
 $labels['sendinvitations'] = '招待を送る';
 $labels['sendnotifications'] = '変更を参加者へ通知する';
@@ -172,7 +128,6 @@ $labels['onlyworkinghours'] = '労働時間内の利用可検索';
 $labels['reqallattendees'] = '要件/全参加者';
 $labels['prevslot'] = '前のスロット';
 $labels['nextslot'] = '次のスロット';
-$labels['suggestedslot'] = 'Suggested Slot';
 $labels['noslotfound'] = '空スロットを見つけられません';
 $labels['invitationsubject'] = '"$title" に招待されました';
 $labels['invitationmailbody'] = "*\$title*\n\nいつ: \$date\n\n招待者: \$attendees\n\nあなたのカレンダーアプリケーションにインポートできる全イベントの詳細がインポートできる添付されたiカレンダーファイルを見つけてください。";
@@ -182,49 +137,22 @@ $labels['eventupdatesubjectempty'] = 'あなたに関連するイベントが更
 $labels['eventupdatemailbody'] = "*\$title*\n\nいつ: \$date\n\n招待者: \$attendees\n\nあなたのカレンダーアプリケーションにインポートできるアップデートされた全イベントの詳細が添付されたiカレンダーファイルを見つけてください。";
 $labels['eventcancelsubject'] = '"$title" は変更されました';
 $labels['eventcancelmailbody'] = "*\$title*\n\nいつ: \$date\n\n招待者: \$attendees\n\nイベントが \$organizer によってキャンセルされました。\n\n更新されたイベントの詳細とともに添付されたiカレンダーファイルを見つけてください。";
-
-// invitation handling (overrides labels from libcalendaring)
-$labels['itipobjectnotfound'] = 'The event referred by this message was not found in your calendar.';
-
 $labels['itipmailbodyaccepted'] = "\$sender は以下のイベントへの招待を承諾しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipmailbodytentative'] = "\$sender は以下のイベントへの招待を仮承諾しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
 $labels['itipmailbodydeclined'] = "\$sender は以下のイベントへの招待を辞退しました:\n\n*\$title*\n\nいつ: \$date\n\n招待者: \$attendees";
-$labels['itipmailbodycancel'] = "\$sender has rejected your participation in the following event:\n\n*\$title*\n\nWhen: \$date";
-$labels['itipmailbodydelegated'] = "\$sender has delegated the participation in the following event:\n\n*\$title*\n\nWhen: \$date";
-$labels['itipmailbodydelegatedto'] = "\$sender has delegated the participation in the following event to you:\n\n*\$title*\n\nWhen: \$date";
-
 $labels['itipdeclineevent'] = 'このイベントへの招待を辞退しますか?';
 $labels['declinedeleteconfirm'] = 'Do you also want to delete this declined event from your calendar?';
-$labels['itipcomment'] = 'Invitation/notification comment';
-$labels['itipcommenttitle'] = 'This comment will be attached to the invitation/notification message sent to participants';
-
 $labels['notanattendee'] = 'このイベントの出席者として一覧にありません';
 $labels['eventcancelled'] = 'このイベントはキャンセルされました';
 $labels['saveincalendar'] = '保存';
-$labels['updatemycopy'] = 'Update in my calendar';
-$labels['savetocalendar'] = 'Save to calendar';
-$labels['openpreview'] = 'Check Calendar';
-$labels['noearlierevents'] = 'No earlier events';
-$labels['nolaterevents'] = 'No later events';
-
-// resources
 $labels['resource'] = 'リソース';
-$labels['addresource'] = 'Book resource';
-$labels['findresources'] = 'Find resources';
 $labels['resourcedetails'] = '詳細';
-$labels['resourceavailability'] = 'Availability';
-$labels['resourceowner'] = 'Owner';
-$labels['resourceadded'] = 'The resource was added to your event';
-
-// event dialog tabs
 $labels['tabsummary'] = '要約';
 $labels['tabrecurrence'] = '繰返し';
 $labels['tabattendees'] = '参加者';
 $labels['tabresources'] = 'リソース';
 $labels['tabattachments'] = '添付';
 $labels['tabsharing'] = '共有';
-
-// messages
 $labels['deleteobjectconfirm'] = '本当にこのイベントを削除しますか?';
 $labels['deleteventconfirm'] = '本当にこのイベントを削除しますか?';
 $labels['deletecalendarconfirm'] = '本当にこのカレンダーを全イベントとともに削除しますか?';
@@ -239,11 +167,9 @@ $labels['successremoval'] = 'イベントを削除しました';
 $labels['successrestore'] = 'イベントを復旧しました';
 $labels['errornotifying'] = 'イベント参加者への通知が送信できませんでした';
 $labels['errorimportingevent'] = 'イベントのインポートができませんでした';
-$labels['importwarningexists'] = 'A copy of this event already exists in your calendar.';
 $labels['newerversionexists'] = 'このイベントのより新しいヴァージョンがすでにあります。中断されました。';
 $labels['nowritecalendarfound'] = 'イベントを保存するカレンダーが見つかりません';
 $labels['importedsuccessfully'] = '\'$calendar\' へイベントを追加しました';
-$labels['updatedsuccessfully'] = 'The event was successfully updated in \'$calendar\'';
 $labels['attendeupdateesuccess'] = '出席者状況を更新しました';
 $labels['itipsendsuccess'] = '出席者へ招待を送信しました。';
 $labels['itipresponseerror'] = 'この招待の返信できませんでした';
@@ -254,52 +180,17 @@ $labels['importsuccess'] = '$nr イベントをインポートしました';
 $labels['importnone'] = 'インポートされたイベントはありません';
 $labels['importerror'] = 'インポート中にエラーが発生しました。';
 $labels['aclnorights'] = 'このカレンダーの管理権限がありません。';
-
 $labels['changeeventconfirm'] = 'イベント変更';
-$labels['removeeventconfirm'] = 'Delete event';
 $labels['changerecurringeventwarning'] = 'これは繰返しイベントです。現在のイベントのみ、このイベントと今後の全イベント、全イベント、編集したい、もしくは新しいイベントとして保存したい?';
-$labels['removerecurringeventwarning'] = 'This is a recurring event. Would you like to delete the current event only, this and all future occurences or all occurences of this event?';
 $labels['currentevent'] = '現在';
 $labels['futurevents'] = '今後';
 $labels['allevents'] = '全て';
 $labels['saveasnew'] = '新規保存';
-
-// birthdays calendar
 $labels['birthdays'] = 'Birthdays';
 $labels['birthdayscalendar'] = 'Birthdays Calendar';
 $labels['displaybirthdayscalendar'] = 'Display birthdays calendar';
 $labels['birthdayscalendarsources'] = 'From these address books';
 $labels['birthdayeventtitle'] = '$name\'s Birthday';
 $labels['birthdayage'] = 'Age $age';
-
-// history dialog
-$labels['eventchangelog'] = 'Change History';
-$labels['eventdiff'] = 'Changes from revisions $rev';
-$labels['revision'] = 'Revision';
 $labels['user'] = 'ユーザ';
-$labels['operation'] = 'Action';
-$labels['actionappend'] = 'Saved';
-$labels['actionmove'] = 'Moved';
-$labels['actiondelete'] = 'Deleted';
-$labels['compare'] = 'Compare';
-$labels['showrevision'] = 'Show this version';
-$labels['restore'] = 'Restore this version';
-$labels['eventnotfound'] = 'Failed to load event data';
-$labels['eventchangelognotavailable'] = 'Change history is not available for this event';
-$labels['eventdiffnotavailable'] = 'No comparison possible for the selected revisions';
-$labels['eventrestoreconfirm'] = 'Do you really want to restore revision $rev of this event? This will replace the current event with the old version.';
-
-
-// (hidden) titles and labels for accessibility annotations
-$labels['arialabelminical'] = 'Calendar date selection';
-$labels['arialabelcalendarview'] = 'Calendar view';
-$labels['arialabelsearchform'] = 'Event search form';
-$labels['arialabelquicksearchbox'] = 'Event search input';
-$labels['arialabelcalsearchform'] = 'Calendars search form';
-$labels['calendaractions'] = 'Calendar actions';
-$labels['arialabeleventattendees'] = 'Event participants list';
-$labels['arialabeleventresources'] = 'Event resources list';
-$labels['arialabelresourcesearchform'] = 'Resources search form';
-$labels['arialabelresourceselection'] = 'Available resources';
-
 ?>

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab Address Book plugin
  *
@@ -7,8 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
  */
-
-$labels = array();
 $labels['initials'] = 'Inicjały';
 $labels['profession'] = 'Zawód';
 $labels['officelocation'] = 'Biuro';
@@ -26,23 +23,19 @@ $labels['typeisdn'] = 'ISDN';
 $labels['typettytdd'] = 'TTY/TDD';
 $labels['typecallback'] = 'Callback';
 $labels['settings'] = 'Ustawienia';
-
 $labels['bookcreate'] = 'Utwórz książkę adresową';
 $labels['bookedit'] = 'Edytuj książkę adresową';
 $labels['bookdelete'] = 'Usuń książkę adresową';
-$labels['bookremove'] = 'Remove from list';
 $labels['bookproperties'] = 'Właściwości książki adresowej';
 $labels['bookname'] = 'Nazwa książki';
 $labels['parentbook'] = 'Nadrzędna książka';
 $labels['bookshowurl'] = 'Pokaż adres URL CardDAV';
 $labels['carddavurldescription'] = 'Skopiuj ten adres do aplikacji obsługującej format <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a> aby zsynchronizować książkę adresową z twoim komputerem lub urządzeniem przenośnym.';
-
 $labels['addressbookprio'] = 'Wybór/zachowanie książek adresowych';
 $labels['personalfirst'] = 'najpierw prywatne książki adresowe';
 $labels['globalfirst'] = 'najpierw globalne książki adresowe';
 $labels['personalonly'] = 'tylko prywatne książki adresowe';
 $labels['globalonly'] = 'tylko globalne książki adresowe';
-
 $labels['findaddressbooks'] = 'Wyszukaj książki adresowe';
 $labels['searchterms'] = 'Szukana fraza';
 $labels['listsearchresults'] = 'Dodatkowe książki adresowe';
@@ -50,7 +43,6 @@ $labels['foldersearchform'] = 'Formularz wyszukiwania książek adresowych';
 $labels['foldersubscribe'] = 'Dodaj do listy na stałe';
 $labels['nraddressbooksfound'] = 'znaleziono $nr książkek adresowych';
 $labels['noaddressbooksfound'] = 'Nie znaleziono żadnych książek adresowych';
-
 $messages['bookdeleteconfirm']  = 'Czy na pewno chcesz usunąć wybraną książkę i wszystkie kontakty?';
 $messages['bookdeleting'] = 'Usuwanie książki adresowej...';
 $messages['booksaving'] = 'Zapisywanie książki adresowej...';
@@ -62,5 +54,4 @@ $messages['bookupdateerror'] = 'Podczas zapisywania książki adresowej wystąpi
 $messages['bookcreateerror'] = 'Podczas dodawania książki adresowej wystąpił błąd.';
 $messages['nobooknamewarning'] = 'Proszę podać nazwę książki adresowej.';
 $messages['noemailnamewarning'] = 'Proszę podać adres email lub nazwę kontaktu.';
-
 ?>

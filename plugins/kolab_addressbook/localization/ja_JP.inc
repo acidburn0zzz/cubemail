@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab Address Book plugin
  *
@@ -7,8 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
  */
-
-$labels = array();
 $labels['initials'] = 'イニシャル';
 $labels['profession'] = '職業';
 $labels['officelocation'] = '会社所在';
@@ -26,31 +23,17 @@ $labels['typeisdn'] = 'ISDN';
 $labels['typettytdd'] = 'TTY/TDD';
 $labels['typecallback'] = 'コールバック';
 $labels['settings'] = '設定';
-
 $labels['bookcreate'] = 'アドレス帳作成';
 $labels['bookedit'] = 'アドレス帳編集';
 $labels['bookdelete'] = 'アドレス帳削除';
-$labels['bookremove'] = 'Remove from list';
 $labels['bookproperties'] = 'アドレス帳設定';
 $labels['bookname'] = 'ブック名';
 $labels['parentbook'] = '上位ブック';
-$labels['bookshowurl'] = 'Show CardDAV URL';
-$labels['carddavurldescription'] = 'Copy this address to a <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a> client application to fully synchronize this specific address book with your computer or mobile device.';
-
 $labels['addressbookprio'] = 'アドレス帳(s)セレクション/動作';
 $labels['personalfirst'] = '個人アドレス帳(s) を前に';
 $labels['globalfirst'] = 'グローバルアドレス帳(s) を前に';
 $labels['personalonly'] = '個人アドレス帳(s) のみ';
 $labels['globalonly'] = 'グローバルアドレス帳(s) のみ';
-
-$labels['findaddressbooks'] = 'Find address books';
-$labels['searchterms'] = 'Search terms';
-$labels['listsearchresults'] = 'Additional address books';
-$labels['foldersearchform'] = 'Address book search form';
-$labels['foldersubscribe'] = 'List permanently';
-$labels['nraddressbooksfound'] = '$nr address books found';
-$labels['noaddressbooksfound'] = 'No address books found';
-
 $messages['bookdeleteconfirm']  = '本当に選択したアドレス帳およびそのデータをすべて削除しますか?';
 $messages['bookdeleting'] = 'アドレス帳を削除中...';
 $messages['booksaving'] = 'アドレス帳を保存中…';
@@ -62,5 +45,4 @@ $messages['bookupdateerror'] = 'アドレス帳の更新中にエラーが発生
 $messages['bookcreateerror'] = 'アドレス帳の作成中にエラーが発生しました。';
 $messages['nobooknamewarning'] = 'アドレス帳名を入力してください。';
 $messages['noemailnamewarning'] = 'Emailアドレスまたはコンタクト名を入力してください。';
-
 ?>
