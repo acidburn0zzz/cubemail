@@ -1037,8 +1037,8 @@ class calendar extends rcube_plugin
             // convert date cols
             foreach (array('start','end','created','changed') as $col) {
               if ($change['property'] == $col) {
-                $change['old'] = $this->lib->adjust_timezone($change['old'], strlen($change['old']) == 10)->format('c');
-                $change['new'] = $this->lib->adjust_timezone($change['new'], strlen($change['new']) == 10)->format('c');
+                $change['old'] = $lib->adjust_timezone($change['old'], strlen($change['old']) == 10)->format('c');
+                $change['new'] = $lib->adjust_timezone($change['new'], strlen($change['new']) == 10)->format('c');
               }
             }
             // create textual representation for alarms and recurrence
