@@ -24,7 +24,7 @@
 
 class kolab_format_configuration extends kolab_format
 {
-    public $CTYPE   = 'application/x-vnd.kolab.configuration';
+    public $CTYPE   = 'application/vnd.kolab+xml';
     public $CTYPEv2 = 'application/x-vnd.kolab.configuration';
 
     protected $objclass   = 'Configuration';
@@ -126,7 +126,7 @@ class kolab_format_configuration extends kolab_format
         }
 
         // adjust content-type string
-        $this->CTYPE = $this->CTYPEv2 = 'application/x-vnd.kolab.configuration.' . $object['type'];
+        $this->CTYPEv2 = 'application/x-vnd.kolab.configuration.' . $object['type'];
 
         // cache this data
         $this->data = $object;
@@ -222,7 +222,7 @@ class kolab_format_configuration extends kolab_format
 
         // adjust content-type string
         if ($object['type']) {
-            $this->CTYPE = $this->CTYPEv2 = 'application/x-vnd.kolab.configuration.' . $object['type'];
+            $this->CTYPEv2 = 'application/x-vnd.kolab.configuration.' . $object['type'];
         }
 
         $this->data = $object;
