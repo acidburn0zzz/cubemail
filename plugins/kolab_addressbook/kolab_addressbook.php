@@ -111,7 +111,7 @@ class kolab_addressbook extends rcube_plugin
             // register this address source
             $sources[$abook_id] = array(
                 'id'       => $abook_id,
-                'name'     => html_entity_decode($name, ENT_NOQUOTES),
+                'name'     => html_entity_decode($name, ENT_NOQUOTES, RCMAIL_CHARSET),
                 'readonly' => $abook->readonly,
                 'editable' => $abook->editable,
                 'groups'   => $abook->groups,
