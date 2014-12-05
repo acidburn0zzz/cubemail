@@ -337,10 +337,14 @@ class rcube_kolab_contacts extends rcube_addressbook
                 }
             }
         }
-        else if (isset($this->dataset)) {
-            $this->result->count = isset($query) ? $this->storagefolder->count($query) : 0;
-            foreach ($this->dataset as $idx => $record) {
-                $this->result->add($this->_to_rcube_contact($record));
+        else if (!empty($this->dataset)) {
+            $this->result->count = isset($query) ? $this->storagefolder->count($query) : count($this->dataset);
+
+            $start_row = $subset < 0 ? $this->page_size + $subset : 0;
+            $last_row  = min($subset != 0 ? $start_row + abs($subset) : $this->page_size, $this->result->count);
+
+            for ($i = $start_row; $i < $last_row; $i++) {
+                $this->result->add($this->_to_rcube_contact($this->dataset[$i]));
             }
         }
 
