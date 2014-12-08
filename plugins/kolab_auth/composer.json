@@ -1,11 +1,16 @@
 {
-    "name": "kolab/kolab_tags",
+    "name": "kolab/kolab_auth",
     "type": "roundcube-plugin",
-    "description": "Email tags plugin",
+    "description": "Kolab authentication",
     "homepage": "http://git.kolab.org/roundcubemail-plugins-kolab/",
     "license": "AGPLv3",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "authors": [
+        {
+            "name": "Thomas Bruederli",
+            "email": "bruederli@kolabsys.com",
+            "role": "Lead"
+        },
         {
             "name": "Aleksander Machniak",
             "email": "machniak@kolabsys.com",
@@ -21,6 +26,5 @@
     "require": {
         "php": ">=5.3.0",
         "roundcube/plugin-installer": ">=0.1.3",
-        "kolab/libkolab": ">=1.1.0"
     }
 }
