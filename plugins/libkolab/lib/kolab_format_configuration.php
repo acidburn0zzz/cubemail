@@ -48,9 +48,6 @@ class kolab_format_configuration extends kolab_format
      */
     public function set(&$object)
     {
-        // set common object properties
-        parent::set($object);
-
         // read type-specific properties
         switch ($object['type']) {
         case 'dictionary':
@@ -127,6 +124,9 @@ class kolab_format_configuration extends kolab_format
 
         // adjust content-type string
         $this->CTYPEv2 = 'application/x-vnd.kolab.configuration.' . $object['type'];
+
+        // set common object properties
+        parent::set($object);
 
         // cache this data
         $this->data = $object;
