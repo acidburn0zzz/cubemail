@@ -2092,6 +2092,8 @@ function kolab_files_ui()
 
     if (!param.done && param.total)
       this.file_upload_progress(param.id);
+    else
+      delete this.uploads[param.id];
   };
 
   this.file_upload_progress_stop = function(id)
