@@ -159,6 +159,7 @@ function manage_tags()
         rcmail.gettext('kolab_tags.tags'),
         [{
             text: rcmail.gettext('save'),
+            'class': 'mainaction',
             click: function() { if (tag_form_save()) $(this).dialog('close'); }
         },
         {

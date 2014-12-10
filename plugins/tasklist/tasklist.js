@@ -1937,6 +1937,7 @@ function rcube_tasklist_ui(settings)
 
             buttons.push({
                 text: rcmail.gettext('delete','tasklist'),
+                'class':'delete',
                 click: function() {
                     if (delete_task(me.selected_task.id))
                         $dialog.dialog('close');
@@ -2240,6 +2241,9 @@ function rcube_tasklist_ui(settings)
           resizable: (!bw.ie6 && !bw.ie7),  // disable for performance reasons
           closeOnEscape: false,
           title: rcmail.gettext((action == 'edit' ? 'edittask' : 'newtask'), 'tasklist'),
+          open: function() {
+              $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().addClass('mainaction');
+          },
           close: function() {
               rcmail.ksearch_blur();
               editform.hide().appendTo(document.body);

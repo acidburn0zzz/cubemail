@@ -230,6 +230,7 @@ function kolab_directory_selector_dialog(id)
   kolab_dialog_show(dialog, {
     title: rcmail.gettext('kolab_files.' + label),
     buttons: buttons,
+    button_classes: ['mainaction'],
     minWidth: 250,
     minHeight: 300,
     height: 350,
@@ -283,6 +284,7 @@ function kolab_files_selector_dialog()
   kolab_dialog_show(dialog, {
     title: rcmail.gettext('kolab_files.selectfiles'),
     buttons: buttons,
+    button_classes: ['mainaction'],
     minWidth: 500,
     minHeight: 300,
     width: 700,
@@ -340,7 +342,8 @@ function kolab_files_folder_create_dialog()
   // show dialog window
   kolab_dialog_show(dialog, {
     title: rcmail.gettext('kolab_files.foldercreate'),
-    buttons: buttons
+    buttons: buttons,
+    button_classes: ['mainaction']
   });
 
   // Fix submitting form with Enter
@@ -395,7 +398,8 @@ function kolab_files_folder_edit_dialog()
   // show dialog window
   kolab_dialog_show(dialog, {
     title: rcmail.gettext('kolab_files.folderedit'),
-    buttons: buttons
+    buttons: buttons,
+    button_classes: ['mainaction']
   });
 
   // Fix submitting form with Enter
@@ -467,6 +471,8 @@ function kolab_files_folder_mount_dialog()
    });
   }
 
+  args.button_classes = ['mainaction'];
+
   // show dialog window
   kolab_dialog_show(dialog, args, function() {
     $('td.source:first', dialog).click();
@@ -504,7 +510,8 @@ function kolab_files_file_edit_dialog(file)
   // show dialog window
   kolab_dialog_show(dialog, {
     title: rcmail.gettext('kolab_files.fileedit'),
-    buttons: buttons
+    buttons: buttons,
+    button_classes: ['mainaction']
   });
 };
 

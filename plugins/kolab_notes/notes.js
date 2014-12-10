@@ -1271,6 +1271,7 @@ function rcube_kolab_notes_ui(settings)
 
             buttons.push({
                 text: rcmail.gettext('save'),
+                'class': 'mainaction',
                 click: function() {
                     save_note(beforesave);
                     dialog.dialog('close');
@@ -1295,7 +1296,7 @@ function rcube_kolab_notes_ui(settings)
                 open: function(event, ui) {
                     $(this).parent().find('.ui-dialog-titlebar-close').hide();
                     setTimeout(function(){
-                        dialog.parent().find('.ui-button:visible').first().addClass('mainaction').focus();
+                        dialog.parent().find('.ui-button:visible').first().focus();
                     }, 10);
                 },
                 close: function(event, ui) {
