@@ -155,11 +155,10 @@ class kolab_auth_ldap extends rcube_ldap_generic
 
         $groups = array();
         foreach ($result as $entry) {
+            $dn    = $entry['dn'];
             $entry = rcube_ldap_generic::normalize_entry($entry);
-            if (!$entry['dn']) {
-                $entry['dn'] = key($result->entries(true));
-            }
-            $groups[$entry['dn']] = $entry[$name_attr];
+
+            $groups[$dn] = $entry[$name_attr];
         }
 
         return $groups;
