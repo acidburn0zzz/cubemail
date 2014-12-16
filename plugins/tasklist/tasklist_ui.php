@@ -156,7 +156,7 @@ class tasklist_ui
         $this->rc->output->include_script('treelist.js');
 
         // include kolab folderlist widget if available
-        if (is_readable($this->plugin->api->dir . 'libkolab/js/folderlist.js')) {
+        if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {
             $this->plugin->api->include_script('libkolab/js/folderlist.js');
         }
 

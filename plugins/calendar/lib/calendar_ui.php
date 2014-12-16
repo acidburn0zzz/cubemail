@@ -119,7 +119,7 @@ class calendar_ui
     $this->rc->output->include_script('treelist.js');
 
     // include kolab folderlist widget if available
-    if (is_readable($this->cal->api->dir . 'libkolab/js/folderlist.js')) {
+    if (in_array('libkolab', $this->cal->api->loaded_plugins())) {
         $this->cal->api->include_script('libkolab/js/folderlist.js');
     }
 
