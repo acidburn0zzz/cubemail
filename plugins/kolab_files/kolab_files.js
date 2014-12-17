@@ -142,7 +142,7 @@ function kolab_files_init()
     sort_col: 'name',
     sort_reverse: false,
     search_threads: rcmail.env.search_threads,
-    resources_dir: 'program/resources',
+    resources_dir: rcmail.assets_path('program/resources'),
     supported_mimetypes: rcmail.env.file_mimetypes
   });
 
@@ -1938,7 +1938,8 @@ function kolab_files_ui()
     // otherwise the form will be posted to a new window
     if (document.all) {
       var html = '<iframe id="'+frame_name+'" name="'+frame_name+'"'
-        + ' src="program/resources/blank.gif" style="width:0;height:0;visibility:hidden;"></iframe>';
+        + ' src="' + rcmail.assets_path('program/resources/blank.gif') + '"'
+        + ' style="width:0;height:0;visibility:hidden;"></iframe>';
       document.body.insertAdjacentHTML('BeforeEnd', html);
     }
     // for standards-compliant browsers

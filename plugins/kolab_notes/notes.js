@@ -370,7 +370,7 @@ function rcube_kolab_notes_ui(settings)
             selector: '#notecontent',
             theme: 'modern',
             language: settings.editor.lang,
-            content_css: 'program/js/tinymce/roundcube/content.css?v1',
+            content_css: rcmail.assets_path('program/js/tinymce/roundcube/content.css?v2'),
             plugins: 'autolink charmap code link paste tabfocus searchreplace table textcolor',
             toolbar: 'bold italic underline | alignleft aligncenter alignright alignjustify '
                 + '| bullist numlist outdent indent blockquote | forecolor backcolor fontselect fontsizeselect '

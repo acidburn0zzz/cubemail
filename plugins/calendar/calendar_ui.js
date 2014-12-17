@@ -1936,9 +1936,10 @@ function rcube_calendar_ui(settings)
           rcmail.gettext('expandattendeegroup','libcalendaring') + '</a>';
       }
 
+      var img_src = rcmail.assets_path('program/resources/blank.gif');
       var html = '<td class="role">' + select + '</td>' +
         '<td class="name">' + dispname + '</td>' +
-        '<td class="availability"><img src="./program/resources/blank.gif" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
+        '<td class="availability"><img src="' + img_src + '" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
         '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
         (data.cutype != 'RESOURCE' ? '<td class="invite">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
         '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
