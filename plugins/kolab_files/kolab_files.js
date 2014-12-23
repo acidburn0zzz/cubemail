@@ -70,6 +70,10 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
       rcmail.addEventListener('menu-open', kolab_files_attach_menu_open);
       rcmail.enable_command('folder-create', true);
     }
+    // attachment preview
+    else if (rcmail.env.action == 'get') {
+      rcmail.enable_command('folder-create', true);
+    }
 
     kolab_files_init();
   }
