@@ -377,6 +377,9 @@ $(document).ready(function(e){
 			box = $('#calendars .listsearchbox'),
 			dir = box.is(':visible') ? -1 : 1;
 
+		if (!rcube_event.is_keyboard(e))
+			$(this).blur();
+
 		box.slideToggle({
 			duration: 160,
 			progress: function(animation, progress) {
