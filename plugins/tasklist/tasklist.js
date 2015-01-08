@@ -1937,7 +1937,7 @@ function rcube_tasklist_ui(settings)
 
             buttons.push({
                 text: rcmail.gettext('delete','tasklist'),
-                'class':'delete',
+                'class': 'delete',
                 click: function() {
                     if (delete_task(me.selected_task.id))
                         $dialog.dialog('close');
@@ -2127,8 +2127,11 @@ function rcube_tasklist_ui(settings)
         $('#taskedit').tabs('option', 'active', 0);
 
         // define dialog buttons
-        var buttons = {};
-        buttons[rcmail.gettext('save', 'tasklist')] = function() {
+        var buttons = [];
+        buttons.push({
+            text: rcmail.gettext('save', 'tasklist'),
+            'class': 'mainaction',
+            click: function() {
             var data = me.selected_task;
             data._status_before = me.selected_task.status + '';
 
@@ -2222,18 +2225,26 @@ function rcube_tasklist_ui(settings)
 
             if (save_task(data, action))
                 $dialog.dialog('close');
-        };
+        }  // end click:
+        });
 
         if (action != 'new') {
-            buttons[rcmail.gettext('delete', 'tasklist')] = function() {
-                if (delete_task(rec.id))
-                    $dialog.dialog('close');
-            };
+            buttons.push({
+                text: rcmail.gettext('delete', 'tasklist'),
+                'class': 'delete',
+                click: function() {
+                    if (delete_task(rec.id))
+                        $dialog.dialog('close');
+                }
+            });
         }
 
-        buttons[rcmail.gettext('cancel', 'tasklist')] = function() {
-            $dialog.dialog('close');
-        };
+        buttons.push({
+            text: rcmail.gettext('cancel', 'tasklist'),
+            click: function() {
+                $dialog.dialog('close');
+            }
+        });
 
         // open jquery UI dialog
         $dialog.dialog({
@@ -2241,9 +2252,6 @@ function rcube_tasklist_ui(settings)
           resizable: (!bw.ie6 && !bw.ie7),  // disable for performance reasons
           closeOnEscape: false,
           title: rcmail.gettext((action == 'edit' ? 'edittask' : 'newtask'), 'tasklist'),
-          open: function() {
-              $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().addClass('mainaction');
-          },
           close: function() {
               rcmail.ksearch_blur();
               editform.hide().appendTo(document.body);
@@ -2465,6 +2473,7 @@ function rcube_tasklist_ui(settings)
             html = rcmail.gettext('deletetasktconfirm','tasklist');
             buttons.push({
                 text: rcmail.gettext('delete','tasklist'),
+                'class': 'delete',
                 click: function() {
                     _delete_task(id, 0);
                     $(this).dialog('close');
@@ -2653,9 +2662,12 @@ function rcube_tasklist_ui(settings)
         });
 
         // dialog buttons
-        var buttons = {};
+        var buttons = [];
 
-        buttons[rcmail.gettext('save','tasklist')] = function() {
+        buttons.push({
+            text: rcmail.gettext('save','tasklist'),
+            'class': 'mainaction',
+            click: function() {
             // do some input validation
             if (!name.val() || name.val().length < 2) {
                 alert(rcmail.gettext('invalidlistproperties', 'tasklist'));
@@ -2673,11 +2685,15 @@ function rcube_tasklist_ui(settings)
             saving_lock = rcmail.set_busy(true, 'tasklist.savingdata');
             rcmail.http_post('tasklist', { action:(list.id ? 'edit' : 'new'), l:data });
             $dialog.dialog('close');
-        };
+        }  // end click:
+        });
 
-        buttons[rcmail.gettext('cancel','tasklist')] = function() {
-            $dialog.dialog('close');
-        };
+        buttons.push({
+            text: rcmail.gettext('cancel','tasklist'),
+            click: function() {
+                $dialog.dialog('close');
+            }
+        });
 
         // open jquery UI dialog
         $dialog.dialog({
@@ -2685,9 +2701,6 @@ function rcube_tasklist_ui(settings)
             resizable: true,
             closeOnEscape: false,
             title: rcmail.gettext((list.id ? 'editlist' : 'createlist'), 'tasklist'),
-            open: function() {
-                $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
-            },
             close: function() {
                 $dialog.dialog('destroy').hide();
             },
