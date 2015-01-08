@@ -1440,7 +1440,12 @@ class libcalendaring extends rcube_plugin
             $k = strtoupper($k);
             switch ($k) {
             case 'UNTIL':
-                $val = $val->format('Ymd\THis');
+                // convert to UTC according to RFC 5545
+                if (is_a($val, 'DateTime')) {
+                    $until = clone $val;
+                    $until->setTimezone(new DateTimeZone('UTC'));
+                    $val = $until->format('Ymd\THis\Z');
+                }
                 break;
             case 'RDATE':
             case 'EXDATE':
