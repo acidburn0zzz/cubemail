@@ -78,7 +78,8 @@ function rcube_calendar(settings)
     {
       if (event.title) {
         this.ui.add_event(event);
-        rcmail.message_list.blur();
+        if (rcmail.message_list)
+          rcmail.message_list.blur();
       }
     };
 
