@@ -825,7 +825,7 @@ class tasklist_kolab_driver extends tasklist_driver
     private function get_links($uid)
     {
         $config = kolab_storage_config::get_instance();
-        return array_map(array($this, '_convert_message_uri'), $config->get_object_links($uid));
+        return array_map(array('kolab_storage_config','local_message_uri'), $config->get_object_links($uid));
     }
 
     /**
@@ -853,23 +853,6 @@ class tasklist_kolab_driver extends tasklist_driver
         $config = kolab_storage_config::get_instance();
         $remove = array_diff($config->get_object_links($uid), $links);
         return $config->save_object_links($uid, $links, $remove);
-    }
-
-    /**
-     * Simplify the given message URI by converting the mailbox
-     * part into a relative IMAP path valid for the current user.
-     */
-    protected function _convert_message_uri($uri)
-    {
-        if (strpos($uri, 'imap:///') === 0) {
-            $linkref = kolab_storage_config::parse_member_url($uri);
-
-            return 'imap:///' . implode('/', array_map('rawurlencode', explode('/', $linkref['folder']))) .
-                '/' . $linkref['uid'] .
-                '?' . http_build_query($linkref['params'], '', '&');
-        }
-
-        return $uri;
     }
 
     /**
@@ -1296,7 +1279,7 @@ class tasklist_kolab_driver extends tasklist_driver
     public function get_message_uri($headers, $folder)
     {
         $uri = kolab_storage_config::get_message_uri($headers, $folder);
-        return $this->_convert_message_uri($uri);
+        return kolab_storage_config::local_message_uri($uri);
     }
 
     /**
