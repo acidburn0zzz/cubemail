@@ -609,7 +609,7 @@ class libcalendaring extends rcube_plugin
                 }
             }
 
-            if ($notify_time && (!$notify_at || ($notify_time < $notify_at && $notify_time > $expires))) {
+            if ($notify_time && (!$notify_at || ($notify_time > $notify_at && $notify_time > $expires))) {
                 $notify_at = $notify_time;
                 $action = $alarm['action'];
                 $alarm_prop = $alarm;
