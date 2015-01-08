@@ -32,34 +32,38 @@ class tasklist_ui
     function __construct($plugin)
     {
         $this->plugin = $plugin;
-        $this->rc = $plugin->rc;
+        $this->rc     = $plugin->rc;
     }
 
     /**
-    * Calendar UI initialization and requests handlers
-    */
+     * Calendar UI initialization and requests handlers
+     */
     public function init()
     {
-        if ($this->ready)  // already done
+        if ($this->ready) {
             return;
+        }
 
         // add taskbar button
         $this->plugin->add_button(array(
-            'command' => 'tasks',
-            'class'   => 'button-tasklist',
-            'classsel' => 'button-tasklist button-selected',
+            'command'    => 'tasks',
+            'class'      => 'button-tasklist',
+            'classsel'   => 'button-tasklist button-selected',
             'innerclass' => 'button-inner',
-            'label'   => 'tasklist.navtitle',
+            'label'      => 'tasklist.navtitle',
         ), 'taskbar');
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tasklist.css');
-        $this->plugin->include_script('tasklist_base.js');
 
-        // copy config to client
-        $this->rc->output->set_env('tasklist_settings', $this->load_settings());
+        if ($this->rc->task == 'mail' || $this->rc->task == 'tasks') {
+            $this->plugin->include_script('tasklist_base.js');
 
-        // initialize attendees autocompletion
-        $this->rc->autocomplete_init();
+            // copy config to client
+            $this->rc->output->set_env('tasklist_settings', $this->load_settings());
+
+            // initialize attendees autocompletion
+            $this->rc->autocomplete_init();
+        }
 
         $this->ready = true;
     }
