@@ -56,6 +56,8 @@ class tasklist_ui
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tasklist.css');
 
         if ($this->rc->task == 'mail' || $this->rc->task == 'tasks') {
+            jqueryui::tagedit();
+
             $this->plugin->include_script('tasklist_base.js');
 
             // copy config to client
@@ -155,7 +157,8 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.edit_attendees_notify', array($this, 'edit_attendees_notify'));
         $this->plugin->register_handler('plugin.task_rsvp_buttons', array($this->plugin->itip, 'itip_rsvp_buttons'));
 
-        $this->plugin->include_script('jquery.tagedit.js');
+        jqueryui::tagedit();
+
         $this->plugin->include_script('tasklist.js');
         $this->rc->output->include_script('treelist.js');
 
@@ -163,8 +166,6 @@ class tasklist_ui
         if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {
             $this->plugin->api->include_script('libkolab/js/folderlist.js');
         }
-
-        $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tagedit.css');
     }
 
     /**

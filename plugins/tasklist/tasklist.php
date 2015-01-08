@@ -72,6 +72,7 @@ class tasklist extends rcube_plugin
     function init()
     {
         $this->require_plugin('libcalendaring');
+        $this->require_plugin('jqueryui');
 
         $this->rc  = rcube::get_instance();
         $this->lib = libcalendaring::get_instance();
@@ -1253,7 +1254,6 @@ class tasklist extends rcube_plugin
             $script_add .= rcmail_output::JS_OBJECT_NAME . ".gui_object('$obj', '$id');\n";
         }
 
-        echo html::tag('link', array('rel' => 'stylesheet', 'type' => 'text/css', 'href' => $this->url($this->local_skin_path() . '/tagedit.css'), 'nl' => true));
         echo html::tag('script', array('type' => 'text/javascript'),
             rcmail_output::JS_OBJECT_NAME . ".set_env(" . json_encode($env) . ");\n".
             rcmail_output::JS_OBJECT_NAME . ".add_label(" . json_encode($texts) . ");\n".

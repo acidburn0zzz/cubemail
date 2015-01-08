@@ -55,14 +55,13 @@ class kolab_notes_ui
         $this->rc->output->include_script('list.js');
         $this->rc->output->include_script('treelist.js');
         $this->plugin->include_script('notes.js');
-        $this->plugin->include_script('jquery.tagedit.js');
+
+        jqueryui::tagedit();
 
         // include kolab folderlist widget if available
         if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {
             $this->plugin->api->include_script('libkolab/js/folderlist.js');
         }
-
-        $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tagedit.css');
 
         // load config options and user prefs relevant for the UI
         $settings = array(
