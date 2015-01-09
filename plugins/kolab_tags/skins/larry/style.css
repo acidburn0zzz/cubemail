@@ -125,3 +125,11 @@ ul.toolbarmenu li span.icon.tagremoveall {
 	cursor: pointer;
 	text-decoration: none;
 }
+
+#tag-selector li.search {
+	padding: 4px;
+}
+
+#tag-selector li.search input {
+	width: 120px;
+}

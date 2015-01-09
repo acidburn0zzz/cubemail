@@ -54,7 +54,8 @@ class kolab_tags_engine
             $this->plugin->include_script('kolab_tags.js');
             $this->rc->output->add_label('cancel', 'save');
             $this->plugin->add_label('tags', 'add', 'edit', 'delete', 'saving',
-                'nameempty', 'nameexists', 'colorinvalid', 'untag', 'tagname', 'tagcolor');
+                'nameempty', 'nameexists', 'colorinvalid', 'untag', 'tagname',
+                'tagcolor', 'tagsearchnew');
 
             $this->rc->output->add_handlers(array(
                 'plugin.taglist' => array($this, 'taglist'),
@@ -199,8 +200,6 @@ class kolab_tags_engine
     public function action_add()
     {
         $tag     = rcube_utils::get_input_value('_tag', rcube_utils::INPUT_POST);
-        $filter  = array(array('uid', '=', explode(',', $tag)));
-        $taglist = $this->backend->list_tags($filter);
         $storage = $this->rc->get_storage();
         $members = array();
 
@@ -218,24 +217,45 @@ class kolab_tags_engine
             $members = array_merge($members, $this->build_members($mbox, $msgs));
         }
 
-        // for every tag...
-        foreach ($taglist as $tag) {
-            $tag['members'] = array_unique(array_merge((array) $tag['members'], $members));
+        // create a new tag?
+        if (!empty($_POST['_new'])) {
+            $object = array(
+                'name'    => $tag,
+                'members' => $members,
+            );
 
-            // update tag object
-            if (!$this->backend->update($tag)) {
-                $error = true;
+            $object = $this->backend->create($object);
+            $error  = $object === false;
+        }
+        // use existing tags (by UID)
+        else {
+            $filter  = array(array('uid', '=', explode(',', $tag)));
+            $taglist = $this->backend->list_tags($filter);
+
+            // for every tag...
+            foreach ($taglist as $tag) {
+                $tag['members'] = array_unique(array_merge((array) $tag['members'], $members));
+
+                // update tag object
+                if (!$this->backend->update($tag)) {
+                    $error = true;
+                }
             }
         }
 
         if ($error) {
+            $this->rc->output->show_message($this->plugin->gettext('taggingerror'), 'error');
+
             if ($_POST['_from'] != 'show') {
-                $this->rc->output->show_message($this->plugin->gettext('taggingerror'), 'error');
                 $this->rc->output->command('list_mailbox');
             }
         }
         else {
             $this->rc->output->show_message($this->plugin->gettext('taggingsuccess'), 'confirmation');
+
+            if (isset($object)) {
+                $this->rc->output->command('plugin.kolab_tags', array('mark' => 1, 'add' => array($this->parse_tag($object))));
+            }
         }
     }
 

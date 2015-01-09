@@ -21,6 +21,7 @@ $labels['edit'] = 'Edit';
 $labels['delete'] = 'Delete';
 $labels['tagname'] = 'Name';
 $labels['tagcolor'] = 'Color';
+$labels['tagsearchnew'] = 'Enter text to search or create a new tag';
 $labels['nameempty'] = 'Tag name cannot be empty!';
 $labels['nameexists'] = 'Tag with specified name already exists!';
 $labels['colorinvalid'] = 'Invalid color specification!';
