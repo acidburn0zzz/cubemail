@@ -48,8 +48,8 @@ function rcube_calendar(settings)
         // load calendar UI (scripts and edit dialog template)
         if (!this.ui_loaded) {
           $.when(
-            $.getScript('./plugins/calendar/calendar_ui.js'),
-            $.getScript('./plugins/calendar/lib/js/fullcalendar.js'),
+            $.getScript(rcmail.assets_path('plugins/calendar/calendar_ui.js')),
+            $.getScript(rcmail.assets_path('plugins/calendar/lib/js/fullcalendar.js')),
             $.get(rcmail.url('calendar/inlineui'), function(html){ $(document.body).append(html); }, 'html')
           ).then(function() {
             // disable attendees feature (autocompletion and stuff is not initialized)
