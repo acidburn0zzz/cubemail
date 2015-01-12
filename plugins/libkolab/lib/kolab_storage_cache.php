@@ -204,7 +204,6 @@ class kolab_storage_cache
                     $old_index = array();
                     while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
                         $old_index[] = $sql_arr['msguid'];
-                        $this->uid2msg[$sql_arr['uid']] = $sql_arr['msguid'];
                     }
 
                     // fetch new objects from imap
