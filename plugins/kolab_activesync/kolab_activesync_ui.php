@@ -146,10 +146,12 @@ class kolab_activesync_ui
 
         $table = new html_table(array('cellspacing' => 0));
         $table->add_header(array('class' => 'subscription', 'title' => $this->plugin->gettext('synchronize'), 'tabindex' => 0),
-            $attrib['syncicon'] ? html::img(array('src' => $this->skin_path . $attrib['syncicon'])) : '');
+            $attrib['syncicon'] ? html::img(array('src' => $this->skin_path . $attrib['syncicon'])) :
+                $this->plugin->gettext('synchronize'));
         if ($alarms) {
             $table->add_header(array('class' => 'alarm', 'title' => $this->plugin->gettext('withalarms'), 'tabindex' => 0),
-                $attrib['alarmicon'] ? html::img(array('src' => $this->skin_path . $attrib['alarmicon'])) : '');
+                $attrib['alarmicon'] ? html::img(array('src' => $this->skin_path . $attrib['alarmicon'])) :
+                    $this->plugin->gettext('withalarms'));
         }
         $table->add_header('foldername', $this->plugin->gettext('folder'));
 

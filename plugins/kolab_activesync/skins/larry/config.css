@@ -71,12 +71,27 @@ div.subscriptionblock h3.note {
 #foldersubscriptions thead th.alarm,
 #foldersubscriptions thead th.subscription {
 	cursor: pointer;
+	overflow: hidden;
+	text-indent: -5000px;
+	background-image: url(synchronize.png);
+	background-position: center center;
+	background-repeat: no-repeat;
+	height: 16px;
+}
+
+#foldersubscriptions thead th.alarm {
+	background-image: url(alarm-clock.png);
 }
 
 #foldersubscriptions tbody td {
 	background: #eee;
 	padding: 2px;
 	border-bottom: 2px solid #fff;
+}
+
+#foldersubscriptions tbody td.alarm,
+#foldersubscriptions tbody td.subscription {
+	text-align: center;
 }
 
 #foldersubscriptions td label {
