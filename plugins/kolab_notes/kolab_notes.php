@@ -394,7 +394,10 @@ class kolab_notes extends rcube_plugin
                 $this->rc->output->set_env('kolab_notes_template', array(
                     '_from_mail' => true,
                     'title' => $message->get('subject'),
-                    'links' => array($this->get_message_reference(kolab_storage_config::get_message_uri($message, $folder))),
+                    'links' => array(kolab_storage_config::get_message_reference(
+                        kolab_storage_config::get_message_uri($message, $folder),
+                        'note'
+                    )),
                 ));
             }
         }
@@ -573,9 +576,8 @@ class kolab_notes extends rcube_plugin
         }
 
         // resolve message links
-        $me = $this;
-        $note['links'] = array_map(function($link) use ($me, $resolve) {
-                return $me->get_message_reference($link, $resolve) ?: array('uri' => $link);
+        $note['links'] = array_map(function($link) {
+                return kolab_storage_config::get_message_reference($link, 'note') ?: array('uri' => $link);
             }, $this->get_links($note['uid']));
 
         return $note;
@@ -1040,28 +1042,6 @@ class kolab_notes extends rcube_plugin
         }
 
         return $result;
-    }
-
-    /**
-     * Resolve the email message reference from the given URI
-     */
-    public function get_message_reference($uri, $resolve = false)
-    {
-        if ($linkref = kolab_storage_config::parse_member_url($uri)) {
-            $linkref['subject'] = $linkref['params']['subject'];
-            $linkref['uri']     = $uri;
-            $linkref['mailurl'] = $this->rc->url(array(
-                'task'   => 'mail',
-                'action' => 'show',
-                'mbox'   => $linkref['folder'],
-                'uid'    => $linkref['uid'],
-                'rel'    => 'note',
-            ));
-
-            unset($linkref['params']);
-        }
-
-        return $linkref;
     }
 
     /**

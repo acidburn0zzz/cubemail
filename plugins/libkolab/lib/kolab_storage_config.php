@@ -356,24 +356,6 @@ class kolab_storage_config
     }
 
     /**
-     * Simplify the given message URI by converting the mailbox
-     * part into a relative IMAP path valid for the current user.
-     */
-    public static function local_message_uri($uri)
-    {
-        if (strpos($uri, 'imap:///') === 0) {
-            $linkref = kolab_storage_config::parse_member_url($uri);
-
-            return 'imap:///' . implode('/', array_map('rawurlencode', explode('/', $linkref['folder']))) .
-                '/' . $linkref['uid'] .
-                '?' . http_build_query($linkref['params'], '', '&');
-        }
-
-        return $uri;
-    }
-
-
-    /**
      * Build array of member URIs from set of messages
      *
      * @param string $folder   Folder name
@@ -854,5 +836,31 @@ class kolab_storage_config
         }
 
         return self::build_member_url($params);
+    }
+
+    /**
+     * Resolve the email message reference from the given URI
+     */
+    public function get_message_reference($uri, $rel = null)
+    {
+        if ($linkref = self::parse_member_url($uri)) {
+            $linkref['subject'] = $linkref['params']['subject'];
+            $linkref['uri']     = $uri;
+
+            $rcmail = rcube::get_instance();
+            if (method_exists($rcmail, 'url')) {
+                $linkref['mailurl'] = $rcmail->url(array(
+                    'task'   => 'mail',
+                    'action' => 'show',
+                    'mbox'   => $linkref['folder'],
+                    'uid'    => $linkref['uid'],
+                    'rel'    => $rel,
+                ));
+            }
+
+            unset($linkref['params']);
+        }
+
+        return $linkref;
     }
 }

@@ -1099,8 +1099,8 @@ class tasklist extends rcube_plugin
         // convert link URIs references into structs
         if (array_key_exists('links', $rec)) {
             foreach ((array)$rec['links'] as $i => $link) {
-                if (strpos($link, 'imap://') === 0) {
-                    $rec['links'][$i] = $this->get_message_reference($link);
+                if (strpos($link, 'imap://') === 0 && ($msgref = $this->driver->get_message_reference($link))) {
+                    $rec['links'][$i] = $msgref;
                 }
             }
         }
@@ -1395,8 +1395,8 @@ class tasklist extends rcube_plugin
             $this->load_driver();
 
             // add a reference to the email message
-            if ($msguri = $this->driver->get_message_uri($message->headers, $mbox)) {
-                $task['links'] = array($this->get_message_reference($msguri));
+            if ($msgref = $this->driver->get_message_reference($message->headers, $mbox)) {
+                $task['links'] = array($msgref);
             }
             // copy mail attachments to task
             else if ($message->attachments && $this->driver->attachments) {
@@ -1600,45 +1600,6 @@ class tasklist extends rcube_plugin
         }
 
         return $list ?: $first;
-    }
-
-    /**
-     * Resolve the email message reference from the given URI
-     */
-    public function get_message_reference($uri)
-    {
-        if (strpos($uri, 'imap:///') === 0) {
-            $url = parse_url(substr($uri, 8));
-            parse_str($url['query'], $params);
-
-            $path = explode('/', $url['path']);
-            $uid  = array_pop($path);
-            $folder = join('/', array_map('rawurldecode', $path));
-        }
-
-        if ($folder && $uid) {
-            // TODO: check if folder/uid still references an existing message
-            // TODO: validate message or resovle the new URI using the message-id parameter
-
-            $linkref = array(
-                'folder'  => $folder,
-                'uid'     => $uid,
-                'subject' => $params['subject'],
-                'uri'     => $uri,
-                'mailurl' => $this->rc->url(array(
-                    'task'   => 'mail',
-                    'action' => 'show',
-                    'mbox'   => $folder,
-                    'uid'    => $uid,
-                    'rel'    => 'task',
-                ))
-            );
-        }
-        else {
-            $linkref = array();
-        }
-
-        return $linkref;
     }
 
     /**

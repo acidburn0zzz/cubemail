@@ -288,14 +288,15 @@ abstract class tasklist_driver
     public function get_attachment_body($id, $task) { }
 
     /**
-     * Build a URI representing the given message reference
+     * Build a struct representing the given message reference
      *
-     * @param object $headers rcube_message_header instance holding the message headers
+     * @param object|string $uri_or_headers rcube_message_header instance holding the message headers
+     *                         or an URI from a stored link referencing a mail message.
      * @param string $folder  IMAP folder the message resides in
      *
-     * @return string An URI referencing the given IMAP message
+     * @return array An struct referencing the given IMAP message
      */
-    public function get_message_uri($headers, $folder)
+    public function get_message_reference($uri_or_headers, $folder = null)
     {
         // to be implemented by the derived classes
         return false;
