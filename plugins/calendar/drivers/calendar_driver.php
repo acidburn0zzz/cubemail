@@ -378,6 +378,21 @@ abstract class calendar_driver
   public function get_attachment_body($id, $event) { }
 
   /**
+   * Build a struct representing the given message reference
+   *
+   * @param object|string $uri_or_headers rcube_message_header instance holding the message headers
+   *                         or an URI from a stored link referencing a mail message.
+   * @param string $folder  IMAP folder the message resides in
+   *
+   * @return array An struct referencing the given IMAP message
+   */
+  public function get_message_reference($uri_or_headers, $folder = null)
+  {
+      // to be implemented by the derived classes
+      return false;
+  }
+
+  /**
    * List availabale categories
    * The default implementation reads them from config/user prefs
    */
