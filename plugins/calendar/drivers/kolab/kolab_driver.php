@@ -772,7 +772,7 @@ class kolab_driver extends calendar_driver
           break;
       }
     }
-
+    
     if ($success && $this->freebusy_trigger)
       $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
 
@@ -980,7 +980,7 @@ class kolab_driver extends calendar_driver
         $success = $storage->update_event($event);
         break;
     }
-    
+
     if ($success && $this->freebusy_trigger)
       $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
     
@@ -1216,6 +1216,24 @@ class kolab_driver extends calendar_driver
   }
 
   /**
+   * Build a struct representing the given message reference
+   *
+   * @see calendar_driver::get_message_reference()
+   */
+  public function get_message_reference($uri_or_headers, $folder = null)
+  {
+      if (is_object($uri_or_headers)) {
+          $uri_or_headers = kolab_storage_config::get_message_uri($uri_or_headers, $folder);
+      }
+
+      if (is_string($uri_or_headers)) {
+          return kolab_storage_config::get_message_reference($uri_or_headers, 'event');
+      }
+
+      return false;
+  }
+
+  /**
    * List availabale categories
    * The default implementation reads them from config/user prefs
    */
@@ -1402,7 +1420,6 @@ class kolab_driver extends calendar_driver
 
     return $record;
   }
-
 
   /**
    * Provide a list of revisions for the given event

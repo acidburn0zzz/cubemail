@@ -129,6 +129,7 @@ function rcube_tasklist_ui(settings)
     var parse_datetime = this.parse_datetime;
     var date2unixtime = this.date2unixtime;
     var fromunixtime = this.fromunixtime;
+    var render_message_links = this.render_message_links;
 
     /**
      * initialize the tasks UI
@@ -594,6 +595,12 @@ function rcube_tasklist_ui(settings)
         // register click handler for message links
         $('#task-links, #taskedit-links').on('click', 'li a.messagelink', function(e) {
             rcmail.open_window(this.href);
+            return false;
+        });
+
+        // register click handler for message delete buttons
+        $('#taskedit-links').on('click', 'li a.delete', function(e) {
+            remove_link(e.target);
             return false;
         });
 
@@ -1840,7 +1847,7 @@ function rcube_tasklist_ui(settings)
         // build attachments list
         $('#task-links').hide();
         if ($.isArray(rec.links) && rec.links.length) {
-            task_show_links(rec.links || [], $('#task-links').children('.task-text'));
+            render_message_links(rec.links || [], $('#task-links').children('.task-text'), false, 'tasklist');
             $('#task-links').show();
         }
 
@@ -2052,7 +2059,7 @@ function rcube_tasklist_ui(settings)
         me.set_alarms_edit('#taskedit-alarms', action != 'new' && rec.valarms ? rec.valarms : []);
 
         if ($.isArray(rec.links) && rec.links.length) {
-            task_show_links(rec.links, $('#taskedit-links .task-text'), true);
+            render_message_links(rec.links, $('#taskedit-links .task-text'), true, 'tasklist');
             $('#taskedit-links').show();
         }
         else {
@@ -2358,48 +2365,15 @@ function rcube_tasklist_ui(settings)
     /**
      *
      */
-    function task_show_links(links, container, edit)
+    function remove_link(elem)
     {
-        var dellink, ul = $('<ul>').addClass('attachmentslist');
+        var $elem = $(elem), uri = $elem.attr('data-uri');
 
-        $.each(links, function(i, link) {
-            var li = $('<li>').addClass('link')
-                .addClass('message eml')
-                .append($('<a>')
-                    .attr('href', link.mailurl)
-                    .addClass('messagelink')
-                    .text(link.subject || link.uri)
-                )
-                .appendTo(ul);
-
-            // add icon to remove the link
-            if (edit) {
-                $('<a>')
-                    .attr('href', '#delete')
-                    .attr('title', rcmail.gettext('removelink','tasklist'))
-                    .addClass('delete')
-                    .text(rcmail.gettext('delete'))
-                    .click({ uri:link.uri }, function(e) {
-                        remove_link(this, e.data.uri);
-                        return false;
-                    })
-                    .appendTo(li);
-            }
-        });
-
-        container.empty().append(ul);
-    }
-
-    /**
-     *
-     */
-    function remove_link(elem, uri)
-    {
         // remove the link item matching the given uri
         me.selected_task.links = $.grep(me.selected_task.links, function(link) { return link.uri != uri; });
 
         // remove UI list item
-        $(elem).hide().closest('li').addClass('deleted');
+        $elem.hide().closest('li').addClass('deleted');
     }
 
     /**

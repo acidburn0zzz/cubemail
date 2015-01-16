@@ -1636,6 +1636,15 @@ class calendar extends rcube_plugin
       $event['attachments'][$k]['classname'] = rcube_utils::file2class($attachment['mimetype'], $attachment['name']);
     }
 
+    // convert link URIs references into structs
+    if (array_key_exists('links', $event)) {
+      foreach ((array)$event['links'] as $i => $link) {
+        if (strpos($link, 'imap://') === 0 && ($msgref = $this->driver->get_message_reference($link))) {
+          $event['links'][$i] = $msgref;
+        }
+      }
+    }
+
     // check for organizer in attendees list
     $organizer = null;
     foreach ((array)$event['attendees'] as $i => $attendee) {
@@ -1823,6 +1832,13 @@ class calendar extends rcube_plugin
     }
 
     $event['attachments'] = $attachments;
+
+    // convert link references into simple URIs
+    if (array_key_exists('links', $event)) {
+      $event['links'] = array_map(function($link) {
+          return is_array($link) ? $link['uri'] : strval($link);
+        }, (array)$event['links']);
+    }
 
     // check for organizer in attendees
     if ($action == 'new' || $action == 'edit') {
@@ -2932,9 +2948,15 @@ class calendar extends rcube_plugin
     if ($message->headers) {
       $event['title'] = trim($message->subject);
       $event['description'] = trim($message->first_text_part());
-      
+
+      $this->load_driver();
+
+      // add a reference to the email message
+      if ($msgref = $this->driver->get_message_reference($message->headers, $mbox)) {
+        $event['links'] = array($msgref);
+      }
       // copy mail attachments to event
-      if ($message->attachments) {
+      else if ($message->attachments) {
         $eventid = 'cal:';
         if (!is_array($_SESSION[self::SESSION_KEY]) || $_SESSION[self::SESSION_KEY]['id'] != $eventid) {
           $_SESSION[self::SESSION_KEY] = array();

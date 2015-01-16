@@ -187,6 +187,7 @@ function rcube_calendar_ui(settings)
     var fromunixtime = this.fromunixtime;
     var parseISO8601 = this.parseISO8601;
     var date2servertime = this.date2ISO8601;
+    var render_message_links = this.render_message_links;
 
 
     /***  private methods  ***/
@@ -471,6 +472,13 @@ function rcube_calendar_ui(settings)
         // fetch attachments, some drivers doesn't set 'attachments' prop of the event?
       }
 
+      // build attachments list
+      $('#event-links').hide();
+      if ($.isArray(event.links) && event.links.length) {
+          render_message_links(event.links || [], $('#event-links').children('.event-text'), false, 'calendar');
+          $('#event-links').show();
+      }
+
       // list event attendees
       if (calendar.attendees && event.attendees) {
         // sort resources to the end
@@ -546,20 +554,30 @@ function rcube_calendar_ui(settings)
         $('#event-rsvp .itip-reply-comment textarea').hide().val('');
       }
 
-      var buttons = {};
+      var buttons = [];
       if (!temp && calendar.editable && event.editable !== false) {
-        buttons[rcmail.gettext('edit', 'calendar')] = function() {
-          event_edit_dialog('edit', event);
-        };
-        buttons[rcmail.gettext('delete', 'calendar')] = function() {
-          me.delete_event(event);
-          $dialog.dialog('close');
-        };
+        buttons.push({
+          text: rcmail.gettext('edit', 'calendar'),
+          click: function() {
+            event_edit_dialog('edit', event);
+          }
+        });
+        buttons.push({
+          text: rcmail.gettext('delete', 'calendar'),
+          'class': 'delete',
+          click: function() {
+            me.delete_event(event);
+            $dialog.dialog('close');
+          }
+        });
       }
       else {
-        buttons[rcmail.gettext('close', 'calendar')] = function(){
-          $dialog.dialog('close');
-        };
+        buttons.push({
+          text: rcmail.gettext('close', 'calendar'),
+          click: function(){
+            $dialog.dialog('close');
+          }
+        });
       }
 
       // open jquery UI dialog
@@ -712,6 +730,14 @@ function rcube_calendar_ui(settings)
         $('<option>').attr('value', event.categories).text(event.categories).appendTo(categories).prop('selected', true);
       }
 
+      if ($.isArray(event.links) && event.links.length) {
+          render_message_links(event.links, $('#edit-event-links .event-text'), true, 'calendar');
+          $('#edit-event-links').show();
+      }
+      else {
+          $('#edit-event-links').hide();
+      }
+
       // show warning if editing a recurring event
       if (event.id && event.recurrence) {
         var sel = event.thisandfuture ? 'future' : (event.isexception ? 'current' : 'all');
@@ -778,10 +804,13 @@ function rcube_calendar_ui(settings)
       };
       
       // init dialog buttons
-      var buttons = {};
+      var buttons = [];
       
       // save action
-      buttons[rcmail.gettext('save', 'calendar')] = function() {
+      buttons.push({
+        text: rcmail.gettext('save', 'calendar'),
+        'class': 'mainaction',
+        click: function() {
         var start = parse_datetime(allday.checked ? '12:00' : starttime.val(), startdate.val());
         var end   = parse_datetime(allday.checked ? '13:00' : endtime.val(), enddate.val());
         
@@ -809,6 +838,7 @@ function rcube_calendar_ui(settings)
           recurrence: me.serialize_recurrence(endtime.val()),
           valarms: me.serialize_alarms('#edit-alarms'),
           attendees: event_attendees,
+          links: me.selected_event.links,
           deleted_attachments: rcmail.env.deleted_attachments,
           attachments: []
         };
@@ -865,18 +895,26 @@ function rcube_calendar_ui(settings)
 
         update_event(action, data);
         $dialog.dialog("close");
-      };
+      }  // end click:
+      });
 
       if (event.id) {
-        buttons[rcmail.gettext('delete', 'calendar')] = function() {
-          me.delete_event(event);
-          $dialog.dialog('close');
-        };
+        buttons.push({
+          text: rcmail.gettext('delete', 'calendar'),
+          'class': 'delete',
+          click: function() {
+            me.delete_event(event);
+            $dialog.dialog('close');
+          }
+        });
       }
 
-      buttons[rcmail.gettext('cancel', 'calendar')] = function() {
-        $dialog.dialog("close");
-      };
+      buttons.push({
+        text: rcmail.gettext('cancel', 'calendar'),
+        click: function() {
+          $dialog.dialog("close");
+        }
+      });
 
       // show/hide tabs according to calendar's feature support
       $('#edit-tab-attendees')[(calendar.attendees?'show':'hide')]();
@@ -900,7 +938,6 @@ function rcube_calendar_ui(settings)
         title: rcmail.gettext((action == 'edit' ? 'edit_event' : 'new_event'), 'calendar'),
         open: function() {
           editform.attr('aria-hidden', 'false');
-          $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
         },
         close: function() {
           editform.hide().attr('aria-hidden', 'true').appendTo(document.body);
@@ -2414,7 +2451,18 @@ function rcube_calendar_ui(settings)
       })
       $.each(listitems, function(idx, item) { mylist.append(item); });
     }
-    
+
+    // remove the link reference matching the given uri
+    function remove_link(elem)
+    {
+      var $elem = $(elem), uri = $elem.attr('data-uri');
+
+      me.selected_event.links = $.grep(me.selected_event.links, function(link) { return link.uri != uri; });
+
+      // remove UI list item
+      $elem.hide().closest('li').addClass('deleted');
+    }
+
     // post the given event data to server
     var update_event = function(action, data, add)
     {
@@ -4053,6 +4101,20 @@ function rcube_calendar_ui(settings)
         });
         return false;
       })
+
+      // register click handler for message links
+      $('#edit-event-links, #event-links').on('click', 'li a.messagelink', function(e) {
+        rcmail.open_window(this.href);
+        if (!rcube_event.is_keyboard(e) && this.blur)
+          this.blur();
+        return false;
+      });
+
+      // register click handler for message delete buttons
+      $('#edit-event-links').on('click', 'li a.delete', function(e) {
+          remove_link(e.target);
+          return false;
+      });
 
       $('#agenda-listrange').change(function(e){
         settings['agenda_range'] = parseInt($(this).val());

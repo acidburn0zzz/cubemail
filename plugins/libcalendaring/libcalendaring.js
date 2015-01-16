@@ -788,6 +788,39 @@ function rcube_libcalendaring(settings)
         }
     };
 
+
+    // Render message reference links to the given container
+    this.render_message_links = function(links, container, edit, plugin)
+    {
+        var ul = $('<ul>').addClass('attachmentslist');
+
+        $.each(links, function(i, link) {
+            if (!link.mailurl)
+                return true;  // continue
+
+            var li = $('<li>').addClass('link')
+                .addClass('message eml')
+                .append($('<a>')
+                    .attr('href', link.mailurl)
+                    .addClass('messagelink')
+                    .text(link.subject || link.uri)
+                )
+                .appendTo(ul);
+
+            // add icon to remove the link
+            if (edit) {
+                $('<a>')
+                    .attr('href', '#delete')
+                    .attr('title', rcmail.gettext('removelink', plugin))
+                    .attr('data-uri', link.uri)
+                    .addClass('delete')
+                    .text(rcmail.gettext('delete'))
+                    .appendTo(li);
+            }
+        });
+
+        container.empty().append(ul);
+    }
 }
 
 //////  static methods

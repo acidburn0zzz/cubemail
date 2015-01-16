@@ -958,6 +958,37 @@ div.form-section,
 	text-overflow: ellipsis;
 }
 
+#event-links .attachmentslist {
+	display: inline-block;
+}
+
+#event-links label,
+#edit-event-links label {
+	float: left;
+	margin-top: 0.3em;
+	padding-right: 0.75em;
+}
+
+#edit-event-links .event-text {
+	margin-left: 8em;
+	min-height: 22px;
+}
+
+#edit-event-links .attachmentslist li.message a.messagelink,
+#event-links .attachmentslist li.message a.messagelink {
+	padding: 0 0 0 24px;
+}
+
+#edit-event-links .attachmentslist li a.delete {
+	top: 0;
+	background-position: -6px -378px;
+}
+
+#edit-event-links .attachmentslist li.deleted a.messagelink,
+#edit-event-links .attachmentslist li.deleted a.messagelink:hover {
+	text-decoration: line-through;
+}
+
 #eventedit .formtable td.label {
 	min-width: 6em;
 }
