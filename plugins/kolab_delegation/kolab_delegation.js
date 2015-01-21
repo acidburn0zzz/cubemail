@@ -7,7 +7,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2011-2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -260,13 +260,10 @@ rcube_webmail.prototype.calendar_folder_delegator = function(calendar)
 {
   var d, delegator;
 
-  $.each(this.env.namespace, function(i, v) {
-    var delim = v[v.length-1], pos;
-    if (calendar.indexOf(v) === 0 && (pos = calendar.indexOf(delim, v.length))) {
-      delegator = calendar.substr(v.length, pos - v.length)
-      return false;
-    }
-  });
+  // derive delegator from the calendar owner property
+  if (this.env.calendars[calendar] && this.env.calendars[calendar].owner) {
+    delegator = this.env.calendars[calendar].owner.replace(/@.+$/, '');
+  }
 
   if (delegator && (d = this.env.delegators[delegator])) {
     // find delegator's identity id
@@ -299,9 +296,8 @@ rcube_webmail.prototype.calendar_change = function()
 
   // change organizer identity in identity selector
   if (select.length && old != this.env.calendar_settings.identity) {
-    // @TODO: run freebusy update?
     var id = this.env.calendar_settings.identity.identity_id;
-    select.val(id ? id : '');
+    select.val(id || select.find('option').first().val()).change();
   }
 };
 
