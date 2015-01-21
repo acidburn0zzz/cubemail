@@ -1217,6 +1217,8 @@ class libcalendaring extends rcube_plugin
 
         $attrib['src'] = './?' . str_replace('_frame=', ($ctype_primary == 'text' ? '_show=' : '_preload='), $_SERVER['QUERY_STRING']);
 
+        $this->rc->output->add_gui_object('attachmentframe', $attrib['id']);
+
         return html::iframe($attrib);
     }
 
@@ -1225,18 +1227,31 @@ class libcalendaring extends rcube_plugin
      */
     public function attachment_header($attrib = array())
     {
-        $table = new html_table(array('cols' => 3));
+        $rcmail = rcmail::get_instance();
+        $dl_link = strtolower($attrib['downloadlink']) == 'true';
+        $dl_url = $this->rc->url(array('_frame' => null, '_download' => 1) + $_GET);
+
+        $table = new html_table(array('cols' => $dl_link ? 3 : 2));
 
         if (!empty($this->attachment['name'])) {
             $table->add('title', Q($this->rc->gettext('filename')));
             $table->add('header', Q($this->attachment['name']));
-            $table->add('download-link', html::a('?'.str_replace('_frame=', '_download=', $_SERVER['QUERY_STRING']), Q($this->rc->gettext('download'))));
+            if ($dl_link) {
+                $table->add('download-link', html::a($dl_url, Q($this->rc->gettext('download'))));
+            }
+        }
+
+        if (!empty($this->attachment['mimetype'])) {
+            $table->add('title', Q($this->rc->gettext('type')));
+            $table->add('header', Q($this->attachment['mimetype']));
         }
 
         if (!empty($this->attachment['size'])) {
             $table->add('title', Q($this->rc->gettext('filesize')));
             $table->add('header', Q(show_bytes($this->attachment['size'])));
         }
+
+        $this->rc->output->set_env('attachment_download_url', $dl_url);
 
         return $table->show($attrib);
     }

@@ -1140,4 +1140,18 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   $('.rsvp-buttons').on('click', 'a.reply-comment-toggle', function(e){
     $(this).hide().parent().find('textarea').show().focus();
   });
+
+  if (rcmail.env.action == 'get-attachment' && rcmail.gui_objects['attachmentframe']) {
+    rcmail.register_command('print-attachment', function() {
+      var frame = rcmail.get_frame_window(rcmail.gui_objects['attachmentframe'].id);
+      if (frame) frame.print();
+    }, true);
+  }
+
+  if (rcmail.env.action == 'get-attachment' && rcmail.env.attachment_download_url) {
+    rcmail.register_command('download-attachment', function() {
+      rcmail.location_href(rcmail.env.attachment_download_url, window);
+    }, true);
+  }
+
 });

@@ -30,10 +30,6 @@ ul.toolbarmenu li span.icon.taskadd,
 	display: none;
 }
 
-body.tasklist.attachmentwin #mainscreen {
-	top: 32px;
-}
-
 .tasklistview #mainscreen {
 	min-width: 1000px !important;
 	min-height: 520px !important;
@@ -1390,6 +1386,58 @@ div.messagetasklinks .messagetaskref.complete a.messagetasklink {
 
 div.messagetasklinks .messagetaskref input.complete {
 	vertical-align: middle;
+}
+
+
+.tasklist.attachmentwin #attachmenttoolbar {
+	position: relative;
+	top: -6px;
+	height: 40px;
+}
+
+.tasklist.attachmentwin #attachmentcontainer {
+	position: absolute;
+	top: 0;
+	left: 232px;
+	right: 0;
+	bottom: 0;
+}
+
+.tasklist.attachmentwin #attachmentframe {
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background-color: #fff;
+	border-radius: 4px;
+}
+
+.tasklist.attachmentwin #partheader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 220px;
+	bottom: 0;
+}
+
+.tasklist.attachmentwin #partheader table {
+	table-layout: fixed;
+	overflow: hidden;
+}
+
+.tasklist.attachmentwin #partheader table td {
+	color: #666;
+	padding: 4px 6px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.tasklist.attachmentwin #partheader table td.header {
+	font-weight: bold;
+}
+
+.tasklist.attachmentwin #partheader table td.title {
+	width: 60px;
+	padding-right: 0;
 }
 
 
