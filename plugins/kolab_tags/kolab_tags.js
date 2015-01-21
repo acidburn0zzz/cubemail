@@ -702,9 +702,21 @@ function tag_selector(event, callback)
             link = document.createElement('a'),
             span = document.createElement('span');
 
-        container = $('<div id="tag-selector" class="popupmenu"></div>');
         link.href = '#';
         link.className = 'active';
+        container = $('<div id="tag-selector" class="popupmenu"></div>')
+            .keydown(function(e) {
+                var focused = $('*:focus', container).parent();
+
+                if (e.which == 40) { // Down
+                    focused.nextAll('li:visible').first().find('a').focus();
+                    return false;
+                }
+                else if (e.which == 38) { // Up
+                    focused.prevAll('li:visible').first().find('input,a').focus();
+                    return false;
+                }
+            });
 
         // add tag search/create input
         rows.push(tag_selector_search_element(container));
@@ -758,7 +770,10 @@ function tag_selector_reset()
 
 function tag_selector_search_element(container)
 {
-    var input = $('<input>').attr({'type': 'text', title: rcmail.gettext('kolab_tags.tagsearchnew')})
+    var title = rcmail.gettext('kolab_tags.tagsearchnew'),
+        placeholder = rcmail.gettext('kolab_tags.newtag');
+
+    var input = $('<input>').attr({'type': 'text', title: title, placeholder: placeholder})
         .keyup(function(e) {
             if (this.value) {
                 // execute action on Enter
