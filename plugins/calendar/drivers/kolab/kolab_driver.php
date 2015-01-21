@@ -1422,6 +1422,30 @@ class kolab_driver extends calendar_driver
   }
 
   /**
+   * Set CSS class according to the event's attendde partstat
+   */
+  public static function add_partstat_class($event, $partstats, $user = null)
+  {
+    // set classes according to PARTSTAT
+    if (is_array($event['attendees'])) {
+      $user_emails = libcalendaring::get_instance()->get_user_emails($user);
+      $partstat = 'UNKNOWN';
+      foreach ($event['attendees'] as $attendee) {
+        if (in_array($attendee['email'], $user_emails)) {
+          $partstat = $attendee['status'];
+          break;
+        }
+      }
+
+      if (in_array($partstat, $partstats)) {
+        $event['className'] = trim($event['className'] . ' fc-invitation-' . strtolower($partstat));
+      }
+    }
+
+    return $event;
+  }
+
+  /**
    * Provide a list of revisions for the given event
    *
    * @param array  $event Hash array with event properties

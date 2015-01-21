@@ -674,6 +674,11 @@ class kolab_calendar extends kolab_storage_folder_api
     $record['calendar'] = $this->id;
     $record['links'] = $this->get_links($record['uid']);
 
+    if ($this->get_namespace() == 'other') {
+      $record['className'] = 'fc-event-ns-other';
+      $record = kolab_driver::add_partstat_class($record, array('NEEDS-ACTION','DECLINED'), $this->get_owner());
+    }
+
     return kolab_driver::to_rcube_event($record);
   }
 

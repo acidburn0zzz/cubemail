@@ -1883,6 +1883,15 @@ a.dropdown-link:after {
 	border: 1px dashed #c00 !important;
 }
 
+.fc-event-vert.fc-event-ns-other.fc-invitation-declined,
+.fc-event-hori.fc-event-ns-other.fc-invitation-declined {
+	opacity: 0.7;
+}
+
+.fc-event-ns-other.fc-invitation-declined .fc-event-title {
+	text-decoration: line-through;
+}
+
 .fc-event-vert.fc-invitation-tentative .fc-event-head,
 .fc-event-vert.fc-invitation-declined .fc-event-head,
 .fc-event-vert.fc-invitation-needs-action .fc-event-head {

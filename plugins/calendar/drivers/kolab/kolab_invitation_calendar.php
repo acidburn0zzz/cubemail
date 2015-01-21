@@ -276,20 +276,10 @@ class kolab_invitation_calendar
   private function _mod_event($event)
   {
     // set classes according to PARTSTAT
-    if (is_array($event['attendees'])) {
-      $user_emails = $this->cal->get_user_emails();
-      $partstat = 'UNKNOWN';
-      foreach ($event['attendees'] as $attendee) {
-        if (in_array($attendee['email'], $user_emails)) {
-          $partstat = $attendee['status'];
-          break;
-        }
-      }
+    $event = kolab_driver::add_partstat_class($event, $this->partstats);
 
-      if (in_array($partstat, $this->partstats)) {
-        $event['className'] = 'fc-invitation-' . strtolower($partstat);
-        $event['calendar'] = $this->id;
-      }
+    if (strpos($event['className'], 'fc-invitation-') !== false) {
+      $event['calendar'] = $this->id;
     }
 
     return $event;
