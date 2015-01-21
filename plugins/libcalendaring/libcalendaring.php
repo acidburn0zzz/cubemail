@@ -361,32 +361,37 @@ class libcalendaring extends rcube_plugin
     }
 
     /**
-     * Get a list of email addresses of the current user (from login and identities)
+     * Get a list of email addresses of the given user (from login and identities)
+     *
+     * @param string User Email (default to current user)
+     * @return array Email addresses related to the user
      */
-    public function get_user_emails()
+    public function get_user_emails($user = null)
     {
-        static $emails;
+        static $_emails = array();
 
-        // return cached result
-        if (is_array($emails)) {
-            return $emails;
+        if (empty($user)) {
+            $user = $this->rc->user->get_username();
         }
 
-        $emails = array();
+        // return cached result
+        if (is_array($_emails[$user])) {
+            return $_emails[$user];
+        }
+
+        $emails = array($user);
         $plugin = $this->rc->plugins->exec_hook('calendar_user_emails', array('emails' => $emails));
         $emails = array_map('strtolower', $plugin['emails']);
 
-        if ($plugin['abort']) {
-            return $emails;
+        // add all emails from the current user's identities
+        if (!$plugin['abort'] && ($user == $this->rc->user->get_username())) {
+            foreach ($this->rc->user->list_emails() as $identity) {
+                $emails[] = strtolower($identity['email']);
+            }
         }
 
-        $emails[] = $this->rc->user->get_username();
-        foreach ($this->rc->user->list_emails() as $identity) {
-            $emails[] = strtolower($identity['email']);
-        }
-
-        $emails = array_unique($emails);
-        return $emails;
+        $_emails[$user] = array_unique($emails);
+        return $_emails[$user];
     }
 
     /**

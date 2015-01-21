@@ -743,6 +743,13 @@ class kolab_delegation_engine
     {
         $context = $this->delegator_context();
 
+        // try to derive context from the given user email
+        if (!$context && !empty($args['emails'])) {
+            if (($user = preg_replace('/@.+$/', '', $args['emails'][0])) && isset($_SESSION['delegators'][$user])) {
+                $context = $user;
+            }
+        }
+
         // return delegator's addresses
         if ($context) {
             $args['emails'] = $_SESSION['delegators'][$context];
