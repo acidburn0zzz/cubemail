@@ -792,7 +792,6 @@ class kolab_delegation_engine
             }
             if ($args['personal']) {
                 $ns   = $cal->get_namespace();
-                $name = $cal->get_realname(); // UTF-7 IMAP folder name
 
                 if (empty($context)) {
                     if ($ns != 'personal') {
@@ -806,7 +805,7 @@ class kolab_delegation_engine
 
                     foreach ($other_ns as $ns) {
                         $folder = $ns[0] . $context . $delim;
-                        if (strpos($name, $folder) !== 0) {
+                        if (strpos($cal->name, $folder) !== 0) {
                             continue;
                         }
                     }
