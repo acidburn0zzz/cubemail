@@ -98,12 +98,6 @@ class libcalendaring extends rcube_plugin
 
         // include client scripts and styles
         if ($this->rc->output) {
-            if ($this->rc->output->type == 'html') {
-                $this->rc->output->set_env('libcal_settings', $this->load_settings());
-                $this->include_script('libcalendaring.js');
-                $this->include_stylesheet($this->local_skin_path() . '/libcal.css');
-            }
-
             // add hook to display alarms
             $this->add_hook('refresh', array($this, 'refresh'));
             $this->register_action('plugin.alarms', array($this, 'alarms_action'));
@@ -119,6 +113,12 @@ class libcalendaring extends rcube_plugin
      */
     public function startup($args)
     {
+        if ($this->rc->output && $this->rc->output->type == 'html') {
+            $this->rc->output->set_env('libcal_settings', $this->load_settings());
+            $this->include_script('libcalendaring.js');
+            $this->include_stylesheet($this->local_skin_path() . '/libcal.css');
+        }
+
         if ($args['task'] == 'mail') {
             if ($args['action'] == 'show' || $args['action'] == 'preview') {
                 $this->add_hook('message_load', array($this, 'mail_message_load'));
