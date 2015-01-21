@@ -74,6 +74,7 @@ class odfviewer extends rcube_plugin
   {
     if (!$args['download'] && $args['mimetype'] && in_array($args['mimetype'], $this->odf_mimetypes)) {
       if (empty($_GET['_load'])) {
+        $rcmail = rcube::get_instance();
         $exts = rcube_mime::get_mime_extensions($args['mimetype']);
         $suffix = $exts ? '.'.$exts[0] : '.odt';
         $fn = md5(session_id() . $_SERVER['REQUEST_URI']) . $suffix;
@@ -99,8 +100,8 @@ class odfviewer extends rcube_plugin
         $html = file_get_contents($this->home . '/odf.html');
         header("Content-Type: text/html; charset=" . RCMAIL_CHARSET);
         echo strtr($html, array(
-          '%%DOCROOT%%' => $this->urlbase,
-          '%%DOCURL%%' => $this->tempbase . $fn, # $_SERVER['REQUEST_URI'].'&_load=1',
+          '%%DOCROOT%%' => $rcmail->output->asset_url($this->urlbase),
+          '%%DOCURL%%' => $rcmail->output->asset_url($this->tempbase . $fn), # $_SERVER['REQUEST_URI'].'&_load=1',
           ));
         $args['abort'] = true;
       }
