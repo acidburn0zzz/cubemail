@@ -237,7 +237,7 @@ class kolab_calendar extends kolab_storage_folder_api
     $query[] = array('dtend',   '>=', $start);
 
     // add query to exclude pending/declined invitations
-    if (empty($filter_query)) {
+    if (empty($filter_query) && $this->get_namespace() != 'other') {
       foreach ($user_emails as $email) {
         $query[] = array('tags', '!=', 'x-partstat:' . $email . ':needs-action');
         $query[] = array('tags', '!=', 'x-partstat:' . $email . ':declined');
@@ -257,7 +257,7 @@ class kolab_calendar extends kolab_storage_folder_api
     $events = array();
     foreach ($this->storage->select($query) as $record) {
       // post-filter events to skip pending and declined invitations
-      if (empty($filter_query) && is_array($record['attendees'])) {
+      if (empty($filter_query) && is_array($record['attendees']) && $this->get_namespace() != 'other') {
         foreach ($record['attendees'] as $attendee) {
           if (in_array($attendee['email'], $user_emails) && in_array($attendee['status'], array('NEEDS-ACTION','DECLINED'))) {
             continue 2;
