@@ -4012,6 +4012,17 @@ function rcube_calendar_ui(settings)
       me.init_alarms_edit('#edit-alarms');
       me.init_recurrence_edit('#eventedit');
 
+      // reload free-busy status when changing the organizer identity
+      $('#eventedit').on('change', '#edit-identities-list', function(e) {
+        var email = settings.identities[$(this).val()],
+          icon = $(this).closest('tr').find('img.availabilityicon');
+
+        if (email && icon.length) {
+          icon.attr('data-email', email);
+          check_freebusy_status(icon, email, me.selected_event);
+        }
+      });
+
       $('#event-export-startdate').datepicker(datepicker_settings);
 
       // init attendees autocompletion
