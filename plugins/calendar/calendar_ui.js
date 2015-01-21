@@ -322,7 +322,8 @@ function rcube_calendar_ui(settings)
         }
       }
 
-      rcmail.goto_url('get-attachment', qstring+'&_download=1', false);
+      query._frame = null;
+      rcmail.goto_url('get-attachment', query, false);
     };
 
     // build event attachments list
