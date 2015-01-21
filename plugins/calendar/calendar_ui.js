@@ -323,6 +323,7 @@ function rcube_calendar_ui(settings)
       }
 
       query._frame = null;
+      query._download = 1;
       rcmail.goto_url('get-attachment', query, false);
     };
 
