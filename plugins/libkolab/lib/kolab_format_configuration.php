@@ -125,6 +125,8 @@ class kolab_format_configuration extends kolab_format
         // adjust content-type string
         $this->CTYPEv2 = 'application/x-vnd.kolab.configuration.' . $object['type'];
 
+        // reset old object data, otherwise set() will overwrite current data (#4095)
+        $this->xmldata = null;
         // set common object properties
         parent::set($object);
 
