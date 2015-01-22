@@ -497,7 +497,7 @@ class calendar extends rcube_plugin
       foreach (array('-M','-H','-D','+M','+H','+D') as $trigger)
         $select_offset->add(rcube_label('trigger' . $trigger, 'libcalendaring'), $trigger);
 
-      $preset = libcalendaring::parse_alaram_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
+      $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
       $p['blocks']['view']['options']['alarmoffset'] = array(
         'title' => html::label($field_id . 'value', Q($this->gettext('defaultalarmoffset'))),
         'content' => $input_value->show($preset[0]) . ' ' . $select_offset->show($preset[1]),
@@ -665,7 +665,7 @@ class calendar extends rcube_plugin
       foreach (array('-M','-H','-D') as $trigger)
         $select_offset->add(rcube_label('trigger' . $trigger, 'libcalendaring'), $trigger);
 
-      $preset = libcalendaring::parse_alaram_value($this->rc->config->get('calendar_birthdays_alarm_offset', '-1D'));
+      $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_birthdays_alarm_offset', '-1D'));
       $p['blocks']['birthdays']['options']['birthdays_alarmoffset'] = array(
         'title' => html::label($field_id . 'value', rcube::Q($this->gettext('showalarms'))),
         'content' => $select_type->show($this->rc->config->get('calendar_birthdays_alarm_type', '')) . ' ' . $input_value->show($preset[0]) . '&nbsp;' . $select_offset->show($preset[1]),

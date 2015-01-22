@@ -29,29 +29,29 @@ class libcalendaring_test extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * libcalendaring::parse_alaram_value()
+     * libcalendaring::parse_alarm_value()
      */
-    function test_parse_alaram_value()
+    function test_parse_alarm_value()
     {
-        $alarm = libcalendaring::parse_alaram_value('-15M');
+        $alarm = libcalendaring::parse_alarm_value('-15M');
         $this->assertEquals('15', $alarm[0]);
         $this->assertEquals('-M', $alarm[1]);
         $this->assertEquals('-PT15M', $alarm[3]);
 
-        $alarm = libcalendaring::parse_alaram_value('-PT5H');
+        $alarm = libcalendaring::parse_alarm_value('-PT5H');
         $this->assertEquals('5',  $alarm[0]);
         $this->assertEquals('-H', $alarm[1]);
 
-        $alarm = libcalendaring::parse_alaram_value('P0DT1H0M0S');
+        $alarm = libcalendaring::parse_alarm_value('P0DT1H0M0S');
         $this->assertEquals('1',  $alarm[0]);
         $this->assertEquals('+H', $alarm[1]);
 
         // FIXME: this should return something like (1140 + 120 + 30)M
-        $alarm = libcalendaring::parse_alaram_value('-P1DT2H30M');
+        $alarm = libcalendaring::parse_alarm_value('-P1DT2H30M');
         // $this->assertEquals('1590', $alarm[0]);
         // $this->assertEquals('-M',   $alarm[1]);
 
-        $alarm = libcalendaring::parse_alaram_value('@1420722000');
+        $alarm = libcalendaring::parse_alarm_value('@1420722000');
         $this->assertInstanceOf('DateTime', $alarm[0]);
     }
 

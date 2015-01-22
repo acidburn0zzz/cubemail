@@ -177,7 +177,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $event = $events[0];
 
         $this->assertEquals('-12H:DISPLAY', $event['alarms'], "Serialized alarms string");
-        $alarm = libcalendaring::parse_alaram_value($event['alarms']);
+        $alarm = libcalendaring::parse_alarm_value($event['alarms']);
         $this->assertEquals('12', $alarm[0], "Alarm value");
         $this->assertEquals('-H', $alarm[1], "Alarm unit");
 
@@ -189,7 +189,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $event = $events[0];
 
         $this->assertEquals('-30M:DISPLAY', $event['alarms'], "Stripped alarm string");
-        $alarm = libcalendaring::parse_alaram_value($event['alarms']);
+        $alarm = libcalendaring::parse_alarm_value($event['alarms']);
         $this->assertEquals('30', $alarm[0], "Alarm value");
         $this->assertEquals('-M', $alarm[1], "Alarm unit");
         $this->assertEquals('-30M', $alarm[2], "Alarm string");
@@ -242,7 +242,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
 
         // alarms
         $this->assertEquals('-45M:AUDIO', $event['alarms'], "Relative alarm string");
-        $alarm = libcalendaring::parse_alaram_value($event['alarms']);
+        $alarm = libcalendaring::parse_alarm_value($event['alarms']);
         $this->assertEquals('45', $alarm[0], "Alarm value");
         $this->assertEquals('-M', $alarm[1], "Alarm unit");
 

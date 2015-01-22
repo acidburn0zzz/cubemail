@@ -588,7 +588,7 @@ class libvcalendar implements Iterator
                             $alarm['trigger'] = $prop->getDateTime();
                         }
                     }
-                    if (!$trigger && ($values = libcalendaring::parse_alaram_value($prop->value))) {
+                    if (!$trigger && ($values = libcalendaring::parse_alarm_value($prop->value))) {
                         $trigger = $values[2];
                     }
 
@@ -1057,7 +1057,7 @@ class libvcalendar implements Iterator
         else if ($event['alarms']) {
             $va = VObject\Component::create('VALARM');
             list($trigger, $va->action) = explode(':', $event['alarms']);
-            $val = libcalendaring::parse_alaram_value($trigger);
+            $val = libcalendaring::parse_alarm_value($trigger);
             if ($val[3])
                 $va->add('TRIGGER', $val[3]);
             else if ($val[0] instanceof DateTime)

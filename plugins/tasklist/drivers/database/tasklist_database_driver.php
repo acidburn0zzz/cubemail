@@ -770,7 +770,7 @@ class tasklist_database_driver extends tasklist_driver
         // convert legacy alarms data
         else if (strlen($alarms)) {
             list($trigger, $action) = explode(':', $alarms, 2);
-            if ($trigger = libcalendaring::parse_alaram_value($trigger)) {
+            if ($trigger = libcalendaring::parse_alarm_value($trigger)) {
                 $valarms = array(array('action' => $action, 'trigger' => $trigger[3] ?: $trigger[0]));
             }
         }

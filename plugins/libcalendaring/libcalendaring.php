@@ -341,7 +341,7 @@ class libcalendaring extends rcube_plugin
             $select_offset->add($this->gettext('trigger@'), '@');
 
         // pre-set with default values from user settings
-        $preset = self::parse_alaram_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
+        $preset = self::parse_alarm_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
         $hidden = array('style' => 'display:none');
         $html = html::span('edit-alarm-set',
             $select_type->show($this->rc->config->get('calendar_default_alarm_type', '')) . ' ' .
@@ -421,7 +421,7 @@ class libcalendaring extends rcube_plugin
      * Helper function to convert alarm trigger strings
      * into two-field values (e.g. "-45M" => 45, "-M")
      */
-    public static function parse_alaram_value($val)
+    public static function parse_alarm_value($val)
     {
         if ($val[0] == '@') {
             return array(new DateTime($val));
@@ -452,7 +452,7 @@ class libcalendaring extends rcube_plugin
             if ($alarm['trigger'] instanceof DateTime) {
                 $alarm['trigger'] = '@' . $alarm['trigger']->format('U');
             }
-            else if ($trigger = libcalendaring::parse_alaram_value($alarm['trigger'])) {
+            else if ($trigger = libcalendaring::parse_alarm_value($alarm['trigger'])) {
                 $alarm['trigger'] = $trigger[2];
             }
             return $alarm;
@@ -472,7 +472,7 @@ class libcalendaring extends rcube_plugin
                 }
                 catch (Exception $e) { /* handle this ? */ }
             }
-            else if ($trigger = libcalendaring::parse_alaram_value($alarm['trigger'])) {
+            else if ($trigger = libcalendaring::parse_alarm_value($alarm['trigger'])) {
                 $alarm['trigger'] = $trigger[3];
             }
             return $alarm;
@@ -538,7 +538,7 @@ class libcalendaring extends rcube_plugin
                 'vars' => array('datetime' => $rcube->format_date($m[1]))
             ));
         }
-        else if ($val = self::parse_alaram_value($trigger)) {
+        else if ($val = self::parse_alarm_value($trigger)) {
             // TODO: for all-day events say 'on date of event at XX' ?
             if ($val[0] == 0)
                 $text .= ' ' . $rcube->gettext('libcalendaring.triggerattime');
@@ -577,7 +577,7 @@ class libcalendaring extends rcube_plugin
         // support legacy format
         if (!$rec['valarms']) {
             list($trigger, $action) = explode(':', $rec['alarms'], 2);
-            if ($alarm = self::parse_alaram_value($trigger)) {
+            if ($alarm = self::parse_alarm_value($trigger)) {
                 $rec['valarms'] = array(array('action' => $action, 'trigger' => $alarm[3] ?: $alarm[0]));
             }
         }
