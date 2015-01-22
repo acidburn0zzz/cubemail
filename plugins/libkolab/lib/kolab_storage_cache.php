@@ -935,7 +935,6 @@ class kolab_storage_cache
             return;
 
         $this->_read_folder_data();
-        $sql_query = "SELECT `synclock`, `ctag` FROM `{$this->folders_table}` WHERE `folder_id` = ?";
 
         // abort if database is not set-up
         if ($this->db->is_error()) {
@@ -943,16 +942,21 @@ class kolab_storage_cache
             return;
         }
 
-        $this->synclock = true;
+        $read_query  = "SELECT `synclock`, `ctag` FROM `{$this->folders_table}` WHERE `folder_id` = ?";
+        $write_query = "UPDATE `{$this->folders_table}` SET `synclock` = ? WHERE `folder_id` = ? AND `synclock` = ?";
 
-        // wait if locked (expire locks after 10 minutes)
-        while ($this->metadata && intval($this->metadata['synclock']) > 0 && $this->metadata['synclock'] + $this->max_sync_lock_time > time()) {
+        // wait if locked (expire locks after 10 minutes) ...
+        // ... or if setting lock fails (another process meanwhile set it)
+        while (
+            (intval($this->metadata['synclock']) + $this->max_sync_lock_time > time()) ||
+            (($res = $this->db->query($write_query, time(), $this->folder_id, intval($this->metadata['synclock']))) &&
+                !($affected = $this->db->affected_rows($res)))
+        ) {
             usleep(500000);
-            $this->metadata = $this->db->fetch_assoc($this->db->query($sql_query, $this->folder_id));
+            $this->metadata = $this->db->fetch_assoc($this->db->query($read_query, $this->folder_id));
         }
 
-        // set lock
-        $this->db->query("UPDATE `{$this->folders_table}` SET `synclock` = ? WHERE `folder_id` = ?", time(), $this->folder_id);
+        $this->synclock = $affected > 0;
     }
 
     /**
