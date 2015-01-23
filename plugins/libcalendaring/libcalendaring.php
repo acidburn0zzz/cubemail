@@ -435,7 +435,7 @@ class libcalendaring extends rcube_plugin
                     // convert seconds to minutes
                     if ($seg[2] == 'S') {
                         $seg[2] = 'M';
-                        $seg[1] = round($seg[1]/60);
+                        $seg[1] = max(1, round($seg[1]/60));
                     }
 
                     return array($seg[1], $m[1].$seg[2], $m[1].$seg[1].$seg[2], $m[1].$prefix.$seg[1].$seg[2]);
