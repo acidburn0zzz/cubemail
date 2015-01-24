@@ -1756,7 +1756,7 @@ class calendar extends rcube_plugin
    */
   public function attachment_upload()
   {
-    $this->lib->attachment_upload(self::SESSION_KEY, 'cal:');
+    $this->lib->attachment_upload(self::SESSION_KEY, 'cal-');
   }
 
   /**
@@ -1820,7 +1820,8 @@ class calendar extends rcube_plugin
     }
 
     $attachments = array();
-    $eventid = 'cal:'.$event['id'];
+    $eventid     = 'cal-'.$event['id'];
+
     if (is_array($_SESSION[self::SESSION_KEY]) && $_SESSION[self::SESSION_KEY]['id'] == $eventid) {
       if (!empty($_SESSION[self::SESSION_KEY]['attachments'])) {
         foreach ($_SESSION[self::SESSION_KEY]['attachments'] as $id => $attachment) {
@@ -2957,7 +2958,7 @@ class calendar extends rcube_plugin
       }
       // copy mail attachments to event
       else if ($message->attachments) {
-        $eventid = 'cal:';
+        $eventid = 'cal-';
         if (!is_array($_SESSION[self::SESSION_KEY]) || $_SESSION[self::SESSION_KEY]['id'] != $eventid) {
           $_SESSION[self::SESSION_KEY] = array();
           $_SESSION[self::SESSION_KEY]['id'] = $eventid;
