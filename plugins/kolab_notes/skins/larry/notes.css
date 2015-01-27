@@ -281,6 +281,11 @@
 	        box-sizing: border-box;
 }
 
+/* Firefox 3.6 */
+_:not(), _:-moz-handler-blocked, .notesview #notedetailstitle .tagedit-list {
+	min-height: 26px;
+}
+
 .notesview #notedetailstitle .disabled .tagedit-list {
 	min-height: 26px;
 }
