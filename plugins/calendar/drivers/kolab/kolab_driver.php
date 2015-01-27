@@ -889,7 +889,8 @@ class kolab_driver extends calendar_driver
         // save submitted data as new (non-recurring) event
         $event['recurrence'] = array();
         $event['uid'] = $this->cal->generate_uid();
-        
+        unset($event['recurrence_id'], $event['id']);
+
         // copy attachment data to new event
         foreach ((array)$event['attachments'] as $idx => $attachment) {
           if (!$attachment['data'])
