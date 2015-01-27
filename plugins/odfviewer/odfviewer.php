@@ -26,132 +26,84 @@
  */
 class odfviewer extends rcube_plugin
 {
-  public $task = 'mail|calendar|tasks|logout';
-  
-  private $tempdir  = 'plugins/odfviewer/files/';
-  private $tempbase = 'plugins/odfviewer/files/';
-  
-  private $odf_mimetypes = array(
-    'application/vnd.oasis.opendocument.chart',
-    'application/vnd.oasis.opendocument.chart-template',
-    'application/vnd.oasis.opendocument.formula',
-    'application/vnd.oasis.opendocument.formula-template',
-    'application/vnd.oasis.opendocument.graphics',
-    'application/vnd.oasis.opendocument.graphics-template',
-    'application/vnd.oasis.opendocument.presentation',
-    'application/vnd.oasis.opendocument.presentation-template',
-    'application/vnd.oasis.opendocument.text',
-    'application/vnd.oasis.opendocument.text-master',
-    'application/vnd.oasis.opendocument.text-template',
-    'application/vnd.oasis.opendocument.spreadsheet',
-    'application/vnd.oasis.opendocument.spreadsheet-template',
-  );
+    public $task = 'mail|calendar|tasks';
 
-  function init()
-  {
-    $this->tempdir = $this->home . '/files/';
-    $this->tempbase = $this->urlbase . 'files/';
+    private $odf_mimetypes = array(
+        'application/vnd.oasis.opendocument.chart',
+        'application/vnd.oasis.opendocument.chart-template',
+        'application/vnd.oasis.opendocument.formula',
+        'application/vnd.oasis.opendocument.formula-template',
+        'application/vnd.oasis.opendocument.graphics',
+        'application/vnd.oasis.opendocument.graphics-template',
+        'application/vnd.oasis.opendocument.presentation',
+        'application/vnd.oasis.opendocument.presentation-template',
+        'application/vnd.oasis.opendocument.text',
+        'application/vnd.oasis.opendocument.text-master',
+        'application/vnd.oasis.opendocument.text-template',
+        'application/vnd.oasis.opendocument.spreadsheet',
+        'application/vnd.oasis.opendocument.spreadsheet-template',
+    );
 
-    // webODF only supports IE9 or higher
-    $ua = new rcube_browser;
-    if ($ua->ie && $ua->ver < 9)
-      return;
-    // extend list of mimetypes that should open in preview
-    $rcmail = rcube::get_instance();
-    if ($rcmail->action == 'preview' || $rcmail->action == 'show' || $rcmail->task == 'calendar' || $rcmail->task == 'tasks') {
-      $mimetypes = (array)$rcmail->config->get('client_mimetypes');
-      $rcmail->config->set('client_mimetypes', array_merge($mimetypes, $this->odf_mimetypes));
-    }
+    function init()
+    {
+        // webODF only supports IE9 or higher
+        $ua = new rcube_browser;
+        if ($ua->ie && $ua->ver < 9) {
+            return;
+        }
 
-    $this->add_hook('message_part_get', array($this, 'get_part'));
-    $this->add_hook('session_destroy', array($this, 'session_cleanup'));
-  }
-
-  /**
-   * Handler for message attachment download
-   */
-  function get_part($args)
-  {
-    if (!$args['download'] && $args['mimetype'] && in_array($args['mimetype'], $this->odf_mimetypes)) {
-      if (empty($_GET['_load'])) {
+        // extend list of mimetypes that should open in preview
         $rcmail = rcube::get_instance();
-        $exts = rcube_mime::get_mime_extensions($args['mimetype']);
-        $suffix = $exts ? '.'.$exts[0] : '.odt';
-        $fn = md5(session_id() . $_SERVER['REQUEST_URI']) . $suffix;
-
-        // FIXME: copy file to disk because only apache can send the file correctly
-        $tempfn = $this->tempdir . $fn;
-        if (!file_exists($tempfn)) {
-          if ($args['body']) {
-            file_put_contents($tempfn, $args['body']);
-          }
-          else {
-            $fp = fopen($tempfn, 'w');
-            $imap = rcube::get_instance()->get_storage();
-            $imap->get_message_part($args['uid'], $args['id'], $args['part'], false, $fp);
-            fclose($fp);
-          }
-
-          // remember tempfiles in session to clean up on logout
-          $_SESSION['odfviewer']['tempfiles'][] = $fn;
+        if ($rcmail->action == 'preview' || $rcmail->action == 'show' || $rcmail->task == 'calendar' || $rcmail->task == 'tasks') {
+            $mimetypes = (array)$rcmail->config->get('client_mimetypes');
+            $rcmail->config->set('client_mimetypes', array_merge($mimetypes, $this->odf_mimetypes));
         }
-        
-        // send webODF viewer page
-        $html = file_get_contents($this->home . '/odf.html');
-        header("Content-Type: text/html; charset=" . RCMAIL_CHARSET);
-        echo strtr($html, array(
-          '%%DOCROOT%%' => $rcmail->output->asset_url($this->urlbase),
-          '%%DOCURL%%' => $rcmail->output->asset_url($this->tempbase . $fn), # $_SERVER['REQUEST_URI'].'&_load=1',
-          ));
-        $args['abort'] = true;
-      }
-/*
-      else {
-        if ($_SERVER['REQUEST_METHOD'] == 'HEAD') {
-          header("Content-Length: " . max(10, $args['part']->size));  # content-length has to be present
-          $args['body'] = ' ';  # send empty body
-          return $args;
+
+        $this->add_hook('message_part_get', array($this, 'get_part'));
+    }
+
+    /**
+     * Handler for message attachment download
+     */
+    function get_part($args)
+    {
+        if (!$args['download'] && $args['mimetype'] && in_array($args['mimetype'], $this->odf_mimetypes)) {
+            $rcmail = rcube::get_instance();
+            $params = array(
+                'documentUrl' => $_SERVER['REQUEST_URI'] . '&_download=1',
+                'filename'    => $args['part']->filename ?: 'file.odt',
+                'type'        => $args['mimetype'],
+            );
+
+            // send webODF viewer page
+            $html = file_get_contents($this->home . '/odf.html');
+            header("Content-Type: text/html; charset=" . RCMAIL_CHARSET);
+            echo strtr($html, array(
+                '%%PARAMS%%'             => rcube_output::json_serialize($params),
+                '%%viewer.css%%'         => $this->asset_path('viewer.css'),
+                '%%viewer.js%%'          => $this->asset_path('viewer.js'),
+                '%%ODFViewerPlugin.js%%' => $this->asset_path('ODFViewerPlugin.js'),
+                '%%webodf.js%%'          => $this->asset_path('webodf.js'),
+            ));
+
+            $args['abort'] = true;
         }
-      }
-*/
+
+        return $args;
     }
 
-    return $args;
-  }
+    private function asset_path($path)
+    {
+        $rcmail     = rcube::get_instance();
+        $assets_dir = $rcmail->config->get('assets_dir');
 
-  /**
-   * Remove temp files opened during this session
-   */
-  function session_cleanup()
-  {
-    foreach ((array)$_SESSION['odfviewer']['tempfiles'] as $fn) {
-      @unlink($this->tempdir . $fn);
+        $mtime = filemtime($this->home . '/' . $path);
+        if (!$mtime && $assets_dir) {
+            $mtime = filemtime($assets_dir . '/plugins/odfviewer/' . $path);
+        }
+
+        $path = $this->urlbase . $path . ($mtime ? '?s=' . $mtime : '');
+
+        return $rcmail->output->asset_url($path);
     }
-    
-    // also trigger general garbage collection because not everybody logs out properly
-    $this->gc_cleanup();
-  }
-
-  /**
-   * Garbage collector function for temp files.
-   * Remove temp files older than two days
-   */
-  function gc_cleanup()
-  {
-    $tmp = unslashify($this->tempdir);
-    $expire = mktime() - 172800;  // expire in 48 hours
-
-    if ($dir = opendir($tmp)) {
-      while (($fname = readdir($dir)) !== false) {
-        if ($fname[0] == '.')
-          continue;
-
-        if (filemtime($tmp.'/'.$fname) < $expire)
-          @unlink($tmp.'/'.$fname);
-      }
-
-      closedir($dir);
-    }
-  }
 }
-
