@@ -1720,7 +1720,7 @@ function rcube_tasklist_ui(settings)
                 rcmail.gettext('expandattendeegroup','libcalendaring') + '</a>';
         }
 
-        var html = '<td class="name">' + dispname + '</td>' +
+        var html = '<td class="name"><span class="attendee-name">' + dispname + '</span></td>' +
             '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
             (data.cutype != 'RESOURCE' ? '<td class="invite">' + (readonly || !invbox ? '' : invbox) + '</td>' : '') +
             '<td class="options">' + (readonly ? '' : dellink) + '</td>';
@@ -1736,7 +1736,7 @@ function rcube_tasklist_ui(settings)
 
         tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
         tr.find('a.mailtolink').click(task_attendee_click);
-        tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); });
+        tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); return false; });
         tr.find('input.edit-attendee-reply').click(function() {
             var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
             $('#taskeditform .attendees-commentbox')[enabled ? 'show' : 'hide']();

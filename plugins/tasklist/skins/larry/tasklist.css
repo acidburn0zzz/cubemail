@@ -903,7 +903,7 @@ a.morelink:hover {
 }
 
 #taskedit .edit-attendees-table tbody td {
-	padding: 4px 7px;
+	padding: 5px 7px 6px;
 }
 
 #taskedit .edit-attendees-table tbody tr:last-child td {
@@ -955,7 +955,15 @@ a.morelink:hover {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+#taskedit .edit-attendees-table td.name .attendee-name {
+	display: block;
 	position: relative;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding: 5px 7px 6px 4px;
+	margin: -5px -7px -6px;
 }
 
 #taskedit .edit-attendees-table td.name select {

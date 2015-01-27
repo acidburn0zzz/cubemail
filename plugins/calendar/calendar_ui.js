@@ -1977,7 +1977,7 @@ function rcube_calendar_ui(settings)
 
       var img_src = rcmail.assets_path('program/resources/blank.gif');
       var html = '<td class="role">' + select + '</td>' +
-        '<td class="name">' + dispname + '</td>' +
+        '<td class="name"><span class="attendee-name">' + dispname + '</span></td>' +
         '<td class="availability"><img src="' + img_src + '" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
         '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
         (data.cutype != 'RESOURCE' ? '<td class="invite">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
@@ -1995,7 +1995,7 @@ function rcube_calendar_ui(settings)
 
       tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
       tr.find('a.mailtolink').click(event_attendee_click);
-      tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); });
+      tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); return false; });
       tr.find('input.edit-attendee-reply').click(function() {
         var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
         $('#eventedit .attendees-commentbox')[enabled ? 'show' : 'hide']();

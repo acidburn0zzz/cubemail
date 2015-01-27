@@ -1129,11 +1129,19 @@ td.topalign {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	position: relative;
 }
 
 #eventedit .edit-attendees-table td.name select {
 	width: 100%;
+}
+
+#eventedit .edit-attendees-table td.name .attendee-name {
+	display: block;
+	position: relative;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding: 5px 7px 6px;
+	margin: -5px -7px -6px;
 }
 
 #eventedit .edit-attendees-table a.deletelink {
