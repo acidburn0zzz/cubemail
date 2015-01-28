@@ -2217,7 +2217,7 @@ function rcube_calendar_ui(settings)
         }
 
         // load resource calendar
-        resources_events_source.url = "./?_task=calendar&_action=resources-calendar&_id="+escape(resource.ID);
+        resources_events_source.url = "./?_task=calendar&_action=resources-calendar&_id="+urlencode(resource.ID);
         $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('addEventSource', resources_events_source);
       }
     };
