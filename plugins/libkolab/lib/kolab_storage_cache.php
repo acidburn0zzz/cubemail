@@ -367,7 +367,7 @@ class kolab_storage_cache
         unset($target->cache->uid2msg[$uid]);
 
         // resolve new message UID in target folder
-        if ($new_msguid = $target->cache->uid2msguid($uid)) {
+        if ($this->ready && ($new_msguid = $target->cache->uid2msguid($uid))) {
             $this->_read_folder_data();
 
             $this->db->query(
@@ -399,6 +399,7 @@ class kolab_storage_cache
             "DELETE FROM $this->cache_table WHERE folder_id=?",
             $this->folder_id
         );
+
         return $this->db->affected_rows($result);
     }
 
@@ -510,7 +511,7 @@ class kolab_storage_cache
     public function count($query = array())
     {
         // cache is in sync, we can count records in local DB
-        if ($this->synched) {
+        if ($this->synched && $this->ready) {
             $this->_read_folder_data();
 
             $sql_result = $this->db->query(
