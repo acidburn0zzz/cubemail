@@ -320,7 +320,12 @@ class libvcalendar implements Iterator
                         if ($object['recurrence']) {
                             foreach ($vobject->children as $component) {
                                 if ($component->name == 'VEVENT' && isset($component->{'RECURRENCE-ID'})) {
-                                    $object['recurrence']['EXCEPTIONS'][] = $this->_to_array($component);
+                                    try {
+                                        $object['recurrence']['EXCEPTIONS'][] = $this->_to_array($component);
+                                    }
+                                    catch (Exception $e) {
+                                        console("iCal data parse error: " . $e->getMessage(), $component->serialize());
+                                    }
                                 }
                             }
                         }
