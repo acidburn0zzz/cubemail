@@ -1056,6 +1056,7 @@ td.topalign {
 .event-update-confirm a.button {
 	margin: 0 0.5em 0 0.2em;
 	min-width: 5em;
+	text-align: center;
 }
 
 #event-rsvp,

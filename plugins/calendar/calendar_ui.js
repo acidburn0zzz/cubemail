@@ -742,9 +742,11 @@ function rcube_calendar_ui(settings)
 
       // show warning if editing a recurring event
       if (event.id && event.recurrence) {
-        var sel = event.thisandfuture ? 'future' : (event.isexception ? 'current' : 'all');
+        var allow_exceptions = !has_attendees(event) || !is_organizer(event),
+          sel = event._savemode || (allow_exceptions && event.thisandfuture ? 'future' : (allow_exceptions && event.isexception ? 'current' : 'all'));
         $('#edit-recurring-warning').show();
         $('input.edit-recurring-savemode[value="'+sel+'"]').prop('checked', true);
+        $('input.edit-recurring-savemode[value="current"], input.edit-recurring-savemode[value="future"]').prop('disabled', !allow_exceptions);
       }
       else
         $('#edit-recurring-warning').hide();
@@ -764,6 +766,11 @@ function rcube_calendar_ui(settings)
         if (event.attendees) {
           for (j=0; j < event.attendees.length; j++) {
             data = event.attendees[j];
+            // reset attendee status
+            if (event._savemode == 'new' && data.role != 'ORGANIZER') {
+              data.status = 'NEEDS-ACTION';
+              delete data.noreply;
+            }
             add_attendee(data, !allow_invitations);
             if (allow_invitations && data.role != 'ORGANIZER' && !data.noreply)
               reply_selected++;
@@ -2519,12 +2526,13 @@ function rcube_calendar_ui(settings)
     var update_event_confirm = function(action, event, data)
     {
       if (!data) data = event;
-      var decline = false, notify = false, html = '', cal = me.calendars[event.calendar];
+      var decline = false, notify = false, html = '', cal = me.calendars[event.calendar],
+        _has_attendees = has_attendees(event), _is_organizer = is_organizer(event);
       
       // event has attendees, ask whether to notify them
-      if (has_attendees(event)) {
+      if (_has_attendees) {
         var checked = (settings.itip_notify & 1 ? ' checked="checked"' : '');
-        if (is_organizer(event)) {
+        if (_is_organizer) {
           notify = true;
           if (settings.itip_notify & 2) {
             html += '<div class="message">' +
@@ -2550,11 +2558,25 @@ function rcube_calendar_ui(settings)
       
       // recurring event: user needs to select the savemode
       if (event.recurrence) {
+        var disabled_state = '', message_label = (action == 'remove' ? 'removerecurringeventwarning' : 'changerecurringeventwarning');
+
+        if (_has_attendees) {
+          if (action == 'remove') {
+            if (!_is_organizer) {
+              message_label = 'removerecurringallonly';
+              disabled_state = ' disabled';
+            }
+          }
+          else if (is_organizer(event)) {
+            disabled_state = ' disabled';
+          }
+        }
+
         html += '<div class="message"><span class="ui-icon ui-icon-alert"></span>' +
-          rcmail.gettext((action == 'remove' ? 'removerecurringeventwarning' : 'changerecurringeventwarning'), 'calendar') + '</div>' +
+          rcmail.gettext(message_label, 'calendar') + '</div>' +
           '<div class="savemode">' +
-            '<a href="#current" class="button">' + rcmail.gettext('currentevent', 'calendar') + '</a>' +
-            '<a href="#future" class="button">' + rcmail.gettext('futurevents', 'calendar') + '</a>' +
+            '<a href="#current" class="button' + disabled_state + '">' + rcmail.gettext('currentevent', 'calendar') + '</a>' +
+            '<a href="#future" class="button' + disabled_state + '">' + rcmail.gettext('futurevents', 'calendar') + '</a>' +
             '<a href="#all" class="button">' + rcmail.gettext('allevents', 'calendar') + '</a>' +
             (action != 'remove' ? '<a href="#new" class="button">' + rcmail.gettext('saveasnew', 'calendar') + '</a>' : '') +
           '</div>';
@@ -2564,14 +2586,24 @@ function rcube_calendar_ui(settings)
       if (html) {
         var $dialog = $('<div>').html(html);
       
-        $dialog.find('a.button').button().click(function(e) {
+        $dialog.find('a.button').button().filter(':not(.disabled)').click(function(e) {
           data._savemode = String(this.href).replace(/.+#/, '');
           data._notify = settings.itip_notify;
-          if ($dialog.find('input.confirm-attendees-donotify').length)
-            data._notify = $dialog.find('input.confirm-attendees-donotify').get(0).checked ? 1 : 0;
-          if (decline && $dialog.find('input.confirm-attendees-decline:checked').length)
-            data.decline = 1;
-          update_event(action, data);
+
+          // open event edit dialog when saving as new
+          if (data._savemode == 'new') {
+            event._savemode = 'new';
+            event_edit_dialog('edit', event);
+            fc.fullCalendar('refetchEvents');
+          }
+          else {
+            if ($dialog.find('input.confirm-attendees-donotify').length)
+              data._notify = $dialog.find('input.confirm-attendees-donotify').get(0).checked ? 1 : 0;
+            if (decline && $dialog.find('input.confirm-attendees-decline:checked').length)
+              data.decline = 1;
+            update_event(action, data);
+          }
+
           $dialog.dialog("close");
           return false;
         });

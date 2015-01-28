@@ -842,7 +842,7 @@ class calendar extends rcube_plugin
     $success = $reload = $got_msg = false;
     
     // don't notify if modifying a recurring instance (really?)
-    if ($event['_savemode'] && $event['_savemode'] != 'all' && $event['_notify'])
+    if ($event['_savemode'] && in_array($event['_savemode'], array('current','future')) && $event['_notify'] && $action != 'remove')
       unset($event['_notify']);
     // force notify if hidden + active
     else if ((int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']) === 1)
@@ -866,20 +866,35 @@ class calendar extends rcube_plugin
         
       case "edit":
         $this->write_preprocess($event, $action);
-        if ($success = $this->driver->edit_event($event))
-            $this->cleanup_event($event);
+        if ($success = $this->driver->edit_event($event)) {
+          $this->cleanup_event($event);
+          if ($success !== true) {
+            $event['id'] = $success;
+            $old = null;
+          }
+        }
         $reload =  $success && ($event['recurrence'] || $event['_savemode'] || $event['_fromcalendar']) ? 2 : 1;
         break;
       
       case "resize":
         $this->write_preprocess($event, $action);
-        $success = $this->driver->resize_event($event);
+        if ($success = $this->driver->resize_event($event)) {
+          if ($success !== true) {
+            $event['id'] = $success;
+            $old = null;
+          }
+        }
         $reload = $event['_savemode'] ? 2 : 1;
         break;
       
       case "move":
         $this->write_preprocess($event, $action);
-        $success = $this->driver->move_event($event);
+        if ($success = $this->driver->move_event($event)) {
+          if ($success !== true) {
+            $event['id'] = $success;
+            $old = null;
+          }
+        }
         $reload  = $success && $event['_savemode'] ? 2 : 1;
         break;
       
@@ -1109,6 +1124,12 @@ class calendar extends rcube_plugin
     if ($success && $event['_notify'] && ($event['attendees'] || $old['attendees'])) {
       // make sure we have the complete record
       $event = $action == 'remove' ? $old : $this->driver->get_event($event);
+
+      // sending notification on a recurrence instance -> re-send the main event
+      if ($event['recurrence_id']) {
+        $event = $this->driver->get_event(array('id' => $event['recurrence_id'], 'cal' => $event['calendar']));
+        $action = 'edit';
+      }
 
       // only notify if data really changed (TODO: do diff check on client already)
       if (!$old || $action == 'remove' || self::event_diff($event, $old)) {

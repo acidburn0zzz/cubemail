@@ -889,15 +889,16 @@ class kolab_driver extends calendar_driver
         // save submitted data as new (non-recurring) event
         $event['recurrence'] = array();
         $event['uid'] = $this->cal->generate_uid();
-        unset($event['recurrence_id'], $event['id']);
+        unset($event['recurrence_id'], $event['id'], $event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
 
         // copy attachment data to new event
         foreach ((array)$event['attachments'] as $idx => $attachment) {
-          if (!$attachment['data'])
-            $attachment['data'] = $fromcalendar->get_attachment_body($attachment['id'], $event);
+          if (!$attachment['content'])
+            $event['attachments'][$idx]['content'] = $this->get_attachment_body($attachment['id'], $master);
         }
-        
-        $success = $storage->insert_event($event);
+
+        if ($success = $storage->insert_event($event))
+          $success = $event['uid'];
         break;
 
       case 'future':
@@ -907,7 +908,7 @@ class kolab_driver extends calendar_driver
         $event['thisandfuture'] = $savemode == 'future';
 
         // remove some internal properties which should not be saved
-        unset($event['_savemode'], $event['_fromcalendar'], $event['_identity']);
+        unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
 
         // save properties to a recurrence exception instance
         if ($old['recurrence_id']) {

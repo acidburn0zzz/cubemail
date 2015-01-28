@@ -261,6 +261,7 @@ $labels['changeeventconfirm'] = 'Change event';
 $labels['removeeventconfirm'] = 'Delete event';
 $labels['changerecurringeventwarning'] = 'This is a recurring event. Would you like to edit the current event only, this and all future occurences, all occurences or save it as a new event?';
 $labels['removerecurringeventwarning'] = 'This is a recurring event. Would you like to delete the current event only, this and all future occurences or all occurences of this event?';
+$labels['removerecurringallonly'] = 'This is a recurring event. As a participant, you can only delete the entire event with all occurences.';
 $labels['currentevent'] = 'Current';
 $labels['futurevents'] = 'Future';
 $labels['allevents'] = 'All';
