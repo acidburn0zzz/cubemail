@@ -154,7 +154,7 @@ class kolab_storage
 
         if (self::setup()) {
             foreach ((array)self::list_folders('', '*', $type, $subscribed, $folderdata) as $foldername) {
-                $folders[$foldername] = new kolab_storage_folder($foldername, $folderdata[$foldername]);
+                $folders[$foldername] = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
             }
         }
 
@@ -171,7 +171,7 @@ class kolab_storage
     {
         if (self::setup()) {
             foreach ((array)self::list_folders('', '*', $type . '.default', false, $folderdata) as $foldername) {
-                return new kolab_storage_folder($foldername, $folderdata[$foldername]);
+                return new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
             }
         }
 
@@ -203,11 +203,11 @@ class kolab_storage
     {
         self::setup();
         $folder = null;
-        foreach ((array)self::list_folders('', '*', $type) as $foldername) {
+        foreach ((array)self::list_folders('', '*', $type, null, $folderdata) as $foldername) {
             if (!$folder)
-                $folder = new kolab_storage_folder($foldername);
+                $folder = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
             else
-                $folder->set_folder($foldername);
+                $folder->set_folder($foldername, $type, $folderdata[$foldername]);
 
             if ($object = $folder->get_object($uid, '*'))
                 return $object;
@@ -230,11 +230,11 @@ class kolab_storage
         $folder = null;
         $result = array();
 
-        foreach ((array)self::list_folders('', '*', $type) as $foldername) {
+        foreach ((array)self::list_folders('', '*', $type, null, $folderdata) as $foldername) {
             if (!$folder)
-                $folder = new kolab_storage_folder($foldername);
+                $folder = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
             else
-                $folder->set_folder($foldername);
+                $folder->set_folder($foldername, $type, $folderdata[$foldername]);
 
             foreach ($folder->select($query, '*') as $object) {
                 $result[] = $object;
@@ -901,7 +901,7 @@ class kolab_storage
                 !self::folder_is_subscribed($foldername, true) &&
                 !in_array(self::$imap->folder_namespace($foldername), (array)$exclude_ns)
               ) {
-                $folders[] = new kolab_storage_folder($foldername, $folderdata[$foldername]);
+                $folders[] = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
             }
         }
 
@@ -974,7 +974,7 @@ class kolab_storage
                     $parent_parent = join($delim, $path);
                     if (!$refs[$parent]) {
                         if ($folder->type && self::folder_type($parent) == $folder->type) {
-                            $refs[$parent] = new kolab_storage_folder($parent, $folder->type);
+                            $refs[$parent] = new kolab_storage_folder($parent, $folder->type, $folder->type);
                             $refs[$parent]->parent = $parent_parent;
                         }
                         else if ($parent_parent == $other_ns) {
@@ -1542,7 +1542,7 @@ class kolab_storage
             foreach ($folders as $userfolder) {
                 foreach ((array)self::list_folders($userfolder->name . $delimiter, '*', $type, false, $folderdata) as $foldername) {
                     if (!$folders[$foldername]) {
-                        $folders[$foldername] = new kolab_storage_folder($foldername, $folderdata[$foldername]);
+                        $folders[$foldername] = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
                         $userfolder->children[] = $folders[$foldername];
                     }
                 }

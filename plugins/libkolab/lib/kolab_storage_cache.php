@@ -80,6 +80,7 @@ class kolab_storage_cache
         $this->db = $rcmail->get_dbh();
         $this->imap = $rcmail->get_storage();
         $this->enabled = $rcmail->config->get('kolab_cache', false);
+        $this->folders_table = $this->db->table_name('kolab_folders');
 
         if ($this->enabled) {
             // always read folder cache and lock state from DB master
@@ -98,8 +99,7 @@ class kolab_storage_cache
      */
     public function select_by_id($folder_id)
     {
-        $folders_table = $this->db->table_name('kolab_folders', true);
-        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT * FROM $folders_table WHERE `folder_id` = ?", $folder_id));
+        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT * FROM `{$this->cache_table}` WHERE `folder_id` = ?", $folder_id));
         if ($sql_arr) {
             $this->metadata = $sql_arr;
             $this->folder_id = $sql_arr['folder_id'];
@@ -120,14 +120,13 @@ class kolab_storage_cache
     {
         $this->folder = $storage_folder;
 
-        if (empty($this->folder->name)) {
+        if (empty($this->folder->name) || !$this->folder->valid) {
             $this->ready = false;
             return;
         }
 
         // compose fully qualified ressource uri for this instance
         $this->resource_uri = $this->folder->get_resource_uri();
-        $this->folders_table = $this->db->table_name('kolab_folders');
         $this->cache_table = $this->db->table_name('kolab_cache_' . $this->folder->type);
         $this->ready = $this->enabled && !empty($this->folder->type);
         $this->folder_id = null;
