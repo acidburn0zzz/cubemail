@@ -60,7 +60,7 @@ class kolab_notes extends rcube_plugin
     public function startup($args)
     {
         // the notes module can be enabled/disabled by the kolab_auth plugin
-        if ($this->rc->config->get('notes_disabled', false) || !$this->rc->config->get('notes_enabled', true)) {
+        if ($this->rc->config->get('kolab_notes_disabled', false) || !$this->rc->config->get('kolab_notes_enabled', true)) {
             return;
         }
 
