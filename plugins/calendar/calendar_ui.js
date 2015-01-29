@@ -2401,6 +2401,14 @@ function rcube_calendar_ui(settings)
               }
             }
           }
+
+          // set free_busy status to transparent if declined (#4425)
+          if (data.status == 'DECLINED' || data.role == 'NON-PARTICIPANT') {
+            me.selected_event.free_busy = 'free';
+          }
+          else {
+            me.selected_event.free_busy = 'busy';
+          }
         }
 
         // submit status change to server

@@ -972,6 +972,7 @@ class calendar extends rcube_plugin
 
         $ev = $this->driver->get_event($event);
         $ev['attendees'] = $event['attendees'];
+        $ev['free_busy'] = $event['free_busy'];
 
         // send invitation to delegatee + add it as attendee
         if ($status == 'delegated' && $event['to']) {
@@ -2687,6 +2688,7 @@ class calendar extends rcube_plugin
             $metadata['attendee'] = $attendee['email'];
             $metadata['rsvp'] = $attendee['role'] != 'NON-PARTICIPANT';
             $reply_sender = $attendee['email'];
+            $event_attendee = $attendee;
           }
         }
 
@@ -2809,6 +2811,9 @@ class calendar extends rcube_plugin
             $error_msg = $this->gettext('newerversionexists');
         }
         else if (!$existing && ($status != 'declined' || $this->rc->config->get('kolab_invitation_calendars'))) {
+          if ($status == 'declined' || $event['status'] == 'CANCELLED' || $event_attendee['role'] == 'NON-PARTICIPANT') {
+            $event['free_busy'] = 'free';
+          }
           $success = $this->driver->new_event($event);
         }
         else if ($status == 'declined')
