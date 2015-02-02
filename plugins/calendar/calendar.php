@@ -1231,6 +1231,9 @@ class calendar extends rcube_plugin
       // add recurring instances
       if (!empty($event['recurrence'])) {
         foreach ($this->driver->get_recurring_events($event, $event['start']) as $recurring) {
+          $recurring['temporary'] = true;
+          $recurring['readonly'] = true;
+          $recurring['calendar'] = '--invitation--itip';
           $events[] = $this->_client_event($recurring, true);
         }
       }
