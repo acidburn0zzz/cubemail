@@ -2442,6 +2442,7 @@ class calendar extends rcube_plugin
           }
 
           // send itip reply to organizer
+          $invitation['event']['comment'] = rcube_utils::get_input_value('_comment', rcube_utils::INPUT_POST);
           if ($status && $itip->update_invitation($invitation, $invitation['attendee'], strtoupper($status))) {
             $this->invitestatus = html::div('rsvp-status ' . strtolower($status), $itip->gettext('youhave'.strtolower($status)));
           }
@@ -2465,8 +2466,10 @@ class calendar extends rcube_plugin
         $this->register_handler('plugin.event_inviteform', array($this, 'itip_event_inviteform'));
         $this->register_handler('plugin.event_invitebox', array($this->ui, 'event_invitebox'));
         
-        if (!$this->invitestatus)
+        if (!$this->invitestatus) {
+          $this->itip->set_rsvp_actions(array('accepted','tentative','declined'));
           $this->register_handler('plugin.event_rsvp_buttons', array($this->ui, 'event_rsvp_buttons'));
+        }
         
         $this->rc->output->set_pagetitle($itip->gettext('itipinvitation') . ' ' . $this->event['title']);
       }

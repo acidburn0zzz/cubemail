@@ -682,7 +682,7 @@ class libcalendaring_itip
         // add input field for reply comment
         $rsvp_additions .= html::a(array('href' => '#toggle', 'class' => 'reply-comment-toggle'), $this->gettext('itipeditresponse'));
         $rsvp_additions .= html::div('itip-reply-comment',
-            html::tag('textarea', array('id' => 'reply-comment-'.$dom_id, 'cols' => 40, 'rows' => 6, 'style' => 'display:none', 'placeholder' => $this->gettext('itipcomment')), '')
+            html::tag('textarea', array('id' => 'reply-comment-'.$dom_id, 'name' => '_comment', 'cols' => 40, 'rows' => 6, 'style' => 'display:none', 'placeholder' => $this->gettext('itipcomment')), '')
         );
 
         return $rsvp_additions;
