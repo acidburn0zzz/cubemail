@@ -1227,6 +1227,13 @@ class calendar extends rcube_plugin
       $event['_part'] = $mime_id;
 
       $events[] = $this->_client_event($event, true);
+
+      // add recurring instances
+      if (!empty($event['recurrence'])) {
+        foreach ($this->driver->get_recurring_events($event, $event['start']) as $recurring) {
+          $events[] = $this->_client_event($recurring, true);
+        }
+      }
     }
 
     return $events;

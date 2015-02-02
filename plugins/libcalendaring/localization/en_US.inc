@@ -46,6 +46,7 @@ $labels['repeatinweek'] = 'Repeat in a week';
 $labels['showmore'] = 'Show more...';
 
 // recurrence related labels
+$labels['recurring'] = 'Repeats';
 $labels['frequency'] = 'Repeat';
 $labels['never'] = 'never';
 $labels['daily'] = 'daily';

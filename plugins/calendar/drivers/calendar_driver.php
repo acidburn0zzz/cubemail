@@ -432,6 +432,61 @@ abstract class calendar_driver
   }
 
   /**
+   * Create instances of a recurring event
+   *
+   * @param array  Hash array with event properties
+   * @param object DateTime Start date of the recurrence window
+   * @param object DateTime End date of the recurrence window
+   * @return array List of recurring event instances
+   */
+  public function get_recurring_events($event, $start, $end = null)
+  {
+    $events = array();
+
+    if ($event['recurrence']) {
+      // include library class
+      require_once(dirname(__FILE__) . '/../lib/calendar_recurrence.php');
+
+      $rcmail = rcmail::get_instance();
+      $recurrence = new calendar_recurrence($rcmail->plugins->get_plugin('calendar'), $event);
+
+      // determine a reasonable end date if none given
+      if (!$end) {
+        switch ($event['recurrence']['FREQ']) {
+          case 'YEARLY':  $intvl = 'P100Y'; break;
+          case 'MONTHLY': $intvl = 'P20Y';  break;
+          default:        $intvl = 'P10Y';  break;
+        }
+
+        $end = clone $event['start'];
+        $end->add(new DateInterval($intvl));
+      }
+
+      $i = 0;
+      while ($next_event = $recurrence->next_instance()) {
+        $next_event['uid'] = $event['uid'] . '-' . ++$i;
+        // add to output if in range
+        if (($next_event['start'] <= $end && $next_event['end'] >= $start)) {
+          $next_event['id'] = $next_event['uid'];
+          $next_event['recurrence_id'] = $event['uid'];
+          $next_event['_instance'] = $i;
+          $events[] = $next_event;
+        }
+        else if ($next_event['start'] > $end) {  // stop loop if out of range
+          break;
+        }
+
+        // avoid endless recursion loops
+        if ($i > 1000) {
+          break;
+        }
+      }
+    }
+
+    return $events;
+  }
+
+  /**
    * Provide a list of revisions for the given event
    *
    * @param array  $event Hash array with event properties:

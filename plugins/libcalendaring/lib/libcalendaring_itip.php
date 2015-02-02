@@ -125,7 +125,8 @@ class libcalendaring_itip
             'name' => $bodytext,
             'vars' => array(
                 'title' => $event['title'],
-                'date' => $this->lib->event_date_text($event, true),
+                'date' => $this->lib->event_date_text($event, true) .
+                    (empty($event['recurrence']) ? '' : sprintf("\n%s: %s", $this->gettext('recurring'), $this->lib->recurrence_text($event['recurrence']))),
                 'attendees' => join(",\n ", $attendees_list),
                 'sender' => $this->sender['name'],
                 'organizer' => $this->sender['name'],
@@ -697,27 +698,31 @@ class libcalendaring_itip
         $table->add('ititle', $title);
         $table->add('title', Q($event['title']));
         if ($event['start'] && $event['end']) {
-            $table->add('label', $this->plugin->gettext('date'), $this->domain);
+            $table->add('label', $this->gettext('date'));
             $table->add('date', Q($this->lib->event_date_text($event)));
         }
         else if ($event['due'] && $event['_type'] == 'task') {
-            $table->add('label', $this->plugin->gettext('date'), $this->domain);
+            $table->add('label', $this->gettext('date'));
             $table->add('date', Q($this->lib->event_date_text($event)));
         }
+        if (!empty($event['recurrence'])) {
+            $table->add('label', $this->gettext('recurring'));
+            $table->add('recurrence', $this->lib->recurrence_text($event['recurrence']));
+        }
         if ($event['location']) {
-            $table->add('label', $this->plugin->gettext('location'), $this->domain);
+            $table->add('label', $this->gettext('location'));
             $table->add('location', Q($event['location']));
         }
         if ($event['sensitivity'] && $event['sensitivity'] != 'public') {
-            $table->add('label', $this->plugin->gettext('sensitivity'), $this->domain);
-            $table->add('sensitivity', ucfirst($this->plugin->gettext($event['sensitivity'], $this->domain)) . '!');
+            $table->add('label', $this->gettext('sensitivity'));
+            $table->add('sensitivity', ucfirst($this->gettext($event['sensitivity'])) . '!');
         }
         if ($event['status'] == 'COMPLETED' || $event['status'] == 'CANCELLED') {
-            $table->add('label', $this->plugin->gettext('status'), $this->domain);
-            $table->add('status', $this->plugin->gettext('status-' . strtolower($event['status']), $this->domain));
+            $table->add('label', $this->gettext('status'));
+            $table->add('status', $this->gettext('status-' . strtolower($event['status'])));
         }
         if ($event['comment']) {
-            $table->add('label', $this->plugin->gettext('comment'), $this->domain);
+            $table->add('label', $this->gettext('comment'));
             $table->add('location', Q($event['comment']));
         }
 

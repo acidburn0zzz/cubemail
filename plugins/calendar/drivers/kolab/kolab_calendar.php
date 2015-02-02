@@ -196,7 +196,7 @@ class kolab_calendar extends kolab_storage_folder_api
         $this->events[$master_id] = $this->_to_rcube_event($record);
 
       if (($master = $this->events[$master_id]) && $master['recurrence']) {
-        $this->_get_recurring_events($record, $master['start'], null, $id);
+        $this->get_recurring_events($record, $master['start'], null, $id);
       }
     }
 
@@ -323,7 +323,7 @@ class kolab_calendar extends kolab_storage_folder_api
       
       // resolve recurring events
       if ($record['recurrence'] && $virtual == 1) {
-        $events = array_merge($events, $this->_get_recurring_events($record, $start, $end));
+        $events = array_merge($events, $this->get_recurring_events($record, $start, $end));
       }
     }
 
@@ -455,7 +455,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
       // refresh local cache with recurring instances
       if ($exception_id) {
-        $this->_get_recurring_events($object, $event['start'], $event['end'], $exception_id);
+        $this->get_recurring_events($object, $event['start'], $event['end'], $exception_id);
       }
     }
 
@@ -538,7 +538,7 @@ class kolab_calendar extends kolab_storage_folder_api
    * @param string ID of a specific recurring event instance
    * @return array List of recurring event instances
    */
-  public function _get_recurring_events($event, $start, $end = null, $event_id = null)
+  public function get_recurring_events($event, $start, $end = null, $event_id = null)
   {
     $object = $event['_formatobj'];
     if (!$object) {

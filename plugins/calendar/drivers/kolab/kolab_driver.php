@@ -704,7 +704,7 @@ class kolab_driver extends calendar_driver
 
           // removing the first instance => just move to next occurence
           if ($master['id'] == $event['id']) {
-            $recurring = reset($storage->_get_recurring_events($event, $event['start'], null, $event['id'].'-1'));
+            $recurring = reset($storage->get_recurring_events($event, $event['start'], null, $event['id'].'-1'));
 
             // no future instances found: delete the master event (bug #1677)
             if (!$recurring['start']) {
@@ -1243,6 +1243,28 @@ class kolab_driver extends calendar_driver
   {
     // FIXME: complete list with categories saved in config objects (KEP:12)
     return $this->rc->config->get('calendar_categories', $this->default_categories);
+  }
+
+  /**
+   * Create instances of a recurring event
+   *
+   * @param array  Hash array with event properties
+   * @param object DateTime Start date of the recurrence window
+   * @param object DateTime End date of the recurrence window
+   * @return array List of recurring event instances
+   */
+  public function get_recurring_events($event, $start, $end = null)
+  {
+    // load the given event data into a libkolabxml container
+    if (!$event['_formatobj']) {
+      $event_xml = new kolab_format_event();
+      $event_xml->set($event);
+      $event['_formatobj'] = $event_xml;
+    }
+
+    $this->_read_calendars();
+    $storage = reset($this->calendars);
+    return $storage->get_recurring_events($event, $start, $end);
   }
 
   /**
