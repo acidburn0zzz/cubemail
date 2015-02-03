@@ -76,7 +76,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
     // fetch objects from the given IMAP folder
     $this->storage = kolab_storage::get_folder($this->name);
-    $this->ready = $this->storage && !PEAR::isError($this->storage) && $this->storage->type !== null;
+    $this->ready = $this->storage && $this->storage->valid;
 
     // Set readonly and alarms flags according to folder permissions
     if ($this->ready) {
