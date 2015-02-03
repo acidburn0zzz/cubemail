@@ -51,7 +51,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
     {
         parent::__construct($name);
         $this->imap->set_options(array('skip_deleted' => true));
-        $this->set_folder($name, $type);
+        $this->set_folder($name, $type, $type_annotation);
     }
 
 
