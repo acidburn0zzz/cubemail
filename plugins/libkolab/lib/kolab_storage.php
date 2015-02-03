@@ -35,6 +35,11 @@ class kolab_storage
     const UID_KEY_PRIVATE   = '/private/vendor/kolab/uniqueid';
     const UID_KEY_CYRUS     = '/shared/vendor/cmu/cyrus-imapd/uniqueid';
 
+    const ERROR_IMAP_CONN      = 1;
+    const ERROR_CACHE_DB       = 2;
+    const ERROR_NO_PERMISSION  = 3;
+    const ERROR_INVALID_FOLDER = 4;
+
     public static $version = '3.0';
     public static $last_error;
     public static $encode_ids = false;

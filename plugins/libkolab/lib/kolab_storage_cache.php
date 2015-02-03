@@ -48,6 +48,7 @@ class kolab_storage_cache
     protected $extra_cols = array();
     protected $order_by = null;
     protected $limit = null;
+    protected $error = 0;
 
 
     /**
@@ -150,6 +151,16 @@ class kolab_storage_cache
     }
 
     /**
+     * Returns code of last error
+     *
+     * @return int Error code
+     */
+    public function get_error()
+    {
+        return $this->error;
+    }
+
+    /**
      * Synchronize local cache data with remote
      */
     public function synchronize()
@@ -243,6 +254,7 @@ class kolab_storage_cache
             }
         }
 
+        $this->check_error();
         $this->synched = time();
     }
 
@@ -288,6 +300,7 @@ class kolab_storage_cache
             }
         }
 
+        $this->check_error();
         return $this->objects[$msguid];
     }
 
@@ -326,6 +339,8 @@ class kolab_storage_cache
             // ...or set in-memory cache to false
             $this->objects[$msguid] = $object;
         }
+
+        $this->check_error();
     }
 
 
@@ -384,6 +399,8 @@ class kolab_storage_cache
         // keep a copy in memory for fast access
         $this->objects = array($msguid => $object);
         $this->uid2msg = array($object['uid'] => $msguid);
+
+        $this->check_error();
     }
 
 
@@ -423,6 +440,7 @@ class kolab_storage_cache
         }
 
         unset($this->uid2msg[$uid]);
+        $this->check_error();
     }
 
 
@@ -465,6 +483,8 @@ class kolab_storage_cache
             $target->get_resource_uri(),
             $this->resource_uri
         );
+
+        $this->check_error();
     }
 
     /**
@@ -529,6 +549,7 @@ class kolab_storage_cache
             }
 
             if ($index->is_error()) {
+                $this->check_error();
                 if ($uids) {
                     return null;
                 }
@@ -550,6 +571,8 @@ class kolab_storage_cache
                 $this->objects = array($msguid => $result[0]);
             }
         }
+
+        $this->check_error();
 
         return $result;
     }
@@ -593,6 +616,7 @@ class kolab_storage_cache
             }
 
             if ($index->is_error()) {
+                $this->check_error();
                 return null;
             }
 
@@ -601,6 +625,7 @@ class kolab_storage_cache
             $count = $index->count();
         }
 
+        $this->check_error();
         return $count;
     }
 
@@ -937,6 +962,7 @@ class kolab_storage_cache
 
         // abort if database is not set-up
         if ($this->db->is_error()) {
+            $this->check_error();
             $this->ready = false;
             return;
         }
@@ -973,6 +999,22 @@ class kolab_storage_cache
         );
 
         $this->synclock = false;
+    }
+
+    /**
+     * Check IMAP connection error state
+     */
+    protected function check_error()
+    {
+        if (($err_code = $this->imap->get_error_code()) < 0) {
+            $this->error = kolab_storage::ERROR_IMAP_CONN;
+            if (($res_code = $this->imap->get_response_code()) !== 0 && in_array($res_code, array(rcube_storage::NOPERM, rcube_storage::READONLY))) {
+                $this->error = kolab_storage::ERROR_NO_PERMISSION;
+            }
+        }
+        else if ($this->db->is_error()) {
+            $this->error = kolab_storage::ERROR_CACHE_DB;
+        }
     }
 
     /**

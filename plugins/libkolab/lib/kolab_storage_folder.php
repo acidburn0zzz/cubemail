@@ -36,7 +36,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
      */
     public $valid = false;
 
-    private $resource_uri;
+    protected $error = 0;
+
+    protected $resource_uri;
 
 
     /**
@@ -74,6 +76,10 @@ class kolab_storage_folder extends kolab_storage_folder_api
         $this->id           = kolab_storage::folder_id($name);
         $this->valid        = !empty($this->type) && $this->type != 'mail' && (!$type || $this->type == $type);
 
+        if (!$this->valid) {
+            $this->error = $this->imap->get_error_code() < 0 ? kolab_storage::ERROR_IMAP_CONN : kolab_storage::ERROR_INVALID_FOLDER;
+        }
+
         // reset cached object properties
         $this->owner = $this->namespace = $this->resource_uri = $this->info = $this->idata = null;
 
@@ -86,6 +92,15 @@ class kolab_storage_folder extends kolab_storage_folder_api
         $this->imap->set_folder($this->name);
     }
 
+    /**
+     * Returns code of last error
+     *
+     * @return int Error code
+     */
+    public function get_error()
+    {
+        return $this->error ?: $this->cache->get_error();
+    }
 
     /**
      * Compose a unique resource URI for this IMAP folder
