@@ -48,7 +48,13 @@ class kolab_storage_folder
      */
     public $cache;
 
-    private $type_annotation;
+     /**
+      * Indicate validity status
+      * @var boolean
+      */
+    public $valid = false;
+
+    private $error = 0;
     private $namespace;
     private $imap;
     private $info;
@@ -59,12 +65,15 @@ class kolab_storage_folder
 
     /**
      * Default constructor
+     *
+     * @param string The folder name/path
+     * @param string Expected folder type
      */
-    function __construct($name, $type = null)
+    function __construct($name, $type = null, $type_annotation = null)
     {
         $this->imap = rcube::get_instance()->get_storage();
         $this->imap->set_options(array('skip_deleted' => true));
-        $this->set_folder($name, $type);
+        $this->set_folder($name, $type, $type_annotation);
     }
 
 
@@ -74,14 +83,21 @@ class kolab_storage_folder
      * @param string The folder name/path
      * @param string Optional folder type if known
      */
-    public function set_folder($name, $ftype = null)
+    public function set_folder($name, $type = null, $type_annotation = null)
     {
-        $this->type_annotation = $ftype ? $ftype : kolab_storage::folder_type($name);
+        if (empty($type_annotation)) {
+            $type_annotation = kolab_storage::folder_type($name);
+        }
 
         $oldtype = $this->type;
-        list($this->type, $suffix) = explode('.', $this->type_annotation);
+        list($this->type, $suffix) = explode('.', $type_annotation);
         $this->default      = $suffix == 'default';
         $this->name         = $name;
+        $this->valid        = !empty($this->type) && $this->type != 'mail' && (!$type || $this->type == $type);
+
+        if (!$this->valid) {
+            $this->error = $this->imap->get_error_code() < 0 ? kolab_storage::ERROR_IMAP_CONN : kolab_storage::ERROR_INVALID_FOLDER;
+        }
 
         // reset cached object properties
         $this->owner = $this->namespace = $this->resource_uri = $this->info = $this->idata = null;
@@ -89,9 +105,20 @@ class kolab_storage_folder
         // get a new cache instance of folder type changed
         if (!$this->cache || $type != $oldtype)
             $this->cache = kolab_storage_cache::factory($this);
+        else
+            $this->cache->set_folder($this);
 
         $this->imap->set_folder($this->name);
-        $this->cache->set_folder($this);
+    }
+
+    /**
+     * Returns code of last error
+     *
+     * @return int Error code
+     */
+    public function get_error()
+    {
+        return $this->error ?: $this->cache->get_error();
     }
 
     /**
@@ -370,6 +397,10 @@ class kolab_storage_folder
      */
     public function count($query = null)
     {
+        if (!$this->valid) {
+            return 0;
+        }
+
         // synchronize cache first
         $this->cache->synchronize();
 
@@ -386,6 +417,10 @@ class kolab_storage_folder
     public function get_objects($type = null)
     {
         if (!$type) $type = $this->type;
+
+        if (!$this->valid) {
+            return array();
+        }
 
         // synchronize caches
         $this->cache->synchronize();
@@ -404,9 +439,14 @@ class kolab_storage_folder
      */
     public function select($query = array())
     {
+        if (!$this->valid) {
+            return array();
+        }
+
         // check query argument
-        if (empty($query))
+        if (empty($query)) {
             return $this->get_objects();
+        }
 
         // synchronize caches
         $this->cache->synchronize();
@@ -424,6 +464,10 @@ class kolab_storage_folder
      */
     public function get_uids($query = array())
     {
+        if (!$this->valid) {
+            return array();
+        }
+
         // synchronize caches
         $this->cache->synchronize();
 
@@ -485,6 +529,10 @@ class kolab_storage_folder
      */
     public function get_object($uid, $type = null)
     {
+        if (!$this->valid) {
+            return false;
+        }
+
         // synchronize caches
         $this->cache->synchronize();
 
@@ -514,7 +562,7 @@ class kolab_storage_folder
      */
     public function get_attachment($uid, $part, $mailbox = null, $print = false, $fp = null, $skip_charset_conv = false)
     {
-        if ($msguid = ($mailbox ? $uid : $this->cache->uid2msguid($uid))) {
+        if ($this->valid && ($msguid = ($mailbox ? $uid : $this->cache->uid2msguid($uid)))) {
             $this->imap->set_folder($mailbox ? $mailbox : $this->name);
             return $this->imap->get_message_part($msguid, $part, null, $print, $fp, $skip_charset_conv);
         }
@@ -535,6 +583,10 @@ class kolab_storage_folder
      */
     public function read_object($msguid, $type = null, $folder = null)
     {
+        if (!$this->valid) {
+            return false;
+        }
+
         if (!$type) $type = $this->type;
         if (!$folder) $folder = $this->name;
 
@@ -680,6 +732,10 @@ class kolab_storage_folder
      */
     public function save(&$object, $type = null, $uid = null)
     {
+        if (!$this->valid) {
+            return false;
+        }
+
         if (!$type)
             $type = $this->type;
 
@@ -872,6 +928,10 @@ class kolab_storage_folder
      */
     public function delete($object, $expunge = true)
     {
+        if (!$this->valid) {
+            return false;
+        }
+
         $msguid = is_array($object) ? $object['_msguid'] : $this->cache->uid2msguid($object);
         $success = false;
 
@@ -899,6 +959,10 @@ class kolab_storage_folder
      */
     public function delete_all()
     {
+        if (!$this->valid) {
+            return false;
+        }
+
         $this->cache->purge();
         $this->cache->bypass(true);
         $result = $this->imap->clear_folder($this->name);
@@ -916,6 +980,10 @@ class kolab_storage_folder
      */
     public function undelete($uid)
     {
+        if (!$this->valid) {
+            return false;
+        }
+
         if ($msguid = $this->cache->uid2msguid($uid, true)) {
             $this->cache->bypass(true);
             $result = $this->imap->set_flag($msguid, 'UNDELETED', $this->name);
@@ -939,6 +1007,10 @@ class kolab_storage_folder
      */
     public function move($uid, $target_folder)
     {
+        if (!$this->valid) {
+            return false;
+        }
+
         if (is_string($target_folder))
             $target_folder = kolab_storage::get_folder($target_folder);
 
@@ -1194,8 +1266,6 @@ class kolab_storage_folder
      */
     private function trigger_url($url, $auth_user = null, $auth_passwd = null)
     {
-        require_once('HTTP/Request2.php');
-
         try {
             $request = libkolab::http_request($url);
 

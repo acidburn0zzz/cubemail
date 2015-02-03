@@ -45,6 +45,7 @@ class kolab_storage_cache
     protected $extra_cols = array();
     protected $order_by = null;
     protected $limit = null;
+    protected $error = 0;
 
 
     /**
@@ -77,6 +78,7 @@ class kolab_storage_cache
         $this->db = $rcmail->get_dbh();
         $this->imap = $rcmail->get_storage();
         $this->enabled = $rcmail->config->get('kolab_cache', false);
+        $this->folders_table = $this->db->table_name('kolab_folders');
 
         if ($this->enabled) {
             // always read folder cache and lock state from DB master
@@ -95,8 +97,7 @@ class kolab_storage_cache
      */
     public function select_by_id($folder_id)
     {
-        $folders_table = $this->db->table_name('kolab_folders');
-        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT * FROM $folders_table WHERE folder_id=?", $folder_id));
+        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT * FROM {$this->folders_table} WHERE folder_id=?", $folder_id));
         if ($sql_arr) {
             $this->metadata = $sql_arr;
             $this->folder_id = $sql_arr['folder_id'];
@@ -117,14 +118,13 @@ class kolab_storage_cache
     {
         $this->folder = $storage_folder;
 
-        if (empty($this->folder->name)) {
+        if (empty($this->folder->name) || !$this->folder->valid) {
             $this->ready = false;
             return;
         }
 
         // compose fully qualified ressource uri for this instance
         $this->resource_uri = $this->folder->get_resource_uri();
-        $this->folders_table = $this->db->table_name('kolab_folders');
         $this->cache_table = $this->db->table_name('kolab_cache_' . $this->folder->type);
         $this->ready = $this->enabled && !empty($this->folder->type);
         $this->folder_id = null;
@@ -145,6 +145,16 @@ class kolab_storage_cache
     {
         $this->_read_folder_data();
         return $this->folder_id;
+    }
+
+    /**
+     * Returns code of last error
+     *
+     * @return int Error code
+     */
+    public function get_error()
+    {
+        return $this->error;
     }
 
     /**
@@ -219,6 +229,7 @@ class kolab_storage_cache
             $this->_sync_unlock();
         }
 
+        $this->check_error();
         $this->synched = time();
     }
 
@@ -235,7 +246,12 @@ class kolab_storage_cache
     {
         // delegate to another cache instance
         if ($foldername && $foldername != $this->folder->name) {
-            return kolab_storage::get_folder($foldername)->cache->get($msguid, $type);
+            $success = false;
+            if ($targetfolder = kolab_storage::get_folder($foldername)) {
+                $success = $targetfolder->cache->get($msguid, $type);
+                $this->error = $targetfolder->cache->get_error();
+            }
+            return $success;
         }
 
         // load object if not in memory
@@ -262,6 +278,7 @@ class kolab_storage_cache
             }
         }
 
+        $this->check_error();
         return $this->objects[$msguid];
     }
 
@@ -281,8 +298,11 @@ class kolab_storage_cache
 
         // delegate to another cache instance
         if ($foldername && $foldername != $this->folder->name) {
-            kolab_storage::get_folder($foldername)->cache->set($msguid, $object);
-            return;
+          if ($targetfolder = kolab_storage::get_folder($foldername)) {
+              $targetfolder->cache->set($msguid, $object);
+              $this->error = $targetfolder->cache->get_error();
+          }
+          return;
         }
 
         // remove old entry
@@ -300,6 +320,8 @@ class kolab_storage_cache
             // ...or set in-memory cache to false
             $this->objects[$msguid] = $object;
         }
+
+        $this->check_error();
     }
 
 
@@ -351,6 +373,8 @@ class kolab_storage_cache
         // keep a copy in memory for fast access
         $this->objects = array($msguid => $object);
         $this->uid2msg = array($object['uid'] => $msguid);
+
+        $this->check_error();
     }
 
 
@@ -385,6 +409,7 @@ class kolab_storage_cache
         }
 
         unset($this->uid2msg[$uid]);
+        $this->check_error();
     }
 
 
@@ -410,15 +435,20 @@ class kolab_storage_cache
      */
     public function rename($new_folder)
     {
-        $target = kolab_storage::get_folder($new_folder);
+        if ($target = kolab_storage::get_folder($new_folder)) {
+            // resolve new message UID in target folder
+            $this->db->query(
+                "UPDATE $this->folders_table SET resource=? ".
+                "WHERE resource=?",
+                $target->get_resource_uri(),
+                $this->resource_uri
+            );
 
-        // resolve new message UID in target folder
-        $this->db->query(
-            "UPDATE $this->folders_table SET resource=? ".
-            "WHERE resource=?",
-            $target->get_resource_uri(),
-            $this->resource_uri
-        );
+            $this->check_error();
+        }
+        else {
+            $this->error = kolab_storage::ERROR_IMAP_CONN;
+        }
     }
 
     /**
@@ -498,6 +528,8 @@ class kolab_storage_cache
             }
         }
 
+        $this->check_error();
+
         return $result;
     }
 
@@ -534,12 +566,14 @@ class kolab_storage_cache
             $index  = $this->imap->search_once($this->folder->name, 'UNDELETED HEADER X-Kolab-Type ' . $ctype);
 
             if ($index->is_error()) {
+                $this->check_error();
                 return null;
             }
 
             $count = $index->count();
         }
 
+        $this->check_error();
         return $count;
     }
 
@@ -867,6 +901,7 @@ class kolab_storage_cache
 
         // abort if database is not set-up
         if ($this->db->is_error()) {
+            $this->check_error();
             $this->ready = false;
             return;
         }
@@ -898,6 +933,22 @@ class kolab_storage_cache
         );
 
         $this->synclock = false;
+    }
+
+    /**
+     * Check IMAP connection error state
+     */
+    protected function check_error()
+    {
+        if (($err_code = $this->imap->get_error_code()) < 0) {
+            $this->error = kolab_storage::ERROR_IMAP_CONN;
+            if (($res_code = $this->imap->get_response_code()) !== 0 && in_array($res_code, array(rcube_storage::NOPERM, rcube_storage::READONLY))) {
+                $this->error = kolab_storage::ERROR_NO_PERMISSION;
+            }
+        }
+        else if ($this->db->is_error()) {
+            $this->error = kolab_storage::ERROR_CACHE_DB;
+        }
     }
 
     /**

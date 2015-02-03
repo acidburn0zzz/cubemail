@@ -35,6 +35,11 @@ class kolab_storage
     const UID_KEY_PRIVATE   = '/private/vendor/kolab/uniqueid';
     const UID_KEY_CYRUS     = '/shared/vendor/cmu/cyrus-imapd/uniqueid';
 
+    const ERROR_IMAP_CONN      = 1;
+    const ERROR_CACHE_DB       = 2;
+    const ERROR_NO_PERMISSION  = 3;
+    const ERROR_INVALID_FOLDER = 4;
+
     public static $version = '3.0';
     public static $last_error;
 
@@ -116,7 +121,7 @@ class kolab_storage
 
         if (self::setup()) {
             foreach ((array)self::list_folders('', '*', $type, $subscribed, $folderdata) as $foldername) {
-                $folders[$foldername] = new kolab_storage_folder($foldername, $folderdata[$foldername]);
+                $folders[$foldername] = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
             }
         }
 
@@ -133,7 +138,7 @@ class kolab_storage
     {
         if (self::setup()) {
             foreach ((array)self::list_folders('', '*', $type . '.default', false, $folderdata) as $foldername) {
-                return new kolab_storage_folder($foldername, $folderdata[$foldername]);
+                return new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
             }
         }
 
@@ -165,11 +170,11 @@ class kolab_storage
     {
         self::setup();
         $folder = null;
-        foreach ((array)self::list_folders('', '*', $type) as $foldername) {
+        foreach ((array)self::list_folders('', '*', $type, null, $folderdata) as $foldername) {
             if (!$folder)
-                $folder = new kolab_storage_folder($foldername);
+                $folder = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
             else
-                $folder->set_folder($foldername);
+                $folder->set_folder($foldername, $type, $folderdata[$foldername]);
 
             if ($object = $folder->get_object($uid, '*'))
                 return $object;
