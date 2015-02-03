@@ -271,7 +271,12 @@ class kolab_storage_cache
     {
         // delegate to another cache instance
         if ($foldername && $foldername != $this->folder->name) {
-            return kolab_storage::get_folder($foldername)->cache->get($msguid, $type);
+            $success = false;
+            if ($targetfolder = kolab_storage::get_folder($foldername)) {
+                $success = $targetfolder->cache->get($msguid, $type);
+                $this->error = $targetfolder->cache->get_error();
+            }
+            return $success;
         }
 
         // load object if not in memory
@@ -320,8 +325,11 @@ class kolab_storage_cache
 
         // delegate to another cache instance
         if ($foldername && $foldername != $this->folder->name) {
-            kolab_storage::get_folder($foldername)->cache->set($msguid, $object);
-            return;
+          if ($targetfolder = kolab_storage::get_folder($foldername)) {
+              $targetfolder->cache->set($msguid, $object);
+              $this->error = $targetfolder->cache->get_error();
+          }
+          return;
         }
 
         // remove old entry
@@ -474,17 +482,20 @@ class kolab_storage_cache
             return;
         }
 
-        $target = kolab_storage::get_folder($new_folder);
+        if ($target = kolab_storage::get_folder($new_folder)) {
+            // resolve new message UID in target folder
+            $this->db->query(
+                "UPDATE `{$this->folders_table}` SET `resource` = ? ".
+                "WHERE `resource` = ?",
+                $target->get_resource_uri(),
+                $this->resource_uri
+            );
 
-        // resolve new message UID in target folder
-        $this->db->query(
-            "UPDATE `{$this->folders_table}` SET `resource` = ? ".
-            "WHERE `resource` = ?",
-            $target->get_resource_uri(),
-            $this->resource_uri
-        );
-
-        $this->check_error();
+            $this->check_error();
+        }
+        else {
+            $this->error = kolab_storage::ERROR_IMAP_CONN;
+        }
     }
 
     /**
