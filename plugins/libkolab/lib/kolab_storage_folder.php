@@ -103,6 +103,21 @@ class kolab_storage_folder extends kolab_storage_folder_api
     }
 
     /**
+     * Check IMAP connection error state
+     */
+    public function check_error()
+    {
+        if (($err_code = $this->imap->get_error_code()) < 0) {
+            $this->error = kolab_storage::ERROR_IMAP_CONN;
+            if (($res_code = $this->imap->get_response_code()) !== 0 && in_array($res_code, array(rcube_storage::NOPERM, rcube_storage::READONLY))) {
+                $this->error = kolab_storage::ERROR_NO_PERMISSION;
+            }
+        }
+
+        return $this->error;
+    }
+
+    /**
      * Compose a unique resource URI for this IMAP folder
      */
     public function get_resource_uri()
@@ -166,6 +181,8 @@ class kolab_storage_folder extends kolab_storage_folder_api
         if (!($success = $this->set_metadata(array(kolab_storage::UID_KEY_SHARED => $uid)))) {
             $success = $this->set_metadata(array(kolab_storage::UID_KEY_PRIVATE => $uid));
         }
+
+        $this->check_error();
         return $success;
     }
 
@@ -175,6 +192,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
     public function get_ctag()
     {
         $fdata = $this->get_imap_data();
+        $this->check_error();
         return sprintf('%d-%d-%d', $fdata['UIDVALIDITY'], $fdata['HIGHESTMODSEQ'], $fdata['UIDNEXT']);
     }
 
