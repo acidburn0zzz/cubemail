@@ -80,6 +80,8 @@ class kolab_storage_folder extends kolab_storage_folder_api
         // get a new cache instance if folder type changed
         if (!$this->cache || $this->type != $oldtype)
             $this->cache = kolab_storage_cache::factory($this);
+        else
+            $this->cache->set_folder($this);
 
         $this->imap->set_folder($this->name);
     }
