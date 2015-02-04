@@ -103,7 +103,7 @@ class kolab_storage_folder
         $this->owner = $this->namespace = $this->resource_uri = $this->info = $this->idata = null;
 
         // get a new cache instance of folder type changed
-        if (!$this->cache || $type != $oldtype)
+        if (!$this->cache || $this->type != $oldtype)
             $this->cache = kolab_storage_cache::factory($this);
         else
             $this->cache->set_folder($this);
