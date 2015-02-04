@@ -901,7 +901,7 @@ class kolab_storage
         self::setup();
 
         if (self::$imap->subscribe($folder)) {
-            self::$subscriptions === null;
+            self::$subscriptions = null;
             return true;
         }
 
@@ -921,7 +921,7 @@ class kolab_storage
         self::setup();
 
         if (self::$imap->unsubscribe($folder)) {
-            self::$subscriptions === null;
+            self::$subscriptions = null;
             return true;
         }
 
