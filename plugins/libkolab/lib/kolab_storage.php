@@ -144,7 +144,6 @@ class kolab_storage
         return self::$ldap;
     }
 
-
     /**
      * Get a list of storage folders for the given data type
      *
@@ -183,18 +182,18 @@ class kolab_storage
         return null;
     }
 
-
     /**
      * Getter for a specific storage folder
      *
-     * @param string  IMAP folder to access (UTF7-IMAP)
+     * @param string IMAP folder to access (UTF7-IMAP)
+     * @param string Expected folder type
+     *
      * @return object kolab_storage_folder  The folder object
      */
-    public static function get_folder($folder)
+    public static function get_folder($folder, $type = null)
     {
-        return self::setup() ? new kolab_storage_folder($folder) : null;
+        return self::setup() ? new kolab_storage_folder($folder, $type) : null;
     }
-
 
     /**
      * Getter for a single Kolab object, identified by its UID.
