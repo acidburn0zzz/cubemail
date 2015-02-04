@@ -1198,7 +1198,7 @@ class kolab_storage
             }
         }
         else if (self::$imap->subscribe($folder)) {
-            self::$subscriptions === null;
+            self::$subscriptions = null;
             return true;
         }
 
@@ -1226,7 +1226,7 @@ class kolab_storage
             return true;
         }
         else if (self::$imap->unsubscribe($folder)) {
-            self::$subscriptions === null;
+            self::$subscriptions = null;
             return true;
         }
 
