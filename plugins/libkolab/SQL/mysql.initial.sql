@@ -15,6 +15,8 @@ CREATE TABLE `kolab_folders` (
   `type` VARCHAR(32) NOT NULL,
   `synclock` INT(10) NOT NULL DEFAULT '0',
   `ctag` VARCHAR(40) DEFAULT NULL,
+  `changed` DATETIME DEFAULT NULL,
+  `objectcount` BIGINT DEFAULT NULL,
   PRIMARY KEY(`folder_id`),
   INDEX `resource_type` (`resource`, `type`)
 ) /*!40000 ENGINE=INNODB */ /*!40101 CHARACTER SET utf8 COLLATE utf8_general_ci */;

@@ -12,7 +12,9 @@ CREATE TABLE "kolab_folders" (
     "resource" VARCHAR(255) NOT NULL,
     "type" VARCHAR(32) NOT NULL,
     "synclock" integer DEFAULT 0 NOT NULL,
-    "ctag" VARCHAR(40) DEFAULT NULL
+    "ctag" VARCHAR(40) DEFAULT NULL,
+    "changed" timestamp DEFAULT NULL,
+    "objectcount" number DEFAULT NULL
 );
 
 CREATE INDEX "kolab_folders_resource_idx" ON "kolab_folders" ("resource", "type");
