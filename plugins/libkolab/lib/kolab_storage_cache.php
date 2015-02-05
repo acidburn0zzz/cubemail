@@ -173,73 +173,79 @@ class kolab_storage_cache
         // increase time limit
         @set_time_limit($this->max_sync_lock_time);
 
-        // read cached folder metadata
-        $this->_read_folder_data();
-
-        // check cache status ($this->metadata is set in _read_folder_data())
-        if (  empty($this->metadata['ctag']) ||
-              empty($this->metadata['changed']) ||
-              $this->metadata['objectcount'] === null ||
-              $this->metadata['changed'] < date(self::DB_DATE_FORMAT, time() - $this->cache_refresh) ||
-              $this->metadata['ctag'] != $this->folder->get_ctag() ||
-              intval($this->metadata['objectcount']) !== $this->count()
-            ) {
-            // lock synchronization for this folder or wait if locked
-            $this->_sync_lock();
-
-            // disable messages cache if configured to do so
-            $this->bypass(true);
-
-            // synchronize IMAP mailbox cache
+        if (!$this->ready) {
+            // kolab cache is disabled, synchronize IMAP mailbox cache only
             $this->imap->folder_sync($this->folder->name);
+        }
+        else {
+            // read cached folder metadata
+            $this->_read_folder_data();
 
-            // compare IMAP index with object cache index
-            $imap_index = $this->imap->index($this->folder->name, null, null, true, true);
-            $this->index = $imap_index->get();
+            // check cache status ($this->metadata is set in _read_folder_data())
+            if (  empty($this->metadata['ctag']) ||
+                  empty($this->metadata['changed']) ||
+                  $this->metadata['objectcount'] === null ||
+                  $this->metadata['changed'] < date(self::DB_DATE_FORMAT, time() - $this->cache_refresh) ||
+                  $this->metadata['ctag'] != $this->folder->get_ctag() ||
+                  intval($this->metadata['objectcount']) !== $this->count()
+                ) {
+                // lock synchronization for this folder or wait if locked
+                $this->_sync_lock();
 
-            // determine objects to fetch or to invalidate
-            if ($this->ready) {
-                // read cache index
-                $sql_result = $this->db->query(
-                    "SELECT msguid, uid FROM $this->cache_table WHERE folder_id=?",
-                    $this->folder_id
-                );
+                // disable messages cache if configured to do so
+                $this->bypass(true);
 
-                $old_index = array();
-                while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
-                    $old_index[] = $sql_arr['msguid'];
-                    $this->uid2msg[$sql_arr['uid']] = $sql_arr['msguid'];
-                }
+                // synchronize IMAP mailbox cache
+                $this->imap->folder_sync($this->folder->name);
 
-                // fetch new objects from imap
-                foreach (array_diff($this->index, $old_index) as $msguid) {
-                    if ($object = $this->folder->read_object($msguid, '*')) {
-                        $this->_extended_insert($msguid, $object);
-                    }
-                }
-                $this->_extended_insert(0, null);
+                // compare IMAP index with object cache index
+                $imap_index = $this->imap->index($this->folder->name, null, null, true, true);
+                $this->index = $imap_index->get();
 
-                // delete invalid entries from local DB
-                $del_index = array_diff($old_index, $this->index);
-                if (!empty($del_index)) {
-                    $quoted_ids = join(',', array_map(array($this->db, 'quote'), $del_index));
-                    $this->db->query(
-                        "DELETE FROM $this->cache_table WHERE folder_id=? AND msguid IN ($quoted_ids)",
+                // determine objects to fetch or to invalidate
+                if ($imap_index->is_error()) {
+                    // read cache index
+                    $sql_result = $this->db->query(
+                        "SELECT msguid, uid FROM $this->cache_table WHERE folder_id=?",
                         $this->folder_id
                     );
+
+                    $old_index = array();
+                    while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
+                        $old_index[] = $sql_arr['msguid'];
+                        $this->uid2msg[$sql_arr['uid']] = $sql_arr['msguid'];
+                    }
+
+                    // fetch new objects from imap
+                    foreach (array_diff($this->index, $old_index) as $msguid) {
+                        if ($object = $this->folder->read_object($msguid, '*')) {
+                            $this->_extended_insert($msguid, $object);
+                        }
+                    }
+                    $this->_extended_insert(0, null);
+
+                    // delete invalid entries from local DB
+                    $del_index = array_diff($old_index, $this->index);
+                    if (!empty($del_index)) {
+                        $quoted_ids = join(',', array_map(array($this->db, 'quote'), $del_index));
+                        $this->db->query(
+                            "DELETE FROM $this->cache_table WHERE folder_id=? AND msguid IN ($quoted_ids)",
+                            $this->folder_id
+                        );
+                    }
+
+                    // update ctag value (will be written to database in _sync_unlock())
+                    $this->metadata['ctag'] = $this->folder->get_ctag();
+                    $this->metadata['changed'] = date(self::DB_DATE_FORMAT, time());
+                    // remember the number of cache entries linked to this folder
+                    $this->metadata['objectcount'] = $this->count();
                 }
 
-                // update ctag value (will be written to database in _sync_unlock())
-                $this->metadata['ctag'] = $this->folder->get_ctag();
-                $this->metadata['changed'] = date(self::DB_DATE_FORMAT, time());
-                // remember the number of cache entries linked to this folder
-                $this->metadata['objectcount'] = $this->count();
+                $this->bypass(false);
+
+                // remove lock
+                $this->_sync_unlock();
             }
-
-            $this->bypass(false);
-
-            // remove lock
-            $this->_sync_unlock();
         }
 
         $this->check_error();
@@ -556,7 +562,7 @@ class kolab_storage_cache
     public function count($query = array())
     {
         // cache is in sync, we can count records in local DB
-        if ($this->synched && $this->ready) {
+        if ($this->ready) {
             $this->_read_folder_data();
 
             $sql_result = $this->db->query(
