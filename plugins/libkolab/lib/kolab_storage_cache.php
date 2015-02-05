@@ -38,6 +38,7 @@ class kolab_storage_cache
     protected $synclock = false;
     protected $ready = false;
     protected $cache_table;
+    protected $cache_refresh = 3600;
     protected $folders_table;
     protected $max_sql_packet;
     protected $max_sync_lock_time = 600;
@@ -79,6 +80,7 @@ class kolab_storage_cache
         $this->imap = $rcmail->get_storage();
         $this->enabled = $rcmail->config->get('kolab_cache', false);
         $this->folders_table = $this->db->table_name('kolab_folders');
+        $this->cache_refresh = get_offset_sec($rcmail->config->get('kolab_cache_refresh', '12h'));
 
         if ($this->enabled) {
             // always read folder cache and lock state from DB master
@@ -172,8 +174,14 @@ class kolab_storage_cache
         // read cached folder metadata
         $this->_read_folder_data();
 
-        // check cache status hash first ($this->metadata is set in _read_folder_data())
-        if ($this->metadata['ctag'] != $this->folder->get_ctag()) {
+        // check cache status ($this->metadata is set in _read_folder_data())
+        if (  empty($this->metadata['ctag']) ||
+              empty($this->metadata['changed']) ||
+              $this->metadata['objectcount'] === null ||
+              $this->metadata['changed'] < date(self::DB_DATE_FORMAT, time() - $this->cache_refresh) ||
+              $this->metadata['ctag'] != $this->folder->get_ctag() ||
+              intval($this->metadata['objectcount']) !== $this->count()
+            ) {
             // lock synchronization for this folder or wait if locked
             $this->_sync_lock();
 
@@ -221,6 +229,9 @@ class kolab_storage_cache
 
                 // update ctag value (will be written to database in _sync_unlock())
                 $this->metadata['ctag'] = $this->folder->get_ctag();
+                $this->metadata['changed'] = date(self::DB_DATE_FORMAT, time());
+                // remember the number of cache entries linked to this folder
+                $this->metadata['objectcount'] = $this->count();
             }
 
             $this->bypass(false);
@@ -723,7 +734,7 @@ class kolab_storage_cache
         $sql_data = array('changed' => null, 'xml' => '', 'tags' => '', 'words' => '');
 
         if ($object['changed']) {
-            $sql_data['changed'] = date('Y-m-d H:i:s', is_object($object['changed']) ? $object['changed']->format('U') : $object['changed']);
+            $sql_data['changed'] = date(self::DB_DATE_FORMAT, is_object($object['changed']) ? $object['changed']->format('U') : $object['changed']);
         }
 
         if ($object['_formatobj']) {
@@ -876,7 +887,9 @@ class kolab_storage_cache
         if (!empty($this->folder_id))
             return;
 
-        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT folder_id, synclock, ctag FROM $this->folders_table WHERE resource=?", $this->resource_uri));
+        $sql_arr = $this->db->fetch_assoc($this->db->query("SELECT folder_id, synclock, ctag, changed, objectcount"
+            . " FROM $this->folders_table WHERE resource=?", $this->resource_uri));
+
         if ($sql_arr) {
             $this->metadata = $sql_arr;
             $this->folder_id = $sql_arr['folder_id'];
@@ -927,8 +940,10 @@ class kolab_storage_cache
             return;
 
         $this->db->query(
-            "UPDATE $this->folders_table SET synclock = 0, ctag = ? WHERE folder_id = ?",
+            "UPDATE $this->folders_table SET synclock = 0, ctag = ?, changed = ?, objectcount = ? WHERE folder_id = ?",
             $this->metadata['ctag'],
+            $this->metadata['changed'],
+            $this->metadata['objectcount'],
             $this->folder_id
         );
 
