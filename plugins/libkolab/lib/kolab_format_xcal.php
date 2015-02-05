@@ -581,27 +581,38 @@ abstract class kolab_format_xcal extends kolab_format
      *
      * @return array List of words to save in cache
      */
-    public function get_words()
+    public function get_words($obj = null)
     {
         $data = '';
+        $object = $obj ?: $this->data;
+
         foreach (self::$fulltext_cols as $colname) {
             list($col, $field) = explode(':', $colname);
 
             if ($field) {
                 $a = array();
-                foreach ((array)$this->data[$col] as $attr)
+                foreach ((array)$object[$col] as $attr)
                     $a[] = $attr[$field];
                 $val = join(' ', $a);
             }
             else {
-                $val = is_array($this->data[$col]) ? join(' ', $this->data[$col]) : $this->data[$col];
+                $val = is_array($object[$col]) ? join(' ', $object[$col]) : $object[$col];
             }
 
             if (strlen($val))
                 $data .= $val . ' ';
         }
 
-        return array_unique(rcube_utils::normalize_string($data, true));
+        $words = rcube_utils::normalize_string($data, true);
+
+        // collect words from recurrence exceptions
+        if (is_array($object['recurrence']) && $object['recurrence']['EXCEPTIONS']) {
+            foreach((array)$object['recurrence']['EXCEPTIONS'] as $exception) {
+                $words = array_merge($words, $this->get_words($exception));
+            }
+        }
+
+        return array_unique($words);
     }
 
     /**

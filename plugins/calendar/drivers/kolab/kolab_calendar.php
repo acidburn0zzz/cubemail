@@ -271,27 +271,19 @@ class kolab_calendar extends kolab_storage_folder_api
       // remember seen categories
       if ($event['categories'])
         $this->categories[$event['categories']]++;
-      
+
       // filter events by search query
       if (!empty($search)) {
-        $hit = false;
-        foreach ($this->search_fields as $col) {
-          $sval = is_array($event[$col]) ? self::_complex2string($event[$col]) : $event[$col];
-          if (empty($sval))
-            continue;
-          
-          // do a simple substring matching (to be improved)
-          $val = mb_strtolower($sval);
-          if (strpos($val, $search) !== false) {
-            $hit = true;
-            break;
-          }
+        $hits = 0;
+        $words = rcube_utils::tokenize_string($search, 1);
+        foreach ($words as $word) {
+          $hits += $this->_fulltext_match($event, $word);
         }
-        
-        if (!$hit)  // skip this event if not match with search term
+
+        if ($hits < count($words))  // skip this event if not match with search term
           continue;
       }
-      
+
       // list events in requested time window
       if ($event['start'] <= $end && $event['end'] >= $start) {
         unset($event['_attendees']);
@@ -324,6 +316,18 @@ class kolab_calendar extends kolab_storage_folder_api
       // resolve recurring events
       if ($record['recurrence'] && $virtual == 1) {
         $events = array_merge($events, $this->get_recurring_events($record, $start, $end));
+
+        // when searching, only recurrence exceptions may match the query so post-filter the results again
+        if (!empty($search) && $record['recurrence']['EXCEPTIONS']) {
+          $me = $this;
+          $events = array_filter($events, function($event) use ($words, $me) {
+            $hits = 0;
+            foreach ($words as $word) {
+              $hits += $me->_fulltext_match($event, $word, false);
+            }
+            return $hits >= count($words);
+          });
+        }
       }
     }
 
@@ -753,6 +757,36 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     return $event;
+  }
+
+  /**
+   * Match the given word in the event contents
+   */
+  private function _fulltext_match($event, $word, $recursive = true)
+  {
+    $hits = 0;
+    foreach ($this->search_fields as $col) {
+      $sval = is_array($event[$col]) ? self::_complex2string($event[$col]) : $event[$col];
+      if (empty($sval))
+        continue;
+
+      // do a simple substring matching (to be improved)
+      $val = mb_strtolower($sval);
+      if (strpos($val, $word) !== false) {
+        $hits++;
+        break;
+      }
+    }
+
+    // search in recurrence exceptions
+    if (!$hits && $recursive && !empty($event['recurrence']['EXCEPTIONS'])) {
+      foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
+        $hits = $this->_fulltext_match($exception, $word, false);
+        if ($hits) break;
+      }
+    }
+
+    return $hits;
   }
 
   /**
