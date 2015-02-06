@@ -19,9 +19,8 @@ class kolab_files_observer implements SplObserver
 
         switch ($event['name']) {
         case 'receivedHeaders':
-            $target = $this->dir . DIRECTORY_SEPARATOR . $this->file;
-            if (!($this->fp = @fopen($target, 'wb'))) {
-                throw new Exception("Cannot open target file '{$target}'");
+            if (!$this->file || !($this->fp = @fopen($this->file, 'wb'))) {
+                throw new Exception("Cannot open target file '{$this->file}'");
             }
             break;
 
