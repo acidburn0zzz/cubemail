@@ -46,7 +46,6 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
         rcmail.file_list.addEventListener('select', function(o) { kolab_files_list_select(o); })
           .addEventListener('listupdate', function(e) { rcmail.triggerEvent('listupdate', e); });
 
-        rcmail.gui_objects.filelist.parentNode.onmousedown = function(e){ return kolab_files_click_on_list(e); };
         rcmail.enable_command('files-sort', 'files-search', 'files-search-reset', true);
 
         rcmail.file_list.init();
