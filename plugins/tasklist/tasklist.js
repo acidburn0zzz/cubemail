@@ -604,9 +604,6 @@ function rcube_tasklist_ui(settings)
             return false;
         });
 
-        // handle global document clicks: close popup menus
-        $(document.body).click(clear_popups);
-
         // extended datepicker settings
         var extended_datepicker_settings = $.extend({
             showButtonPanel: true,
@@ -1778,7 +1775,7 @@ function rcube_tasklist_ui(settings)
             return $.grep(oldies, function(cls) { return cls.indexOf('status-') === 0 }).join(' ');
         });
 
-        if (!(rec = listdata[id]) || clear_popups({}))
+        if (!(rec = listdata[id]) || (rcmail.menu_stack && rcmail.menu_stack.length > 0))
             return;
 
         me.selected_task = rec;
@@ -2877,25 +2874,6 @@ function rcube_tasklist_ui(settings)
             if (sel && sel.removeAllRanges)
                 sel.removeAllRanges();
         }
-    }
-
-    /**
-     * Hide all open popup menus
-     */
-    function clear_popups(e)
-    {
-        var count = 0, target = e.target;
-        if (target && target.className == 'inner')
-            target = e.target.parentNode;
-
-        $('.popupmenu:visible').each(function(i, elem){
-            var menu = $(elem), id = elem.id;
-            if (id && target.id != id+'link' && (!menu.data('sticky') || !target_overlaps(e.target, elem))) {
-                menu.hide();
-                count++;
-            }
-        });
-        return count;
     }
 
     /**
