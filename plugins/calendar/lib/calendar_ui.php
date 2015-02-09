@@ -886,7 +886,11 @@ class calendar_ui
 
   function event_rsvp_buttons($attrib = array())
   {
-    return $this->cal->itip->itip_rsvp_buttons($attrib);
+    $actions = array('accepted','tentative','declined');
+    if ($attrib['delegate'] !== 'false')
+      $actions[] = 'delegated';
+
+    return $this->cal->itip->itip_rsvp_buttons($attrib, $actions);
   }
 
 }
