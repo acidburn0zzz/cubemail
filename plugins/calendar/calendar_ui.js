@@ -2387,13 +2387,12 @@ function rcube_calendar_ui(settings)
           data = me.selected_event.attendees[i];
           if (settings.identity.emails.indexOf(';'+String(data.email).toLowerCase()) >= 0) {
             data.status = response.toUpperCase();
+            data.rsvp = 0;  // unset RSVP flag
 
             if (data.status == 'DELEGATED') {
               data['delegated-to'] = delegate.to;
             }
             else {
-              delete data.rsvp;  // unset RSVP flag
-
               if (data['delegated-to']) {
                 delete data['delegated-to'];
                 if (data.role == 'NON-PARTICIPANT' && data.status != 'DECLINED')

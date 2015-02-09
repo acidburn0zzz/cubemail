@@ -970,6 +970,7 @@ class calendar extends rcube_plugin
         $status        = rcube_utils::get_input_value('status', rcube_utils::INPUT_GPC);
         $reply_comment = $event['comment'];
 
+        $this->write_preprocess($event, 'edit');
         $ev = $this->driver->get_event($event);
         $ev['attendees'] = $event['attendees'];
         $ev['free_busy'] = $event['free_busy'];
@@ -1885,7 +1886,7 @@ class calendar extends rcube_plugin
           $organizer = $i;
         if ($attendee['email'] == in_array(strtolower($attendee['email']), $emails))
           $owner = $i;
-        else if (!isset($attendee['rsvp']))
+        if (!isset($attendee['rsvp']))
           $event['attendees'][$i]['rsvp'] = true;
         else if (is_string($attendee['rsvp']))
           $event['attendees'][$i]['rsvp'] = $attendee['rsvp'] == 'true' || $attendee['rsvp'] == '1';
