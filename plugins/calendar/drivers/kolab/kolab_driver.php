@@ -883,6 +883,9 @@ class kolab_driver extends calendar_driver
       $savemode = $event['_savemode'];
     }
 
+    // check if update affects scheduling and update attendee status accordingly
+    $reschedule = $this->check_scheduling($event, $old, true);
+
     // keep saved exceptions (not submitted by the client)
     if ($old['recurrence']['EXDATE'] && !isset($event['recurrence']['EXDATE']))
       $event['recurrence']['EXDATE'] = $old['recurrence']['EXDATE'];
@@ -914,7 +917,10 @@ class kolab_driver extends calendar_driver
         $event['recurrence'] = array();
         $event['thisandfuture'] = $savemode == 'future';
 
-        // TODO: increment sequence if scheduling is affected
+        // increment sequence of this instance if scheduling is affected
+        if ($reschedule) {
+          $event['sequence'] = $old['sequence'] + 1;
+        }
 
         // remove some internal properties which should not be saved
         unset($event['id'], $event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
@@ -991,7 +997,8 @@ class kolab_driver extends calendar_driver
         }
 
         // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
-        if (($old_start_date != $new_start_date || $old_start_time != $new_start_time) && is_array($event['recurrence']['EXCEPTIONS']) && !$with_exceptions) {
+        if (($old_start_date != $new_start_date || $old_start_time != $new_start_time) &&
+              is_array($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS']) && !$with_exceptions) {
           $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
           foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
             $recurrence_id = is_a($exception['recurrence_date'], 'DateTime') ? $exception['recurrence_date'] :
@@ -1015,6 +1022,56 @@ class kolab_driver extends calendar_driver
       $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
     
     return $success;
+  }
+
+  /**
+   * Determine whether the current change affects scheduling and reset attendee status accordingly
+   */
+  public function check_scheduling(&$event, $old, $update = true)
+  {
+    $reschedule = false;
+
+    // skip this check when importing iCal/iTip events
+    if (isset($event['sequence']) || !empty($event['_method'])) {
+      return $reschedule;
+    }
+
+    // iterate through the list of properties considered 'significant' for scheduling
+    foreach (kolab_format_event::$scheduling_properties as $prop) {
+      $a = $old[$prop];
+      $b = $event[$prop];
+      if ($event['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {
+        $a = $a->format('Y-m-d');
+        $b = $b->format('Y-m-d');
+      }
+      if ($a != $b) {
+        $reschedule = true;
+        break;
+      }
+    }
+
+    // reset all attendee status to needs-action (#4360)
+    if ($update && $reschedule && is_array($event['attendees'])) {
+      $is_organizer = false;
+      $emails = $this->cal->get_user_emails();
+      $attendees = $event['attendees'];
+      foreach ($attendees as $i => $attendee) {
+        if ($attendee['role'] == 'ORGANIZER' && $attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+          $is_organizer = true;
+        }
+        else if ($attendee['role'] != 'ORGANIZER' && $attendee['role'] != 'NON-PARTICIPANT' && $attendee['status'] != 'DELEGATED') {
+          $attendees[$i]['status'] = 'NEEDS-ACTION';
+          $attendees[$i]['rsvp'] = true;
+        }
+      }
+
+      // update attendees only if I'm the organizer
+      if ($is_organizer || ($event['organizer'] && in_array(strtolower($event['organizer']['email']), $emails))) {
+        $event['attendees'] = $attendees;
+      }
+    }
+
+    return $reschedule;
   }
 
   /**

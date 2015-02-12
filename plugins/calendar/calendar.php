@@ -1836,6 +1836,7 @@ class calendar extends rcube_plugin
     // convert dates into DateTime objects in user's current timezone
     $event['start'] = new DateTime($event['start'], $this->timezone);
     $event['end'] = new DateTime($event['end'], $this->timezone);
+    $event['allday'] = (bool)$event['allday'];
 
     // start/end is all we need for 'move' action (#1480)
     if ($action == 'move') {
@@ -2211,7 +2212,7 @@ class calendar extends rcube_plugin
   public static function event_diff($a, $b)
   {
     $diff = array();
-    $ignore = array('changed' => 1, 'attachments' => 1);
+    $ignore = array('changed' => 1, 'attachments' => 1, 'recurrence' => 1, '_notify' => 1, '_owner' => 1);
     foreach (array_unique(array_merge(array_keys($a), array_keys($b))) as $key) {
       if (!$ignore[$key] && $a[$key] != $b[$key])
         $diff[] = $key;
