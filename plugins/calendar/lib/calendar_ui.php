@@ -176,7 +176,7 @@ class calendar_ui
   {
     $color = $prop['color'];
     $class = 'cal-' . asciiwords($id, true);
-    $css .= "li.$class, #eventshow .$class { color: #$color }\n";
+    $css .= "li .$class, #eventshow .$class { color: #$color }\n";
 
     if ($mode != 1) {
       if ($mode == 3) {

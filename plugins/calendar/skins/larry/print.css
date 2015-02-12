@@ -60,7 +60,6 @@ body, td, th, div, p, h3, select, input, textarea {
 }
 
 #calendarlist li {
-	float: left;
 	padding-left: 0;
 	padding-right: 3em;
 	margin-left: 0;
@@ -70,6 +69,11 @@ body, td, th, div, p, h3, select, input, textarea {
 #calendarlist input,
 #calendarlist .handle {
 	display: none;
+}
+
+#calendarlist li.x-invitations div {
+	color: #999;
+	font-style: italic;
 }
 
 .calwidth {

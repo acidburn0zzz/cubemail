@@ -125,7 +125,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     },
     // event rendering
     eventRender: function(event, element, view) {
-      if (view.name != 'month') {
+      if (view.name != 'month' && view.name != 'table') {
         var cont = element.find('.fc-event-title');
         if (event.location) {
           cont.after('<div class="fc-event-location">@&nbsp;' + Q(event.location) + '</div>');
