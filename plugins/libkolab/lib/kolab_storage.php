@@ -106,6 +106,15 @@ class kolab_storage
             ), true);
         }
 
+        // adjust some configurable settings
+        if ($event_scheduling_prop = $rcmail->config->get('kolab_event_scheduling_properties', null)) {
+            kolab_format_event::$scheduling_properties = (array)$event_scheduling_prop;
+        }
+        // adjust some configurable settings
+        if ($task_scheduling_prop = $rcmail->config->get('kolab_task_scheduling_properties', null)) {
+            kolab_format_task::$scheduling_properties = (array)$task_scheduling_prop;
+        }
+
         return self::$ready;
     }
 

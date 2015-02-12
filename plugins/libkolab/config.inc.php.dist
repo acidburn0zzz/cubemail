@@ -39,6 +39,14 @@ $config['kolab_http_request'] = array();
 // 1 - bypass only messages, but use index cache
 $config['kolab_messages_cache_bypass'] = 0;
 
+// These event properties contribute to a significant revision to the calendar component
+// and if changed will increment the sequence number relevant for scheduling according to RFC 5545
+$config['kolab_event_scheduling_properties'] = array('start', 'end', 'allday', 'location', 'status', 'cancelled');
+
+// These task properties contribute to a significant revision to the calendar component
+// and if changed will increment the sequence number relevant for scheduling according to RFC 5545
+$config['kolab_task_scheduling_properties'] = array('start', 'due', 'summary', 'status');
+
 // LDAP directory to find avilable users for folder sharing.
 // Either contains an array with LDAP addressbook configuration or refers to entry in $config['ldap_public'].
 // If not specified, the configuraton from 'kolab_auth_addressbook' will be used.
