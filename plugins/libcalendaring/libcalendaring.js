@@ -1139,6 +1139,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
   $('.rsvp-buttons').on('click', 'a.reply-comment-toggle', function(e){
     $(this).hide().parent().find('textarea').show().focus();
+    return false;
   });
 
   if (rcmail.env.action == 'get-attachment' && rcmail.gui_objects['attachmentframe']) {
