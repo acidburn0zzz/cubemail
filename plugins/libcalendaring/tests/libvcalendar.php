@@ -164,6 +164,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $events = $ical->import_from_file(__DIR__ . '/resources/recurrence-id.ics', 'UTF-8');
         $this->assertEquals(1, count($events), "Fall back to Component::getComponents() when getBaseComponents() is empty");
         $this->assertInstanceOf('DateTime', $events[0]['recurrence_date'], "Recurrence-ID as date");
+        $this->assertTrue($events[0]['thisandfuture'], "Range=THISANDFUTURE");
     }
 
     /**

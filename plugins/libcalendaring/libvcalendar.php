@@ -318,6 +318,7 @@ class libvcalendar implements Iterator
                     if (!$seen[$object['uid']]++) {
                         // parse recurrence exceptions
                         if ($object['recurrence']) {
+                            $object['recurrence']['EXCEPTIONS'] = array();
                             foreach ($vobject->children as $component) {
                                 if ($component->name == 'VEVENT' && isset($component->{'RECURRENCE-ID'})) {
                                     try {
@@ -455,6 +456,9 @@ class libvcalendar implements Iterator
 
             case 'RECURRENCE-ID':
                 $event['recurrence_date'] = self::convert_datetime($prop);
+                if ($prop->offsetGet('RANGE') == 'THISANDFUTURE' || $prop->offsetGet('THISANDFUTURE') !== null) {
+                    $event['thisandfuture'] = true;
+                }
                 break;
 
             case 'RELATED-TO':
@@ -1151,11 +1155,10 @@ class libvcalendar implements Iterator
         // append recurrence exceptions
         if (is_array($event['recurrence']) && $event['recurrence']['EXCEPTIONS']) {
             foreach ($event['recurrence']['EXCEPTIONS'] as $ex) {
-                $exdate = clone $event['start'];
-                $exdate->setDate($ex['start']->format('Y'), $ex['start']->format('n'), $ex['start']->format('j'));
-                $recurrence_id = $this->datetime_prop('RECURRENCE-ID', $exdate, true);
-                // if ($ex['thisandfuture'])  // not supported by any client :-(
-                //    $recurrence_id->add('RANGE', 'THISANDFUTURE');
+                $exdate = $ex['recurrence_date'] ?: $ex['start'];
+                $recurrence_id = $this->datetime_prop('RECURRENCE-ID', $exdate, false, (bool)$event['allday']);
+                if ($ex['thisandfuture'])
+                    $recurrence_id->add('RANGE', 'THISANDFUTURE');
                 $this->_to_ical($ex, $vcal, $get_attachment, $recurrence_id);
             }
         }

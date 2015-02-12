@@ -692,9 +692,14 @@ class kolab_driver extends calendar_driver
 
       // removing an exception instance
       if ($event['recurrence_id']) {
-        $i = $event['_instance'] - 1;
-        if (!empty($master['recurrence']['EXCEPTIONS'][$i])) {
-          unset($master['recurrence']['EXCEPTIONS'][$i]);
+        foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
+          if ($exception['_instance'] == $event['_instance']) {
+            unset($master['recurrence']['EXCEPTIONS'][$i]);
+            // set event date back to the actual occurrence
+            if ($exception['recurrence_date'])
+              $event['start'] = $exception['recurrence_date'];
+            break;
+          }
         }
       }
 
@@ -879,9 +884,11 @@ class kolab_driver extends calendar_driver
     }
 
     // keep saved exceptions (not submitted by the client)
-    if ($old['recurrence']['EXDATE'])
+    if ($old['recurrence']['EXDATE'] && !isset($event['recurrence']['EXDATE']))
       $event['recurrence']['EXDATE'] = $old['recurrence']['EXDATE'];
-    if ($old['recurrence']['EXCEPTIONS'])
+    if (isset($event['recurrence']['EXCEPTIONS']))
+      $with_exceptions = true;  // exceptions already provided (e.g. from iCal import)
+    else if ($old['recurrence']['EXCEPTIONS'])
       $event['recurrence']['EXCEPTIONS'] = $old['recurrence']['EXCEPTIONS'];
 
     switch ($savemode) {
@@ -907,17 +914,22 @@ class kolab_driver extends calendar_driver
         $event['recurrence'] = array();
         $event['thisandfuture'] = $savemode == 'future';
 
+        // TODO: increment sequence if scheduling is affected
+
         // remove some internal properties which should not be saved
-        unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
+        unset($event['id'], $event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
 
         // save properties to a recurrence exception instance
-        if ($old['recurrence_id']) {
-            $i = $old['_instance'] - 1;
-            if (!empty($master['recurrence']['EXCEPTIONS'][$i])) {
-                $master['recurrence']['EXCEPTIONS'][$i] = $event;
-                $success = $storage->update_event($master, $old['id']);
-                break;
+        if ($old['recurrence_id'] && is_array($master['recurrence']['EXCEPTIONS'])) {
+          foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
+            if ($exception['_instance'] == $old['_instance']) {
+              $event['_instance'] = $old['_instance'];
+              $event['recurrence_date'] = $old['recurrence_date'];
+              $master['recurrence']['EXCEPTIONS'][$i] = $event;
+              $success = $storage->update_event($master, $old['id']);
+              break 2;
             }
+          }
         }
 
         $add_exception = true;
@@ -936,6 +948,7 @@ class kolab_driver extends calendar_driver
 
         // save as new exception to master event
         if ($add_exception) {
+          $event['_instance'] = $old['_instance'];
           $master['recurrence']['EXCEPTIONS'][] = $event;
         }
         $success = $storage->update_event($master);
@@ -955,10 +968,11 @@ class kolab_driver extends calendar_driver
         $new_duration = $event['end']->format('U') - $event['start']->format('U');
         
         $diff = $old_start_date != $new_start_date || $old_start_time != $new_start_time || $old_duration != $new_duration;
+        $date_shift = $old['start']->diff($event['start']);
         
         // shifted or resized
         if ($diff && ($old_start_date == $new_start_date || $old_duration == $new_duration)) {
-          $event['start'] = $master['start']->add($old['start']->diff($event['start']));
+          $event['start'] = $master['start']->add($date_shift);
           $event['end'] = clone $event['start'];
           $event['end']->add(new DateInterval('PT'.$new_duration.'S'));
           
@@ -974,6 +988,20 @@ class kolab_driver extends calendar_driver
         else if ($event['start'] == $old['start'] && $event['end'] == $old['end']) {
           $event['start'] = $master['start'];
           $event['end'] = $master['end'];
+        }
+
+        // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
+        if (($old_start_date != $new_start_date || $old_start_time != $new_start_time) && is_array($event['recurrence']['EXCEPTIONS']) && !$with_exceptions) {
+          $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+          foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
+            $recurrence_id = is_a($exception['recurrence_date'], 'DateTime') ? $exception['recurrence_date'] :
+                rcube_utils::anytodatetime($exception['_instance'], $old['start']->getTimezone());
+            if (is_a($recurrence_id, 'DateTime')) {
+              $recurrence_id->add($date_shift);
+              $event['recurrence']['EXCEPTIONS'][$i]['recurrence_date'] = $recurrence_id;
+              $event['recurrence']['EXCEPTIONS'][$i]['_instance'] = $recurrence_id->format($recurrence_id_format);
+            }
+          }
         }
 
         // unset _dateonly flags in (cached) date objects
