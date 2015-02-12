@@ -4032,7 +4032,7 @@ function rcube_calendar_ui(settings)
           open: autocomplete_open,
           change: event_times_changed,
           select: function(event, ui) {
-            $(this).val(ui.item[0]);
+            $(this).val(ui.item[0]).change();
             return false;
           }
         })
@@ -4046,6 +4046,16 @@ function rcube_calendar_ui(settings)
               .appendTo(ul);
             };
         });
+
+      // adjust end time when changing start
+      $('#edit-starttime').change(function(e) {
+        var dstart = $('#edit-startdate'),
+          newstart = parse_datetime(this.value, dstart.val()),
+          newend = new Date(newstart.getTime() + dstart.data('duration') * 1000);
+        $('#edit-endtime').val($.fullCalendar.formatDate(newend, me.settings['time_format']));
+        $('#edit-enddate').val($.fullCalendar.formatDate(newend, me.settings['date_format']));
+        event_times_changed();
+      });
 
       // register events on alarms and recurrence fields
       me.init_alarms_edit('#edit-alarms');
