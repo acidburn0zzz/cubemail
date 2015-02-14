@@ -4,7 +4,7 @@
     "description": "Plugin to setup a basic environment for the interaction with a Kolab server.",
     "homepage": "http://git.kolab.org/roundcubemail-plugins-kolab/",
     "license": "AGPLv3",
-    "version": "3.2.4",
+    "version": "3.2.5",
     "authors": [
         {
             "name": "Thomas Bruederli",
@@ -12,7 +12,7 @@
             "role": "Lead"
         },
         {
-            "name": "Alensader Machniak",
+            "name": "Aleksander Machniak",
             "email": "machniak@kolabsys.com",
             "role": "Developer"
         }
