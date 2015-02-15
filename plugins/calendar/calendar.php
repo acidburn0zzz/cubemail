@@ -846,8 +846,15 @@ class calendar extends rcube_plugin
       $event['_notify'] = 1;
 
     // read old event data in order to find changes
-    if (($event['_notify'] || $event['_decline']) && $action != 'new')
+    if (($event['_notify'] || $event['_decline']) && $action != 'new') {
       $old = $this->driver->get_event($event);
+
+      // load main event when savemode is 'all'
+      if ($event['_savemode'] == 'all' && $old['recurrence_id']) {
+        $old['id'] = $old['recurrence_id'];
+        $old = $this->driver->get_event($old);
+      }
+    }
 
     switch ($action) {
       case "new":
@@ -1128,8 +1135,16 @@ class calendar extends rcube_plugin
 
     // send out notifications
     if ($success && $event['_notify'] && ($event['attendees'] || $old['attendees'])) {
+      $_savemode = $event['_savemode'];
+
       // make sure we have the complete record
       $event = $action == 'remove' ? $old : $this->driver->get_event($event);
+
+      // send notification for the main event when savemode is 'all'
+      if ($_savemode == 'all' && $event['recurrence_id']) {
+        $event['id'] = $event['recurrence_id'];
+        $event = $this->driver->get_event($event);
+      }
 
       // only notify if data really changed (TODO: do diff check on client already)
       if (!$old || $action == 'remove' || self::event_diff($event, $old)) {
