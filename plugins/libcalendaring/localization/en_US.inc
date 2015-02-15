@@ -111,9 +111,9 @@ $labels['declineattendeeconfirm'] = 'Enter a message to the declined participant
 $labels['rsvprecurringevent'] = 'This is a series of events! Does your response apply to all, this occurrence only or this and future occurrences?';
 
 $labels['itipsingleoccurrence'] = 'This is a <em>single occurrence</em> out of a series of events';
-$labels['itiprequestoccurrenceonly'] = 'The invitation only refers to this single occurrence';
-$labels['itipreplyoccurrenceonly'] = 'The response only refers to this single occurrence';
-$labels['itipcanceloccurrenceonly'] = 'The cancellation only refers to this single occurrence';
+$labels['itipfutureoccurrence'] = 'Refers to <em>this and all future occurrences</em> of a series of events';
+$labels['itipmessagesingleoccurrence'] = 'The message only refers to this single occurrence';
+$labels['itipmessagefutureoccurrence'] = 'The message refers to this and all future occurrences';
 
 $labels['youhaveaccepted'] = 'You have accepted this invitation';
 $labels['youhavetentative'] = 'You have tentatively accepted this invitation';

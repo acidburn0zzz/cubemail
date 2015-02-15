@@ -125,7 +125,7 @@ class libcalendaring_itip
 
         $recurrence_info = '';
         if (!empty($event['recurrence_id'])) {
-            $recurrence_info = "\n\n** " . $this->gettext('itip'.strtolower($method).'occurrenceonly') . ' **';
+            $recurrence_info = "\n\n** " . $this->gettext($event['thisandfuture'] ? 'itipmessagefutureoccurrence' : 'itipmessagesingleoccurrence') . ' **';
         }
         else if (!empty($event['recurrence'])) {
             $recurrence_info = sprintf("\n%s: %s", $this->gettext('recurring'), $this->lib->recurrence_text($event['recurrence']));
@@ -742,7 +742,7 @@ class libcalendaring_itip
         }
         if (!empty($event['recurrence_date'])) {
             $table->add('label', '');
-            $table->add('recurrence-id', $this->gettext('itipsingleoccurrence'));
+            $table->add('recurrence-id', $this->gettext($event['thisandfuture'] ? 'itipfutureoccurrence' : 'itipsingleoccurrence'));
         }
         else if (!empty($event['recurrence'])) {
             $table->add('label', $this->gettext('recurring'));
