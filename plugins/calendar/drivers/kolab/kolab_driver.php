@@ -899,12 +899,16 @@ class kolab_driver extends calendar_driver
     else if ($old['recurrence']['EXCEPTIONS'])
       $event['recurrence']['EXCEPTIONS'] = $old['recurrence']['EXCEPTIONS'];
 
+    // remove some internal properties which should not be saved
+    unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_owner'],
+        $event['_notify'], $event['_method'], $event['_sender'], $event['_sender_utf'], $event['_size']);
+
     switch ($savemode) {
       case 'new':
         // save submitted data as new (non-recurring) event
         $event['recurrence'] = array();
         $event['uid'] = $this->cal->generate_uid();
-        unset($event['recurrence_id'], $event['id'], $event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
+        unset($event['recurrence_id'], $event['_instance'], $event['id']);
 
         // copy attachment data to new event
         foreach ((array)$event['attachments'] as $idx => $attachment) {
@@ -921,15 +925,12 @@ class kolab_driver extends calendar_driver
         // recurring instances shall not store recurrence rules and attachments
         $event['recurrence'] = array();
         $event['thisandfuture'] = $savemode == 'future';
-        unset($event['attachments']);
+        unset($event['attachments'], $event['id']);
 
         // increment sequence of this instance if scheduling is affected
         if ($reschedule) {
           $event['sequence'] = max($old['sequence'], $master['sequence']) + 1;
         }
-
-        // remove some internal properties which should not be saved
-        unset($event['id'], $event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
 
         // save properties to a recurrence exception instance
         if ($old['recurrence_id'] && is_array($master['recurrence']['EXCEPTIONS'])) {

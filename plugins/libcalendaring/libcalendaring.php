@@ -1414,7 +1414,7 @@ class libcalendaring extends rcube_plugin
         if (!empty($object['recurrence_date']) && is_a($object['recurrence_date'], 'DateTime')) {
             $recurrence_id_format = $object['allday'] ? 'Ymd' : 'Ymd\THis';
             $object['_instance'] = $object['recurrence_date']->format($recurrence_id_format);
-            $object['_savemode'] = $event['thisandfuture'] ? 'future' : 'current';
+            $object['_savemode'] = $object['thisandfuture'] ? 'future' : 'current';
         }
         else if (!empty($object['recurrence_id']) || !empty($object['_instance'])) {
             if (strlen($object['_instance']) > 4) {

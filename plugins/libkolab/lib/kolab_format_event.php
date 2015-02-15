@@ -103,7 +103,6 @@ class kolab_format_event extends kolab_format_xcal
             foreach((array)$object['recurrence']['EXCEPTIONS'] as $i => $exception) {
                 $exevent = new kolab_format_event;
                 $exevent->set(($compacted = $this->compact_exception($exception, $object)));  // only save differing values
-                console('COMPACTED', $compacted);
 
                 // get value for recurrence-id
                 if (!empty($exception['recurrence_date']) && is_a($exception['recurrence_date'], 'DateTime')) {
