@@ -32,6 +32,16 @@ class kolab_format_task extends kolab_format_xcal
     protected $read_func = 'readTodo';
     protected $write_func = 'writeTodo';
 
+    /**
+     * Default constructor
+     */
+    function __construct($data = null, $version = 3.0)
+    {
+        parent::__construct(is_string($data) ? $data : null, $version);
+
+        // copy static property overriden by this class
+        $this->_scheduling_properties = self::$scheduling_properties;
+    }
 
     /**
      * Set properties to the kolabformat object
@@ -127,13 +137,4 @@ class kolab_format_task extends kolab_format_xcal
         return $tags;
     }
 
-    /**
-     * Identify changes considered relevant for scheduling
-     *
-     * @see kolab_format_xcal::check_rescheduling()
-     */
-    public static function check_rescheduling($object, $old, $checks = null)
-    {
-        return parent::check_rescheduling($object, $old, $checks ?: self::$scheduling_properties);
-    }
 }

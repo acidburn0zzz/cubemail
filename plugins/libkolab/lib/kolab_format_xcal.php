@@ -32,6 +32,8 @@ abstract class kolab_format_xcal extends kolab_format
 
     public static $scheduling_properties = array('start', 'end', 'location');
 
+    protected $_scheduling_properties = null;
+
     protected $sensitivity_map = array(
         'public'       => kolabformat::ClassPublic,
         'private'      => kolabformat::ClassPrivate,
@@ -317,11 +319,10 @@ abstract class kolab_format_xcal extends kolab_format
             }
             else {
                 $object['sequence'] = $old_sequence;
-                $old = $this->data['uid'] ? $this->data : $this->to_array();
 
                 // increment sequence when updating properties relevant for scheduling.
                 // RFC 5545: "It is incremented [...] each time the Organizer makes a significant revision to the calendar component."
-                if (self::check_rescheduling($object, $old)) {
+                if ($this->check_rescheduling($object)) {
                     $object['sequence']++;
                 }
             }
@@ -634,15 +635,18 @@ abstract class kolab_format_xcal extends kolab_format
      * 
      * @param array Hash array with NEW object properties
      * @param array Hash array with OLD object properties
-     * @param array List of object properties to check for changes
      *
      * @return boolean True if changes affect scheduling, False otherwise
      */
-    public static function check_rescheduling($object, $old, $checks = null)
+    public function check_rescheduling($object, $old = null)
     {
         $reschedule = false;
 
-        foreach ($checks ?: self::$scheduling_properties as $prop) {
+        if (!is_array($old)) {
+            $old = $this->data['uid'] ? $this->data : $this->to_array();
+        }
+
+        foreach ($this->_scheduling_properties ?: self::$scheduling_properties as $prop) {
             $a = $old[$prop];
             $b = $object[$prop];
             if ($object['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {

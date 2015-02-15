@@ -44,6 +44,9 @@ class kolab_format_event extends kolab_format_xcal
             $this->obj = $data;
             $this->loaded = true;
         }
+
+        // copy static property overriden by this class
+        $this->_scheduling_properties = self::$scheduling_properties;
     }
 
     /**
@@ -275,13 +278,4 @@ class kolab_format_event extends kolab_format_xcal
         return $exception;
     }
 
-    /**
-     * Identify changes considered relevant for scheduling
-     *
-     * @see kolab_format_xcal::check_rescheduling()
-     */
-    public static function check_rescheduling($object, $old, $checks = null)
-    {
-        return parent::check_rescheduling($object, $old, $checks ?: self::$scheduling_properties);
-    }
 }

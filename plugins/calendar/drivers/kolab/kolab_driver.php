@@ -1041,7 +1041,8 @@ class kolab_driver extends calendar_driver
     }
 
     // iterate through the list of properties considered 'significant' for scheduling
-    $reschedule = kolab_format_event::check_rescheduling($event, $old);
+    $kolab_event = $old['_formatobj'] ?: new kolab_format_event();
+    $reschedule = $kolab_event->check_rescheduling($event, $old);
 
     // reset all attendee status to needs-action (#4360)
     if ($update && $reschedule && is_array($event['attendees'])) {
