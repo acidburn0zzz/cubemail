@@ -676,6 +676,10 @@ a.miniColors-trigger {
 	outline: none;
 }
 
+#event-panel-attachments.disabled .attachmentslist li a.delete {
+	visibility: hidden;
+}
+
 .event-attendees span.attendee {
 	padding-right: 18px;
 	margin-right: 0.5em;

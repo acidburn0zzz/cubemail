@@ -918,9 +918,10 @@ class kolab_driver extends calendar_driver
 
       case 'future':
       case 'current':
-        // recurring instances shall not store recurrence rules
+        // recurring instances shall not store recurrence rules and attachments
         $event['recurrence'] = array();
         $event['thisandfuture'] = $savemode == 'future';
+        unset($event['attachments']);
 
         // increment sequence of this instance if scheduling is affected
         if ($reschedule) {

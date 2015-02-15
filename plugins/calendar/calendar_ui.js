@@ -691,6 +691,8 @@ function rcube_calendar_ui(settings)
 
       // reset dialog first
       $('#eventtabs').get(0).reset();
+      $('#event-panel-recurrence input, #event-panel-recurrence select, #event-panel-attachments input').prop('disabled', false);
+      $('#event-panel-recurrence, #event-panel-attachments').removeClass('disabled');
 
       // allow other plugins to do actions when event form is opened
       rcmail.triggerEvent('calendar-event-init', {o: event});
@@ -752,7 +754,7 @@ function rcube_calendar_ui(settings)
       if (event.id && event.recurrence) {
         var sel = event._savemode || (event.thisandfuture ? 'future' : (event.isexception ? 'current' : 'all'));
         $('#edit-recurring-warning').show();
-        $('input.edit-recurring-savemode[value="'+sel+'"]').prop('checked', true);
+        $('input.edit-recurring-savemode[value="'+sel+'"]').prop('checked', true).change();
       }
       else
         $('#edit-recurring-warning').hide();
@@ -803,7 +805,7 @@ function rcube_calendar_ui(settings)
       // attachments
       var load_attachments_tab = function()
       {
-        rcmail.enable_command('remove-attachment', !calendar.readonly);
+        rcmail.enable_command('remove-attachment', !calendar.readonly && !event.recurrence_id);
         rcmail.env.deleted_attachments = [];
         // we're sharing some code for uploads handling with app.js
         rcmail.env.attachments = [];
@@ -4162,6 +4164,13 @@ function rcube_calendar_ui(settings)
       $('#event-rsvp input.button').click(function(e) {
         event_rsvp($(this).attr('rel'))
       });
+
+      $('#eventedit input.edit-recurring-savemode').change(function(e) {
+        var sel = $('input.edit-recurring-savemode:checked').val(),
+          disabled = sel == 'current' || sel == 'future';
+        $('#event-panel-recurrence input, #event-panel-recurrence select, #event-panel-attachments input').prop('disabled', disabled);
+        $('#event-panel-recurrence, #event-panel-attachments')[(disabled?'addClass':'removeClass')]('disabled');
+      })
 
       $('#eventshow .changersvp').click(function(e) {
         var d = $('#eventshow'),
