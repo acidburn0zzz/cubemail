@@ -87,9 +87,13 @@ class kolab_date_recurrence
             $next_end->add($this->duration);
 
             $next = $this->object->to_array();
-            $next['recurrence_id'] = $next_start->format('Y-m-d');
             $next['start'] = $next_start;
             $next['end'] = $next_end;
+
+            $recurrence_id_format = $next['allday'] ? 'Ymd' : 'Ymd\THis';
+            $next['recurrence_date'] = clone $next_start;
+            $next['_instance'] = $next_start->format($recurrence_id_format);
+
             unset($next['_formatobj']);
 
             return $next;

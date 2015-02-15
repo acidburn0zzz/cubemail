@@ -98,8 +98,10 @@ class libcalendaring_itip
         if (!$this->sender['name'])
             $this->sender['name'] = $this->sender['email'];
 
-        if (!$message)
+        if (!$message) {
+            libcalendaring::identify_recurrence_instance($event);
             $message = $this->compose_itip_message($event, $method, $rsvp);
+        }
 
         $mailto = rcube_idn_to_ascii($recipient['email']);
 
@@ -121,12 +123,19 @@ class libcalendaring_itip
                 ($attendee['name'] ? $attendee['name'] : $attendee['email']);
         }
 
+        $recurrence_info = '';
+        if (!empty($event['recurrence_id'])) {
+            $recurrence_info = "\n\n** " . $this->gettext('itip'.strtolower($method).'occurrenceonly') . ' **';
+        }
+        else if (!empty($event['recurrence'])) {
+            $recurrence_info = sprintf("\n%s: %s", $this->gettext('recurring'), $this->lib->recurrence_text($event['recurrence']));
+        }
+
         $mailbody = $this->gettext(array(
             'name' => $bodytext,
             'vars' => array(
                 'title' => $event['title'],
-                'date' => $this->lib->event_date_text($event, true) .
-                    (empty($event['recurrence']) ? '' : sprintf("\n%s: %s", $this->gettext('recurring'), $this->lib->recurrence_text($event['recurrence']))),
+                'date' => $this->lib->event_date_text($event, true) . $recurrence_info,
                 'attendees' => join(",\n ", $attendees_list),
                 'sender' => $this->sender['name'],
                 'organizer' => $this->sender['name'],
@@ -150,6 +159,10 @@ class libcalendaring_itip
 
         $message->headers($headers, true);
         $message->setTXTBody(rcube_mime::format_flowed($mailbody, 79));
+
+        if ($this->rc->config->get('libcalendaring_itip_debug', false)) {
+            console('iTip ' . $method, $message->txtHeaders() . "\n\r" . $message->get());
+        }
 
         // finally send the message
         $this->itip_send = true;
@@ -230,6 +243,9 @@ class libcalendaring_itip
                 array_unshift($reply_attendees, $replying_attendee);
                 $event['attendees'] = $reply_attendees;
             }
+            if ($event['recurrence']) {
+                unset($event['recurrence']['EXCEPTIONS']);
+            }
         }
         // set RSVP for every attendee
         else if ($method == 'REQUEST') {
@@ -237,6 +253,11 @@ class libcalendaring_itip
                 if ($attendee['status'] != 'DELEGATED') {
                     $event['attendees'][$i]['rsvp']= $rsvp ? true : null;
                 }
+            }
+        }
+        else if ($method == 'CANCEL') {
+            if ($event['recurrence']) {
+                unset($event['recurrence']['EXCEPTIONS']);
             }
         }
 
@@ -453,6 +474,7 @@ class libcalendaring_itip
         $changed = is_object($event['changed']) ? $event['changed'] : $message_date;
         $metadata = array(
             'uid'      => $event['uid'],
+            '_instance' => $event['_instance'],
             'changed'  => $changed ? $changed->format('U') : 0,
             'sequence' => intval($event['sequence']),
             'method'   => $method,
@@ -580,12 +602,13 @@ class libcalendaring_itip
         // for CANCEL messages, we can:
         else if ($method == 'CANCEL') {
             $title = $this->gettext('itipcancellation');
+            $event_prop = array_filter(array('uid' => $event['uid'], '_instance' => $event['_instance']));
 
             // 1. remove the event from our calendar
             $button_remove = html::tag('input', array(
                 'type' => 'button',
                 'class' => 'button',
-                'onclick' => "rcube_libcalendaring.remove_from_itip('" . JQ($event['uid']) . "', '$task', '" . JQ($event['title']) . "')",
+                'onclick' => "rcube_libcalendaring.remove_from_itip(" . rcube_output::json_serialize($event_prop) . ", '$task', '" . JQ($event['title']) . "')",
                 'value' => $this->gettext('removefromcalendar'),
             ));
 
@@ -646,8 +669,6 @@ class libcalendaring_itip
             ));
         }
 
-        $buttons .= html::div('itip-reply-controls', $this->itip_rsvp_options_ui($attrib['id']));
-
         // add localized texts for the delegation dialog
         if (in_array('delegated', $actions)) {
             foreach (array('itipdelegated','itipcomment','delegateinvitation',
@@ -656,9 +677,23 @@ class libcalendaring_itip
             }
         }
 
+        $savemode_radio = new html_radiobutton(array('name' => '_rsvpmode', 'class' => 'rsvp-replymode'));
+
         return html::div($attrib,
             html::div('label', $this->gettext('acceptinvitation')) .
-            html::div('rsvp-buttons', $buttons));
+            html::div('rsvp-buttons',
+                $buttons .
+                html::div(array('class' => 'rsvp-replymode-message', 'style' => 'display:none'),
+                    html::div('message', html::span('ui-icon ui-icon-alert', '') . $this->gettext('rsvprecurringevent')) .
+                    html::div('replymode-select', 
+                        html::label(null, $savemode_radio->show('all', array('value' => 'all')) . $this->gettext('allevents')) .
+                        html::label(null, $savemode_radio->show(null, array('value' => 'current')) . $this->gettext('currentevent')) .
+                        html::label(null, $savemode_radio->show(null, array('value' => 'future')) . $this->gettext('futurevents'))
+                    )
+                ) .
+                html::div('itip-reply-controls', $this->itip_rsvp_options_ui($attrib['id']))
+            )
+        );
     }
 
     /**
@@ -705,7 +740,11 @@ class libcalendaring_itip
             $table->add('label', $this->gettext('date'));
             $table->add('date', Q($this->lib->event_date_text($event)));
         }
-        if (!empty($event['recurrence'])) {
+        if (!empty($event['recurrence_date'])) {
+            $table->add('label', '');
+            $table->add('recurrence-id', $this->gettext('itipsingleoccurrence'));
+        }
+        else if (!empty($event['recurrence'])) {
             $table->add('label', $this->gettext('recurring'));
             $table->add('recurrence', $this->lib->recurrence_text($event['recurrence']));
         }

@@ -841,15 +841,12 @@ class calendar extends rcube_plugin
     $event  = rcube_utils::get_input_value('e', rcube_utils::INPUT_POST, true);
     $success = $reload = $got_msg = false;
     
-    // don't notify if modifying a recurring instance (really?)
-    if ($event['_savemode'] && in_array($event['_savemode'], array('current','future')) && $event['_notify'] && $action != 'remove')
-      unset($event['_notify']);
     // force notify if hidden + active
-    else if ((int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']) === 1)
+    if ((int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']) === 1)
       $event['_notify'] = 1;
 
     // read old event data in order to find changes
-    if (($event['_notify'] || $event['decline']) && $action != 'new')
+    if (($event['_notify'] || $event['_decline']) && $action != 'new')
       $old = $this->driver->get_event($event);
 
     switch ($action) {
@@ -928,8 +925,14 @@ class calendar extends rcube_plugin
           $got_msg = true;
         }
 
+        // send cancellation for the main event
+        if ($event['_savemode'] == 'all')
+          unset($old['_instance'], $old['recurrence_date'], $old['recurrence_id']);
+        else if ($event['_savemode'] == 'future')
+          $old['thisandfuture'] = true;
+
         // send iTIP reply that participant has declined the event
-        if ($success && $event['decline']) {
+        if ($success && $event['_decline']) {
           $emails = $this->get_user_emails();
           foreach ($old['attendees'] as $i => $attendee) {
             if ($attendee['role'] == 'ORGANIZER')
@@ -939,7 +942,7 @@ class calendar extends rcube_plugin
               $reply_sender = $attendee['email'];
             }
           }
-          
+
           $itip = $this->load_itip();
           $itip->set_sender_email($reply_sender);
           if ($organizer && $itip->send_itip_message($old, 'REPLY', $organizer, 'itipsubjectdeclined', 'itipmailbodydeclined'))
@@ -974,6 +977,7 @@ class calendar extends rcube_plugin
         $ev = $this->driver->get_event($event);
         $ev['attendees'] = $event['attendees'];
         $ev['free_busy'] = $event['free_busy'];
+        $ev['_savemode'] = $event['_savemode'];
 
         // send invitation to delegatee + add it as attendee
         if ($status == 'delegated' && $event['to']) {
@@ -1127,11 +1131,7 @@ class calendar extends rcube_plugin
       // make sure we have the complete record
       $event = $action == 'remove' ? $old : $this->driver->get_event($event);
 
-      // sending notification on a recurrence instance -> re-send the main event
-      if ($event['recurrence_id']) {
-        $event = $this->driver->get_event(array('id' => $event['recurrence_id'], 'cal' => $event['calendar']));
-        $action = 'edit';
-      }
+      // TODO: on change of a recurring (main) event, also send updates to differing attendess of recurrence exceptions
 
       // only notify if data really changed (TODO: do diff check on client already)
       if (!$old || $action == 'remove' || self::event_diff($event, $old)) {
@@ -1945,6 +1945,9 @@ class calendar extends rcube_plugin
     // add comment to the iTip attachment
     $event['comment'] = $comment;
 
+    // set a valid recurrence-id if this is a recurrence instance
+    libcalendaring::identify_recurrence_instance($event);
+
     // compose multipart message using PEAR:Mail_Mime
     $method = $action == 'remove' ? 'CANCEL' : 'REQUEST';
     $message = $itip->compose_itip_message($event, $method, $event['sequence'] > $old['sequence']);
@@ -2405,9 +2408,10 @@ class calendar extends rcube_plugin
   {
     $success = false;
     $uid     = rcube_utils::get_input_value('uid', rcube_utils::INPUT_POST);
+    $inst    = rcube_utils::get_input_value('_instance', rcube_utils::INPUT_POST);
 
     // search for event if only UID is given
-    if ($event = $this->driver->get_event(array('uid' => $uid), true)) {
+    if ($event = $this->driver->get_event(array('uid' => $uid, '_instance' => $inst), true)) {
       $success = $this->driver->remove_event($event, true);
     }
 
@@ -2722,12 +2726,13 @@ class calendar extends rcube_plugin
       
       // save to calendar
       if ($calendar && !$calendar['readonly']) {
-        $event['calendar'] = $calendar['id'];
-        
-        // check for existing event with the same UID
-        $existing = $this->driver->get_event($event['uid'], true, false, true);
-        
+          // check for existing event with the same UID
+        $existing = $this->driver->get_event($event, true, false, true);
+
         if ($existing) {
+          // forward savemode for correct updates of recurring events
+          $existing['_savemode'] = $event['_savemode'];
+
           // only update attendee status
           if ($event['_method'] == 'REPLY') {
             // try to identify the attendee using the email sender address
@@ -2829,6 +2834,8 @@ class calendar extends rcube_plugin
           if ($status == 'declined' || $event['status'] == 'CANCELLED' || $event_attendee['role'] == 'NON-PARTICIPANT') {
             $event['free_busy'] = 'free';
           }
+          // save to the selected/default calendar
+          $event['calendar'] = $calendar['id'];
           $success = $this->driver->new_event($event);
         }
         else if ($status == 'declined')

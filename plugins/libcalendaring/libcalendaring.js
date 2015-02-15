@@ -961,11 +961,11 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
 /**
  *
  */
-rcube_libcalendaring.remove_from_itip = function(uid, task, title)
+rcube_libcalendaring.remove_from_itip = function(event, task, title)
 {
     if (confirm(rcmail.gettext('itip.deleteobjectconfirm').replace('$title', title))) {
         rcmail.http_post(task + '/itip-remove',
-            { uid: uid },
+            event,
             rcmail.set_busy(true, 'itip.savingdata')
         );
     }

@@ -1310,6 +1310,9 @@ class libcalendaring extends rcube_plugin
                 $charset = $part->ctype_parameters['charset'] ?: RCMAIL_CHARSET;
                 $this->mail_ical_parser->import($this->ical_message->get_part_body($mime_id, true), $charset);
 
+                // check if the parsed object is an instance of a recurring event/task
+                array_walk($this->mail_ical_parser->objects, 'libcalendaring::identify_recurrence_instance');
+
                 // stop on the part that has an iTip method specified
                 if (count($this->mail_ical_parser->objects) && $this->mail_ical_parser->method) {
                     $this->mail_ical_parser->message_date = $this->ical_message->headers->date;
@@ -1374,6 +1377,9 @@ class libcalendaring extends rcube_plugin
             $object['_sender'] = preg_match(self::$email_regex, $headers->from, $m) ? $m[1] : '';
             $object['_sender_utf'] = rcube_utils::idn_to_utf8($object['_sender']);
 
+            // check if this is an instance of a recurring event/task
+            self::identify_recurrence_instance($object);
+
             return $object;
         }
 
@@ -1395,6 +1401,30 @@ class libcalendaring extends rcube_plugin
         );
     }
 
+    /**
+     * Single occourrences of recurring events are identified by their RECURRENCE-ID property
+     * in iCal which is represented as 'recurrence_date' in our internal data structure.
+     *
+     * Check if such a property exists and derive the '_instance' identifier and '_savemode'
+     * attributes which are used in the storage backend to identify the nested exception item.
+     */
+    public static function identify_recurrence_instance(&$object)
+    {
+        // set instance and 'savemode' according to recurrence-id
+        if (!empty($object['recurrence_date']) && is_a($object['recurrence_date'], 'DateTime')) {
+            $recurrence_id_format = $object['allday'] ? 'Ymd' : 'Ymd\THis';
+            $object['_instance'] = $object['recurrence_date']->format($recurrence_id_format);
+            $object['_savemode'] = $event['thisandfuture'] ? 'future' : 'current';
+        }
+        else if (!empty($object['recurrence_id']) || !empty($object['_instance'])) {
+            if (strlen($object['_instance']) > 4) {
+                $object['recurrence_date'] = rcube_utils::anytodatetime($object['_instance'], $object['start']->getTimezone());
+            }
+            else {
+                $object['recurrence_date'] = clone $object['start'];
+            }
+        }
+    }
 
     /*********  Attendee handling functions  *********/
 

@@ -237,6 +237,7 @@ class kolab_format_event extends kolab_format_xcal
     private function compact_exception($exception, $master)
     {
         $forbidden = array('recurrence','organizer','_attachments');
+        $whitelist = array('start','end');
 
         foreach ($forbidden as $prop) {
             if (array_key_exists($prop, $exception)) {
@@ -245,7 +246,7 @@ class kolab_format_event extends kolab_format_xcal
         }
 
         foreach ($master as $prop => $value) {
-            if (isset($exception[$prop]) && gettype($exception[$prop]) == gettype($value) && $exception[$prop] == $value) {
+            if (isset($exception[$prop]) && gettype($exception[$prop]) == gettype($value) && $exception[$prop] == $value && !in_array($prop, $whitelist)) {
                 unset($exception[$prop]);
             }
         }

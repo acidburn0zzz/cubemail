@@ -534,8 +534,13 @@ class kolab_driver extends calendar_driver
   public function get_event($event, $writeable = false, $active = false, $personal = false)
   {
     if (is_array($event)) {
-      $id = $event['id'] ? $event['id'] : $event['uid'];
+      $id = $event['id'] ?: $event['uid'];
       $cal = $event['calendar'];
+
+      // we're looking for a recurring instance: expand the ID to our internal convention for recurring instanced
+      if (!$event['id'] && $event['_instance']) {
+        $id .= '-' . $event['_instance'];
+      }
     }
     else {
       $id = $event;
@@ -687,11 +692,11 @@ class kolab_driver extends calendar_driver
       // read master if deleting a recurring event
       if ($event['recurrence'] || $event['recurrence_id']) {
         $master = $event['recurrence_id'] ? $storage->get_event($event['recurrence_id']) : $event;
-        $savemode = $event['_savemode'];
+        $savemode = $event['_savemode'] ?: ($event['_instance'] ? 'current' : 'all');
       }
 
       // removing an exception instance
-      if ($event['recurrence_id']) {
+      if ($event['recurrence_id'] && $master['recurrence'] && is_array($master['recurrence']['EXCEPTIONS'])) {
         foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
           if ($exception['_instance'] == $event['_instance']) {
             unset($master['recurrence']['EXCEPTIONS'][$i]);
@@ -880,7 +885,7 @@ class kolab_driver extends calendar_driver
     // modify a recurring event, check submitted savemode to do the right things
     if ($old['recurrence'] || $old['recurrence_id']) {
       $master = $old['recurrence_id'] ? $fromcalendar->get_event($old['recurrence_id']) : $old;
-      $savemode = $event['_savemode'];
+      $savemode = $event['_savemode'] ?: ($old['recurrence_id'] ? 'current' : 'all');
     }
 
     // check if update affects scheduling and update attendee status accordingly
@@ -919,7 +924,7 @@ class kolab_driver extends calendar_driver
 
         // increment sequence of this instance if scheduling is affected
         if ($reschedule) {
-          $event['sequence'] = $old['sequence'] + 1;
+          $event['sequence'] = max($old['sequence'], $master['sequence']) + 1;
         }
 
         // remove some internal properties which should not be saved

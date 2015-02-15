@@ -554,6 +554,14 @@ function rcube_calendar_ui(settings)
 
         $('#event-rsvp a.reply-comment-toggle').show();
         $('#event-rsvp .itip-reply-comment textarea').hide().val('');
+
+        if (event.recurrence && event.id) {
+          var sel = event._savemode || (event.thisandfuture ? 'future' : (event.isexception ? 'current' : 'all'));
+          $('#event-rsvp input.rsvp-replymode[value="'+sel+'"]').prop('checked', true);
+          $('#event-rsvp .rsvp-replymode-message').show();
+        }
+        else
+          $('#event-rsvp .rsvp-replymode-message').hide();
       }
 
       var buttons = [];
@@ -742,11 +750,9 @@ function rcube_calendar_ui(settings)
 
       // show warning if editing a recurring event
       if (event.id && event.recurrence) {
-        var allow_exceptions = !has_attendees(event) || !is_organizer(event),
-          sel = event._savemode || (allow_exceptions && event.thisandfuture ? 'future' : (allow_exceptions && event.isexception ? 'current' : 'all'));
+        var sel = event._savemode || (event.thisandfuture ? 'future' : (event.isexception ? 'current' : 'all'));
         $('#edit-recurring-warning').show();
         $('input.edit-recurring-savemode[value="'+sel+'"]').prop('checked', true);
-        $('input.edit-recurring-savemode[value="current"], input.edit-recurring-savemode[value="future"]').prop('disabled', !allow_exceptions);
       }
       else
         $('#edit-recurring-warning').hide();
@@ -2411,7 +2417,7 @@ function rcube_calendar_ui(settings)
         }
 
         // submit status change to server
-        var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val() }, (delegate || {})),
+        var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val(), _savemode: $('input.rsvp-replymode:checked').val() }, (delegate || {})),
           noreply = $('#noreply-event-rsvp:checked').length ? 1 : 0;
 
         // import event from mail (temporary iTip event)
@@ -2425,7 +2431,8 @@ function rcube_calendar_ui(settings)
             _to: (delegate ? delegate.to : null),
             _rsvp: (delegate && delegate.rsvp) ? 1 : 0,
             _noreply: noreply,
-            _comment: submit_data.comment
+            _comment: submit_data.comment,
+            _savemode: submit_data._savemode
           });
         }
         else if (settings.invitation_calendars) {
@@ -2501,7 +2508,7 @@ function rcube_calendar_ui(settings)
 
         // mark all recurring instances as temp
         if (event.recurrence || event.recurrence_id) {
-          var base_id = event.recurrence_id ? event.recurrence_id.replace(/-\d+$/, '') : event.id;
+          var base_id = event.recurrence_id ? event.recurrence_id.replace(/-\d+(T\d{6})?$/, '') : event.id;
           $.each(fc.fullCalendar('clientEvents', function(e){ return e.id == base_id || e.recurrence_id == base_id; }), function(i,ev) {
             ev.temp = true;
             ev.editable = false;
@@ -2566,7 +2573,7 @@ function rcube_calendar_ui(settings)
       // recurring event: user needs to select the savemode
       if (event.recurrence) {
         var disabled_state = '', message_label = (action == 'remove' ? 'removerecurringeventwarning' : 'changerecurringeventwarning');
-
+/*
         if (_has_attendees) {
           if (action == 'remove') {
             if (!_is_organizer) {
@@ -2578,7 +2585,7 @@ function rcube_calendar_ui(settings)
             disabled_state = ' disabled';
           }
         }
-
+*/
         html += '<div class="message"><span class="ui-icon ui-icon-alert"></span>' +
           rcmail.gettext(message_label, 'calendar') + '</div>' +
           '<div class="savemode">' +
@@ -2606,8 +2613,10 @@ function rcube_calendar_ui(settings)
           else {
             if ($dialog.find('input.confirm-attendees-donotify').length)
               data._notify = $dialog.find('input.confirm-attendees-donotify').get(0).checked ? 1 : 0;
-            if (decline && $dialog.find('input.confirm-attendees-decline:checked').length)
-              data.decline = 1;
+            if (decline) {
+              data._decline = $dialog.find('input.confirm-attendees-decline:checked').length;
+              data._notify = 0;
+            }
             update_event(action, data);
           }
 
@@ -2622,7 +2631,7 @@ function rcube_calendar_ui(settings)
             text: rcmail.gettext((action == 'remove' ? 'delete' : 'save'), 'calendar'),
             click: function() {
               data._notify = notify && $dialog.find('input.confirm-attendees-donotify:checked').length ? 1 : 0;
-              data.decline = decline && $dialog.find('input.confirm-attendees-decline:checked').length ? 1 : 0;
+              data._decline = decline && $dialog.find('input.confirm-attendees-decline:checked').length ? 1 : 0;
               update_event(action, data);
               $(this).dialog("close");
             }

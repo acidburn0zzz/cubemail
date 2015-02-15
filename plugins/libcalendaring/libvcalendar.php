@@ -948,6 +948,13 @@ class libvcalendar implements Iterator
         if (!empty($event['due']))
             $ve->add($this->datetime_prop('DUE',   $event['due'], false));
 
+        // we're exporting a recurrence instance only
+        if (!$recurrence_id && $event['recurrence_date'] && $event['recurrence_date'] instanceof DateTime) {
+            $recurrence_id = $this->datetime_prop('RECURRENCE-ID', $event['recurrence_date'], false, (bool)$event['allday']);
+            if ($event['thisandfuture'])
+                $recurrence_id->add('RANGE', 'THISANDFUTURE');
+        }
+
         if ($recurrence_id)
             $ve->add($recurrence_id);
 

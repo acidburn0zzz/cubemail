@@ -1059,6 +1059,26 @@ td.topalign {
 	text-align: center;
 }
 
+.event-dialog-message .rsvp-replymode-message {
+	margin-top: 0.8em;
+	margin-bottom: 0.6em;
+}
+
+.event-dialog-message .rsvp-replymode-message .replymode-select {
+	padding-left: 22px;
+}
+
+.event-dialog-message .rsvp-replymode-message label {
+	color: inherit;
+	margin-right: 0.4em;
+	white-space: nowrap;
+	min-width: 4em;
+}
+
+.event-dialog-message .rsvp-replymode-message input.rsvp-replymode {
+	margin-right: 0.4em;
+}
+
 #event-rsvp,
 #edit-attendees-notify {
 	margin: 0.6em 0 0.3em 0;
@@ -2156,6 +2176,15 @@ div.calendar-invitebox td.label {
 
 div.calendar-invitebox td.sensitivity {
 	color: #d31400;
+	font-weight: bold;
+}
+
+div.calendar-invitebox td.recurrence-id {
+	text-transform: uppercase;
+	font-style: italic;
+}
+
+div.calendar-invitebox td em {
 	font-weight: bold;
 }
 

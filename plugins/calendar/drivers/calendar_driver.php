@@ -50,6 +50,7 @@
  *      'EXCEPTIONS' => array(<event>),  list of event objects which denote exceptions in the recurrence chain
  *    ),
  * 'recurrence_id' => 'ID of the recurrence group',   // usually the ID of the starting event
+ *     '_instance' => 'ID of the recurring instance',   // identifies an instance within a recurrence chain
  *    'categories' => 'Event category',
  *     'free_busy' => 'free|busy|outofoffice|tentative',  // Show time as
  *        'status' => 'TENTATIVE|CONFIRMED|CANCELLED',    // event status according to RFC 2445
@@ -469,7 +470,6 @@ abstract class calendar_driver
         if (($next_event['start'] <= $end && $next_event['end'] >= $start)) {
           $next_event['id'] = $next_event['uid'];
           $next_event['recurrence_id'] = $event['uid'];
-          $next_event['_instance'] = $i;
           $events[] = $next_event;
         }
         else if ($next_event['start'] > $end) {  // stop loop if out of range

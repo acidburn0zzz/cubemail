@@ -67,13 +67,16 @@ class calendar_recurrence extends libcalendaring_recurrence
   {
     if ($next_start = $this->next()) {
       $next = $this->event;
-      $next['recurrence_id'] = $next_start->format('Y-m-d');
       $next['start'] = $next_start;
 
       if ($this->duration) {
         $next['end'] = clone $next_start;
         $next['end']->add($this->duration);
       }
+
+      $recurrence_id_format = $next['allday'] ? 'Ymd' : 'Ymd\THis';
+      $next['recurrence_date'] = clone $next_start;
+      $next['_instance'] = $next_start->format($recurrence_id_format);
 
       unset($next['_formatobj']);
 
