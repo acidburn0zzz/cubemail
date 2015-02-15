@@ -321,17 +321,8 @@ abstract class kolab_format_xcal extends kolab_format
 
                 // increment sequence when updating properties relevant for scheduling.
                 // RFC 5545: "It is incremented [...] each time the Organizer makes a significant revision to the calendar component."
-                foreach (self::$scheduling_properties as $prop) {
-                    $a = $old[$prop];
-                    $b = $object[$prop];
-                    if ($object['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {
-                        $a = $a->format('Y-m-d');
-                        $b = $b->format('Y-m-d');
-                    }
-                    if ($a != $b) {
-                        $object['sequence']++;
-                        break;
-                    }
+                if (self::check_rescheduling($object, $old)) {
+                    $object['sequence']++;
                 }
             }
         }
@@ -636,5 +627,40 @@ abstract class kolab_format_xcal extends kolab_format
         }
 
         return $tags;
+    }
+
+    /**
+     * Identify changes considered relevant for scheduling
+     * 
+     * @param array Hash array with NEW object properties
+     * @param array Hash array with OLD object properties
+     * @param array List of object properties to check for changes
+     *
+     * @return boolean True if changes affect scheduling, False otherwise
+     */
+    public static function check_rescheduling($object, $old, $checks = null)
+    {
+        $reschedule = false;
+
+        foreach ($checks ?: self::$scheduling_properties as $prop) {
+            $a = $old[$prop];
+            $b = $object[$prop];
+            if ($object['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {
+                $a = $a->format('Y-m-d');
+                $b = $b->format('Y-m-d');
+            }
+            if ($prop == 'recurrence') {
+                unset($a['EXCEPTIONS']);
+                unset($b['EXCEPTIONS']);
+                $a = array_filter($a);
+                $b = array_filter($b);
+            }
+            if ($a != $b) {
+                $reschedule = true;
+                break;
+            }
+        }
+
+        return $reschedule;
     }
 }

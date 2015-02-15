@@ -1035,26 +1035,13 @@ class kolab_driver extends calendar_driver
    */
   public function check_scheduling(&$event, $old, $update = true)
   {
-    $reschedule = false;
-
     // skip this check when importing iCal/iTip events
     if (isset($event['sequence']) || !empty($event['_method'])) {
-      return $reschedule;
+      return false;
     }
 
     // iterate through the list of properties considered 'significant' for scheduling
-    foreach (kolab_format_event::$scheduling_properties as $prop) {
-      $a = $old[$prop];
-      $b = $event[$prop];
-      if ($event['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {
-        $a = $a->format('Y-m-d');
-        $b = $b->format('Y-m-d');
-      }
-      if ($a != $b) {
-        $reschedule = true;
-        break;
-      }
-    }
+    $reschedule = kolab_format_event::check_rescheduling($event, $old);
 
     // reset all attendee status to needs-action (#4360)
     if ($update && $reschedule && is_array($event['attendees'])) {

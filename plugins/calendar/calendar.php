@@ -993,7 +993,7 @@ class calendar extends rcube_plugin
         if ($success = $this->driver->edit_rsvp($event, $status)) {
           $noreply = rcube_utils::get_input_value('noreply', rcube_utils::INPUT_GPC);
           $noreply = intval($noreply) || $status == 'needs-action' || $itip_sending === 0;
-          $reload  = $event['calendar'] != $ev['calendar'] ? 2 : 1;
+          $reload  = $event['calendar'] != $ev['calendar'] || $event['recurrence'] ? 2 : 1;
           $organizer = null;
           $emails = $this->get_user_emails();
 
@@ -1130,8 +1130,6 @@ class calendar extends rcube_plugin
     if ($success && $event['_notify'] && ($event['attendees'] || $old['attendees'])) {
       // make sure we have the complete record
       $event = $action == 'remove' ? $old : $this->driver->get_event($event);
-
-      // TODO: on change of a recurring (main) event, also send updates to differing attendess of recurrence exceptions
 
       // only notify if data really changed (TODO: do diff check on client already)
       if (!$old || $action == 'remove' || self::event_diff($event, $old)) {
@@ -1990,6 +1988,8 @@ class calendar extends rcube_plugin
         $sent = -100;
     }
 
+    // TODO: on change of a recurring (main) event, also send updates to differing attendess of recurrence exceptions
+
     // send CANCEL message to removed attendees
     foreach ((array)$old['attendees'] as $attendee) {
       if ($attendee['ROLE'] == 'ORGANIZER' || !$attendee['email'] || in_array(strtolower($attendee['email']), $current))
@@ -2215,7 +2215,7 @@ class calendar extends rcube_plugin
   public static function event_diff($a, $b)
   {
     $diff = array();
-    $ignore = array('changed' => 1, 'attachments' => 1, 'recurrence' => 1, '_notify' => 1, '_owner' => 1);
+    $ignore = array('changed' => 1, 'attachments' => 1, '_notify' => 1, '_owner' => 1, '_savemode' => 1);
     foreach (array_unique(array_merge(array_keys($a), array_keys($b))) as $key) {
       if (!$ignore[$key] && $a[$key] != $b[$key])
         $diff[] = $key;

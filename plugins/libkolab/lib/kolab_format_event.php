@@ -26,7 +26,7 @@ class kolab_format_event extends kolab_format_xcal
 {
     public $CTYPEv2 = 'application/x-vnd.kolab.event';
 
-    public static $scheduling_properties = array('start', 'end', 'allday', 'location', 'status', 'cancelled');
+    public static $scheduling_properties = array('start', 'end', 'allday', 'recurrence', 'location', 'status', 'cancelled');
 
     protected $objclass = 'Event';
     protected $read_func = 'readEvent';
@@ -100,6 +100,7 @@ class kolab_format_event extends kolab_format_xcal
             foreach((array)$object['recurrence']['EXCEPTIONS'] as $i => $exception) {
                 $exevent = new kolab_format_event;
                 $exevent->set(($compacted = $this->compact_exception($exception, $object)));  // only save differing values
+                console('COMPACTED', $compacted);
 
                 // get value for recurrence-id
                 if (!empty($exception['recurrence_date']) && is_a($exception['recurrence_date'], 'DateTime')) {
@@ -274,4 +275,13 @@ class kolab_format_event extends kolab_format_xcal
         return $exception;
     }
 
+    /**
+     * Identify changes considered relevant for scheduling
+     *
+     * @see kolab_format_xcal::check_rescheduling()
+     */
+    public static function check_rescheduling($object, $old, $checks = null)
+    {
+        return parent::check_rescheduling($object, $old, $checks ?: self::$scheduling_properties);
+    }
 }

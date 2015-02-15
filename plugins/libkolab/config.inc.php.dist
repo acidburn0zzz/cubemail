@@ -41,7 +41,7 @@ $config['kolab_messages_cache_bypass'] = 0;
 
 // These event properties contribute to a significant revision to the calendar component
 // and if changed will increment the sequence number relevant for scheduling according to RFC 5545
-$config['kolab_event_scheduling_properties'] = array('start', 'end', 'allday', 'location', 'status', 'cancelled');
+$config['kolab_event_scheduling_properties'] = array('start', 'end', 'allday', 'recurrence', 'location', 'status', 'cancelled');
 
 // These task properties contribute to a significant revision to the calendar component
 // and if changed will increment the sequence number relevant for scheduling according to RFC 5545
