@@ -1676,6 +1676,7 @@ class calendar extends rcube_plugin
     if ($event['recurrence']) {
       $event['recurrence_text'] = $this->lib->recurrence_text($event['recurrence']);
       $event['recurrence'] = $this->lib->to_client_recurrence($event['recurrence'], $event['allday']);
+      unset($event['recurrence_date']);
     }
 
     foreach ((array)$event['attachments'] as $k => $attachment) {

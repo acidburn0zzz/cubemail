@@ -962,6 +962,7 @@ class kolab_driver extends calendar_driver
         // save as new exception to master event
         if ($add_exception) {
           $event['_instance'] = $old['_instance'];
+          $event['recurrence_date'] = $old['recurrence_date'];
           $master['recurrence']['EXCEPTIONS'][] = $event;
         }
         $success = $storage->update_event($master);

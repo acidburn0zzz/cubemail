@@ -661,7 +661,7 @@ class kolab_calendar extends kolab_storage_folder_api
    */
   private function _merge_event_data(&$event, $overlay)
   {
-    static $forbidden = array('id','uid','recurrence','organizer','_attachments');
+    static $forbidden = array('id','uid','recurrence','recurrence_date','organizer','_attachments');
 
     foreach ($overlay as $prop => $value) {
       // adjust time of the recurring event instance
