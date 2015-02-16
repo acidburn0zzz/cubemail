@@ -604,13 +604,16 @@ function rcube_calendar_ui(settings)
         },
         close: function() {
           $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
-          rcmail.command('menu-close','eventoptionsmenu')
+          rcmail.command('menu-close','eventoptionsmenu');
+          $('.libcal-rsvp-replymode').hide();
         },
         dragStart: function() {
-          rcmail.command('menu-close','eventoptionsmenu')
+          rcmail.command('menu-close','eventoptionsmenu');
+          $('.libcal-rsvp-replymode').hide();
         },
         resizeStart: function() {
-          rcmail.command('menu-close','eventoptionsmenu')
+          rcmail.command('menu-close','eventoptionsmenu');
+          $('.libcal-rsvp-replymode').hide();
         },
         buttons: buttons,
         minWidth: 320,
