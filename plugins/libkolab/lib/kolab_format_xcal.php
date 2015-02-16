@@ -611,23 +611,31 @@ abstract class kolab_format_xcal extends kolab_format
      *
      * @return array List of tags to save in cache
      */
-    public function get_tags()
+    public function get_tags($obj = null)
     {
         $tags = array();
+        $object = $obj ?: $this->data;
 
-        if (!empty($this->data['valarms'])) {
+        if (!empty($object['valarms'])) {
             $tags[] = 'x-has-alarms';
         }
 
         // create tags reflecting participant status
-        if (is_array($this->data['attendees'])) {
-            foreach ($this->data['attendees'] as $attendee) {
+        if (is_array($object['attendees'])) {
+            foreach ($object['attendees'] as $attendee) {
                 if (!empty($attendee['email']) && !empty($attendee['status']))
                     $tags[] = 'x-partstat:' . $attendee['email'] . ':' . strtolower($attendee['status']);
             }
         }
 
-        return $tags;
+        // collect tags from recurrence exceptions
+        if (is_array($object['recurrence']) && $object['recurrence']['EXCEPTIONS']) {
+            foreach((array)$object['recurrence']['EXCEPTIONS'] as $exception) {
+                $tags = array_merge($tags, $this->get_tags($exception));
+            }
+        }
+
+        return array_unique($tags);
     }
 
     /**

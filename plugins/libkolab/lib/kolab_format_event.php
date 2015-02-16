@@ -223,15 +223,16 @@ class kolab_format_event extends kolab_format_xcal
      *
      * @return array List of tags to save in cache
      */
-    public function get_tags()
+    public function get_tags($obj = null)
     {
-        $tags = parent::get_tags();
+        $tags = parent::get_tags($obj);
+        $object = $obj ?: $this->data;
 
-        foreach ((array)$this->data['categories'] as $cat) {
+        foreach ((array)$object['categories'] as $cat) {
             $tags[] = rcube_utils::normalize_string($cat);
         }
 
-        return $tags;
+        return array_unique($tags);
     }
 
     /**

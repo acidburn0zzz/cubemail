@@ -236,53 +236,37 @@ class kolab_calendar extends kolab_storage_folder_api
     $query[] = array('dtstart', '<=', $end);
     $query[] = array('dtend',   '>=', $start);
 
-    // add query to exclude pending/declined invitations
-    if (empty($filter_query) && $this->get_namespace() != 'other') {
-      foreach ($user_emails as $email) {
-        $query[] = array('tags', '!=', 'x-partstat:' . $email . ':needs-action');
-        $query[] = array('tags', '!=', 'x-partstat:' . $email . ':declined');
-      }
-    }
-    else if (is_array($filter_query)) {
+    if (is_array($filter_query)) {
       $query = array_merge($query, $filter_query);
     }
 
     if (!empty($search)) {
         $search = mb_strtolower($search);
+        $words = rcube_utils::tokenize_string($search, 1);
         foreach (rcube_utils::normalize_string($search, true) as $word) {
             $query[] = array('words', 'LIKE', $word);
         }
     }
+    else {
+      $words = array();
+    }
+
+    // set partstat filter to skip pending and declined invitations
+    if (empty($filter_query) && $this->get_namespace() != 'other') {
+      $partstat_exclude = array('NEEDS-ACTION','DECLINED');
+    }
+    else {
+      $partstat_exclude = array();
+    }
 
     $events = array();
     foreach ($this->storage->select($query) as $record) {
-      // post-filter events to skip pending and declined invitations
-      if (empty($filter_query) && is_array($record['attendees']) && $this->get_namespace() != 'other') {
-        foreach ($record['attendees'] as $attendee) {
-          if (in_array($attendee['email'], $user_emails) && in_array($attendee['status'], array('NEEDS-ACTION','DECLINED'))) {
-            continue 2;
-          }
-        }
-      }
-
       $event = $this->_to_rcube_event($record);
       $this->events[$event['id']] = $event;
 
       // remember seen categories
       if ($event['categories'])
         $this->categories[$event['categories']]++;
-
-      // filter events by search query
-      if (!empty($search)) {
-        $hits = 0;
-        $words = rcube_utils::tokenize_string($search, 1);
-        foreach ($words as $word) {
-          $hits += $this->_fulltext_match($event, $word);
-        }
-
-        if ($hits < count($words))  // skip this event if not match with search term
-          continue;
-      }
 
       // list events in requested time window
       if ($event['start'] <= $end && $event['end'] >= $start) {
@@ -312,24 +296,38 @@ class kolab_calendar extends kolab_storage_folder_api
         if ($add)
           $events[] = $event;
       }
-      
+
       // resolve recurring events
       if ($record['recurrence'] && $virtual == 1) {
         $events = array_merge($events, $this->get_recurring_events($record, $start, $end));
-
-        // when searching, only recurrence exceptions may match the query so post-filter the results again
-        if (!empty($search) && $record['recurrence']['EXCEPTIONS']) {
-          $me = $this;
-          $events = array_filter($events, function($event) use ($words, $me) {
-            $hits = 0;
-            foreach ($words as $word) {
-              $hits += $me->_fulltext_match($event, $word, false);
-            }
-            return $hits >= count($words);
-          });
-        }
       }
     }
+
+    // post-filter all events by fulltext search and partstat values
+    $me = $this;
+    $events = array_filter($events, function($event) use ($words, $partstat_exclude, $user_emails, $me) {
+      // fulltext search
+      if (count($words)) {
+        $hits = 0;
+        foreach ($words as $word) {
+          $hits += $me->_fulltext_match($event, $word, false);
+        }
+        if ($hits < count($words)) {
+          return false;
+        }
+      }
+
+      // partstat filter
+      if (count($partstat_exclude) && is_array($event['attendees'])) {
+        foreach ($event['attendees'] as $attendee) {
+          if (in_array($attendee['email'], $user_emails) && in_array($attendee['status'], $partstat_exclude)) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
 
     // avoid session race conditions that will loose temporary subscriptions
     $this->cal->rc->session->nowrite = true;

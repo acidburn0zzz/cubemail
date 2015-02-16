@@ -450,6 +450,7 @@ abstract class calendar_driver
 
       $rcmail = rcmail::get_instance();
       $recurrence = new calendar_recurrence($rcmail->plugins->get_plugin('calendar'), $event);
+      $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
 
       // determine a reasonable end date if none given
       if (!$end) {
@@ -465,10 +466,10 @@ abstract class calendar_driver
 
       $i = 0;
       while ($next_event = $recurrence->next_instance()) {
-        $next_event['uid'] = $event['uid'] . '-' . ++$i;
         // add to output if in range
         if (($next_event['start'] <= $end && $next_event['end'] >= $start)) {
-          $next_event['id'] = $next_event['uid'];
+          $next_event['_instance'] = $next_event['start']->format($recurrence_id_format);
+          $next_event['id'] = $next_event['uid'] . '-' . $exception['_instance'];
           $next_event['recurrence_id'] = $event['uid'];
           $events[] = $next_event;
         }
@@ -477,7 +478,7 @@ abstract class calendar_driver
         }
 
         // avoid endless recursion loops
-        if ($i > 1000) {
+        if (++$i > 1000) {
           break;
         }
       }
