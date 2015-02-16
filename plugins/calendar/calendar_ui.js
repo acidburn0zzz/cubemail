@@ -2434,6 +2434,7 @@ function rcube_calendar_ui(settings)
             _rsvp: (delegate && delegate.rsvp) ? 1 : 0,
             _noreply: noreply,
             _comment: submit_data.comment,
+            _instance: submit_data._instance,
             _savemode: submit_data._savemode
           });
         }

@@ -2655,6 +2655,8 @@ class calendar extends rcube_plugin
     $delete  = intval(rcube_utils::get_input_value('_del', rcube_utils::INPUT_POST));
     $noreply = intval(rcube_utils::get_input_value('_noreply', rcube_utils::INPUT_POST));
     $noreply = $noreply || $status == 'needs-action' || $itip_sending === 0;
+    $instance = rcube_utils::get_input_value('_instance', rcube_utils::INPUT_POST);
+    $savemode = rcube_utils::get_input_value('_savemode', rcube_utils::INPUT_POST);
 
     $error_msg = $this->gettext('errorimportingevent');
     $success = false;
@@ -2747,7 +2749,7 @@ class calendar extends rcube_plugin
 
         if ($existing) {
           // forward savemode for correct updates of recurring events
-          $existing['_savemode'] = $event['_savemode'];
+          $existing['_savemode'] = $savemode ?: $event['_savemode'];
 
           // only update attendee status
           if ($event['_method'] == 'REPLY') {
@@ -2850,9 +2852,43 @@ class calendar extends rcube_plugin
           if ($status == 'declined' || $event['status'] == 'CANCELLED' || $event_attendee['role'] == 'NON-PARTICIPANT') {
             $event['free_busy'] = 'free';
           }
+
+          // if the RSVP reply only refers to a single instance:
+          // store unmodified master event with current instance as exception
+          if (!empty($instance) && $savemode != 'all') {
+            $master = $this->lib->mail_get_itip_object($mbox, $uid, $mime_id, 'event');
+            if ($master['recurrence'] && !$master['_instance']) {
+              // compute recurring events until this instance's date
+              if ($recurrence_date = rcube_utils::anytodatetime($instance, $master['start']->getTimezone())) {
+                $recurrence_date->setTime(23,59,59);
+
+                foreach ($this->driver->get_recurring_events($master, $master['start'], $recurrence_date) as $recurring) {
+                  if ($recurring['_instance'] == $instance) {
+                    // copy attendees block with my partstat to exception
+                    $recurring['attendees'] = $event['attendees'];
+                    $master['recurrence']['EXCEPTIONS'][] = $recurring;
+                    $event = $recurring;  // set reference for iTip reply
+                    break;
+                  }
+                }
+
+                $master['calendar'] = $event['calendar'] = $calendar['id'];
+                $success = $this->driver->new_event($master);
+              }
+              else {
+                $master = null;
+              }
+            }
+            else {
+              $master = null;
+            }
+          }
+
           // save to the selected/default calendar
-          $event['calendar'] = $calendar['id'];
-          $success = $this->driver->new_event($event);
+          if (!$master) {
+            $event['calendar'] = $calendar['id'];
+            $success = $this->driver->new_event($event);
+          }
         }
         else if ($status == 'declined')
           $error_msg = null;
