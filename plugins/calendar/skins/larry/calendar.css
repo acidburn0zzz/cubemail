@@ -1063,24 +1063,8 @@ td.topalign {
 	text-align: center;
 }
 
-.event-dialog-message .rsvp-replymode-message {
-	margin-top: 0.8em;
-	margin-bottom: 0.6em;
-}
-
-.event-dialog-message .rsvp-replymode-message .replymode-select {
-	padding-left: 22px;
-}
-
-.event-dialog-message .rsvp-replymode-message label {
-	color: inherit;
-	margin-right: 0.4em;
-	white-space: nowrap;
-	min-width: 4em;
-}
-
-.event-dialog-message .rsvp-replymode-message input.rsvp-replymode {
-	margin-right: 0.4em;
+.libcal-rsvp-replymode li a {
+	cursor: default;
 }
 
 #event-rsvp,

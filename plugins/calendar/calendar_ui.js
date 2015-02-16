@@ -557,11 +557,11 @@ function rcube_calendar_ui(settings)
 
         if (event.recurrence && event.id) {
           var sel = event._savemode || (event.thisandfuture ? 'future' : (event.isexception ? 'current' : 'all'));
-          $('#event-rsvp input.rsvp-replymode[value="'+sel+'"]').prop('checked', true);
-          $('#event-rsvp .rsvp-replymode-message').show();
+          $('#event-rsvp .rsvp-buttons').addClass('recurring');
         }
-        else
-          $('#event-rsvp .rsvp-replymode-message').hide();
+        else {
+          $('#event-rsvp .rsvp-buttons').removeClass('recurring');
+        }
       }
 
       var buttons = [];
@@ -2378,14 +2378,31 @@ function rcube_calendar_ui(settings)
     }
 
     // when the user accepts or declines an event invitation
-    var event_rsvp = function(response, delegate)
+    var event_rsvp = function(response, delegate, replymode)
     {
+      var btn;
+      if (typeof response == 'object') {
+        btn = $(response);
+        response = btn.attr('rel')
+      }
+      else {
+        btn = $('#event-rsvp input.button[rel='+response+']');
+      }
+
+      // show menu to select rsvp reply mode (current or all)
+      if (me.selected_event && me.selected_event.recurrence && !replymode) {
+        rcube_libcalendaring.itip_rsvp_recurring(btn, function(resp, mode) {
+          event_rsvp(resp, null, mode);
+        });
+        return;
+      }
+
       if (me.selected_event && me.selected_event.attendees && response) {
         // bring up delegation dialog
         if (response == 'delegated' && !delegate) {
           rcube_libcalendaring.itip_delegate_dialog(function(data) {
             data.rsvp = data.rsvp ? 1 : '';
-            event_rsvp('delegated', data);
+            event_rsvp('delegated', data, replymode);
           });
           return;
         }
@@ -2419,7 +2436,7 @@ function rcube_calendar_ui(settings)
         }
 
         // submit status change to server
-        var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val(), _savemode: $('input.rsvp-replymode:checked').val() }, (delegate || {})),
+        var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val(), _savemode: replymode || 'all' }, (delegate || {})),
           noreply = $('#noreply-event-rsvp:checked').length ? 1 : 0;
 
         // import event from mail (temporary iTip event)
@@ -4163,7 +4180,7 @@ function rcube_calendar_ui(settings)
       });
 
       $('#event-rsvp input.button').click(function(e) {
-        event_rsvp($(this).attr('rel'))
+        event_rsvp(this)
       });
 
       $('#eventedit input.edit-recurring-savemode').change(function(e) {

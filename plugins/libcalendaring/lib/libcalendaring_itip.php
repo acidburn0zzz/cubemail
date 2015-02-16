@@ -677,20 +677,16 @@ class libcalendaring_itip
             }
         }
 
+        foreach (array('all','current','future') as $mode) {
+            $this->rc->output->command('add_label', "rsvpmode$mode", $this->gettext("rsvpmode$mode"));
+        }
+
         $savemode_radio = new html_radiobutton(array('name' => '_rsvpmode', 'class' => 'rsvp-replymode'));
 
         return html::div($attrib,
             html::div('label', $this->gettext('acceptinvitation')) .
             html::div('rsvp-buttons',
                 $buttons .
-                html::div(array('class' => 'rsvp-replymode-message', 'style' => 'display:none'),
-                    html::div('message', html::span('ui-icon ui-icon-alert', '') . $this->gettext('rsvprecurringevent')) .
-                    html::div('replymode-select', 
-                        html::label(null, $savemode_radio->show('all', array('value' => 'all')) . $this->gettext('allevents')) .
-                        html::label(null, $savemode_radio->show(null, array('value' => 'current')) . $this->gettext('currentevent')) .
-                        html::label(null, $savemode_radio->show(null, array('value' => 'future')) . $this->gettext('futurevents'))
-                    )
-                ) .
                 html::div('itip-reply-controls', $this->itip_rsvp_options_ui($attrib['id']))
             )
         );

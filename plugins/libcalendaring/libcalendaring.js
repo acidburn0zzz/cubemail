@@ -959,6 +959,39 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
 };
 
 /**
+ * Show a menu for selecting the RSVP reply mode
+ */
+rcube_libcalendaring.itip_rsvp_recurring = function(btn, callback)
+{
+    var mnu = $('<ul></ul>').addClass('popupmenu libcal-rsvp-replymode');
+
+    $.each(['all','current','future'], function(i, mode) {
+        $('<li><a>' + rcmail.get_label('rsvpmode'+mode, 'libcalendaring') + '</a>')
+        .attr('rel', mode)
+        .appendTo(mnu);
+    });
+
+    var action = btn.attr('rel');
+
+    // open the mennu
+    mnu.menu({
+        select: function(event, ui) {
+            callback(action, ui.item.attr('rel'));
+        }
+    })
+    .appendTo(document.body)
+    .position({ my: 'left top', at: 'left bottom+2', of: btn })
+    .data('action', action);
+
+    setTimeout(function() {
+        $(document).one('click', function() {
+            mnu.menu('destroy');
+            mnu.remove();
+        });
+    }, 100);
+};
+
+/**
  *
  */
 rcube_libcalendaring.remove_from_itip = function(event, task, title)
