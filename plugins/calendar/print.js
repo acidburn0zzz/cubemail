@@ -43,6 +43,9 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   var src, event_sources = [];
   var add_url = (rcmail.env.search ? '&q='+escape(rcmail.env.search) : '');
   for (var id in rcmail.env.calendars) {
+    if (!rcmail.env.calendars[id].active)
+      continue;
+
     source = $.extend({
       url: "./?_task=calendar&_action=load_events&source=" + escape(id) + add_url,
       className: 'fc-event-cal-'+id,
