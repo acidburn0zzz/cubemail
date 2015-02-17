@@ -112,6 +112,7 @@ function rcube_tasklist_ui(settings)
     /*  public methods  */
     this.init = init;
     this.edit_task = task_edit_dialog;
+    this.print_tasks = print_tasks;
     this.delete_task = delete_task;
     this.add_childtask = add_childtask;
     this.quicksearch = quicksearch;
@@ -136,6 +137,11 @@ function rcube_tasklist_ui(settings)
      */
     function init()
     {
+        if (rcmail.env.action == 'print' && rcmail.task == 'tasks') {
+            data_ready({data: rcmail.env.tasks});
+            return;
+        }
+
         // initialize task list selectors
         for (var id in me.tasklists) {
             if (settings.selected_list && me.tasklists[settings.selected_list] && !me.tasklists[settings.selected_list].active) {
@@ -846,6 +852,11 @@ function rcube_tasklist_ui(settings)
             id = listindex[i];
             rec = listdata[id];
             if (match_filter(rec, cache)) {
+                if (rcmail.env.action == 'print') {
+                    render_task_printmode(rec);
+                    continue;
+                }
+
                 render_task(rec);
                 count++;
 
@@ -858,6 +869,9 @@ function rcube_tasklist_ui(settings)
                 }
             }
         }
+
+        if (rcmail.env.action == 'print')
+            return;
 
         fix_tree_toggles();
         update_tagcloud(activetags);
@@ -1312,6 +1326,37 @@ function rcube_tasklist_ui(settings)
         if (focused_task == rec.id) {
             focus_task(li);
         }
+    }
+
+    /**
+     * Render the given task into the tasks list (in print mode)
+     */
+    function render_task_printmode(rec)
+    {
+        var label_id = rcmail.html_identifier(rec.id) + '-title',
+            div = $('<div>').addClass('taskhead')
+                .append($('<span class="title">').attr('id', label_id).text(rec.title)),
+            parent = rec.parent_id ? $('li[rel="'+rec.parent_id+'"] > ul.childtasks', rcmail.gui_objects.resultlist) : null,
+            li = $('<li role="treeitem">').attr('rel', rec.id).addClass('taskitem')
+                .append(div)
+                .append('<ul class="childtasks" role="group"></ul>');
+
+        if (rec.description)
+            div.append($('<span class="description">').text(rec.description));
+/*
+        if (is_complete(rec))
+            div.addClass('complete');
+        if (rec.flagged)
+            div.addClass('flagged');
+        if (!rec.date)
+            div.addClass('nodate');
+        if (rec.mask & FILTER_MASK_OVERDUE)
+            div.addClass('overdue');
+*/
+        if (!parent || !parent.length)
+            li.appendTo(rcmail.gui_objects.resultlist);
+        else
+            li.appendTo(parent);
     }
 
     /**
@@ -2835,6 +2880,18 @@ function rcube_tasklist_ui(settings)
     }
 
 
+    // method to show the print dialog.
+    function print_tasks()
+    {
+        var param = {}, active = active_lists();
+
+        if (active.length) {
+            param = {filter: filtermask, lists: active.join(','), q: search_query};
+            rcmail.open_window(rcmail.url('print', param), true, true);
+        }
+    };
+
+
     /**** Utility functions ****/
 
     // same as str.split(delimiter) but it ignores delimiters within quoted strings
@@ -3010,7 +3067,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
   // register button commands
   rcmail.register_command('newtask', function(){ rctasks.edit_task(null, 'new', {}); }, true);
-  //rcmail.register_command('print', function(){ rctasks.print_list(); }, true);
+  rcmail.register_command('print', function(){ rctasks.print_tasks(); }, true);
 
   rcmail.register_command('list-create', function(){ rctasks.list_edit_dialog(null); }, true);
   rcmail.register_command('list-edit', function(){ rctasks.list_edit_dialog(rctasks.selected_list); }, false);

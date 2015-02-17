@@ -112,6 +112,7 @@ class tasklist extends rcube_plugin
             $this->register_action('tasklist', array($this, 'tasklist_action'));
             $this->register_action('counts', array($this, 'fetch_counts'));
             $this->register_action('fetch', array($this, 'fetch_tasks'));
+            $this->register_action('print', array($this, 'print_tasks'));
             $this->register_action('inlineui', array($this, 'get_inline_ui'));
             $this->register_action('mail2task', array($this, 'mail_message2task'));
             $this->register_action('get-attachment', array($this, 'attachment_get'));
@@ -1007,6 +1008,44 @@ class tasklist extends rcube_plugin
             'data' => $data,
             'tags' => $this->driver->get_tags(),
         ));
+    }
+
+    /**
+     * Handler for printing calendars
+     */
+    public function print_tasks()
+    {
+        // Add CSS stylesheets to the page header
+        $skin_path = $this->local_skin_path();
+
+        $this->include_stylesheet($skin_path . '/print.css');
+        $this->include_script('tasklist.js');
+
+        $this->rc->output->add_handlers(array(
+            'plugin.tasklist_print' => array($this, 'print_tasks_list'),
+        ));
+
+        $this->rc->output->set_pagetitle($this->gettext('print'));
+        $this->rc->output->send('tasklist.print');
+    }
+
+    /**
+     * Handler for printing calendars
+     */
+    public function print_tasks_list($attrib)
+    {
+        $f      = intval(rcube_utils::get_input_value('filter', rcube_utils::INPUT_GPC));
+        $search = rcube_utils::get_input_value('q', rcube_utils::INPUT_GPC);
+        $lists  = rcube_utils::get_input_value('lists', rcube_utils::INPUT_GPC);
+        $filter = array('mask' => $f, 'search' => $search);
+
+        $data = $this->tasks_data($this->driver->list_tasks($filter, $lists), $f);
+
+        // we'll build the tasks table in javascript on page load
+        // where we have sorting methods, etc.
+        $this->rc->output->set_env('tasks', $data);
+
+        return $this->ui->tasks_resultview($attrib);
     }
 
     /**
