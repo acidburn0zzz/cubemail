@@ -1711,6 +1711,9 @@ class calendar extends rcube_plugin
       if ($attendee['status'] == 'DELEGATED' && $attendee['rsvp'] == false) {
         $event['attendees'][$i]['noreply'] = true;
       }
+      else {
+        unset($event['attendees'][$i]['noreply']);
+      }
     }
 
     if ($organizer === null && !empty($event['organizer'])) {
@@ -2432,12 +2435,14 @@ class calendar extends rcube_plugin
    */
   function event_itip_remove()
   {
-    $success = false;
-    $uid     = rcube_utils::get_input_value('uid', rcube_utils::INPUT_POST);
-    $inst    = rcube_utils::get_input_value('_instance', rcube_utils::INPUT_POST);
+    $success  = false;
+    $uid      = rcube_utils::get_input_value('uid', rcube_utils::INPUT_POST);
+    $instance = rcube_utils::get_input_value('_instance', rcube_utils::INPUT_POST);
+    $savemode = rcube_utils::get_input_value('_savemode', rcube_utils::INPUT_POST);
 
     // search for event if only UID is given
-    if ($event = $this->driver->get_event(array('uid' => $uid, '_instance' => $inst), true)) {
+    if ($event = $this->driver->get_event(array('uid' => $uid, '_instance' => $instance), true)) {
+      $event['_savemode'] = $savemode;
       $success = $this->driver->remove_event($event, true);
     }
 

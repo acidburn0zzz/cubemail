@@ -76,6 +76,7 @@ body, td, th, div, p, h3, select, input, textarea {
 #calendarlist li div {
 	float: left;
 	padding-right: 3em;
+	padding-bottom: 1em;
 }
 
 #calendarlist input,
