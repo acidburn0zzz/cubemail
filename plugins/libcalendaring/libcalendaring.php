@@ -1410,8 +1410,12 @@ class libcalendaring extends rcube_plugin
      */
     public static function identify_recurrence_instance(&$object)
     {
+        // for savemode=all, remove recurrence instance identifiers
+        if (!empty($object['_savemode']) && $object['_savemode'] == 'all') {
+            unset($object['_instance'], $object['recurrence_date']);
+        }
         // set instance and 'savemode' according to recurrence-id
-        if (!empty($object['recurrence_date']) && is_a($object['recurrence_date'], 'DateTime')) {
+        else if (!empty($object['recurrence_date']) && is_a($object['recurrence_date'], 'DateTime')) {
             $recurrence_id_format = $object['allday'] ? 'Ymd' : 'Ymd\THis';
             $object['_instance'] = $object['recurrence_date']->format($recurrence_id_format);
             $object['_savemode'] = $object['thisandfuture'] ? 'future' : 'current';

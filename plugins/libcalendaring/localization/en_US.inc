@@ -109,7 +109,7 @@ $labels['acceptattendee'] = 'Accept participant';
 $labels['declineattendee'] = 'Decline participant';
 $labels['declineattendeeconfirm'] = 'Enter a message to the declined participant (optional):';
 $labels['rsvpmodeall'] = 'The entire series';
-$labels['rsvpmodecurrent'] = 'This occurrence';
+$labels['rsvpmodecurrent'] = 'This occurrence only';
 $labels['rsvpmodefuture'] = 'This and future occurrences';
 
 $labels['itipsingleoccurrence'] = 'This is a <em>single occurrence</em> out of a series of events';

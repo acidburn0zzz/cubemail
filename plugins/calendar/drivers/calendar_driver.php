@@ -205,6 +205,18 @@ abstract class calendar_driver
   }
 
   /**
+   * Update the participant status for the given attendee
+   *
+   * @param array  Hash array with event properties
+   * @param array  List of hash arrays each represeting an updated attendee
+   * @return boolean True on success, False on error
+   */
+  public function update_attendees(&$event, $attendees)
+  {
+    return $this->edit_event($event);
+  }
+
+  /**
    * Move a single event
    *
    * @param array Hash array with event properties:

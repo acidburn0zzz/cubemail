@@ -195,7 +195,11 @@ class kolab_calendar extends kolab_storage_folder_api
       if ($master_id != $id && ($record = $this->storage->get_object($master_id)))
         $this->events[$master_id] = $this->_to_rcube_event($record);
 
-      if (($master = $this->events[$master_id]) && $master['recurrence']) {
+      // check for match on the first instance already
+      if (($_instance = $this->events[$master_id]['_instance']) && $id == $master_id . '-' . $_instance) {
+        $this->events[$id] = $this->events[$master_id];
+      }
+      else if (($master = $this->events[$master_id]) && $master['recurrence']) {
         $this->get_recurring_events($record, $master['start'], null, $id);
       }
     }
@@ -274,21 +278,26 @@ class kolab_calendar extends kolab_storage_folder_api
         $add = true;
 
         // skip the first instance of a recurring event if listed in exdate
-        if ($virtual && (!empty($event['recurrence']['EXDATE']) || !empty($event['recurrence']['EXCEPTIONS']))) {
+        if ($virtual && !empty($event['recurrence']['EXDATE'])) {
           $event_date = $event['start']->format('Ymd');
           $exdates = (array)$event['recurrence']['EXDATE'];
-
-          // add dates from exceptions to list
-          if (is_array($event['recurrence']['EXCEPTIONS'])) {
-              foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
-                  $exdates[] = clone $exception['start'];
-              }
-          }
 
           foreach ($exdates as $exdate) {
             if ($exdate->format('Ymd') == $event_date) {
               $add = false;
               break;
+            }
+          }
+        }
+
+        // find and merge exception for the first instance
+        if (!empty($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS'])) {
+          $event_date = $event['start']->format('Ymd');
+          foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
+            $exdate = $exception['recurrence_date'] ? $exception['recurrence_date']->format('Ymd') : substr($exception['_instance'], 0, 8);
+            if ($exdate == $event_date) {
+              $event['_instance'] = $exception['_instance'];
+              kolab_driver::merge_event_data($event, $exception);
             }
           }
         }
@@ -583,22 +592,27 @@ class kolab_calendar extends kolab_storage_folder_api
         $rec_event['id'] = $event['uid'] . '-' . $exception['_instance'];
         $rec_event['isexception'] = 1;
 
-        // found the specifically requested instance, exiting...
-        if ($rec_event['id'] == $event_id) {
+        // found the specifically requested instance: register exception (single occurrence wins)
+        if ($rec_event['id'] == $event_id && (!$this->events[$event_id] || $this->events[$event_id]['thisandfuture'])) {
           $rec_event['recurrence'] = $recurrence_rule;
           $rec_event['recurrence_id'] = $event['uid'];
-          $events[] = $rec_event;
           $this->events[$rec_event['id']] = $rec_event;
-          return $events;
         }
 
         // remember this exception's date
         $exdate = substr($exception['_instance'], 0, 8);
-        $exdata[$exdate] = $rec_event;
+        if (!$exdata[$exdate] || $exdata[$exdate]['thisandfuture']) {
+          $exdata[$exdate] = $rec_event;
+        }
         if ($rec_event['thisandfuture']) {
           $futuredata[$exdate] = $rec_event;
         }
       }
+    }
+
+    // found the specifically requested instance, exiting...
+    if ($event_id && !empty($this->events[$event_id])) {
+      return array($this->events[$event_id]);
     }
 
     // use libkolab to compute recurring events
@@ -627,7 +641,7 @@ class kolab_calendar extends kolab_storage_folder_api
         $rec_event['_instance'] = $instance_id;
 
         if ($overlay_data || $exdata[$datestr])  // copy data from exception
-          $this->_merge_event_data($rec_event, $exdata[$datestr] ?: $overlay_data);
+          kolab_driver::merge_event_data($rec_event, $exdata[$datestr] ?: $overlay_data);
 
         $rec_event['id'] = $rec_id;
         $rec_event['recurrence_id'] = $event['uid'];
@@ -652,37 +666,10 @@ class kolab_calendar extends kolab_storage_folder_api
   }
 
   /**
-   * Merge certain properties from the overlay event to the base event object
-   *
-   * @param array The event object to be altered
-   * @param array The overlay event object to be merged over $event
-   */
-  private function _merge_event_data(&$event, $overlay)
-  {
-    static $forbidden = array('id','uid','recurrence','recurrence_date','organizer','_attachments');
-
-    foreach ($overlay as $prop => $value) {
-      // adjust time of the recurring event instance
-      if ($prop == 'start' || $prop == 'end') {
-        if (is_object($event[$prop]) && is_a($event[$prop], 'DateTime')) {
-          $event[$prop]->setTime($value->format('G'), intval($value->format('i')), intval($value->format('s')));
-          // set date value if overlay is an exception of the current instance
-          if (substr($overlay['_instance'], 0, 8) == substr($event['_instance'], 0, 8)) {
-            $event[$prop]->setDate(intval($value->format('Y')), intval($value->format('n')), intval($value->format('j')));
-          }
-        }
-      }
-      else if ($prop[0] != '_' && !in_array($prop, $forbidden))
-        $event[$prop] = $value;
-    }
-  }
-
-  /**
    * Convert from Kolab_Format to internal representation
    */
   private function _to_rcube_event($record)
   {
-    $record['id'] = $record['uid'];
     $record['calendar'] = $this->id;
     $record['links'] = $this->get_links($record['uid']);
 
