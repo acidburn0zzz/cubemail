@@ -297,7 +297,7 @@ class kolab_calendar extends kolab_storage_folder_api
             $exdate = $exception['recurrence_date'] ? $exception['recurrence_date']->format('Ymd') : substr($exception['_instance'], 0, 8);
             if ($exdate == $event_date) {
               $event['_instance'] = $exception['_instance'];
-              kolab_driver::merge_event_data($event, $exception);
+              kolab_driver::merge_exception_data($event, $exception);
             }
           }
         }
@@ -641,7 +641,7 @@ class kolab_calendar extends kolab_storage_folder_api
         $rec_event['_instance'] = $instance_id;
 
         if ($overlay_data || $exdata[$datestr])  // copy data from exception
-          kolab_driver::merge_event_data($rec_event, $exdata[$datestr] ?: $overlay_data);
+          kolab_driver::merge_exception_data($rec_event, $exdata[$datestr] ?: $overlay_data);
 
         $rec_event['id'] = $rec_id;
         $rec_event['recurrence_id'] = $event['uid'];
