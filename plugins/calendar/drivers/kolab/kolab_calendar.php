@@ -291,7 +291,7 @@ class kolab_calendar extends kolab_storage_folder_api
         }
 
         // find and merge exception for the first instance
-        if (!empty($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS'])) {
+        if ($virtual && !empty($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS'])) {
           $event_date = $event['start']->format('Ymd');
           foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
             $exdate = $exception['recurrence_date'] ? $exception['recurrence_date']->format('Ymd') : substr($exception['_instance'], 0, 8);

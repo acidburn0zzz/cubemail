@@ -1674,10 +1674,10 @@ class kolab_driver extends calendar_driver
       unset($record['recurrence']);
 
     // add instance identifier to first occurrence (master event)
+    // do not add 'recurrence_date' though in order to keep the master even being exported as such
     if ($record['recurrence'] && !$record['recurrence_id'] && !$record['_instance']) {
-      $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
-      $record['recurrence_date'] = $record['start'];
-      $record['_instance'] = $record['recurrence_date']->format($recurrence_id_format);
+      $recurrence_id_format = $record['allday'] ? 'Ymd' : 'Ymd\THis';
+      $record['_instance'] = $record['start']->format($recurrence_id_format);
     }
 
     // remove internals
