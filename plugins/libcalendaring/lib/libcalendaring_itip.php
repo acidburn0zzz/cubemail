@@ -602,7 +602,11 @@ class libcalendaring_itip
         // for CANCEL messages, we can:
         else if ($method == 'CANCEL') {
             $title = $this->gettext('itipcancellation');
-            $event_prop = array_filter(array('uid' => $event['uid'], '_instance' => $event['_instance']));
+            $event_prop = array_filter(array(
+              'uid' => $event['uid'],
+              '_instance' => $event['_instance'],
+              '_savemode' => $event['_savemode'],
+            ));
 
             // 1. remove the event from our calendar
             $button_remove = html::tag('input', array(
