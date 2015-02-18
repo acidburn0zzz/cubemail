@@ -136,7 +136,7 @@ var kolab_shortcuts = {
 
             return rcmail.command('toggle-editor', data, selector, e);
         }
-    },
+    }
 };
 
 // create a fake element centered on the page,
