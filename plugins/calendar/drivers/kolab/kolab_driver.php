@@ -1045,19 +1045,41 @@ class kolab_driver extends calendar_driver
           $event['end'] = $master['end'];
         }
 
-        // TODO: forward changes to exceptions (which do not yet have differing values stored)
+        // when saving an instance in 'all' mode, copy recurrence exceptions over
+        if ($old['recurrence_id']) {
+          $event['recurrence'] = $master['recurrence'];
+        }
 
-        // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
-        if (($old_start_date != $new_start_date || $old_start_time != $new_start_time) &&
-              is_array($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS']) && !$with_exceptions) {
-          $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+        // TODO: forward changes to exceptions (which do not yet have differing values stored)
+        if (is_array($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS']) && !$with_exceptions) {
+          // determine added and removed attendees
+          $old_attendees = $current_attendees = $added_attendees = array();
+          foreach ((array)$old['attendees'] as $attendee) {
+            $old_attendees[] = $attendee['email'];
+          }
+          foreach ((array)$event['attendees'] as $attendee) {
+            $current_attendees[] = $attendee['email'];
+            if (!in_array($attendee['email'], $old_attendees)) {
+              $added_attendees[] = $attendee;
+            }
+          }
+          $removed_attendees = array_diff($old_attendees, $current_attendees);
+
           foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
-            $recurrence_id = is_a($exception['recurrence_date'], 'DateTime') ? $exception['recurrence_date'] :
-                rcube_utils::anytodatetime($exception['_instance'], $old['start']->getTimezone());
-            if (is_a($recurrence_id, 'DateTime')) {
-              $recurrence_id->add($date_shift);
-              $event['recurrence']['EXCEPTIONS'][$i]['recurrence_date'] = $recurrence_id;
-              $event['recurrence']['EXCEPTIONS'][$i]['_instance'] = $recurrence_id->format($recurrence_id_format);
+            self::merge_attendee_data($event['recurrence']['EXCEPTIONS'][$i], $added_attendees, $removed_attendees);
+          }
+
+          // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
+          if ($old_start_date != $new_start_date || $old_start_time != $new_start_time) {
+            $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+            foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
+              $recurrence_id = is_a($exception['recurrence_date'], 'DateTime') ? $exception['recurrence_date'] :
+                  rcube_utils::anytodatetime($exception['_instance'], $old['start']->getTimezone());
+              if (is_a($recurrence_id, 'DateTime')) {
+                $recurrence_id->add($date_shift);
+                $event['recurrence']['EXCEPTIONS'][$i]['recurrence_date'] = $recurrence_id;
+                $event['recurrence']['EXCEPTIONS'][$i]['_instance'] = $recurrence_id->format($recurrence_id_format);
+              }
             }
           }
         }
@@ -1121,6 +1143,22 @@ class kolab_driver extends calendar_driver
     $saved = false;
     $existing = null;
 
+    // determine added and removed attendees
+    $added_attendees = $removed_attendees = array();
+    if ($savemode == 'future') {
+      $old_attendees = $current_attendees = array();
+      foreach ((array)$old['attendees'] as $attendee) {
+        $old_attendees[] = $attendee['email'];
+      }
+      foreach ((array)$event['attendees'] as $attendee) {
+        $current_attendees[] = $attendee['email'];
+        if (!in_array($attendee['email'], $old_attendees)) {
+          $added_attendees[] = $attendee;
+        }
+      }
+      $removed_attendees = array_diff($old_attendees, $current_attendees);
+    }
+
     foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
       // update a specific instance
       if ($exception['_instance'] == $old['_instance']) {
@@ -1139,7 +1177,11 @@ class kolab_driver extends calendar_driver
       // merge the new event properties onto future exceptions
       if ($savemode == 'future' && $exception['_instance'] >= $old['_instance']) {
         unset($event['thisandfuture']);
-        self::merge_exception_data($master['recurrence']['EXCEPTIONS'][$i], $event);
+        self::merge_exception_data($master['recurrence']['EXCEPTIONS'][$i], $event, array('attendees'));
+
+        if (!empty($added_attendees) || !empty($removed_attendees)) {
+          self::merge_attendee_data($master['recurrence']['EXCEPTIONS'][$i], $added_attendees, $removed_attendees);
+        }
       }
     }
 /*
@@ -1174,10 +1216,14 @@ class kolab_driver extends calendar_driver
    *
    * @param array The event object to be altered
    * @param array The overlay event object to be merged over $event
+   * @param array List of properties not allowed to be overwritten
    */
-  public static function merge_exception_data(&$event, $overlay)
+  public static function merge_exception_data(&$event, $overlay, $blacklist = null)
   {
-    static $forbidden = array('id','uid','recurrence','recurrence_date','thisandfuture','organizer','_attachments');
+    $forbidden = array('id','uid','recurrence','recurrence_date','thisandfuture','organizer','_attachments');
+
+    if (is_array($blacklist))
+      $forbidden = array_merge($forbidden, $blacklist);
 
     // compute date offset from the exception
     if ($overlay['start'] instanceof DateTime && $overlay['recurrence_date'] instanceof DateTime) {
@@ -1213,7 +1259,7 @@ class kolab_driver extends calendar_driver
    * @param array The event object to be altered
    * @param array List of hash arrays each represeting an updated/added attendee
    */
-  public static function merge_attendee_data(&$event, $attendees)
+  public static function merge_attendee_data(&$event, $attendees, $removed = null)
   {
     if (!empty($attendees) && !is_array($attendees[0])) {
       $attendees = array($attendees);
@@ -1233,6 +1279,13 @@ class kolab_driver extends calendar_driver
       if (!$found) {
         $event['attendees'][] = $attendee;
       }
+    }
+
+    // filter out removed attendees
+    if (!empty($removed)) {
+      $event['attendees'] = array_filter($event['attendees'], function($attendee) use ($removed) {
+        return !in_array($attendee['email'], $removed);
+      });
     }
   }
 
