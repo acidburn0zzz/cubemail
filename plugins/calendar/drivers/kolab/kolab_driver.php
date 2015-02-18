@@ -642,7 +642,7 @@ class kolab_driver extends calendar_driver
   public function update_attendees(&$event, $attendees)
   {
     // for this-and-future updates, merge the updated attendees onto all exceptions in range
-    if (($event['_savemode'] == 'future' && $event['recurrence_id']) || !empty($event['recurrence'])) {
+    if (($event['_savemode'] == 'future' && $event['recurrence_id']) || (!empty($event['recurrence']) && !$event['recurrence_id'])) {
       if (!($storage = $this->get_calendar($event['calendar'])))
         return false;
 
