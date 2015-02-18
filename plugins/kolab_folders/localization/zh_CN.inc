@@ -6,4 +6,5 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
+$labels['foldertypenote'] = '笔记';
 ?>

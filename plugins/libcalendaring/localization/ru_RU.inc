@@ -35,6 +35,7 @@ $labels['repeatinhrs'] = 'Повторить через $hrs часов';
 $labels['repeattomorrow'] = 'Повторить завтра';
 $labels['repeatinweek'] = 'Повторить через неделю';
 $labels['showmore'] = 'Показать больше...';
+$labels['recurring'] = 'Совпадения';
 $labels['frequency'] = 'Повторить';
 $labels['never'] = 'никогда';
 $labels['daily'] = 'ежедневно';

@@ -11,4 +11,5 @@ $labels['tabsharing'] = 'Jakaminen';
 $labels['abort'] = 'Keskeytä';
 $labels['foldersubscribe'] = 'Luetteloi pysyvästi';
 $labels['removelist'] = 'Poista listasta';
+$labels['removelink'] = 'Poista sähköpostiviittaus';
 $labels['savingdata'] = 'Tallennetaan tietoja...';

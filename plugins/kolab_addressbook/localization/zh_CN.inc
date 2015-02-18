@@ -6,4 +6,5 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
  */
+$labels['bookremove'] = '从列表中移除';
 ?>

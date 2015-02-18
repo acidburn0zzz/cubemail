@@ -35,6 +35,7 @@ $labels['repeatinhrs'] = 'Gentag om $hrs timer';
 $labels['repeattomorrow'] = 'Gentag i morgen';
 $labels['repeatinweek'] = 'Gentag om en uge';
 $labels['showmore'] = 'Vis mere ...';
+$labels['recurring'] = 'Gentages';
 $labels['frequency'] = 'Gentag';
 $labels['never'] = 'aldrig';
 $labels['daily'] = 'dagligt';

@@ -1,0 +1,31 @@
+<?php
+$labels['tabtitle'] = 'Activesync';
+$labels['activesynctitle'] = 'จัดการอุปกรณ์ที่ใช้ Activesync';
+$labels['devices'] = 'อุปกรณ์';
+$labels['devicealias'] = 'ชื่ออุปกรณ์';
+$labels['synchronize'] = 'ปรับปรุงให้สอดคล้องกัน';
+$labels['syncsettings'] = 'การตั้งค่าการปรับปรุงให้สอดคล้องกัน';
+$labels['deviceconfig'] = 'การตั้งค่าอุปกรณ์';
+$labels['folderstosync'] = 'แฟ้มที่ต้องการปรับปรุง';
+$labels['mail'] = 'อีเมล์';
+$labels['contact'] = 'สมุดรายชื่อ';
+$labels['event'] = 'ปฎิทิน';
+$labels['task'] = 'งาน';
+$labels['note'] = 'สมุดจด';
+$labels['configuration'] = 'ค่าคุณสมบัติ';
+$labels['deletedevice'] = 'ลบอุปกรณ์';
+$labels['nodevices'] = 'ปัจจุบันไม่มีอุปกรณ์ที่ขึ้นทะเบียนไว้<br/><br/>ในขั้นตอนการขึ้นทะเบียน กรุณาต่ออุปกรณ์เข้ากับเซิฟเวอร์ก่อน โดยใช้ <a href="http://wiki.kolab.org/Setup_ActiveSync"> ขั้นตอนปฎิบัติในวิกี</a> หลังจากนั้น อุปกรณ์ควรจะปรากฎอยู่ในรายชื่ออุปกรณ์เพื่อปรับแต่งคุณสมบัติตรงนี้';
+$labels['savingdata'] = 'บันทึกข้อมูล';
+$labels['savingerror'] = 'การบันทึกค่าคุณสมบัติล้มเหลว';
+$labels['notsupported'] = 'เซิฟเวอร์ของคุณไม่รองรับ metadata/annotations';
+$labels['devicedeleteconfirm'] = 'คุณต้องการลบค่าคุณสมบัติของอุปกรณ์นี้หรือ';
+$labels['successfullydeleted'] = 'ค่าคุณสมบัติของอุปกรณ์นี้ได้ถูกลบเรียบร้อยแล้ว';
+$labels['devicenotfound'] = 'ไม่สามารถอ่านค่าคุณสมบัติของอุปกรณ์ได้';
+$labels['devicetype'] = 'ชนิดของอุปกรณ์';
+$labels['acsversion'] = 'โปรโตคอล รุ่นที่';
+$labels['friendlyname'] = 'ชื่อที่เรียกง่าย';
+$labels['os'] = 'ระบบปฎิบัติการ';
+$labels['oslanguage'] = 'ภาษาของระบบปฎิบัติการ';
+$labels['phonenumber'] = 'หมายเลขโทรศัพท์';
+$labels['arialabeldeviceframe'] = 'ฟอร์มการตั้งค่าการปรับปรุงให้สอดคล้องของอุปกรณ์';
+?>

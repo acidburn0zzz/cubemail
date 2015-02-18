@@ -23,6 +23,6 @@ $labels['sentitems'] = 'Wysłane';
 $labels['outbox'] = 'Poczta wychodząca';
 $labels['wastebasket'] = 'Kosz';
 $labels['junkemail'] = 'Spam';
-$labels['confidential'] = 'Confidential';
+$labels['confidential'] = 'Poufne';
 $messages['defaultfolderexists'] = 'Folder domyślny wybranego typu już istnieje';
 ?>

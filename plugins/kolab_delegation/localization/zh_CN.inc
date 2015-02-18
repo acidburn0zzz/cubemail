@@ -6,4 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
+$labels['note'] = '笔记';
+$labels['savingdata'] = '保存数据...';
 ?>
