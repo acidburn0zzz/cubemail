@@ -364,7 +364,7 @@ class libcalendaring_itip
 
       // check if the given itip object matches the last state
       if ($existing) {
-        $latest = (isset($event['sequence']) && $existing['sequence'] == $event['sequence']) ||
+        $latest = (isset($event['sequence']) && intval($existing['sequence']) == intval($event['sequence'])) ||
                   (!isset($event['sequence']) && $existing['changed'] && $existing['changed'] >= $event['changed']);
       }
 

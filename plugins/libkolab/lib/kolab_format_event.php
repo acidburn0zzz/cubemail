@@ -122,6 +122,9 @@ class kolab_format_event extends kolab_format_xcal
             }
             $this->obj->setExceptions($vexceptions);
         }
+        else if ($object['recurrence_date'] && $object['recurrence_date'] instanceof DateTime) {
+            $this->obj->setRecurrenceID(self::get_datetime($object['recurrence_date'], null, $object['allday']), (bool)$object['thisandfuture']);
+        }
 
         // cache this data
         $this->data = $object;

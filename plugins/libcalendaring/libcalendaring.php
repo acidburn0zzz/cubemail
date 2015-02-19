@@ -1411,7 +1411,7 @@ class libcalendaring extends rcube_plugin
     public static function identify_recurrence_instance(&$object)
     {
         // for savemode=all, remove recurrence instance identifiers
-        if (!empty($object['_savemode']) && $object['_savemode'] == 'all') {
+        if (!empty($object['_savemode']) && $object['_savemode'] == 'all' && $object['recurrence']) {
             unset($object['_instance'], $object['recurrence_date']);
         }
         // set instance and 'savemode' according to recurrence-id
