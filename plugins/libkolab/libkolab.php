@@ -92,6 +92,10 @@ class libkolab extends rcube_plugin
             $http_config = array_merge($http_config, $config);
         }
 
+        // force CURL adapter, this allows to handle correctly
+        // compressed responses with SplObserver registered (kolab_files) (#4507)
+        $http_config['adapter'] = 'HTTP_Request2_Adapter_Curl';
+
         $key = md5(serialize($http_config));
 
         if (!($request = self::$http_requests[$key])) {
