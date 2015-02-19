@@ -661,7 +661,7 @@ abstract class kolab_format_xcal extends kolab_format
                 $a = $a->format('Y-m-d');
                 $b = $b->format('Y-m-d');
             }
-            if ($prop == 'recurrence') {
+            if ($prop == 'recurrence' && is_array($a) && is_array($b)) {
                 unset($a['EXCEPTIONS']);
                 unset($b['EXCEPTIONS']);
                 $a = array_filter($a);
