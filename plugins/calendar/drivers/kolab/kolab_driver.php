@@ -977,6 +977,9 @@ class kolab_driver extends calendar_driver
         if ($reschedule) {
           $event['sequence'] = max($old['sequence'], $master['sequence']) + 1;
         }
+        else if (!isset($event['sequence'])) {
+          $event['sequence'] = $master['sequence'];
+        }
 
         // save properties to a recurrence exception instance
         if ($old['_instance'] && is_array($master['recurrence']['EXCEPTIONS'])) {
