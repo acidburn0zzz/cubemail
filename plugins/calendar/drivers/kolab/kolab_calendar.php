@@ -639,6 +639,7 @@ class kolab_calendar extends kolab_storage_folder_api
       if (($next_event['start'] <= $end && $next_event['end'] >= $start) || ($event_id && $rec_id == $event_id)) {
         $rec_event = $this->_to_rcube_event($next_event);
         $rec_event['_instance'] = $instance_id;
+        $rec_event['_count'] = $i + 1;
 
         if ($overlay_data || $exdata[$datestr])  // copy data from exception
           kolab_driver::merge_exception_data($rec_event, $exdata[$datestr] ?: $overlay_data);
@@ -687,38 +688,7 @@ class kolab_calendar extends kolab_storage_folder_api
    */
   private function _from_rcube_event($event, $old = array())
   {
-    // in kolab_storage attachments are indexed by content-id
-    $event['_attachments'] = array();
-    if (is_array($event['attachments'])) {
-      foreach ($event['attachments'] as $attachment) {
-        $key = null;
-        // Roundcube ID has nothing to do with the storage ID, remove it
-        if ($attachment['content'] || $attachment['path']) {
-          unset($attachment['id']);
-        }
-        else {
-          foreach ((array)$old['_attachments'] as $cid => $oldatt) {
-            if ($attachment['id'] == $oldatt['id'])
-              $key = $cid;
-          }
-        }
-
-        // flagged for deletion => set to false
-        if ($attachment['_deleted']) {
-          $event['_attachments'][$key] = false;
-        }
-        // replace existing entry
-        else if ($key) {
-          $event['_attachments'][$key] = $attachment;
-        }
-        // append as new attachment
-        else {
-          $event['_attachments'][] = $attachment;
-        }
-      }
-
-      unset($event['attachments']);
-    }
+    $event = kolab_driver::from_rcube_event($event, $old);
 
     // set current user as ORGANIZER
     $identity = $this->cal->rc->user->list_emails(true);

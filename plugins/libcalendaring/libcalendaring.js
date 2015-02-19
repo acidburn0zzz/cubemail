@@ -965,7 +965,7 @@ rcube_libcalendaring.itip_rsvp_recurring = function(btn, callback)
 {
     var mnu = $('<ul></ul>').addClass('popupmenu libcal-rsvp-replymode');
 
-    $.each(['all','current','future'], function(i, mode) {
+    $.each(['all','current'/*,'future'*/], function(i, mode) {
         $('<li><a>' + rcmail.get_label('rsvpmode'+mode, 'libcalendaring') + '</a>')
         .addClass('ui-menu-item')
         .attr('rel', mode)

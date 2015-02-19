@@ -616,7 +616,8 @@ class kolab_storage_folder extends kolab_storage_folder_api
             $type = $this->type;
 
         // copy attachments from old message
-        if (!empty($object['_msguid']) && ($old = $this->cache->get($object['_msguid'], $type, $object['_mailbox']))) {
+        $copyfrom = $object['_copyfrom'] ?: $object['_msguid'];
+        if (!empty($copyfrom) && ($old = $this->cache->get($copyfrom, $type, $object['_mailbox']))) {
             foreach ((array)$old['_attachments'] as $key => $att) {
                 if (!isset($object['_attachments'][$key])) {
                     $object['_attachments'][$key] = $old['_attachments'][$key];
@@ -628,7 +629,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
                 // load photo.attachment from old Kolab2 format to be directly embedded in xcard block
                 else if ($type == 'contact' && ($key == 'photo.attachment' || $key == 'kolab-picture.png') && $att['id']) {
                     if (!isset($object['photo']))
-                        $object['photo'] = $this->get_attachment($object['_msguid'], $att['id'], $object['_mailbox']);
+                        $object['photo'] = $this->get_attachment($copyfrom, $att['id'], $object['_mailbox']);
                     unset($object['_attachments'][$key]);
                 }
             }
@@ -1010,7 +1011,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
         foreach ((array)$object['_attachments'] as $key => $att) {
             if (empty($att['content']) && !empty($att['id'])) {
                 // @TODO: use IMAP CATENATE to skip attachment fetch+push operation
-                $msguid = !empty($object['_msguid']) ? $object['_msguid'] : $object['uid'];
+                $msguid = $object['_copyfrom'] ?: ($object['_msguid'] ?: $object['uid']);
                 if ($is_file) {
                     $att['path'] = tempnam($temp_dir, 'rcmAttmnt');
                     if (($fp = fopen($att['path'], 'w')) && $this->get_attachment($msguid, $att['id'], $object['_mailbox'], false, $fp, true)) {

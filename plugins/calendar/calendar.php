@@ -865,6 +865,7 @@ class calendar extends rcube_plugin
           $event['id'] = $event['uid'];
           $event['_savemode'] = 'all';
           $this->cleanup_event($event);
+          $this->event_save_success($event, null, $action, true);
         }
         $reload = $success && $event['recurrence'] ? 2 : 1;
         break;
@@ -873,21 +874,15 @@ class calendar extends rcube_plugin
         $this->write_preprocess($event, $action);
         if ($success = $this->driver->edit_event($event)) {
           $this->cleanup_event($event);
-          if ($success !== true) {
-            $event['id'] = $success;
-            $old = null;
-          }
+          $this->event_save_success($event, $old, $action, $success);
         }
-        $reload =  $success && ($event['recurrence'] || $event['_savemode'] || $event['_fromcalendar']) ? 2 : 1;
+        $reload = $success && ($event['recurrence'] || $event['_savemode'] || $event['_fromcalendar']) ? 2 : 1;
         break;
       
       case "resize":
         $this->write_preprocess($event, $action);
         if ($success = $this->driver->resize_event($event)) {
-          if ($success !== true) {
-            $event['id'] = $success;
-            $old = null;
-          }
+          $this->event_save_success($event, $old, $action, $success);
         }
         $reload = $event['_savemode'] ? 2 : 1;
         break;
@@ -895,10 +890,7 @@ class calendar extends rcube_plugin
       case "move":
         $this->write_preprocess($event, $action);
         if ($success = $this->driver->move_event($event)) {
-          if ($success !== true) {
-            $event['id'] = $success;
-            $old = null;
-          }
+          $this->event_save_success($event, $old, $action, $success);
         }
         $reload  = $success && $event['_savemode'] ? 2 : 1;
         break;
@@ -958,6 +950,9 @@ class calendar extends rcube_plugin
           else
             $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
         }
+        else if ($success) {
+          $this->event_save_success($event, $old, $action, $success);
+        }
         break;
 
       case "undo":
@@ -1000,8 +995,8 @@ class calendar extends rcube_plugin
         $event = $ev;
 
         // compose a list of attendees affected by this change
-        $updated_attendees = array_filter(array_map(function($j) use ($ev) {
-          return $ev['attendees'][$j];
+        $updated_attendees = array_filter(array_map(function($j) use ($event) {
+          return $event['attendees'][$j];
         }, $attendees));
 
         if ($success = $this->driver->edit_rsvp($event, $status, $updated_attendees)) {
@@ -1147,35 +1142,6 @@ class calendar extends rcube_plugin
         $this->rc->output->show_message('calendar.errorsaving', 'error');
     }
 
-    // send out notifications
-    if ($success && $event['_notify'] && ($event['attendees'] || $old['attendees'])) {
-      $_savemode = $event['_savemode'];
-
-      // make sure we have the complete record
-      $event = $action == 'remove' ? $old : $this->driver->get_event($event);
-      $event['_savemode'] = $_savemode;
-
-      if ($old) {
-        $old['thisandfuture'] = $_savemode == 'future';
-      }
-
-      // send notification for the main event when savemode is 'all'
-      if ($_savemode == 'all' && $event['recurrence_id']) {
-        $event['id'] = $event['recurrence_id'];
-        $event = $this->driver->get_event($event);
-        unset($event['_instance'], $event['recurrence_date']);
-      }
-
-      // only notify if data really changed (TODO: do diff check on client already)
-      if (!$old || $action == 'remove' || self::event_diff($event, $old)) {
-        $sent = $this->notify_attendees($event, $old, $action, $event['_comment']);
-        if ($sent > 0)
-          $this->rc->output->show_message('calendar.itipsendsuccess', 'confirmation');
-        else if ($sent < 0)
-          $this->rc->output->show_message('calendar.errornotifying', 'error');
-      }
-    }
-
     // unlock client
     $this->rc->output->command('plugin.unlock_saving');
 
@@ -1187,6 +1153,61 @@ class calendar extends rcube_plugin
       else if ($success && $action != 'remove')
         $args['update'] = $this->_client_event($this->driver->get_event($event), true);
       $this->rc->output->command('plugin.refresh_calendar', $args);
+    }
+  }
+
+  /**
+   * Helper method sending iTip notifications after successful event updates
+   */
+  private function event_save_success(&$event, $old, $action, $success)
+  {
+    // $success is a new event ID
+    if ($success !== true) {
+      // send update notification on the main event
+      if ($event['_savemode'] == 'future' && $event['_notify'] && $old['attendees'] && $old['recurrence_id']) {
+        $master = $this->driver->get_event(array('id' => $old['recurrence_id'], 'calendar' => $old['calendar']));
+        unset($master['_instance'], $master['recurrence_date']);
+
+        $sent = $this->notify_attendees($master, null, $action, $event['_comment']);
+        if ($sent < 0)
+          $this->rc->output->show_message('calendar.errornotifying', 'error');
+      }
+
+      $event['id'] = $success;
+      $event['_savemode'] = 'all';
+      $event['attendees'] = $master['attendees'];  // this tricks us into the next if clause
+      $old = null;
+    }
+
+    // send out notifications
+    if ($event['_notify'] && ($event['attendees'] || $old['attendees'])) {
+      $_savemode = $event['_savemode'];
+
+      // send notification for the main event when savemode is 'all'
+      if ($action != 'remove' && $_savemode == 'all' && $old['recurrence_id']) {
+        $event['id'] = $old['recurrence_id'];
+        $event = $this->driver->get_event($event);
+        unset($event['_instance'], $event['recurrence_date']);
+      }
+      else {
+        // make sure we have the complete record
+        $event = $action == 'remove' ? $old : $this->driver->get_event($event);
+      }
+
+      $event['_savemode'] = $_savemode;
+
+      if ($old) {
+        $old['thisandfuture'] = $_savemode == 'future';
+      }
+
+      // only notify if data really changed (TODO: do diff check on client already)
+      if (!$old || $action == 'remove' || self::event_diff($event, $old)) {
+        $sent = $this->notify_attendees($event, $old, $action, $event['_comment']);
+        if ($sent > 0)
+          $this->rc->output->show_message('calendar.itipsendsuccess', 'confirmation');
+        else if ($sent < 0)
+          $this->rc->output->show_message('calendar.errornotifying', 'error');
+      }
     }
   }
 

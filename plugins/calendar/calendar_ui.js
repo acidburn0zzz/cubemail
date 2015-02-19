@@ -2432,6 +2432,10 @@ function rcube_calendar_ui(settings)
 
             attendees.push(i)
           }
+          else if (response != 'DELEGATED' && data['delegated-from'] &&
+              settings.identity.emails.indexOf(';'+String(data['delegated-from']).toLowerCase()) >= 0) {
+            delete data['delegated-from'];
+          }
 
           // set free_busy status to transparent if declined (#4425)
           if (data.status == 'DECLINED' || data.role == 'NON-PARTICIPANT') {
