@@ -619,9 +619,9 @@ class kolab_driver extends calendar_driver
    * @param string New participant status
    * @return boolean True on success, False on error
    */
-  public function edit_rsvp(&$event, $status)
+  public function edit_rsvp(&$event, $status, $attendees)
   {
-    if (($ret = $this->update_event($event)) && $this->rc->config->get('kolab_invitation_calendars')) {
+    if (($ret = $this->update_attendees($event, $attendees)) && $this->rc->config->get('kolab_invitation_calendars')) {
       // re-assign to the according (virtual) calendar
       if (strtoupper($status) == 'DECLINED')
         $event['calendar'] = self::INVITATIONS_CALENDAR_DECLINED;

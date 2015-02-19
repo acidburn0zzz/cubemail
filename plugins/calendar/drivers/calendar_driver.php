@@ -197,9 +197,10 @@ abstract class calendar_driver
    *
    * @param array  Hash array with event properties
    * @param string New participant status
+   * @param array  List of hash arrays with updated attendees
    * @return boolean True on success, False on error
    */
-  public function edit_rsvp(&$event, $status)
+  public function edit_rsvp(&$event, $status, $attendees)
   {
     return $this->edit_event($event);
   }

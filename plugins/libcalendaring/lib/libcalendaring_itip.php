@@ -297,9 +297,10 @@ class libcalendaring_itip
      * @param array Event object to delegate
      * @param mixed Delegatee as string or hash array with keys 'name' and 'mailto'
      * @param boolean The delegator's RSVP flag
+     * @param array List with indexes of new/updated attendees
      * @return boolean True on success, False on failure
      */
-    public function delegate_to(&$event, $delegate, $rsvp = false)
+    public function delegate_to(&$event, $delegate, $rsvp = false, &$attendees = array())
     {
         if (is_string($delegate)) {
             $delegates = rcube_mime::decode_address_list($delegate, 1, false);
@@ -344,6 +345,8 @@ class libcalendaring_itip
         $delegate_attendee['status'] = 'NEEDS-ACTION';
         $delegate_attendee['delegated-from'] = $me['email'];
         $event['attendees'][$delegate_index] = $delegate_attendee;
+
+        $attendees[] = $delegate_index;
 
         $this->set_sender_email($me['email']);
         return $this->send_itip_message($event, 'REQUEST', $delegate_attendee, 'itipsubjectdelegatedto', 'itipmailbodydelegatedto');

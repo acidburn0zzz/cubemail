@@ -978,7 +978,8 @@ class calendar extends rcube_plugin
 
       case "rsvp":
         $itip_sending  = $this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']);
-        $status        = rcube_utils::get_input_value('status', rcube_utils::INPUT_GPC);
+        $status        = rcube_utils::get_input_value('status', rcube_utils::INPUT_POST);
+        $attendees     = rcube_utils::get_input_value('attendees', rcube_utils::INPUT_POST);
         $reply_comment = $event['comment'];
 
         $this->write_preprocess($event, 'edit');
@@ -990,7 +991,7 @@ class calendar extends rcube_plugin
         // send invitation to delegatee + add it as attendee
         if ($status == 'delegated' && $event['to']) {
           $itip = $this->load_itip();
-          if ($itip->delegate_to($ev, $event['to'], (bool)$event['rsvp'])) {
+          if ($itip->delegate_to($ev, $event['to'], (bool)$event['rsvp'], $attendees)) {
             $this->rc->output->show_message('calendar.itipsendsuccess', 'confirmation');
             $noreply = false;
           }
@@ -998,7 +999,12 @@ class calendar extends rcube_plugin
 
         $event = $ev;
 
-        if ($success = $this->driver->edit_rsvp($event, $status)) {
+        // compose a list of attendees affected by this change
+        $updated_attendees = array_filter(array_map(function($j) use ($ev) {
+          return $ev['attendees'][$j];
+        }, $attendees));
+
+        if ($success = $this->driver->edit_rsvp($event, $status, $updated_attendees)) {
           $noreply = rcube_utils::get_input_value('noreply', rcube_utils::INPUT_GPC);
           $noreply = intval($noreply) || $status == 'needs-action' || $itip_sending === 0;
           $reload  = $event['calendar'] != $ev['calendar'] || $event['recurrence'] ? 2 : 1;

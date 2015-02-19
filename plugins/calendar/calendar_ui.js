@@ -2411,6 +2411,7 @@ function rcube_calendar_ui(settings)
         }
 
         // update attendee status
+        attendees = [];
         for (var data, i=0; i < me.selected_event.attendees.length; i++) {
           data = me.selected_event.attendees[i];
           if (settings.identity.emails.indexOf(';'+String(data.email).toLowerCase()) >= 0) {
@@ -2419,6 +2420,7 @@ function rcube_calendar_ui(settings)
 
             if (data.status == 'DELEGATED') {
               data['delegated-to'] = delegate.to;
+              data.rsvp = delegate.rsvp
             }
             else {
               if (data['delegated-to']) {
@@ -2427,6 +2429,8 @@ function rcube_calendar_ui(settings)
                   data.role = 'REQ-PARTICIPANT';
               }
             }
+
+            attendees.push(i)
           }
 
           // set free_busy status to transparent if declined (#4425)
@@ -2459,11 +2463,11 @@ function rcube_calendar_ui(settings)
           });
         }
         else if (settings.invitation_calendars) {
-          update_event('rsvp', submit_data, { status:response, noreply:noreply });
+          update_event('rsvp', submit_data, { status:response, noreply:noreply, attendees:attendees });
         }
         else {
           me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
-          rcmail.http_post('event', { action:'rsvp', e:submit_data, status:response, noreply:noreply });
+          rcmail.http_post('event', { action:'rsvp', e:submit_data, status:response, attendees:attendees, noreply:noreply });
         }
 
         event_show_dialog(me.selected_event);
