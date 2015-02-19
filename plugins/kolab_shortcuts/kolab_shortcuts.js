@@ -54,8 +54,7 @@ var kolab_shortcuts = {
         ctrl: true,
         active: function(e) { return rcmail.task == 'mail'; },
         action: function(e) {
-            var action = $('.collapsed:first', rcmail.gui_objects.messagelist).length ? 'expand' : 'collapse';
-            return rcmail.command(action + '-all', '', e.target, e);
+            return rcmail.command('expand-all', '', e.target, e);
         }
     },
     'mail.expand-thread': {
@@ -64,9 +63,28 @@ var kolab_shortcuts = {
         action: function(e) {
             if (rcmail.message_list) {
                 var row, uid = rcmail.message_list.get_single_selection();
-                console.log(uid);
                 if (uid && (row = rcmail.message_list.rows[uid])) {
-                    rcmail.message_list[row.expanded ? 'collapse_all' : 'expand_all'](row);
+                    rcmail.message_list.expand_all(row);
+                }
+            }
+        }
+    },
+    'mail.collapse-all-threads': {
+        key: 44, // Ctrl+,
+        ctrl: true,
+        active: function(e) { return rcmail.task == 'mail'; },
+        action: function(e) {
+            return rcmail.command('collapse-all', '', e.target, e);
+        }
+    },
+    'mail.collapse-thread': {
+        key: 44, // ,
+        active: function(e) { return rcmail.task == 'mail'; },
+        action: function(e) {
+            if (rcmail.message_list) {
+                var row, uid = rcmail.message_list.get_single_selection();
+                if (uid && (row = rcmail.message_list.rows[uid])) {
+                    rcmail.message_list.collapse_all(row);
                 }
             }
         }
