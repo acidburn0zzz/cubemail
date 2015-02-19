@@ -127,6 +127,16 @@ var kolab_shortcuts = {
         active: function(e) { return rcmail.task == 'mail'; },
         action: function(e) { return rcmail.command('reply', '', e.target, e); }
     },
+    'mail.forward-attachment': {
+        key: 102, // f
+        active: function(e) { return rcmail.task == 'mail'; },
+        action: function(e) { return rcmail.command('forward-attachment', 'sub', e.target, e); }
+    },
+    'mail.forward-inline': {
+        key: 70, // F
+        active: function(e) { return rcmail.task == 'mail'; },
+        action: function(e) { return rcmail.command('forward-inline', 'sub', e.target, e); }
+    },
     'mail.html2text': {
         key: 72, // H
         active: function(e) { return rcmail.task == 'mail'; },
@@ -175,7 +185,7 @@ var kolab_shortcuts_keypress = function(e)
 {
     var i, handler, key = e.which, alt = e.altKey, ctrl = e.ctrlKey;
 
-    // console.log(e.which);
+    console.log(e.which);
 
     // do nothing on input elements
     if ($(e.target).is('textarea,input')) {
