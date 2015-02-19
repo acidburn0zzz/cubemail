@@ -1088,7 +1088,7 @@ class libvcalendar implements Iterator
             }
             else if (!empty($attendee['email'])) {
                 if (isset($attendee['rsvp']))
-                    $attendee['rsvp'] = $attendee['rsvp'] ? 'TRUE' : 'FALSE';
+                    $attendee['rsvp'] = $attendee['rsvp'] ? 'TRUE' : null;
                 $ve->add('ATTENDEE', 'mailto:' . $attendee['email'], array_filter(self::map_keys($attendee, $this->attendee_keymap)));
             }
         }
