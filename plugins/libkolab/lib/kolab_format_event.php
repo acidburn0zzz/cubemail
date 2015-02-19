@@ -118,7 +118,7 @@ class kolab_format_event extends kolab_format_xcal
                 $vexceptions->push($exevent->obj);
 
                 // write cleaned-up exception data back to memory/cache
-                $object['recurrence']['EXCEPTIONS'][$i] = $this->expand_exception($compacted, $object);
+                $object['recurrence']['EXCEPTIONS'][$i] = $this->expand_exception($exevent->data, $object);
             }
             $this->obj->setExceptions($vexceptions);
         }

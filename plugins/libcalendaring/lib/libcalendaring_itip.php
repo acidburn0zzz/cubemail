@@ -250,8 +250,8 @@ class libcalendaring_itip
         // set RSVP for every attendee
         else if ($method == 'REQUEST') {
             foreach ($event['attendees'] as $i => $attendee) {
-                if ($attendee['status'] != 'DELEGATED') {
-                    $event['attendees'][$i]['rsvp']= $rsvp ? true : null;
+                if ($attendee['status'] != 'DELEGATED' && !isset($attendee['rsvp'])) {
+                    $event['attendees'][$i]['rsvp']= (bool)$rsvp;
                 }
             }
         }
