@@ -129,12 +129,22 @@ var kolab_shortcuts = {
     },
     'mail.html2text': {
         key: 72, // H
-        active: function(e) { return rcmail.task == 'mail' && rcmail.env.action == 'compose'; },
+        active: function(e) { return rcmail.task == 'mail'; },
         action: function(e) {
-            var selector = $('[name="editorSelector"]'),
-                data = {id: 'composebody', html: selector.val() != 'html'};
+            var rc = rcmail;
 
-            return rcmail.command('toggle-editor', data, selector, e);
+            // we're in list mode, get reference to preview window
+            if (rc.env.contentframe) {
+                var win = rc.get_frame_window(rc.env.contentframe);
+                if (!win || !win.rcmail)
+                    return false;
+                rc = win.rcmail;
+            }
+
+            if (rc.env.optional_format) {
+                var format = rc.env.optional_format == 'html' ? 'html' : 'text';
+                return rc.command('change-format', format, e.target, e);
+            }
         }
     }
 };
@@ -190,6 +200,7 @@ var kolab_shortcuts_keypress = function(e)
                 // execute action, the real check if action is active
                 // will be done in .action() or in rcmail.command()
                 handler.action(e);
+                e.preventDefault();
                 return false;
             }
 
