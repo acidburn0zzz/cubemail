@@ -1064,10 +1064,10 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         // allow sequence increments if I'm the organizer
-        if ($this->plugin->is_organizer($object)) {
+        if ($this->plugin->is_organizer($object) && empty($object['_method'])) {
             unset($object['sequence']);
         }
-        else if (isset($old['sequence'])) {
+        else if (isset($old['sequence']) && empty($object['_method'])) {
             $object['sequence'] = $old['sequence'];
         }
 

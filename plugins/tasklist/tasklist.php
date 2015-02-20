@@ -615,6 +615,12 @@ class tasklist extends rcube_plugin
         if (isset($rec['attendees']) && !is_array($rec['attendees']))
             $rec['attendees'] = array();
 
+        foreach ((array)$rec['attendees'] as $i => $attendee) {
+            if (is_string($attendee['rsvp'])) {
+                $rec['attendees'][$i]['rsvp'] = $attendee['rsvp'] == 'true' || $attendee['rsvp'] == '1';
+            }
+        }
+
         // copy the task status to my attendee partstat
         if (!empty($rec['_reportpartstat'])) {
             if (($idx = $this->is_attendee($rec)) !== false) {
