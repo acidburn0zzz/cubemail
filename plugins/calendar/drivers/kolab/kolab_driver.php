@@ -548,7 +548,10 @@ class kolab_driver extends calendar_driver
 
     if ($cal) {
       if ($storage = $this->get_calendar($cal)) {
-        return $storage->get_event($id);
+        $result = $storage->get_event($id);
+        if (is_array($result))
+          self::clean_rcube_event_out($result);
+        return $result;
       }
       // get event from the address books birthday calendar
       else if ($cal == self::BIRTHDAY_CALENDAR_ID) {
@@ -559,6 +562,7 @@ class kolab_driver extends calendar_driver
     else {
       foreach ($this->filter_calendars($writeable, $active, $personal) as $calendar) {
         if ($result = $calendar->get_event($id)) {
+          self::clean_rcube_event_out($result);
           return $result;
         }
       }
@@ -942,7 +946,6 @@ class kolab_driver extends calendar_driver
     if ($old['recurrence'] || $old['recurrence_id']) {
       $master = $old['recurrence_id'] ? $fromcalendar->get_event($old['recurrence_id']) : $old;
       $savemode = $event['_savemode'] ?: ($old['recurrence_id'] ? 'current' : 'all');
-      $object = $fromcalendar->storage->get_object($master['uid']);
 
       // this-and-future on the first instance equals to 'all'
       if (!$old['recurrence_id'] && $savemode == 'future')
@@ -968,13 +971,13 @@ class kolab_driver extends calendar_driver
       case 'new':
         // save submitted data as new (non-recurring) event
         $event['recurrence'] = array();
-        $event['_copyfrom'] = $object['_msguid'];
-        $event['_mailbox'] = $object['_mailbox'];
+        $event['_copyfrom'] = $master['_msguid'];
+        $event['_mailbox'] = $master['_mailbox'];
         $event['uid'] = $this->cal->generate_uid();
         unset($event['recurrence_id'], $event['recurrence_date'], $event['_instance'], $event['id']);
 
         // copy attachment metadata to new event
-        $event = self::from_rcube_event($event, $object);
+        $event = self::from_rcube_event($event, $master);
 
         self::clear_attandee_noreply($event);
         if ($success = $storage->insert_event($event))
@@ -983,13 +986,13 @@ class kolab_driver extends calendar_driver
 
       case 'future':
         // create a new recurring event
-        $event['_copyfrom'] = $object['_msguid'];
-        $event['_mailbox'] = $object['_mailbox'];
+        $event['_copyfrom'] = $master['_msguid'];
+        $event['_mailbox'] = $master['_mailbox'];
         $event['uid'] = $this->cal->generate_uid();
         unset($event['recurrence_id'], $event['recurrence_date'], $event['_instance'], $event['id']);
 
         // copy attachment metadata to new event
-        $event = self::from_rcube_event($event, $object);
+        $event = self::from_rcube_event($event, $master);
   
         // remove recurrence exceptions on re-scheduling
         if ($reschedule) {
@@ -1010,7 +1013,7 @@ class kolab_driver extends calendar_driver
         // compute remaining occurrences
         if ($event['recurrence']['COUNT']) {
           if (!$old['_count'])
-            $old['_count'] = $this->get_recurrence_count($object, $old['start']);
+            $old['_count'] = $this->get_recurrence_count($master, $old['start']);
           $event['recurrence']['COUNT'] -= intval($old['_count']);
         }
 
@@ -1044,7 +1047,6 @@ class kolab_driver extends calendar_driver
           $success = $event['uid'];
 
           // update master event (no rescheduling!)
-          $master['sequence'] = $object['sequence'];
           self::clear_attandee_noreply($master);
           $udated = $storage->update_event($master);
         }
@@ -1429,6 +1431,7 @@ class kolab_driver extends calendar_driver
       $this->rc->user->save_prefs(array('calendar_categories' => $old_categories));
     }
 
+    array_walk($events, 'kolab_driver::clean_rcube_event_out');
     return $events;
   }
 
@@ -1670,8 +1673,8 @@ class kolab_driver extends calendar_driver
   private function get_recurrence_count($event, $dtstart)
   {
     // use libkolab to compute recurring events
-    if (class_exists('kolabcalendaring') && $object['_formatobj']) {
-        $recurrence = new kolab_date_recurrence($object['_formatobj']);
+    if (class_exists('kolabcalendaring') && $event['_formatobj']) {
+        $recurrence = new kolab_date_recurrence($event['_formatobj']);
     }
     else {
       // fallback to local recurrence implementation
@@ -1818,6 +1821,7 @@ class kolab_driver extends calendar_driver
       $record['end']->add(new DateInterval('PT1H'));
     }
 
+    // translate internal '_attachments' to external 'attachments' list
     if (!empty($record['_attachments'])) {
       foreach ($record['_attachments'] as $key => $attachment) {
         if ($attachment !== false) {
@@ -1873,10 +1877,16 @@ class kolab_driver extends calendar_driver
       });
     }
 
-    // remove internals
-    unset($record['_mailbox'], $record['_msguid'], $record['_formatobj'], $record['_attachments'], $record['x-custom']);
-
     return $record;
+  }
+
+  /**
+   * Remove some internal properties before sending to event out to the calendar app
+   */
+  public static function clean_rcube_event_out(&$record)
+  {
+    unset($record['_mailbox'], $record['_msguid'], $record['_type'], $record['_size'],
+      $record['_formatobj'], $record['_attachments'], $record['x-custom']);
   }
 
   /**
