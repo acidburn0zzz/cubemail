@@ -1171,11 +1171,12 @@ class calendar extends rcube_plugin
         $sent = $this->notify_attendees($master, null, $action, $event['_comment']);
         if ($sent < 0)
           $this->rc->output->show_message('calendar.errornotifying', 'error');
+
+        $event['attendees'] = $master['attendees'];  // this tricks us into the next if clause
       }
 
       $event['id'] = $success;
       $event['_savemode'] = 'all';
-      $event['attendees'] = $master['attendees'];  // this tricks us into the next if clause
       $old = null;
     }
 

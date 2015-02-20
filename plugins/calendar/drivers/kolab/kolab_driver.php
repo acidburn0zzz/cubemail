@@ -993,24 +993,37 @@ class kolab_driver extends calendar_driver
   
         // remove recurrence exceptions on re-scheduling
         if ($reschedule) {
-          unset($event['recurrence']['EXCEPTIONS']);
+          unset($event['recurrence']['EXCEPTIONS'], $master['recurrence']['EXDATE']);
         }
         else if (is_array($event['recurrence']['EXCEPTIONS'])) {
           // only keep relevant exceptions
           $event['recurrence']['EXCEPTIONS'] = array_filter($event['recurrence']['EXCEPTIONS'], function($exception) use ($event) {
             return $exception['start'] > $event['start'];
           });
+          if (is_array($event['recurrence']['EXDATE'])) {
+            $event['recurrence']['EXDATE'] = array_filter($event['recurrence']['EXDATE'], function($exdate) use ($event) {
+              return $exdate > $event['start'];
+            });
+          }
         }
 
         // compute remaining occurrences
         if ($event['recurrence']['COUNT']) {
           if (!$old['_count'])
-            $old['_count'] = $this->get_recurrence_count($object, $event['start']);
+            $old['_count'] = $this->get_recurrence_count($object, $old['start']);
           $event['recurrence']['COUNT'] -= intval($old['_count']);
         }
 
+        // remove fixed weekday when date changed
+        if ($old['start']->format('Y-m-d') != $event['start']->format('Y-m-d')) {
+          if (strlen($event['recurrence']['BYDAY']) == 2)
+            unset($event['recurrence']['BYDAY']);
+          if ($old['recurrence']['BYMONTH'] == $old['start']->format('n'))
+            unset($event['recurrence']['BYMONTH']);
+        }
+
         // set until-date on master event
-        $master['recurrence']['UNTIL'] = clone $event['start'];
+        $master['recurrence']['UNTIL'] = clone $old['start'];
         $master['recurrence']['UNTIL']->sub(new DateInterval('P1D'));
         unset($master['recurrence']['COUNT']);
 
@@ -1018,6 +1031,11 @@ class kolab_driver extends calendar_driver
         if (is_array($master['recurrence']['EXCEPTIONS'])) {
           $master['recurrence']['EXCEPTIONS'] = array_filter($master['recurrence']['EXCEPTIONS'], function($exception) use ($event) {
             return $exception['start'] < $event['start'];
+          });
+        }
+        if (is_array($master['recurrence']['EXDATE'])) {
+          $master['recurrence']['EXDATE'] = array_filter($master['recurrence']['EXDATE'], function($exdate) use ($event) {
+            return $exdate < $event['start'];
           });
         }
 
@@ -1115,7 +1133,7 @@ class kolab_driver extends calendar_driver
 
         // when saving an instance in 'all' mode, copy recurrence exceptions over
         if ($old['recurrence_id']) {
-          $event['recurrence'] = $master['recurrence'];
+          $event['recurrence']['EXCEPTIONS'] = $master['recurrence']['EXCEPTIONS'];
         }
 
         // TODO: forward changes to exceptions (which do not yet have differing values stored)
