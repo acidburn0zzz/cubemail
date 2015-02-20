@@ -195,7 +195,11 @@ class kolab_calendar extends kolab_storage_folder_api
       if ($master_id != $id && ($record = $this->storage->get_object($master_id)))
         $this->events[$master_id] = $this->_to_rcube_event($record);
 
-      if (($master = $this->events[$master_id]) && $master['recurrence']) {
+      // check for match on the first instance already
+      if (($_instance = $this->events[$master_id]['_instance']) && $id == $master_id . '-' . $_instance) {
+        $this->events[$id] = $this->events[$master_id];
+      }
+      else if (($master = $this->events[$master_id]) && $master['recurrence']) {
         $this->get_recurring_events($record, $master['start'], null, $id);
       }
     }
@@ -236,35 +240,31 @@ class kolab_calendar extends kolab_storage_folder_api
     $query[] = array('dtstart', '<=', $end);
     $query[] = array('dtend',   '>=', $start);
 
-    // add query to exclude pending/declined invitations
-    if (empty($filter_query) && $this->get_namespace() != 'other') {
-      foreach ($user_emails as $email) {
-        $query[] = array('tags', '!=', 'x-partstat:' . $email . ':needs-action');
-        $query[] = array('tags', '!=', 'x-partstat:' . $email . ':declined');
-      }
-    }
-    else if (is_array($filter_query)) {
+    if (is_array($filter_query)) {
       $query = array_merge($query, $filter_query);
     }
 
     if (!empty($search)) {
         $search = mb_strtolower($search);
+        $words = rcube_utils::tokenize_string($search, 1);
         foreach (rcube_utils::normalize_string($search, true) as $word) {
             $query[] = array('words', 'LIKE', $word);
         }
     }
+    else {
+      $words = array();
+    }
+
+    // set partstat filter to skip pending and declined invitations
+    if (empty($filter_query) && $this->get_namespace() != 'other') {
+      $partstat_exclude = array('NEEDS-ACTION','DECLINED');
+    }
+    else {
+      $partstat_exclude = array();
+    }
 
     $events = array();
     foreach ($this->storage->select($query) as $record) {
-      // post-filter events to skip pending and declined invitations
-      if (empty($filter_query) && is_array($record['attendees']) && $this->get_namespace() != 'other') {
-        foreach ($record['attendees'] as $attendee) {
-          if (in_array($attendee['email'], $user_emails) && in_array($attendee['status'], array('NEEDS-ACTION','DECLINED'))) {
-            continue 2;
-          }
-        }
-      }
-
       $event = $this->_to_rcube_event($record);
       $this->events[$event['id']] = $event;
 
@@ -272,34 +272,15 @@ class kolab_calendar extends kolab_storage_folder_api
       if ($event['categories'])
         $this->categories[$event['categories']]++;
 
-      // filter events by search query
-      if (!empty($search)) {
-        $hits = 0;
-        $words = rcube_utils::tokenize_string($search, 1);
-        foreach ($words as $word) {
-          $hits += $this->_fulltext_match($event, $word);
-        }
-
-        if ($hits < count($words))  // skip this event if not match with search term
-          continue;
-      }
-
       // list events in requested time window
       if ($event['start'] <= $end && $event['end'] >= $start) {
         unset($event['_attendees']);
         $add = true;
 
         // skip the first instance of a recurring event if listed in exdate
-        if ($virtual && (!empty($event['recurrence']['EXDATE']) || !empty($event['recurrence']['EXCEPTIONS']))) {
+        if ($virtual && !empty($event['recurrence']['EXDATE'])) {
           $event_date = $event['start']->format('Ymd');
           $exdates = (array)$event['recurrence']['EXDATE'];
-
-          // add dates from exceptions to list
-          if (is_array($event['recurrence']['EXCEPTIONS'])) {
-              foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
-                  $exdates[] = clone $exception['start'];
-              }
-          }
 
           foreach ($exdates as $exdate) {
             if ($exdate->format('Ymd') == $event_date) {
@@ -309,27 +290,53 @@ class kolab_calendar extends kolab_storage_folder_api
           }
         }
 
+        // find and merge exception for the first instance
+        if ($virtual && !empty($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS'])) {
+          $event_date = $event['start']->format('Ymd');
+          foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
+            $exdate = $exception['recurrence_date'] ? $exception['recurrence_date']->format('Ymd') : substr($exception['_instance'], 0, 8);
+            if ($exdate == $event_date) {
+              $event['_instance'] = $exception['_instance'];
+              kolab_driver::merge_exception_data($event, $exception);
+            }
+          }
+        }
+
         if ($add)
           $events[] = $event;
       }
-      
+
       // resolve recurring events
       if ($record['recurrence'] && $virtual == 1) {
         $events = array_merge($events, $this->get_recurring_events($record, $start, $end));
-
-        // when searching, only recurrence exceptions may match the query so post-filter the results again
-        if (!empty($search) && $record['recurrence']['EXCEPTIONS']) {
-          $me = $this;
-          $events = array_filter($events, function($event) use ($words, $me) {
-            $hits = 0;
-            foreach ($words as $word) {
-              $hits += $me->_fulltext_match($event, $word, false);
-            }
-            return $hits >= count($words);
-          });
-        }
       }
     }
+
+    // post-filter all events by fulltext search and partstat values
+    $me = $this;
+    $events = array_filter($events, function($event) use ($words, $partstat_exclude, $user_emails, $me) {
+      // fulltext search
+      if (count($words)) {
+        $hits = 0;
+        foreach ($words as $word) {
+          $hits += $me->_fulltext_match($event, $word, false);
+        }
+        if ($hits < count($words)) {
+          return false;
+        }
+      }
+
+      // partstat filter
+      if (count($partstat_exclude) && is_array($event['attendees'])) {
+        foreach ($event['attendees'] as $attendee) {
+          if (in_array($attendee['email'], $user_emails) && in_array($attendee['status'], $partstat_exclude)) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
 
     // avoid session race conditions that will loose temporary subscriptions
     $this->cal->rc->session->nowrite = true;
@@ -585,22 +592,27 @@ class kolab_calendar extends kolab_storage_folder_api
         $rec_event['id'] = $event['uid'] . '-' . $exception['_instance'];
         $rec_event['isexception'] = 1;
 
-        // found the specifically requested instance, exiting...
-        if ($rec_event['id'] == $event_id) {
+        // found the specifically requested instance: register exception (single occurrence wins)
+        if ($rec_event['id'] == $event_id && (!$this->events[$event_id] || $this->events[$event_id]['thisandfuture'])) {
           $rec_event['recurrence'] = $recurrence_rule;
           $rec_event['recurrence_id'] = $event['uid'];
-          $events[] = $rec_event;
           $this->events[$rec_event['id']] = $rec_event;
-          return $events;
         }
 
         // remember this exception's date
         $exdate = substr($exception['_instance'], 0, 8);
-        $exdata[$exdate] = $rec_event;
+        if (!$exdata[$exdate] || $exdata[$exdate]['thisandfuture']) {
+          $exdata[$exdate] = $rec_event;
+        }
         if ($rec_event['thisandfuture']) {
           $futuredata[$exdate] = $rec_event;
         }
       }
+    }
+
+    // found the specifically requested instance, exiting...
+    if ($event_id && !empty($this->events[$event_id])) {
+      return array($this->events[$event_id]);
     }
 
     // use libkolab to compute recurring events
@@ -627,9 +639,10 @@ class kolab_calendar extends kolab_storage_folder_api
       if (($next_event['start'] <= $end && $next_event['end'] >= $start) || ($event_id && $rec_id == $event_id)) {
         $rec_event = $this->_to_rcube_event($next_event);
         $rec_event['_instance'] = $instance_id;
+        $rec_event['_count'] = $i + 1;
 
         if ($overlay_data || $exdata[$datestr])  // copy data from exception
-          $this->_merge_event_data($rec_event, $exdata[$datestr] ?: $overlay_data);
+          kolab_driver::merge_exception_data($rec_event, $exdata[$datestr] ?: $overlay_data);
 
         $rec_event['id'] = $rec_id;
         $rec_event['recurrence_id'] = $event['uid'];
@@ -654,37 +667,10 @@ class kolab_calendar extends kolab_storage_folder_api
   }
 
   /**
-   * Merge certain properties from the overlay event to the base event object
-   *
-   * @param array The event object to be altered
-   * @param array The overlay event object to be merged over $event
-   */
-  private function _merge_event_data(&$event, $overlay)
-  {
-    static $forbidden = array('id','uid','created','changed','recurrence','organizer','attendees','sequence');
-
-    foreach ($overlay as $prop => $value) {
-      // adjust time of the recurring event instance
-      if ($prop == 'start' || $prop == 'end') {
-        if (is_object($event[$prop]) && is_a($event[$prop], 'DateTime')) {
-          $event[$prop]->setTime($value->format('G'), intval($value->format('i')), intval($value->format('s')));
-          // set date value if overlay is an exception of the current instance
-          if (substr($overlay['_instance'], 0, 8) == substr($event['_instance'], 0, 8)) {
-            $event[$prop]->setDate(intval($value->format('Y')), intval($value->format('n')), intval($value->format('j')));
-          }
-        }
-      }
-      else if ($prop[0] != '_' && !in_array($prop, $forbidden))
-        $event[$prop] = $value;
-    }
-  }
-
-  /**
    * Convert from Kolab_Format to internal representation
    */
   private function _to_rcube_event($record)
   {
-    $record['id'] = $record['uid'];
     $record['calendar'] = $this->id;
     $record['links'] = $this->get_links($record['uid']);
 
@@ -702,38 +688,7 @@ class kolab_calendar extends kolab_storage_folder_api
    */
   private function _from_rcube_event($event, $old = array())
   {
-    // in kolab_storage attachments are indexed by content-id
-    $event['_attachments'] = array();
-    if (is_array($event['attachments'])) {
-      foreach ($event['attachments'] as $attachment) {
-        $key = null;
-        // Roundcube ID has nothing to do with the storage ID, remove it
-        if ($attachment['content'] || $attachment['path']) {
-          unset($attachment['id']);
-        }
-        else {
-          foreach ((array)$old['_attachments'] as $cid => $oldatt) {
-            if ($attachment['id'] == $oldatt['id'])
-              $key = $cid;
-          }
-        }
-
-        // flagged for deletion => set to false
-        if ($attachment['_deleted']) {
-          $event['_attachments'][$key] = false;
-        }
-        // replace existing entry
-        else if ($key) {
-          $event['_attachments'][$key] = $attachment;
-        }
-        // append as new attachment
-        else {
-          $event['_attachments'][] = $attachment;
-        }
-      }
-
-      unset($event['attachments']);
-    }
+    $event = kolab_driver::from_rcube_event($event, $old);
 
     // set current user as ORGANIZER
     $identity = $this->cal->rc->user->list_emails(true);

@@ -534,8 +534,13 @@ class kolab_driver extends calendar_driver
   public function get_event($event, $writeable = false, $active = false, $personal = false)
   {
     if (is_array($event)) {
-      $id = $event['id'] ? $event['id'] : $event['uid'];
+      $id = $event['id'] ?: $event['uid'];
       $cal = $event['calendar'];
+
+      // we're looking for a recurring instance: expand the ID to our internal convention for recurring instances
+      if (!$event['id'] && $event['_instance']) {
+        $id .= '-' . $event['_instance'];
+      }
     }
     else {
       $id = $event;
@@ -614,9 +619,21 @@ class kolab_driver extends calendar_driver
    * @param string New participant status
    * @return boolean True on success, False on error
    */
-  public function edit_rsvp(&$event, $status)
+  public function edit_rsvp(&$event, $status, $attendees)
   {
-    if (($ret = $this->update_event($event)) && $this->rc->config->get('kolab_invitation_calendars')) {
+    $update_event = $event;
+
+    // apply changes to master (and all exceptions)
+    if ($event['_savemode'] == 'all' && $event['recurrence_id']) {
+      if ($storage = $this->get_calendar($event['calendar'])) {
+        $update_event = $storage->get_event($event['recurrence_id']);
+        $update_event['_savemode'] = $event['_savemode'];
+        unset($update_event['recurrence_id']);
+        self::merge_attendee_data($update_event, $attendees);
+      }
+    }
+
+    if (($ret = $this->update_attendees($update_event, $attendees)) && $this->rc->config->get('kolab_invitation_calendars')) {
       // re-assign to the according (virtual) calendar
       if (strtoupper($status) == 'DECLINED')
         $event['calendar'] = self::INVITATIONS_CALENDAR_DECLINED;
@@ -629,6 +646,48 @@ class kolab_driver extends calendar_driver
     return $ret;
   }
 
+  /**
+   * Update the participant status for the given attendees
+   *
+   * @see calendar_driver::update_attendees()
+   */
+  public function update_attendees(&$event, $attendees)
+  {
+    // for this-and-future updates, merge the updated attendees onto all exceptions in range
+    if (($event['_savemode'] == 'future' && $event['recurrence_id']) || (!empty($event['recurrence']) && !$event['recurrence_id'])) {
+      if (!($storage = $this->get_calendar($event['calendar'])))
+        return false;
+
+      // load master event
+      $master = $event['recurrence_id'] ? $storage->get_event($event['recurrence_id']) : $event;
+
+      // apply attendee update to each existing exception
+      if ($master['recurrence'] && !empty($master['recurrence']['EXCEPTIONS'])) {
+        $saved = false;
+        foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
+          // merge the new event properties onto future exceptions
+          if ($exception['_instance'] >= $event['_instance']) {
+            self::merge_attendee_data($master['recurrence']['EXCEPTIONS'][$i], $attendees);
+          }
+          // update a specific instance
+          if ($exception['_instance'] == $event['_instance'] && $exception['thisandfuture']) {
+            $saved = true;
+          }
+        }
+
+        // add the given event as new exception
+        if (!$saved && $event['id'] != $master['id']) {
+          $event['thisandfuture'] = true;
+          $master['recurrence']['EXCEPTIONS'][] = $event;
+        }
+
+        return $this->update_event($master);
+      }
+    }
+
+    // just update the given event (instance)
+    return $this->update_event($event);
+  }
 
   /**
    * Move a single event
@@ -640,6 +699,7 @@ class kolab_driver extends calendar_driver
   {
     if (($storage = $this->get_calendar($event['calendar'])) && ($ev = $storage->get_event($event['id']))) {
       unset($ev['sequence']);
+      self::clear_attandee_noreply($ev);
       return $this->update_event($event + $ev);
     }
 
@@ -656,6 +716,7 @@ class kolab_driver extends calendar_driver
   {
     if (($storage = $this->get_calendar($event['calendar'])) && ($ev = $storage->get_event($event['id']))) {
       unset($ev['sequence']);
+      self::clear_attandee_noreply($ev);
       return $this->update_event($event + $ev);
     }
 
@@ -687,11 +748,11 @@ class kolab_driver extends calendar_driver
       // read master if deleting a recurring event
       if ($event['recurrence'] || $event['recurrence_id']) {
         $master = $event['recurrence_id'] ? $storage->get_event($event['recurrence_id']) : $event;
-        $savemode = $event['_savemode'];
+        $savemode = $event['_savemode'] ?: ($event['_instance'] ? 'current' : 'all');
       }
 
       // removing an exception instance
-      if ($event['recurrence_id']) {
+      if ($event['recurrence_id'] && $master['recurrence'] && is_array($master['recurrence']['EXCEPTIONS'])) {
         foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
           if ($exception['_instance'] == $event['_instance']) {
             unset($master['recurrence']['EXCEPTIONS'][$i]);
@@ -880,7 +941,12 @@ class kolab_driver extends calendar_driver
     // modify a recurring event, check submitted savemode to do the right things
     if ($old['recurrence'] || $old['recurrence_id']) {
       $master = $old['recurrence_id'] ? $fromcalendar->get_event($old['recurrence_id']) : $old;
-      $savemode = $event['_savemode'];
+      $savemode = $event['_savemode'] ?: ($old['recurrence_id'] ? 'current' : 'all');
+      $object = $fromcalendar->storage->get_object($master['uid']);
+
+      // this-and-future on the first instance equals to 'all'
+      if (!$old['recurrence_id'] && $savemode == 'future')
+        $savemode = 'all';
     }
 
     // check if update affects scheduling and update attendee status accordingly
@@ -894,47 +960,115 @@ class kolab_driver extends calendar_driver
     else if ($old['recurrence']['EXCEPTIONS'])
       $event['recurrence']['EXCEPTIONS'] = $old['recurrence']['EXCEPTIONS'];
 
+    // remove some internal properties which should not be saved
+    unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_owner'],
+        $event['_notify'], $event['_method'], $event['_sender'], $event['_sender_utf'], $event['_size']);
+
     switch ($savemode) {
       case 'new':
         // save submitted data as new (non-recurring) event
         $event['recurrence'] = array();
+        $event['_copyfrom'] = $object['_msguid'];
+        $event['_mailbox'] = $object['_mailbox'];
         $event['uid'] = $this->cal->generate_uid();
-        unset($event['recurrence_id'], $event['id'], $event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
+        unset($event['recurrence_id'], $event['recurrence_date'], $event['_instance'], $event['id']);
 
-        // copy attachment data to new event
-        foreach ((array)$event['attachments'] as $idx => $attachment) {
-          if (!$attachment['content'])
-            $event['attachments'][$idx]['content'] = $this->get_attachment_body($attachment['id'], $master);
-        }
+        // copy attachment metadata to new event
+        $event = self::from_rcube_event($event, $object);
 
+        self::clear_attandee_noreply($event);
         if ($success = $storage->insert_event($event))
           $success = $event['uid'];
         break;
 
       case 'future':
+        // create a new recurring event
+        $event['_copyfrom'] = $object['_msguid'];
+        $event['_mailbox'] = $object['_mailbox'];
+        $event['uid'] = $this->cal->generate_uid();
+        unset($event['recurrence_id'], $event['recurrence_date'], $event['_instance'], $event['id']);
+
+        // copy attachment metadata to new event
+        $event = self::from_rcube_event($event, $object);
+  
+        // remove recurrence exceptions on re-scheduling
+        if ($reschedule) {
+          unset($event['recurrence']['EXCEPTIONS'], $master['recurrence']['EXDATE']);
+        }
+        else if (is_array($event['recurrence']['EXCEPTIONS'])) {
+          // only keep relevant exceptions
+          $event['recurrence']['EXCEPTIONS'] = array_filter($event['recurrence']['EXCEPTIONS'], function($exception) use ($event) {
+            return $exception['start'] > $event['start'];
+          });
+          if (is_array($event['recurrence']['EXDATE'])) {
+            $event['recurrence']['EXDATE'] = array_filter($event['recurrence']['EXDATE'], function($exdate) use ($event) {
+              return $exdate > $event['start'];
+            });
+          }
+        }
+
+        // compute remaining occurrences
+        if ($event['recurrence']['COUNT']) {
+          if (!$old['_count'])
+            $old['_count'] = $this->get_recurrence_count($object, $old['start']);
+          $event['recurrence']['COUNT'] -= intval($old['_count']);
+        }
+
+        // remove fixed weekday when date changed
+        if ($old['start']->format('Y-m-d') != $event['start']->format('Y-m-d')) {
+          if (strlen($event['recurrence']['BYDAY']) == 2)
+            unset($event['recurrence']['BYDAY']);
+          if ($old['recurrence']['BYMONTH'] == $old['start']->format('n'))
+            unset($event['recurrence']['BYMONTH']);
+        }
+
+        // set until-date on master event
+        $master['recurrence']['UNTIL'] = clone $old['start'];
+        $master['recurrence']['UNTIL']->sub(new DateInterval('P1D'));
+        unset($master['recurrence']['COUNT']);
+
+        // remove all exceptions after $event['start']
+        if (is_array($master['recurrence']['EXCEPTIONS'])) {
+          $master['recurrence']['EXCEPTIONS'] = array_filter($master['recurrence']['EXCEPTIONS'], function($exception) use ($event) {
+            return $exception['start'] < $event['start'];
+          });
+        }
+        if (is_array($master['recurrence']['EXDATE'])) {
+          $master['recurrence']['EXDATE'] = array_filter($master['recurrence']['EXDATE'], function($exdate) use ($event) {
+            return $exdate < $event['start'];
+          });
+        }
+
+        // save new event
+        if ($success = $storage->insert_event($event)) {
+          $success = $event['uid'];
+
+          // update master event (no rescheduling!)
+          $master['sequence'] = $object['sequence'];
+          self::clear_attandee_noreply($master);
+          $udated = $storage->update_event($master);
+        }
+        break;
+
       case 'current':
-        // recurring instances shall not store recurrence rules
+        // recurring instances shall not store recurrence rules and attachments
         $event['recurrence'] = array();
         $event['thisandfuture'] = $savemode == 'future';
+        unset($event['attachments'], $event['id']);
 
         // increment sequence of this instance if scheduling is affected
         if ($reschedule) {
-          $event['sequence'] = $old['sequence'] + 1;
+          $event['sequence'] = max($old['sequence'], $master['sequence']) + 1;
+        }
+        else if (!isset($event['sequence'])) {
+          $event['sequence'] = $master['sequence'];
         }
 
-        // remove some internal properties which should not be saved
-        unset($event['id'], $event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_notify']);
-
         // save properties to a recurrence exception instance
-        if ($old['recurrence_id'] && is_array($master['recurrence']['EXCEPTIONS'])) {
-          foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
-            if ($exception['_instance'] == $old['_instance']) {
-              $event['_instance'] = $old['_instance'];
-              $event['recurrence_date'] = $old['recurrence_date'];
-              $master['recurrence']['EXCEPTIONS'][$i] = $event;
-              $success = $storage->update_event($master, $old['id']);
-              break 2;
-            }
+        if ($old['_instance'] && is_array($master['recurrence']['EXCEPTIONS'])) {
+          if ($this->update_recurrence_exceptions($master, $event, $old, $savemode)) {
+            $success = $storage->update_event($master, $old['id']);
+            break;
           }
         }
 
@@ -955,6 +1089,7 @@ class kolab_driver extends calendar_driver
         // save as new exception to master event
         if ($add_exception) {
           $event['_instance'] = $old['_instance'];
+          $event['recurrence_date'] = $old['recurrence_date'] ?: $old['start'];
           $master['recurrence']['EXCEPTIONS'][] = $event;
         }
         $success = $storage->update_event($master);
@@ -996,17 +1131,41 @@ class kolab_driver extends calendar_driver
           $event['end'] = $master['end'];
         }
 
-        // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
-        if (($old_start_date != $new_start_date || $old_start_time != $new_start_time) &&
-              is_array($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS']) && !$with_exceptions) {
-          $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+        // when saving an instance in 'all' mode, copy recurrence exceptions over
+        if ($old['recurrence_id']) {
+          $event['recurrence']['EXCEPTIONS'] = $master['recurrence']['EXCEPTIONS'];
+        }
+
+        // TODO: forward changes to exceptions (which do not yet have differing values stored)
+        if (is_array($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS']) && !$with_exceptions) {
+          // determine added and removed attendees
+          $old_attendees = $current_attendees = $added_attendees = array();
+          foreach ((array)$old['attendees'] as $attendee) {
+            $old_attendees[] = $attendee['email'];
+          }
+          foreach ((array)$event['attendees'] as $attendee) {
+            $current_attendees[] = $attendee['email'];
+            if (!in_array($attendee['email'], $old_attendees)) {
+              $added_attendees[] = $attendee;
+            }
+          }
+          $removed_attendees = array_diff($old_attendees, $current_attendees);
+
           foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
-            $recurrence_id = is_a($exception['recurrence_date'], 'DateTime') ? $exception['recurrence_date'] :
-                rcube_utils::anytodatetime($exception['_instance'], $old['start']->getTimezone());
-            if (is_a($recurrence_id, 'DateTime')) {
-              $recurrence_id->add($date_shift);
-              $event['recurrence']['EXCEPTIONS'][$i]['recurrence_date'] = $recurrence_id;
-              $event['recurrence']['EXCEPTIONS'][$i]['_instance'] = $recurrence_id->format($recurrence_id_format);
+            self::merge_attendee_data($event['recurrence']['EXCEPTIONS'][$i], $added_attendees, $removed_attendees);
+          }
+
+          // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
+          if ($old_start_date != $new_start_date || $old_start_time != $new_start_time) {
+            $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+            foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
+              $recurrence_id = is_a($exception['recurrence_date'], 'DateTime') ? $exception['recurrence_date'] :
+                  rcube_utils::anytodatetime($exception['_instance'], $old['start']->getTimezone());
+              if (is_a($recurrence_id, 'DateTime')) {
+                $recurrence_id->add($date_shift);
+                $event['recurrence']['EXCEPTIONS'][$i]['recurrence_date'] = $recurrence_id;
+                $event['recurrence']['EXCEPTIONS'][$i]['_instance'] = $recurrence_id->format($recurrence_id_format);
+              }
             }
           }
         }
@@ -1029,26 +1188,14 @@ class kolab_driver extends calendar_driver
    */
   public function check_scheduling(&$event, $old, $update = true)
   {
-    $reschedule = false;
-
     // skip this check when importing iCal/iTip events
     if (isset($event['sequence']) || !empty($event['_method'])) {
-      return $reschedule;
+      return false;
     }
 
     // iterate through the list of properties considered 'significant' for scheduling
-    foreach (kolab_format_event::$scheduling_properties as $prop) {
-      $a = $old[$prop];
-      $b = $event[$prop];
-      if ($event['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {
-        $a = $a->format('Y-m-d');
-        $b = $b->format('Y-m-d');
-      }
-      if ($a != $b) {
-        $reschedule = true;
-        break;
-      }
-    }
+    $kolab_event = $old['_formatobj'] ?: new kolab_format_event();
+    $reschedule = $kolab_event->check_rescheduling($event, $old);
 
     // reset all attendee status to needs-action (#4360)
     if ($update && $reschedule && is_array($event['attendees'])) {
@@ -1072,6 +1219,171 @@ class kolab_driver extends calendar_driver
     }
 
     return $reschedule;
+  }
+
+  /**
+   * Apply the given changes to already existing exceptions
+   */
+  protected function update_recurrence_exceptions(&$master, $event, $old, $savemode)
+  {
+    $saved = false;
+    $existing = null;
+
+    // determine added and removed attendees
+    $added_attendees = $removed_attendees = array();
+    if ($savemode == 'future') {
+      $old_attendees = $current_attendees = array();
+      foreach ((array)$old['attendees'] as $attendee) {
+        $old_attendees[] = $attendee['email'];
+      }
+      foreach ((array)$event['attendees'] as $attendee) {
+        $current_attendees[] = $attendee['email'];
+        if (!in_array($attendee['email'], $old_attendees)) {
+          $added_attendees[] = $attendee;
+        }
+      }
+      $removed_attendees = array_diff($old_attendees, $current_attendees);
+    }
+
+    foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
+      // update a specific instance
+      if ($exception['_instance'] == $old['_instance']) {
+        $existing = $i;
+
+        // check savemode against existing exception mode.
+        // if matches, we can update this existing exception
+        if ((bool)$exception['thisandfuture'] === ($savemode == 'future')) {
+          $event['_instance'] = $old['_instance'];
+          $event['thisandfuture'] = $old['thisandfuture'];
+          $event['recurrence_date'] = $old['recurrence_date'];
+          $master['recurrence']['EXCEPTIONS'][$i] = $event;
+          $saved = true;
+        }
+      }
+      // merge the new event properties onto future exceptions
+      if ($savemode == 'future' && $exception['_instance'] >= $old['_instance']) {
+        unset($event['thisandfuture']);
+        self::merge_exception_data($master['recurrence']['EXCEPTIONS'][$i], $event, array('attendees'));
+
+        if (!empty($added_attendees) || !empty($removed_attendees)) {
+          self::merge_attendee_data($master['recurrence']['EXCEPTIONS'][$i], $added_attendees, $removed_attendees);
+        }
+      }
+    }
+/*
+    // we could not update the existing exception due to savemode mismatch...
+    if (!$saved && $existing !== null && $master['recurrence']['EXCEPTIONS'][$existing]['thisandfuture']) {
+      // ... try to move the existing this-and-future exception to the next occurrence
+      foreach ($this->get_recurring_events($master, $existing['start']) as $candidate) {
+        // our old this-and-future exception is obsolete
+        if ($candidate['thisandfuture']) {
+          unset($master['recurrence']['EXCEPTIONS'][$existing]);
+          $saved = true;
+          break;
+        }
+        // this occurrence doesn't yet have an exception
+        else if (!$candidate['isexception']) {
+          $event['_instance'] = $candidate['_instance'];
+          $event['recurrence_date'] = $candidate['recurrence_date'];
+          $master['recurrence']['EXCEPTIONS'][$i] = $event;
+          $saved = true;
+          break;
+        }
+      }
+    }
+*/
+
+    // returning false here will add a new exception
+    return $saved;
+  }
+
+  /**
+   * Remove the noreply flags from attendees
+   */
+  public static function clear_attandee_noreply(&$event)
+  {
+    foreach ((array)$event['attendees'] as $i => $attendee) {
+      unset($event['attendees'][$i]['noreply']);
+    }
+  }
+
+
+  /**
+   * Merge certain properties from the overlay event to the base event object
+   *
+   * @param array The event object to be altered
+   * @param array The overlay event object to be merged over $event
+   * @param array List of properties not allowed to be overwritten
+   */
+  public static function merge_exception_data(&$event, $overlay, $blacklist = null)
+  {
+    $forbidden = array('id','uid','recurrence','recurrence_date','thisandfuture','organizer','_attachments');
+
+    if (is_array($blacklist))
+      $forbidden = array_merge($forbidden, $blacklist);
+
+    // compute date offset from the exception
+    if ($overlay['start'] instanceof DateTime && $overlay['recurrence_date'] instanceof DateTime) {
+      $date_offset = $overlay['recurrence_date']->diff($overlay['start']);
+    }
+
+    foreach ($overlay as $prop => $value) {
+      if ($prop == 'start' || $prop == 'end') {
+        if (is_object($event[$prop]) && $event[$prop] instanceof DateTime) {
+          // set date value if overlay is an exception of the current instance
+          if (substr($overlay['_instance'], 0, 8) == substr($event['_instance'], 0, 8)) {
+            $event[$prop]->setDate(intval($value->format('Y')), intval($value->format('n')), intval($value->format('j')));
+          }
+          // apply date offset
+          else if ($date_offset) {
+            $event[$prop]->add($date_offset);
+          }
+          // adjust time of the recurring event instance
+          $event[$prop]->setTime($value->format('G'), intval($value->format('i')), intval($value->format('s')));
+        }
+      }
+      else if ($prop == 'thisandfuture' && $overlay['_instance'] == $event['_instance']) {
+        $event[$prop] = $value;
+      }
+      else if ($prop[0] != '_' && !in_array($prop, $forbidden))
+        $event[$prop] = $value;
+    }
+  }
+
+  /**
+   * Update attendee properties on the given event object
+   *
+   * @param array The event object to be altered
+   * @param array List of hash arrays each represeting an updated/added attendee
+   */
+  public static function merge_attendee_data(&$event, $attendees, $removed = null)
+  {
+    if (!empty($attendees) && !is_array($attendees[0])) {
+      $attendees = array($attendees);
+    }
+
+    foreach ($attendees as $attendee) {
+      $found = false;
+
+      foreach ($event['attendees'] as $i => $candidate) {
+        if ($candidate['email'] == $attendee['email']) {
+          $event['attendees'][$i] = $attendee;
+          $found = true;
+          break;
+        }
+      }
+
+      if (!$found) {
+        $event['attendees'][] = $attendee;
+      }
+    }
+
+    // filter out removed attendees
+    if (!empty($removed)) {
+      $event['attendees'] = array_filter($event['attendees'], function($attendee) use ($removed) {
+        return !in_array($attendee['email'], $removed);
+      });
+    }
   }
 
   /**
@@ -1353,6 +1665,29 @@ class kolab_driver extends calendar_driver
   }
 
   /**
+   *
+   */
+  private function get_recurrence_count($event, $dtstart)
+  {
+    // use libkolab to compute recurring events
+    if (class_exists('kolabcalendaring') && $object['_formatobj']) {
+        $recurrence = new kolab_date_recurrence($object['_formatobj']);
+    }
+    else {
+      // fallback to local recurrence implementation
+      require_once($this->cal->home . '/lib/calendar_recurrence.php');
+      $recurrence = new calendar_recurrence($this->cal, $event);
+    }
+
+    $count = 0;
+    while (($next_event = $recurrence->next_instance()) && $next_event['start'] <= $dtstart && $count < 1000) {
+      $count++;
+    }
+
+    return $count;
+  }
+
+  /**
    * Fetch free/busy information from a person within the given range
    */
   public function get_freebusy_list($email, $start, $end)
@@ -1524,11 +1859,68 @@ class kolab_driver extends calendar_driver
     if (empty($record['recurrence']))
       unset($record['recurrence']);
 
+    // add instance identifier to first occurrence (master event)
+    // do not add 'recurrence_date' though in order to keep the master even being exported as such
+    if ($record['recurrence'] && !$record['recurrence_id'] && !$record['_instance']) {
+      $recurrence_id_format = $record['allday'] ? 'Ymd' : 'Ymd\THis';
+      $record['_instance'] = $record['start']->format($recurrence_id_format);
+    }
+
+    // clean up exception data
+    if (is_array($record['recurrence']['EXCEPTIONS'])) {
+      array_walk($record['recurrence']['EXCEPTIONS'], function(&$exception) {
+        unset($exception['_mailbox'], $exception['_msguid'], $exception['_formatobj'], $exception['_attachments']);
+      });
+    }
+
     // remove internals
     unset($record['_mailbox'], $record['_msguid'], $record['_formatobj'], $record['_attachments'], $record['x-custom']);
 
     return $record;
   }
+
+  /**
+   *
+   */
+  public static function from_rcube_event($event, $old = array())
+  {
+    // in kolab_storage attachments are indexed by content-id
+    if (is_array($event['attachments'])) {
+      $event['_attachments'] = array();
+
+      foreach ($event['attachments'] as $attachment) {
+        $key = null;
+        // Roundcube ID has nothing to do with the storage ID, remove it
+        if ($attachment['content'] || $attachment['path']) {
+          unset($attachment['id']);
+        }
+        else {
+          foreach ((array)$old['_attachments'] as $cid => $oldatt) {
+            if ($attachment['id'] == $oldatt['id'])
+              $key = $cid;
+          }
+        }
+
+        // flagged for deletion => set to false
+        if ($attachment['_deleted']) {
+          $event['_attachments'][$key] = false;
+        }
+        // replace existing entry
+        else if ($key) {
+          $event['_attachments'][$key] = $attachment;
+        }
+        // append as new attachment
+        else {
+          $event['_attachments'][] = $attachment;
+        }
+      }
+
+      unset($event['attachments']);
+    }
+
+    return $event;
+  }
+
 
   /**
    * Set CSS class according to the event's attendde partstat

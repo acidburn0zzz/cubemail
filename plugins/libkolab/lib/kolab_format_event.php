@@ -26,7 +26,7 @@ class kolab_format_event extends kolab_format_xcal
 {
     public $CTYPEv2 = 'application/x-vnd.kolab.event';
 
-    public static $scheduling_properties = array('start', 'end', 'allday', 'location', 'status', 'cancelled');
+    public static $scheduling_properties = array('start', 'end', 'allday', 'recurrence', 'location', 'status', 'cancelled');
 
     protected $objclass = 'Event';
     protected $read_func = 'readEvent';
@@ -44,6 +44,9 @@ class kolab_format_event extends kolab_format_xcal
             $this->obj = $data;
             $this->loaded = true;
         }
+
+        // copy static property overriden by this class
+        $this->_scheduling_properties = self::$scheduling_properties;
     }
 
     /**
@@ -115,9 +118,12 @@ class kolab_format_event extends kolab_format_xcal
                 $vexceptions->push($exevent->obj);
 
                 // write cleaned-up exception data back to memory/cache
-                $object['recurrence']['EXCEPTIONS'][$i] = $this->expand_exception($compacted, $object);
+                $object['recurrence']['EXCEPTIONS'][$i] = $this->expand_exception($exevent->data, $object);
             }
             $this->obj->setExceptions($vexceptions);
+        }
+        else if ($object['recurrence_date'] && $object['recurrence_date'] instanceof DateTime) {
+            $this->obj->setRecurrenceID(self::get_datetime($object['recurrence_date'], null, $object['allday']), (bool)$object['thisandfuture']);
         }
 
         // cache this data
@@ -220,15 +226,16 @@ class kolab_format_event extends kolab_format_xcal
      *
      * @return array List of tags to save in cache
      */
-    public function get_tags()
+    public function get_tags($obj = null)
     {
-        $tags = parent::get_tags();
+        $tags = parent::get_tags($obj);
+        $object = $obj ?: $this->data;
 
-        foreach ((array)$this->data['categories'] as $cat) {
+        foreach ((array)$object['categories'] as $cat) {
             $tags[] = rcube_utils::normalize_string($cat);
         }
 
-        return $tags;
+        return array_unique($tags);
     }
 
     /**
@@ -240,12 +247,6 @@ class kolab_format_event extends kolab_format_xcal
 
         foreach ($forbidden as $prop) {
             if (array_key_exists($prop, $exception)) {
-                unset($exception[$prop]);
-            }
-        }
-
-        foreach ($master as $prop => $value) {
-            if (isset($exception[$prop]) && gettype($exception[$prop]) == gettype($value) && $exception[$prop] == $value) {
                 unset($exception[$prop]);
             }
         }

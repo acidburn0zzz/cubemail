@@ -676,6 +676,10 @@ a.miniColors-trigger {
 	outline: none;
 }
 
+#event-panel-attachments.disabled .attachmentslist li a.delete {
+	visibility: hidden;
+}
+
 .event-attendees span.attendee {
 	padding-right: 18px;
 	margin-right: 0.5em;
@@ -1057,6 +1061,10 @@ td.topalign {
 	margin: 0 0.5em 0 0.2em;
 	min-width: 5em;
 	text-align: center;
+}
+
+.libcal-rsvp-replymode li a {
+	cursor: default;
 }
 
 #event-rsvp,
@@ -2156,6 +2164,15 @@ div.calendar-invitebox td.label {
 
 div.calendar-invitebox td.sensitivity {
 	color: #d31400;
+	font-weight: bold;
+}
+
+div.calendar-invitebox td.recurrence-id {
+	text-transform: uppercase;
+	font-style: italic;
+}
+
+div.calendar-invitebox td em {
 	font-weight: bold;
 }
 

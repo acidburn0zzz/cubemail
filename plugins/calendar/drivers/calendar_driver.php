@@ -50,6 +50,7 @@
  *      'EXCEPTIONS' => array(<event>),  list of event objects which denote exceptions in the recurrence chain
  *    ),
  * 'recurrence_id' => 'ID of the recurrence group',   // usually the ID of the starting event
+ *     '_instance' => 'ID of the recurring instance',   // identifies an instance within a recurrence chain
  *    'categories' => 'Event category',
  *     'free_busy' => 'free|busy|outofoffice|tentative',  // Show time as
  *        'status' => 'TENTATIVE|CONFIRMED|CANCELLED',    // event status according to RFC 2445
@@ -196,9 +197,22 @@ abstract class calendar_driver
    *
    * @param array  Hash array with event properties
    * @param string New participant status
+   * @param array  List of hash arrays with updated attendees
    * @return boolean True on success, False on error
    */
-  public function edit_rsvp(&$event, $status)
+  public function edit_rsvp(&$event, $status, $attendees)
+  {
+    return $this->edit_event($event);
+  }
+
+  /**
+   * Update the participant status for the given attendee
+   *
+   * @param array  Hash array with event properties
+   * @param array  List of hash arrays each represeting an updated attendee
+   * @return boolean True on success, False on error
+   */
+  public function update_attendees(&$event, $attendees)
   {
     return $this->edit_event($event);
   }
@@ -449,6 +463,7 @@ abstract class calendar_driver
 
       $rcmail = rcmail::get_instance();
       $recurrence = new calendar_recurrence($rcmail->plugins->get_plugin('calendar'), $event);
+      $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
 
       // determine a reasonable end date if none given
       if (!$end) {
@@ -464,12 +479,11 @@ abstract class calendar_driver
 
       $i = 0;
       while ($next_event = $recurrence->next_instance()) {
-        $next_event['uid'] = $event['uid'] . '-' . ++$i;
         // add to output if in range
         if (($next_event['start'] <= $end && $next_event['end'] >= $start)) {
-          $next_event['id'] = $next_event['uid'];
+          $next_event['_instance'] = $next_event['start']->format($recurrence_id_format);
+          $next_event['id'] = $next_event['uid'] . '-' . $exception['_instance'];
           $next_event['recurrence_id'] = $event['uid'];
-          $next_event['_instance'] = $i;
           $events[] = $next_event;
         }
         else if ($next_event['start'] > $end) {  // stop loop if out of range
@@ -477,7 +491,7 @@ abstract class calendar_driver
         }
 
         // avoid endless recursion loops
-        if ($i > 1000) {
+        if (++$i > 1000) {
           break;
         }
       }

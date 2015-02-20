@@ -108,6 +108,14 @@ $labels['acceptinvitation'] = 'Do you accept this invitation?';
 $labels['acceptattendee'] = 'Accept participant';
 $labels['declineattendee'] = 'Decline participant';
 $labels['declineattendeeconfirm'] = 'Enter a message to the declined participant (optional):';
+$labels['rsvpmodeall'] = 'The entire series';
+$labels['rsvpmodecurrent'] = 'This occurrence only';
+$labels['rsvpmodefuture'] = 'This and future occurrences';
+
+$labels['itipsingleoccurrence'] = 'This is a <em>single occurrence</em> out of a series of events';
+$labels['itipfutureoccurrence'] = 'Refers to <em>this and all future occurrences</em> of a series of events';
+$labels['itipmessagesingleoccurrence'] = 'The message only refers to this single occurrence';
+$labels['itipmessagefutureoccurrence'] = 'The message refers to this and all future occurrences';
 
 $labels['youhaveaccepted'] = 'You have accepted this invitation';
 $labels['youhavetentative'] = 'You have tentatively accepted this invitation';

@@ -41,7 +41,7 @@ class libvcalendar implements Iterator
 {
     private $timezone;
     private $attach_uri = null;
-    private $prodid = '-//Roundcube//Roundcube libcalendaring//Sabre//Sabre VObject//EN';
+    private $prodid = '-//Roundcube libcalendaring//Sabre//Sabre VObject//EN';
     private $type_component_map = array('event' => 'VEVENT', 'task' => 'VTODO');
     private $attendee_keymap = array('name' => 'CN', 'status' => 'PARTSTAT', 'role' => 'ROLE',
         'cutype' => 'CUTYPE', 'rsvp' => 'RSVP', 'delegated-from' => 'DELEGATED-FROM', 'delegated-to' => 'DELEGATED-TO');
@@ -64,7 +64,7 @@ class libvcalendar implements Iterator
     function __construct($tz = null)
     {
         $this->timezone = $tz;
-        $this->prodid = '-//Roundcube//Roundcube libcalendaring ' . RCUBE_VERSION . '//Sabre//Sabre VObject ' . VObject\Version::VERSION . '//EN';
+        $this->prodid = '-//Roundcube libcalendaring ' . RCUBE_VERSION . '//Sabre//Sabre VObject ' . VObject\Version::VERSION . '//EN';
     }
 
     /**
@@ -502,7 +502,7 @@ class libvcalendar implements Iterator
 
             case 'ATTENDEE':
             case 'ORGANIZER':
-                $params = array();
+                $params = array('rsvp' => false);
                 foreach ($prop->parameters as $param) {
                     switch ($param->name) {
                         case 'RSVP': $params[$param->name] = strtolower($param->value) == 'true'; break;
@@ -948,6 +948,13 @@ class libvcalendar implements Iterator
         if (!empty($event['due']))
             $ve->add($this->datetime_prop('DUE',   $event['due'], false));
 
+        // we're exporting a recurrence instance only
+        if (!$recurrence_id && $event['recurrence_date'] && $event['recurrence_date'] instanceof DateTime) {
+            $recurrence_id = $this->datetime_prop('RECURRENCE-ID', $event['recurrence_date'], false, (bool)$event['allday']);
+            if ($event['thisandfuture'])
+                $recurrence_id->add('RANGE', 'THISANDFUTURE');
+        }
+
         if ($recurrence_id)
             $ve->add($recurrence_id);
 
@@ -1081,7 +1088,7 @@ class libvcalendar implements Iterator
             }
             else if (!empty($attendee['email'])) {
                 if (isset($attendee['rsvp']))
-                    $attendee['rsvp'] = $attendee['rsvp'] ? 'TRUE' : 'FALSE';
+                    $attendee['rsvp'] = $attendee['rsvp'] ? 'TRUE' : null;
                 $ve->add('ATTENDEE', 'mailto:' . $attendee['email'], array_filter(self::map_keys($attendee, $this->attendee_keymap)));
             }
         }

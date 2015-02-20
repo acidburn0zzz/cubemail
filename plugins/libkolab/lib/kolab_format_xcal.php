@@ -32,6 +32,8 @@ abstract class kolab_format_xcal extends kolab_format
 
     public static $scheduling_properties = array('start', 'end', 'location');
 
+    protected $_scheduling_properties = null;
+
     protected $sensitivity_map = array(
         'public'       => kolabformat::ClassPublic,
         'private'      => kolabformat::ClassPrivate,
@@ -317,21 +319,11 @@ abstract class kolab_format_xcal extends kolab_format
             }
             else {
                 $object['sequence'] = $old_sequence;
-                $old = $this->data['uid'] ? $this->data : $this->to_array();
 
                 // increment sequence when updating properties relevant for scheduling.
                 // RFC 5545: "It is incremented [...] each time the Organizer makes a significant revision to the calendar component."
-                foreach (self::$scheduling_properties as $prop) {
-                    $a = $old[$prop];
-                    $b = $object[$prop];
-                    if ($object['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {
-                        $a = $a->format('Y-m-d');
-                        $b = $b->format('Y-m-d');
-                    }
-                    if ($a != $b) {
-                        $object['sequence']++;
-                        break;
-                    }
+                if ($this->check_rescheduling($object)) {
+                    $object['sequence']++;
                 }
             }
         }
@@ -365,7 +357,7 @@ abstract class kolab_format_xcal extends kolab_format
 
                 // set attendee RSVP if missing
                 if (!isset($attendee['rsvp'])) {
-                    $object['attendees'][$i]['rsvp'] = $attendee['rsvp'] = true;
+                    $object['attendees'][$i]['rsvp'] = $attendee['rsvp'] = $reschedule;
                 }
 
                 $att = new Attendee;
@@ -619,22 +611,68 @@ abstract class kolab_format_xcal extends kolab_format
      *
      * @return array List of tags to save in cache
      */
-    public function get_tags()
+    public function get_tags($obj = null)
     {
         $tags = array();
+        $object = $obj ?: $this->data;
 
-        if (!empty($this->data['valarms'])) {
+        if (!empty($object['valarms'])) {
             $tags[] = 'x-has-alarms';
         }
 
         // create tags reflecting participant status
-        if (is_array($this->data['attendees'])) {
-            foreach ($this->data['attendees'] as $attendee) {
+        if (is_array($object['attendees'])) {
+            foreach ($object['attendees'] as $attendee) {
                 if (!empty($attendee['email']) && !empty($attendee['status']))
                     $tags[] = 'x-partstat:' . $attendee['email'] . ':' . strtolower($attendee['status']);
             }
         }
 
-        return $tags;
+        // collect tags from recurrence exceptions
+        if (is_array($object['recurrence']) && $object['recurrence']['EXCEPTIONS']) {
+            foreach((array)$object['recurrence']['EXCEPTIONS'] as $exception) {
+                $tags = array_merge($tags, $this->get_tags($exception));
+            }
+        }
+
+        return array_unique($tags);
+    }
+
+    /**
+     * Identify changes considered relevant for scheduling
+     * 
+     * @param array Hash array with NEW object properties
+     * @param array Hash array with OLD object properties
+     *
+     * @return boolean True if changes affect scheduling, False otherwise
+     */
+    public function check_rescheduling($object, $old = null)
+    {
+        $reschedule = false;
+
+        if (!is_array($old)) {
+            $old = $this->data['uid'] ? $this->data : $this->to_array();
+        }
+
+        foreach ($this->_scheduling_properties ?: self::$scheduling_properties as $prop) {
+            $a = $old[$prop];
+            $b = $object[$prop];
+            if ($object['allday'] && ($prop == 'start' || $prop == 'end') && $a instanceof DateTime && $b instanceof DateTime) {
+                $a = $a->format('Y-m-d');
+                $b = $b->format('Y-m-d');
+            }
+            if ($prop == 'recurrence' && is_array($a) && is_array($b)) {
+                unset($a['EXCEPTIONS']);
+                unset($b['EXCEPTIONS']);
+                $a = array_filter($a);
+                $b = array_filter($b);
+            }
+            if ($a != $b) {
+                $reschedule = true;
+                break;
+            }
+        }
+
+        return $reschedule;
     }
 }
