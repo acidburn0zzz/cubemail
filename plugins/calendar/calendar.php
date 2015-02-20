@@ -1185,8 +1185,8 @@ class calendar extends rcube_plugin
       $_savemode = $event['_savemode'];
 
       // send notification for the main event when savemode is 'all'
-      if ($action != 'remove' && $_savemode == 'all' && $old['recurrence_id']) {
-        $event['id'] = $old['recurrence_id'];
+      if ($action != 'remove' && $_savemode == 'all' && ($event['recurrence_id'] || $old['recurrence_id'] || ($old && $old['id'] != $event['id']))) {
+        $event['id'] = $event['recurrence_id'] ?: ($old['recurrence_id'] ?: $old['id']);
         $event = $this->driver->get_event($event);
         unset($event['_instance'], $event['recurrence_date']);
       }

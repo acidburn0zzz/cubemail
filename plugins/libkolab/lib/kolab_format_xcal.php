@@ -662,10 +662,17 @@ abstract class kolab_format_xcal extends kolab_format
                 $b = $b->format('Y-m-d');
             }
             if ($prop == 'recurrence' && is_array($a) && is_array($b)) {
-                unset($a['EXCEPTIONS']);
-                unset($b['EXCEPTIONS']);
+                unset($a['EXCEPTIONS'], $b['EXCEPTIONS']);
                 $a = array_filter($a);
                 $b = array_filter($b);
+
+                // advanced rrule comparison: no rescheduling if series was shortened
+                if ($a['COUNT'] && $b['COUNT'] && $b['COUNT'] < $a['COUNT']) {
+                  unset($a['COUNT'], $b['COUNT']);
+                }
+                else if ($a['UNTIL'] && $b['UNTIL'] && $b['UNTIL'] < $a['UNTIL']) {
+                  unset($a['UNTIL'], $b['UNTIL']);
+                }
             }
             if ($a != $b) {
                 $reschedule = true;
