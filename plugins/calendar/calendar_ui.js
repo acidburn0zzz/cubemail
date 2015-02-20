@@ -2603,25 +2603,19 @@ function rcube_calendar_ui(settings)
       
       // recurring event: user needs to select the savemode
       if (event.recurrence) {
-        var disabled_state = '', message_label = (action == 'remove' ? 'removerecurringeventwarning' : 'changerecurringeventwarning');
-/*
-        if (_has_attendees) {
-          if (action == 'remove') {
-            if (!_is_organizer) {
-              message_label = 'removerecurringallonly';
-              disabled_state = ' disabled';
-            }
-          }
-          else if (is_organizer(event)) {
-            disabled_state = ' disabled';
-          }
+        var future_disabled = '', message_label = (action == 'remove' ? 'removerecurringeventwarning' : 'changerecurringeventwarning');
+
+        // disable the 'future' savemode if attendees are involved
+        // reason: no calendaring system supports the thisandfuture range parameter
+        if (action == 'remove' && _has_attendees && is_organizer(event)) {
+          future_disabled = ' disabled';
         }
-*/
+
         html += '<div class="message"><span class="ui-icon ui-icon-alert"></span>' +
           rcmail.gettext(message_label, 'calendar') + '</div>' +
           '<div class="savemode">' +
-            '<a href="#current" class="button' + disabled_state + '">' + rcmail.gettext('currentevent', 'calendar') + '</a>' +
-            '<a href="#future" class="button' + disabled_state + '">' + rcmail.gettext('futurevents', 'calendar') + '</a>' +
+            '<a href="#current" class="button">' + rcmail.gettext('currentevent', 'calendar') + '</a>' +
+            '<a href="#future" class="button' + future_disabled + '">' + rcmail.gettext('futurevents', 'calendar') + '</a>' +
             '<a href="#all" class="button">' + rcmail.gettext('allevents', 'calendar') + '</a>' +
             (action != 'remove' ? '<a href="#new" class="button">' + rcmail.gettext('saveasnew', 'calendar') + '</a>' : '') +
           '</div>';
