@@ -3210,6 +3210,11 @@ class calendar extends rcube_plugin
    */
   public function user_delete($args)
   {
+     // delete itipinvitations entries related to this user
+     $db = $this->rc->get_dbh();
+     $table_itipinvitations = $db->table_name('itipinvitations', true);
+     $db->query("DELETE FROM $table_itipinvitations WHERE `user_id` = ?", $args['user']->ID);
+
      $this->load_driver();
      return $this->driver->user_delete($args);
   }
