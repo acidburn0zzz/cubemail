@@ -2316,3 +2316,12 @@ div.calendar-invitebox .calendar-agenda-preview .event-date {
 	font-size: 120%;
 }
 
+.calendaritipattend .itip-reply-controls .noreply-toggle,
+.calendaritipattend .itip-reply-controls #noreply-event-rsvp {
+	display: none;
+}
+
+.calendaritipattend .itip-reply-controls a.reply-comment-toggle {
+	margin-left: 2px;
+}
+
