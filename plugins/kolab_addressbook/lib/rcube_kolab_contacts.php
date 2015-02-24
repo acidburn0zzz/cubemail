@@ -1002,9 +1002,11 @@ class rcube_kolab_contacts extends rcube_addressbook
         // validate e-mail addresses
         $valid = parent::validate($save_data);
 
-        // require at least one e-mail address (syntax check is already done)
+        // require at least one e-mail address if there's no name
+        // (syntax check is already done)
         if ($valid) {
             if (!strlen($save_data['name'])
+                && !strlen($save_data['organization'])
                 && !array_filter($this->get_col_values('email', $save_data, true))
             ) {
                 $this->set_error('warning', 'kolab_addressbook.noemailnamewarning');
