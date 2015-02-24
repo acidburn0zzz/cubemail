@@ -54,6 +54,11 @@ class kolab_storage_cache_contact extends kolab_storage_cache
             $sql_data['email'] = '';
         }
 
+        // use organization if name is empty
+        if (empty($sql_data['name']) && !empty($object['organization'])) {
+            $sql_data['name'] = rcube_charset::clean($object['organization']);
+        }
+
         return $sql_data;
     }
 }
