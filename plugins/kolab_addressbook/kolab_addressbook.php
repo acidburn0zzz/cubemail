@@ -288,7 +288,7 @@ class kolab_addressbook extends rcube_plugin
                     'type' => 'checkbox',
                     'name' => '_source[]',
                     'value' => $id,
-                    'checked' => $prop['active'],
+                    'checked' => false,
                     'aria-labelledby' => $label_id,
                 ));
             }
