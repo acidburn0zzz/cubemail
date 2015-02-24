@@ -2206,6 +2206,14 @@ function rcube_tasklist_ui(settings)
                     alert(rcmail.gettext('invalidstartduedates', 'tasklist'));
                     return false;
                 }
+                else if ((data.time == '') != (data.starttime == '')) {
+                    alert(rcmail.gettext('invalidstartduetimes', 'tasklist'));
+                    return false;
+                }
+            }
+            else if (data.recurrence && !data.startdate && !data.date) {
+                alert(rcmail.gettext('recurrencerequiresdate', 'tasklist'));
+                return false;
             }
 
             // collect tags

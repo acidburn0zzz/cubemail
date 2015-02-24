@@ -997,6 +997,13 @@ class tasklist_kolab_driver extends tasklist_driver
             unset($object['startdate']);
         }
 
+        // as per RFC (and the Kolab schema validation), start and due dates need to be of the same type (#3614)
+        // this should be catched in the client already but just make sure we don't write invalid objects
+        if (!empty($object['start']) && !empty($object['due']) && $object['due']->_dateonly != $object['start']->_dateonly) {
+            $object['start']->_dateonly = true;
+            $object['due']->_dateonly = true;
+        }
+
         $object['complete'] = $task['complete'] * 100;
         if ($task['complete'] == 1.0 && empty($task['complete']))
             $object['status'] = 'COMPLETED';
