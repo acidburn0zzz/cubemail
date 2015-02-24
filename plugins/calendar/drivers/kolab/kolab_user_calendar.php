@@ -174,6 +174,22 @@ class kolab_user_calendar extends kolab_calendar
     return $this->events[$id];
   }
 
+  /**
+   * Get attachment body
+   * @see calendar_driver::get_attachment_body()
+   */
+  public function get_attachment_body($id, $event)
+  {
+    if (!$event['calendar'] && ($ev = $this->get_event($event['id']))) {
+      $event['calendar'] = $ev['calendar'];
+    }
+
+    if ($event['calendar'] && ($cal = $this->cal->get_calendar($event['calendar']))) {
+      return $cal->get_attachment_body($id, $event);
+    }
+
+    return false;
+  }
 
   /**
    * @param  integer Event's new start (unix timestamp)

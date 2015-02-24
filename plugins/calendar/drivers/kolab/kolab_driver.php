@@ -583,15 +583,6 @@ class kolab_driver extends calendar_driver
 
     $cid = $event['calendar'] ? $event['calendar'] : reset(array_keys($this->calendars));
     if ($storage = $this->get_calendar($cid)) {
-      // handle attachments to add
-      if (!empty($event['attachments'])) {
-        foreach ($event['attachments'] as $idx => $attachment) {
-          // we'll read file contacts into memory, Horde/Kolab classes does the same
-          // So we cannot save memory, rcube_imap class can do this better
-          $event['attachments'][$idx]['content'] = $attachment['data'] ? $attachment['data'] : file_get_contents($attachment['path']);
-        }
-      }
-
       $success = $storage->insert_event($event);
       
       if ($success && $this->freebusy_trigger) {
@@ -1614,7 +1605,7 @@ class kolab_driver extends calendar_driver
     if (!($cal = $this->get_calendar($event['calendar'])))
       return false;
 
-    return $cal->storage->get_attachment($event['id'], $id);
+    return $cal->get_attachment_body($id, $event);
   }
 
   /**

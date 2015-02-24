@@ -188,6 +188,33 @@ class kolab_invitation_calendar
     return $event;
   }
 
+  /**
+   * Get attachment body
+   * @see calendar_driver::get_attachment_body()
+   */
+  public function get_attachment_body($id, $event)
+  {
+    // find the actual folder this event resides in
+    if (!empty($event['_folder_id'])) {
+      $cal = $this->cal->get_calendar($event['_folder_id']);
+    }
+    else {
+      $cal = null;
+      foreach (kolab_storage::list_folders('', '*', 'event', null) as $foldername) {
+        $cal = new kolab_calendar($foldername, $this->cal);
+        if ($cal->ready && $cal->storage && $cal->get_event($event['id'])) {
+          break;
+        }
+      }
+    }
+
+    if ($cal && $cal->storage) {
+      return $cal->get_attachment_body($id, $event);
+    }
+
+    return false;
+  }
+
 
   /**
    * @param  integer Event's new start (unix timestamp)

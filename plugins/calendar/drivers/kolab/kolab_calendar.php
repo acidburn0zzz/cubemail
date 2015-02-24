@@ -207,6 +207,14 @@ class kolab_calendar extends kolab_storage_folder_api
     return $this->events[$id];
   }
 
+  /**
+   * Get attachment body
+   * @see calendar_driver::get_attachment_body()
+   */
+  public function get_attachment_body($id, $event)
+  {
+    return $this->ready ? $this->storage->get_attachment($event['id'], $id): false;
+  }
 
   /**
    * @param  integer Event's new start (unix timestamp)
