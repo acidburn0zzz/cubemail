@@ -2554,7 +2554,7 @@ function rcube_tasklist_ui(settings)
 
         // in focusview mode, only tasks from the selected list are allowed
         if (focusview)
-            match = $.inArray(rec.list, focusview_lists) >= 0;
+            match = $.inArray(rec.list, focusview_lists) >= 0 && match;
 
         if (match && tagsfilter.length) {
             match = rec.tags && rec.tags.length;
