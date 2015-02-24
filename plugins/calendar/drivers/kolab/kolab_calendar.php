@@ -327,7 +327,7 @@ class kolab_calendar extends kolab_storage_folder_api
       if (count($words)) {
         $hits = 0;
         foreach ($words as $word) {
-          $hits += $me->_fulltext_match($event, $word, false);
+          $hits += $me->fulltext_match($event, $word, false);
         }
         if ($hits < count($words)) {
           return false;
@@ -735,7 +735,7 @@ class kolab_calendar extends kolab_storage_folder_api
   /**
    * Match the given word in the event contents
    */
-  private function _fulltext_match($event, $word, $recursive = true)
+  public function fulltext_match($event, $word, $recursive = true)
   {
     $hits = 0;
     foreach ($this->search_fields as $col) {
@@ -754,7 +754,7 @@ class kolab_calendar extends kolab_storage_folder_api
     // search in recurrence exceptions
     if (!$hits && $recursive && !empty($event['recurrence']['EXCEPTIONS'])) {
       foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
-        $hits = $this->_fulltext_match($exception, $word, false);
+        $hits = $this->fulltext_match($exception, $word, false);
         if ($hits) break;
       }
     }
