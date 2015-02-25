@@ -2573,7 +2573,7 @@ class calendar extends rcube_plugin
    */
   private function mail_agenda_event_row($event, $class = '')
   {
-    $time = $event['all-day'] ? $this->gettext('allday') :
+    $time = $event['allday'] ? $this->gettext('all-day') :
       $this->rc->format_date($event['start'], $this->rc->config->get('time_format')) . ' - ' .
         $this->rc->format_date($event['end'], $this->rc->config->get('time_format'));
 
