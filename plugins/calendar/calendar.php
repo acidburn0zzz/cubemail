@@ -2749,6 +2749,7 @@ class calendar extends rcube_plugin
 
       $metadata = array(
         'uid' => $event['uid'],
+        '_instance' => $event['_instance'],
         'changed' => is_object($event['changed']) ? $event['changed']->format('U') : 0,
         'sequence' => intval($event['sequence']),
         'fallback' => strtoupper($status),
