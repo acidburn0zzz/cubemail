@@ -192,14 +192,22 @@ class kolab_calendar extends kolab_storage_folder_api
     // event not found, maybe a recurring instance is requested
     if (!$this->events[$id]) {
       $master_id = preg_replace('/-\d+(T\d{6})?$/', '', $id);
-      if ($master_id != $id && ($record = $this->storage->get_object($master_id)))
-        $this->events[$master_id] = $this->_to_rcube_event($record);
+      $instance_id = substr($id, strlen($master_id) + 1);
+
+      if ($master_id != $id && ($record = $this->storage->get_object($master_id))) {
+        $master = $this->events[$master_id] = $this->_to_rcube_event($record);
+      }
 
       // check for match on the first instance already
-      if (($_instance = $this->events[$master_id]['_instance']) && $id == $master_id . '-' . $_instance) {
+      if ($master['_instance'] && $master['_instance'] == $instance_id) {
         $this->events[$id] = $this->events[$master_id];
       }
-      else if (($master = $this->events[$master_id]) && $master['recurrence']) {
+      // check for match in top-level exceptions (aka loose single occurrences)
+      else if ($master && $master['_formatobj'] && ($instance = $master['_formatobj']->get_instance($instance_id))) {
+        $instance = $this->_to_rcube_event($instance);
+        $this->events[$instance['id']] = $instance;
+      }
+      else if ($master && is_array($master['recurrence'])) {
         $this->get_recurring_events($record, $master['start'], null, $id);
       }
     }
@@ -317,6 +325,15 @@ class kolab_calendar extends kolab_storage_folder_api
       // resolve recurring events
       if ($record['recurrence'] && $virtual == 1) {
         $events = array_merge($events, $this->get_recurring_events($record, $start, $end));
+      }
+      // add top-level exceptions (aka loose single occurrences)
+      else if (is_array($record['exceptions'])) {
+        foreach ($record['exceptions'] as $ex) {
+          $component = $this->_to_rcube_event($ex);
+          if ($component['start'] <= $end && $component['end'] >= $start) {
+            $events[] = $component;
+          }
+        }
       }
     }
 
@@ -447,7 +464,7 @@ class kolab_calendar extends kolab_storage_folder_api
   public function update_event($event, $exception_id = null)
   {
     $updated = false;
-    $old = $this->storage->get_object($event['id']);
+    $old = $this->storage->get_object($event['uid'] ?: $event['id']);
     if (!$old || PEAR::isError($old))
       return false;
 
@@ -456,7 +473,7 @@ class kolab_calendar extends kolab_storage_folder_api
     unset($event['links']);
 
     $object = $this->_from_rcube_event($event, $old);
-    $saved = $this->storage->save($object, 'event', $event['id']);
+    $saved = $this->storage->save($object, 'event', $old['uid']);
 
     if (!$saved) {
       rcube::raise_error(array(
@@ -748,14 +765,6 @@ class kolab_calendar extends kolab_storage_folder_api
       if (strpos($val, $word) !== false) {
         $hits++;
         break;
-      }
-    }
-
-    // search in recurrence exceptions
-    if (!$hits && $recursive && !empty($event['recurrence']['EXCEPTIONS'])) {
-      foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
-        $hits = $this->fulltext_match($exception, $word, false);
-        if ($hits) break;
       }
     }
 
