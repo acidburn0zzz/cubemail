@@ -1420,7 +1420,7 @@ class libcalendaring extends rcube_plugin
             $object['_instance'] = $object['recurrence_date']->format($recurrence_id_format);
             $object['_savemode'] = $object['thisandfuture'] ? 'future' : 'current';
         }
-        else if (!empty($object['recurrence_id']) || !empty($object['_instance'])) {
+        else if (!empty($object['recurrence_id']) && !empty($object['_instance'])) {
             if (strlen($object['_instance']) > 4) {
                 $object['recurrence_date'] = rcube_utils::anytodatetime($object['_instance'], $object['start']->getTimezone());
             }
