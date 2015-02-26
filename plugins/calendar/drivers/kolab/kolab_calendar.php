@@ -221,7 +221,20 @@ class kolab_calendar extends kolab_storage_folder_api
    */
   public function get_attachment_body($id, $event)
   {
-    return $this->ready ? $this->storage->get_attachment($event['id'], $id): false;
+    if (!$this->ready)
+        return false;
+
+    $data = $this->storage->get_attachment($event['id'], $id);
+
+    if ($data == null) {
+        // try again with master UID
+        $uid = preg_replace('/-\d+(T\d{6})?$/', '', $event['id']);
+        if ($uid != $event['id']) {
+            $data = $this->storage->get_attachment($uid, $id);
+        }
+    }
+
+    return $data;
   }
 
   /**
