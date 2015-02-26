@@ -2009,7 +2009,7 @@ class calendar extends rcube_plugin
 
     // compose multipart message using PEAR:Mail_Mime
     $method = $action == 'remove' ? 'CANCEL' : 'REQUEST';
-    $message = $itip->compose_itip_message($event, $method, $event['sequence'] > $old['sequence']);
+    $message = $itip->compose_itip_message($event, $method, !$old || $event['sequence'] > $old['sequence']);
 
     // list existing attendees from $old event
     $old_attendees = array();
