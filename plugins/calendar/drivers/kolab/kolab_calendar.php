@@ -519,13 +519,13 @@ class kolab_calendar extends kolab_storage_folder_api
    */
   public function delete_event($event, $force = true)
   {
-    $deleted = $this->storage->delete($event['id'], $force);
+    $deleted = $this->storage->delete($event['uid'] ?: $event['id'], $force);
 
     if (!$deleted) {
       rcube::raise_error(array(
         'code' => 600, 'type' => 'php',
         'file' => __FILE__, 'line' => __LINE__,
-        'message' => "Error deleting event object from Kolab server"),
+        'message' => sprintf("Error deleting event object '%s' from Kolab server", $event['id'])),
         true, false);
     }
 
