@@ -597,8 +597,8 @@ abstract class kolab_format_xcal extends kolab_format
         $words = rcube_utils::normalize_string($data, true);
 
         // collect words from recurrence exceptions
-        if (is_array($object['recurrence']) && $object['recurrence']['EXCEPTIONS']) {
-            foreach((array)$object['recurrence']['EXCEPTIONS'] as $exception) {
+        if (is_array($object['exceptions'])) {
+            foreach ($object['exceptions'] as $exception) {
                 $words = array_merge($words, $this->get_words($exception));
             }
         }
@@ -629,8 +629,8 @@ abstract class kolab_format_xcal extends kolab_format
         }
 
         // collect tags from recurrence exceptions
-        if (is_array($object['recurrence']) && $object['recurrence']['EXCEPTIONS']) {
-            foreach((array)$object['recurrence']['EXCEPTIONS'] as $exception) {
+        if (is_array($object['exceptions'])) {
+            foreach ($object['exceptions'] as $exception) {
                 $tags = array_merge($tags, $this->get_tags($exception));
             }
         }

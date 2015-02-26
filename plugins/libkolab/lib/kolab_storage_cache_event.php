@@ -44,6 +44,24 @@ class kolab_storage_cache_event extends kolab_storage_cache
             $sql_data['dtend'] = $dtend->format(self::DB_DATE_FORMAT);
         }
 
+        // extend start/end dates to spawn all exceptions
+        if (is_array($object['exceptions'])) {
+            foreach ($object['exceptions'] as $exception) {
+                if (is_a($exception['start'], 'DateTime')) {
+                    $exstart = $exception['start']->format(self::DB_DATE_FORMAT);
+                    if ($exstart < $sql_data['dtstart']) {
+                        $sql_data['dtstart'] = $exstart;
+                    }
+                }
+                if (is_a($exception['end'], 'DateTime')) {
+                    $exend = $exception['end']->format(self::DB_DATE_FORMAT);
+                    if ($exend > $sql_data['dtend']) {
+                        $sql_data['dtend'] = $exend;
+                    }
+                }
+            }
+        }
+
         return $sql_data;
     }
 }
