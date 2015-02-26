@@ -2591,6 +2591,7 @@ function rcube_calendar_ui(settings)
         }
         else if (action == 'remove' && is_attendee(event)) {
           decline = true;
+          checked = event.status != 'CANCELLED' ? checked : '';
           html += '<div class="message">' +
             '<label><input class="confirm-attendees-decline" type="checkbox"' + checked + ' value="1" name="decline" />&nbsp;' +
             rcmail.gettext('itipdeclineevent', 'calendar') + 
