@@ -133,6 +133,10 @@ class kolab_format_event extends kolab_format_xcal
         }
 
         if ($object['recurrence_date'] && $object['recurrence_date'] instanceof DateTime) {
+            if ($object['recurrence']) {
+                // unset recurrence_date for master events with rrule
+                $object['recurrence_date'] = null;
+            }
             $this->obj->setRecurrenceID(self::get_datetime($object['recurrence_date'], null, $object['allday']), (bool)$object['thisandfuture']);
         }
 
@@ -294,7 +298,7 @@ class kolab_format_event extends kolab_format_xcal
      */
     private function compact_exception($exception, $master)
     {
-        $forbidden = array('recurrence','organizer','_attachments');
+        $forbidden = array('recurrence','exceptions','organizer','_attachments');
 
         foreach ($forbidden as $prop) {
             if (array_key_exists($prop, $exception)) {
@@ -316,7 +320,8 @@ class kolab_format_event extends kolab_format_xcal
         $is_recurring = !empty($master['recurrence']);
 
         foreach ($master as $prop => $value) {
-            if (empty($exception[$prop]) && !empty($value) && ($is_recurring || in_array($prop, array('uid','organizer','_attachments')))) {
+            if (empty($exception[$prop]) && !empty($value) && $prop != 'exceptions' && $prop[0] != '_'
+                  && ($is_recurring || in_array($prop, array('uid','organizer','_attachments')))) {
                 $exception[$prop] = $value;
                 if ($prop == 'recurrence') {
                     unset($exception[$prop]['EXCEPTIONS']);
