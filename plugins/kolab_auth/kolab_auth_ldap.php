@@ -27,8 +27,7 @@
  */
 class kolab_auth_ldap extends rcube_ldap_generic
 {
-    private $icache = array();
-    private $conf = array();
+    private $conf     = array();
     private $fieldmap = array();
 
 
