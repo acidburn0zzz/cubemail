@@ -1175,9 +1175,13 @@ class calendar extends rcube_plugin
         $event['attendees'] = $master['attendees'];  // this tricks us into the next if clause
       }
 
+      // delete old reference if saved as new
+      if ($event['_savemode'] == 'future' || $event['_savemode'] == 'new') {
+        $old = null;
+      }
+
       $event['id'] = $success;
       $event['_savemode'] = 'all';
-      $old = null;
     }
 
     // send out notifications
@@ -1566,6 +1570,9 @@ class calendar extends rcube_plugin
       $filename = asciiwords(html_entity_decode($filename));  // to 7bit ascii
       if (!empty($event_id)) {
         if ($event = $this->driver->get_event(array('calendar' => $calid, 'id' => $event_id))) {
+          if ($event['recurrence_id']) {
+            $event = $this->driver->get_event(array('calendar' => $calid, 'id' => $event['recurrence_id']));
+          }
           $events = array($event);
           $filename = asciiwords($event['title']);
           if (empty($filename))
@@ -2276,9 +2283,9 @@ class calendar extends rcube_plugin
   public static function event_diff($a, $b)
   {
     $diff = array();
-    $ignore = array('changed' => 1, 'attachments' => 1, '_notify' => 1, '_owner' => 1, '_savemode' => 1);
+    $ignore = array('changed' => 1, 'attachments' => 1);
     foreach (array_unique(array_merge(array_keys($a), array_keys($b))) as $key) {
-      if (!$ignore[$key] && $a[$key] != $b[$key])
+      if (!$ignore[$key] && $key[0] != '_' && $a[$key] != $b[$key])
         $diff[] = $key;
     }
     
