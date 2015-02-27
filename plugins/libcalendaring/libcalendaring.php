@@ -401,17 +401,28 @@ class libcalendaring extends rcube_plugin
      * @param string  The PARTSTAT value to set
      * @return mixed  Email address of the updated attendee or False if none matching found
      */
-    public function set_partstat(&$event, $status)
+    public function set_partstat(&$event, $status, $recursive = true)
     {
+        $success = false;
         $emails = $this->get_user_emails();
         foreach ((array)$event['attendees'] as $i => $attendee) {
             if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
                 $event['attendees'][$i]['status'] = strtoupper($status);
-                return $attendee['email'];
+                $success = $attendee['email'];
             }
         }
 
-        return false;
+        // apply partstat update to each existing exception
+        if ($event['recurrence'] && is_array($event['recurrence']['EXCEPTIONS'])) {
+            foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
+                $this->set_partstat($event['recurrence']['EXCEPTIONS'][$i], $status, false);
+            }
+
+            // set link to top-level exceptions
+            $event['exceptions'] = &$event['recurrence']['EXCEPTIONS'];
+        }
+
+        return $success;
     }
 
 
