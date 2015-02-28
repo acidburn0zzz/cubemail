@@ -283,7 +283,7 @@ class kolab_user_calendar extends kolab_calendar
 
       // authentication required
       if ($response->getStatus() == 401) {
-        $request->setAuth($this->rc->user->get_username(), $this->rc->decrypt($_SESSION['password']));
+        $request->setAuth($this->cal->rc->user->get_username(), $this->cal->rc->decrypt($_SESSION['password']));
         $response = $request->send();
       }
 
