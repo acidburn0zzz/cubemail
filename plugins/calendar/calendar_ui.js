@@ -2539,7 +2539,7 @@ function rcube_calendar_ui(settings)
 
         // mark all recurring instances as temp
         if (event.recurrence || event.recurrence_id) {
-          var base_id = event.recurrence_id ? event.recurrence_id.replace(/-\d+(T\d{6})?$/, '') : event.id;
+          var base_id = event.recurrence_id ? event.recurrence_id : String(event.id).replace(/-\d+(T\d{6})?$/, '');
           $.each(fc.fullCalendar('clientEvents', function(e){ return e.id == base_id || e.recurrence_id == base_id; }), function(i,ev) {
             ev.temp = true;
             ev.editable = false;

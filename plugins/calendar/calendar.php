@@ -1970,9 +1970,6 @@ class calendar extends rcube_plugin
         $event['attendees'][$owner]['role'] = 'ORGANIZER';
         unset($event['attendees'][$owner]['rsvp']);
       }
-      else if ($organizer === false && $action == 'new' && ($identity = $this->rc->user->get_identity($event['_identity'])) && $identity['email']) {
-        array_unshift($event['attendees'], array('role' => 'ORGANIZER', 'name' => $identity['name'], 'email' => $identity['email'], 'status' => 'ACCEPTED'));
-      }
     }
 
     // mapping url => vurl because of the fullcalendar client script
@@ -2060,7 +2057,7 @@ class calendar extends rcube_plugin
 
     // send CANCEL message to removed attendees
     foreach ((array)$old['attendees'] as $attendee) {
-      if ($attendee['ROLE'] == 'ORGANIZER' || !$attendee['email'] || in_array(strtolower($attendee['email']), $current))
+      if ($attendee['role'] == 'ORGANIZER' || !$attendee['email'] || in_array(strtolower($attendee['email']), $current))
         continue;
 
       $vevent = $old;
@@ -2294,6 +2291,42 @@ class calendar extends rcube_plugin
       $diff[] = 'attachments';
     
     return $diff;
+  }
+
+  /**
+   * Update attendee properties on the given event object
+   *
+   * @param array The event object to be altered
+   * @param array List of hash arrays each represeting an updated/added attendee
+   */
+  public static function merge_attendee_data(&$event, $attendees, $removed = null)
+  {
+    if (!empty($attendees) && !is_array($attendees[0])) {
+      $attendees = array($attendees);
+    }
+
+    foreach ($attendees as $attendee) {
+      $found = false;
+
+      foreach ($event['attendees'] as $i => $candidate) {
+        if ($candidate['email'] == $attendee['email']) {
+          $event['attendees'][$i] = $attendee;
+          $found = true;
+          break;
+        }
+      }
+
+      if (!$found) {
+        $event['attendees'][] = $attendee;
+      }
+    }
+
+    // filter out removed attendees
+    if (!empty($removed)) {
+      $event['attendees'] = array_filter($event['attendees'], function($attendee) use ($removed) {
+        return !in_array($attendee['email'], $removed);
+      });
+    }
   }
 
 

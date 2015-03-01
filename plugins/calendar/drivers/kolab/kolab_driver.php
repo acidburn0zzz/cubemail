@@ -621,6 +621,7 @@ class kolab_driver extends calendar_driver
    *
    * @param array  Hash array with event properties
    * @param string New participant status
+   * @param array  List of hash arrays with updated attendees
    * @return boolean True on success, False on error
    */
   public function edit_rsvp(&$event, $status, $attendees)
@@ -634,21 +635,23 @@ class kolab_driver extends calendar_driver
         $update_event['_savemode'] = $event['_savemode'];
         $update_event['id'] = $update_event['uid'];
         unset($update_event['recurrence_id']);
-        self::merge_attendee_data($update_event, $attendees);
+        calendar::merge_attendee_data($update_event, $attendees);
       }
     }
 
-    if (($ret = $this->update_attendees($update_event, $attendees)) && $this->rc->config->get('kolab_invitation_calendars')) {
+    if ($ret = $this->update_attendees($update_event, $attendees)) {
       // replace with master event (for iTip reply)
       $event = self::to_rcube_event($update_event);
 
       // re-assign to the according (virtual) calendar
-      if (strtoupper($status) == 'DECLINED')
-        $event['calendar'] = self::INVITATIONS_CALENDAR_DECLINED;
-      else if (strtoupper($status) == 'NEEDS-ACTION')
-        $event['calendar'] = self::INVITATIONS_CALENDAR_PENDING;
-      else if ($event['_folder_id'])
-        $event['calendar'] = $event['_folder_id'];
+      if ($this->rc->config->get('kolab_invitation_calendars')) {
+        if (strtoupper($status) == 'DECLINED')
+          $event['calendar'] = self::INVITATIONS_CALENDAR_DECLINED;
+        else if (strtoupper($status) == 'NEEDS-ACTION')
+          $event['calendar'] = self::INVITATIONS_CALENDAR_PENDING;
+        else if ($event['_folder_id'])
+          $event['calendar'] = $event['_folder_id'];
+      }
     }
 
     return $ret;
@@ -675,7 +678,7 @@ class kolab_driver extends calendar_driver
         foreach ($master['recurrence']['EXCEPTIONS'] as $i => $exception) {
           // merge the new event properties onto future exceptions
           if ($exception['_instance'] >= strval($event['_instance'])) {
-            self::merge_attendee_data($master['recurrence']['EXCEPTIONS'][$i], $attendees);
+            calendar::merge_attendee_data($master['recurrence']['EXCEPTIONS'][$i], $attendees);
           }
           // update a specific instance
           if ($exception['_instance'] == $event['_instance'] && $exception['thisandfuture']) {
@@ -1164,7 +1167,7 @@ class kolab_driver extends calendar_driver
           $removed_attendees = array_diff($old_attendees, $current_attendees);
 
           foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
-            self::merge_attendee_data($event['recurrence']['EXCEPTIONS'][$i], $added_attendees, $removed_attendees);
+            calendar::merge_attendee_data($event['recurrence']['EXCEPTIONS'][$i], $added_attendees, $removed_attendees);
           }
 
           // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
@@ -1281,7 +1284,7 @@ class kolab_driver extends calendar_driver
         self::merge_exception_data($master['recurrence']['EXCEPTIONS'][$i], $event, array('attendees'));
 
         if (!empty($added_attendees) || !empty($removed_attendees)) {
-          self::merge_attendee_data($master['recurrence']['EXCEPTIONS'][$i], $added_attendees, $removed_attendees);
+          calendar::merge_attendee_data($master['recurrence']['EXCEPTIONS'][$i], $added_attendees, $removed_attendees);
         }
       }
     }
@@ -1403,42 +1406,6 @@ class kolab_driver extends calendar_driver
       }
       else if ($prop[0] != '_' && !in_array($prop, $forbidden))
         $event[$prop] = $value;
-    }
-  }
-
-  /**
-   * Update attendee properties on the given event object
-   *
-   * @param array The event object to be altered
-   * @param array List of hash arrays each represeting an updated/added attendee
-   */
-  public static function merge_attendee_data(&$event, $attendees, $removed = null)
-  {
-    if (!empty($attendees) && !is_array($attendees[0])) {
-      $attendees = array($attendees);
-    }
-
-    foreach ($attendees as $attendee) {
-      $found = false;
-
-      foreach ($event['attendees'] as $i => $candidate) {
-        if ($candidate['email'] == $attendee['email']) {
-          $event['attendees'][$i] = $attendee;
-          $found = true;
-          break;
-        }
-      }
-
-      if (!$found) {
-        $event['attendees'][] = $attendee;
-      }
-    }
-
-    // filter out removed attendees
-    if (!empty($removed)) {
-      $event['attendees'] = array_filter($event['attendees'], function($attendee) use ($removed) {
-        return !in_array($attendee['email'], $removed);
-      });
     }
   }
 

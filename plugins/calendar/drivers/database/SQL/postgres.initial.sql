@@ -44,6 +44,8 @@ CREATE TABLE events (
         REFERENCES calendars (calendar_id) ON UPDATE CASCADE ON DELETE CASCADE,
     recurrence_id integer NOT NULL DEFAULT 0,
     uid varchar(255) NOT NULL DEFAULT '',
+    instance varchar(16) NOT NULL DEFAULT '',
+    isexception smallint NOT NULL DEFAULT '0',
     created timestamp without time zone DEFAULT now() NOT NULL,
     changed timestamp without time zone DEFAULT now(),
     sequence integer NOT NULL DEFAULT 0,
@@ -60,7 +62,7 @@ CREATE TABLE events (
     priority smallint NOT NULL DEFAULT 0,
     sensitivity smallint NOT NULL DEFAULT 0,
     status character varying(32) NOT NULL DEFAULT '',
-    alarms varchar(255) DEFAULT NULL,
+    alarms text DEFAULT NULL,
     attendees text DEFAULT NULL,
     notifyat timestamp without time zone DEFAULT NULL,
     PRIMARY KEY (event_id)
