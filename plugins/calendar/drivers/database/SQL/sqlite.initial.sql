@@ -76,4 +76,4 @@ CREATE TABLE itipinvitations (
 
 CREATE INDEX ix_itipinvitations_uid ON itipinvitations(user_id, event_uid);
 
-INSERT INTO system (name, value) VALUES ('calendar-database-version', '2014040900');
+INSERT INTO system (name, value) VALUES ('calendar-database-version', '2015022700');
