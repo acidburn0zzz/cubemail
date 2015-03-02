@@ -198,13 +198,13 @@ class kolab_calendar extends kolab_storage_folder_api
         $master = $this->_to_driver_event($record);
       }
 
-      // check for match on the first instance already
-      if ($master['_instance'] && $master['_instance'] == $instance_id) {
-        $this->events[$id] = $master;
-      }
       // check for match in top-level exceptions (aka loose single occurrences)
-      else if ($master && $master['_formatobj'] && ($instance = $master['_formatobj']->get_instance($instance_id))) {
+      if ($master && $master['_formatobj'] && ($instance = $master['_formatobj']->get_instance($instance_id))) {
         $this->events[$id] = $this->_to_driver_event($instance);
+      }
+      // check for match on the first instance already
+      else if ($master['_instance'] && $master['_instance'] == $instance_id) {
+        $this->events[$id] = $master;
       }
       else if ($master && is_array($master['recurrence'])) {
         $this->get_recurring_events($record, $master['start'], null, $id);
