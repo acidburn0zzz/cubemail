@@ -635,6 +635,10 @@ abstract class kolab_format_xcal extends kolab_format
             }
         }
 
+        if (!empty($object['status'])) {
+          $tags[] = 'x-status:' . strtolower($object['status']);
+        }
+
         return array_unique($tags);
     }
 

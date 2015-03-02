@@ -284,6 +284,11 @@ class kolab_invitation_calendar
       }
     }
 
+    $filter = array(
+      array('tags','!=','x-status:cancelled'),
+      array($subquery, 'OR')
+    );
+
     // aggregate counts from all calendar folders
     $count = 0;
     foreach (kolab_storage::list_folders('', '*', 'event', null) as $foldername) {
@@ -291,7 +296,7 @@ class kolab_invitation_calendar
       if ($cal->get_namespace() == 'other')
         continue;
 
-      $count += $cal->count_events($start, $end, array(array($subquery, 'OR')));
+      $count += $cal->count_events($start, $end, $filter);
     }
 
     return $count;
