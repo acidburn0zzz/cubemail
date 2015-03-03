@@ -29,6 +29,9 @@ class kolab_activesync_ui
     private $plugin;
     public  $device = array();
 
+    const SETUP_URL = 'http://docs.kolab.org/client-configuration';
+
+
     public function __construct($plugin)
     {
         $this->plugin    = $plugin;
@@ -244,5 +247,31 @@ class kolab_activesync_ui
         }
 
         return $table->show();
+    }
+
+    /**
+     * Displays initial page (when no devices are registered)
+     */
+    function init_message()
+    {
+        $this->plugin->load_config();
+
+        $this->rc->output->add_handlers(array(
+                'initmessage' => array($this, 'init_message_content')
+        ));
+
+        $this->rc->output->send('kolab_activesync.configempty');
+    }
+
+    /**
+     * Handler for initmessage template object
+     */
+    function init_message_content()
+    {
+        $url  = $this->rc->config->get('activesync_setup_url', self::SETUP_URL);
+        $vars = array('url' => $url);
+        $msg  = $this->plugin->gettext(array('name' => 'nodevices', 'vars' => $vars));
+
+        return $msg;
     }
 }

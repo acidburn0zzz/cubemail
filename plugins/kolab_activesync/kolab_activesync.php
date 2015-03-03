@@ -226,7 +226,7 @@ class kolab_activesync extends rcube_plugin
         $this->ui = new kolab_activesync_ui($this);
 
         if (!empty($_GET['_init'])) {
-            return $this->rc->output->send('kolab_activesync.configempty');
+            return $this->ui->init_message();
         }
 
         $this->register_handler('plugin.deviceconfigform', array($this->ui, 'device_config_form'));
