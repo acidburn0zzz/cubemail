@@ -210,7 +210,7 @@ class kolab_auth_ldap extends rcube_ldap_generic
     /**
      * Search records (simplified version of rcube_ldap::search)
      *
-     * @param mixed   $fields   The field name or array of field names to search in
+     * @param string  $fields   The field name or array of field names to search in
      * @param mixed   $value    Search value (or array of values when $fields is array)
      * @param int     $mode     Matching mode:
      *                          0 - partial (*abc*),
@@ -230,35 +230,15 @@ class kolab_auth_ldap extends rcube_ldap_generic
 
         $mode = intval($mode);
 
-        // use AND operator for advanced searches
-        $filter = is_array($value) ? '(&' : '(|';
-
-        // set wildcards
-        $wp = $ws = '';
-        if (!empty($this->config['fuzzy_search']) && $mode != 1) {
-            $ws = '*';
-            if (!$mode) {
-                $wp = '*';
-            }
+        // compose a full-text-search-like filter
+        if (is_array($fields) && (count($fields) > 1 || $mode != 1)) {
+            $filter = self::fulltext_search_filter($value, $fields, $mode);
         }
-
-        foreach ((array)$fields as $idx => $field) {
-            $val   = is_array($value) ? $value[$idx] : $value;
-            $attrs = (array) $this->fieldmap[$field];
-
-            if (empty($attrs)) {
-                $filter .= "($field=$wp" . rcube_ldap_generic::quote_string($val) . "$ws)";
-            }
-            else {
-                if (count($attrs) > 1)
-                    $filter .= '(|';
-                foreach ($attrs as $f)
-                    $filter .= "($f=$wp" . rcube_ldap_generic::quote_string($val) . "$ws)";
-                if (count($attrs) > 1)
-                    $filter .= ')';
-            }
+        // direct search
+        else {
+            $field = is_array($fields) ? $fields[0] : strval($fields);
+            $filter = "($field=" . self::quote_string($value) . ")";
         }
-        $filter .= ')';
 
         // add required (non empty) fields filter
         $req_filter = '';
