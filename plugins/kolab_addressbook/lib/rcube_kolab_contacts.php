@@ -467,26 +467,26 @@ class rcube_kolab_contacts extends rcube_addressbook
             }
 
             $found = array();
+            $contents = '';
             foreach (preg_grep($regexp, array_keys($contact)) as $col) {
                 $pos     = strpos($col, ':');
                 $colname = $pos ? substr($col, 0, $pos) : $col;
-                $search  = $advanced ? $value[array_search($colname, $fields)] : $value;
 
                 foreach ((array)$contact[$col] as $val) {
-                    if ($this->compare_search_value($colname, $val, $search, $mode)) {
-                        if (!$advanced) {
-                            $this->filter['ids'][] = $id;
-                            break 2;
-                        }
-                        else {
-                            $found[$colname] = true;
-                        }
+                    if ($advanced) {
+                        $found[$colname] = $this->compare_search_value($colname, $val, $value[array_search($colname, $fields)], $mode);
+                    }
+                    else {
+                        $contents .= ' ' . join(' ', (array)$val);
                     }
                 }
             }
 
-            if (count($found) >= $scount) // && $advanced
+            // compare matches
+            if (($advanced && count($found) >= $scount) ||
+                (!$advanced && rcube_utils::words_match(mb_strtolower($contents), $value))) {
                 $this->filter['ids'][] = $id;
+            }
         }
 
         // dummy result with contacts count
