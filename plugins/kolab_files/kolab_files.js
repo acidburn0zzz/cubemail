@@ -407,7 +407,7 @@ function kolab_files_folder_mount_dialog()
   };
 
   // close folderoption menu
-  rcmail.hide_menu('folderoptions');
+  $('#folderoptions').hide();
 
   // initialize drivers list
   if (!rcmail.drivers_list_initialized) {
@@ -464,7 +464,7 @@ function kolab_files_file_edit_dialog(file)
   });
 };
 
-function kolab_dialog_show(dialog, params)
+function kolab_dialog_show(dialog, params, onopen)
 {
   params = $.extend({
     modal: true,
@@ -477,6 +477,8 @@ function kolab_dialog_show(dialog, params)
   }, params || {});
 
   dialog.dialog(params).show();
+
+  if (onopen) onopen(dialog);
 };
 
 // Handle form submit with Enter key, click first dialog button instead
@@ -484,6 +486,12 @@ function kolab_dialog_submit_handler()
 {
   $(this).parents('.ui-dialog').find('.ui-button').first().click();
   return false;
+};
+
+// Hides dialog
+function kolab_dialog_close(dialog)
+{
+  (rcmail.is_framed() ? window.parent : window).$(dialog).dialog('close');
 };
 
 // smart upload button
