@@ -33,7 +33,7 @@ require_once INSTALL_PATH . 'program/include/clisetup.php';
 
 function print_usage()
 {
-	print "Usage:  modcache.sh [OPTIONS] ACTION [USERNAME ARGS ...]\n";
+	print "Usage:  modcache.sh ACTION [OPTIONS] [USERNAME ARGS ...]\n";
 	print "Possible actions are: expunge, clear, prewarm\n";
 	print "-a, --all      Clear/expunge all caches\n";
 	print "-h, --host     IMAP host name\n";
