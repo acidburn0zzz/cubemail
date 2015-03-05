@@ -441,9 +441,30 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals($num, substr_count($ics, 'UID:'.$event['uid']), "Recurrence Exceptions with same UID");
         $this->assertEquals($num, substr_count($ics, 'END:VEVENT'),         "VEVENT encapsulation END");
 
-        $this->assertContains('RECURRENCE-ID;VALUE=DATE-TIME:20130814', $ics, "Recurrence-ID (1) being the exception date");
-        $this->assertContains('RECURRENCE-ID;VALUE=DATE-TIME:20131113', $ics, "Recurrence-ID (2) being the exception date");
+        $this->assertContains('RECURRENCE-ID;VALUE=DATE-TIME;TZID=Europe/Zurich:20130814', $ics, "Recurrence-ID (1) being the exception date");
+        $this->assertContains('RECURRENCE-ID;VALUE=DATE-TIME;TZID=Europe/Zurich:20131113', $ics, "Recurrence-ID (2) being the exception date");
         $this->assertContains('SUMMARY:'.$exception2['title'], $ics, "Exception title");
+    }
+
+    function test_export_valid_rrules()
+    {
+        $event = array(
+            'uid' => '1234567890',
+            'start' => new DateTime('now'),
+            'end' => new DateTime('now + 30min'),
+            'title' => 'test_export_valid_rrules',
+            'recurrence' => array(
+                'FREQ' => 'DAILY',
+                'COUNT' => 5,
+                'EXDATE' => array(),
+                'RDATE' => array(),
+            ),
+        );
+        $ical = new libvcalendar();
+        $ics = $ical->export(array($event), null, false, null, false);
+
+        $this->assertNotContains('EXDATE=', $ics);
+        $this->assertNotContains('RDATE=', $ics);
     }
 
     /**
