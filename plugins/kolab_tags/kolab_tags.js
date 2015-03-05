@@ -40,7 +40,8 @@ window.rcmail && rcmail.addEventListener('init', function() {
 
         // display tags in message subject (message window)
         if (msg_view) {
-            rcmail.enable_command('tag-add', 'tag-remove', 'tag-remove-all', rcmail.env.tags.length);
+            rcmail.enable_command('tag-add', true);
+            rcmail.enable_command('tag-remove', 'tag-remove-all', rcmail.env.tags.length);
             message_tags(rcmail.env.message_tags);
         }
 
@@ -585,7 +586,8 @@ function search_request(url)
 
 function message_list_select(list)
 {
-    rcmail.enable_command('tag-add', 'tag-remove', 'tag-remove-all', rcmail.env.tags.length && list.selection.length);
+    rcmail.enable_command('tag-remove', 'tag-remove-all', rcmail.env.tags.length && list.selection.length);
+    rcmail.enable_command('tag-add', list.selection.length);
 }
 
 // add tags to message subject on message list
