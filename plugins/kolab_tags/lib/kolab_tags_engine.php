@@ -132,6 +132,7 @@ class kolab_tags_engine
         $filter  = $tag == '*' ? array() : array(array('uid', '=', explode(',', $tag)));
         $taglist = $this->backend->list_tags($filter);
         $filter  = array();
+        $tags    = array();
 
         foreach (rcmail::get_uids() as $mbox => $uids) {
             if ($uids === '*') {
@@ -181,6 +182,8 @@ class kolab_tags_engine
                     $error = true;
                 }
             }
+
+            $tags[] = $tag['uid'];
         }
 
         if ($error) {
@@ -191,6 +194,7 @@ class kolab_tags_engine
         }
         else {
             $this->rc->output->show_message($this->plugin->gettext('untaggingsuccess'), 'confirmation');
+            $this->rc->output->command('plugin.kolab_tags', array('mark' => 1, 'delete' => $tags));
         }
     }
 
