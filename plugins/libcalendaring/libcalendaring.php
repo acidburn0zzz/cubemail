@@ -1520,14 +1520,18 @@ class libcalendaring extends rcube_plugin
                 break;
             case 'RDATE':
             case 'EXDATE':
-                foreach ((array)$val as $i => $ex)
-                    $val[$i] = $ex->format('Ymd\THis');
+                foreach ((array)$val as $i => $ex) {
+                    if (is_a($ex, 'DateTime'))
+                        $val[$i] = $ex->format('Ymd\THis');
+                }
                 $val = join(',', (array)$val);
                 break;
             case 'EXCEPTIONS':
                 continue 2;
             }
-            $rrule .= $k . '=' . $val . ';';
+
+            if (strlen($val))
+                $rrule .= $k . '=' . $val . ';';
         }
 
         return rtrim($rrule, ';');

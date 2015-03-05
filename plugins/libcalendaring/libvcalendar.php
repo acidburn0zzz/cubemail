@@ -969,10 +969,13 @@ class libvcalendar implements Iterator
             $ve->add('SEQUENCE', $event['sequence']);
 
         if ($event['recurrence'] && !$recurrence_id) {
-            if ($exdates = $event['recurrence']['EXDATE']) {
+            $exdates = $rdates = null;
+            if (isset($event['recurrence']['EXDATE'])) {
+                $exdates = $event['recurrence']['EXDATE'];
                 unset($event['recurrence']['EXDATE']);  // don't serialize EXDATEs into RRULE value
             }
-            if ($rdates = $event['recurrence']['RDATE']) {
+            if (isset($event['recurrence']['RDATE'])) {
+                $rdates = $event['recurrence']['RDATE'];
                 unset($event['recurrence']['RDATE']);  // don't serialize RDATEs into RRULE value
             }
 
@@ -981,7 +984,7 @@ class libvcalendar implements Iterator
             }
 
             // add EXDATEs each one per line (for Thunderbird Lightning)
-            if ($exdates) {
+            if (is_array($exdates)) {
                 foreach ($exdates as $ex) {
                     if ($ex instanceof \DateTime) {
                         $exd = clone $event['start'];
@@ -992,7 +995,7 @@ class libvcalendar implements Iterator
                 }
             }
             // add RDATEs
-            if (!empty($rdates)) {
+            if (is_array($rdates) && !empty($rdates)) {
                 $sample = $this->datetime_prop('RDATE', $rdates[0]);
                 $rdprop = new VObject\Property\MultiDateTime('RDATE', null);
                 $rdprop->setDateTimes($rdates, $sample->getDateType());
