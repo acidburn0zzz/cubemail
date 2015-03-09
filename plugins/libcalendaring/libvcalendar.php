@@ -993,7 +993,7 @@ class libvcalendar implements Iterator
             }
 
             if ($event['recurrence']['FREQ']) {
-                $ve->add('RRULE', libcalendaring::to_rrule($event['recurrence']));
+                $ve->add('RRULE', libcalendaring::to_rrule($event['recurrence'], (bool)$event['allday']));
             }
 
             // add EXDATEs each one per line (for Thunderbird Lightning)

@@ -1501,7 +1501,7 @@ class libcalendaring extends rcube_plugin
     /**
      * Convert the internal structured data into a vcalendar rrule 2.0 string
      */
-    public static function to_rrule($recurrence)
+    public static function to_rrule($recurrence, $allday = false)
     {
         if (is_string($recurrence))
             return $recurrence;
@@ -1513,9 +1513,14 @@ class libcalendaring extends rcube_plugin
             case 'UNTIL':
                 // convert to UTC according to RFC 5545
                 if (is_a($val, 'DateTime')) {
-                    $until = clone $val;
-                    $until->setTimezone(new DateTimeZone('UTC'));
-                    $val = $until->format('Ymd\THis\Z');
+                    if (!$allday && !$val->_dateonly) {
+                        $until = clone $val;
+                        $until->setTimezone(new DateTimeZone('UTC'));
+                        $val = $until->format('Ymd\THis\Z');
+                    }
+                    else {
+                        $val = $val->format('Ymd');
+                    }
                 }
                 break;
             case 'RDATE':
