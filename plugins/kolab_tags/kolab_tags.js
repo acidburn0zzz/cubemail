@@ -574,6 +574,10 @@ function search_request(url)
     if (tagsfilter.length) {
         url._filter = 'kolab_tags_' + (new Date).getTime() + ':' + tagsfilter.join(',') + ':' + (url._filter || 'ALL');
 
+        // force search request, needed to keep tag filter when changing folder
+        if (url._page == 1)
+            url._action = 'search';
+
         return url;
     }
 }
