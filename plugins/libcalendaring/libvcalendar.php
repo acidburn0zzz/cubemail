@@ -305,6 +305,7 @@ class libvcalendar implements Iterator
     public function import_from_vobject($vobject)
     {
         $seen = array();
+        $exceptions = array();
 
         if ($vobject->name == 'VCALENDAR') {
             $this->method = strval($vobject->METHOD);
@@ -315,27 +316,39 @@ class libvcalendar implements Iterator
                     // convert to hash array representation
                     $object = $this->_to_array($ve);
 
-                    if (!$seen[$object['uid']]++) {
-                        // parse recurrence exceptions
-                        if ($object['recurrence']) {
-                            $object['recurrence']['EXCEPTIONS'] = array();
-                            foreach ($vobject->children as $component) {
-                                if ($component->name == 'VEVENT' && isset($component->{'RECURRENCE-ID'})) {
-                                    try {
-                                        $object['recurrence']['EXCEPTIONS'][] = $this->_to_array($component);
-                                    }
-                                    catch (Exception $e) {
-                                        console("iCal data parse error: " . $e->getMessage(), $component->serialize());
-                                    }
-                                }
-                            }
-                        }
-
+                    // temporarily store this as exception
+                    if ($object['recurrence_date']) {
+                        $exceptions[] = $object;
+                    }
+                    else if (!$seen[$object['uid']]++) {
                         $this->objects[] = $object;
                     }
                 }
                 else if ($ve->name == 'VFREEBUSY') {
                     $this->objects[] = $this->_parse_freebusy($ve);
+                }
+            }
+
+            // add exceptions to the according master events
+            foreach ($exceptions as $exception) {
+                $uid = $exception['uid'];
+
+                // make this exception the master
+                if (!$seen[$uid]++) {
+                    $this->objects[] = $exception;
+                }
+                else {
+                    foreach ($this->objects as $i => $object) {
+                        // add as exception to existing entry with a matching UID
+                        if ($object['uid'] == $uid) {
+                            $this->objects[$i]['exceptions'][] = $exception;
+
+                            if (!empty($object['recurrence'])) {
+                                $this->objects[$i]['recurrence']['EXCEPTIONS'] = &$this->objects[$i]['exceptions'];
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }

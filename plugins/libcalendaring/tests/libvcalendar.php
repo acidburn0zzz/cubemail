@@ -112,8 +112,6 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
 
     /**
      * Test some extended ical properties such as attendees, recurrence rules, alarms and attachments
-     *
-     * @depends test_import_from_file
      */
     function test_extended()
     {
@@ -160,11 +158,15 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals('libcalendaring tests', join(',', (array)$event['categories']), "Event categories");
         $this->assertEquals('confidential', $event['sensitivity'], "Class/sensitivity = confidential");
 
-        // parse a reccuence chain instance
+        // parse a recurrence chain instance
         $events = $ical->import_from_file(__DIR__ . '/resources/recurrence-id.ics', 'UTF-8');
         $this->assertEquals(1, count($events), "Fall back to Component::getComponents() when getBaseComponents() is empty");
         $this->assertInstanceOf('DateTime', $events[0]['recurrence_date'], "Recurrence-ID as date");
         $this->assertTrue($events[0]['thisandfuture'], "Range=THISANDFUTURE");
+
+        $this->assertEquals(count($events[0]['exceptions']), 1, "Second VEVENT as exception");
+        $this->assertEquals($events[0]['exceptions'][0]['uid'], $events[0]['uid'], "Exception UID match");
+        $this->assertEquals($events[0]['exceptions'][0]['sequence'], '2', "Exception sequence");
     }
 
     /**
