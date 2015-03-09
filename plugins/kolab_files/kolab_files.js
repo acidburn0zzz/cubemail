@@ -2109,7 +2109,7 @@ function kolab_files_ui()
 
   this.file_upload_progress_stop = function(id)
   {
-    if (id && this.uploads[id]) {
+    if (id) {
       delete this.uploads[id];
       rcmail.display_progress({name: id});
     }
