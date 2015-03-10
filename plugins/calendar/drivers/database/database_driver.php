@@ -892,6 +892,7 @@ class database_driver extends calendar_driver
       $master = $event;
       $update_master = false;
       $savemode = 'all';
+      $ret = true;
 
       // read master if deleting a recurring event
       if ($event['recurrence'] || $event['recurrence_id']) {
@@ -933,6 +934,7 @@ class database_driver extends calendar_driver
               $fromdate->format(self::DB_DATE_FORMAT),
               $master['id']
             );
+            $ret = $master['id'];
             break;
           }
           // else: future == all if modifying the master event
@@ -952,7 +954,7 @@ class database_driver extends calendar_driver
       if ($success && $update_master)
         $this->_update_event($master, true);
 
-      return $success;
+      return $success ? $ret : false;
     }
     
     return false;
