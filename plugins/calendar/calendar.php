@@ -849,8 +849,8 @@ class calendar extends rcube_plugin
     if (($event['_notify'] || $event['_decline']) && $action != 'new') {
       $old = $this->driver->get_event($event);
 
-      // load main event when savemode is 'all'
-      if ($event['_savemode'] == 'all' && $old['recurrence_id']) {
+      // load main event if savemode is 'all' or if deleting 'future' events
+      if (($event['_savemode'] == 'all' || ($event['_savemode'] == 'future' && $action == 'remove' && !$event['_decline'])) && $old['recurrence_id']) {
         $old['id'] = $old['recurrence_id'];
         $old = $this->driver->get_event($old);
       }
@@ -926,10 +926,15 @@ class calendar extends rcube_plugin
         }
 
         // send cancellation for the main event
-        if ($event['_savemode'] == 'all')
+        if ($event['_savemode'] == 'all') {
           unset($old['_instance'], $old['recurrence_date'], $old['recurrence_id']);
-        else if ($event['_savemode'] == 'future')
-          $old['thisandfuture'] = true;
+        }
+        // send an update for the main event's recurrence rule instead of a cancellation message
+        else if ($event['_savemode'] == 'future' && $success !== false && $success !== true) {
+          $event['_savemode'] = 'all';  // force event_save_success() to load master event
+          $action = 'edit';
+          $success = true;
+        }
 
         // send iTIP reply that participant has declined the event
         if ($success && $event['_decline']) {
@@ -941,6 +946,10 @@ class calendar extends rcube_plugin
               $old['attendees'][$i]['status'] = 'DECLINED';
               $reply_sender = $attendee['email'];
             }
+          }
+
+          if ($event['_savemode'] == 'future' && $event['id'] != $old['id']) {
+            $old['thisandfuture'] = true;
           }
 
           $itip = $this->load_itip();

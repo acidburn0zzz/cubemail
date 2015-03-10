@@ -748,6 +748,7 @@ class kolab_driver extends calendar_driver
    */
   public function remove_event($event, $force = true)
   {
+    $ret = true;
     $success = false;
     $savemode = $event['_savemode'];
     $decline  = $event['_decline'];
@@ -821,7 +822,9 @@ class kolab_driver extends calendar_driver
           break;
 
         case 'future':
-          if ($master['id'] != $event['id']) {
+          $recurrence_id_format = $master['allday'] ? 'Ymd' : 'Ymd\THis';
+          $master['_instance'] = $master['start']->format($recurrence_id_format);
+          if ($master['_instance'] != $event['_instance']) {
             $_SESSION['calendar_restore_event_data'] = $master;
             
             // set until-date on master event
@@ -844,6 +847,7 @@ class kolab_driver extends calendar_driver
             }
 
             $success = $storage->update_event($master);
+            $ret = $master['uid'];
             break;
           }
 
@@ -875,7 +879,7 @@ class kolab_driver extends calendar_driver
     if ($success && $this->freebusy_trigger)
       $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
 
-    return $success;
+    return $success ? $ret : false;
   }
 
   /**

@@ -2606,9 +2606,9 @@ function rcube_calendar_ui(settings)
       if (event.recurrence) {
         var future_disabled = '', message_label = (action == 'remove' ? 'removerecurringeventwarning' : 'changerecurringeventwarning');
 
-        // disable the 'future' savemode if attendees are involved
-        // reason: no calendaring system supports the thisandfuture range parameter
-        if (action == 'remove' && _has_attendees && is_organizer(event)) {
+        // disable the 'future' savemode if I'm an attendee
+        // reason: no calendaring system supports the thisandfuture range parameter in iTip REPLY
+        if (action == 'remove' && _has_attendees && !_is_organizer && is_attendee(event)) {
           future_disabled = ' disabled';
         }
 
