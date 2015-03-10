@@ -94,6 +94,12 @@
  */
 abstract class calendar_driver
 {
+  const FILTER_ALL           = 0;
+  const FILTER_WRITEABLE     = 1;
+  const FILTER_ACTIVE        = 2;
+  const FILTER_PERSONAL      = 4;
+  const FILTER_PRIVATE       = 8;
+  const FILTER_CONFIDENTIAL  = 16;
   const BIRTHDAY_CALENDAR_ID = '__bdays__';
 
   // features supported by backend
@@ -118,12 +124,11 @@ abstract class calendar_driver
   /**
    * Get a list of available calendars from this source
    *
-   * @param bool $active   Return only active calendars
-   * @param bool $personal Return only personal calendars
-   *
+   * @param integer Bitmask defining filter criterias.
+   *          See FILTER_* constants for possible values.
    * @return array List of calendars
    */
-  abstract function list_calendars($active = false, $personal = false);
+  abstract function list_calendars($filter = 0);
 
   /**
    * Create a new calendar assigned to the current user
@@ -269,15 +274,17 @@ abstract class calendar_driver
    * Return data of a single event
    *
    * @param mixed  UID string or hash array with event properties:
-   *        id: Event identifier
-   *  calendar: Calendar identifier (optional)
-   * @param boolean If true, only writeable calendars shall be searched
-   * @param boolean If true, only active calendars shall be searched
-   * @param boolean If true, only personal calendars shall be searched
+   *         id: Event identifier
+   *        uid: Event UID
+   *  _instance: Instance identifier in combination with uid (optional)
+   *   calendar: Calendar identifier (optional)
+   * @param integer Bitmask defining the scope to search events in.
+   *          See FILTER_* constants for possible values.
+   * @param boolean If true, recurrence exceptions shall be added
    *
    * @return array Event object as hash array
    */
-  abstract function get_event($event, $writeable = false, $active = false, $personal = false);
+  abstract function get_event($event, $scope = 0, $full = false);
 
   /**
    * Get events from source.

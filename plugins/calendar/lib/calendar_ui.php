@@ -206,7 +206,7 @@ class calendar_ui
     $html = '';
     $jsenv = array();
     $tree = true;
-    $calendars = $this->cal->driver->list_calendars(false, false, $tree);
+    $calendars = $this->cal->driver->list_calendars(0, $tree);
 
     // walk folder tree
     if (is_object($tree)) {

@@ -263,7 +263,7 @@ class calendar extends rcube_plugin
   public function get_default_calendar($writeable = false, $confidential = false)
   {
     $default_id = $this->rc->config->get('calendar_default_calendar');
-    $calendars = $this->driver->list_calendars(false, true);
+    $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
     $calendar = $calendars[$default_id] ?: null;
     if (!$calendar || $confidential || ($writeable && $calendar['readonly'])) {
       foreach ($calendars as $cal) {
@@ -512,7 +512,7 @@ class calendar extends rcube_plugin
       // default calendar selection
       $field_id = 'rcmfd_default_calendar';
       $select_cal = new html_select(array('name' => '_default_calendar', 'id' => $field_id, 'is_escaped' => true));
-      foreach ((array)$this->driver->list_calendars(false, true) as $id => $prop) {
+      foreach ((array)$this->driver->list_calendars(calendar_driver::FILTER_PERSONAL) as $id => $prop) {
         $select_cal->add($prop['name'], strval($id));
         if ($prop['default'])
           $default_calendar = $id;
@@ -902,7 +902,7 @@ class calendar extends rcube_plugin
         
         // search for event if only UID is given
         if (!isset($event['calendar']) && $event['uid']) {
-          if (!($event = $this->driver->get_event($event, true))) {
+          if (!($event = $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE))) {
             break;
           }
           $undo_time = 0;
@@ -1174,7 +1174,7 @@ class calendar extends rcube_plugin
     if ($success !== true) {
       // send update notification on the main event
       if ($event['_savemode'] == 'future' && $event['_notify'] && $old['attendees'] && $old['recurrence_id']) {
-        $master = $this->driver->get_event(array('id' => $old['recurrence_id'], 'calendar' => $old['calendar']));
+        $master = $this->driver->get_event(array('id' => $old['recurrence_id'], 'calendar' => $old['calendar']), 0, true);
         unset($master['_instance'], $master['recurrence_date']);
 
         $sent = $this->notify_attendees($master, null, $action, $event['_comment']);
@@ -1200,12 +1200,12 @@ class calendar extends rcube_plugin
       // send notification for the main event when savemode is 'all'
       if ($action != 'remove' && $_savemode == 'all' && ($event['recurrence_id'] || $old['recurrence_id'] || ($old && $old['id'] != $event['id']))) {
         $event['id'] = $event['recurrence_id'] ?: ($old['recurrence_id'] ?: $old['id']);
-        $event = $this->driver->get_event($event);
+        $event = $this->driver->get_event($event, 0, true);
         unset($event['_instance'], $event['recurrence_date']);
       }
       else {
         // make sure we have the complete record
-        $event = $action == 'remove' ? $old : $this->driver->get_event($event);
+        $event = $action == 'remove' ? $old : $this->driver->get_event($event, 0, true);
       }
 
       $event['_savemode'] = $_savemode;
@@ -1325,7 +1325,7 @@ class calendar extends rcube_plugin
 
     $counts = array();
 
-    foreach ($this->driver->list_calendars(true) as $cal) {
+    foreach ($this->driver->list_calendars(calendar_driver::FILTER_ACTIVE) as $cal) {
       $events = $this->driver->load_events(
         rcube_utils::get_input_value('start', rcube_utils::INPUT_GPC),
         rcube_utils::get_input_value('end', rcube_utils::INPUT_GPC),
@@ -1578,9 +1578,9 @@ class calendar extends rcube_plugin
       $filename = $calendars[$calid]['name'] ? $calendars[$calid]['name'] : $calid;
       $filename = asciiwords(html_entity_decode($filename));  // to 7bit ascii
       if (!empty($event_id)) {
-        if ($event = $this->driver->get_event(array('calendar' => $calid, 'id' => $event_id))) {
+        if ($event = $this->driver->get_event(array('calendar' => $calid, 'id' => $event_id), 0, true)) {
           if ($event['recurrence_id']) {
-            $event = $this->driver->get_event(array('calendar' => $calid, 'id' => $event['recurrence_id']));
+            $event = $this->driver->get_event(array('calendar' => $calid, 'id' => $event['recurrence_id']), 0, true);
           }
           $events = array($event);
           $filename = asciiwords($event['title']);
@@ -1815,7 +1815,7 @@ class calendar extends rcube_plugin
     $date  = $_REQUEST['_date'] ?: 'now';
     $dev   = $_REQUEST['_dev'] ?: 30;
     $cats  = array_keys($this->driver->list_categories());
-    $cals  = $this->driver->list_calendars(true);
+    $cals  = $this->driver->list_calendars(calendar_driver::FILTER_ACTIVE);
     $count = 0;
 
     while ($count++ < $num) {
@@ -2447,14 +2447,14 @@ class calendar extends rcube_plugin
 
     // find local copy of the referenced event
     $this->load_driver();
-    $existing = $this->driver->get_event($data, true, false, true);
+    $existing = $this->driver->get_event($data, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
 
     $itip = $this->load_itip();
     $response = $itip->get_itip_status($data, $existing);
 
     // get a list of writeable calendars to save new events to
     if (!$existing && !$data['nosave'] && $response['action'] == 'rsvp' || $response['action'] == 'import') {
-      $calendars = $this->driver->list_calendars(false, true);
+      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
       $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'itip-saveto', 'is_escaped' => true));
       $calendar_select->add('--', '');
       $numcals = 0;
@@ -2484,7 +2484,7 @@ class calendar extends rcube_plugin
       $day_end = new Datetime(gmdate('Y-m-d 23:59', $data['date']), $this->lib->timezone);
 
       // get events on that day from the user's personal calendars
-      $calendars = $this->driver->list_calendars(false, true);
+      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
       $events = $this->driver->load_events($day_start->format('U'), $day_end->format('U'), null, array_keys($calendars));
       usort($events, function($a, $b) { return $a['start'] > $b['start'] ? 1 : -1; });
 
@@ -2522,7 +2522,7 @@ class calendar extends rcube_plugin
     $savemode = rcube_utils::get_input_value('_savemode', rcube_utils::INPUT_POST);
 
     // search for event if only UID is given
-    if ($event = $this->driver->get_event(array('uid' => $uid, '_instance' => $instance), true)) {
+    if ($event = $this->driver->get_event(array('uid' => $uid, '_instance' => $instance), calendar_driver::FILTER_WRITEABLE)) {
       $event['_savemode'] = $savemode;
       $success = $this->driver->remove_event($event, true);
     }
@@ -2789,7 +2789,7 @@ class calendar extends rcube_plugin
       // find writeable calendar to store event
       $cal_id = !empty($_REQUEST['_folder']) ? rcube_utils::get_input_value('_folder', rcube_utils::INPUT_POST) : null;
       $dontsave = ($_REQUEST['_folder'] === '' && $event['_method'] == 'REQUEST');
-      $calendars = $this->driver->list_calendars(false, true);
+      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
       $calendar = $calendars[$cal_id];
 
       // select default calendar except user explicitly selected 'none'
@@ -2841,8 +2841,8 @@ class calendar extends rcube_plugin
       
       // save to calendar
       if ($calendar && !$calendar['readonly']) {
-          // check for existing event with the same UID
-        $existing = $this->driver->get_event($event, true, false, true);
+        // check for existing event with the same UID
+        $existing = $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
 
         if ($existing) {
           // forward savemode for correct updates of recurring events
@@ -3102,7 +3102,7 @@ class calendar extends rcube_plugin
     if (!empty($events)) {
       // find writeable calendar to store event
       $cal_id = !empty($_REQUEST['_calendar']) ? rcube_utils::get_input_value('_calendar', rcube_utils::INPUT_POST) : null;
-      $calendars = $this->driver->list_calendars(false, true);
+      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
 
       foreach ($events as $event) {
         // save to calendar
@@ -3110,7 +3110,7 @@ class calendar extends rcube_plugin
         if ($calendar && !$calendar['readonly'] && $event['_type'] == 'event') {
           $event['calendar'] = $calendar['id'];
 
-          if (!$this->driver->get_event($event['uid'], true, false)) {
+          if (!$this->driver->get_event($event['uid'], calendar_driver::FILTER_WRITEABLE)) {
             $success += (bool)$this->driver->new_event($event);
           }
           else {

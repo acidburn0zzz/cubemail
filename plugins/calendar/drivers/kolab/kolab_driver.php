@@ -114,13 +114,12 @@ class kolab_driver extends calendar_driver
   /**
    * Get a list of available calendars from this source
    *
-   * @param bool $active   Return only active calendars
-   * @param bool $personal Return only personal calendars
+   * @param integer $filter Bitmask defining filter criterias
    * @param object $tree   Reference to hierarchical folder tree object
    *
    * @return array List of calendars
    */
-  public function list_calendars($active = false, $personal = false, &$tree = null)
+  public function list_calendars($filter = 0, &$tree = null)
   {
     // attempt to create a default calendar for this user
     if (!$this->has_writeable) {
@@ -131,7 +130,7 @@ class kolab_driver extends calendar_driver
     }
 
     $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
-    $folders = $this->filter_calendars(false, $active, $personal);
+    $folders = $this->filter_calendars($filter);
     $calendars = array();
 
     // include virtual folders for a full folder tree
@@ -225,7 +224,7 @@ class kolab_driver extends calendar_driver
       foreach (array(self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED) as $id) {
         $cal = new kolab_invitation_calendar($id, $this->cal);
         $this->calendars[$cal->id] = $cal;
-        if (!$active || $cal->is_active()) {
+        if (!($filter & self::FILTER_ACTIVE) || $cal->is_active()) {
           $calendars[$id] = array(
             'id'       => $cal->id,
             'name'     => $cal->get_name(),
@@ -258,7 +257,7 @@ class kolab_driver extends calendar_driver
     if ($this->rc->config->get('calendar_contact_birthdays', false)) {
       $id = self::BIRTHDAY_CALENDAR_ID;
       $prefs = $this->rc->config->get('kolab_calendars', array());  // read local prefs
-      if (!$active || $prefs[$id]['active']) {
+      if (!($filter & self::FILTER_ACTIVE) || $prefs[$id]['active']) {
         $calendars[$id] = array(
           'id'         => $id,
           'name'       => $this->cal->gettext('birthdays'),
@@ -281,19 +280,21 @@ class kolab_driver extends calendar_driver
   /**
    * Get list of calendars according to specified filters
    *
-   * @param bool $writeable Return only writeable calendars
-   * @param bool $active   Return only active calendars
-   * @param bool $personal Return only personal calendars
+   * @param integer Bitmask defining restrictions. See FILTER_* constants for possible values.
    *
    * @return array List of calendars
    */
-  protected function filter_calendars($writeable = false, $active = false, $personal = false)
+  protected function filter_calendars($filter)
   {
     $calendars = array();
 
     $plugin = $this->rc->plugins->exec_hook('calendar_list_filter', array(
-      'list' => $this->calendars, 'calendars' => $calendars,
-      'writeable' => $writeable, 'active' => $active, 'personal' => $personal,
+      'list'      => $this->calendars,
+      'calendars' => $calendars,
+      'filter'    => $filter,
+      'writeable' => ($filter & self::FILTER_WRITEABLE),
+      'active'    => ($filter & self::FILTER_ACTIVE),
+      'personal'  => ($filter & self::FILTER_PERSONAL),
     ));
 
     if ($plugin['abort']) {
@@ -304,13 +305,13 @@ class kolab_driver extends calendar_driver
       if (!$cal->ready) {
         continue;
       }
-      if ($writeable && $cal->readonly) {
+      if (($filter & self::FILTER_WRITEABLE) && $cal->readonly) {
         continue;
       }
-      if ($active && !$cal->is_active()) {
+      if (($filter & self::FILTER_ACTIVE) && !$cal->is_active()) {
         continue;
       }
-      if ($personal && $cal->get_namespace() != 'personal') {
+      if (($filter & self::FILTER_PERSONAL) && $cal->get_namespace() != 'personal') {
         continue;
       }
       $calendars[$cal->id] = $cal;
@@ -531,7 +532,7 @@ class kolab_driver extends calendar_driver
    * @see calendar_driver::get_event()
    * @return array Hash array with event properties, false if not found
    */
-  public function get_event($event, $writeable = false, $active = false, $personal = false)
+  public function get_event($event, $scope = 0, $full = false)
   {
     if (is_array($event)) {
       $id = $event['id'] ?: $event['uid'];
@@ -558,7 +559,7 @@ class kolab_driver extends calendar_driver
     }
     // iterate over all calendar folders and search for the event ID
     else {
-      foreach ($this->filter_calendars($writeable, $active, $personal) as $calendar) {
+      foreach ($this->filter_calendars($scope) as $calendar) {
         if ($result = $calendar->get_event($id)) {
           return self::to_rcube_event($result);
         }

@@ -177,7 +177,7 @@ class kolab_invitation_calendar
   public function get_event($id)
   {
     // redirect call to kolab_driver::get_event()
-    $event = $this->cal->driver->get_event($id, true);
+    $event = $this->cal->driver->get_event($id, calendar_driver::FILTER_WRITEABLE);
 
     if (is_array($event)) {
       // add pointer to original calendar folder

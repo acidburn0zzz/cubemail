@@ -99,12 +99,11 @@ class database_driver extends calendar_driver
   /**
    * Get a list of available calendars from this source
    *
-   * @param bool $active   Return only active calendars
-   * @param bool $personal Return only personal calendars
+   * @param integer Bitmask defining filter criterias
    *
    * @return array List of calendars
    */
-  public function list_calendars($active = false, $personal = false)
+  public function list_calendars($filter = 0)
   {
     // attempt to create a default calendar for this user
     if (empty($this->calendars)) {
@@ -115,7 +114,7 @@ class database_driver extends calendar_driver
     $calendars = $this->calendars;
 
     // filter active calendars
-    if ($active) {
+    if ($filter & self::FILTER_ACTIVE) {
       foreach ($calendars as $idx => $cal) {
         if (!$cal['active']) {
           unset($calendars[$idx]);
@@ -963,12 +962,11 @@ class database_driver extends calendar_driver
   /**
    * Return data of a specific event
    * @param mixed  Hash array with event properties or event UID
-   * @param boolean Only search in writeable calendars (ignored)
-   * @param boolean Only search in active calendars
-   * @param boolean Only search in personal calendars (ignored)
+   * @param integer Bitmask defining the scope to search events in
+   * @param boolean If true, recurrence exceptions shall be added
    * @return array Hash array with event properties
    */
-  public function get_event($event, $writeable = false, $active = false, $personal = false)
+  public function get_event($event, $scope = 0, $full = false)
   {
     $id  = is_array($event) ? ($event['id'] ?: $event['uid']) : $event;
     $cal = is_array($event) ? $event['calendar'] : null;
@@ -987,7 +985,7 @@ class database_driver extends calendar_driver
       return $this->get_birthday_event($id);
     }
 
-    if ($active) {
+    if ($scope & self::FILTER_ACTIVE) {
       $calendars = $this->calendars;
       foreach ($calendars as $idx => $cal) {
         if (!$cal['active']) {
@@ -1012,8 +1010,15 @@ class database_driver extends calendar_driver
       ),
       $id);
 
-    if ($result && ($event = $this->rc->db->fetch_assoc($result)) && $event['event_id']) {
-      $this->cache[$id] = $this->_read_postprocess($event);
+    if ($result && ($sql_arr = $this->rc->db->fetch_assoc($result)) && $sql_arr['event_id']) {
+      $event = $this->_read_postprocess($sql_arr);
+
+      // also load recurrence exceptions
+      if (!empty($event['recurrence']) && $full) {
+        $event['recurrence']['EXCEPTIONS'] = array_values($this->_load_exceptions($event));
+      }
+
+      $this->cache[$id] = $event;
       return $this->cache[$id];
     }
 
