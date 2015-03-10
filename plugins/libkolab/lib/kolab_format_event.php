@@ -102,7 +102,7 @@ class kolab_format_event extends kolab_format_xcal
         }
 
         if (is_array($object['exceptions'])) {
-            $recurrence_id_format = $object['allday'] ? 'Ymd' : 'Ymd\THis';
+            $recurrence_id_format = libkolab::recurrence_id_format($object);
             $vexceptions = new vectorevent;
             foreach ($object['exceptions'] as $i => $exception) {
                 $exevent = new kolab_format_event;
@@ -210,7 +210,7 @@ class kolab_format_event extends kolab_format_xcal
         // read exception event objects
         if (($exceptions = $this->obj->exceptions()) && is_object($exceptions) && $exceptions->size()) {
             $recurrence_exceptions = array();
-            $recurrence_id_format = $object['allday'] ? 'Ymd' : 'Ymd\THis';
+            $recurrence_id_format = libkolab::recurrence_id_format($object);
             for ($i=0; $i < $exceptions->size(); $i++) {
                 if (($exobj = $exceptions->get($i))) {
                     $exception = new kolab_format_event($exobj);
@@ -251,7 +251,7 @@ class kolab_format_event extends kolab_format_xcal
         $result = null;
         $object = $this->to_array();
 
-        $recurrence_id_format = $object['allday'] ? 'Ymd' : 'Ymd\THis';
+        $recurrence_id_format = libkolab::recurrence_id_format($object);
         $instance_id = $recurrence_id instanceof DateTime ? $recurrence_id->format($recurrence_id_format) : strval($recurrence_id);
 
         if ($object['recurrence_date'] instanceof DateTime) {

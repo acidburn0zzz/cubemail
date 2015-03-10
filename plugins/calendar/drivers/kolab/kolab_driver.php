@@ -791,8 +791,7 @@ class kolab_driver extends calendar_driver
           $_SESSION['calendar_restore_event_data'] = $master;
 
           // removing the first instance => just move to next occurence
-          $recurrence_id_format = $master['allday'] ? 'Ymd' : 'Ymd\THis';
-          if ($master['recurrence'] && $event['_instance'] == $master['start']->format($recurrence_id_format)) {
+          if ($master['recurrence'] && $event['_instance'] == libcalendaring::recurrence_instance_identifier($master)) {
             $recurring = reset($storage->get_recurring_events($event, $event['start'], null, $event['id'].'-1'));
 
             // no future instances found: delete the master event (bug #1677)
@@ -822,8 +821,7 @@ class kolab_driver extends calendar_driver
           break;
 
         case 'future':
-          $recurrence_id_format = $master['allday'] ? 'Ymd' : 'Ymd\THis';
-          $master['_instance'] = $master['start']->format($recurrence_id_format);
+          $master['_instance'] = libcalendaring::recurrence_instance_identifier($master);
           if ($master['_instance'] != $event['_instance']) {
             $_SESSION['calendar_restore_event_data'] = $master;
             
@@ -952,8 +950,7 @@ class kolab_driver extends calendar_driver
       $savemode = $event['_savemode'] ?: ($old['recurrence_id'] || $old['isexception'] ? 'current' : 'all');
 
       // this-and-future on the first instance equals to 'all'
-      $recurrence_id_format = $master['allday'] ? 'Ymd' : 'Ymd\THis';
-      if ($savemode == 'future' && $master['start'] && $old['_instance'] == $master['start']->format($recurrence_id_format))
+      if ($savemode == 'future' && $master['start'] && $old['_instance'] == libcalendaring::recurrence_instance_identifier($master))
         $savemode = 'all';
       // force 'current' mode for single occurrences stored as exception
       else if (!$old['recurrence'] && !$old['recurrence_id'] && $old['isexception'])
@@ -1176,7 +1173,7 @@ class kolab_driver extends calendar_driver
 
           // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
           if ($old_start_date != $new_start_date || $old_start_time != $new_start_time) {
-            $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+            $recurrence_id_format = libcalendaring::recurrence_id_format($event);
             foreach ($event['recurrence']['EXCEPTIONS'] as $i => $exception) {
               $recurrence_id = is_a($exception['recurrence_date'], 'DateTime') ? $exception['recurrence_date'] :
                   rcube_utils::anytodatetime($exception['_instance'], $old['start']->getTimezone());
@@ -1337,8 +1334,7 @@ class kolab_driver extends calendar_driver
     }
 
     if (!$event['_instance'] && is_a($event['recurrence_date'], 'DateTime')) {
-      $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
-      $event['_instance'] = $event['recurrence_date']->format($recurrence_id_format);
+      $event['_instance'] = libcalendaring::recurrence_instance_identifier($event);
     }
 
     if (!is_array($master['exceptions']) && is_array($master['recurrence']['EXCEPTIONS'])) {

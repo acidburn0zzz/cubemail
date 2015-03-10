@@ -463,7 +463,7 @@ abstract class calendar_driver
 
       $rcmail = rcmail::get_instance();
       $recurrence = new calendar_recurrence($rcmail->plugins->get_plugin('calendar'), $event);
-      $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+      $recurrence_id_format = libcalendaring::recurrence_id_format($event);
 
       // determine a reasonable end date if none given
       if (!$end) {

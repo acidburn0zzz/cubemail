@@ -388,10 +388,9 @@ class database_driver extends calendar_driver
 
             // set exception to first instance (= master)
             if ($event['id'] == $master['id']) {
-              $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
               $event += $old;
               $event['recurrence_id'] = $master['id'];
-              $event['_instance'] = $old['start']->format($recurrence_id_format);
+              $event['_instance'] = libcalendaring::recurrence_instance_identifier($old);
               $event['isexception'] = 1;
               $event_id = $this->_insert_event($event);
               return $event_id;
@@ -463,7 +462,7 @@ class database_driver extends calendar_driver
             // adjust recurrence-id when start changed and therefore the entire recurrence chain changes
             if (is_array($event['recurrence']) && ($old_start_date != $new_start_date || $old_start_time != $new_start_time)
                 && ($exceptions = $this->_load_exceptions($old))) {
-              $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+              $recurrence_id_format = libcalendaring::recurrence_id_format($event);
               foreach ($exceptions as $exception) {
                 $recurrence_id = rcube_utils::anytodatetime($exception['_instance'], $old['start']->getTimezone());
                 if (is_a($recurrence_id, 'DateTime')) {
@@ -764,8 +763,9 @@ class database_driver extends calendar_driver
       $recurrence = new calendar_recurrence($this->cal, $event);
 
       $count = 0;
+      $event['allday'] = $event['all_day'];
       $duration = $event['start']->diff($event['end']);
-      $recurrence_id_format = $event['all_day'] ? 'Ymd' : 'Ymd\THis';
+      $recurrence_id_format = libcalendaring::recurrence_id_format($event);
       while ($next_start = $recurrence->next_start()) {
         $instance = $next_start->format($recurrence_id_format);
         $datestr = substr($instance, 0, 8);
@@ -1075,8 +1075,7 @@ class database_driver extends calendar_driver
           }
           // check for exception on first instance
           else {
-            $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
-            $instance = $event['start']->format($recurrence_id_format);
+            $instance = libcalendaring::recurrence_instance_identifier($event);
             $exceptions = $this->_load_exceptions($event, $instance);
             if ($exceptions && is_array($exceptions[$instance])) {
               $event = $exceptions[$instance];

@@ -1427,8 +1427,7 @@ class libcalendaring extends rcube_plugin
         }
         // set instance and 'savemode' according to recurrence-id
         else if (!empty($object['recurrence_date']) && is_a($object['recurrence_date'], 'DateTime')) {
-            $recurrence_id_format = $object['allday'] ? 'Ymd' : 'Ymd\THis';
-            $object['_instance'] = $object['recurrence_date']->format($recurrence_id_format);
+            $object['_instance'] = self::recurrence_instance_identifier($object);
             $object['_savemode'] = $object['thisandfuture'] ? 'future' : 'current';
         }
         else if (!empty($object['recurrence_id']) && !empty($object['_instance'])) {
@@ -1440,6 +1439,36 @@ class libcalendaring extends rcube_plugin
             }
         }
     }
+
+    /**
+     * Return a date() format string to render identifiers for recurrence instances
+     *
+     * @param array Hash array with event properties
+     * @return string Format string
+     */
+    public static function recurrence_id_format($event)
+    {
+        return $event['allday'] ? 'Ymd' : 'Ymd\THis';
+    }
+
+    /**
+     * Return the identifer for the given instance of a recurring event
+     *
+     * @param array Hash array with event properties
+     * @return mixed Format string or null if identifier cannot be generated
+     */
+    public static function recurrence_instance_identifier($event)
+    {
+        $instance_date = $event['recurrence_date'] ?: $event['start'];
+
+        if ($instance_date && is_a($instance_date, 'DateTime')) {
+          $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+          return $instance_date->format($recurrence_id_format);
+        }
+
+        return null;
+    }
+
 
     /*********  Attendee handling functions  *********/
 

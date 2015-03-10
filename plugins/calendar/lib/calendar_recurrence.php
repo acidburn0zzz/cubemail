@@ -74,9 +74,8 @@ class calendar_recurrence extends libcalendaring_recurrence
         $next['end']->add($this->duration);
       }
 
-      $recurrence_id_format = $next['allday'] ? 'Ymd' : 'Ymd\THis';
       $next['recurrence_date'] = clone $next_start;
-      $next['_instance'] = $next_start->format($recurrence_id_format);
+      $next['_instance'] = libcalendaring::recurrence_instance_identifier($next);
 
       unset($next['_formatobj']);
 

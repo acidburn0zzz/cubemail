@@ -616,14 +616,12 @@ class kolab_calendar extends kolab_storage_folder_api
     $events = array();
     $exdata = array();
     $futuredata = array();
-    $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
+    $recurrence_id_format = libcalendaring::recurrence_id_format($event);
 
     if (is_array($event['recurrence']['EXCEPTIONS'])) {
       foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
-        if (!$exception['_instance'] && is_a($exception['recurrence_date'], 'DateTime'))
-          $exception['_instance'] = $exception['recurrence_date']->format($recurrence_id_format);
-        else if (!$exception['_instance'] && is_a($exception['start'], 'DateTime'))
-          $exception['_instance'] = $exception['start']->format($recurrence_id_format);
+        if (!$exception['_instance'])
+          $exception['_instance'] = libcalendaring::recurrence_instance_identifier($exception);
 
         $rec_event = $this->_to_driver_event($exception);
         $rec_event['id'] = $event['uid'] . '-' . $exception['_instance'];
@@ -717,7 +715,7 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     // add instance identifier to first occurrence (master event)
-    $recurrence_id_format = $record['allday'] ? 'Ymd' : 'Ymd\THis';
+    $recurrence_id_format = libcalendaring::recurrence_id_format($record);
     if (!$noinst && $record['recurrence'] && !$record['recurrence_id'] && !$record['_instance']) {
       $record['_instance'] = $record['start']->format($recurrence_id_format);
     }

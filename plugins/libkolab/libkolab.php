@@ -139,4 +139,15 @@ class libkolab extends rcube_plugin
       $diff = new FineDiff($from, $to, FineDiff::$wordGranularity);
       return $diff->renderDiffToHTML();
     }
+
+    /**
+     * Return a date() format string to render identifiers for recurrence instances
+     *
+     * @param array Hash array with event properties
+     * @return string Format string
+     */
+    public static function recurrence_id_format($event)
+    {
+        return $event['allday'] ? 'Ymd' : 'Ymd\THis';
+    }
 }

@@ -90,7 +90,7 @@ class kolab_date_recurrence
             $next['start'] = $next_start;
             $next['end'] = $next_end;
 
-            $recurrence_id_format = $next['allday'] ? 'Ymd' : 'Ymd\THis';
+            $recurrence_id_format = libkolab::recurrence_id_format($next);
             $next['recurrence_date'] = clone $next_start;
             $next['_instance'] = $next_start->format($recurrence_id_format);
 
