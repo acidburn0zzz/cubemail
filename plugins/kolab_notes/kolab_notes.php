@@ -226,6 +226,7 @@ class kolab_notes extends rcube_plugin
                     'title'    => $folder->get_title(),
                     'virtual'  => true,
                     'editable' => false,
+                    'rights'   => 'l',
                     'group'    => 'other virtual',
                     'class'    => 'user',
                     'parent'   => $parent_id,
@@ -238,6 +239,7 @@ class kolab_notes extends rcube_plugin
                     'listname' => $listname,
                     'virtual'  => true,
                     'editable' => false,
+                    'rights'   => 'l',
                     'group'    => $folder->get_namespace(),
                     'parent'   => $parent_id,
                 );
@@ -318,15 +320,18 @@ class kolab_notes extends rcube_plugin
     {
         if ($folder->get_namespace() == 'personal') {
             $norename = false;
-            $readonly = false;
+            $editable = true;
+            $rights = 'lrswikxtea';
             $alarms = true;
         }
         else {
             $alarms = false;
-            $readonly = true;
-            if (($rights = $folder->get_myrights()) && !PEAR::isError($rights)) {
-                if (strpos($rights, 'i') !== false)
-                  $readonly = false;
+            $rights = 'lr';
+            $editable = false;
+            if (($myrights = $folder->get_myrights()) && !PEAR::isError($myrights)) {
+                $rights = $myrights;
+                if (strpos($rights, 't') !== false || strpos($rights, 'd') !== false)
+                    $editable = strpos($rights, 'i');
             }
             $info = $folder->get_folder_info();
             $norename = $readonly || $info['norename'] || $info['protected'];
@@ -338,7 +343,8 @@ class kolab_notes extends rcube_plugin
             'name' => $folder->get_name(),
             'listname' => $folder->get_foldername(),
             'editname' => $folder->get_foldername(),
-            'editable' => !$readonly,
+            'editable' => $editable,
+            'rights'   => $rights,
             'norename' => $norename,
             'parentfolder' => $folder->get_parent(),
             'subscribed' => (bool)$folder->is_subscribed(),

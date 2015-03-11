@@ -131,7 +131,7 @@ class kolab_notes_ui
                 }
 
                 if ($attrib['type'] == 'select') {
-                    if ($prop['editable']) {
+                    if ($prop['editable'] || strpos($prop['rights'], 'i') !== false) {
                         $select->add($prop['name'], $prop['id']);
                     }
                 }
