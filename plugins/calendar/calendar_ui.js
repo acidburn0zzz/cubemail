@@ -3685,6 +3685,7 @@ function rcube_calendar_ui(settings)
           add_calendar_source(event.data);
         }
         me.quickview(event.data.id, event.shiftKey || event.metaKey || event.ctrlKey);
+        return false;
       }
     });
 
@@ -3735,6 +3736,9 @@ function rcube_calendar_ui(settings)
 
       if (me.calendars[id])
         me.quickview(id, e.shiftKey || e.metaKey || e.ctrlKey);
+
+      if (!rcube_event.is_keyboard(e) && this.blur)
+        this.blur();
 
       e.stopPropagation();
       return false;

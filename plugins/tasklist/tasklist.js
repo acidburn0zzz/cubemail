@@ -240,6 +240,9 @@ function rcube_tasklist_ui(settings)
             if (tasklists_widget.is_search())
               id = id.replace(/--xsR$/, '');
 
+            if (!rcube_event.is_keyboard(e) && this.blur)
+              this.blur();
+
             set_focusview(id, e.shiftKey || e.metaKey || e.ctrlKey);
             e.stopPropagation();
             return false;
