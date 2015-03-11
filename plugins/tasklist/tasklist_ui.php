@@ -5,7 +5,7 @@
  * @version @package_version@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -309,7 +309,7 @@ class tasklist_ui
         $default = null;
 
         foreach ((array)$this->plugin->driver->get_lists() as $id => $prop) {
-            if ($prop['editable']) {
+            if ($prop['editable'] || strpos($prop['rights'], 'i') !== false) {
                 $select->add($prop['name'], $id);
                 if (!$default || $prop['default'])
                     $default = $id;

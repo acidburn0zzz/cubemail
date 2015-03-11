@@ -6,7 +6,7 @@
  * @version @package_version@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -78,6 +78,7 @@ class tasklist_database_driver extends tasklist_driver
           $arr['name'] = html::quote($arr['name']);
           $arr['listname'] = html::quote($arr['name']);
           $arr['editable'] = true;
+          $arr['rights'] = 'lrswikxtea';
           $this->lists[$arr['id']] = $arr;
           $list_ids[] = $this->rc->db->quote($arr['id']);
         }

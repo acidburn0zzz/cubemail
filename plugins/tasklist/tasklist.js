@@ -6,7 +6,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -168,7 +168,9 @@ function rcube_tasklist_ui(settings)
         });
         tasklists_widget.addEventListener('select', function(node) {
             var id = $(this).data('id');
-            rcmail.enable_command('list-edit', 'list-delete', 'list-import', me.tasklists[node.id].editable);
+            rcmail.enable_command('list-edit', has_permission(me.tasklists[node.id], 'wa'));
+            rcmail.enable_command('list-delete', has_permission(me.tasklists[node.id], 'xa'));
+            rcmail.enable_command('list-import', has_permission(me.tasklists[node.id], 'i'));
             rcmail.enable_command('list-remove', me.tasklists[node.id] && me.tasklists[node.id].removable);
             me.selected_list = node.id;
         });
@@ -715,6 +717,27 @@ function rcube_tasklist_ui(settings)
     }
 
     /**
+     * Check permissions on the given list object
+     */
+    function has_permission(list, perm)
+    {
+        // multiple chars means "either of"
+        if (String(perm).length > 1) {
+            for (var i=0; i < perm.length; i++) {
+                if (has_permission(list, perm[i])) {
+                    return true;
+                }
+            }
+        }
+
+        if (list.rights && String(list.rights).indexOf(perm) >= 0) {
+            return true;
+        }
+
+        return (perm == 'i' && list.editable);
+    }
+
+    /**
      * Request counts from the server
      */
     function fetch_counts()
@@ -1024,8 +1047,8 @@ function rcube_tasklist_ui(settings)
             drop_rec = listdata[drop_id],
             list = drop_rec && me.tasklists[drop_rec.list] ? me.tasklists[drop_rec.list] : { editable:true };
 
-        // target is not writeable or already has this tag assigned
-        if (!drop_rec || drop_rec.readonly || !list.editable || (drop_rec.tags && $.inArray(tag, drop_rec.tags) >= 0)) {
+        // target is not editable or already has this tag assigned
+        if (!drop_rec || drop_rec.readonly || !has_permission(list, 'i') || (drop_rec.tags && $.inArray(tag, drop_rec.tags) >= 0)) {
             return false;
         }
 
@@ -1986,7 +2009,9 @@ function rcube_tasklist_ui(settings)
                 },
                 disabled: rcmail.busy
             });
+        }
 
+        if (has_permission(list, 'td') && !rec.readonly) {
             buttons.push({
                 text: rcmail.gettext('delete','tasklist'),
                 'class': 'delete',
@@ -2048,9 +2073,9 @@ function rcube_tasklist_ui(settings)
             $dialog = $('<div>'),
             editform = $('#taskedit'),
             list = rec.list && me.tasklists[rec.list] ? me.tasklists[rec.list] :
-                (me.selected_list ? me.tasklists[me.selected_list] : { editable: action=='new' });
+                (me.selected_list ? me.tasklists[me.selected_list] : { editable: action == 'new', rights: action == 'new' ? 'rwitd' : 'r' });
 
-        if (rcmail.busy || !list.editable || (action == 'edit' && (!rec || rec.readonly)))
+        if (rcmail.busy || !has_permission(list, 'i') || (action == 'edit' && (!rec || rec.readonly)))
             return false;
 
         me.selected_task = $.extend({ valarms:[] }, rec);  // clone task object
@@ -2080,6 +2105,12 @@ function rcube_tasklist_ui(settings)
 
         invite.checked = settings.itip_notify & 1 > 0;
         notify.checked = has_attendees(rec) && invite.checked;
+
+        // set tasklist selection according to permissions
+        tasklist.find('option').each(function(i, opt) {
+            var l = me.tasklists[opt.value] || {};
+            $(opt).prop('disabled', !(l.editable || (action == 'new' && has_permission(l, 'i'))));
+        });
 
         // tag-edit line
         var tagline = $(rcmail.gui_objects.edittagline).empty();
@@ -2658,7 +2689,7 @@ function rcube_tasklist_ui(settings)
             $dialog.dialog('close');
 
         if (!list)
-            list = { name:'', editable:true, showalarms:true };
+            list = { name:'', editable:true, rights:'riwt', showalarms:true };
 
         var editform, name, alarms;
 

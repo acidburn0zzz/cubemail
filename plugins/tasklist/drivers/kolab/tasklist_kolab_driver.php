@@ -6,7 +6,7 @@
  * @version @package_version@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -107,15 +107,18 @@ class tasklist_kolab_driver extends tasklist_driver
     {
         if ($folder->get_namespace() == 'personal') {
             $norename = false;
-            $readonly = false;
+            $editable = true;
+            $rights = 'lrswikxtea';
             $alarms = true;
         }
         else {
             $alarms = false;
-            $readonly = true;
-            if (($rights = $folder->get_myrights()) && !PEAR::isError($rights)) {
-                if (strpos($rights, 'i') !== false)
-                  $readonly = false;
+            $rights = 'lr';
+            $editable = false;
+            if (($myrights = $folder->get_myrights()) && !PEAR::isError($myrights)) {
+                $rights = $myrights;
+                if (strpos($rights, 't') !== false || strpos($rights, 'd') !== false)
+                    $editable = strpos($rights, 'i');
             }
             $info = $folder->get_folder_info();
             $norename = $readonly || $info['norename'] || $info['protected'];
@@ -135,7 +138,8 @@ class tasklist_kolab_driver extends tasklist_driver
             'editname' => $folder->get_foldername(),
             'color' => $folder->get_color('0000CC'),
             'showalarms' => isset($prefs[$list_id]['showalarms']) ? $prefs[$list_id]['showalarms'] : $alarms,
-            'editable' => !$readonly,
+            'editable' => $editable,
+            'rights'    => $rights,
             'norename' => $norename,
             'active' => $folder->is_active(),
             'parentfolder' => $folder->get_parent(),
@@ -206,6 +210,7 @@ class tasklist_kolab_driver extends tasklist_driver
                     'title'    => $folder->get_title(),
                     'virtual'  => true,
                     'editable' => false,
+                    'rights'   => 'l',
                     'group'    => 'other virtual',
                     'class'    => 'user',
                     'parent'   => $parent_id,
@@ -218,6 +223,7 @@ class tasklist_kolab_driver extends tasklist_driver
                     'listname' => $listname,
                     'virtual'  => true,
                     'editable' => false,
+                    'rights'   => 'l',
                     'group'    => $folder->get_namespace(),
                     'class'    => 'folder',
                     'parent'   => $parent_id,
