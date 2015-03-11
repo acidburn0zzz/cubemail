@@ -89,7 +89,7 @@ class kolab_calendar extends kolab_storage_folder_api
       else {
         $rights = $this->storage->get_myrights();
         if ($rights && !PEAR::isError($rights)) {
-          if (strpos($rights, 'i') !== false || strpos($rights, 'w') !== false)
+          if (strpos($rights, 'i') !== false)
             $this->insert = true;
           if (strpos($rights, 't') !== false || strpos($rights, 'd') !== false)
             $this->writeable = $this->insert;
