@@ -29,8 +29,8 @@
 class rcube_kolab_contacts extends rcube_addressbook
 {
     public $primary_key = 'ID';
+    public $rights   = 'lrs';
     public $readonly = true;
-    public $editable = false;
     public $undelete = true;
     public $groups = true;
     public $coltypes = array(
@@ -122,19 +122,18 @@ class rcube_kolab_contacts extends rcube_addressbook
         $this->storagefolder = kolab_storage::get_folder($this->imap_folder);
         $this->ready = $this->storagefolder && !PEAR::isError($this->storagefolder);
 
-        // Set readonly and editable flags according to folder permissions
+        // Set readonly and rights flags according to folder permissions
         if ($this->ready) {
             if ($this->storagefolder->get_owner() == $_SESSION['username']) {
-                $this->editable = true;
                 $this->readonly = false;
+                $this->rights = 'lrswikxtea';
             }
             else {
                 $rights = $this->storagefolder->get_myrights();
-                if (!PEAR::isError($rights)) {
-                    if (strpos($rights, 'i') !== false)
+                if ($rights && !PEAR::isError($rights)) {
+                    $this->rights = $rights;
+                    if (strpos($rights, 'i') !== false && strpos($rights, 't') !== false)
                         $this->readonly = false;
-                    if (strpos($rights, 'a') !== false || strpos($rights, 'x') !== false)
-                        $this->editable = true;
                 }
             }
         }

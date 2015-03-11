@@ -131,6 +131,19 @@ if (window.rcmail) {
     rcmail.addEventListener('listupdate', function() {
         rcmail.set_book_actions();
     });
+
+    // wait until rcmail.contact_list is ready and subscribe to 'select' events
+    setTimeout(function() {
+        rcmail.contact_list && rcmail.contact_list.addEventListener('select', function(list) {
+            var selected = list.selection.length,
+                source = rcmail.env.source ? rcmail.env.address_sources[rcmail.env.source] : null;
+
+            if (selected && source.kolab) {
+                console.log('select', source.rights)
+                rcmail.enable_command('delete', 'move', selected && source.rights.indexOf('t') >= 0);
+            }
+        });
+    }, 100);
 }
 
 // (De-)activates address book management commands
@@ -139,10 +152,12 @@ rcube_webmail.prototype.set_book_actions = function()
     var source = !this.env.group ? this.env.source : null,
         sources = this.env.address_sources;
 
+    var props = source && sources[source] && sources[source].kolab ? sources[source] : { removable: false, rights: '' }
     this.enable_command('book-create', true);
-    this.enable_command('book-edit', 'book-delete', source && sources[source] && sources[source].kolab && sources[source].editable);
-    this.enable_command('book-remove', source && sources[source] && sources[source].kolab && sources[source].removable);
-    this.enable_command('book-showurl', source && sources[source] && sources[source].carddavurl);
+    this.enable_command('book-edit',   props.rights.indexOf('a') >= 0);
+    this.enable_command('book-delete', props.rights.indexOf('x') >= 0 || props.rights.indexOf('a') >= 0);
+    this.enable_command('book-remove', props.removable);
+    this.enable_command('book-showurl', !!props.carddavurl);
 };
 
 rcube_webmail.prototype.book_create = function()
@@ -359,26 +374,36 @@ function kolab_addressbook_contextmenu()
         }, {
             'activate': function(p) {
                 var source = !rcmail.env.group ? rcmail.env.source : null,
-                    sources = rcmail.env.address_sources;
+                    sources = rcmail.env.address_sources,
+                    props = source && sources[source] && sources[source].kolab ?
+                        sources[source] : { readonly: true, removable: false, rights: '' };
 
                 if (p.command == 'book-create') {
                     return true;
                 }
 
-                if (p.command == 'book-edit' || p.command == 'book-delete' || p.command == 'group-create') {
-                    return !!(source && sources[source] && sources[source].kolab && sources[source].editable);
+                if (p.command == 'book-edit') {
+                    return props.rights.indexOf('a') >= 0;
+                }
+
+                if (p.command == 'book-delete') {
+                    return props.rights.indexOf('a') >= 0 || props.rights.indexOf('x') >= 0;
+                }
+
+                if (p.command == 'group-create') {
+                    return !props.readonly;
                 }
 
                 if (p.command == 'book-remove') {
-                    return !!(source && sources[source] && sources[source].kolab && sources[source].removable);
+                    return props.removable;
                 }
 
                 if (p.command == 'book-showurl') {
-                    return !!(source && sources[source] && sources[source].carddavurl);
+                    return !!(props.carddavurl);
                 }
 
                 if (p.command == 'group-rename' || p.command == 'group-delete') {
-                    return !!(rcmail.env.group && sources[rcmail.env.source] && sources[rcmail.env.source].editable);
+                    return !!(rcmail.env.group && sources[rcmail.env.source] && !sources[rcmail.env.source].readonly);
                 }
 
                 return false;
