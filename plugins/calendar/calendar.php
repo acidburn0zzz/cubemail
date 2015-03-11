@@ -265,7 +265,7 @@ class calendar extends rcube_plugin
     $default_id = $this->rc->config->get('calendar_default_calendar');
     $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
     $calendar = $calendars[$default_id] ?: null;
-    if (!$calendar || $confidential || ($writeable && $calendar['readonly'])) {
+    if (!$calendar || $confidential || ($writeable && !$calendar['writeable'])) {
       foreach ($calendars as $cal) {
         if ($confidential && $cal['subtype'] == 'confidential') {
           $calendar = $cal;
@@ -276,7 +276,7 @@ class calendar extends rcube_plugin
           if (!$confidential)
             break;
         }
-        if (!$writeable || !$cal['readonly']) {
+        if (!$writeable || $cal['writeable']) {
           $first = $cal;
         }
       }
@@ -2459,7 +2459,7 @@ class calendar extends rcube_plugin
       $calendar_select->add('--', '');
       $numcals = 0;
       foreach ($calendars as $calendar) {
-        if (!$calendar['readonly']) {
+        if ($calendar['writeable']) {
           $calendar_select->add($calendar['name'], $calendar['id']);
           $numcals++;
         }
@@ -2840,7 +2840,7 @@ class calendar extends rcube_plugin
       }
       
       // save to calendar
-      if ($calendar && !$calendar['readonly']) {
+      if ($calendar && $calendar['writeable']) {
         // check for existing event with the same UID
         $existing = $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
 
@@ -3107,7 +3107,7 @@ class calendar extends rcube_plugin
       foreach ($events as $event) {
         // save to calendar
         $calendar = $calendars[$cal_id] ?: $this->get_default_calendar(true, $event['sensitivity'] == 'confidential');
-        if ($calendar && !$calendar['readonly'] && $event['_type'] == 'event') {
+        if ($calendar && $calendar['writeable'] && $event['_type'] == 'event') {
           $event['calendar'] = $calendar['id'];
 
           if (!$this->driver->get_event($event['uid'], calendar_driver::FILTER_WRITEABLE)) {

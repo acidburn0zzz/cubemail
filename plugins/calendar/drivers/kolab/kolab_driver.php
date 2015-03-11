@@ -103,7 +103,7 @@ class kolab_driver extends calendar_driver
 
       if ($calendar->ready) {
         $this->calendars[$calendar->id] = $calendar;
-        if (!$calendar->readonly)
+        if ($calendar->writeable)
           $this->has_writeable = true;
       }
     }
@@ -173,9 +173,9 @@ class kolab_driver extends calendar_driver
           'owner'    => $cal->get_owner(),
           'history'  => false,
           'virtual'  => false,
-          'readonly' => true,
-          'group'    => 'other',
-          'class'    => 'user',
+          'writeable' => false,
+          'group'     => 'other',
+          'class'     => 'user',
           'removable' => true,
         );
       }
@@ -185,10 +185,10 @@ class kolab_driver extends calendar_driver
           'name' => $fullname,
           'listname' => $listname,
           'editname' => $cal->get_foldername(),
-          'virtual' => true,
-          'readonly' => true,
-          'group'    => $cal->get_namespace(),
-          'class'    => 'folder',
+          'virtual'  => true,
+          'writeable' => false,
+          'group'     => $cal->get_namespace(),
+          'class'     => 'folder',
         );
       }
       else {
@@ -199,7 +199,8 @@ class kolab_driver extends calendar_driver
           'editname' => $cal->get_foldername(),
           'title'    => $cal->get_title(),
           'color'    => $cal->get_color(),
-          'readonly' => $cal->readonly,
+          'writeable' => $cal->writeable,
+          'insert'    => $cal->insert,
           'showalarms' => $cal->alarms,
           'history'  => !empty($this->bonnie_api),
           'group'    => $cal->get_namespace(),
@@ -232,7 +233,8 @@ class kolab_driver extends calendar_driver
             'editname' => $cal->get_foldername(),
             'title'    => $cal->get_title(),
             'color'    => $cal->get_color(),
-            'readonly' => $cal->readonly,
+            'writeable' => $cal->writeable,
+            'insert'   => $cal->insert,
             'showalarms' => $cal->alarms,
             'history'  => !empty($this->bonnie_api),
             'group'    => 'x-invitations',
@@ -266,7 +268,7 @@ class kolab_driver extends calendar_driver
           'active'     => (bool)$prefs[$id]['active'],
           'showalarms' => (bool)$this->rc->config->get('calendar_birthdays_alarm_type'),
           'group'      => 'x-birthdays',
-          'readonly'   => true,
+          'writeable'  => false,
           'default'    => false,
           'children'   => false,
           'history'    => false,
@@ -293,6 +295,7 @@ class kolab_driver extends calendar_driver
       'calendars' => $calendars,
       'filter'    => $filter,
       'writeable' => ($filter & self::FILTER_WRITEABLE),
+      'insert'    => ($filter & self::FILTER_INSERTABLE),
       'active'    => ($filter & self::FILTER_ACTIVE),
       'personal'  => ($filter & self::FILTER_PERSONAL),
     ));
@@ -305,7 +308,10 @@ class kolab_driver extends calendar_driver
       if (!$cal->ready) {
         continue;
       }
-      if (($filter & self::FILTER_WRITEABLE) && $cal->readonly) {
+      if (($filter & self::FILTER_WRITEABLE) && !$cal->writeable) {
+        continue;
+      }
+      if (($filter & self::FILTER_INSERTABLE) && !$cal->insert) {
         continue;
       }
       if (($filter & self::FILTER_ACTIVE) && !$cal->is_active()) {

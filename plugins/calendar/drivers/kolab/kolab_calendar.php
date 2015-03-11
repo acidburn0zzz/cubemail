@@ -27,7 +27,8 @@
 class kolab_calendar extends kolab_storage_folder_api
 {
   public $ready = false;
-  public $readonly = true;
+  public $writeable = false;
+  public $insert = false;
   public $attachments = true;
   public $alarms = false;
   public $history = false;
@@ -78,17 +79,20 @@ class kolab_calendar extends kolab_storage_folder_api
     $this->storage = kolab_storage::get_folder($this->name);
     $this->ready = $this->storage && $this->storage->valid;
 
-    // Set readonly and alarms flags according to folder permissions
+    // Set writeable and alarms flags according to folder permissions
     if ($this->ready) {
       if ($this->storage->get_namespace() == 'personal') {
-        $this->readonly = false;
+        $this->writeable = true;
+        $this->insert = true;
         $this->alarms = true;
       }
       else {
         $rights = $this->storage->get_myrights();
         if ($rights && !PEAR::isError($rights)) {
-          if (strpos($rights, 'i') !== false)
-            $this->readonly = false;
+          if (strpos($rights, 'i') !== false || strpos($rights, 'w') !== false)
+            $this->insert = true;
+          if (strpos($rights, 't') !== false || strpos($rights, 'd') !== false)
+            $this->writeable = $this->insert;
         }
       }
       

@@ -96,10 +96,11 @@ abstract class calendar_driver
 {
   const FILTER_ALL           = 0;
   const FILTER_WRITEABLE     = 1;
-  const FILTER_ACTIVE        = 2;
-  const FILTER_PERSONAL      = 4;
-  const FILTER_PRIVATE       = 8;
-  const FILTER_CONFIDENTIAL  = 16;
+  const FILTER_INSERTABLE    = 2;
+  const FILTER_ACTIVE        = 4;
+  const FILTER_PERSONAL      = 8;
+  const FILTER_PRIVATE       = 16;
+  const FILTER_CONFIDENTIAL  = 32;
   const BIRTHDAY_CALENDAR_ID = '__bdays__';
 
   // features supported by backend

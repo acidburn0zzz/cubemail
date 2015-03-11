@@ -26,7 +26,7 @@ class kolab_invitation_calendar
   public $id = '__invitation__';
   public $ready = true;
   public $alarms = false;
-  public $readonly = true;
+  public $writeable = false;
   public $attachments = false;
   public $subscriptions = false;
   public $partstats = array('unknown');

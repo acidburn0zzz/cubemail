@@ -89,6 +89,8 @@ class database_driver extends calendar_driver
         $arr['active']     = !in_array($arr['id'], $hidden);
         $arr['name']       = html::quote($arr['name']);
         $arr['listname']   = html::quote($arr['name']);
+        $arr['insert']     = true;
+        $arr['writeable']  = true;
         $this->calendars[$arr['calendar_id']] = $arr;
         $calendar_ids[] = $this->rc->db->quote($arr['calendar_id']);
       }
@@ -139,7 +141,7 @@ class database_driver extends calendar_driver
           'showalarms' => (bool)$this->rc->config->get('calendar_birthdays_alarm_type'),
           'active'     => !in_array($id, $hidden),
           'group'      => 'x-birthdays',
-          'readonly'   => true,
+          'writeable'  => false,
           'default'    => false,
           'children'   => false,
         );
