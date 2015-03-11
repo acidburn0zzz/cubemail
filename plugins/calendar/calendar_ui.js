@@ -63,7 +63,7 @@ function rcube_calendar_ui(settings)
     var resources_data = {};
     var resources_index = [];
     var resource_owners = {};
-    var resources_events_source = { url:null, editable:false, insertable:false };
+    var resources_events_source = { url:null, editable:false };
     var freebusy_ui = { workinhoursonly:false, needsupdate:false };
     var freebusy_data = {};
     var current_view = null;
@@ -309,6 +309,26 @@ function rcube_calendar_ui(settings)
       return is_attendee(event, 'ORGANIZER', email) || !event.id;
     };
 
+    /**
+     * Check permissions on the given calendar object
+     */
+    var has_permission = function(cal, perm)
+    {
+      // multiple chars means "either of"
+      if (String(perm).length > 1) {
+        for (var i=0; i < perm.length; i++) {
+          if (has_permission(cal, perm[i]))
+              return true;
+        }
+      }
+
+      if (cal.rights && String(cal.rights).indexOf(perm) >= 0) {
+        return true;
+      }
+
+      return (perm == 'i' && cal.editable) || (perm == 'v' && cal.editable);
+    }
+
     var load_attachment = function(event, att)
     {
       var query = { _id: att.id, _event: event.recurrence_id || event.id, _cal:event.calendar, _frame: 1 };
@@ -392,7 +412,7 @@ function rcube_calendar_ui(settings)
     var event_show_dialog = function(event, ev, temp)
     {
       var $dialog = $("#eventshow");
-      var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { editable:false, insertable:false };
+      var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { editable:false, rights:'lrs' };
 
       if (!temp)
         me.selected_event = event;
@@ -545,7 +565,7 @@ function rcube_calendar_ui(settings)
             .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
         }
 
-        var show_rsvp = rsvp && !is_organizer(event) && event.status != 'CANCELLED';
+        var show_rsvp = rsvp && !is_organizer(event) && event.status != 'CANCELLED' && has_permission(calendar, 'v');
         $('#event-rsvp')[(show_rsvp ? 'show' : 'hide')]();
         $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
 
@@ -572,6 +592,8 @@ function rcube_calendar_ui(settings)
             event_edit_dialog('edit', event);
           }
         });
+      }
+      if (!temp && has_permission(calendar, 'td') && event.editable !== false) {
         buttons.push({
           text: rcmail.gettext('delete', 'calendar'),
           'class': 'delete',
@@ -581,7 +603,8 @@ function rcube_calendar_ui(settings)
           }
         });
       }
-      else {
+
+      if (!buttons.length) {
         buttons.push({
           text: rcmail.gettext('close', 'calendar'),
           click: function(){
@@ -687,7 +710,7 @@ function rcube_calendar_ui(settings)
       $("#eventshow:ui-dialog").data('opener', null).dialog('close');
 
       var $dialog = $('<div>');
-      var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { insertable:action=='new' };
+      var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { editable:true, rights: action=='new' ? 'lrwitd' : 'lrs' };
       me.selected_event = $.extend($.extend({}, event_defaults), event);  // clone event object (with defaults)
       event = me.selected_event; // change reference to clone
       freebusy_ui.needsupdate = false;
@@ -737,7 +760,7 @@ function rcube_calendar_ui(settings)
       // set calendar selection according to permissions
       calendars.find('option').each(function(i, opt) {
         var cal = me.calendars[opt.value] || {};
-        $(opt).prop('disabled', !(cal.editable || (action == 'new' && cal.insertable)))
+        $(opt).prop('disabled', !(cal.editable || (action == 'new' && has_permission(cal, 'i'))))
       });
 
       // set alarm(s)
@@ -3559,8 +3582,6 @@ function rcube_calendar_ui(settings)
 
       me.calendars[id] = $.extend({
         url: rcmail.url('calendar/load_events', { source: id }),
-        editable: cal.writeable || false,
-        insertable: cal.insert || false,
         className: 'fc-event-cal-'+id,
         id: id
       }, cal);
@@ -3590,7 +3611,7 @@ function rcube_calendar_ui(settings)
 
       // insert to #calendar-select options if writeable
       select = $('#edit-calendar');
-      if (fc && (cal.writeable || cal.insert) && select.length && !select.find('option[value="'+id+'"]').length) {
+      if (fc && has_permission(cal, 'i') && select.length && !select.find('option[value="'+id+'"]').length) {
         $('<option>').attr('value', id).html(cal.name).appendTo(select);
       }
     }
@@ -3625,7 +3646,7 @@ function rcube_calendar_ui(settings)
         count_sources.push(id);
       }
 
-      if (cal.writeable && !this.selected_calendar) {
+      if (cal.editable && !this.selected_calendar) {
         this.selected_calendar = id;
         rcmail.enable_command('addevent', true);
       }
@@ -3776,8 +3797,7 @@ function rcube_calendar_ui(settings)
         color: '#fff',
         textColor: '#333',
         editable: false,
-        writeable: false,
-        insertable: false,
+        rights: 'lrs',
         attendees: true
       };
       event_sources.push(me.calendars['--invitation--itip']);

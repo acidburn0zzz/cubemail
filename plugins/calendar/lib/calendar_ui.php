@@ -294,7 +294,7 @@ class calendar_ui
 
     if ($prop['virtual'])
       $classes[] = 'virtual';
-    else if (!$prop['writeable'])
+    else if (!$prop['editable'])
       $classes[] = 'readonly';
     if ($prop['subscribed'])
       $classes[] = 'subscribed';
@@ -361,7 +361,7 @@ class calendar_ui
     $select = new html_select($attrib);
 
     foreach ((array)$this->cal->driver->list_calendars() as $id => $prop) {
-      if (!empty($prop['insert']))
+      if ($prop['editable'] || strpos($prop['rights'], 'i') !== false)
         $select->add($prop['name'], $id);
     }
 
