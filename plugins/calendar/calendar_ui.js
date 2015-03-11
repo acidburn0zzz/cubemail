@@ -1162,8 +1162,8 @@ function rcube_calendar_ui(settings)
 
           // special case: title
           if (prop == 'title') {
-            $('.event-title', $dialog).addClass('event-text-old').text(change.old || '--');
-            $('.event-title-new', $dialog).text(change.new || '--').show();
+            $('.event-title', $dialog).addClass('event-text-old').text(change['old'] || '--');
+            $('.event-title-new', $dialog).text(change['new'] || '--').show();
           }
 
           // no display container for this property
@@ -1179,40 +1179,40 @@ function rcube_calendar_ui(settings)
 
           // format dates
           if (['start','end','changed'].indexOf(prop) >= 0) {
-            if (change.old) change.old_ = me.format_datetime(parseISO8601(change.old));
-            if (change.new) change.new_ = me.format_datetime(parseISO8601(change.new));
+            if (change['old']) change.old_ = me.format_datetime(parseISO8601(change['old']));
+            if (change['new']) change.new_ = me.format_datetime(parseISO8601(change['new']));
           }
           // render description text
           else if (prop == 'description') {
             // TODO: show real text diff
-            if (!change.diff_ && change.old) change.old_ = text2html(change.old);
-            if (!change.diff_ && change.new) change.new_ = text2html(change.new);
+            if (!change.diff_ && change['old']) change.old_ = text2html(change['old']);
+            if (!change.diff_ && change['new']) change.new_ = text2html(change['new']);
             html = true;
           }
           // format attendees struct
           else if (prop == 'attendees') {
-            if (change.old) change.old_ = event_attendee_html(change.old);
-            if (change.new) change.new_ = event_attendee_html($.extend({}, change.old || {}, change.new));
+            if (change['old']) change.old_ = event_attendee_html(change['old']);
+            if (change['new']) change.new_ = event_attendee_html($.extend({}, change['old'] || {}, change['new']));
             html = true;
           }
           // localize priority values
           else if (prop == 'priority') {
             var priolabels = [ '', rcmail.gettext('highest'), rcmail.gettext('high'), '', '', rcmail.gettext('normal'), '', '', rcmail.gettext('low'), rcmail.gettext('lowest') ];
-            if (change.old) change.old_ = change.old + ' ' + (priolabels[change.old] || '');
-            if (change.new) change.new_ = change.new + ' ' + (priolabels[change.new] || '');
+            if (change['old']) change.old_ = change['old'] + ' ' + (priolabels[change['old']] || '');
+            if (change['new']) change.new_ = change['new'] + ' ' + (priolabels[change['new']] || '');
           }
           // localize status
           else if (prop == 'status') {
             var status_lc = String(event.status).toLowerCase();
-            if (change.old) change.old_ = rcmail.gettext(String(change.old).toLowerCase(), 'calendar');
-            if (change.new) change.new_ = rcmail.gettext(String(change.new).toLowerCase(), 'calendar');
+            if (change['old']) change.old_ = rcmail.gettext(String(change['old']).toLowerCase(), 'calendar');
+            if (change['new']) change.new_ = rcmail.gettext(String(change['new']).toLowerCase(), 'calendar');
           }
 
           // format attachments struct
           if (prop == 'attachments') {
-            if (change.old) event_show_attachments([change.old], row.children('.event-text-old'), event, false);
+            if (change['old']) event_show_attachments([change['old']], row.children('.event-text-old'), event, false);
             else            row.children('.event-text-old').text('--');
-            if (change.new) event_show_attachments([$.extend({}, change.old || {}, change.new)], row.children('.event-text-new'), event, false);
+            if (change['new']) event_show_attachments([$.extend({}, change['old'] || {}, change['new'])], row.children('.event-text-new'), event, false);
             else            row.children('.event-text-new').text('--');
             // remove click handler as we're currentyl not able to display the according attachment contents
             $('.attachmentslist li a', row).unbind('click').removeAttr('href');
@@ -1224,11 +1224,11 @@ function rcube_calendar_ui(settings)
           else {
             if (!html) {
               // escape HTML characters
-              change.old_ = Q(change.old_ || change.old || '--')
-              change.new_ = Q(change.new_ || change.new || '--')
+              change.old_ = Q(change.old_ || change['old'] || '--')
+              change.new_ = Q(change.new_ || change['new'] || '--')
             }
-            row.children('.event-text-old').html(change.old_ || change.old || '--');
-            row.children('.event-text-new').html(change.new_ || change.new || '--');
+            row.children('.event-text-old').html(change.old_ || change['old'] || '--');
+            row.children('.event-text-new').html(change.new_ || change['new'] || '--');
           }
 
           // display index number
