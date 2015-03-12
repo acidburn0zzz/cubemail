@@ -157,7 +157,7 @@ function rcube_calendar_ui(settings)
             element.find('div.fc-event-time').append('<i class="fc-icon-sensitive"></i>');
           if (event.recurrence)
             element.find('div.fc-event-time').append('<i class="fc-icon-recurring"></i>');
-          if (event.alarms)
+          if (event.alarms || (event.valarms && event.valarms.length))
             element.find('div.fc-event-time').append('<i class="fc-icon-alarms"></i>');
         }
         if (event.status) {
