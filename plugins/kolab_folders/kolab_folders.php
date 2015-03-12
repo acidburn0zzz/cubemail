@@ -68,6 +68,10 @@ class kolab_folders extends rcube_plugin
 
         // Special folders setting
         $this->add_hook('preferences_save', array($this, 'prefs_save'));
+
+        // ACL plugin hooks
+        $this->add_hook('acl_rights_simple', array($this, 'acl_rights_simple'));
+        $this->add_hook('acl_rights_supported', array($this, 'acl_rights_supported'));
     }
 
     /**
@@ -436,6 +440,68 @@ class kolab_folders extends rcube_plugin
             list($maintype, $subtype) = explode('.', $type);
             foreach (array_keys($folders) as $folder) {
                 $this->set_folder_type($folder, $maintype);
+            }
+        }
+
+        return $args;
+    }
+
+    /**
+     * Handler for ACL permissions listing (acl_rights_simple hook)
+     *
+     * This shall combine the write and delete permissions into one item for
+     * groupware folders as updating groupware objects is an insert + delete operation.
+     *
+     * @param array $args Hash array with hook parameters
+     *
+     * @return array Hash array with modified hook parameters
+     */
+    public function acl_rights_simple($args)
+    {
+        if ($args['folder']) {
+            list($type,) = $this->get_folder_type($args['folder']);
+
+            // we're dealing with a groupware folder here...
+            if ($type && $type !== 'mail') {
+                if ($args['rights']['write'] && $args['rights']['delete']) {
+                    $writeperms = $args['rights']['write'] . $args['rights']['delete'];
+                    $items = array(
+                        'read'   => 'lr',
+                        'write'  => $writeperms,
+                        'other'  => preg_replace('/[lr'.$writeperms.']/', '', $args['rights']['other']),
+                    );
+                    $args['rights'] = $items;
+
+                    // add localized labels and titles for the altered items
+                    $args['labels'] = array(
+                        'other'  => $this->rc->gettext('shortacla','acl'),
+                    );
+                    $args['titles'] = array(
+                        'other'  => $this->rc->gettext('longaclother','acl'),
+                    );
+                }
+            }
+        }
+
+        return $args;
+    }
+
+    /**
+     * Handler for ACL permissions listing (acl_rights_supported hook)
+     *
+     * @param array $args Hash array with hook parameters
+     *
+     * @return array Hash array with modified hook parameters
+     */
+    public function acl_rights_supported($args)
+    {
+        if ($args['folder']) {
+            list($type,) = $this->get_folder_type($args['folder']);
+
+            // we're dealing with a groupware folder here...
+            if ($type && $type !== 'mail') {
+                // remove some irrelevant (for groupware objects) rights
+                $args['rights'] = str_split(preg_replace('/[sp]/', '', join('', $args['rights'])));
             }
         }
 
