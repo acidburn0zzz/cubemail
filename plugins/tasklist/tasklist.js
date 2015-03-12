@@ -2707,7 +2707,7 @@ function rcube_tasklist_ui(settings)
                 editform = $('#tasklisteditform');
                 me.dialog_resize(rcmail.gui_containers.tasklistform, editform.height(), editform.width());
 
-                name = $('#taskedit-tasklistame').prop('disabled', list.norename||false).val(list.editname || list.name);
+                name = $('#taskedit-tasklistame').prop('disabled', !has_permission(list, 'a')||list.norename).val(list.editname || list.name);
                 alarms = $('#taskedit-showalarms').prop('checked', list.showalarms).get(0);
                 name.select();
 
