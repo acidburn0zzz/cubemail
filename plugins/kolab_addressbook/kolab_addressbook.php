@@ -224,11 +224,14 @@ class kolab_addressbook extends rcube_plugin
             if (!empty($folder->children)) {
                 $child_html = $this->folder_tree_html($folder, $data, $jsdata);
 
-                if (!empty($child_html) && preg_match('!</ul>\n*$!', $content)) {
-                    $content = preg_replace('!</ul>\n*$!', $child_html . '</ul>', $content);
+                // copy group items...
+                if (preg_match('!<ul[^>]*>(.*)</ul>\n*$!Ums', $content, $m)) {
+                    $child_html = $m[1] . $child_html;
+                    $content = substr($content, 0, -strlen($m[0]) - 1);
                 }
-                else if (!empty($child_html)) {
-                    $content .= html::tag('ul', array('style' => ($is_collapsed ? "display:none;" : null)), $child_html);
+                // ... and re-create the subtree
+                if (!empty($child_html)) {
+                    $content .= html::tag('ul', array('class' => 'groups', 'style' => ($is_collapsed ? "display:none;" : null)), $child_html);
                 }
             }
 
