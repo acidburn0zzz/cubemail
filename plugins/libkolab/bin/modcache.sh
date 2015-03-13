@@ -67,6 +67,9 @@ if (!$db->is_connected() || $db->is_error())
 
 ini_set('display_errors', 1);
 
+// All supported object types
+$all_types = array('contact','configuration','event','file','journal','note','task');
+
 /*
  * Script controller
  */
@@ -76,7 +79,7 @@ switch (strtolower($action)) {
  * Clear/expunge all cache records
  */
 case 'expunge':
-    $folder_types = $opts['type'] ? explode(',', $opts['type']) : array('contact','configuration','event','file','journal','note','task');
+    $folder_types = $opts['type'] ? explode(',', $opts['type']) : $all_types;
     $folder_types_db = array_map(array($db, 'quote'), $folder_types);
     $expire = strtotime(!empty($opts[2]) ? $opts[2] : 'now - 10 days');
     $sql_where = "type IN (" . join(',', $folder_types_db) . ")";
@@ -99,7 +102,7 @@ case 'expunge':
     break;
 
 case 'clear':
-    $folder_types = $opts['type'] ? explode(',', $opts['type']) : array('contact','configuration','event','file','journal','note','task');
+    $folder_types = $opts['type'] ? explode(',', $opts['type']) : $all_types;
     $folder_types_db = array_map(array($db, 'quote'), $folder_types);
 
     if ($opts['all']) {
@@ -124,7 +127,7 @@ case 'prewarm':
     $rcmail->plugins->load_plugin('libkolab');
 
     if (authenticate($opts)) {
-        $folder_types = $opts['type'] ? explode(',', $opts['type']) : array('contact','configuration','event','file','task');
+        $folder_types = $opts['type'] ? explode(',', $opts['type']) : $all_types;
         foreach ($folder_types as $type) {
             // sync every folder of the given type
             foreach (kolab_storage::get_folders($type) as $folder) {
@@ -151,7 +154,7 @@ case 'update':
     // make sure libkolab classes are loaded
     $rcmail->plugins->load_plugin('libkolab');
 
-    $folder_types = $opts['type'] ? explode(',', $opts['type']) : array('contact','configuration','event','file','task');
+    $folder_types = $opts['type'] ? explode(',', $opts['type']) : $all_types;
     foreach ($folder_types as $type) {
         $class = 'kolab_storage_cache_' . $type;
         $sql_result = $db->query("SELECT folder_id FROM kolab_folders WHERE type=? AND synclock = 0", $type);
