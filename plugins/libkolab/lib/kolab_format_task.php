@@ -117,6 +117,20 @@ class kolab_format_task extends kolab_format_xcal
     }
 
     /**
+     * Return the reference date for recurrence and alarms
+     *
+     * @return mixed DateTime instance of null if no refdate is available
+     */
+    public function get_reference_date()
+    {
+        if ($this->data['due'] && $this->data['due'] instanceof DateTime) {
+            return $this->data['due'];
+        }
+
+        return self::php_datetime($this->obj->due()) ?: parent::get_reference_date();
+    }
+
+    /**
      * Callback for kolab_storage_cache to get object specific tags to cache
      *
      * @return array List of tags to save in cache

@@ -184,7 +184,10 @@ abstract class kolab_format_xcal extends kolab_format
                 $object['recurrence']['COUNT'] = $count;
             }
             else if ($until = self::php_datetime($rr->end())) {
-                $until->setTime($object['start']->format('G'), $object['start']->format('i'), 0);
+                $refdate = $this->get_reference_date();
+                if ($refdate && $refdate instanceof DateTime && !$refdate->_dateonly) {
+                    $until->setTime($refdate->format('G'), $refdate->format('i'), 0);
+                }
                 $object['recurrence']['UNTIL'] = $until;
             }
 
@@ -565,6 +568,20 @@ abstract class kolab_format_xcal extends kolab_format
         $this->obj->setAlarms($valarms);
 
         $this->set_attachments($object);
+    }
+
+    /**
+     * Return the reference date for recurrence and alarms
+     *
+     * @return mixed DateTime instance of null if no refdate is available
+     */
+    public function get_reference_date()
+    {
+        if ($this->data['start'] && $this->data['start'] instanceof DateTime) {
+            return $this->data['start'];
+        }
+
+        return self::php_datetime($this->obj->start());
     }
 
     /**
