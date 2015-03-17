@@ -21,6 +21,7 @@ $labels['newtask'] = '新しいタスク';
 $labels['createtask'] = 'Create Task <Enter>';
 $labels['createnewtask'] = '新しいタスクの生成(例:土曜日、芝生を刈る)';
 $labels['createfrommail'] = 'タスクとして保存';
+$labels['printdescriptions'] = '説明印刷';
 $labels['mark'] = 'マーク';
 $labels['unmark'] = 'マーク解除';
 $labels['edit'] = '編集';

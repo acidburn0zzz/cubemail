@@ -8,7 +8,7 @@
  */
 $labels['default_view'] = 'Domyślny widok';
 $labels['time_format'] = 'Format czasu';
-$labels['timeslots'] = 'Time slots per hour';
+$labels['timeslots'] = 'Przedziały czasowe w ciągu godziny';
 $labels['first_day'] = 'Pierwszy dzień tygodnia';
 $labels['first_hour'] = 'Pierwsza godzina';
 $labels['workinghours'] = 'Godziny robocze';
@@ -89,7 +89,7 @@ $labels['unknown'] = 'Nieznany';
 $labels['eventoptions'] = 'Opcje';
 $labels['generated'] = 'wygenerowano';
 $labels['eventhistory'] = 'Historia';
-$labels['removelink'] = 'Remove email reference';
+$labels['removelink'] = 'Usuń odnośnik e-mail';
 $labels['printdescriptions'] = 'Drukuj opisy';
 $labels['parentcalendar'] = 'Wstaw wewnątrz';
 $labels['searchearlierdates'] = '« Szukaj wcześniejszych zdarzeń';

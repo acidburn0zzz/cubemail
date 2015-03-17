@@ -16,6 +16,7 @@ $labels['removelist'] = 'Remove from list';
 $labels['newtask'] = 'Neue Aufgabe';
 $labels['createnewtask'] = 'Neue Aufgabe eingeben (z.B. Samstag, Rasenmähen)';
 $labels['createfrommail'] = 'Als Aufgabe speichern';
+$labels['printdescriptions'] = 'Beschrieb drucken';
 $labels['mark'] = 'Markieren';
 $labels['unmark'] = 'Markierung aufheben';
 $labels['edit'] = 'Bearbeiten';

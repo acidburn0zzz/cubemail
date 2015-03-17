@@ -21,6 +21,7 @@ $labels['newtask'] = 'Nowe zadanie';
 $labels['createtask'] = 'Utwórz zadanie <Enter>';
 $labels['createnewtask'] = 'Utwórz nowe zadanie (n.p. sobota, skosić trawnik)';
 $labels['createfrommail'] = 'Zapisz jako zadanie';
+$labels['printdescriptions'] = 'Drukuj opisy';
 $labels['mark'] = 'Zaznacz';
 $labels['unmark'] = 'Odznacz';
 $labels['edit'] = 'Edytuj';

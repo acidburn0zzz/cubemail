@@ -21,6 +21,7 @@ $labels['newtask'] = 'Nova tasca';
 $labels['createtask'] = 'Crea una tasca <Enter>';
 $labels['createnewtask'] = 'Crea una nova tasca (per exemple, Dissabte talla la gespa)';
 $labels['createfrommail'] = 'Desa com a tasca';
+$labels['printdescriptions'] = 'Imprimeix descripcions';
 $labels['mark'] = 'Marca';
 $labels['unmark'] = 'Desmarca';
 $labels['edit'] = 'Edita';

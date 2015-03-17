@@ -21,6 +21,7 @@ $labels['newtask'] = 'Új feladat';
 $labels['createtask'] = 'Create Task <Enter>';
 $labels['createnewtask'] = 'Új feladat címe';
 $labels['createfrommail'] = 'Mentés feladatként';
+$labels['printdescriptions'] = 'Leírás nyomtatása';
 $labels['mark'] = 'Jelölés be';
 $labels['unmark'] = 'Jelölés ki';
 $labels['edit'] = 'Módosítás';

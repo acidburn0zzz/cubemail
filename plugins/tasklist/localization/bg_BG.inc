@@ -21,6 +21,7 @@ $labels['newtask'] = 'New Task';
 $labels['createtask'] = 'Create Task <Enter>';
 $labels['createnewtask'] = 'Create new Task (e.g. Saturday, Mow the lawn)';
 $labels['createfrommail'] = 'Save as task';
+$labels['printdescriptions'] = 'Печат на описанията';
 $labels['mark'] = 'Mark';
 $labels['unmark'] = 'Unmark';
 $labels['edit'] = 'Промяна';

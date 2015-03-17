@@ -21,6 +21,7 @@ $labels['newtask'] = 'Ny uppgift';
 $labels['createtask'] = 'Skapa uppgift';
 $labels['createnewtask'] = 'Skapa ny uppgift (t.ex. lördag, klipp gräsmattan)';
 $labels['createfrommail'] = 'Spara som uppgift';
+$labels['printdescriptions'] = 'Skriv ut beskrivning';
 $labels['mark'] = 'Märk';
 $labels['unmark'] = 'Avmarkera';
 $labels['edit'] = 'Redigera';

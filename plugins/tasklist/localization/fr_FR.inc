@@ -21,6 +21,7 @@ $labels['newtask'] = 'Nouvelle tâche';
 $labels['createtask'] = 'Créer une tâche <Entrer>';
 $labels['createnewtask'] = 'Créer une nouvelle tâche (ex : Samedi, tondre la pelouse)';
 $labels['createfrommail'] = 'Sauvegarder comme une tâche';
+$labels['printdescriptions'] = 'Imprimer les descriptions';
 $labels['mark'] = 'Sélectionner';
 $labels['unmark'] = 'Désélectionner';
 $labels['edit'] = 'Modifier';
