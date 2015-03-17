@@ -20,6 +20,8 @@ $labels['searchterms'] = 'Search terms';
 $labels['notasklistsfound'] = 'No tasklists found';
 $labels['nrtasklistsfound'] = '$nr tasklists found';
 $labels['removelist'] = 'Remove from list';
+$labels['showcaldavurl'] = 'Show CalDAV URL';
+$labels['caldavurldescription'] = 'Copy this address to a <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> client application (e.g. Evolution or Mozilla Thunderbird) to synchronize this specific tasklist with your computer or mobile device.';
 
 $labels['newtask'] = 'New Task';
 $labels['createtask'] = 'Create Task <Enter>';

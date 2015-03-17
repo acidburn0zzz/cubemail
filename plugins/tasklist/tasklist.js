@@ -120,6 +120,7 @@ function rcube_tasklist_ui(settings)
     this.expand_collapse = expand_collapse;
     this.list_delete = list_delete;
     this.list_remove = list_remove;
+    this.list_showurl = list_showurl;
     this.list_edit_dialog = list_edit_dialog;
     this.unlock_saving = unlock_saving;
 
@@ -172,6 +173,7 @@ function rcube_tasklist_ui(settings)
             rcmail.enable_command('list-delete', has_permission(me.tasklists[node.id], 'xa'));
             rcmail.enable_command('list-import', has_permission(me.tasklists[node.id], 'i'));
             rcmail.enable_command('list-remove', me.tasklists[node.id] && me.tasklists[node.id].removable);
+            rcmail.enable_command('list-showurl', me.tasklists[node.id] && !!me.tasklists[node.id].caldavurl);
             me.selected_list = node.id;
         });
         tasklists_widget.addEventListener('subscribe', function(p) {
@@ -2879,6 +2881,32 @@ function rcube_tasklist_ui(settings)
     }
 
     /**
+     *
+     */
+    function list_showurl(id)
+    {
+        var list = me.tasklists[id];
+        if (list && list.caldavurl) {
+            $('div.showurldialog:ui-dialog').dialog('close');
+
+            var $dialog = $('<div>').addClass('showurldialog').append('<p>'+rcmail.gettext('caldavurldescription', 'tasklist')+'</p>'),
+                textbox = $('<textarea>').addClass('urlbox').css('width', '100%').attr('rows', 2).appendTo($dialog);
+
+            $dialog.dialog({
+                resizable: true,
+                closeOnEscape: true,
+                title: rcmail.gettext('showcaldavurl', 'tasklist'),
+                close: function() {
+                  $dialog.dialog("destroy").remove();
+                },
+                width: 520
+            }).show();
+
+            textbox.val(list.caldavurl).select();
+        }
+    }
+
+    /**
      * Execute search
      */
     function quicksearch()
@@ -3115,6 +3143,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.register_command('list-edit', function(){ rctasks.list_edit_dialog(rctasks.selected_list); }, false);
   rcmail.register_command('list-delete', function(){ rctasks.list_delete(rctasks.selected_list); }, false);
   rcmail.register_command('list-remove', function(){ rctasks.list_remove(rctasks.selected_list); }, false);
+  rcmail.register_command('list-showurl', function(){ rctasks.list_showurl(rctasks.selected_list); }, false);
 
   rcmail.register_command('search', function(){ rctasks.quicksearch(); }, true);
   rcmail.register_command('reset-search', function(){ rctasks.reset_search(); }, true);

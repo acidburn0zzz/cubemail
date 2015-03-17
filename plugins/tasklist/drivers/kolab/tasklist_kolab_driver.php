@@ -151,6 +151,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'subtype'  => $folder->subtype,
             'group' => $folder->default ? 'default' : $folder->get_namespace(),
             'class' => trim($folder->get_namespace() . ($folder->default ? ' default' : '')),
+            'caldavuid' => $folder->get_uid(),
         );
     }
 

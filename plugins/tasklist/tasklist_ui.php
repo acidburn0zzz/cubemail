@@ -248,6 +248,7 @@ class tasklist_ui
             $prop['sortable']    = $this->plugin->driver->sortable;
             $prop['attachments'] = $this->plugin->driver->attachments;
             $prop['attendees']   = $this->plugin->driver->attendees;
+            $prop['caldavurl']   = $this->plugin->driver->tasklist_caldav_url($prop);
             $jsenv[$id] = $prop;
         }
 

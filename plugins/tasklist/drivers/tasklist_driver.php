@@ -359,6 +359,24 @@ abstract class tasklist_driver
     }
 
     /**
+     * Compose an URL for CalDAV access to the given list (if configured)
+     */
+    public function tasklist_caldav_url($list)
+    {
+        $rcmail = rcube::get_instance(); console($list);
+        if (!empty($list['caldavuid']) && ($template = $rcmail->config->get('calendar_caldav_url', null))) {
+            return strtr($template, array(
+                '%h' => $_SERVER['HTTP_HOST'],
+                '%u' => urlencode($rcmail->get_user_name()),
+                '%i' => urlencode($list['caldavuid']),
+                '%n' => urlencode($list['editname']),
+            ));
+        }
+
+        return null;
+    }
+
+    /**
      * Handler for user_delete plugin hook
      *
      * @param array Hash array with hook arguments
