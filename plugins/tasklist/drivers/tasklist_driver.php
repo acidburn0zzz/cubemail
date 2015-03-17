@@ -363,7 +363,7 @@ abstract class tasklist_driver
      */
     public function tasklist_caldav_url($list)
     {
-        $rcmail = rcube::get_instance(); console($list);
+        $rcmail = rcube::get_instance();
         if (!empty($list['caldavuid']) && ($template = $rcmail->config->get('calendar_caldav_url', null))) {
             return strtr($template, array(
                 '%h' => $_SERVER['HTTP_HOST'],
