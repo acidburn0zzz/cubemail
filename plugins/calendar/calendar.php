@@ -1068,7 +1068,6 @@ class calendar extends rcube_plugin
         }
         else {
           $this->rc->output->command('plugin.render_event_changelog', false);
-          $this->rc->output->command('display_message', $this->gettext('eventchangelognotavailable'), 'error');
         }
         $got_msg = true;
         $reload = false;

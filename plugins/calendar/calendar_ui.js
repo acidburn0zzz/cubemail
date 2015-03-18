@@ -1034,7 +1034,8 @@ function rcube_calendar_ui(settings)
       };
 
       // hide and reset changelog table
-      $('#event-changelog-table').children('tbody')
+      $('div.event-dialog-message').remove();
+      $('#event-changelog-table').show().children('tbody')
         .html('<tr><td colspan="6"><span class="loading">'+ rcmail.gettext('loading') +'</span></td></tr>');
 
       // open jquery UI dialog
@@ -1124,7 +1125,9 @@ function rcube_calendar_ui(settings)
       var $dialog = $('#eventhistory');
 
       if (data === false || !data.length) {
-        $dialog.dialog('close');
+        // display 'unavailable' message
+        $('<div class="event-dialog-message warning">'+ rcmail.gettext('eventchangelognotavailable','calendar') +'</div>')
+          .insertBefore($('#event-changelog-table').hide());
         return
       }
 
