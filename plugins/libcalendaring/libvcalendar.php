@@ -908,11 +908,11 @@ class libvcalendar implements Iterator
                     continue;  // no timezone information found
                 }
 
-                if ($vcal) {
-                    $vcal->add($vt);
+                if ($write) {
+                    echo $vt->serialize();
                 }
                 else {
-                    echo $vt->serialize();
+                    $vcal->add($vt);
                 }
             }
         }
