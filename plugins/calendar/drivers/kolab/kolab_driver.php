@@ -1620,7 +1620,13 @@ class kolab_driver extends calendar_driver
     if (!($storage = $this->get_calendar($event['calendar'])))
       return false;
 
-    $event = $storage->get_event($event['id']);
+    // get old revision of event
+    if ($event['rev']) {
+      $event = $this->get_event_revison($event, $event['rev'], true);
+    }
+    else {
+      $event = $storage->get_event($event['id']);
+    }
 
     if ($event && !empty($event['_attachments'])) {
       foreach ($event['_attachments'] as $att) {
@@ -1641,6 +1647,29 @@ class kolab_driver extends calendar_driver
   {
     if (!($cal = $this->get_calendar($event['calendar'])))
       return false;
+
+    // get old revision of event
+    if ($event['rev']) {
+      if (empty($this->bonnie_api)) {
+        return false;
+      }
+
+      $cid = substr($id, 4);
+
+      // call Bonnie API and get the raw mime message
+      list($uid, $mailbox, $msguid) = $this->_resolve_event_identity($event);
+      if ($msg_raw = $this->bonnie_api->rawdata('event', $uid, $event['rev'], $mailbox, $msguid)) {
+        // parse the message and find the part with the matching content-id
+        $message = rcube_mime::parse_message($msg_raw);
+        foreach ((array)$message->parts as $part) {
+          if ($part->headers['content-id'] && trim($part->headers['content-id'], '<>') == $cid) {
+            return $part->body;
+          }
+        }
+      }
+
+      return false;
+    }
 
     return $cal->get_attachment_body($id, $event);
   }
@@ -2002,9 +2031,9 @@ class kolab_driver extends calendar_driver
       return false;
     }
 
-    list($uid, $mailbox) = $this->_resolve_event_identity($event);
+    list($uid, $mailbox, $msguid) = $this->_resolve_event_identity($event);
 
-    $result = $this->bonnie_api->changelog('event', $uid, $mailbox);
+    $result = $this->bonnie_api->changelog('event', $uid, $mailbox, $msguid);
     if (is_array($result) && $result['uid'] == $uid) {
       return $result['changes'];
     }
@@ -2028,10 +2057,10 @@ class kolab_driver extends calendar_driver
       return false;
     }
 
-    list($uid, $mailbox) = $this->_resolve_event_identity($event);
+    list($uid, $mailbox, $msguid) = $this->_resolve_event_identity($event);
 
     // call Bonnie API
-    $result = $this->bonnie_api->diff('event', $uid, $rev1, $rev2, $mailbox);
+    $result = $this->bonnie_api->diff('event', $uid, $rev1, $rev2, $mailbox, $msguid);
     if (is_array($result) && $result['uid'] == $uid) {
       $result['rev1'] = $rev1;
       $result['rev2'] = $rev2;
@@ -2140,26 +2169,29 @@ class kolab_driver extends calendar_driver
    * @return array Event object as hash array
    * @see calendar_driver::get_event_revison()
    */
-  public function get_event_revison($event, $rev)
+  public function get_event_revison($event, $rev, $internal = false)
   {
     if (empty($this->bonnie_api)) {
       return false;
     }
 
     $calid = $event['calendar'];
-    list($uid, $mailbox) = $this->_resolve_event_identity($event);
+    list($uid, $mailbox, $msguid) = $this->_resolve_event_identity($event);
 
     // call Bonnie API
-    $result = $this->bonnie_api->get('event', $uid, $rev, $mailbox);
+    $result = $this->bonnie_api->get('event', $uid, $rev, $mailbox, $msguid);
     if (is_array($result) && $result['uid'] == $uid && !empty($result['xml'])) {
       $format = kolab_format::factory('event');
       $format->load($result['xml']);
       $event = $format->to_array();
+      $format->get_attachments($event, true);
+
+      // TODO: get the right instance from a recurring event
 
       if ($format->is_valid()) {
         $event['calendar'] = $calid;
         $event['rev'] = $result['rev'];
-        return self::to_rcube_event($event);
+        return $internal ? $event : self::to_rcube_event($event);
       }
     }
 
@@ -2167,24 +2199,76 @@ class kolab_driver extends calendar_driver
   }
 
   /**
+   * Command the backend to restore a certain revision of an event.
+   * This shall replace the current event with an older version.
+   *
+   * @param mixed  UID string or hash array with event properties:
+   *        id: Event identifier
+   *  calendar: Calendar identifier
+   * @param mixed  $rev Revision number
+   *
+   * @return boolean True on success, False on failure
+   */
+  public function restore_event_revision($event, $rev)
+  {
+    if (empty($this->bonnie_api)) {
+      return false;
+    }
+
+    list($uid, $mailbox, $msguid) = $this->_resolve_event_identity($event);
+    $calendar = $this->get_calendar($event['calendar']);
+    $success = false;
+
+    if ($calendar && $calendar->storage && $calendar->editable) {
+      if ($raw_msg = $this->bonnie_api->rawdata('event', $uid, $rev, $mailbox)) {
+        $imap = $this->rc->get_storage();
+
+        // insert $raw_msg as new message
+        if ($imap->save_message($calendar->storage->name, $raw_msg, null, false)) {
+          $success = true;
+
+          // delete old revision from imap and cache
+          $imap->delete_message($msguid, $calendar->storage->name);
+          $calendar->storage->cache->set($msguid, false);
+        }
+      }
+    }
+
+    return $success;
+  }
+
+  /**
    * Helper method to resolved the given event identifier into uid and folder
    *
-   * @return array (uid,folder) tuple
+   * @return array (uid,folder,msguid) tuple
    */
   private function _resolve_event_identity($event)
   {
-    $mailbox = null;
+    $mailbox = $msguid = null;
     if (is_array($event)) {
-      $uid = $event['id'] ?: $event['uid'];
+      $uid = $event['uid'] ?: $event['id'];
       if (($cal = $this->get_calendar($event['calendar'])) && !($cal instanceof kolab_invitation_calendar)) {
         $mailbox = $cal->get_mailbox_id();
+
+        // get event object from storage in order to get the real object uid an msguid
+        if ($ev = $cal->get_event($event['id'])) {
+          $msguid = $ev['_msguid'];
+          $uid = $ev['uid'];
+        }
       }
     }
     else {
       $uid = $event;
+
+      // get event object from storage in order to get the real object uid an msguid
+      if ($ev = $this->get_event($event)) {
+        $mailbox = $ev['_mailbox'];
+        $msguid = $ev['_msguid'];
+        $uid = $ev['uid'];
+      }
     }
 
-    return array($uid, $mailbox);
+    return array($uid, $mailbox, $msguid);
   }
 
   /**

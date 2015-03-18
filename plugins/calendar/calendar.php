@@ -1879,8 +1879,9 @@ class calendar extends rcube_plugin
     $event_id = rcube_utils::get_input_value('_event', rcube_utils::INPUT_GPC);
     $calendar = rcube_utils::get_input_value('_cal', rcube_utils::INPUT_GPC);
     $id       = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+    $rev      = rcube_utils::get_input_value('_rev', rcube_utils::INPUT_GPC);
 
-    $event = array('id' => $event_id, 'calendar' => $calendar);
+    $event = array('id' => $event_id, 'calendar' => $calendar, 'rev' => $rev);
     $attachment = $this->driver->get_attachment($id, $event);
 
     // show part page
