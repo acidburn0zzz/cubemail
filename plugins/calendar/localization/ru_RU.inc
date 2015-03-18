@@ -248,7 +248,6 @@ $labels['birthdayscalendarsources'] = 'Из этих адресных книг';
 $labels['birthdayeventtitle'] = 'День рождения $name';
 $labels['birthdayage'] = 'Возраст $age';
 $labels['eventchangelog'] = 'История изменений';
-$labels['eventdiff'] = 'Изменения с ревизии $rev';
 $labels['revision'] = 'Ревизия';
 $labels['user'] = 'Пользователь';
 $labels['operation'] = 'Действие';

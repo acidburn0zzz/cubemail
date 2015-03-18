@@ -248,7 +248,6 @@ $labels['birthdayscalendarsources'] = 'Fra disse adressebøger';
 $labels['birthdayeventtitle'] = '$name har fødselsdag';
 $labels['birthdayage'] = '$age år';
 $labels['eventchangelog'] = 'Ændringshistorik';
-$labels['eventdiff'] = 'Ændringer fra revisionerne $rev';
 $labels['revision'] = 'Revision';
 $labels['user'] = 'Bruger';
 $labels['operation'] = 'Handling';

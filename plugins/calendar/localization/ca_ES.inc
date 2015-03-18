@@ -240,7 +240,6 @@ $labels['birthdayscalendarsources'] = 'D\'aquestes llibretes d\'adreces';
 $labels['birthdayeventtitle'] = 'Aniversari de $name';
 $labels['birthdayage'] = 'Edat $age';
 $labels['eventchangelog'] = 'Canvia historial';
-$labels['eventdiff'] = 'Canvis de revisions $rev';
 $labels['revision'] = 'Revisió';
 $labels['user'] = 'Usuari';
 $labels['operation'] = 'Acció';

@@ -247,7 +247,6 @@ $labels['birthdayscalendarsources'] = 'Z těchto adresářů';
 $labels['birthdayeventtitle'] = 'Narozeniny $name';
 $labels['birthdayage'] = 'Věk $age';
 $labels['eventchangelog'] = 'Historie změn';
-$labels['eventdiff'] = 'Změny od verze $rev';
 $labels['revision'] = 'Verze';
 $labels['user'] = 'Uživatel';
 $labels['operation'] = 'Činnost';

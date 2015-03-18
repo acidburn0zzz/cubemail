@@ -243,7 +243,6 @@ $labels['birthdayscalendarsources'] = 'De estas libretas de direcciones';
 $labels['birthdayeventtitle'] = 'Cumpleaños de $name';
 $labels['birthdayage'] = 'Edad $age';
 $labels['eventchangelog'] = 'Cambiar Historial';
-$labels['eventdiff'] = 'Cambios de revisiones $rev';
 $labels['revision'] = 'Revisión';
 $labels['user'] = 'Usuario';
 $labels['operation'] = 'Acción';

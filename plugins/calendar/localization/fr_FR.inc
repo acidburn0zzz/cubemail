@@ -245,7 +245,6 @@ $labels['birthdayscalendarsources'] = 'Depuis ces carnets d\'adresses';
 $labels['birthdayeventtitle'] = 'Anniversaire de $name';
 $labels['birthdayage'] = 'Age $age';
 $labels['eventchangelog'] = 'Historique des modifications';
-$labels['eventdiff'] = 'Modifications pour le version $rev';
 $labels['revision'] = 'Version';
 $labels['user'] = 'Utilisateur';
 $labels['operation'] = 'Action';

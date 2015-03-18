@@ -1074,7 +1074,7 @@ class calendar extends rcube_plugin
         break;
 
       case "diff":
-        $data = $this->driver->get_event_diff($event, $event['rev']);
+        $data = $this->driver->get_event_diff($event, $event['rev1'], $event['rev2']);
         if (is_array($data)) {
           // convert some properties, similar to self::_client_event()
           $lib = $this->lib;

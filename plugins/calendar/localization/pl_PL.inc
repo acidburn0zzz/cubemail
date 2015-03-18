@@ -246,7 +246,6 @@ $labels['birthdayscalendarsources'] = 'Z tych książek adresowych';
 $labels['birthdayeventtitle'] = 'Urodziny $name\'s';
 $labels['birthdayage'] = 'Wiek $age';
 $labels['eventchangelog'] = 'Historia zmian';
-$labels['eventdiff'] = 'Zmiany od wersji $rev';
 $labels['revision'] = 'Wersja';
 $labels['user'] = 'Użytkownik';
 $labels['operation'] = 'Akcja';

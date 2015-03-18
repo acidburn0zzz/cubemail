@@ -247,7 +247,6 @@ $labels['birthdayscalendarsources'] = 'Da queste rubriche';
 $labels['birthdayeventtitle'] = 'Compleanno di $name';
 $labels['birthdayage'] = 'Età: $age anni';
 $labels['eventchangelog'] = 'Storico modifiche';
-$labels['eventdiff'] = 'Cambiamenti dalle revisioni $rev';
 $labels['revision'] = 'Revisione';
 $labels['user'] = 'Utente';
 $labels['operation'] = 'Azione';

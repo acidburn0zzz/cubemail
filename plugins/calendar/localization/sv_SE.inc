@@ -247,7 +247,6 @@ $labels['birthdayscalendarsources'] = 'Från dessa adressböcker';
 $labels['birthdayeventtitle'] = '$name\s födelsedag';
 $labels['birthdayage'] = '$age år';
 $labels['eventchangelog'] = 'Ändringshistorik';
-$labels['eventdiff'] = 'Ändringar från revisioner $rev';
 $labels['revision'] = 'Revision';
 $labels['user'] = 'Användare';
 $labels['operation'] = 'Åtgärd';

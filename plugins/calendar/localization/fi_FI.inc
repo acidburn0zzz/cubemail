@@ -244,7 +244,6 @@ $labels['birthdayscalendarsources'] = 'Näistä osoitekirjoista';
 $labels['birthdayeventtitle'] = 'Syntymäpäivä: $name';
 $labels['birthdayage'] = 'Ikä $age';
 $labels['eventchangelog'] = 'Muuta historiaa';
-$labels['eventdiff'] = 'Muutokset versiosta $rev';
 $labels['revision'] = 'Versio';
 $labels['user'] = 'Käyttäjä';
 $labels['operation'] = 'Toiminto';

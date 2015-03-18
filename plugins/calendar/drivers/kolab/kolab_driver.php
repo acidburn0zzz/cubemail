@@ -2016,12 +2016,13 @@ class kolab_driver extends calendar_driver
    * Get a list of property changes beteen two revisions of an event
    *
    * @param array  $event Hash array with event properties
-   * @param mixed  $rev   Revisions: "from:to"
+   * @param mixed  $rev1  Old Revision
+   * @param mixed  $rev2  New Revision
    *
    * @return array List of property changes, each as a hash array
    * @see calendar_driver::get_event_diff()
    */
-  public function get_event_diff($event, $rev)
+  public function get_event_diff($event, $rev1, $rev2)
   {
     if (empty($this->bonnie_api)) {
       return false;
@@ -2030,9 +2031,10 @@ class kolab_driver extends calendar_driver
     list($uid, $mailbox) = $this->_resolve_event_identity($event);
 
     // call Bonnie API
-    $result = $this->bonnie_api->diff('event', $uid, $rev, $mailbox);
+    $result = $this->bonnie_api->diff('event', $uid, $rev1, $rev2, $mailbox);
     if (is_array($result) && $result['uid'] == $uid) {
-      $result['rev'] = $rev;
+      $result['rev1'] = $rev1;
+      $result['rev2'] = $rev2;
 
       $keymap = array(
         'dtstart'  => 'start',

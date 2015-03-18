@@ -247,7 +247,6 @@ $labels['birthdayscalendarsources'] = 'Iz teh imenikov';
 $labels['birthdayeventtitle'] = 'Rojstni dan osebe $name';
 $labels['birthdayage'] = 'Starost $age';
 $labels['eventchangelog'] = 'Spremeni Zgodovino';
-$labels['eventdiff'] = 'Spremembe iz verzij $rev';
 $labels['revision'] = 'Verzija';
 $labels['user'] = 'Uporabnik';
 $labels['operation'] = 'Dejanje';

@@ -1086,7 +1086,7 @@ function rcube_calendar_ui(settings)
               }
 
               me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
-              rcmail.http_post('event', { action:'diff', e:{ id:event.id, calendar:event.calendar, rev: rev1+':'+rev2 } }, me.loading_lock);
+              rcmail.http_post('event', { action:'diff', e:{ id:event.id, calendar:event.calendar, rev1: rev1, rev2: rev2 } }, me.loading_lock);
             }
             else {
               alert('Invalid selection!')
@@ -1122,7 +1122,8 @@ function rcube_calendar_ui(settings)
     // callback from server with changelog data
     var render_event_changelog = function(data)
     {
-      var $dialog = $('#eventhistory');
+      var $dialog = $('#eventhistory'),
+        event = $dialog.data('event');
 
       if (data === false || !data.length) {
         // display 'unavailable' message
@@ -1133,8 +1134,9 @@ function rcube_calendar_ui(settings)
 
       var i, change, accessible, op_append, first = data.length -1, last = 0,
         op_labels = { APPEND: 'actionappend', MOVE: 'actionmove', DELETE: 'actiondelete' },
+        is_writeable = !!me.calendars[event.calendar].editable,
         actions = '<a href="#show" class="iconbutton preview" title="'+ rcmail.gettext('showrevision','calendar') +'" data-rev="{rev}" /> ' +
-          '<a href="#restore" class="iconbutton restore" title="'+ rcmail.gettext('restore','calendar') + '" data-rev="{rev}" />',
+          (is_writeable ? '<a href="#restore" class="iconbutton restore" title="'+ rcmail.gettext('restore','calendar') + '" data-rev="{rev}" />' : ''),
         tbody = $('#event-changelog-table tbody').html('');
 
       for (i=first; i >= 0; i--) {
@@ -1153,7 +1155,7 @@ function rcube_calendar_ui(settings)
             '<input type="radio" name="rev1" class="diff-rev1" value="' + change.rev + '" title="" '+ (i == last ? 'checked="checked"' : '') +' /> '+
             '<input type="radio" name="rev2" class="diff-rev2" value="' + change.rev + '" title="" '+ (i == first ? 'checked="checked"' : '') +' /></td>'
             : ''))
-          .append('<td class="revision">' + Q(change.rev) + '</td>')
+          .append('<td class="revision">' + Q(i+1) + '</td>')
           .append('<td class="date">' + Q(change.date ? format_datetime(parseISO8601(change.date)) : '') + '</td>')
           .append('<td class="user">' + Q(change.user || 'undisclosed') + '</td>')
           .append('<td class="operation" title="' + op_append + '">' + Q(rcmail.gettext(op_labels[change.op] || '', 'calendar') + (op_append ? ' ...' : '')) + '</td>')
@@ -1279,7 +1281,7 @@ function rcube_calendar_ui(settings)
         modal: false,
         resizable: true,
         closeOnEscape: true,
-        title: rcmail.gettext('eventdiff','calendar').replace('$rev', data.rev) + ' - ' + event.title,
+        title: rcmail.gettext('eventdiff','calendar').replace('$rev1', data.rev1).replace('$rev2', data.rev2) + ' - ' + event.title,
         open: function() {
           $dialog.attr('aria-hidden', 'false');
           setTimeout(function(){

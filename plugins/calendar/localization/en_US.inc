@@ -277,7 +277,7 @@ $labels['birthdayage'] = 'Age $age';
 
 // history dialog
 $labels['eventchangelog'] = 'Change History';
-$labels['eventdiff'] = 'Changes from revisions $rev';
+$labels['eventdiff'] = 'Changes from $rev1 to $rev2';
 $labels['revision'] = 'Revision';
 $labels['user'] = 'User';
 $labels['operation'] = 'Action';
