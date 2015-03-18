@@ -1022,7 +1022,7 @@ function rcube_calendar_ui(settings)
         return false
 
       // render dialog
-      $dialog = $('#eventhistory');
+      var $dialog = $('#eventhistory');
 
       // close show dialog first
       if ($dialog.is(':ui-dialog'))
@@ -1034,7 +1034,7 @@ function rcube_calendar_ui(settings)
       };
 
       // hide and reset changelog table
-      $('div.event-dialog-message').remove();
+      $dialog.find('div.event-dialog-message').remove();
       $('#event-changelog-table').show().children('tbody')
         .html('<tr><td colspan="6"><span class="loading">'+ rcmail.gettext('loading') +'</span></td></tr>');
 
@@ -1143,8 +1143,8 @@ function rcube_calendar_ui(settings)
         change = data[i];
         accessible = change.date && change.user;
 
-        if (change.op == 'MOVE' && change.folder) {
-          op_append = ' ⇢ ' + change.folder;
+        if (change.op == 'MOVE' && change.mailbox) {
+          op_append = ' ⇢ ' + change.mailbox;
         }
         else {
           op_append = '';
