@@ -58,9 +58,16 @@ class kolab_bonnie_api
     /**
      * Wrapper function for <object>.diff() API call
      */
-    public function diff($type, $uid, $rev1, $rev2, $mailbox, $msguid=null)
+    public function diff($type, $uid, $rev1, $rev2, $mailbox, $msguid=null, $instance=null)
     {
-        return $this->client->execute($type.'.diff', array('uid' => $uid, 'rev1' => $rev1, 'rev2' => $rev2, 'mailbox' => $mailbox, 'msguid' => $msguid));
+        return $this->client->execute($type.'.diff', array(
+          'uid' => $uid,
+          'rev1' => $rev1,
+          'rev2' => $rev2,
+          'mailbox' => $mailbox,
+          'msguid' => $msguid,
+          'instance' => $instance,
+        ));
     }
 
     /**

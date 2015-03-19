@@ -2059,8 +2059,11 @@ class kolab_driver extends calendar_driver
 
     list($uid, $mailbox, $msguid) = $this->_resolve_event_identity($event);
 
+    // get diff for the requested recurrence instance
+    $instance_id = $event['id'] != $uid ? substr($event['id'], strlen($uid) + 1) : null;
+
     // call Bonnie API
-    $result = $this->bonnie_api->diff('event', $uid, $rev1, $rev2, $mailbox, $msguid);
+    $result = $this->bonnie_api->diff('event', $uid, $rev1, $rev2, $mailbox, $msguid, $instance_id);
     if (is_array($result) && $result['uid'] == $uid) {
       $result['rev1'] = $rev1;
       $result['rev2'] = $rev2;
@@ -2175,6 +2178,7 @@ class kolab_driver extends calendar_driver
       return false;
     }
 
+    $eventid = $event['id'];
     $calid = $event['calendar'];
     list($uid, $mailbox, $msguid) = $this->_resolve_event_identity($event);
 
@@ -2186,7 +2190,26 @@ class kolab_driver extends calendar_driver
       $event = $format->to_array();
       $format->get_attachments($event, true);
 
-      // TODO: get the right instance from a recurring event
+      // get the right instance from a recurring event
+      if ($eventid != $event['uid']) {
+        $instance_id = substr($eventid, strlen($event['uid']) + 1);
+
+        // check for recurrence exception first
+        if ($instance = $format->get_instance($instance_id)) {
+          $event = $instance;
+        }
+        else {
+          // not a exception, compute recurrence...
+          $event['_formatobj'] = $format;
+          $recurrence_date = rcube_utils::anytodatetime($instance_id, $event['start']->getTimezone());
+          foreach ($this->get_recurring_events($event, $event['start'], $recurrence_date) as $instance) {
+            if ($instance['id'] == $eventid) {
+              $event = $instance;
+              break;
+            }
+          }
+        }
+      }
 
       if ($format->is_valid()) {
         $event['calendar'] = $calid;
