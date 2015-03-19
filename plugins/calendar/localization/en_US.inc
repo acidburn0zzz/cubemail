@@ -291,6 +291,8 @@ $labels['eventnotfound'] = 'Failed to load event data';
 $labels['eventchangelognotavailable'] = 'Change history is not available for this event';
 $labels['eventdiffnotavailable'] = 'No comparison possible for the selected revisions';
 $labels['eventrestoreconfirm'] = 'Do you really want to restore revision $rev of this event? This will replace the current event with the old version.';
+$labels['eventrestoresuccess'] = 'Revision $rev successfully restored';
+$labels['eventrestoreerror'] = 'Failed to restore the old revision';
 
 
 // (hidden) titles and labels for accessibility annotations

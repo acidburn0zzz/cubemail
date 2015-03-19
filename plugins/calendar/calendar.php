@@ -1132,13 +1132,16 @@ class calendar extends rcube_plugin
 
       case "restore":
         if ($success = $this->driver->restore_event_revision($event, $event['rev'])) {
-
+          $_event = $this->driver->get_event($event);
+          $reload = $_event['recurrence'] ? 2 : 1;
+          $this->rc->output->command('display_message', $this->gettext(array('name' => 'eventrestoresuccess', 'vars' => array('rev' => $event['rev']))), 'confirmation');
+          $this->rc->output->command('plugin.close_history_dialog');
         }
         else {
-          $this->rc->output->command('display_message', 'Not implemented yet', 'error');
-          $got_msg = true;
+          $this->rc->output->command('display_message', $this->gettext('eventrestoreerror'), 'error');
+          $reload = 0;
         }
-        $reload = false;
+        $got_msg = true;
         break;
     }
 

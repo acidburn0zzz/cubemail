@@ -1316,11 +1316,22 @@ function rcube_calendar_ui(settings)
       me.dialog_resize($dialog.get(0), $dialog.height(), 400);
     };
 
+    // close the event history dialog
+    var close_history_dialog = function()
+    {
+      $('#eventhistory, #eventdiff').each(function(i, elem) {
+        var $dialog = $(elem);
+        if ($dialog.is(':ui-dialog'))
+          $dialog.dialog('close');
+      });
+    }
+
     // exports
     this.event_show_diff = event_show_diff;
     this.event_show_dialog = event_show_dialog;
     this.event_history_dialog = event_history_dialog;
     this.render_event_changelog = render_event_changelog;
+    this.close_history_dialog = close_history_dialog;
 
     // open a dialog to display detailed free-busy information and to find free slots
     var event_freebusy_dialog = function()
@@ -4354,6 +4365,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.addEventListener('plugin.resource_owner', function(p){ cal.resource_owner_load(p); });
   rcmail.addEventListener('plugin.render_event_changelog', function(data){ cal.render_event_changelog(data); });
   rcmail.addEventListener('plugin.event_show_diff', function(data){ cal.event_show_diff(data); });
+  rcmail.addEventListener('plugin.close_history_dialog', function(data){ cal.close_history_dialog(); });
   rcmail.addEventListener('plugin.event_show_revision', function(data){ cal.event_show_dialog(data, null, true); });
   rcmail.addEventListener('plugin.itip_message_processed', function(data){ cal.itip_message_processed(data); });
   rcmail.addEventListener('requestrefresh', function(q){ return cal.before_refresh(q); });
