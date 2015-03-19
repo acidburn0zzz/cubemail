@@ -1113,6 +1113,20 @@ function rcube_calendar_ui(settings)
             me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
             rcmail.http_post('event', { action:action, e:{ id:event.id, calendar:event.calendar, rev: rev } }, me.loading_lock);
             return false;
+        })
+        .on('click', 'input.diff-rev1', function(e) {
+          if (!this.checked) return true;
+
+          var rev1 = this.value, selection_valid = false;
+          $('#event-changelog-table input.diff-rev2').each(function(i, elem) {
+            $(elem).prop('disabled', elem.value <= rev1);
+            if (elem.checked && elem.value > rev1) {
+              selection_valid = true;
+            }
+          });
+          if (!selection_valid) {
+            $('#event-changelog-table input.diff-rev2:not([disabled])').last().prop('checked', true);
+          }
         });
 
         $dialog.data('initialized', true);
@@ -1163,8 +1177,10 @@ function rcube_calendar_ui(settings)
           .appendTo(tbody);
       }
 
-      if (first > 0)
+      if (first > 0) {
         $('#eventhistory .compare-button').fadeIn(200);
+        $('#event-changelog-table tr.last input.diff-rev1').click();
+      }
 
       // set dialog size according to content
       me.dialog_resize($dialog.get(0), $dialog.height(), 600);
