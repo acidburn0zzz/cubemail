@@ -115,7 +115,6 @@ $labels['addattendee'] = 'Affecter un utilisateur';
 $labels['roleorganizer'] = 'Organisateur';
 $labels['rolerequired'] = 'Requis';
 $labels['roleoptional'] = 'Optionel';
-$labels['rolechair'] = 'Chair';
 $labels['rolenonparticipant'] = 'Observateur';
 $labels['sendinvitations'] = 'Envoyer les invitations';
 $labels['sendnotifications'] = 'Avertir les utilisateurs concernant les modifications';
