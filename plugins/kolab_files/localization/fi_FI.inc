@@ -21,6 +21,7 @@ $labels['foldercreate'] = 'Luo kansio';
 $labels['folderedit'] = 'Muokkaa kansiota';
 $labels['foldermount'] = 'Lisää tallennustila';
 $labels['folderdelete'] = 'Poista kansio';
+$labels['folderinside'] = 'Aseta sisään';
 $labels['foldername'] = 'Kansion nimi';
 $labels['name'] = 'Nimi';
 $labels['mtime'] = 'Muokattu';

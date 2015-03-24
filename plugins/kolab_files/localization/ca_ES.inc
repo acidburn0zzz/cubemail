@@ -6,7 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
-$labels['files'] = 'Files';
 $labels['save'] = 'Desa';
 $labels['cancel'] = 'Cancel·la';
 $labels['folderinside'] = 'Insereix dins';
