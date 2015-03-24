@@ -23,6 +23,5 @@ $labels['sentitems'] = '送信済';
 $labels['outbox'] = '送信箱';
 $labels['wastebasket'] = 'ごみ箱';
 $labels['junkemail'] = '迷惑メール';
-$labels['confidential'] = 'Confidential';
 $messages['defaultfolderexists'] = '指定したタイプの初期フォルダは既にあります。';
 ?>

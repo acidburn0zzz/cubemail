@@ -23,6 +23,5 @@ $labels['sentitems'] = 'Enviados';
 $labels['outbox'] = 'Caixa de saída';
 $labels['wastebasket'] = 'Lixeira';
 $labels['junkemail'] = 'Spam';
-$labels['confidential'] = 'Confidential';
 $messages['defaultfolderexists'] = 'Já existe um diretório padrão do tipo especificado';
 ?>
