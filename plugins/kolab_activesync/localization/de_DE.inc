@@ -15,7 +15,6 @@ $labels['task'] = 'Aufgaben';
 $labels['note'] = 'Notizen';
 $labels['configuration'] = 'Konfiguration';
 $labels['deletedevice'] = 'Gerät löschen';
-$labels['nodevices'] = 'Es sind aktuell keine Geräte registriert.<br/><br/>Um ein Gerät hinzuzufügen, verbinden sie es zuerst mit dem Server durch Verwenden der Anleitung im Wiki: <a href="http://wiki.kolab.org/Setup_ActiveSync"></a>. Im Anschluss sollte das Gerät auf dieser Seite zur Konfiguration zur Verfügung stehen.';
 $labels['savingdata'] = 'Daten werden gespeichert...';
 $labels['savingerror'] = 'Fehler beim Speichern';
 $labels['notsupported'] = 'Ihr Server unterstützt keine Activesync-Konfiguration';

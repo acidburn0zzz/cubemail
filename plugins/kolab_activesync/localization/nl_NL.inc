@@ -15,7 +15,6 @@ $labels['task'] = 'Taken';
 $labels['note'] = 'Notities';
 $labels['configuration'] = 'Configuratie';
 $labels['deletedevice'] = 'Verwijder apparaat';
-$labels['nodevices'] = 'Er zijn momenteel geen apparaten geregistreerd.<br/><br/>Om een apparaat te registreren, verbind deze dan eerst met de server met behulp van <a href="http://wiki.kolab.org/Setup_ActiveSync">de instructies op de Wiki</a>. Daarna is het apparaat hier beschikbaar voor configuratie.';
 $labels['savingdata'] = 'Data wordt opgeslagen...';
 $labels['savingerror'] = 'Fout in opslaan van configuratie';
 $labels['notsupported'] = 'Uw server ondersteunt geen metadata/annotaties';

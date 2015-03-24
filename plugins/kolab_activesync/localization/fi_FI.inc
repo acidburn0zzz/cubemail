@@ -15,7 +15,7 @@ $labels['task'] = 'Tehtävät';
 $labels['note'] = 'Muistiot';
 $labels['configuration'] = 'Määritykset';
 $labels['deletedevice'] = 'Poista laite';
-$labels['nodevices'] = 'Ei rekisteröityjä laitteita.<br/><br/>Rekisteröi laite yhdistämällä palvelimeen, lue tarkemmat ohjeet <a href="http://wiki.kolab.org/Setup_ActiveSync">wikistä</a>. Sen jälkeen laitteen pitäisi olla määritettävissä täällä.';
+$labels['nodevices'] = 'Ei rekisteröityjä laitteita.<br/><br/>Rekisteröi laite yhdistämällä se ensin palvelimeen, <a href="$url" target="_blank">ohjeet löytyvät tältä sivulta</a>. Sen jälkeen laite näkyy täällä ja on valmis määriteltäväksi.';
 $labels['savingdata'] = 'Tallennetaan tietoja...';
 $labels['savingerror'] = 'Määritysten tallentaminen epäonnistui';
 $labels['notsupported'] = 'Käyttämäsi palvelin ei tue seuraavaa ominaisuutta: metadata/annotations';

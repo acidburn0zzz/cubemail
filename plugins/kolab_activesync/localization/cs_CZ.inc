@@ -13,7 +13,6 @@ $labels['task'] = 'Úkoly';
 $labels['note'] = 'Poznámky';
 $labels['configuration'] = 'Nastavení';
 $labels['deletedevice'] = 'Smazat zařízení';
-$labels['nodevices'] = 'Momentálně tu nejsou žádná registrovaná zařízení.<br/><br/>Pro registraci zařízení, nejprve jej prosím připojte k serveru za pomocí  <a href="http://wiki.kolab.org/Setup_ActiveSync">instrukcí na stránce Wiki</a>. Poté zde bude k dispozici zařízení ke konfiguraci.';
 $labels['savingdata'] = 'Ukládám data...';
 $labels['savingerror'] = 'Nepodařilo se uložit konfiguraci';
 $labels['devicedeleteconfirm'] = 'Opravdu chcete smazat konfiguraci pro toto zařízení?';

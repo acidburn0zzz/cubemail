@@ -1,33 +1,22 @@
 <?php
 $labels['tabtitle'] = 'アクティブシンク';
-$labels['activesynctitle'] = 'Manage Activesync devices';
 $labels['devices'] = '機器';
 $labels['devicealias'] = '機器名';
 $labels['synchronize'] = '同期';
 $labels['withalarms'] = 'アラーム付';
 $labels['syncsettings'] = '同期設定';
-$labels['deviceconfig'] = 'Device configuration';
 $labels['folderstosync'] = '同期するフォルダ';
-$labels['mail'] = 'Email';
 $labels['contact'] = 'アドレス帳';
 $labels['event'] = 'カレンダー';
 $labels['task'] = 'タスク';
 $labels['note'] = 'ノート';
 $labels['configuration'] = '設定';
 $labels['deletedevice'] = '機器の削除';
-$labels['nodevices'] = 'There are currently no devices registered.<br/><br/>In order to register a device, please connect it to the server first, using <a href="http://wiki.kolab.org/Setup_ActiveSync">the instructions in the Wiki</a>. Afterwards the device should become available for configuration here.';
 $labels['savingdata'] = 'データを保存中…';
 $labels['savingerror'] = '設定の保存に失敗しました';
 $labels['notsupported'] = 'サーバはmetadata/annotionsをサポートしていません';
 $labels['devicedeleteconfirm'] = '本当にこのデバイスの設定を削除しますか？';
 $labels['successfullydeleted'] = 'デヴァイスの削除に成功しました';
 $labels['devicenotfound'] = 'デヴァイスの設定を読込めません';
-$labels['devicetype'] = 'Device type';
-$labels['acsversion'] = 'Protocol version';
-$labels['useragent'] = 'User agent';
-$labels['friendlyname'] = 'Friendly name';
-$labels['os'] = 'Operating system';
-$labels['oslanguage'] = 'OS language';
 $labels['phonenumber'] = '電話番号';
-$labels['arialabeldeviceframe'] = 'Device synchronization settings form';
 ?>

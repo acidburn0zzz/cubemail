@@ -15,7 +15,6 @@ $labels['task'] = 'Feladatok';
 $labels['note'] = 'Jegyzetek';
 $labels['configuration'] = 'Konfiguráció';
 $labels['deletedevice'] = 'Készülék törlése';
-$labels['nodevices'] = 'A fiókjához nincs társítva egyetlen készülék sem.<br/><br/>Csatlakozzon a szerverhez, ezáltal társítva egy készüléket a fiókjához, mint ahogy a <a href="http://wiki.kolab.org/Setup_ActiveSync">Wiki-ben</a> lévő leírásban is szerepel. Azt követően itt meg fog jelenni a társított készülék, melynek testreszabhatja a beállításait.';
 $labels['savingdata'] = 'Adatok mentése...';
 $labels['savingerror'] = 'Az adatok mentése nem sikerült';
 $labels['notsupported'] = 'A szerver nem támogat metaadatokat/megjegyzéseket';

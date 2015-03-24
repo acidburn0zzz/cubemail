@@ -15,7 +15,6 @@ $labels['task'] = 'Attività';
 $labels['note'] = 'Annotazioni';
 $labels['configuration'] = 'Configurazione';
 $labels['deletedevice'] = 'Elimina dispositivo';
-$labels['nodevices'] = 'Non vi sono al momento dispositivi registrati.<br/><br/>Per registrare un dispositivo, prima connettilo al server utilizzando <a href="http://wiki.kolab.org/Setup_ActiveSync">le istruzioni nel Wiki</a>. In seguito il dispositivo dovrebbe essere disponibile per la configurazione qui.';
 $labels['savingdata'] = 'Salvataggio dati...';
 $labels['savingerror'] = 'Impossibile salvare la configurazione';
 $labels['notsupported'] = 'Il tuo server non supporta i metadati/le annotazioni';

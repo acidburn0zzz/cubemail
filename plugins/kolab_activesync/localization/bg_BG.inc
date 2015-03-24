@@ -1,12 +1,10 @@
 <?php
 $labels['tabtitle'] = 'Activesync';
-$labels['activesynctitle'] = 'Manage Activesync devices';
 $labels['devices'] = 'Устройства';
 $labels['devicealias'] = 'Име на устройство';
 $labels['synchronize'] = 'Синхронизиране';
 $labels['withalarms'] = 'С аларми';
 $labels['syncsettings'] = 'Настройки на синхронизация';
-$labels['deviceconfig'] = 'Device configuration';
 $labels['folderstosync'] = 'Папки за синхронизиране';
 $labels['mail'] = 'Електронна поща';
 $labels['contact'] = 'Адресни книги';
@@ -15,19 +13,10 @@ $labels['task'] = 'Задачи';
 $labels['note'] = 'Бележки';
 $labels['configuration'] = 'Конфигурация';
 $labels['deletedevice'] = 'Изтриване на устройство';
-$labels['nodevices'] = 'There are currently no devices registered.<br/><br/>In order to register a device, please connect it to the server first, using <a href="http://wiki.kolab.org/Setup_ActiveSync">the instructions in the Wiki</a>. Afterwards the device should become available for configuration here.';
 $labels['savingdata'] = 'Запазване на данни...';
 $labels['savingerror'] = 'Неуспех при запазване на конфигурацията';
 $labels['notsupported'] = 'Your server does not support metadata/annotations';
 $labels['devicedeleteconfirm'] = 'Наистина ли искате да изтриете конфигурацията за това устройство?';
 $labels['successfullydeleted'] = 'Конфигурацията за устройството беше премахната успешно';
 $labels['devicenotfound'] = 'Невъзможно прочитането на конфигурацията на устройството';
-$labels['devicetype'] = 'Device type';
-$labels['acsversion'] = 'Protocol version';
-$labels['useragent'] = 'User agent';
-$labels['friendlyname'] = 'Friendly name';
-$labels['os'] = 'Operating system';
-$labels['oslanguage'] = 'OS language';
-$labels['phonenumber'] = 'Phone number';
-$labels['arialabeldeviceframe'] = 'Device synchronization settings form';
 ?>

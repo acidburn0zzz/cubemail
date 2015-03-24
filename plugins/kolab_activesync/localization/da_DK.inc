@@ -15,7 +15,7 @@ $labels['task'] = 'Opgaver';
 $labels['note'] = 'Noter';
 $labels['configuration'] = 'Konfiguration';
 $labels['deletedevice'] = 'Slet enhed';
-$labels['nodevices'] = 'Der er i øjeblikket ingen registrerede enheder.<br/><br/>For at registrere en enhed, så skal den først tilsluttes til serveren, med anvendelse af <a href="http://wiki.kolab.org/Setup_ActiveSync">instrukserne i wiki\'en</a>. Bagefter bør enheden være tilgængelig til konfigurationen her.';
+$labels['nodevices'] = 'Der er i øjeblikket ikke registreret nogen enheder.<br/><br/>For at registrere en enhed, så skal den først tilsluttes til serveren, med anvendelse af <a href="$url" target="_blank">denne side</a>. Derefter bør det være muligt at konfigurere enheden her.';
 $labels['savingdata'] = 'Gemmer data...';
 $labels['savingerror'] = 'Kunne ikke gemme konfiguration';
 $labels['notsupported'] = 'Din server understøtter ikke metadata/annotationer';
