@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for Kolab Calendar plugin
  *
@@ -6,9 +7,9 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
  */
+
 $labels['default_view'] = 'Изглед по подразбиране';
 $labels['time_format'] = 'Формат на часовете';
-$labels['timeslots'] = 'Time slots per hour';
 $labels['first_day'] = 'Първи ден от седмицата';
 $labels['first_hour'] = 'Първи час при показване';
 $labels['workinghours'] = 'Работни часове';
@@ -48,11 +49,9 @@ $labels['export'] = 'Извличане';
 $labels['exporttitle'] = 'Извличане към iCalendar';
 $labels['exportrange'] = 'Събития от';
 $labels['location'] = 'Местоположение';
-$labels['url'] = 'URL';
 $labels['date'] = 'Дата';
 $labels['start'] = 'Начало';
 $labels['end'] = 'Край';
-$labels['repeat'] = 'Repeat';
 $labels['selectdate'] = 'Избор на дата';
 $labels['freebusy'] = 'Показване като';
 $labels['free'] = 'Свободно';
@@ -60,7 +59,6 @@ $labels['busy'] = 'Заето';
 $labels['outofoffice'] = 'Извън офиса';
 $labels['tentative'] = 'Предварително';
 $labels['status'] = 'Статус';
-$labels['status-cancelled'] = 'Cancelled';
 $labels['priority'] = 'Приоритет';
 $labels['sensitivity'] = 'Частност';
 $labels['public'] = 'публично';
@@ -94,7 +92,6 @@ $labels['nextmonth'] = 'Следващия месец';
 $labels['weekofyear'] = 'Седмица';
 $labels['pastevents'] = 'Минали';
 $labels['futureevents'] = 'Бъдещи';
-$labels['showalarms'] = 'Show reminders';
 $labels['defaultalarmtype'] = 'Настройка за напомняне по подразбиране';
 $labels['defaultalarmoffset'] = 'Време за напомняне по подразбиране';
 $labels['attendee'] = 'Участник';
@@ -123,5 +120,5 @@ $labels['deleteventconfirm'] = 'Наистина ли искате да прем
 $labels['deletecalendarconfirm'] = 'Наистина ли искате да премахнете този календар с всичките му събития?';
 $labels['savingdata'] = 'Запазване на данни...';
 $labels['errorsaving'] = 'Неуспешно записването на промените.';
-$labels['futurevents'] = 'Бъдещи';
+
 ?>
