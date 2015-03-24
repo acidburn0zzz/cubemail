@@ -206,7 +206,6 @@ $labels['birthdayscalendarsources'] = 'З даних адресних книг';
 $labels['birthdayeventtitle'] = 'День Народження $name';
 $labels['birthdayage'] = 'Вік $age';
 $labels['eventchangelog'] = 'Історія змін';
-$labels['eventdiff'] = 'Зміни з ревізії $rev';
 $labels['revision'] = 'Ревізія';
 $labels['user'] = 'Користувач';
 $labels['operation'] = 'Дія';

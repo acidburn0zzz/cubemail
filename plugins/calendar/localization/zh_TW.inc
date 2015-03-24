@@ -245,7 +245,6 @@ $labels['birthdayscalendarsources'] = 'From these address books';
 $labels['birthdayeventtitle'] = '$name\'s Birthday';
 $labels['birthdayage'] = 'Age $age';
 $labels['eventchangelog'] = 'Change History';
-$labels['eventdiff'] = 'Changes from revisions $rev';
 $labels['revision'] = 'Revision';
 $labels['user'] = 'User';
 $labels['operation'] = 'Action';
