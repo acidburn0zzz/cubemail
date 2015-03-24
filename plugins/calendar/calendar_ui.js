@@ -1018,119 +1018,33 @@ function rcube_calendar_ui(settings)
     // show event changelog in a dialog
     var event_history_dialog = function(event)
     {
-      if (!event.id)
+      if (!event.id || !window.libkolab_audittrail)
         return false
 
       // render dialog
-      var $dialog = $('#eventhistory');
-
-      // close show dialog first
-      if ($dialog.is(':ui-dialog'))
-        $dialog.dialog('close');
-
-      var buttons = {};
-      buttons[rcmail.gettext('close', 'calendar')] = function() {
-        $dialog.dialog('close');
-      };
-
-      // hide and reset changelog table
-      $dialog.find('div.event-dialog-message').remove();
-      $('#event-changelog-table').show().children('tbody')
-        .html('<tr><td colspan="6"><span class="loading">'+ rcmail.gettext('loading') +'</span></td></tr>');
-
-      // open jquery UI dialog
-      $dialog.dialog({
-        modal: false,
-        resizable: true,
-        closeOnEscape: true,
+      var $dialog = libkolab_audittrail.object_history_dialog({
+        module: 'calendar',
+        container: '#eventhistory',
         title: rcmail.gettext('eventchangelog','calendar') + ' - ' + event.title + ', ' + me.event_date_text(event),
-        open: function() {
-          $dialog.attr('aria-hidden', 'false');
-          setTimeout(function(){
-            $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
-          }, 5);
-        },
-        close: function() {
-          $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
-        },
-        buttons: buttons,
-        minWidth: 450,
-        width: 650,
-        height: 350,
-        minHeight: 200,
-      })
-      .data('event', event)
-      .show().children('.compare-button').hide();
 
-      // set dialog size according to content
-      // me.dialog_resize($dialog.get(0), $dialog.height(), 650);
+        // callback function for list actions
+        listfunc: function(action, rev) {
+          me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
+          rcmail.http_post('event', { action:action, e:{ id:event.id, calendar:event.calendar, rev: rev } }, me.loading_lock);
+        },
+
+        // callback function for comparing two object revisions
+        comparefunc: function(rev1, rev2) {
+          me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
+          rcmail.http_post('event', { action:'diff', e:{ id:event.id, calendar:event.calendar, rev1: rev1, rev2: rev2 } }, me.loading_lock);
+        }
+      });
+
+      $dialog.data('event', event);
 
       // fetch changelog data
       me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
       rcmail.http_post('event', { action:'changelog', e:{ id:event.id, calendar:event.calendar } }, me.loading_lock);
-
-      // initialize event handlers for history dialog UI elements
-      if (!$dialog.data('initialized')) {
-        // compare button
-        $dialog.find('.compare-button input').click(function(e) {
-          var rev1 = $('#event-changelog-table input.diff-rev1:checked').val(),
-            rev2 = $('#event-changelog-table input.diff-rev2:checked').val(),
-            event = $('#eventhistory').data('event');
-
-            if (rev1 && rev2 && rev1 != rev2) {
-              // swap revisions if the user got it wrong
-              if (rev1 > rev2) {
-                var tmp = rev2;
-                rev2 = rev1;
-                rev1 = tmp;
-              }
-
-              me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
-              rcmail.http_post('event', { action:'diff', e:{ id:event.id, calendar:event.calendar, rev1: rev1, rev2: rev2 } }, me.loading_lock);
-            }
-            else {
-              alert('Invalid selection!')
-            }
-        });
-
-        // delegate handlers for list actions
-        $('#event-changelog-table tbody').on('click', 'td.actions a', function(e) {
-          var link = $(this),
-            action = link.hasClass('restore') ? 'restore' : 'show',
-            event = $('#eventhistory').data('event'),
-            rev = link.attr('data-rev');
-
-            // ignore clicks on first row (current revision)
-            if (link.closest('tr').hasClass('first')) {
-              return false;
-            }
-
-            // let the user confirm the restore action
-            if (action == 'restore' && !confirm(rcmail.gettext('eventrestoreconfirm','calendar').replace('$rev', rev))) {
-              return false;
-            }
-
-            me.loading_lock = rcmail.set_busy(true, 'loading', me.loading_lock);
-            rcmail.http_post('event', { action:action, e:{ id:event.id, calendar:event.calendar, rev: rev } }, me.loading_lock);
-            return false;
-        })
-        .on('click', 'input.diff-rev1', function(e) {
-          if (!this.checked) return true;
-
-          var rev1 = this.value, selection_valid = false;
-          $('#event-changelog-table input.diff-rev2').each(function(i, elem) {
-            $(elem).prop('disabled', elem.value <= rev1);
-            if (elem.checked && elem.value > rev1) {
-              selection_valid = true;
-            }
-          });
-          if (!selection_valid) {
-            $('#event-changelog-table input.diff-rev2:not([disabled])').last().prop('checked', true);
-          }
-        });
-
-        $dialog.data('initialized', true);
-      }
     };
 
     // callback from server with changelog data
@@ -1139,48 +1053,14 @@ function rcube_calendar_ui(settings)
       var $dialog = $('#eventhistory'),
         event = $dialog.data('event');
 
-      if (data === false || !data.length) {
+      if (data === false || !data.length || !event) {
         // display 'unavailable' message
-        $('<div class="event-dialog-message warning">'+ rcmail.gettext('eventchangelognotavailable','calendar') +'</div>')
-          .insertBefore($('#event-changelog-table').hide());
-        return
+        $('<div class="notfound-message event-dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','calendar') + '</div>')
+          .insertBefore($dialog.find('.changelog-table').hide());
+        return;
       }
 
-      var i, change, accessible, op_append, first = data.length -1, last = 0,
-        op_labels = { APPEND: 'actionappend', MOVE: 'actionmove', DELETE: 'actiondelete' },
-        is_writeable = !!me.calendars[event.calendar].editable,
-        actions = '<a href="#show" class="iconbutton preview" title="'+ rcmail.gettext('showrevision','calendar') +'" data-rev="{rev}" /> ' +
-          (is_writeable ? '<a href="#restore" class="iconbutton restore" title="'+ rcmail.gettext('restore','calendar') + '" data-rev="{rev}" />' : ''),
-        tbody = $('#event-changelog-table tbody').html('');
-
-      for (i=first; i >= 0; i--) {
-        change = data[i];
-        accessible = change.date && change.user;
-
-        if (change.op == 'MOVE' && change.mailbox) {
-          op_append = ' ⇢ ' + change.mailbox;
-        }
-        else {
-          op_append = '';
-        }
-
-        $('<tr class="' + (i == first ? 'first' : (i == last ? 'last' : '')) + (accessible ? '' : 'undisclosed') + '">')
-          .append('<td class="diff">' + (accessible && change.op != 'DELETE' ? 
-            '<input type="radio" name="rev1" class="diff-rev1" value="' + change.rev + '" title="" '+ (i == last ? 'checked="checked"' : '') +' /> '+
-            '<input type="radio" name="rev2" class="diff-rev2" value="' + change.rev + '" title="" '+ (i == first ? 'checked="checked"' : '') +' /></td>'
-            : ''))
-          .append('<td class="revision">' + Q(i+1) + '</td>')
-          .append('<td class="date">' + Q(change.date ? format_datetime(parseISO8601(change.date)) : '') + '</td>')
-          .append('<td class="user">' + Q(change.user || 'undisclosed') + '</td>')
-          .append('<td class="operation" title="' + op_append + '">' + Q(rcmail.gettext(op_labels[change.op] || '', 'calendar') + (op_append ? ' ...' : '')) + '</td>')
-          .append('<td class="actions">' + (accessible && change.op != 'DELETE' ? actions.replace(/\{rev\}/g, change.rev) : '') + '</td>')
-          .appendTo(tbody);
-      }
-
-      if (first > 0) {
-        $('#eventhistory .compare-button').fadeIn(200);
-        $('#event-changelog-table tr.last input.diff-rev1').click();
-      }
+      libkolab_audittrail.render_changelog(data, event, me.calendars[event.calendar]);
 
       // set dialog size according to content
       me.dialog_resize($dialog.get(0), $dialog.height(), 600);

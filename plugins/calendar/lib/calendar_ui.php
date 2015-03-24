@@ -121,6 +121,7 @@ class calendar_ui
     // include kolab folderlist widget if available
     if (in_array('libkolab', $this->cal->api->loaded_plugins())) {
         $this->cal->api->include_script('libkolab/js/folderlist.js');
+        $this->cal->api->include_script('libkolab/js/audittrail.js');
     }
 
     jqueryui::miniColors();

@@ -1057,11 +1057,12 @@ class calendar extends rcube_plugin
         $data = $this->driver->get_event_changelog($event);
         if (is_array($data) && !empty($data)) {
           $lib = $this->lib;
-          array_walk($data, function(&$change) use ($lib) {
+          $dtformat = $this->rc->config->get('date_format') . ' ' . $this->rc->config->get('time_format');
+          array_walk($data, function(&$change) use ($lib, $dtformat) {
             if ($change['date']) {
               $dt = $lib->adjust_timezone($change['date']);
               if ($dt instanceof DateTime)
-                $change['date'] = $dt->format('c');
+                $change['date'] = $this->rc->format_date($dt, $dtformat, false);
             }
           });
           $this->rc->output->command('plugin.render_event_changelog', $data);
