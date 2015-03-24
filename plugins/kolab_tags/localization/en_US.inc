@@ -3,7 +3,7 @@
 /**
  * Localizations for the Kolab Tags plugin
  *
- * Copyright (C) 2014-2015, Kolab Systems AG
+ * Copyright (C) 2014, Kolab Systems AG
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
@@ -31,5 +31,3 @@ $labels['taggingsuccess'] = 'Tags have beed assigned successfully.';
 $labels['taggingerror'] = 'Failed to assign tags.';
 $labels['untaggingsuccess'] = 'Tag(s) have beed removed successfully.';
 $labels['untaggingerror'] = 'Failed to remove tag assignments.';
-$labels['newtag'] = 'New tag';
-$labels['tagsearchnew'] = 'Enter text to search or create a new tag';

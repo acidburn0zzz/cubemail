@@ -6,8 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
-$labels['tags'] = 'Tags';
-$labels['untag'] = 'Remove tag';
 $labels['add'] = 'Añadir';
 $labels['edit'] = 'Editar';
 $labels['delete'] = 'Borrar';
