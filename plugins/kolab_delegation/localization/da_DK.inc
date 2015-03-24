@@ -31,6 +31,4 @@ $labels['updatesuccess'] = 'Gennemførte opdatering af delegerede.';
 $labels['updateerror'] = 'Kunne ikke opdatere delegerede.';
 $labels['createsuccess'] = 'Gennemførte tilføjelse af den delegerede.';
 $labels['createerror'] = 'Kunne ikke tilføje delegerede.';
-$labels['arialabeldelegatedelete'] = 'Delegate deletion dialog';
-$labels['arialabeldelegateform'] = 'Delegate properties form';
 ?>

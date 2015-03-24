@@ -7,7 +7,6 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
 $labels['tabtitle'] = 'Meghatalmazás';
-$labels['delegationtitle'] = 'Manage delegates';
 $labels['delegates'] = 'Meghatalmazottak';
 $labels['delegate'] = 'Meghatalmazott:';
 $labels['mail'] = 'E-mail';
@@ -31,6 +30,4 @@ $labels['updatesuccess'] = 'A meghatalmazás sikeresen frissítve lett.';
 $labels['updateerror'] = 'Nem sikerült frissíteni a meghatalmazást.';
 $labels['createsuccess'] = 'A meghatalmazás sikeresen létre lett hozva.';
 $labels['createerror'] = 'Nem sikerült létrehozni a meghatalmazást.';
-$labels['arialabeldelegatedelete'] = 'Delegate deletion dialog';
-$labels['arialabeldelegateform'] = 'Delegate properties form';
 ?>
