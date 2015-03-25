@@ -50,6 +50,9 @@ $labels['status-cancelled'] = 'Cancelled';
 $labels['assignedto'] = 'Assigned to';
 $labels['created'] = 'Created';
 $labels['changed'] = 'Last Modified';
+$labels['taskoptions'] = 'Options';
+$labels['taskhistory'] = 'History';
+$labels['compare'] = 'Compare';
 
 $labels['all'] = 'All';
 $labels['flagged'] = 'Flagged';
@@ -101,6 +104,7 @@ $labels['on'] = 'on';
 $labels['at'] = 'at';
 $labels['this'] = 'this';
 $labels['next'] = 'next';
+$labels['yes'] = 'yes';
 
 // messages
 $labels['savingdata'] = 'Saving data...';
@@ -149,6 +153,24 @@ $labels['itipupdatemailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attend
 $labels['itipcancelsubject'] = '"$title" has been canceled';
 $labels['itipcancelmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nThe task has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated task details.";
 $labels['saveintasklist'] = 'save in ';
+
+// history dialog
+$labels['objectchangelog'] = 'Change History';
+$labels['objectdiff'] = 'Changes from $rev1 to $rev2';
+
+$labels['actionappend'] = 'Saved';
+$labels['actionmove'] = 'Moved';
+$labels['actiondelete'] = 'Deleted';
+$labels['compare'] = 'Compare';
+$labels['showrevision'] = 'Show this version';
+$labels['restore'] = 'Restore this version';
+
+$labels['objectnotfound'] = 'Failed to load task data';
+$labels['objectchangelognotavailable'] = 'Change history is not available for this task';
+$labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';
+$labels['revisionrestoreconfirm'] = 'Do you really want to restore revision $rev of this task? This will replace the current task with the old version.';
+$labels['objectrestoresuccess'] = 'Revision $rev successfully restored';
+$labels['objectrestoreerror'] = 'Failed to restore the old revision';
 
 // invitation handling (overrides labels from libcalendaring)
 $labels['itipobjectnotfound'] = 'The task referred by this message was not found in your tasks list.';

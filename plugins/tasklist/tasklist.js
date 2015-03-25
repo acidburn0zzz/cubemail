@@ -282,8 +282,14 @@ function rcube_tasklist_ui(settings)
             setTimeout(fetch_counts, 200);
         });
 
+        rcmail.addEventListener('plugin.task_render_changelog', task_render_changelog);
+        rcmail.addEventListener('plugin.task_show_diff', task_show_diff);
+        rcmail.addEventListener('plugin.task_show_revision', function(data){ task_show_dialog(null, data, true); });
+        rcmail.addEventListener('plugin.close_history_dialog', close_history_dialog);
+
         rcmail.register_command('list-sort', list_set_sort, true);
         rcmail.register_command('list-order', list_set_order, (settings.sort_col || 'auto') != 'auto');
+        rcmail.register_command('task-history', task_history_dialog, false);
 
         $('#taskviewsortmenu .by-' + (settings.sort_col || 'auto')).attr('aria-checked', 'true').addClass('selected');
         $('#taskviewsortmenu .sortorder.' + (settings.sort_order || 'asc')).attr('aria-checked', 'true').addClass('selected');
@@ -459,6 +465,7 @@ function rcube_tasklist_ui(settings)
                         rcmail.command('menu-close', 'taskitemmenu');
                     }
                     else {
+                        rcmail.enable_command('task-history', me.tasklists[rec.list] && !!me.tasklists[rec.list].history);
                         rcmail.command('menu-open', { menu: 'taskitemmenu', show: true }, e.target, e);
                         menu.data('refid', id);
                         me.selected_task = rec;
@@ -1835,7 +1842,7 @@ function rcube_tasklist_ui(settings)
     /**
      * Show task details in a dialog
      */
-    function task_show_dialog(id)
+    function task_show_dialog(id, data, temp)
     {
         var $dialog = $('#taskshow'), rec, list;
 
@@ -1848,7 +1855,7 @@ function rcube_tasklist_ui(settings)
             return $.grep(oldies, function(cls) { return cls.indexOf('status-') === 0 }).join(' ');
         });
 
-        if (!(rec = listdata[id]) || (rcmail.menu_stack && rcmail.menu_stack.length > 0))
+        if (!(rec = (data || listdata[id])) || (rcmail.menu_stack && rcmail.menu_stack.length > 0))
             return;
 
         me.selected_task = rec;
@@ -1890,6 +1897,10 @@ function rcube_tasklist_ui(settings)
 
         if (rec.status) {
           $dialog.addClass('status-' + String(rec.status).toLowerCase());
+        }
+
+        if (rec.flagged) {
+          $dialog.addClass('status-flagged');
         }
 
         if (rec.recurrence && rec.recurrence_text) {
@@ -1986,7 +1997,7 @@ function rcube_tasklist_ui(settings)
                     .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
             }
 */
-            var show_rsvp = rsvp && list.editable && !is_organizer(rec) && rec.status != 'CANCELLED';
+            var show_rsvp = !temp && rsvp && list.editable && !is_organizer(rec) && rec.status != 'CANCELLED';
             $('#task-rsvp')[(show_rsvp ? 'show' : 'hide')]();
             $('#task-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
 
@@ -2036,6 +2047,13 @@ function rcube_tasklist_ui(settings)
           },
           close: function() {
               $dialog.dialog('destroy').appendTo(document.body);
+              $('.libcal-rsvp-replymode').hide();
+          },
+          dragStart: function() {
+              $('.libcal-rsvp-replymode').hide();
+          },
+          resizeStart: function() {
+              $('.libcal-rsvp-replymode').hide();
           },
           buttons: buttons,
           minWidth: 500,
@@ -2063,6 +2081,190 @@ function rcube_tasklist_ui(settings)
 
         return '<span class="attendee ' + String(data.role == 'ORGANIZER' ? 'organizer' : data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + dispname + '</span> ';
     }
+
+    /**
+     *
+     */
+    function task_history_dialog()
+    {
+        var dialog, rec = me.selected_task;
+        if (!rec || !rec.id || !window.libkolab_audittrail) {
+            return false;
+        }
+
+        // render dialog
+        $dialog = libkolab_audittrail.object_history_dialog({
+            module: 'tasklist',
+            container: '#taskhistory',
+            title: rcmail.gettext('objectchangelog','tasklist') + ' - ' + rec.title,
+
+            // callback function for list actions
+            listfunc: function(action, rev) {
+                var rec = $dialog.data('rec');
+                saving_lock = rcmail.set_busy(true, 'loading', saving_lock);
+                rcmail.http_post('task', { action: action, t: { id: rec.id, list:rec.list, rev: rev } }, saving_lock);
+            },
+
+            // callback function for comparing two object revisions
+            comparefunc: function(rev1, rev2) {
+                var rec = $dialog.data('rec');
+                saving_lock = rcmail.set_busy(true, 'loading', saving_lock);
+                rcmail.http_post('task', { action:'diff', t: { id: rec.id, list: rec.list, rev1: rev1, rev2: rev2 } }, saving_lock);
+            }
+        });
+
+        $dialog.data('rec', rec);
+
+        // fetch changelog data
+        saving_lock = rcmail.set_busy(true, 'loading', saving_lock);
+        rcmail.http_post('task', { action: 'changelog', t: { id: rec.id, list: rec.list } }, saving_lock);
+    }
+
+    /**
+     *
+     */
+    function task_render_changelog(data)
+    {
+        var $dialog = $('#taskhistory'),
+            rec = $dialog.data('rec');
+
+        if (data === false || !data.length || !event) {
+          // display 'unavailable' message
+          $('<div class="notfound-message task-dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','tasklist') + '</div>')
+            .insertBefore($dialog.find('.changelog-table').hide());
+          return;
+        }
+
+        data.module = 'tasklist';
+        libkolab_audittrail.render_changelog(data, rec, me.tasklists[rec.list]);
+
+        // set dialog size according to content
+        me.dialog_resize($dialog.get(0), $dialog.height(), 600);
+    }
+
+    /**
+     *
+     */
+    function task_show_diff(data)
+    {
+        var rec = me.selected_task,
+            $dialog = $("#taskdiff");
+
+        $dialog.find('div.form-section, h2.task-title-new').hide().data('set', false).find('.index').html('');
+        $dialog.find('div.form-section.clone').remove();
+
+        // always show event title and date
+        $('.task-title', $dialog).text(rec.title).removeClass('task-text-old').show();
+
+        // show each property change
+        $.each(data.changes, function(i, change) {
+            var prop = change.property, r2, html = false,
+                row = $('div.task-' + prop, $dialog).first();
+
+                // special case: title
+                if (prop == 'title') {
+                    $('.task-title', $dialog).addClass('task-text-old').text(change['old'] || '--');
+                    $('.task-title-new', $dialog).text(change['new'] || '--').show();
+                }
+
+              // no display container for this property
+              if (!row.length) {
+                  return true;
+              }
+
+              // clone row if already exists
+              if (row.data('set')) {
+                  r2 = row.clone().addClass('clone').insertAfter(row);
+                  row = r2;
+              }
+
+              // render description text
+              if (prop == 'description') {
+                  if (!change.diff_ && change['old']) change.old_ = text2html(change['old']);
+                  if (!change.diff_ && change['new']) change.new_ = text2html(change['new']);
+                  html = true;
+              }
+              // format attendees struct
+              else if (prop == 'attendees') {
+                  if (change['old']) change.old_ = task_attendee_html(change['old']);
+                  if (change['new']) change.new_ = task_attendee_html($.extend({}, change['old'] || {}, change['new']));
+                  html = true;
+              }
+              // localize status
+              else if (prop == 'status') {
+                  if (change['old']) change.old_ = rcmail.gettext('status-'+String(change['old']).toLowerCase(), 'tasklist');
+                  if (change['new']) change.new_ = rcmail.gettext('status-'+String(change['new']).toLowerCase(), 'tasklist');
+              }
+
+              // format attachments struct
+              if (prop == 'attachments') {
+                  if (change['old']) task_show_attachments([change['old']], row.children('.task-text-old'), rec, false);
+                  else               row.children('.task-text-old').text('--');
+                  if (change['new']) task_show_attachments([$.extend({}, change['old'] || {}, change['new'])], row.children('.task-text-new'), rec, false);
+                  else               row.children('.task-text-new').text('--');
+                  // remove click handler in diff view
+                  $('.attachmentslist li a', row).unbind('click').removeAttr('href');
+              }
+              else if (change.diff_) {
+                  row.children('.task-text-diff').html(change.diff_);
+                  row.children('.task-text-old, .task-text-new').hide();
+              }
+              else {
+                  if (!html) {
+                    // escape HTML characters
+                    change.old_ = Q(change.old_ || change['old'] || '--')
+                    change.new_ = Q(change.new_ || change['new'] || '--')
+                  }
+                  row.children('.task-text-old').html(change.old_ || change['old'] || '--').show();
+                  row.children('.task-text-new').html(change.new_ || change['new'] || '--').show();
+              }
+
+              // display index number
+              if (typeof change.index != 'undefined') {
+                  row.find('.index').html('(' + change.index + ')');
+              }
+
+              row.show().data('set', true);
+        });
+
+        var buttons = {};
+        buttons[rcmail.gettext('close')] = function() {
+            $dialog.dialog('close');
+        };
+
+        // open jquery UI dialog
+        $dialog.dialog({
+            modal: false,
+            resizable: true,
+            closeOnEscape: true,
+            title: rcmail.gettext('objectdiff','tasklist').replace('$rev1', data.rev1).replace('$rev2', data.rev2) + ' - ' + rec.title,
+            open: function() {
+                $dialog.attr('aria-hidden', 'false');
+                setTimeout(function(){
+                    $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+                }, 5);
+            },
+            close: function() {
+                $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
+            },
+            buttons: buttons,
+            minWidth: 320,
+            width: 450
+        }).show();
+
+        // set dialog size according to content
+        me.dialog_resize($dialog.get(0), $dialog.height(), 400);
+    }
+
+    // close the event history dialog
+    function close_history_dialog()
+    {
+        $('#taskhistory, #taskdiff').each(function(i, elem) {
+        var $dialog = $(elem);
+        if ($dialog.is(':ui-dialog'))
+            $dialog.dialog('close');
+        });
+    };
 
     /**
      * Opens the dialog to edit a task
@@ -2371,17 +2573,22 @@ function rcube_tasklist_ui(settings)
         if (!rec.id || rec.id < 0)
             return false;
 
-        var qstring = '_id='+urlencode(att.id)+'&_t='+urlencode(rec.recurrence_id||rec.id)+'&_list='+urlencode(rec.list);
+        var query = { _id: att.id, _t: rec.recurrence_id||rec.id, _list:rec.list, _frame: 1 };
+        if (rec.rev)
+            query._rev = event.rev;
+
 
         // open attachment in frame if it's of a supported mimetype
         // similar as in app.js and calendar_ui.js
         if (att.id && att.mimetype && $.inArray(att.mimetype, settings.mimetypes)>=0) {
-            if (rcmail.open_window(rcmail.env.comm_path+'&_action=get-attachment&'+qstring+'&_frame=1', true, true)) {
+            if (rcmail.open_window(rcmail.url('get-attachment', query), true, true)) {
                 return;
             }
         }
 
-        rcmail.goto_url('get-attachment', qstring+'&_download=1', false);
+        query._frame = null;
+        query._download = 1;
+        rcmail.goto_url('get-attachment', query, false);
     };
 
     /**
