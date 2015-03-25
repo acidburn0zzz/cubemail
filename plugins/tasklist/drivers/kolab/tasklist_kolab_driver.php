@@ -796,6 +796,7 @@ class tasklist_kolab_driver extends tasklist_driver
                 'attendee' => 'attendees',
                 'attach'   => 'attachments',
                 'rrule'    => 'recurrence',
+                'related-to' => 'parent_id',
                 'percent-complete' => 'complete',
                 'lastmodified-date' => 'changed',
             );

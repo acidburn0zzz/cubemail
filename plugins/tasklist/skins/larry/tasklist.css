@@ -882,7 +882,7 @@ ul.toolbarmenu .sortcol.by-auto a {
 	background: url(images/badge_cancelled.png) top right no-repeat;
 }
 
-#task-parent-title {
+.task-parent-title {
 	position: relative;
 	top: -0.6em;
 }

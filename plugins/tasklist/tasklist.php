@@ -450,6 +450,16 @@ class tasklist extends rcube_plugin
                             $change['new']['classname'] = rcube_utils::file2class($change['new']['mimetype'], $change['new']['name']);
                         }
                     }
+                    // resolve parent_id to the refered task title for display
+                    if ($change['property'] == 'parent_id') {
+                        $change['property'] = 'parent-title';
+                        if (!empty($change['old']) && ($old_parent = $this->driver->get_task(array('id' => $change['old'], 'list' => $rec['list'])))) {
+                            $change['old_'] = $old_parent['title'];
+                        }
+                        if (!empty($change['new']) && ($new_parent = $this->driver->get_task(array('id' => $change['new'], 'list' => $rec['list'])))) {
+                            $change['new_'] = $new_parent['title'];
+                        }
+                    }
                     // compute a nice diff of description texts
                     if ($change['property'] == 'description') {
                         $change['diff_'] = libkolab::html_diff($change['old'], $change['new']);
@@ -1272,11 +1282,16 @@ class tasklist extends rcube_plugin
     private function task_walk_tree(&$rec)
     {
         $rec['_depth'] = 0;
+        $parent_titles = array();
         $parent_id = $this->task_tree[$rec['id']];
         while ($parent_id) {
             $rec['_depth']++;
-            $rec['parent_title'] = $this->task_titles[$parent_id];
+            array_unshift($parent_titles, $this->task_titles[$parent_id]);
             $parent_id = $this->task_tree[$parent_id];
+        }
+
+        if (count($parent_titles)) {
+            $rec['parent_title'] = join(' » ', array_filter($parent_titles));
         }
     }
 
