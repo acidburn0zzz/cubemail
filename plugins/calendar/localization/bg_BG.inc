@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for Kolab Calendar plugin
  *
@@ -7,7 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
  */
-
 $labels['default_view'] = 'Изглед по подразбиране';
 $labels['time_format'] = 'Формат на часовете';
 $labels['first_day'] = 'Първи ден от седмицата';
@@ -120,5 +118,5 @@ $labels['deleteventconfirm'] = 'Наистина ли искате да прем
 $labels['deletecalendarconfirm'] = 'Наистина ли искате да премахнете този календар с всичките му събития?';
 $labels['savingdata'] = 'Запазване на данни...';
 $labels['errorsaving'] = 'Неуспешно записването на промените.';
-
+$labels['futurevents'] = 'Бъдещи';
 ?>

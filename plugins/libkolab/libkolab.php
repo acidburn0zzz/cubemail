@@ -130,6 +130,24 @@ class libkolab extends rcube_plugin
     }
 
     /**
+     * Table oultine for object changelog display
+     */
+    public static function object_changelog_table($attrib = array())
+    {
+        $rcube = rcube::get_instance();
+
+        $table = new html_table(array('cols' => 5, 'border' => 0, 'cellspacing' => 0));
+        $table->add_header('diff',      '');
+        $table->add_header('revision',  $rcube->gettext('revision', $attrib['domain']));
+        $table->add_header('date',      $rcube->gettext('date', $attrib['domain']));
+        $table->add_header('user',      $rcube->gettext('user', $attrib['domain']));
+        $table->add_header('operation', $rcube->gettext('operation', $attrib['domain']));
+        $table->add_header('actions',   '&nbsp;');
+
+        return $table->show($attrib);
+    }
+
+    /**
      * Wrapper function for generating a html diff using the FineDiff class by Raymond Hill
      */
     public static function html_diff($from, $to)

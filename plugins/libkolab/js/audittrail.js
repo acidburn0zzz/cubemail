@@ -44,7 +44,7 @@ libkolab_audittrail.object_history_dialog = function(p)
         $dialog.dialog('close');
 
     var buttons = {};
-    buttons[rcmail.gettext('close', 'calendar')] = function() {
+    buttons[rcmail.gettext('close')] = function() {
         $dialog.dialog('close');
     };
 
@@ -189,7 +189,7 @@ libkolab_audittrail.render_changelog = function(data, object, folder)
             .append('<td class="revision">' + Q(i+1) + '</td>')
             .append('<td class="date">' + Q(change.date || '') + '</td>')
             .append('<td class="user">' + Q(change.user || 'undisclosed') + '</td>')
-            .append('<td class="operation" title="' + op_append + '">' + Q(rcmail.gettext(op_labels[change.op] || '', 'calendar') + (op_append ? ' ...' : '')) + '</td>')
+            .append('<td class="operation" title="' + op_append + '">' + Q(rcmail.gettext(op_labels[change.op] || '', data.module) + (op_append ? ' ...' : '')) + '</td>')
             .append('<td class="actions">' + (accessible && change.op != 'DELETE' ? actions.replace(/\{rev\}/g, change.rev) : '') + '</td>')
             .appendTo(tbody);
     }

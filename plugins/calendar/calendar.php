@@ -1114,7 +1114,7 @@ class calendar extends rcube_plugin
           $this->rc->output->command('plugin.event_show_diff', $data);
         }
         else {
-          $this->rc->output->command('display_message', $this->gettext('eventdiffnotavailable'), 'error');
+          $this->rc->output->command('display_message', $this->gettext('objectdiffnotavailable'), 'error');
         }
         $got_msg = true;
         $reload = false;
@@ -1125,7 +1125,7 @@ class calendar extends rcube_plugin
           $this->rc->output->command('plugin.event_show_revision', $this->_client_event($event));
         }
         else {
-          $this->rc->output->command('display_message', $this->gettext('eventnotfound'), 'error');
+          $this->rc->output->command('display_message', $this->gettext('objectnotfound'), 'error');
         }
         $got_msg = true;
         $reload = false;
@@ -1135,11 +1135,11 @@ class calendar extends rcube_plugin
         if ($success = $this->driver->restore_event_revision($event, $event['rev'])) {
           $_event = $this->driver->get_event($event);
           $reload = $_event['recurrence'] ? 2 : 1;
-          $this->rc->output->command('display_message', $this->gettext(array('name' => 'eventrestoresuccess', 'vars' => array('rev' => $event['rev']))), 'confirmation');
+          $this->rc->output->command('display_message', $this->gettext(array('name' => 'objectrestoresuccess', 'vars' => array('rev' => $event['rev']))), 'confirmation');
           $this->rc->output->command('plugin.close_history_dialog');
         }
         else {
-          $this->rc->output->command('display_message', $this->gettext('eventrestoreerror'), 'error');
+          $this->rc->output->command('display_message', $this->gettext('objectrestoreerror'), 'error');
           $reload = 0;
         }
         $got_msg = true;

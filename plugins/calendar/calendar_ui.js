@@ -1025,7 +1025,7 @@ function rcube_calendar_ui(settings)
       var $dialog = libkolab_audittrail.object_history_dialog({
         module: 'calendar',
         container: '#eventhistory',
-        title: rcmail.gettext('eventchangelog','calendar') + ' - ' + event.title + ', ' + me.event_date_text(event),
+        title: rcmail.gettext('objectchangelog','calendar') + ' - ' + event.title + ', ' + me.event_date_text(event),
 
         // callback function for list actions
         listfunc: function(action, rev) {
@@ -1060,6 +1060,7 @@ function rcube_calendar_ui(settings)
         return;
       }
 
+      data.module = 'calendar';
       libkolab_audittrail.render_changelog(data, event, me.calendars[event.calendar]);
 
       // set dialog size according to content
@@ -1177,7 +1178,7 @@ function rcube_calendar_ui(settings)
         modal: false,
         resizable: true,
         closeOnEscape: true,
-        title: rcmail.gettext('eventdiff','calendar').replace('$rev1', data.rev1).replace('$rev2', data.rev2) + ' - ' + event.title,
+        title: rcmail.gettext('objectdiff','calendar').replace('$rev1', data.rev1).replace('$rev2', data.rev2) + ' - ' + event.title,
         open: function() {
           $dialog.attr('aria-hidden', 'false');
           setTimeout(function(){

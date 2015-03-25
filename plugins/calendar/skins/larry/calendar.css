@@ -837,14 +837,14 @@ a.miniColors-trigger {
 	text-decoration: none;
 }
 
-#eventhistory .loading {
+.changelog-table .loading {
 	color: #666;
 	margin: 1em 0;
 	padding: 1px 0 2px 24px;
 	background: url(images/loading_blue.gif) top left no-repeat;
 }
 
-#eventhistory .compare-button {
+.changelog-dialog .compare-button {
 	margin: 4px 0;
 }
 
