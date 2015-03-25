@@ -1,6 +1,6 @@
 [main]
 host = https://www.transifex.com
-lang_map = en: en_US, de: de_DE, da: da_DK, es: es_ES, fi: fi_FI, fr: fr_FR, ja: ja_JP, nl: nl_NL, cs: cs_CZ, vi: vi_VN, pl: pl_PL, th: th_TH, sv: sv_SE, he: he_IL, sk: sk_SK, sl: sl_SI, uk: uk_UA
+lang_map = en: en_US, de: de_DE, da: da_DK, es: es_ES, fi: fi_FI, fr: fr_FR, ja: ja_JP, nl: nl_NL, cs: cs_CZ, vi: vi_VN, pl: pl_PL, th: th_TH, sv: sv_SE, he: he_IL, hr: hr_HR, sk: sk_SK, sl: sl_SI, uk: uk_UA
 type = PHP_ALT_ARRAY
 
 [kolab.calendar]

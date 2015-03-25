@@ -6,9 +6,15 @@
 # --force is necessary to avoid timestamp issues
 # https://bugs.launchpad.net/ironic/+bug/1298645/comments/4
 
-tx --debug pull --force -a --mode translator
-
 PWD=`dirname "$0"`
+RES=${1:-'*'}
+TXARGS=""
+
+if [ "$RES" != "*" ]; then
+    TXARGS="-r kolab.$RES"
+fi
+
+tx --debug pull --force -a --mode translator $TXARGS
 
 do_count()
 {
@@ -37,7 +43,7 @@ do_clean()
 }
 
 # clean up translation files
-for plugin in $PWD/plugins/*; do
+for plugin in $PWD/plugins/$RES; do
     if [ -s $plugin/localization/en_US.inc ]; then
         do_count $plugin/localization/en_US.inc
         EN_CNT=$?
@@ -52,6 +58,8 @@ for plugin in $PWD/plugins/*; do
             # git-add localizations with more than 0%
             if [ "$PERCENT" != "0" ]; then
                 git add $file
+            else
+                rm $file
             fi
         done
     fi
