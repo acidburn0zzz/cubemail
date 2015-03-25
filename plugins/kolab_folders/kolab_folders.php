@@ -29,8 +29,8 @@ class kolab_folders extends rcube_plugin
     public $types      = array('mail', 'event', 'journal', 'task', 'note', 'contact', 'configuration', 'file', 'freebusy');
     public $subtypes   = array(
         'mail'          => array('inbox', 'drafts', 'sentitems', 'outbox', 'wastebasket', 'junkemail'),
-        'event'         => array('default', 'confidential'),
-        'task'          => array('default', 'confidential'),
+        'event'         => array('default', 'confidential', 'private'),
+        'task'          => array('default', 'confidential', 'private'),
         'journal'       => array('default'),
         'note'          => array('default'),
         'contact'       => array('default'),

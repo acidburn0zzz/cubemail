@@ -260,23 +260,21 @@ class calendar extends rcube_plugin
   /**
    * Get properties of the calendar this user has specified as default
    */
-  public function get_default_calendar($writeable = false, $confidential = false)
+  public function get_default_calendar($sensitivity = null)
   {
     $default_id = $this->rc->config->get('calendar_default_calendar');
-    $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
+    $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL | calendar_driver::FILTER_WRITEABLE);
     $calendar = $calendars[$default_id] ?: null;
-    if (!$calendar || $confidential || ($writeable && !$calendar['editable'])) {
+    if (!$calendar || $sensitivity) {
       foreach ($calendars as $cal) {
-        if ($confidential && $cal['subtype'] == 'confidential') {
+        if ($sensitivity && $cal['subtype'] == $sensitivity) {
           $calendar = $cal;
           break;
         }
-        if ($cal['default']) {
+        if ($cal['default'] && $cal['editable']) {
           $calendar = $cal;
-          if (!$confidential)
-            break;
         }
-        if (!$writeable || $cal['editable']) {
+        if ($cal['editable']) {
           $first = $cal;
         }
       }
@@ -2473,7 +2471,7 @@ class calendar extends rcube_plugin
     }
 
     if ($calendar_select) {
-      $default_calendar = $this->get_default_calendar(true, $data['sensitivity'] == 'confidential');
+      $default_calendar = $this->get_default_calendar($data['sensitivity']);
       $response['select'] = html::span('folder-select', $this->gettext('saveincalendar') . '&nbsp;' .
         $calendar_select->show($default_calendar['id']));
     }
@@ -2587,7 +2585,7 @@ class calendar extends rcube_plugin
             $invitation = $itip->get_invitation($token);
 
             // save the event to his/her default calendar if not yet present
-            if (!$this->driver->get_event($this->event) && ($calendar = $this->get_default_calendar(true, $invitation['event']['sensitivity'] == 'confidential'))) {
+            if (!$this->driver->get_event($this->event) && ($calendar = $this->get_default_calendar($invitation['event']['sensitivity']))) {
               $invitation['event']['calendar'] = $calendar['id'];
               if ($this->driver->new_event($invitation['event']))
                 $this->rc->output->command('display_message', $this->gettext(array('name' => 'importedsuccessfully', 'vars' => array('calendar' => $calendar['name']))), 'confirmation');
@@ -2798,7 +2796,7 @@ class calendar extends rcube_plugin
 
       // select default calendar except user explicitly selected 'none'
       if (!$calendar && !$dontsave)
-         $calendar = $this->get_default_calendar(true, $event['sensitivity'] == 'confidential');
+         $calendar = $this->get_default_calendar($event['sensitivity']);
 
       $metadata = array(
         'uid' => $event['uid'],
@@ -3110,7 +3108,7 @@ class calendar extends rcube_plugin
 
       foreach ($events as $event) {
         // save to calendar
-        $calendar = $calendars[$cal_id] ?: $this->get_default_calendar(true, $event['sensitivity'] == 'confidential');
+        $calendar = $calendars[$cal_id] ?: $this->get_default_calendar($event['sensitivity']);
         if ($calendar && $calendar['editable'] && $event['_type'] == 'event') {
           $event['calendar'] = $calendar['id'];
 

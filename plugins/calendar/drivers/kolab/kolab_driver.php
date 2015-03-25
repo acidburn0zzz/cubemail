@@ -294,10 +294,10 @@ class kolab_driver extends calendar_driver
       'list'      => $this->calendars,
       'calendars' => $calendars,
       'filter'    => $filter,
-      'editable' => ($filter & self::FILTER_WRITEABLE),
+      'editable'  => ($filter & self::FILTER_WRITEABLE),
       'insert'    => ($filter & self::FILTER_INSERTABLE),
       'active'    => ($filter & self::FILTER_ACTIVE),
-      'personal'  => ($filter & self::FILTER_PERSONAL),
+      'personal'  => ($filter & self::FILTER_PERSONAL)
     ));
 
     if ($plugin['abort']) {
@@ -315,6 +315,12 @@ class kolab_driver extends calendar_driver
         continue;
       }
       if (($filter & self::FILTER_ACTIVE) && !$cal->is_active()) {
+        continue;
+      }
+      if (($filter & self::FILTER_PRIVATE) && $cal->subtype != 'private') {
+        continue;
+      }
+      if (($filter & self::FILTER_CONFIDENTIAL) && $cal->subtype != 'confidential') {
         continue;
       }
       if (($filter & self::FILTER_PERSONAL) && $cal->get_namespace() != 'personal') {

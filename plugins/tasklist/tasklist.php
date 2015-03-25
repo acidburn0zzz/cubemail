@@ -1724,26 +1724,22 @@ class tasklist extends rcube_plugin
     /**
      * Get properties of the tasklist this user has specified as default
      */
-    public function get_default_tasklist($writeable = false, $confidential = false)
+    public function get_default_tasklist($sensitivity = null)
     {
         $lists = $this->driver->get_lists();
         $list = null;
 
-        if (!$list || ($writeable && !$list['editable'])) {
-            foreach ($lists as $l) {
-                if ($confidential && $l['subtype'] == 'confidential') {
-                    $list = $l;
-                    break;
-                }
-                if ($l['default']) {
-                    $list = $l;
-                    if (!$confidential)
-                        break;
-                }
+        foreach ($lists as $l) {
+            if ($sensitivity && $l['subtype'] == $sensitivity) {
+                $list = $l;
+                break;
+            }
+            if ($l['default']) {
+                $list = $l;
+            }
 
-                if (!$writeable || $l['editable']) {
-                    $first = $l;
-                }
+            if ($l['editable']) {
+                $first = $l;
             }
         }
 
@@ -1786,7 +1782,7 @@ class tasklist extends rcube_plugin
 
             foreach ($tasks as $task) {
                 // save to tasklist
-                $list   = $lists[$cal_id] ?: $this->get_default_tasklist(true, $task['sensitivity'] == 'confidential');
+                $list   = $lists[$cal_id] ?: $this->get_default_tasklist($task['sensitivity']);
                 if ($list && $list['editable'] && $task['_type'] == 'task') {
                     $task = $this->from_ical($task);
                     $task['list'] = $list['id'];
@@ -1866,7 +1862,7 @@ class tasklist extends rcube_plugin
 
             // select default list except user explicitly selected 'none'
             if (!$list && !$dontsave) {
-                $list = $this->get_default_tasklist(true, $task['sensitivity'] == 'confidential');
+                $list = $this->get_default_tasklist($task['sensitivity']);
             }
 
             $metadata = array(
@@ -2105,7 +2101,7 @@ class tasklist extends rcube_plugin
         }
 
         if ($select) {
-            $default_list = $this->get_default_tasklist(true, $data['sensitivity'] == 'confidential');
+            $default_list = $this->get_default_tasklist($data['sensitivity']);
             $response['select'] = html::span('folder-select', $this->gettext('saveintasklist') . '&nbsp;' .
                 $select->show($default_list['id']));
         }
