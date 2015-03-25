@@ -2575,7 +2575,7 @@ function rcube_tasklist_ui(settings)
 
         var query = { _id: att.id, _t: rec.recurrence_id||rec.id, _list:rec.list, _frame: 1 };
         if (rec.rev)
-            query._rev = event.rev;
+            query._rev = rec.rev;
 
 
         // open attachment in frame if it's of a supported mimetype

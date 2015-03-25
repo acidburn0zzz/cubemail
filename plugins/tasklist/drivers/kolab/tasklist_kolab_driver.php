@@ -717,8 +717,9 @@ class tasklist_kolab_driver extends tasklist_driver
             $format->get_attachments($rec, true);
 
             if ($format->is_valid()) {
+                $rec = self::_to_rcube_task($rec, $list_id, false);
                 $rec['rev'] = $result['rev'];
-                return self::_to_rcube_task($rec, $list_id, false);
+                return $rec;
             }
         }
 
