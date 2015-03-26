@@ -891,23 +891,23 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     private function _resolve_task_identity($prop)
     {
-      $mailbox = $msguid = null;
+        $mailbox = $msguid = null;
 
-      $this->_parse_id($prop);
-      $uid     = $prop['uid'];
-      $list_id = $prop['list'];
+        $this->_parse_id($prop);
+        $uid     = $prop['uid'];
+        $list_id = $prop['list'];
 
-      if ($folder = $this->get_folder($list_id)) {
-          $mailbox = $folder->get_mailbox_id();
+        if ($folder = $this->get_folder($list_id)) {
+            $mailbox = $folder->get_mailbox_id();
 
-          // get task object from storage in order to get the real object uid an msguid
-          if ($rec = $folder->get_object($uid)) {
-              $msguid = $rec['_msguid'];
-              $uid = $rec['uid'];
-          }
-      }
+            // get task object from storage in order to get the real object uid an msguid
+            if ($rec = $folder->get_object($uid)) {
+                $msguid = $rec['_msguid'];
+                $uid = $rec['uid'];
+            }
+        }
 
-      return array($uid, $mailbox, $msguid);
+        return array($uid, $mailbox, $msguid);
     }
 
 

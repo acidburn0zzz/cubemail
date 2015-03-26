@@ -393,9 +393,10 @@ class tasklist extends rcube_plugin
                 $dtformat = $this->rc->config->get('date_format') . ' ' . $this->rc->config->get('time_format');
                 array_walk($data, function(&$change) use ($lib, $dtformat) {
                   if ($change['date']) {
-                    $dt = $lib->adjust_timezone($change['date']);
-                    if ($dt instanceof DateTime)
-                      $change['date'] = $this->rc->format_date($dt, $dtformat, false);
+                      $dt = $lib->adjust_timezone($change['date']);
+                      if ($dt instanceof DateTime) {
+                          $change['date'] = $this->rc->format_date($dt, $dtformat, false);
+                      }
                   }
                 });
                 $this->rc->output->command('plugin.task_render_changelog', $data);

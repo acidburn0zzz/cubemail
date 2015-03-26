@@ -51,8 +51,6 @@ $labels['assignedto'] = 'Assigned to';
 $labels['created'] = 'Created';
 $labels['changed'] = 'Last Modified';
 $labels['taskoptions'] = 'Options';
-$labels['taskhistory'] = 'History';
-$labels['compare'] = 'Compare';
 
 $labels['all'] = 'All';
 $labels['flagged'] = 'Flagged';
@@ -155,16 +153,15 @@ $labels['itipcancelmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attend
 $labels['saveintasklist'] = 'save in ';
 
 // history dialog
+$labels['taskhistory'] = 'History';
 $labels['objectchangelog'] = 'Change History';
 $labels['objectdiff'] = 'Changes from $rev1 to $rev2';
-
 $labels['actionappend'] = 'Saved';
 $labels['actionmove'] = 'Moved';
 $labels['actiondelete'] = 'Deleted';
 $labels['compare'] = 'Compare';
 $labels['showrevision'] = 'Show this version';
 $labels['restore'] = 'Restore this version';
-
 $labels['objectnotfound'] = 'Failed to load task data';
 $labels['objectchangelognotavailable'] = 'Change history is not available for this task';
 $labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';

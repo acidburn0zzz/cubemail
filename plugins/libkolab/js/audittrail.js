@@ -60,13 +60,13 @@ libkolab_audittrail.object_history_dialog = function(p)
         closeOnEscape: true,
         title: p.title,
         open: function() {
-          $dialog.attr('aria-hidden', 'false');
-          setTimeout(function(){
-            $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
-          }, 5);
+            $dialog.attr('aria-hidden', 'false');
+            setTimeout(function(){
+                $dialog.parent().find('.ui-dialog-buttonpane .ui-button').first().focus();
+            }, 5);
         },
         close: function() {
-          $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
+            $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
         },
         buttons: buttons,
         minWidth: 450,
