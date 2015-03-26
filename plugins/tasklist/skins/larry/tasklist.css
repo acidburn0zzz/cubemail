@@ -1095,6 +1095,11 @@ label.block {
 	background-color: #dfd;
 }
 
+.tasklistview .taskshow label span.index {
+	vertical-align: inherit;
+	margin-left: 0.6em;
+}
+
 #taskedit-completeness-slider {
 	display: inline-block;
 	margin-left: 2em;
