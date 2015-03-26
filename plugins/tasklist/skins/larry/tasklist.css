@@ -769,6 +769,7 @@ ul.toolbarmenu li span.icon.taskadd,
 ul.toolbarmenu li span.add,
 ul.toolbarmenu li span.expand,
 ul.toolbarmenu li span.collapse,
+ul.toolbarmenu li span.history,
 ul.toolbarmenu.iconized .selected span.icon {
 	background-image: url(sprites.png);
 }
@@ -787,6 +788,10 @@ ul.toolbarmenu li span.collapse {
 
 ul.toolbarmenu li span.delete {
 	background-position: 0 -1508px;
+}
+
+ul.toolbarmenu li span.history {
+	background-position: 0 -408px;
 }
 
 ul.toolbarmenu.iconized .selected span.icon {
