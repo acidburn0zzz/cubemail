@@ -6,7 +6,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2014, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2014-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -68,6 +68,7 @@ function rcube_kolab_notes_ui(settings)
         rcmail.register_command('reset-search', reset_search, true);
         rcmail.register_command('sendnote', send_note, false);
         rcmail.register_command('print', print_note, false);
+        rcmail.register_command('history', show_history_dialog, false);
 
         // register server callbacks
         rcmail.addEventListener('plugin.data_ready', data_ready);
@@ -83,6 +84,11 @@ function rcube_kolab_notes_ui(settings)
                 rcmail.lock_form(rcmail.gui_objects.noteseditform, false);
             }
         });
+
+        rcmail.addEventListener('plugin.close_history_dialog', close_history_dialog);
+        rcmail.addEventListener('plugin.note_render_changelog', render_changelog);
+        rcmail.addEventListener('plugin.note_show_revision', render_revision);
+        rcmail.addEventListener('plugin.note_show_diff', show_diff);
 
         // initialize folder selectors
         if (settings.selected_list && !me.notebooks[settings.selected_list]) {
@@ -209,7 +215,7 @@ function rcube_kolab_notes_ui(settings)
 
                 rcmail.enable_command('delete', me.notebooks[me.selected_list] && has_permission(me.notebooks[me.selected_list], 'td') && list.selection.length > 0);
                 rcmail.enable_command('sendnote', list.selection.length > 0);
-                rcmail.enable_command('print', list.selection.length == 1);
+                rcmail.enable_command('print', 'history', list.selection.length == 1);
             })
             .addEventListener('dragstart', function(e) {
                 folder_drop_target = null;
@@ -828,7 +834,7 @@ function rcube_kolab_notes_ui(settings)
     /**
      *
      */
-    function render_note(data, retry)
+    function render_note(data, container, temp, retry)
     {
         rcmail.set_busy(false, 'loading', ui_loading);
 
@@ -837,20 +843,25 @@ function rcube_kolab_notes_ui(settings)
             return;
         }
 
+        if (!container) {
+            container = rcmail.gui_containers['notedetailview'];
+        }
+
         var list = me.notebooks[data.list] || me.notebooks[me.selected_list] || { rights: 'lrs', editable: false };
             content = $('#notecontent').val(data.description),
             readonly = data.readonly || !(list.editable || !data.uid && has_permission(list,'i')),
-            attachmentslist = $(rcmail.gui_objects.notesattachmentslist).html('');
-        $('.notetitle', rcmail.gui_objects.noteviewtitle).val(data.title).prop('disabled', readonly).show();
-        $('.dates .notecreated', rcmail.gui_objects.noteviewtitle).html(Q(data.created || ''));
-        $('.dates .notechanged', rcmail.gui_objects.noteviewtitle).html(Q(data.changed || ''));
-        $(rcmail.gui_objects.notebooks).filter('select').val(list.id);
+            attachmentslist = gui_object('notesattachmentslist', container).html(''),
+            titlecontainer = container || rcmail.gui_objects.noteviewtitle;
+
+        $('.notetitle', titlecontainer).val(data.title).prop('disabled', readonly).show();
+        $('.dates .notecreated', titlecontainer).html(Q(data.created || ''));
+        $('.dates .notechanged', titlecontainer).html(Q(data.changed || ''));
         if (data.created || data.changed) {
-            $('.dates', rcmail.gui_objects.noteviewtitle).show();
+            $('.dates', titlecontainer).show();
         }
 
         // tag-edit line
-        var tagline = $('.tagline', rcmail.gui_objects.noteviewtitle).empty()[readonly?'addClass':'removeClass']('disabled').show();
+        var tagline = $('.tagline', titlecontainer).empty()[readonly?'addClass':'removeClass']('disabled').show();
         $.each(typeof data.tags == 'object' && data.tags.length ? data.tags : [''], function(i,val) {
             $('<input>')
                 .attr('name', 'tags[]')
@@ -867,7 +878,7 @@ function rcube_kolab_notes_ui(settings)
               .click(function(e) { $(this).parent().find('.tagedit-list').trigger('click'); });
         }
 
-        $('.tagline input.tag', rcmail.gui_objects.noteviewtitle).tagedit({
+        $('.tagline input.tag', titlecontainer).tagedit({
             animSpeed: 100,
             allowEdit: false,
             allowAdd: !readonly,
@@ -904,7 +915,7 @@ function rcube_kolab_notes_ui(settings)
         }
 
         if (!readonly) {
-            $('.tagedit-list', rcmail.gui_objects.noteviewtitle)
+            $('.tagedit-list', titlecontainer)
                 .on('click', function(){ $('.tagline .placeholder').hide(); });
         }
 
@@ -912,9 +923,13 @@ function rcube_kolab_notes_ui(settings)
             data.list = list.id;
 
         data.readonly = readonly;
-        me.selected_note = data;
-        me.selected_note.id = rcmail.html_identifier_encode(data.uid);
-        rcmail.enable_command('save', !readonly);
+
+        if (!temp) {
+            $(rcmail.gui_objects.notebooks).filter('select').val(list.id);
+            me.selected_note = data;
+            me.selected_note.id = rcmail.html_identifier_encode(data.uid);
+            rcmail.enable_command('save', !readonly);
+        }
 
         var html = data.html || data.description;
 
@@ -930,15 +945,15 @@ function rcube_kolab_notes_ui(settings)
         if (!readonly && !editor && $('#notecontent').length && retry < 5) {
           // ... give it some more time
           setTimeout(function() {
-              $(rcmail.gui_objects.noteseditform).show();
-              render_note(data, retry+1);
+              gui_object('noteseditform', container).show();
+              render_note(data, container, temp, retry+1);
           }, 200);
           return;
         }
 
         if (!readonly && editor) {
-            $(rcmail.gui_objects.notesdetailview).hide();
-            $(rcmail.gui_objects.noteseditform).show();
+            gui_object('notesdetailview', container).hide();
+            gui_object('noteseditform', container).show();
             editor.setContent(html);
             node = editor.getContentAreaContainer().childNodes[0];
             if (node) node.tabIndex = content.get(0).tabIndex;
@@ -948,15 +963,15 @@ function rcube_kolab_notes_ui(settings)
                     editor.getBody().focus();
             }
             else
-                $('.notetitle', rcmail.gui_objects.noteviewtitle).focus().select();
+                $('.notetitle', titlecontainer).focus().select();
 
             // read possibly re-formatted content back from editor for later comparison
             me.selected_note.description = editor.getContent({ format:'html' }).replace(/^\s*(<p><\/p>\n*)?/, '');
             is_html = true;
         }
         else {
-            $(rcmail.gui_objects.noteseditform).hide();
-            $(rcmail.gui_objects.notesdetailview).html(html).show();
+            gui_object('noteseditform', container).hide();
+            gui_object('notesdetailview', container).html(html).show();
         }
 
         render_no_focus = false;
@@ -968,6 +983,22 @@ function rcube_kolab_notes_ui(settings)
 
         // Trigger resize (needed for proper editor resizing)
         $(window).resize();
+    }
+
+    /**
+     *
+     */
+    function gui_object(name, container)
+    {
+        var elem = rcmail.gui_objects[name], selector = elem;
+        if (elem && elem.className && container) {
+            selector = '.' + String(elem.className).split(' ').join('.');
+        }
+        else if (elem && elem.id) {
+            selector = '#' + elem.id;
+        }
+
+        return $(selector, container);
     }
 
     /**
@@ -986,6 +1017,193 @@ function rcube_kolab_notes_ui(settings)
 
         return '<pre>' + Q(str).replace(link_pattern, link_replace) + '</pre>';
     }
+
+    /**
+     *
+     */
+    function show_history_dialog()
+    {
+        var dialog, rec = me.selected_note;
+        if (!rec || !rec.uid || !window.libkolab_audittrail) {
+            return false;
+        }
+
+        // render dialog
+        $dialog = libkolab_audittrail.object_history_dialog({
+            module: 'kolab_notes',
+            container: '#notehistory',
+            title: rcmail.gettext('objectchangelog','kolab_notes') + ' - ' + rec.title,
+
+            // callback function for list actions
+            listfunc: function(action, rev) {
+                var rec = $dialog.data('rec');
+                saving_lock = rcmail.set_busy(true, 'loading', saving_lock);
+                rcmail.http_post('action', { _do: action, _data: { uid: rec.uid, list:rec.list, rev: rev } }, saving_lock);
+            },
+
+            // callback function for comparing two object revisions
+            comparefunc: function(rev1, rev2) {
+                var rec = $dialog.data('rec');
+                saving_lock = rcmail.set_busy(true, 'loading', saving_lock);
+                rcmail.http_post('action', { _do: 'diff', _data: { uid: rec.uid, list: rec.list, rev1: rev1, rev2: rev2 } }, saving_lock);
+            }
+        });
+
+        $dialog.data('rec', rec);
+
+        // fetch changelog data
+        saving_lock = rcmail.set_busy(true, 'loading', saving_lock);
+        rcmail.http_post('action', { _do: 'changelog', _data: { uid: rec.uid, list: rec.list } }, saving_lock);
+    }
+
+    /**
+     *
+     */
+    function render_changelog(data)
+    {
+        var $dialog = $('#notehistory'),
+            rec = $dialog.data('rec');
+
+        if (data === false || !data.length || !event) {
+          // display 'unavailable' message
+          $('<div class="notfound-message note-dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','kolab_notes') + '</div>')
+              .insertBefore($dialog.find('.changelog-table').hide());
+          return;
+        }
+
+        data.module = 'kolab_notes';
+        libkolab_audittrail.render_changelog(data, rec, me.notebooks[rec.list]);
+
+        // set dialog size according to content
+        dialog_resize($dialog.get(0), $dialog.height(), 600);
+    }
+
+    /**
+     *
+     */
+    function render_revision(data)
+    {
+        data.readonly = true;
+
+        // clone view and render data into a dialog
+        var model = rcmail.gui_containers['notedetailview'],
+            container = model.clone();
+
+        container
+            .removeAttr('id style class role')
+            .find('.mce-container').remove();
+
+        // reset custom styles
+        container.children('div, form').removeAttr('id style');
+
+        // open jquery UI dialog
+        container.dialog({
+            modal: false,
+            resizable: true,
+            closeOnEscape: true,
+            title: data.title + ' @ ' + data.rev,
+            close: function() {
+                container.dialog('destroy').remove();
+            },
+            buttons: [
+                {
+                    text: rcmail.gettext('close'),
+                    click: function() { container.dialog('close'); },
+                    autofocus: true
+                }
+            ],
+            width: model.width(),
+            height: model.height(),
+            minWidth: 450,
+            minHeight: 400,
+        })
+        .show();
+
+        render_note(data, container, true);
+    }
+
+    /**
+     *
+     */
+    function show_diff(data)
+    {
+        var rec = me.selected_note,
+            $dialog = $('#notediff');
+
+        $dialog.find('div.form-section, h2.note-title-new').hide().data('set', false);
+
+        // always show title
+        $('.note-title', $dialog).text(rec.title).removeClass('diff-text-old').show();
+
+        // show each property change
+        $.each(data.changes, function(i, change) {
+            var prop = change.property, r2, html = false,
+                row = $('div.note-' + prop, $dialog).first();
+
+            // special case: title
+            if (prop == 'title') {
+                $('.note-title', $dialog).addClass('diff-text-old').text(change['old'] || '--');
+                $('.note-title-new', $dialog).text(change['new'] || '--').show();
+            }
+
+            // no display container for this property
+            if (!row.length) {
+                return true;
+            }
+
+            if (change.diff_) {
+                row.children('.diff-text-diff').html(change.diff_);
+                row.children('.diff-text-old, .diff-text-new').hide();
+            }
+            else {
+                if (!html) {
+                    // escape HTML characters
+                    change.old_ = Q(change.old_ || change['old'] || '--')
+                    change.new_ = Q(change.new_ || change['new'] || '--')
+                }
+                row.children('.diff-text-old').html(change.old_ || change['old'] || '--').show();
+                row.children('.diff-text-new').html(change.new_ || change['new'] || '--').show();
+            }
+
+            row.show().data('set', true);
+        });
+
+        // open jquery UI dialog
+        $dialog.dialog({
+            modal: false,
+            resizable: true,
+            closeOnEscape: true,
+            title: rcmail.gettext('objectdiff','kolab_notes').replace('$rev1', data.rev1).replace('$rev2', data.rev2) + ' - ' + rec.title,
+            open: function() {
+                $dialog.attr('aria-hidden', 'false');
+            },
+            close: function() {
+                $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
+            },
+            buttons: [
+                {
+                    text: rcmail.gettext('close'),
+                    click: function() { $dialog.dialog('close'); },
+                    autofocus: true
+                }
+            ],
+            minWidth: 400,
+            width: 480
+        }).show();
+
+        // set dialog size according to content
+        dialog_resize($dialog.get(0), $dialog.height(), rcmail.gui_containers.notedetailview.width() - 40);
+    }
+
+    // close the event history dialog
+    function close_history_dialog()
+    {
+        $('#notehistory, #notediff').each(function(i, elem) {
+        var $dialog = $(elem);
+        if ($dialog.is(':ui-dialog'))
+            $dialog.dialog('close');
+        });
+    };
 
     /**
      *
@@ -1176,6 +1394,7 @@ function rcube_kolab_notes_ui(settings)
      */
     function reset_view()
     {
+        close_history_dialog();
         me.selected_note = null;
         $('.notetitle', rcmail.gui_objects.noteviewtitle).val('').hide();
         $('.tagline, .dates', rcmail.gui_objects.noteviewtitle).hide();
@@ -1489,6 +1708,14 @@ function rcube_kolab_notes_ui(settings)
             saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
             rcmail.http_post('action', { _data: savedata, _do: 'edit' }, true);
         }
+    }
+
+    // resize and reposition (center) the dialog window
+    function dialog_resize(id, height, width)
+    {
+        var win = $(window), w = win.width(), h = win.height();
+            $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
+                .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
     }
 
 }

@@ -51,6 +51,7 @@ class kolab_notes_ui
         $this->plugin->register_handler('plugin.notetitle', array($this, 'notetitle'));
         $this->plugin->register_handler('plugin.detailview', array($this, 'detailview'));
         $this->plugin->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
+        $this->plugin->register_handler('plugin.object_changelog_table', array('libkolab', 'object_changelog_table'));
 
         $this->rc->output->include_script('list.js');
         $this->rc->output->include_script('treelist.js');
@@ -61,6 +62,7 @@ class kolab_notes_ui
         // include kolab folderlist widget if available
         if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {
             $this->plugin->api->include_script('libkolab/js/folderlist.js');
+            $this->plugin->api->include_script('libkolab/js/audittrail.js');
         }
 
         // load config options and user prefs relevant for the UI
@@ -101,7 +103,7 @@ class kolab_notes_ui
 
         $this->rc->output->set_env('kolab_notes_settings', $settings);
 
-        $this->rc->output->add_label('save','cancel','delete');
+        $this->rc->output->add_label('save','cancel','delete','close');
     }
 
     public function folders($attrib)

@@ -86,21 +86,55 @@
 
         <div id="notedetailsbox" class="uibox contentbox" role="main" aria-labelledby="aria-label-noteform">
             <h3 id="aria-label-noteform" class="voice"><roundcube:label name="kolab_notes.arialabelnoteform" /></h3>
-            <roundcube:object name="plugin.notetitle" id="notedetailstitle" class="boxtitle" />
-            <roundcube:object name="plugin.editform" id="noteform" />
-            <roundcube:object name="plugin.detailview" id="notedetails" class="scroller" />
-            <div id="notereferences">
+            <roundcube:object name="plugin.notetitle" id="notedetailstitle" class="notetitle boxtitle" />
+            <roundcube:object name="plugin.editform" id="noteform" class="noteform" />
+            <roundcube:object name="plugin.detailview" id="notedetails" class="notedetails scroller" />
+            <div id="notereferences" class="notereferences">
                 <h3 id="aria-label-messagereferences" class="voice"><roundcube:label name="kolab_notes.arialabelmessagereferences" /></h3>
                 <roundcube:object name="plugin.attachments_list" id="attachment-list" class="attachmentslist" role="region" aria-labelledby="aria-label-messagereferences" />
             </div>
-            <div class="footerleft formbuttons">
+            <div class="formbuttons">
                 <roundcube:button command="save" type="input" class="button mainaction" label="save" id="btn-save-note" />
+                <div class="footerright">
+                <roundcube:if condition="config:kolab_bonnie_api" />
+                    <roundcube:button command="history" type="link" label="kolab_notes.showhistory" class="btn-note-history" classAct="btn-note-history active" />
+                <roundcube:endif />
+                </div>
             </div>
+            <roundcube:container name="notedetailview" id="notedetailsbox" />
         </div>
     </div>
 
     </div>
 </div>
+
+<roundcube:if condition="config:kolab_bonnie_api" />
+<div id="notehistory" class="uidialog" aria-hidden="true">
+    <roundcube:object name="plugin.object_changelog_table" class="records-table changelog-table" domain="calendar" />
+    <div class="compare-button"><input type="button" class="button" value="↳ <roundcube:label name='kolab_notes.compare' />" /></div>
+</div>
+
+<div id="notediff" class="uidialog contentbox" aria-hidden="true">
+	<h2 class="note-title">Note Title</h2>
+	<h2 class="note-title-new diff-text-new"></h2>
+
+	<div class="form-section note-tags">
+		<span class="diff-text-old"></span> &#8674;
+		<span class="diff-text-new"></span>
+	</div>
+
+	<div class="form-section note-description">
+		<div class="diff-text-diff" style="white-space:pre-wrap"></div>
+		<div class="diff-text-old"></div>
+		<div class="diff-text-new"></div>
+	</div>
+
+	<div class="form-section notereferences">
+		<div class="diff-text-old"></div>
+		<div class="diff-text-new"></div>
+	</div>
+</div>
+<roundcube:endif />
 
 <roundcube:object name="message" id="messagestack" />
 

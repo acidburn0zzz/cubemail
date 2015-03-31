@@ -1,7 +1,7 @@
 /**
  * Kolab Notes plugin styles for skin "Larry"
  *
- * Copyright (C) 2014, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2014-2015, Kolab Systems AG <contact@kolabsys.com>
  * Screendesign by FLINT / Büro für Gestaltung, bueroflint.com
  *
  * The contents are subject to the Creative Commons Attribution-ShareAlike
@@ -147,8 +147,45 @@
 	background: #f9f9f9;
 }
 
-.notesview #noteform,
-.notesview #notedetails {
+.notesview #notedetailsbox .footerright {
+	float: right;
+}
+
+.notesview #notedetailsbox .formbuttons:after {
+	content: "";
+	display: inline;
+	clear: both;
+}
+
+.notesview .btn-note-history {
+	display: inline-block;
+	padding: 2px;
+	text-decoration: none;
+	visibility: hidden;
+}
+
+.notesview .btn-note-history.active {
+	visibility: visible;
+	color: #333;
+}
+
+.notesview .btn-note-history:before {
+	content: "";
+	display: inline-block;
+	position: relative;
+	top: 4px;
+	width: 16px;
+	height: 16px;
+	margin-right: 4px;
+	background: url('sprites.png') -1px -302px no-repeat;
+}
+
+.notesview .btn-note-history.active:hover {
+	text-decoration: underline;
+}
+
+.notesview .noteform,
+.notesview .notedetails {
 	display: none;
 	position: absolute;
 	top: 82px;
@@ -157,7 +194,7 @@
 	width: 100%;
 }
 
-.notesview #notedetails {
+.notesview .notedetails {
 	padding: 8px;
 	-webkit-box-sizing: border-box;
 	   -moz-box-sizing: border-box;
@@ -167,12 +204,12 @@
 	background: #fff;
 }
 
-.notesdialog #noteform,
-.notesdialog #notedetails {
+.notesdialog .noteform,
+.notesdialog .notedetails {
 	bottom: 30px;
 }
 
-.notesview #notedetails pre {
+.notesview .notedetails pre {
 	font-family: "Lucida Grande", Verdana,  Arial, Helvetica, sans-serif;
 	font-size: 12px;
 	margin: 0;
@@ -211,13 +248,35 @@
 	border: 0;
 }
 
-.notesview #notedetailstitle {
+.notesview .ui-dialog-content .noteform,
+.notesview .ui-dialog-content .notedetails,
+.notesview .ui-dialog-content .notereferences {
+	position: relative;
+	width: auto;
+	height: auto;
+	top: auto;
+	bottom: auto;
+	overflow: visible;
+	border: 0;
+}
+
+.notesview .notetitle {
 	height: auto;
 	min-height: 20px;
 }
 
-.notesview #notedetailstitle .disabled .tagedit-list,
-.notesview #notedetailstitle input.inline-edit:disabled {
+.notesview .ui-dialog-content .notetitle {
+	padding: 0 0 6px 0;
+	margin-top: -6px;
+	border-bottom: 0;
+}
+
+.notesview .ui-dialog-content .tagline {
+	display: none !important;
+}
+
+.notesview .notetitle .disabled .tagedit-list,
+.notesview .notetitle input.inline-edit:disabled {
 	outline: none;
 	padding-left: 0;
 	border: 0;
@@ -228,8 +287,8 @@
 	        box-shadow: none;
 }
 
-.notesview #notedetailstitle input.notetitle,
-.notesview #notedetailstitle input.notetitle:focus {
+.notesview .notetitle input.notetitle,
+.notesview .notetitle input.notetitle:focus {
 	width: 100%;
 	font-size: 14px;
 	font-weight: bold;
@@ -240,8 +299,13 @@
 	        box-sizing: border-box;
 }
 
-.notesview #notedetailstitle .dates,
-.notesview #notedetailstitle .tagline,
+.notesview .ui-dialog-content .formbuttons,
+.notesview .ui-dialog-content .notetitle input {
+	display: none !important;
+}
+
+.notesview .notetitle .dates,
+.notesview .notetitle .tagline,
 .notesdialog .notebookselect label {
 	color: #999;
 	font-weight: normal;
@@ -253,24 +317,28 @@
 	margin-top: 4px;
 }
 
-.notesview #notedetailstitle .tagline {
+.notesview .notetitle .tagline {
 	position: relative;
 	cursor: text;
 	margin: 4px 0 0 0;
 }
 
-.notesview #notedetailstitle .tagline.disabled {
+.notesview .notetitle .tagline.disabled {
 	margin-top: 0;
 }
 
-.notesview #notedetailstitle .tagline .placeholder {
+.notesview .notetitle .tagline .placeholder {
 	position: absolute;
 	top: 6px;
 	left: 6px;
 	z-index: 2;
 }
 
-.notesview #notedetailstitle .tagedit-list {
+.notesview .notetitle .tagline.disabled .placeholder {
+	left: 0;
+}
+
+.notesview .notetitle .tagedit-list {
 	position: relative;
 	z-index: 1;
 	min-height: 32px;
@@ -282,15 +350,15 @@
 }
 
 /* Firefox 3.6 */
-_:not(), _:-moz-handler-blocked, .notesview #notedetailstitle .tagedit-list {
+_:not(), _:-moz-handler-blocked, .notesview .notetitle .tagedit-list {
 	min-height: 26px;
 }
 
-.notesview #notedetailstitle .disabled .tagedit-list {
+.notesview .notetitle .disabled .tagedit-list {
 	min-height: 26px;
 }
 
-.notesview #notedetailstitle #tagedit-input {
+.notesview .notetitle #tagedit-input {
 	background: none;
 }
 
@@ -298,15 +366,15 @@ _:not(), _:-moz-handler-blocked, .notesview #notedetailstitle .tagedit-list {
 	z-index: 1000;
 }
 
-.notesview #notedetailstitle .notecreated,
-.notesview #notedetailstitle .notechanged {
+.notesview .notetitle .notecreated,
+.notesview .notetitle .notechanged {
 	display: inline-block;
 	padding-left: 0.4em;
 	padding-right: 2em;
 	color: #777;
 }
 
-.notesview #notereferences {
+.notesview .notereferences {
 	position: absolute;
 	left: 0;
 	right: 0;
@@ -316,8 +384,39 @@ _:not(), _:-moz-handler-blocked, .notesview #notedetailstitle .tagedit-list {
 	padding-left: 10px;
 }
 
-.notesdialog #notereferences {
+.notesdialog .notereferences {
 	bottom: 0;
+}
+
+.notesview #notediff .note-title,
+.notesview #notediff .note-title-new {
+	margin-top: 0;
+}
+
+.notesview .note-title.diff-text-old {
+	margin-bottom: 0;
+}
+
+.notesview .diff-text-diff del,
+.notesview .diff-text-diff ins {
+	text-decoration: none;
+	color: inherit;
+}
+
+.notesview .diff-text-old,
+.notesview .diff-text-diff del {
+	background-color: #fdd;
+	text-decoration: line-through;
+}
+
+.notesview .diff-text-new,
+.notesview .diff-text-diff ins,
+.notesview .diff-text-diff .diffmod img {
+	background-color: #dfd;
+}
+
+.notesview .diff-text-diff img {
+	border: 1px solid #999;
 }
 
 .notesview #notebooksbox .scroller {

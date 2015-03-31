@@ -8,7 +8,7 @@
  * @version @package_version@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2014, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2014-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -35,6 +35,7 @@ class kolab_notes extends rcube_plugin
     private $folders;
     private $cache = array();
     private $message_notes = array();
+    private $bonnie_api = false;
 
     /**
      * Required startup method of a Roundcube plugin
@@ -108,6 +109,11 @@ class kolab_notes extends rcube_plugin
 
         if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || in_array($args['action'], array('folder-acl','dialog-ui')))) {
             $this->load_ui();
+        }
+
+        // get configuration for the Bonnie API
+        if ($bonnie_config = $this->rc->config->get('kolab_bonnie_api', false)) {
+            $this->bonnie_api = new kolab_bonnie_api($bonnie_config);
         }
 
         // notes use fully encoded identifiers
@@ -597,7 +603,7 @@ class kolab_notes extends rcube_plugin
         $action = rcube_utils::get_input_value('_do', rcube_utils::INPUT_POST);
         $note   = rcube_utils::get_input_value('_data', rcube_utils::INPUT_POST, true);
 
-        $success = false;
+        $success = $silent = false;
         switch ($action) {
             case 'new':
                 $temp_id = $rec['tempid'];
@@ -630,13 +636,66 @@ class kolab_notes extends rcube_plugin
                     }
                 }
                 break;
+
+            case 'changelog':
+                $data = $this->get_changelog($note);
+                if (is_array($data) && !empty($data)) {
+                    $dtformat = $this->rc->config->get('date_format') . ' ' . $this->rc->config->get('time_format');
+                    array_walk($data, function(&$change) use ($lib, $dtformat) {
+                      if ($change['date']) {
+                          $dt = rcube_utils::anytodatetime($change['date']);
+                          if ($dt instanceof DateTime) {
+                              $change['date'] = $this->rc->format_date($dt, $dtformat);
+                          }
+                      }
+                    });
+                    $this->rc->output->command('plugin.note_render_changelog', $data);
+                }
+                else {
+                    $this->rc->output->command('plugin.note_render_changelog', false);
+                }
+                $silent = true;
+                break;
+
+            case 'diff':
+                $silent = true;
+                $data = $this->get_diff($note, $note['rev1'], $note['rev2']);
+                if (is_array($data)) {
+                    $this->rc->output->command('plugin.note_show_diff', $data);
+                }
+                else {
+                    $this->rc->output->command('display_message', $this->gettext('objectdiffnotavailable'), 'error');
+                }
+                break;
+
+            case 'show':
+                if ($rec = $this->get_revison($note, $note['rev'])) {
+                    $this->rc->output->command('plugin.note_show_revision', $this->_client_encode($rec));
+                }
+                else {
+                    $this->rc->output->command('display_message', $this->gettext('objectnotfound'), 'error');
+                }
+                $silent = true;
+                break;
+
+            case 'restore':
+                if ($this->restore_revision($note, $note['rev'])) {
+                    $refresh = $this->get_note($note);
+                    $this->rc->output->command('display_message', $this->gettext(array('name' => 'objectrestoresuccess', 'vars' => array('rev' => $note['rev']))), 'confirmation');
+                    $this->rc->output->command('plugin.close_history_dialog');
+                }
+                else {
+                    $this->rc->output->command('display_message', $this->gettext('objectrestoreerror'), 'error');
+                }
+                $silent = true;
+                break;
         }
 
         // show confirmation/error message
         if ($success) {
             $this->rc->output->show_message('successfullysaved', 'confirmation');
         }
-        else {
+        else if (!$silent) {
             $this->rc->output->show_message('errorsaving', 'error');
         }
 
@@ -761,6 +820,192 @@ class kolab_notes extends rcube_plugin
 
         return $status;
     }
+
+    /**
+     * Provide a list of revisions for the given object
+     *
+     * @param array  $note Hash array with note properties
+     * @return array List of changes, each as a hash array
+     */
+    public function get_changelog($note)
+    {
+        if (empty($this->bonnie_api)) {
+            return false;
+        }
+
+        list($uid, $mailbox, $msguid) = $this->_resolve_note_identity($note);
+
+        $result = $uid && $mailbox ? $this->bonnie_api->changelog('note', $uid, $mailbox, $msguid) : null;
+        if (is_array($result) && $result['uid'] == $uid) {
+            return $result['changes'];
+        }
+
+        return false;
+    }
+
+    /**
+     * Return full data of a specific revision of a note record
+     *
+     * @param mixed  $note UID string or hash array with note properties
+     * @param mixed  $rev Revision number
+     *
+     * @return array Note object as hash array
+     */
+    public function get_revison($note, $rev)
+    {
+        if (empty($this->bonnie_api)) {
+            return false;
+        }
+
+        list($uid, $mailbox, $msguid) = $this->_resolve_note_identity($note);
+
+        // call Bonnie API
+        $result = $this->bonnie_api->get('note', $uid, $rev, $mailbox, $msguid);
+        if (is_array($result) && $result['uid'] == $uid && !empty($result['xml'])) {
+            $format = kolab_format::factory('note');
+            $format->load($result['xml']);
+            $rec = $format->to_array();
+
+            if ($format->is_valid()) {
+                $rec['rev'] = $result['rev'];
+                return $rec;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get a list of property changes beteen two revisions of a note object
+     *
+     * @param array  $$note Hash array with note properties
+     * @param mixed  $rev   Revisions: "from:to"
+     *
+     * @return array List of property changes, each as a hash array
+     */
+    public function get_diff($note, $rev1, $rev2)
+    {
+        if (empty($this->bonnie_api)) {
+            return false;
+        }
+
+        list($uid, $mailbox, $msguid) = $this->_resolve_note_identity($note);
+
+        // call Bonnie API
+        $result = $this->bonnie_api->diff('note', $uid, $rev1, $rev2, $mailbox, $msguid);
+        if (is_array($result) && $result['uid'] == $uid) {
+            $result['rev1'] = $rev1;
+            $result['rev2'] = $rev2;
+
+            // convert some properties, similar to self::_client_encode()
+            $keymap = array(
+                'summary'  => 'title',
+                'lastmodified-date' => 'changed',
+            );
+
+            // map kolab object properties to keys and values the client expects
+            array_walk($result['changes'], function(&$change, $i) use ($keymap) {
+                if (array_key_exists($change['property'], $keymap)) {
+                    $change['property'] = $keymap[$change['property']];
+                }
+
+                if ($change['property'] == 'created' || $change['property'] == 'changed') {
+                    if ($old_ = rcube_utils::anytodatetime($change['old'])) {
+                        $change['old_'] = $this->rc->format_date($old_);
+                    }
+                    if ($new_ = rcube_utils::anytodatetime($change['new'])) {
+                        $change['new_'] = $this->rc->format_date($new_);
+                    }
+                }
+
+                // compute a nice diff of note contents
+                if ($change['property'] == 'description') {
+                    $change['diff_'] = libkolab::html_diff($change['old'], $change['new']);
+                    if (!empty($change['diff_'])) {
+                        unset($change['old'], $change['new']);
+                        $change['diff_'] = preg_replace(array('!^.*<body[^>]*>!Uims','!</body>.*$!Uims'), '', $change['diff_']);
+                        $change['diff_'] = preg_replace("!</(p|li|span)>\n!", '</\\1>', $change['diff_']);
+                    }
+                }
+            });
+
+            return $result;
+        }
+
+        return false;
+    }
+
+    /**
+     * Command the backend to restore a certain revision of a note.
+     * This shall replace the current object with an older version.
+     *
+     * @param array  $note Hash array with note properties (id, list)
+     * @param mixed  $rev Revision number
+     *
+     * @return boolean True on success, False on failure
+     */
+    public function restore_revision($note, $rev)
+    {
+        if (empty($this->bonnie_api)) {
+            return false;
+        }
+
+        list($uid, $mailbox, $msguid) = $this->_resolve_note_identity($note);
+
+        $folder = $this->get_folder($note['list']);
+        $success = false;
+
+        if ($folder && ($raw_msg = $this->bonnie_api->rawdata('note', $uid, $rev, $mailbox))) {
+            $imap = $this->rc->get_storage();
+
+            // insert $raw_msg as new message
+            if ($imap->save_message($folder->name, $raw_msg, null, false)) {
+                $success = true;
+
+                // delete old revision from imap and cache
+                $imap->delete_message($msguid, $folder->name);
+                $folder->cache->set($msguid, false);
+                $this->cache = array();
+            }
+        }
+
+        return $success;
+    }
+
+    /**
+     * Helper method to resolved the given note identifier into uid and mailbox
+     *
+     * @return array (uid,mailbox,msguid) tuple
+     */
+    private function _resolve_note_identity($note)
+    {
+        $mailbox = $msguid = null;
+
+        if (!is_array($note)) {
+            $note = $this->get_note($note);
+        }
+
+        if (is_array($note)) {
+            $uid = $note['uid'] ?: $note['id'];
+            $list = $note['list'];
+        }
+        else {
+            return array(null, $mailbox, $msguid);
+        }
+
+        if ($folder = $this->get_folder($list)) {
+            $mailbox = $folder->get_mailbox_id();
+
+            // get object from storage in order to get the real object uid an msguid
+            if ($rec = $folder->get_object($uid)) {
+                $msguid = $rec['_msguid'];
+                $uid = $rec['uid'];
+            }
+        }
+
+        return array($uid, $mailbox, $msguid);
+    }
+
 
     /**
      * Handler for client requests to list (aka folder) actions
