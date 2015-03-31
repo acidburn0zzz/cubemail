@@ -43,11 +43,6 @@ libkolab_audittrail.object_history_dialog = function(p)
     if ($dialog.is(':ui-dialog'))
         $dialog.dialog('close');
 
-    var buttons = {};
-    buttons[rcmail.gettext('close')] = function() {
-        $dialog.dialog('close');
-    };
-
     // hide and reset changelog table
     $dialog.find('div.notfound-message').remove();
     $dialog.find('.changelog-table').show().children('tbody')
@@ -61,14 +56,17 @@ libkolab_audittrail.object_history_dialog = function(p)
         title: p.title,
         open: function() {
             $dialog.attr('aria-hidden', 'false');
-            setTimeout(function(){
-                $dialog.parent().find('.ui-dialog-buttonpane .ui-button').first().focus();
-            }, 5);
         },
         close: function() {
             $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
         },
-        buttons: buttons,
+        buttons: [
+            {
+                text: rcmail.gettext('close'),
+                click: function() { $dialog.dialog('close'); },
+                autofocus: true
+            }
+        ],
         minWidth: 450,
         width: 650,
         height: 350,

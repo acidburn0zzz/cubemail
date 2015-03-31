@@ -2227,11 +2227,6 @@ function rcube_tasklist_ui(settings)
               row.show().data('set', true);
         });
 
-        var buttons = {};
-        buttons[rcmail.gettext('close')] = function() {
-            $dialog.dialog('close');
-        };
-
         // open jquery UI dialog
         $dialog.dialog({
             modal: false,
@@ -2240,14 +2235,17 @@ function rcube_tasklist_ui(settings)
             title: rcmail.gettext('objectdiff','tasklist').replace('$rev1', data.rev1).replace('$rev2', data.rev2) + ' - ' + rec.title,
             open: function() {
                 $dialog.attr('aria-hidden', 'false');
-                setTimeout(function(){
-                    $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
-                }, 5);
             },
             close: function() {
                 $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
             },
-            buttons: buttons,
+            buttons: [
+                {
+                    text: rcmail.gettext('close'),
+                    click: function() { $dialog.dialog('close'); },
+                    autofocus: true
+                }
+            ],
             minWidth: 320,
             width: 450
         }).show();
