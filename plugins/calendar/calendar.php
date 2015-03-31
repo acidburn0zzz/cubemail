@@ -1178,7 +1178,7 @@ class calendar extends rcube_plugin
         $master = $this->driver->get_event(array('id' => $old['recurrence_id'], 'calendar' => $old['calendar']), 0, true);
         unset($master['_instance'], $master['recurrence_date']);
 
-        $sent = $this->notify_attendees($master, null, $action, $event['_comment']);
+        $sent = $this->notify_attendees($master, null, $action, $event['_comment'], false);
         if ($sent < 0)
           $this->rc->output->show_message('calendar.errornotifying', 'error');
 
@@ -2005,12 +2005,15 @@ class calendar extends rcube_plugin
   /**
    * Send out an invitation/notification to all event attendees
    */
-  private function notify_attendees($event, $old, $action = 'edit', $comment = null)
+  private function notify_attendees($event, $old, $action = 'edit', $comment = null, $rsvp = null)
   {
     if ($action == 'remove' || ($event['status'] == 'CANCELLED' && $old['status'] != $event['status'])) {
       $event['cancelled'] = true;
       $is_cancelled = true;
     }
+
+    if ($rsvp === null)
+      $rsvp = !$old || $event['sequence'] > $old['sequence'];
 
     $itip = $this->load_itip();
     $emails = $this->get_user_emails();
@@ -2024,7 +2027,7 @@ class calendar extends rcube_plugin
 
     // compose multipart message using PEAR:Mail_Mime
     $method = $action == 'remove' ? 'CANCEL' : 'REQUEST';
-    $message = $itip->compose_itip_message($event, $method, !$old || $event['sequence'] > $old['sequence']);
+    $message = $itip->compose_itip_message($event, $method, $rsvp);
 
     // list existing attendees from $old event
     $old_attendees = array();
