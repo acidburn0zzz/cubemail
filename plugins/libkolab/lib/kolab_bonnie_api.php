@@ -38,7 +38,7 @@ class kolab_bonnie_api
     {
         $this->config = $config;
 
-        $this->client = new kolab_bonnie_api_client($config['uri'], $config['timeout'] ?: 5, (bool)$config['debug']);
+        $this->client = new kolab_bonnie_api_client($config['uri'], $config['timeout'] ?: 30, (bool)$config['debug']);
 
         $this->client->set_secret($config['secret']);
         $this->client->set_authentication($config['user'], $config['pass']);

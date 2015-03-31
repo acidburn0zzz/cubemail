@@ -71,4 +71,5 @@ $config['kolab_bonnie_api'] = array(
     'pass'   => 'Welcome2KolabSystems',
     'secret' => '8431f191707fffffff00000000cccc',
     'debug'  => true,   // logs requests/responses to <log-dir>/bonnie
+    'timeout' => 30,
 );
