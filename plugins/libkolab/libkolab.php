@@ -9,7 +9,7 @@
  * @version @package_version@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -150,12 +150,47 @@ class libkolab extends rcube_plugin
     /**
      * Wrapper function for generating a html diff using the FineDiff class by Raymond Hill
      */
-    public static function html_diff($from, $to)
+    public static function html_diff($from, $to, $is_html = null)
     {
-      include_once __dir__ . '/vendor/finediff.php';
+        // auto-detect text/html format
+        if ($is_html === null) {
+            $from_html = (preg_match('/<(html|body)(\s+[a-z]|>)/', $from, $m) && strpos($from, '</'.$m[1].'>') > 0);
+            $to_html   = (preg_match('/<(html|body)(\s+[a-z]|>)/', $to, $m) && strpos($to, '</'.$m[1].'>') > 0);
+            $is_html   = $from_html || $to_html;
 
-      $diff = new FineDiff($from, $to, FineDiff::$wordGranularity);
-      return $diff->renderDiffToHTML();
+            // ensure both parts are of the same format
+            if ($is_html && !$from_html) {
+                $converter = new rcube_text2html($from, false, array('wrap' => true));
+                $from = $converter->get_html();
+            }
+            if ($is_html && !$to_html) {
+                $converter = new rcube_text2html($to, false, array('wrap' => true));
+                $to = $converter->get_html();
+            }
+        }
+
+        // compute diff from HTML
+        if ($is_html) {
+            include_once __dir__ . '/vendor/Caxy/HtmlDiff/Match.php';
+            include_once __dir__ . '/vendor/Caxy/HtmlDiff/Operation.php';
+            include_once __dir__ . '/vendor/Caxy/HtmlDiff/HtmlDiff.php';
+
+            // replace data: urls with a transparent image to avoid memory problems
+            $from = preg_replace('/src="data:image[^"]+/', 'src="data:image/gif;base64,R0lGODlhAQABAPAAAOjq6gAAACH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAAAsAAAAAAEAAQAAAgJEAQA7', $from);
+            $to   = preg_replace('/src="data:image[^"]+/', 'src="data:image/gif;base64,R0lGODlhAQABAPAAAOjq6gAAACH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAAAsAAAAAAEAAQAAAgJEAQA7', $to);
+
+            $diff = new Caxy\HtmlDiff\HtmlDiff($from, $to);
+            $diffhtml = $diff->build();
+
+            // remove empty inserts (from tables)
+            return preg_replace('!<ins class="diff\w+">\s*</ins>!Uims', '', $diffhtml);
+        }
+        else {
+            include_once __dir__ . '/vendor/finediff.php';
+
+            $diff = new FineDiff($from, $to, FineDiff::$wordGranularity);
+            return $diff->renderDiffToHTML();
+        }
     }
 
     /**
