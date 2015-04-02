@@ -483,7 +483,7 @@ class libvcalendar implements Iterator
             case 'RELATED-TO':
                 $reltype = $prop->offsetGet('RELTYPE');
                 if ($reltype == 'PARENT' || $reltype === null) {
-                    $event['parent_id'] = $prop->value;
+                    $event['parent_id'] = $value;
                 }
                 break;
 

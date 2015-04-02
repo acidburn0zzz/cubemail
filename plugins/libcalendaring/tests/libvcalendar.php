@@ -469,8 +469,6 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
 
         $this->assertContains('RECURRENCE-ID;TZID=Europe/Zurich:20130814', $ics, "Recurrence-ID (1) being the exception date");
         $this->assertContains('RECURRENCE-ID;TZID=Europe/Zurich:20131113', $ics, "Recurrence-ID (2) being the exception date");
-        $this->assertContains('RECURRENCE-ID:20130814', $ics, "Recurrence-ID (1) being the exception date");
-        $this->assertContains('RECURRENCE-ID:20131113', $ics, "Recurrence-ID (2) being the exception date");
         $this->assertContains('SUMMARY:'.$exception2['title'], $ics, "Exception title");
     }
 
