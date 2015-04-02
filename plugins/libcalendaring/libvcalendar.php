@@ -617,7 +617,7 @@ class libvcalendar implements Iterator
                         $trigger = '@' . $prop->getDateTime()->format('U');
                         $alarm['trigger'] = $prop->getDateTime();
                     }
-                    if (!$trigger && ($values = libcalendaring::parse_alaram_value($value))) {
+                    if (!$trigger && ($values = libcalendaring::parse_alarm_value($value))) {
                         $trigger = $values[2];
                     }
 
