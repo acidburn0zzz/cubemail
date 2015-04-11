@@ -223,7 +223,7 @@ class kolab_delegation_engine
         }
 
         // Default filter of LDAP queries
-        $this->ldap_filter = $this->rc->config->get('kolab_delegation_filter', '(objectClass=kolabInetOrgPerson)');
+        $this->ldap_filter = $this->rc->config->get('kolab_delegation_filter', '(|(objectClass=kolabInetOrgPerson)(&(objectclass=kolabsharedfolder)(kolabFolderType=mail)))');
         // Name of the LDAP field for delegates list
         $this->ldap_delegate_field = $this->rc->config->get('kolab_delegation_delegate_field', 'kolabDelegate');
         // Encoded LDAP DN of current user, set on login by kolab_auth plugin
