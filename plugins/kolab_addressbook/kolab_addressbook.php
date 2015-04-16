@@ -11,7 +11,7 @@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -35,6 +35,8 @@ class kolab_addressbook extends rcube_plugin
     private $folders;
     private $rc;
     private $ui;
+
+    public $bonnie_api = false;
 
     const GLOBAL_FIRST = 0;
     const PERSONAL_FIRST = 1;
@@ -68,6 +70,15 @@ class kolab_addressbook extends rcube_plugin
             $this->register_action('plugin.book-save', array($this, 'book_save'));
             $this->register_action('plugin.book-search', array($this, 'book_search'));
             $this->register_action('plugin.book-subscribe', array($this, 'book_subscribe'));
+
+            $this->register_action('plugin.contact-changelog', array($this, 'contact_changelog'));
+            $this->register_action('plugin.contact-diff', array($this, 'contact_diff'));
+            $this->register_action('plugin.contact-show', array($this, 'contact_show'));
+
+            // get configuration for the Bonnie API
+            if ($bonnie_config = $this->rc->config->get('kolab_bonnie_api', false)) {
+                $this->bonnie_api = new kolab_bonnie_api($bonnie_config);
+            }
 
             // Load UI elements
             if ($this->api->output->type == 'html') {
@@ -168,8 +179,9 @@ class kolab_addressbook extends rcube_plugin
                 'group'    => $abook->get_namespace(),
                 'subscribed' => $abook->is_subscribed(),
                 'carddavurl' => $abook->get_carddav_url(),
-                'removable' => true,
-                'kolab'    => true,
+                'removable'  => true,
+                'kolab'      => true,
+                'audittrail' => !empty($this->bonnie_api),
             );
         }
     }
@@ -497,10 +509,213 @@ class kolab_addressbook extends rcube_plugin
             */
         }
 
+        if ($this->bonnie_api && $this->rc->action == 'show') {
+            $this->rc->output->set_env('kolab_audit_trail', true);
+        }
+
         return $p;
     }
 
+    /**
+     * Handler for contact audit trail changelog requests
+     */
+    public function contact_changelog()
+    {
+        if (empty($this->bonnie_api)) {
+            return false;
+        }
 
+        $contact = rcube_utils::get_input_value('cid', rcube_utils::INPUT_POST, true);
+        $source = rcube_utils::get_input_value('source', rcube_utils::INPUT_POST);
+
+        list($uid, $mailbox, $msguid) = $this->_resolve_contact_identity($contact, $source);
+
+        $result = $uid && $mailbox ? $this->bonnie_api->changelog('contact', $uid, $mailbox, $msguid) : null;
+        if (is_array($result) && $result['uid'] == $uid) {
+            if (is_array($result['changes'])) {
+                $dtformat = $this->rc->config->get('date_format') . ' ' . $this->rc->config->get('time_format');
+                array_walk($result['changes'], function(&$change) use ($dtformat) {
+                  if ($change['date']) {
+                      $dt = rcube_utils::anytodatetime($change['date']);
+                      if ($dt instanceof DateTime) {
+                          $change['date'] = $this->rc->format_date($dt, $dtformat);
+                      }
+                  }
+                });
+            }
+            $this->rc->output->command('contact_render_changelog', $result['changes']);
+        }
+        else {
+            $this->rc->output->command('contact_render_changelog', false);
+        }
+
+        $this->rc->output->send();
+    }
+
+    /**
+     * Handler for audit trail diff view requests
+     */
+    public function contact_diff()
+    {
+        if (empty($this->bonnie_api)) {
+            return false;
+        }
+
+        $contact = rcube_utils::get_input_value('cid', rcube_utils::INPUT_POST, true);
+        $source = rcube_utils::get_input_value('source', rcube_utils::INPUT_POST);
+        $rev1 = rcube_utils::get_input_value('rev1', rcube_utils::INPUT_POST);
+        $rev2 = rcube_utils::get_input_value('rev2', rcube_utils::INPUT_POST);
+
+        list($uid, $mailbox, $msguid) = $this->_resolve_contact_identity($contact, $source);
+
+        $result = $this->bonnie_api->diff('contact', $uid, $rev1, $rev2, $mailbox, $msguid);
+        if (is_array($result) && $result['uid'] == $uid) {
+            $result['rev1'] = $rev1;
+            $result['rev2'] = $rev2;
+            $result['cid'] = $contact;
+
+            // convert some properties, similar to rcube_kolab_contacts::_to_rcube_contact()
+            $keymap = array(
+                'lastmodified-date' => 'changed',
+                'additional' => 'middlename',
+                'fn' => 'name',
+                'tel' => 'phone',
+                'url' => 'website',
+                'bday' => 'birthday',
+                'note' => 'notes',
+                'role' => 'profession',
+                'title' => 'jobtitle',
+            );
+
+            $propmap = array('email' => 'address', 'website' => 'url', 'phone' => 'number');
+            $date_format = $this->rc->config->get('date_format', 'Y-m-d');
+
+            // map kolab object properties to keys and values the client expects
+            array_walk($result['changes'], function(&$change, $i) use ($keymap, $propmap, $date_format) {
+                if (array_key_exists($change['property'], $keymap)) {
+                    $change['property'] = $keymap[$change['property']];
+                }
+
+                // format date-time values
+                if ($change['property'] == 'created' || $change['property'] == 'changed') {
+                    if ($old_ = rcube_utils::anytodatetime($change['old'])) {
+                        $change['old_'] = $this->rc->format_date($old_);
+                    }
+                    if ($new_ = rcube_utils::anytodatetime($change['new'])) {
+                        $change['new_'] = $this->rc->format_date($new_);
+                    }
+                }
+                // format dates
+                else if ($change['property'] == 'birthday' || $change['property'] == 'anniversary') {
+                    if ($old_ = rcube_utils::anytodatetime($change['old'])) {
+                        $change['old_'] = $this->rc->format_date($old_, $date_format);
+                    }
+                    if ($new_ = rcube_utils::anytodatetime($change['new'])) {
+                        $change['new_'] = $this->rc->format_date($new_, $date_format);
+                    }
+                }
+                // convert email, website, phone values
+                else if (array_key_exists($change['property'], $propmap)) {
+                    $propname = $propmap[$change['property']];
+                    foreach (array('old','new') as $k) {
+                        $k_ = $k . '_';
+                        if (!empty($change[$k])) {
+                            $change[$k_] = html::quote($change[$k][$propname] ?: '--');
+                            if ($change[$k]['type']) {
+                                $change[$k_] .= '&nbsp;' . html::span('subtype', rcmail_get_type_label($change[$k]['type']));
+                            }
+                            $change['ishtml'] = true;
+                        }
+                    }
+                }
+                // serialize address structs
+                if ($change['property'] == 'address') {
+                    foreach (array('old','new') as $k) {
+                        $k_ = $k . '_';
+                        $change[$k]['zipcode'] = $change[$k]['code'];
+                        $template = $this->rc->config->get('address_template', '{'.join('} {', array_keys($change[$k])).'}');
+                        $composite = array();
+                        foreach ($change[$k] as $p => $val) {
+                            if (strlen($val))
+                                $composite['{'.$p.'}'] = $val;
+                        }
+                        $change[$k_] = preg_replace('/\{\w+\}/', '', strtr($template, $composite));
+                        if ($change[$k]['type']) {
+                            $change[$k_] .= html::div('subtype', rcmail_get_type_label($change[$k]['type']));
+                        }
+                        $change['ishtml'] = true;
+                    }
+
+                    $change['diff_'] = libkolab::html_diff($change['old_'], $change['new_'], true);
+                }
+                // localize gender values
+                else if ($change['property'] == 'gender') {
+                    if ($change['old']) $change['old_'] = $this->rc->gettext($change['old']);
+                    if ($change['new']) $change['new_'] = $this->rc->gettext($change['new']);
+                }
+                // translate 'key' entries in individual properties
+                else if ($change['property'] == 'key') {
+                    $p = $change['old'] ?: $change['new'];
+                    $t = $p['type'];
+                    $change['property'] = $t . 'publickey';
+                    $change['old'] = $change['old'] ? $change['old']['key'] : '';
+                    $change['new'] = $change['new'] ? $change['new']['key'] : '';
+                }
+                // compute a nice diff of notes
+                else if ($change['property'] == 'notes') {
+                    $change['diff_'] = libkolab::html_diff($change['old'], $change['new'], false);
+                }
+            });
+
+            $this->rc->output->command('contact_show_diff', $result);
+        }
+        else {
+            $this->rc->output->command('display_message', $this->gettext('objectdiffnotavailable'), 'error');
+        }
+
+        $this->rc->output->send();
+    }
+
+    /**
+     * Handler for audit trail revision view requests
+     */
+    public function contact_show()
+    {
+        
+        $this->rc->output->send();
+    }
+
+
+    /**
+     * Helper method to resolved the given contact identifier into uid and mailbox
+     *
+     * @return array (uid,mailbox,msguid) tuple
+     */
+    private function _resolve_contact_identity($id, $abook)
+    {
+        $mailbox = $msguid = null;
+
+        $source = $this->get_address_book(array('id' => $abook));
+        if ($source['instance']) {
+            $uid = $source['instance']->id2uid($id);
+            $list = kolab_storage::id_decode($abook);
+        }
+        else {
+            return array(null, $mailbox, $msguid);
+        }
+
+        // get resolve message UID and mailbox identifier
+        if ($folder = kolab_storage::get_folder($list)) {
+            $mailbox = $folder->get_mailbox_id();
+            $msguid = $folder->cache->uid2msguid($uid);
+        }
+
+        return array($uid, $mailbox, $msguid);
+    }
+
+    /**
+     *
+     */
     private function _sort_form_fields($contents, $source)
     {
       $block = array();

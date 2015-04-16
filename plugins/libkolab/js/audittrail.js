@@ -70,7 +70,7 @@ libkolab_audittrail.object_history_dialog = function(p)
         minWidth: 450,
         width: 650,
         height: 350,
-        minHeight: 200,
+        minHeight: 200
     })
     .show().children('.compare-button').hide();
 

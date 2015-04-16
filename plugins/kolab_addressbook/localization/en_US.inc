@@ -51,6 +51,20 @@ $labels['foldersubscribe'] = 'List permanently';
 $labels['nraddressbooksfound'] = '$nr address books found';
 $labels['noaddressbooksfound'] = 'No address books found';
 
+// history dialog
+$labels['showhistory'] = 'Show History';
+$labels['compare'] = 'Compare';
+$labels['objectchangelog'] = 'Change History';
+$labels['objectdiff'] = 'Changes from $rev1 to $rev2';
+$labels['actionappend'] = 'Saved';
+$labels['actionmove'] = 'Moved';
+$labels['actiondelete'] = 'Deleted';
+$labels['showrevision'] = 'Show this version';
+$labels['restore'] = 'Restore this version';
+$labels['objectnotfound'] = 'Failed to load contact data';
+$labels['objectchangelognotavailable'] = 'Change history is not available for this contact';
+$labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';
+
 $messages['bookdeleteconfirm']  = 'Do you really want to delete the selected address book and all contacts in it?';
 $messages['bookdeleting'] = 'Deleting address book...';
 $messages['booksaving'] = 'Saving address book...';

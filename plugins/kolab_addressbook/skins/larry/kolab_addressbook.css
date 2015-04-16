@@ -139,3 +139,108 @@
 #directorylist a.contextRow {
 	background-color: #C7E3EF;
 }
+
+#contactdiff,
+#contacthistory {
+	display: none;
+}
+
+.formbuttons .formbuttons-secondary-kolab {
+	display: block;
+	margin: 2px 2px 0 0;
+	text-align: center;
+}
+
+.formbuttons .btn-contact-history {
+	display: inline-block;
+	padding: 1px;
+	color: #333;
+	text-decoration: none;
+}
+
+.formbuttons .btn-contact-history:hover {
+	text-decoration: underline;
+}
+
+.formbuttons .btn-contact-history:before {
+	content: "";
+	display: inline-block;
+	position: relative;
+	top: 5px;
+	width: 16px;
+	height: 16px;
+	margin-right: 3px;
+	background: url('folder_icons.png') 0px -200px no-repeat;
+}
+
+#contactdiff .contact-names,
+#contactdiff .contact-names-new {
+	margin-top: 0;
+}
+
+#contactdiff .contact-names.diff-text-old {
+	margin-bottom: 0;
+}
+
+#contactdiff .diff-text-diff del,
+#contactdiff .diff-text-diff ins {
+	text-decoration: none;
+	color: inherit;
+}
+
+#contactdiff .diff-img-old,
+#contactdiff .diff-text-old,
+#contactdiff .diff-text-diff del {
+	background-color: #fdd;
+	text-decoration: line-through;
+}
+
+#contactdiff .diff-text-new,
+#contactdiff .diff-img-new,
+#contactdiff .diff-text-diff ins,
+#contactdiff .diff-text-diff .diffmod img {
+	background-color: #dfd;
+}
+
+#contactdiff .diff-img-old,
+#contactdiff .diff-img-new {
+	min-width: 48px;
+	max-width: 112px;
+}
+
+#contactdiff label {
+	color: #666;
+	font-weight: bold;
+}
+
+#contactdiff label span.index {
+	vertical-align: inherit;
+	margin-left: 0.6em;
+	font-weight: normal;
+}
+
+#contactdiff .contact-name {
+	font-size: 120%;
+	font-weight: bold;
+}
+
+#contactdiff .subtype {
+	color: #666;
+}
+
+#contactdiff span.subtype {
+	margin-left: 0.5em;
+}
+
+#contactdiff div.subtype {
+	margin-top: 0.2em;
+}
+
+#contactdiff .subtype:before {
+	content: "(";
+}
+
+#contactdiff .subtype:after {
+	content: ")";
+}
+

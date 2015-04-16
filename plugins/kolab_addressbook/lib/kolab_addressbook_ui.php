@@ -43,7 +43,7 @@ class kolab_addressbook_ui
      */
     private function init_ui()
     {
-        if (!empty($this->rc->action) && !preg_match('/^plugin\.book/', $this->rc->action)) {
+        if (!empty($this->rc->action) && !preg_match('/^plugin\.book/', $this->rc->action) && $this->rc->action != 'show') {
             return;
         }
 
@@ -105,6 +105,33 @@ class kolab_addressbook_ui
                 'kolab_addressbook.noaddressbooksfound',
                 'kolab_addressbook.foldersubscribe',
                 'resetsearch');
+
+
+            if ($this->plugin->bonnie_api) {
+                $this->plugin->api->include_script('libkolab/js/audittrail.js');
+
+                $this->rc->output->add_label(
+                    'kolab_addressbook.showhistory',
+                    'kolab_addressbook.compare',
+                    'kolab_addressbook.objectchangelog',
+                    'kolab_addressbook.objectdiff',
+                    'kolab_addressbook.showrevision',
+                    'kolab_addressbook.actionappend',
+                    'kolab_addressbook.actionmove',
+                    'kolab_addressbook.actiondelete',
+                    'kolab_addressbook.objectdiffnotavailable',
+                    'kolab_addressbook.objectchangelognotavailable',
+                    'close'
+                );
+
+                $this->plugin->add_hook('render_page', array($this, 'render_audittrail_page'));
+                $this->plugin->register_handler('plugin.object_changelog_table', array('libkolab', 'object_changelog_table'));
+            }
+        }
+        // include stylesheet for audit trail
+        else if ($this->rc->action == 'show' && $this->plugin->bonnie_api) {
+            $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css');
+            $this->rc->output->add_label('kolab_addressbook.showhistory');
         }
         // book create/edit form
         else {
@@ -245,6 +272,20 @@ class kolab_addressbook_ui
         $out .= "\n$form_end";
 
         return $out;
+    }
+
+    /**
+     *
+     */
+    public function render_audittrail_page($p)
+    {
+        // append audit trail UI elements to contact page
+        if ($p['template'] === 'addressbook' && !$p['kolab-audittrail']) {
+            $this->rc->output->add_footer($this->rc->output->parse('kolab_addressbook.audittrail', false, false));
+            $p['kolab-audittrail'] = true;
+        }
+
+        return $p;
     }
 
 
