@@ -197,5 +197,16 @@ libkolab_audittrail.render_changelog = function(data, object, folder)
         $dialog.find('.changelog-table tr.last input.diff-rev1').click();
     }
 
+    // set dialog size according to content
+    libkolab_audittrail.dialog_resize($dialog.get(0), $dialog.height() + 15, 600);
+
     return $dialog;
+};
+
+// resize and reposition (center) the dialog window
+libkolab_audittrail.dialog_resize = function(id, height, width)
+{
+    var win = $(window), w = win.width(), h = win.height();
+        $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
+            .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
 };

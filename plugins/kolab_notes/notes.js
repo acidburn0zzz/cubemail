@@ -1073,9 +1073,6 @@ function rcube_kolab_notes_ui(settings)
 
         data.module = 'kolab_notes';
         libkolab_audittrail.render_changelog(data, rec, me.notebooks[rec.list]);
-
-        // set dialog size according to content
-        dialog_resize($dialog.get(0), $dialog.height(), 600);
     }
 
     /**
@@ -1192,7 +1189,7 @@ function rcube_kolab_notes_ui(settings)
         }).show();
 
         // set dialog size according to content
-        dialog_resize($dialog.get(0), $dialog.height(), rcmail.gui_containers.notedetailview.width() - 40);
+        libkolab_audittrail.dialog_resize($dialog.get(0), $dialog.height(), rcmail.gui_containers.notedetailview.width() - 40);
     }
 
     // close the event history dialog
@@ -1708,14 +1705,6 @@ function rcube_kolab_notes_ui(settings)
             saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
             rcmail.http_post('action', { _data: savedata, _do: 'edit' }, true);
         }
-    }
-
-    // resize and reposition (center) the dialog window
-    function dialog_resize(id, height, width)
-    {
-        var win = $(window), w = win.width(), h = win.height();
-            $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
-                .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
     }
 
 }
