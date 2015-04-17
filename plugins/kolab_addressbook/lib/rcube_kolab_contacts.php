@@ -554,9 +554,20 @@ class rcube_kolab_contacts extends rcube_addressbook
     {
         $rec = null;
         $uid = $this->id2uid($id);
+        $rev = rcube_utils::get_input_value('_rev', rcube_utils::INPUT_GPC);
+
         if (strpos($uid, 'mailto:') === 0) {
             $this->_fetch_groups(true);
             $rec = $this->contacts[$id];
+            $this->readonly = true;  // set source to read-only
+        }
+        else if (!empty($rev)) {
+            $rcmail = rcube::get_instance();
+            $plugin = $rcmail->plugins->get_plugin('kolab_addressbook');
+            if ($plugin && ($object = $plugin->get_revision($id, kolab_storage::id_encode($this->imap_folder), $rev))) {
+                $rec = $this->_to_rcube_contact($object);
+                $rec['rev'] = $rev;
+            }
             $this->readonly = true;  // set source to read-only
         }
         else if ($object = $this->storagefolder->get_object($uid)) {

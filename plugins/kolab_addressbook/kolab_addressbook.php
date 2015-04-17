@@ -63,6 +63,7 @@ class kolab_addressbook extends rcube_plugin
         if ($this->rc->task == 'addressbook') {
             $this->add_texts('localization');
             $this->add_hook('contact_form', array($this, 'contact_form'));
+            $this->add_hook('contact_photo', array($this, 'contact_photo'));
             $this->add_hook('template_object_directorylist', array($this, 'directorylist_html'));
 
             // Plugin actions
@@ -73,7 +74,7 @@ class kolab_addressbook extends rcube_plugin
 
             $this->register_action('plugin.contact-changelog', array($this, 'contact_changelog'));
             $this->register_action('plugin.contact-diff', array($this, 'contact_diff'));
-            $this->register_action('plugin.contact-show', array($this, 'contact_show'));
+            $this->register_action('plugin.contact-restore', array($this, 'contact_restore'));
 
             // get configuration for the Bonnie API
             if ($bonnie_config = $this->rc->config->get('kolab_bonnie_api', false)) {
@@ -509,8 +510,21 @@ class kolab_addressbook extends rcube_plugin
             */
         }
 
-        if ($this->bonnie_api && $this->rc->action == 'show') {
+        if ($this->bonnie_api && $this->rc->action == 'show' && empty($p['record']['rev'])) {
             $this->rc->output->set_env('kolab_audit_trail', true);
+        }
+
+        return $p;
+    }
+
+    /**
+     * Plugin hook for the contact photo image
+     */
+    public function contact_photo($p)
+    {
+        // add photo data from old revision inline as data url
+        if (!empty($p['record']['rev']) && !empty($p['data'])) {
+            $p['url'] = 'data:image/gif;base64,' . base64_encode($p['data']);
         }
 
         return $p;
@@ -677,12 +691,71 @@ class kolab_addressbook extends rcube_plugin
     }
 
     /**
-     * Handler for audit trail revision view requests
+     * Handler for audit trail revision restore requests
      */
-    public function contact_show()
+    public function contact_restore()
     {
-        
+        if (empty($this->bonnie_api)) {
+            return false;
+        }
+
+        $success = false;
+        $contact = rcube_utils::get_input_value('cid', rcube_utils::INPUT_POST, true);
+        $source = rcube_utils::get_input_value('source', rcube_utils::INPUT_POST);
+        $rev = rcube_utils::get_input_value('rev', rcube_utils::INPUT_POST);
+
+        list($uid, $mailbox, $msguid) = $this->_resolve_contact_identity($contact, $source, $folder);
+
+        if ($folder && ($raw_msg = $this->bonnie_api->rawdata('contact', $uid, $rev, $mailbox))) {
+            $imap = $this->rc->get_storage();
+
+            // insert $raw_msg as new message
+            if ($imap->save_message($folder->name, $raw_msg, null, false)) {
+                $success = true;
+
+                // delete old revision from imap and cache
+                $imap->delete_message($msguid, $folder->name);
+                $folder->cache->set($msguid, false);
+                $this->cache = array();
+            }
+        }
+
+        if ($success) {
+            $this->rc->output->command('display_message', $this->gettext(array('name' => 'objectrestoresuccess', 'vars' => array('rev' => $rev))), 'confirmation');
+            $this->rc->output->command('close_contact_history_dialog', $contact);
+        }
+        else {
+            $this->rc->output->command('display_message', $this->gettext('objectrestoreerror'), 'error');
+        }
+
         $this->rc->output->send();
+    }
+
+    /**
+     * Get a previous revision of the given contact record from the Bonnie API
+     */
+    public function get_revision($cid, $source, $rev)
+    {
+        if (empty($this->bonnie_api)) {
+            return false;
+        }
+
+        list($uid, $mailbox, $msguid) = $this->_resolve_contact_identity($cid, $source);
+
+        // call Bonnie API
+        $result = $this->bonnie_api->get('contact', $uid, $rev, $mailbox, $msguid);
+        if (is_array($result) && $result['uid'] == $uid && !empty($result['xml'])) {
+            $format = kolab_format::factory('contact');
+            $format->load($result['xml']);
+            $rec = $format->to_array();
+
+            if ($format->is_valid()) {
+                $rec['rev'] = $result['rev'];
+                return $rec;
+            }
+        }
+
+        return false;
     }
 
 
@@ -691,7 +764,7 @@ class kolab_addressbook extends rcube_plugin
      *
      * @return array (uid,mailbox,msguid) tuple
      */
-    private function _resolve_contact_identity($id, $abook)
+    private function _resolve_contact_identity($id, $abook, &$folder = null)
     {
         $mailbox = $msguid = null;
 

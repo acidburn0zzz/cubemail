@@ -108,6 +108,7 @@ class kolab_addressbook_ui
 
 
             if ($this->plugin->bonnie_api) {
+                $this->rc->output->set_env('kolab_audit_trail', true);
                 $this->plugin->api->include_script('libkolab/js/audittrail.js');
 
                 $this->rc->output->add_label(
@@ -121,6 +122,7 @@ class kolab_addressbook_ui
                     'kolab_addressbook.actiondelete',
                     'kolab_addressbook.objectdiffnotavailable',
                     'kolab_addressbook.objectchangelognotavailable',
+                    'kolab_addressbook.revisionrestoreconfirm',
                     'close'
                 );
 

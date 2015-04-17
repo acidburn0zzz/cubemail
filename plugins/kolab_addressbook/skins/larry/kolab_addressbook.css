@@ -244,3 +244,7 @@
 	content: ")";
 }
 
+div.contextmenu.rcmmainmenu ul.iconized li a.history > span.icon {
+	background: url(folder_icons.png) 1px -214px no-repeat;
+}
+

@@ -61,9 +61,12 @@ $labels['actionmove'] = 'Moved';
 $labels['actiondelete'] = 'Deleted';
 $labels['showrevision'] = 'Show this version';
 $labels['restore'] = 'Restore this version';
+$labels['revisionrestoreconfirm'] = 'Do you really want to restore revision $rev of this contact? This will replace the current contact with the old version.';
 $labels['objectnotfound'] = 'Failed to load contact data';
 $labels['objectchangelognotavailable'] = 'Change history is not available for this contact';
 $labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';
+$labels['objectrestoresuccess'] = 'Revision $rev successfully restored';
+$labels['objectrestoreerror'] = 'Failed to restore the old revision';
 
 $messages['bookdeleteconfirm']  = 'Do you really want to delete the selected address book and all contacts in it?';
 $messages['bookdeleting'] = 'Deleting address book...';

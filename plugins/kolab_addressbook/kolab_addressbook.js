@@ -364,18 +364,49 @@ rcube_webmail.prototype.contact_history_dialog = function()
         return false;
     }
 
+    if (this.contact_list && this.contact_list.data[rec.cid]) {
+        $.extend(rec, this.contact_list.data[rec.cid]);
+    }
+
     // render dialog
     $dialog = libkolab_audittrail.object_history_dialog({
-        module: 'kolab_addressbooks',
+        module: 'kolab_addressbook',
         container: '#contacthistory',
-        title: rcmail.gettext('objectchangelog','kolab_addressbook'),
+        title: rcmail.gettext('objectchangelog','kolab_addressbook') + ' - ' + rec.name,
 
         // callback function for list actions
         listfunc: function(action, rev) {
             var rec = $dialog.data('rec');
-            console.log(action, rev, rec)
-            //rcmail.loading_lock = rcmail.set_busy(true, 'loading', this.loading_lock);
-            //rcmail.http_post('action', { _do: action, _data: { uid: rec.uid, list:rec.list, rev: rev } }, saving_lock);
+
+            if (action == 'show') {
+                // open contact view in a dialog (iframe)
+                var dialog, iframe = $('<iframe>')
+                    .attr('id', 'contactshowrevframe')
+                    .attr('width', '100%')
+                    .attr('height', '98%')
+                    .attr('frameborder', '0')
+                    .attr('src', rcmail.url('show', { _cid: rec.cid, _source: rec.source, _rev: rev, _framed: 1 })),
+                    contentframe = $('#' + rcmail.env.contentframe)
+
+                // open jquery UI dialog
+                dialog = rcmail.show_popup_dialog(iframe, '', {}, {
+                    modal: false,
+                    resizable: true,
+                    closeOnEscape: true,
+                    title: rec.name + ' @ ' + rev,
+                    close: function() {
+                        dialog.dialog('destroy').attr('aria-hidden', 'true').remove();
+                    },
+                    minWidth: 400,
+                    width: contentframe.width() || 600,
+                    height: contentframe.height() || 400
+                });
+                dialog.css('padding', '0');
+            }
+            else {
+                rcmail.kab_loading_lock = rcmail.set_busy(true, 'loading', rcmail.kab_loading_lock);
+                rcmail.http_post('plugin.contact-' + action, { cid: rec.cid, source: rec.source, rev: rev }, rcmail.kab_loading_lock);
+            }
         },
 
         // callback function for comparing two object revisions
@@ -407,13 +438,10 @@ rcube_webmail.prototype.contact_render_changelog = function(data)
     }
 
     source = this.env.address_sources[rec.source] || {}
-    // source.editable = !source.readonly
+    source.editable = !source.readonly
 
     data.module = 'kolab_addressbook';
     libkolab_audittrail.render_changelog(data, rec, source);
-
-    // set dialog size according to content
-    // dialog_resize($dialog.get(0), $dialog.height(), 600);
 };
 
 // callback for rendering a diff view of two contact revisions
@@ -519,8 +547,24 @@ rcube_webmail.prototype.contact_show_diff = function(data)
         width: 480
     }).show();
 
-    // set dialog size according to content
-    // dialog_resize($dialog.get(0), $dialog.height(), rcmail.gui_containers.notedetailview.width() - 40);
+    // set dialog size according to content frame
+    libkolab_audittrail.dialog_resize($dialog.get(0), $dialog.height(), ($('#' + rcmail.env.contentframe).width() || 440) - 40);
+};
+
+
+// close the contact history dialog
+rcube_webmail.prototype.close_contact_history_dialog = function(refresh)
+{
+    $('#contacthistory, #contactdiff').each(function(i, elem) {
+        var $dialog = $(elem);
+        if ($dialog.is(':ui-dialog'))
+            $dialog.dialog('close');
+    });
+
+    // reload the contact content frame
+    if (refresh && this.get_single_cid() == refresh) {
+        this.load_contact(refresh, 'show', true);
+    }
 };
 
 
@@ -538,6 +582,21 @@ function kolab_addressbook_contextmenu()
                     // deactivate kolab addressbook actions
                     if (p.command.match(/^book-/)) {
                         return p.command == 'book-create';
+                    }
+                });
+            }
+            else if (menu.menu_name == 'contactlist' && rcmail.env.kolab_audit_trail) {
+                // add "Show History" item to context menu
+                menu.menu_source.push({
+                    label: rcmail.get_label('kolab_addressbook.showhistory'),
+                    command: 'contact_history_dialog',
+                    classes: 'history'
+                });
+                // enable history item if the contact source supports it
+                menu.addEventListener('activate', function(p) {
+                    if (p.command == 'contact_history_dialog') {
+                        var source = rcmail.env.address_sources ? rcmail.env.address_sources[rcmail.env.source] : {};
+                        return !!source.audittrail;
                     }
                 });
             }
