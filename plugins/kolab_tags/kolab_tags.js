@@ -618,6 +618,9 @@ function message_list_update_tags(e)
 
         subject.prepend(boxes);
     });
+
+    // we don't want to do this on every listupdate event
+    rcmail.env.message_tags = null;
 }
 
 // add tags to message subject in message preview
