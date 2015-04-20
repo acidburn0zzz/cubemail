@@ -93,6 +93,9 @@ class kolab_tags_engine
                 if ($this->backend->remove($uid)) {
                     $response['delete'][] = $uid;
                 }
+                else {
+                    $error = true;
+                }
             }
 
             // tags creation
@@ -100,12 +103,18 @@ class kolab_tags_engine
                 if ($tag = $this->backend->create($tag)) {
                     $response['add'][] = $this->parse_tag($tag);
                 }
+                else {
+                    $error = true;
+                }
             }
 
             // tags update
             foreach ($update as $tag) {
                 if ($this->backend->update($tag)) {
                     $response['update'][] = $this->parse_tag($tag);
+                }
+                else {
+                    $error = true;
                 }
             }
 
