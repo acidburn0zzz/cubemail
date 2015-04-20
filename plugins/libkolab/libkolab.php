@@ -28,6 +28,7 @@
 class libkolab extends rcube_plugin
 {
     static $http_requests = array();
+    static $bonnie_api = false;
 
     /**
      * Required startup method of a Roundcube plugin
@@ -52,6 +53,32 @@ class libkolab extends rcube_plugin
             rcube::raise_error($e, true);
             kolab_format::$timezone = new DateTimeZone('GMT');
         }
+
+        $this->add_texts('localization/', $rcmail->output->type == 'html' && $rcmail->task == 'mail');
+
+        // embed scripts and templates for email message audit trail
+        if ($rcmail->task == 'mail' && self::get_bonnie_api()) {
+            if ($rcmail->output->type == 'html') {
+                $this->add_hook('render_page', array($this, 'bonnie_render_page'));
+
+                $this->include_script('js/audittrail.js');
+                $this->include_stylesheet($this->local_skin_path() . '/libkolab.css');
+
+                // add 'Show history' item to message menu
+                $this->api->add_content(html::tag('li', null,
+                    $this->api->output->button(array(
+                        'command'  => 'kolab-mail-history',
+                        'label'    => 'libkolab.showhistory',
+                        'type'     => 'link',
+                        'classact' => 'icon history active',
+                        'class'    => 'icon history',
+                        'innerclass' => 'icon history',
+                    ))),
+                    'messagemenu');
+            }
+
+            $this->register_action('plugin.message-changelog', array($this, 'message_changelog'));
+        }
     }
 
     /**
@@ -61,6 +88,75 @@ class libkolab extends rcube_plugin
     {
         $p['fetch_headers'] = trim($p['fetch_headers'] .' X-KOLAB-TYPE X-KOLAB-MIME-VERSION');
         return $p;
+    }
+
+    /**
+     * Getter for a singleton instance of the Bonnie API
+     *
+     * @return mixed kolab_bonnie_api instance if configured, false otherwise
+     */
+    public static function get_bonnie_api()
+    {
+        // get configuration for the Bonnie API
+        if (!self::$bonnie_api && ($bonnie_config = rcube::get_instance()->config->get('kolab_bonnie_api', false))) {
+            self::$bonnie_api = new kolab_bonnie_api($bonnie_config);
+        }
+
+        return self::$bonnie_api;
+    }
+
+    /**
+     * Hook to append the message history dialog template to the mail view
+     */
+    function bonnie_render_page($p)
+    {
+        if (($p['template'] === 'mail' || $p['template'] === 'message') && !$p['kolab-audittrail']) {
+            // append a template for the audit trail dialog
+            $this->api->output->add_footer(
+                html::div(array('id' => 'mailmessagehistory',  'class' => 'uidialog', 'aria-hidden' => 'true', 'style' => 'display:none'),
+                    self::object_changelog_table(array('class' => 'records-table changelog-table'))
+                )
+            );
+            $this->api->output->set_env('kolab_audit_trail', true);
+            $p['kolab-audittrail'] = true;
+        }
+
+        return $p;
+    }
+
+    /**
+     * Handler for message audit trail changelog requests
+     */
+    public function message_changelog()
+    {
+        if (!self::$bonnie_api) {
+            return false;
+        }
+
+        $rcmail = rcube::get_instance();
+        $msguid = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST, true);
+        $mailbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
+
+        $result = $msguid && $mailbox ? self::$bonnie_api->changelog('mail', null, $mailbox, $msguid) : null;
+        if (is_array($result)) {
+            if (is_array($result['changes'])) {
+                $dtformat = $rcmail->config->get('date_format') . ' ' . $rcmail->config->get('time_format');
+                array_walk($result['changes'], function(&$change) use ($dtformat, $rcmail) {
+                  if ($change['date']) {
+                      $dt = rcube_utils::anytodatetime($change['date']);
+                      if ($dt instanceof DateTime) {
+                          $change['date'] = $rcmail->format_date($dt, $dtformat);
+                      }
+                  }
+                });
+            }
+            $this->api->output->command('plugin.message_render_changelog', $result['changes']);
+        }
+        else {
+            $this->api->output->command('plugin.message_render_changelog', false);
+        }
+
+        $this->api->output->send();
     }
 
     /**
@@ -135,6 +231,7 @@ class libkolab extends rcube_plugin
     public static function object_changelog_table($attrib = array())
     {
         $rcube = rcube::get_instance();
+        $attrib += array('domain' => 'libkolab');
 
         $table = new html_table(array('cols' => 5, 'border' => 0, 'cellspacing' => 0));
         $table->add_header('diff',      '');

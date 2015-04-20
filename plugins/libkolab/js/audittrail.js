@@ -46,7 +46,7 @@ libkolab_audittrail.object_history_dialog = function(p)
     // hide and reset changelog table
     $dialog.find('div.notfound-message').remove();
     $dialog.find('.changelog-table').show().children('tbody')
-        .html('<tr><td colspan="6"><span class="loading">' + rcmail.gettext('loading') + '</span></td></tr>');
+        .html('<tr><td colspan="4"><span class="loading">' + rcmail.gettext('loading') + '</span></td></tr>');
 
     // open jquery UI dialog
     $dialog.dialog({
@@ -163,7 +163,7 @@ libkolab_audittrail.render_changelog = function(data, object, folder)
     var i, change, accessible, op_append,
       first = data.length - 1, last = 0,
       is_writeable = !!folder.editable,
-      op_labels = { APPEND: 'actionappend', MOVE: 'actionmove', DELETE: 'actiondelete' },
+      op_labels = { RECEIVE: 'actionreceive', APPEND: 'actionappend', MOVE: 'actionmove', DELETE: 'actiondelete', READ: 'actionread', FLAGSET: 'actionflagset', FLAGCLEAR: 'actionflagclear' },
       actions = '<a href="#show" class="iconbutton preview" title="'+ rcmail.gettext('showrevision',data.module) +'" data-rev="{rev}" /> ' +
           (is_writeable ? '<a href="#restore" class="iconbutton restore" title="'+ rcmail.gettext('restore',data.module) + '" data-rev="{rev}" />' : ''),
       tbody = $dialog.find('.changelog-table tbody').html('');
@@ -174,6 +174,9 @@ libkolab_audittrail.render_changelog = function(data, object, folder)
 
         if (change.op == 'MOVE' && change.mailbox) {
             op_append = ' ⇢ ' + change.mailbox;
+        }
+        else if ((change.op == 'FLAGSET' || change.op == 'FLAGCLEAR') && change.flags) {
+            op_append = ': ' + change.flags;
         }
         else {
             op_append = '';
@@ -187,7 +190,7 @@ libkolab_audittrail.render_changelog = function(data, object, folder)
             .append('<td class="revision">' + Q(i+1) + '</td>')
             .append('<td class="date">' + Q(change.date || '') + '</td>')
             .append('<td class="user">' + Q(change.user || 'undisclosed') + '</td>')
-            .append('<td class="operation" title="' + op_append + '">' + Q(rcmail.gettext(op_labels[change.op] || '', data.module) + (op_append ? ' ...' : '')) + '</td>')
+            .append('<td class="operation" title="' + op_append + '">' + Q(rcmail.gettext(op_labels[change.op] || '', data.module) + op_append) + '</td>')
             .append('<td class="actions">' + (accessible && change.op != 'DELETE' ? actions.replace(/\{rev\}/g, change.rev) : '') + '</td>')
             .appendTo(tbody);
     }
@@ -210,3 +213,49 @@ libkolab_audittrail.dialog_resize = function(id, height, width)
         $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
             .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
 };
+
+
+// register handlers for mail message history
+window.rcmail && rcmail.addEventListener('init', function(e) {
+    var loading_lock;
+
+    if (rcmail.env.task == 'mail') {
+        rcmail.register_command('kolab-mail-history', function() {
+            var dialog, uid = rcmail.get_single_uid(), rec = { uid: uid, mbox: rcmail.get_message_mailbox(uid) };
+            if (!uid || !window.libkolab_audittrail) {
+                return false;
+            }
+
+            // render dialog
+            $dialog = libkolab_audittrail.object_history_dialog({
+                module: 'libkolab',
+                container: '#mailmessagehistory',
+                title: rcmail.gettext('objectchangelog','libkolab')
+            });
+
+            $dialog.data('rec', rec);
+
+            // fetch changelog data
+            loading_lock = rcmail.set_busy(true, 'loading', loading_lock);
+            rcmail.http_post('plugin.message-changelog', { _uid: rec.uid, _mbox: rec.mbox }, loading_lock);
+
+        }, rcmail.env.action == 'show');
+
+        rcmail.addEventListener('plugin.message_render_changelog', function(data) {
+            var $dialog = $('#mailmessagehistory'),
+                rec = $dialog.data('rec');
+
+            if (data === false || !data.length || !event) {
+              // display 'unavailable' message
+              $('<div class="notfound-message dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','libkolab') + '</div>')
+                  .insertBefore($dialog.find('.changelog-table').hide());
+              return;
+            }
+
+            data.module = 'libkolab';
+            libkolab_audittrail.render_changelog(data, rec, {});
+        });
+
+        rcmail.env.message_commands.push('kolab-mail-history');
+    }
+});
