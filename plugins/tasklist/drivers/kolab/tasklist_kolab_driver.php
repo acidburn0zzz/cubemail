@@ -57,9 +57,7 @@ class tasklist_kolab_driver extends tasklist_driver
         kolab_storage::$encode_ids = true;
 
         // get configuration for the Bonnie API
-        if ($bonnie_config = $this->rc->config->get('kolab_bonnie_api', false)) {
-            $this->bonnie_api = new kolab_bonnie_api($bonnie_config);
-        }
+        $this->bonnie_api = libkolab::get_bonnie_api();
 
         $this->_read_lists();
 

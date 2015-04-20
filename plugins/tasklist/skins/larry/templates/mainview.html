@@ -244,8 +244,8 @@
 
 <roundcube:if condition="env:tasklist_driver == 'kolab' && config:kolab_bonnie_api" />
 <div id="taskhistory" class="uidialog" aria-hidden="true">
-	<roundcube:object name="plugin.object_changelog_table" class="records-table changelog-table" domain="calendar" />
-	<div class="compare-button"><input type="button" class="button" value="↳ <roundcube:label name='tasklist.compare' />" /></div>
+	<roundcube:object name="plugin.object_changelog_table" class="records-table changelog-table" />
+	<div class="compare-button"><input type="button" class="button" value="↳ <roundcube:label name='libkolab.compare' />" /></div>
 </div>
 
 <div id="taskdiff" class="uidialog taskshow" aria-hidden="true">

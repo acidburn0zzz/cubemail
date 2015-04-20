@@ -163,9 +163,17 @@ libkolab_audittrail.render_changelog = function(data, object, folder)
     var i, change, accessible, op_append,
       first = data.length - 1, last = 0,
       is_writeable = !!folder.editable,
-      op_labels = { RECEIVE: 'actionreceive', APPEND: 'actionappend', MOVE: 'actionmove', DELETE: 'actiondelete', READ: 'actionread', FLAGSET: 'actionflagset', FLAGCLEAR: 'actionflagclear' },
-      actions = '<a href="#show" class="iconbutton preview" title="'+ rcmail.gettext('showrevision',data.module) +'" data-rev="{rev}" /> ' +
-          (is_writeable ? '<a href="#restore" class="iconbutton restore" title="'+ rcmail.gettext('restore',data.module) + '" data-rev="{rev}" />' : ''),
+      op_labels = {
+          RECEIVE:   'actionreceive',
+          APPEND:    'actionappend',
+          MOVE:      'actionmove',
+          DELETE:    'actiondelete',
+          READ:      'actionread',
+          FLAGSET:   'actionflagset',
+          FLAGCLEAR: 'actionflagclear'
+      },
+      actions = '<a href="#show" class="iconbutton preview" title="'+ rcmail.gettext('showrevision','libkolab') +'" data-rev="{rev}" /> ' +
+          (is_writeable ? '<a href="#restore" class="iconbutton restore" title="'+ rcmail.gettext('restore','libkolab') + '" data-rev="{rev}" />' : ''),
       tbody = $dialog.find('.changelog-table tbody').html('');
 
     for (i=first; i >= 0; i--) {
@@ -190,7 +198,7 @@ libkolab_audittrail.render_changelog = function(data, object, folder)
             .append('<td class="revision">' + Q(i+1) + '</td>')
             .append('<td class="date">' + Q(change.date || '') + '</td>')
             .append('<td class="user">' + Q(change.user || 'undisclosed') + '</td>')
-            .append('<td class="operation" title="' + op_append + '">' + Q(rcmail.gettext(op_labels[change.op] || '', data.module) + op_append) + '</td>')
+            .append('<td class="operation" title="' + op_append + '">' + Q(rcmail.gettext(op_labels[change.op] || '', 'libkolab') + op_append) + '</td>')
             .append('<td class="actions">' + (accessible && change.op != 'DELETE' ? actions.replace(/\{rev\}/g, change.rev) : '') + '</td>')
             .appendTo(tbody);
     }

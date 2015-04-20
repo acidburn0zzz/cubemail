@@ -53,14 +53,8 @@ $labels['noaddressbooksfound'] = 'No address books found';
 
 // history dialog
 $labels['showhistory'] = 'Show History';
-$labels['compare'] = 'Compare';
 $labels['objectchangelog'] = 'Change History';
 $labels['objectdiff'] = 'Changes from $rev1 to $rev2';
-$labels['actionappend'] = 'Saved';
-$labels['actionmove'] = 'Moved';
-$labels['actiondelete'] = 'Deleted';
-$labels['showrevision'] = 'Show this version';
-$labels['restore'] = 'Restore this version';
 $labels['revisionrestoreconfirm'] = 'Do you really want to restore revision $rev of this contact? This will replace the current contact with the old version.';
 $labels['objectnotfound'] = 'Failed to load contact data';
 $labels['objectchangelognotavailable'] = 'Change history is not available for this contact';

@@ -278,15 +278,6 @@ $labels['birthdayage'] = 'Age $age';
 // history dialog
 $labels['objectchangelog'] = 'Change History';
 $labels['objectdiff'] = 'Changes from $rev1 to $rev2';
-$labels['revision'] = 'Revision';
-$labels['user'] = 'User';
-$labels['operation'] = 'Action';
-$labels['actionappend'] = 'Saved';
-$labels['actionmove'] = 'Moved';
-$labels['actiondelete'] = 'Deleted';
-$labels['compare'] = 'Compare';
-$labels['showrevision'] = 'Show this version';
-$labels['restore'] = 'Restore this version';
 $labels['objectnotfound'] = 'Failed to load event data';
 $labels['objectchangelognotavailable'] = 'Change history is not available for this event';
 $labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';

@@ -77,9 +77,7 @@ class kolab_addressbook extends rcube_plugin
             $this->register_action('plugin.contact-restore', array($this, 'contact_restore'));
 
             // get configuration for the Bonnie API
-            if ($bonnie_config = $this->rc->config->get('kolab_bonnie_api', false)) {
-                $this->bonnie_api = new kolab_bonnie_api($bonnie_config);
-            }
+            $this->bonnie_api = libkolab::get_bonnie_api();
 
             // Load UI elements
             if ($this->api->output->type == 'html') {
@@ -547,12 +545,13 @@ class kolab_addressbook extends rcube_plugin
         $result = $uid && $mailbox ? $this->bonnie_api->changelog('contact', $uid, $mailbox, $msguid) : null;
         if (is_array($result) && $result['uid'] == $uid) {
             if (is_array($result['changes'])) {
+                $rcmail = $this->rc;
                 $dtformat = $this->rc->config->get('date_format') . ' ' . $this->rc->config->get('time_format');
-                array_walk($result['changes'], function(&$change) use ($dtformat) {
+                array_walk($result['changes'], function(&$change) use ($rcmail, $dtformat) {
                   if ($change['date']) {
                       $dt = rcube_utils::anytodatetime($change['date']);
                       if ($dt instanceof DateTime) {
-                          $change['date'] = $this->rc->format_date($dt, $dtformat);
+                          $change['date'] = $rcmail->format_date($dt, $dtformat);
                       }
                   }
                 });

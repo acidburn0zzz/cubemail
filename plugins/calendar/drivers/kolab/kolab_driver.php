@@ -71,8 +71,7 @@ class kolab_driver extends calendar_driver
     }
 
     // get configuration for the Bonnie API
-    if ($bonnie_config = $this->cal->rc->config->get('kolab_bonnie_api', false))
-      $this->bonnie_api = new kolab_bonnie_api($bonnie_config);
+    $this->bonnie_api = libkolab::get_bonnie_api();
 
     // calendar uses fully encoded identifiers
     kolab_storage::$encode_ids = true;

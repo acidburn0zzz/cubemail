@@ -54,7 +54,7 @@ class libkolab extends rcube_plugin
             kolab_format::$timezone = new DateTimeZone('GMT');
         }
 
-        $this->add_texts('localization/', $rcmail->output->type == 'html' && $rcmail->task == 'mail');
+        $this->add_texts('localization/', false);
 
         // embed scripts and templates for email message audit trail
         if ($rcmail->task == 'mail' && self::get_bonnie_api()) {
@@ -240,6 +240,19 @@ class libkolab extends rcube_plugin
         $table->add_header('user',      $rcube->gettext('user', $attrib['domain']));
         $table->add_header('operation', $rcube->gettext('operation', $attrib['domain']));
         $table->add_header('actions',   '&nbsp;');
+
+        $rcube->output->add_label(
+            'libkolab.showrevision',
+            'libkolab.actionreceive',
+            'libkolab.actionappend',
+            'libkolab.actionmove',
+            'libkolab.actiondelete',
+            'libkolab.actionread',
+            'libkolab.actionflagset',
+            'libkolab.actionflagclear',
+            'libkolab.objectchangelog',
+            'close'
+        );
 
         return $table->show($attrib);
     }

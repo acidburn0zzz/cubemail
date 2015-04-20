@@ -124,6 +124,11 @@ source_file = plugins/tasklist/helpdocs/po/overview.pot
 source_lang = en_US
 type = PO
 
+[kolab.libkolab]
+file_filter = plugins/libkolab/localization/<lang>.inc
+source_file = plugins/libkolab/localization/en_US.inc
+source_lang = en_US
+
 [kolab.libcalendaring]
 file_filter = plugins/libcalendaring/localization/<lang>.inc
 source_file = plugins/libcalendaring/localization/en_US.inc

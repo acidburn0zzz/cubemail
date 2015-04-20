@@ -112,9 +112,7 @@ class kolab_notes extends rcube_plugin
         }
 
         // get configuration for the Bonnie API
-        if ($bonnie_config = $this->rc->config->get('kolab_bonnie_api', false)) {
-            $this->bonnie_api = new kolab_bonnie_api($bonnie_config);
-        }
+        $this->bonnie_api = libkolab::get_bonnie_api();
 
         // notes use fully encoded identifiers
         kolab_storage::$encode_ids = true;
@@ -640,12 +638,13 @@ class kolab_notes extends rcube_plugin
             case 'changelog':
                 $data = $this->get_changelog($note);
                 if (is_array($data) && !empty($data)) {
-                    $dtformat = $this->rc->config->get('date_format') . ' ' . $this->rc->config->get('time_format');
-                    array_walk($data, function(&$change) use ($lib, $dtformat) {
+                    $rcmail = $this->rc;
+                    $dtformat = $rcmail->config->get('date_format') . ' ' . $this->rc->config->get('time_format');
+                    array_walk($data, function(&$change) use ($lib, $rcmail, $dtformat) {
                       if ($change['date']) {
                           $dt = rcube_utils::anytodatetime($change['date']);
                           if ($dt instanceof DateTime) {
-                              $change['date'] = $this->rc->format_date($dt, $dtformat);
+                              $change['date'] = $rcmail->format_date($dt, $dtformat);
                           }
                       }
                     });

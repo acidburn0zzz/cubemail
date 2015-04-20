@@ -58,14 +58,8 @@ $labels['aclnorights'] = 'You do not have administrator rights for this notebook
 
 // history dialog
 $labels['showhistory'] = 'Show History';
-$labels['compare'] = 'Compare';
 $labels['objectchangelog'] = 'Change History';
 $labels['objectdiff'] = 'Changes from $rev1 to $rev2';
-$labels['actionappend'] = 'Saved';
-$labels['actionmove'] = 'Moved';
-$labels['actiondelete'] = 'Deleted';
-$labels['showrevision'] = 'Show this version';
-$labels['restore'] = 'Restore this version';
 $labels['objectnotfound'] = 'Failed to load note data';
 $labels['objectchangelognotavailable'] = 'Change history is not available for this note';
 $labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';

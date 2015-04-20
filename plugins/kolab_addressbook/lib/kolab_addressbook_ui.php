@@ -113,17 +113,11 @@ class kolab_addressbook_ui
 
                 $this->rc->output->add_label(
                     'kolab_addressbook.showhistory',
-                    'kolab_addressbook.compare',
                     'kolab_addressbook.objectchangelog',
                     'kolab_addressbook.objectdiff',
-                    'kolab_addressbook.showrevision',
-                    'kolab_addressbook.actionappend',
-                    'kolab_addressbook.actionmove',
-                    'kolab_addressbook.actiondelete',
                     'kolab_addressbook.objectdiffnotavailable',
                     'kolab_addressbook.objectchangelognotavailable',
-                    'kolab_addressbook.revisionrestoreconfirm',
-                    'close'
+                    'kolab_addressbook.revisionrestoreconfirm'
                 );
 
                 $this->plugin->add_hook('render_page', array($this, 'render_audittrail_page'));

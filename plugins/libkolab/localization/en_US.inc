@@ -27,6 +27,5 @@ $labels['actionflagset'] = 'Flag set';
 $labels['actionflagclear'] = 'Flag removed';
 $labels['showrevision'] = 'Show this version';
 $labels['restore'] = 'Restore this version';
-$labels['objectnotfound'] = 'Failed to load history data';
 $labels['objectchangelognotavailable'] = 'History is not available for this message';
 
