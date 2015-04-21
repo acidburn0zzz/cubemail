@@ -2128,7 +2128,7 @@ function rcube_tasklist_ui(settings)
         var $dialog = $('#taskhistory'),
             rec = $dialog.data('rec');
 
-        if (data === false || !data.length || !event) {
+        if (data === false || !data.length || !rec) {
           // display 'unavailable' message
           $('<div class="notfound-message task-dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','tasklist') + '</div>')
             .insertBefore($dialog.find('.changelog-table').hide());

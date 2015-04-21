@@ -1064,7 +1064,7 @@ function rcube_kolab_notes_ui(settings)
         var $dialog = $('#notehistory'),
             rec = $dialog.data('rec');
 
-        if (data === false || !data.length || !event) {
+        if (data === false || !data.length || !rec) {
           // display 'unavailable' message
           $('<div class="notfound-message note-dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','kolab_notes') + '</div>')
               .insertBefore($dialog.find('.changelog-table').hide());

@@ -430,7 +430,7 @@ rcube_webmail.prototype.contact_render_changelog = function(data)
     var $dialog = $('#contacthistory'),
         rec = $dialog.data('rec');
 
-    if (data === false || !data.length || !event) {
+    if (data === false || !data.length || !rec) {
       // display 'unavailable' message
       $('<div class="notfound-message note-dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','kolab_addressbook') + '</div>')
           .insertBefore($dialog.find('.changelog-table').hide());

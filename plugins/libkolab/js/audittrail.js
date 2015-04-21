@@ -253,7 +253,7 @@ window.rcmail && rcmail.addEventListener('init', function(e) {
             var $dialog = $('#mailmessagehistory'),
                 rec = $dialog.data('rec');
 
-            if (data === false || !data.length || !event) {
+            if (data === false || !data.length || !rec) {
               // display 'unavailable' message
               $('<div class="notfound-message dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','libkolab') + '</div>')
                   .insertBefore($dialog.find('.changelog-table').hide());
