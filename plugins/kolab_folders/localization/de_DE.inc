@@ -2,11 +2,11 @@
 /**
  * Localizations for the Kolab Folders plugin
  *
- * Copyright (C) 2014, Kolab Systems AG
+ * Copyright (C) 2015, Kolab Systems AG
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
-$labels['folderctype'] = 'Ordnerinhalt';
+$labels['folderctype'] = 'Inhaltstyp';
 $labels['foldertypemail'] = 'E-Mail';
 $labels['foldertypeevent'] = 'Kalender';
 $labels['foldertypejournal'] = 'Journal';
@@ -24,5 +24,6 @@ $labels['outbox'] = 'Postausgang';
 $labels['wastebasket'] = 'Mülleimer';
 $labels['junkemail'] = 'Spam';
 $labels['confidential'] = 'Vertraulich';
-$messages['defaultfolderexists'] = 'Es gibt bereits einen Standardordner dieses Typs';
+$labels['private'] = 'Privat';
+$messages['defaultfolderexists'] = 'Es gibt bereits einen Standardordner des angegebenen Typs';
 ?>

@@ -221,9 +221,4 @@ $labels['displaybirthdayscalendar'] = 'Toon verjaardagskalender';
 $labels['birthdayscalendarsources'] = 'Uit deze adresboeken';
 $labels['birthdayeventtitle'] = 'verjaardag van $name';
 $labels['birthdayage'] = 'Leeftijd $age';
-$labels['user'] = 'Gebruiker';
-$labels['actionappend'] = 'Opgeslagen';
-$labels['actionmove'] = 'Verplaatst';
-$labels['actiondelete'] = 'Verwijderd';
-$labels['compare'] = 'Vergelijken';
 ?>

@@ -6,5 +6,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
-$labels['foldertypeevent'] = 'Kalender';
+$labels['foldertypeevent'] = 'Календар';
+$labels['foldertypetask'] = 'Задачі';
+$labels['foldertypenote'] = 'Нотатки';
+$labels['foldertypefile'] = 'Файли';
 ?>

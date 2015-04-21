@@ -2,7 +2,7 @@
 /**
  * Localizations for the Kolab Folders plugin
  *
- * Copyright (C) 2014, Kolab Systems AG
+ * Copyright (C) 2015, Kolab Systems AG
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
@@ -23,5 +23,7 @@ $labels['sentitems'] = '送信済';
 $labels['outbox'] = '送信箱';
 $labels['wastebasket'] = 'ごみ箱';
 $labels['junkemail'] = '迷惑メール';
+$labels['confidential'] = '親展';
+$labels['private'] = 'プライベート';
 $messages['defaultfolderexists'] = '指定したタイプの初期フォルダは既にあります。';
 ?>

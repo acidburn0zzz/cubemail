@@ -2,7 +2,7 @@
 /**
  * Localizations for the Kolab Folders plugin
  *
- * Copyright (C) 2014, Kolab Systems AG
+ * Copyright (C) 2015, Kolab Systems AG
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
@@ -24,5 +24,6 @@ $labels['outbox'] = 'Udbakke';
 $labels['wastebasket'] = 'Papirkurv';
 $labels['junkemail'] = 'Uønsket';
 $labels['confidential'] = 'Confidential';
+$labels['private'] = 'Privat';
 $messages['defaultfolderexists'] = 'Der er allerede en standardmapper med angive type';
 ?>

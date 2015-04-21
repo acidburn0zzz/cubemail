@@ -21,6 +21,4 @@ $labels['resource'] = 'Recurso';
 $labels['resourcedetails'] = 'Detalles';
 $labels['tabresources'] = 'Recursos';
 $labels['savingdata'] = 'Guardando datos...';
-$labels['user'] = 'Usuario';
-$labels['operation'] = 'Acción';
 ?>
