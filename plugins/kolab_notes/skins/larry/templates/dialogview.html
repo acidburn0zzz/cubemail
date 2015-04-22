@@ -8,14 +8,14 @@
 
 <div id="notedetailsbox">
     <div id="notesdialogheader" class="boxtitle">
-        <roundcube:object name="plugin.notetitle" id="notedetailstitle" />
+        <roundcube:object name="plugin.notetitle" id="notedetailstitle" class="notetitle" />
         <div class="notebookselect" style="display:none">
             <label for="notebook"><roundcube:label name="kolab_notes.savein" /></label>
             <roundcube:object name="plugin.notebooks" id="kolab-notebook" type="select" />
         </div>
     </div>
-    <roundcube:object name="plugin.editform" id="noteform" />
-    <roundcube:object name="plugin.detailview" id="notedetails" class="scroller" />
+    <roundcube:object name="plugin.editform" id="noteform" class="noteform" />
+    <roundcube:object name="plugin.detailview" id="notedetails" class="notedetails scroller" />
     <div id="notereferences">
         <roundcube:object name="plugin.attachments_list" id="attachment-list" class="attachmentslist" />
     </div>
