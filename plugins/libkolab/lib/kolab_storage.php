@@ -262,6 +262,8 @@ class kolab_storage
      */
     public static function get_freebusy_server()
     {
+        self::setup();
+
         $url = 'https://' . $_SESSION['imap_host'] . '/freebusy';
         $url = self::$config->get('kolab_freebusy_server', $url);
         $url = rcube_utils::resolve_url($url);
