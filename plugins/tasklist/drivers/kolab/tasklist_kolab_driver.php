@@ -1361,8 +1361,14 @@ class tasklist_kolab_driver extends tasklist_driver
     {
         $this->_parse_id($task);
         $list_id = $task['list'];
-        if (!$list_id || !($folder = $this->get_folder($list_id)))
+        if (!$list_id || !($folder = $this->get_folder($list_id))) {
+            raise_error(array(
+                'code' => 600, 'type' => 'php',
+                'file' => __FILE__, 'line' => __LINE__,
+                'message' => "Invalid list identifer to save taks: " . var_dump($list_id, true)),
+                true, false);
             return false;
+        }
 
         // email links and tags are stored separately
         $links = $task['links'];

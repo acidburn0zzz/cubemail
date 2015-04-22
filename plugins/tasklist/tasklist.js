@@ -2421,9 +2421,10 @@ function rcube_tasklist_ui(settings)
             data._status_before = me.selected_task.status + '';
 
             // copy form field contents into task object to save
-            $.each({ title:title, description:description, date:recdate, time:rectime, startdate:recstartdate, starttime:recstarttime, status:taskstatus, list:tasklist }, function(key,input){
+            $.each({ title:title, description:description, date:recdate, time:rectime, startdate:recstartdate, starttime:recstarttime, status:taskstatus }, function(key,input){
                 data[key] = input.val();
             });
+            data.list = tasklist.find('option:selected').val();
             data.tags = [];
             data.attachments = [];
             data.attendees = task_attendees;
