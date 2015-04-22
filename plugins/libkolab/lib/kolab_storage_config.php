@@ -243,6 +243,11 @@ class kolab_storage_config
 
         $rcube   = rcube::get_instance();
         $storage = $rcube->get_storage();
+        list($username, $domain) = explode('@', $rcube->get_user_name());
+
+        if (strlen($domain)) {
+            $domain = '@' . $domain;
+        }
 
         // modify folder spec. according to namespace
         $folder = $params['folder'];
@@ -252,21 +257,22 @@ class kolab_storage_config
             // Note: this assumes there's only one shared namespace root
             if ($ns = $storage->get_namespace('shared')) {
                 if ($prefix = $ns[0][0]) {
-                    $folder = 'shared' . substr($folder, strlen($prefix));
+                    $folder = substr($folder, strlen($prefix));
                 }
             }
         }
         else {
             if ($ns == 'other') {
                 // Note: this assumes there's only one other users namespace root
-                if ($ns = $storage->get_namespace('shared')) {
+                if ($ns = $storage->get_namespace('other')) {
                     if ($prefix = $ns[0][0]) {
-                        $folder = 'user' . substr($folder, strlen($prefix));
+                        list($otheruser, $path) = explode('/', substr($folder, strlen($prefix)), 2);
+                        $folder = 'user/' . $otheruser . $domain . '/' . $path;
                     }
                 }
             }
             else {
-                $folder = 'user' . '/' . $rcube->get_user_name() . '/' . $folder;
+                $folder = 'user/' . $username . $domain . '/' . $folder;
             }
         }
 
@@ -321,7 +327,7 @@ class kolab_storage_config
                 // Note: this assumes there's only one shared namespace root
                 if ($ns = $storage->get_namespace('shared')) {
                     if ($prefix = $ns[0][0]) {
-                        $folder = $prefix . '/' . $folder;
+                        $folder = $prefix . 'shared/' . $folder;
                     }
                 }
             }
@@ -330,10 +336,12 @@ class kolab_storage_config
                 $folder   = implode('/', $path);
 
                 if ($username != $rcube->get_user_name()) {
+                    list($user, $domain) = explode('@', $username);
+
                     // Note: this assumes there's only one other users namespace root
                     if ($ns = $storage->get_namespace('other')) {
                         if ($prefix = $ns[0][0]) {
-                            $folder = $prefix . '/' . $username . '/' . $folder;
+                            $folder = $prefix . $user . '/' . $folder;
                         }
                     }
                 }
