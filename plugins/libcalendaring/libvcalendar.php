@@ -312,7 +312,7 @@ class libvcalendar implements Iterator
             $this->method = strval($vobject->METHOD);
             $this->agent  = strval($vobject->PRODID);
 
-            foreach ($vobject->getBaseComponents() ?: $vobject->getComponents() as $ve) {
+            foreach ($vobject->getComponents() as $ve) {
                 if ($ve->name == 'VEVENT' || $ve->name == 'VTODO') {
                     // convert to hash array representation
                     $object = $this->_to_array($ve);
@@ -1153,7 +1153,7 @@ class libvcalendar implements Iterator
 
         if ($event['organizer']) {
             $ve->add('ORGANIZER', 'mailto:' . $event['organizer']['email'],
-                array_filter(self::map_keys($event['organizer'], $this->attendee_keymap)));
+                array_filter(self::map_keys($event['organizer'], array('name' => 'CN'))));
         }
 
         foreach ((array)$event['url'] as $url) {
