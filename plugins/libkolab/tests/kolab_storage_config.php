@@ -16,7 +16,7 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
         'uid'        => '4',
         'message-id' => '<5270122@example.org>',
         'date'       => 'Mon, 20 Apr 2015 16:33:03 +0200',
-        'subject'    => 'Catch me if you can',
+        'subject'    => 'Shared',
     );
     private $url_shared = 'imap:///shared/Collected/4?message-id=%3C5270122%40example.org%3E&date=Mon%2C+20+Apr+2015+16%3A33%3A03+%2B0200&subject=Shared';
 

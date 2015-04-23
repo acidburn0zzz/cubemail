@@ -322,16 +322,7 @@ class kolab_storage_config
             $path = array_map('rawurldecode', $path);
 
             // resolve folder name
-            if ($ns == 'shared') {
-                $folder = implode('/', $path);
-                // Note: this assumes there's only one shared namespace root
-                if ($ns = $storage->get_namespace('shared')) {
-                    if ($prefix = $ns[0][0]) {
-                        $folder = $prefix . 'shared/' . $folder;
-                    }
-                }
-            }
-            else if ($ns == 'user') {
+            if ($ns == 'user') {
                 $username = array_shift($path);
                 $folder   = implode('/', $path);
 
@@ -350,7 +341,13 @@ class kolab_storage_config
                 }
             }
             else {
-                return;
+                $folder = $ns . '/' . implode('/', $path);
+                // Note: this assumes there's only one shared namespace root
+                if ($ns = $storage->get_namespace('shared')) {
+                    if ($prefix = $ns[0][0]) {
+                        $folder = $prefix . $folder;
+                    }
+                }
             }
 
             return array(
