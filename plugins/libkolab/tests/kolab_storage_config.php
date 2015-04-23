@@ -58,15 +58,15 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
 
         // personal namespace
         $url = kolab_storage_config::build_member_url($this->params_personal);
-        $this->assertEquals('imap:///user/john.doe%40example.org/Archive/9?message-id=%3C1225270%40example.org%3E&date=Mon%2C+20+Apr+2015+15%3A30%3A30+UTC&subject=Archived', $url);
+        $this->assertEquals($this->url_personal, $url);
 
         // shared namespace
         $url = kolab_storage_config::build_member_url($this->params_shared);
-        $this->assertEquals('imap:///shared/Collected/4?message-id=%3C5270122%40example.org%3E&date=Mon%2C+20+Apr+2015+16%3A33%3A03+%2B0200&subject=Catch+me+if+you+can', $url);
+        $this->assertEquals($this->url_shared, $url);
 
         // other users namespace
         $url = kolab_storage_config::build_member_url($this->params_other);
-        $this->assertEquals('imap:///user/lucy.white%40example.org/Mailings/378?message-id=%3C22448899%40example.org%3E&date=Tue%2C+14+Apr+2015+14%3A14%3A30+%2B0200&subject=Happy+Holidays', $url);
+        $this->assertEquals($this->url_other, $url);
     }
 
     function test_002_parse_member_url()
