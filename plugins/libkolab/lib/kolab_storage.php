@@ -273,10 +273,32 @@ class kolab_storage
 
     /**
      * Compose an URL to query the free/busy status for the given user
+     *
+     * @param string Email address of the user to get free/busy data for
+     * @param object DateTime Start of the query range (optional)
+     * @param object DateTime End of the query range (optional)
+     *
+     * @return string Fully qualified URL to query free/busy data
      */
-    public static function get_freebusy_url($email)
+    public static function get_freebusy_url($email, $start = null, $end = null)
     {
-        return self::get_freebusy_server() . '/' . $email . '.ifb';
+        $query = '';
+        $param = array();
+        $utc = new \DateTimeZone('UTC');
+
+        if ($start instanceof \DateTime) {
+            $start->setTimezone($utc);
+            $param['dtstart'] = $start->format('Ymd\THis\Z');
+        }
+        if ($end instanceof \DateTime) {
+            $end->setTimezone($utc);
+            $param['dtend'] = $end->format('Ymd\THis\Z');
+        }
+        if (!empty($param)) {
+            $query = '?' . http_build_query($param);
+        }
+
+        return self::get_freebusy_server() . '/' . $email . '.ifb' . $query;
     }
 
     /**
