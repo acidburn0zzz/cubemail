@@ -521,7 +521,7 @@ class libvcalendar implements Iterator
 
             case 'ATTENDEE':
             case 'ORGANIZER':
-                $params = array('rsvp' => false);
+                $params = array('RSVP' => false);
                 foreach ($prop->parameters() as $pname => $pvalue) {
                     switch ($pname) {
                         case 'RSVP': $params[$pname] = strtolower($pvalue) == 'true'; break;
