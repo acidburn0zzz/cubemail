@@ -33,7 +33,7 @@ function rcube_tasklist(settings)
     var mywin = window;
 
     /*  public members  */
-    this.ui;
+    this.ui = null;
 
     /* public methods */
     this.create_from_mail = create_from_mail;
@@ -101,7 +101,7 @@ function rcube_tasklist(settings)
         rcmail.http_post('tasks/mailimportattach', {
             _uid: rcmail.env.uid,
             _mbox: rcmail.env.mailbox,
-            _part: this.selected_attachment,
+            _part: this.selected_attachment
             // _list: $('#tasklist-attachment-saveto').val(),
           }, rcmail.set_busy(true, 'itip.savingdata'));
       }

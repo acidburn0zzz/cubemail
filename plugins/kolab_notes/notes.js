@@ -44,8 +44,8 @@ function rcube_kolab_notes_ui(settings)
     var me = this;
 
     /*  public members  */
-    this.selected_list;
-    this.selected_note;
+    this.selected_list = null;
+    this.selected_note = null;
     this.notebooks = rcmail.env.kolab_notebooks || {};
 
     /**
@@ -571,7 +571,7 @@ function rcube_kolab_notes_ui(settings)
             },
             buttons: buttons,
             minWidth: 480,
-            width: 640,
+            width: 640
         }).show();
 
     }
@@ -1112,7 +1112,7 @@ function rcube_kolab_notes_ui(settings)
             width: model.width(),
             height: model.height(),
             minWidth: 450,
-            minHeight: 400,
+            minHeight: 400
         })
         .show();
 

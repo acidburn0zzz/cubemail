@@ -34,7 +34,6 @@ function rcube_calendar(settings)
     rcube_libcalendaring.call(this, settings);
 
     // member vars
-    this.ui;
     this.ui_loaded = false;
     this.selected_attachment = null;
 
@@ -91,7 +90,7 @@ function rcube_calendar(settings)
         rcmail.http_post('calendar/mailimportattach', {
             _uid: rcmail.env.uid,
             _mbox: rcmail.env.mailbox,
-            _part: this.selected_attachment,
+            _part: this.selected_attachment
             // _calendar: $('#calendar-attachment-saveto').val(),
           }, rcmail.set_busy(true, 'itip.savingdata'));
       }

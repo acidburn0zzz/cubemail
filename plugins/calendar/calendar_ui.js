@@ -197,18 +197,18 @@ function rcube_calendar_ui(settings)
     {
       var result = [],
         strlen = str.length,
-        q, p, i, char, last;
+        q, p, i, chr, last;
 
       for (q = p = i = 0; i < strlen; i++) {
-        char = str.charAt(i);
-        if (char == '"' && last != '\\') {
+        chr = str.charAt(i);
+        if (chr == '"' && last != '\\') {
           q = !q;
         }
-        else if (!q && char == delimiter) {
+        else if (!q && chr == delimiter) {
           result.push(str.substring(p, i));
           p = i + 1;
         }
-        last = char;
+        last = chr;
       }
 
       result.push(str.substr(p));
