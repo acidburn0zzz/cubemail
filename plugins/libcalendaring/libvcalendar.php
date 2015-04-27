@@ -1153,7 +1153,7 @@ class libvcalendar implements Iterator
 
         if ($event['organizer']) {
             $ve->add('ORGANIZER', 'mailto:' . $event['organizer']['email'],
-                array_filter(self::map_keys($event['organizer'], array('name' => 'CN'))));
+                array_filter(self::map_keys($event['organizer'], array('name' => 'CN', 'schedule-status' => 'SCHEDULE-STATUS'))));
         }
 
         foreach ((array)$event['url'] as $url) {
