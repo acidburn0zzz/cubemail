@@ -680,7 +680,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
                     $ext = preg_match('/(\.[a-z0-9]{1,6})$/i', $attachment['name'], $m) ? $m[1] : null;
                     $basename = preg_replace('/[^a-z0-9_.-]/i', '', basename($attachment['name'], $ext));  // to 7bit ascii
                     if (!$basename) $basename = 'noname';
-                    $cid = $basename . '.' . microtime(true) . $ext;
+                    $cid = $basename . '.' . microtime(true) . $key . $ext;
 
                     $object['_attachments'][$cid] = $attachment;
                     unset($object['_attachments'][$key]);

@@ -548,7 +548,7 @@ class libvcalendar implements Iterator
                     $event['links'][] = $value;
                 }
                 else if (strlen($value) && strtoupper($params['VALUE']) == 'BINARY') {
-                    $attachment = self::map_keys($params, array('FMTTYPE' => 'mimetype', 'X-LABEL' => 'name'));
+                    $attachment = self::map_keys($params, array('FMTTYPE' => 'mimetype', 'X-LABEL' => 'name', 'X-APPLE-FILENAME' => 'name'));
                     $attachment['data'] = $value;
                     $attachment['size'] = strlen($value);
                     $event['attachments'][] = $attachment;
@@ -900,7 +900,7 @@ class libvcalendar implements Iterator
     {
         $params = array();
         foreach ($prop->parameters() as $name => $value) {
-            $params[strtoupper($name)] = $value;
+            $params[strtoupper($name)] = strval($value);
         }
         return $params;
     }
