@@ -404,7 +404,7 @@ class kolab_auth_ldap extends rcube_ldap_generic
                 list($usr, $dom) = explode('@', $user);
 
                 // unrealm domain, user login can contain a domain alias
-                if ($dom != $domain && ($dc = $this->find_domain($dom))) {
+                if ($dom != $domain && ($dc = $this->domain_root_dn($dom))) {
                     // @FIXME: we should replace domain in $user, I suppose
                 }
             }
@@ -428,49 +428,6 @@ class kolab_auth_ldap extends rcube_ldap_generic
         $this->parse_replaces = $replaces;
 
         return strtr($str, $replaces);
-    }
-
-    /**
-     * Find root domain for specified domain
-     *
-     * @param string $domain Domain name
-     *
-     * @return string Domain DN string
-     */
-    function find_domain($domain)
-    {
-        if (empty($domain) || empty($this->config['domain_base_dn']) || empty($this->config['domain_filter'])) {
-            return null;
-        }
-
-        $base_dn   = $this->config['domain_base_dn'];
-        $filter    = $this->config['domain_filter'];
-        $name_attr = $this->config['domain_name_attribute'];
-
-        if (empty($name_attr)) {
-            $name_attr = 'associateddomain';
-        }
-
-        $filter = str_replace('%s', rcube_ldap_generic::quote_string($domain), $filter);
-        $result = parent::search($base_dn, $filter, 'sub', array($name_attr, 'inetdomainbasedn'));
-
-        if (!$result) {
-            return null;
-        }
-
-        $entries  = $result->entries(true);
-        $entry_dn = key($entries);
-        $entry    = $entries[$entry_dn];
-
-        if (is_array($entry)) {
-            if (!empty($entry['inetdomainbasedn'])) {
-                return $entry['inetdomainbasedn'];
-            }
-
-            $domain = is_array($entry[$name_attr]) ? $entry[$name_attr][0] : $entry[$name_attr];
-
-            return $domain ? 'dc=' . implode(',dc=', explode('.', $domain)) : null;
-        }
     }
 
     /**
