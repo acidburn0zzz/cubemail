@@ -210,8 +210,8 @@ class kolab_auth_ldap extends rcube_ldap_generic
     /**
      * Search records (simplified version of rcube_ldap::search)
      *
-     * @param string  $fields   The field name or array of field names to search in
-     * @param mixed   $value    Search value (or array of values when $fields is array)
+     * @param mixed   $fields   The field name or array of field names to search in
+     * @param string  $value    Search value
      * @param int     $mode     Matching mode:
      *                          0 - partial (*abc*),
      *                          1 - strict (=),
@@ -228,15 +228,26 @@ class kolab_auth_ldap extends rcube_ldap_generic
             return array();
         }
 
-        $mode = intval($mode);
+        $mode  = intval($mode);
+        $attrs = array();
+
+        // resolve field names into ldap attributes
+        foreach ((array) $fields as $idx => $field) {
+            if ($attr = $this->fieldmap[$field]) {
+                $attrs = array_merge($attrs, (array) $attr);
+            }
+            else {
+                $attrs[] = $field;
+            }
+        }
 
         // compose a full-text-search-like filter
-        if (is_array($fields) && (count($fields) > 1 || $mode != 1)) {
-            $filter = self::fulltext_search_filter($value, $fields, $mode);
+        if (count($attrs) > 1 || $mode != 1) {
+            $filter = self::fulltext_search_filter($value, $attrs, $mode);
         }
         // direct search
         else {
-            $field = is_array($fields) ? $fields[0] : strval($fields);
+            $field  = $attrs[0];
             $filter = "($field=" . self::quote_string($value) . ")";
         }
 
