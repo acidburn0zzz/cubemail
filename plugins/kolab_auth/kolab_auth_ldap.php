@@ -229,17 +229,12 @@ class kolab_auth_ldap extends rcube_ldap_generic
         }
 
         $mode  = intval($mode);
-        $attrs = array();
 
-        // resolve field names into ldap attributes
-        foreach ((array) $fields as $idx => $field) {
-            if ($attr = $this->fieldmap[$field]) {
-                $attrs = array_merge($attrs, (array) $attr);
-            }
-            else {
-                $attrs[] = $field;
-            }
-        }
+        // try to resolve field names into ldap attributes
+        $fieldmap = $this->fieldmap;
+        $attrs = array_map(function($f) use ($fieldmap) {
+            return array_key_exists($f, $fieldmap) ? $fieldmap[$f] : $f;
+        }, (array)$fields);
 
         // compose a full-text-search-like filter
         if (count($attrs) > 1 || $mode != 1) {
@@ -255,21 +250,11 @@ class kolab_auth_ldap extends rcube_ldap_generic
         $req_filter = '';
 
         foreach ((array)$required as $field) {
-            if (in_array($field, (array)$fields))  // required field is already in search filter
-                continue;
+            $attr = array_key_exists($field, $this->fieldmap) ? $this->fieldmap[$field] : $field;
 
-            $attrs = (array) $this->fieldmap[$field];
-
-            if (empty($attrs)) {
-                $req_filter .= "($field=*)";
-            }
-            else {
-                if (count($attrs) > 1)
-                    $req_filter .= '(|';
-                foreach ($attrs as $f)
-                    $req_filter .= "($f=*)";
-                if (count($attrs) > 1)
-                    $req_filter .= ')';
+            // only add if required field is not already in search filter
+            if (!in_array($attr, $attrs)) {
+                $req_filter .= "($attr=*)";
             }
         }
 
