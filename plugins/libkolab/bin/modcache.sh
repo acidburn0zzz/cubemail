@@ -90,7 +90,7 @@ case 'expunge':
 
     $sql_query = "DELETE FROM %s WHERE folder_id IN (SELECT folder_id FROM kolab_folders WHERE $sql_where) AND created <= " . $db->quote(date('Y-m-d 00:00:00', $expire));
     if ($opts['limit']) {
-        $sql_query = ' LIMIT ' . intval($opts['limit']);
+        $sql_query .= ' LIMIT ' . intval($opts['limit']);
     }
     foreach ($folder_types as $type) {
         $table_name = 'kolab_cache_' . $type;
