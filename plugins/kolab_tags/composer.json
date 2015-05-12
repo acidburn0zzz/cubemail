@@ -2,7 +2,7 @@
     "name": "kolab/kolab_tags",
     "type": "roundcube-plugin",
     "description": "Email tags plugin",
-    "homepage": "http://git.kolab.org/roundcubemail-plugins-kolab/",
+    "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
     "version": "3.2.8",
     "authors": [

@@ -2,7 +2,7 @@
     "name": "kolab/logon_page",
     "type": "roundcube-plugin",
     "description": "Logon screen additions",
-    "homepage": "http://git.kolab.org/roundcubemail-plugins-kolab/",
+    "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
     "version": "0.1.0",
     "authors": [
