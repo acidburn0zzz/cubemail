@@ -1083,7 +1083,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
             $body_file = tempnam($temp_dir, 'rcmMsg');
 
             if (PEAR::isError($mime_result = $mime->saveMessageBody($body_file))) {
-                self::raise_error(array('code' => 650, 'type' => 'php',
+                rcube::raise_error(array('code' => 650, 'type' => 'php',
                     'file' => __FILE__, 'line' => __LINE__,
                     'message' => "Could not create message: ".$mime_result->getMessage()),
                     true, false);
