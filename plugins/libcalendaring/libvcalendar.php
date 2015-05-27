@@ -440,6 +440,13 @@ class libvcalendar implements Iterator
                 $event['status'] = $value;
                 break;
 
+            case 'COMPLETED':
+                if (self::convert_datetime($prop)) {
+                    $event['status'] = 'COMPLETED';
+                    $event['complete'] = 100;
+                }
+                break;
+
             case 'PRIORITY':
                 if (is_numeric($value))
                     $event['priority'] = $value;
@@ -1089,9 +1096,11 @@ class libvcalendar implements Iterator
 
         if (!empty($event['complete'])) {
             $ve->add('PERCENT-COMPLETE', intval($event['complete']));
-            // Apple iCal required the COMPLETED date to be set in order to consider a task complete
-            if ($event['complete'] == 100)
-                $ve->add($this->datetime_prop($cal, 'COMPLETED', $event['changed'] ?: new DateTime('now - 1 hour'), true));
+        }
+
+        // Apple iCal and BusyCal required the COMPLETED date to be set in order to consider a task complete
+        if ($event['status'] == 'COMPLETED' || $event['complete'] == 100) {
+            $ve->add($this->datetime_prop($cal, 'COMPLETED', $event['changed'] ?: new DateTime('now - 1 hour'), true));
         }
 
         if ($event['valarms']) {
