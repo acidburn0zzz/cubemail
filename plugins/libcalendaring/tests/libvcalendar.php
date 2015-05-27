@@ -326,6 +326,13 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($task['x-custom']),      "Custom properties");
         $this->assertEquals(4, count($task['categories']));
         $this->assertEquals('1234567890-12345678-PARENT', $task['parent_id'], "Parent Relation");
+
+        $completed = $tasks[1];
+        $this->assertEquals('COMPLETED', $completed['status'], "Task status=completed when COMPLETED property is present");
+        $this->assertEquals(100, $completed['complete'], "Task percent complete value");
+
+        $ics = $ical->export(array($completed));
+        $this->assertRegExp('/COMPLETED:[0-9TZ]+/', $ics, "Export COMPLETED property");
     }
 
     /**
