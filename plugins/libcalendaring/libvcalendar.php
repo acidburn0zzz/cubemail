@@ -1303,8 +1303,8 @@ class libvcalendar implements Iterator
                 $offset = $trans['offset'] / 3600;
 
                 $cmp->DTSTART = $dt->format('Ymd\THis');
-                $cmp->TZOFFSETFROM = sprintf('%s%02d%02d', $tzfrom >= 0 ? '+' : '', floor($tzfrom), ($tzfrom - floor($tzfrom)) * 60);
-                $cmp->TZOFFSETTO   = sprintf('%s%02d%02d', $offset >= 0 ? '+' : '', floor($offset), ($offset - floor($offset)) * 60);
+                $cmp->TZOFFSETFROM = sprintf('%+03d%02d', floor($tzfrom), ($tzfrom - floor($tzfrom)) * 60);
+                $cmp->TZOFFSETTO   = sprintf('%+03d%02d', floor($offset), ($offset - floor($offset)) * 60);
 
                 if (!empty($trans['abbr'])) {
                     $cmp->TZNAME = $trans['abbr'];

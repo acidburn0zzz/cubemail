@@ -376,7 +376,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $event['attachments'][0]['id'] = '1';
         $event['description'] = '*Exported by libvcalendar*';
 
-        $event['start']->setTimezone(new DateTimezone('Europe/Berlin'));
+        $event['start']->setTimezone(new DateTimezone('America/Montreal'));
         $event['end']->setTimezone(new DateTimezone('Europe/Berlin'));
 
         $ics = $ical->export(array($event), 'REQUEST', false, array($this, 'get_attachment_data'), true);
@@ -387,6 +387,8 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertContains('TZID:Europe/Berlin', $ics, "Timezone ID");
         $this->assertContains('TZOFFSETFROM:+0100', $ics, "Timzone transition FROM");
         $this->assertContains('TZOFFSETTO:+0200', $ics, "Timzone transition TO");
+        $this->assertContains('TZOFFSETFROM:-0400', $ics, "TZOFFSETFROM with negative offset (Bug T428)");
+        $this->assertContains('TZOFFSETTO:-0500', $ics, "TZOFFSETTO with negative offset (Bug T428)");
         $this->assertContains('END:VTIMEZONE', $ics, "VTIMEZONE encapsulation END");
 
         $this->assertContains('BEGIN:VEVENT',       $ics, "VEVENT encapsulation BEGIN");
