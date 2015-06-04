@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * Kolab 2-Factor-Authentication plugin configuration
+ *
+ * Copyright (C) 2015, Kolab Systems AG <contact@kolabsys.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// available methods/providers
+$config['kolab_2fa_drivers'] = array('totp','hotp');
+
+// backend for storing 2-factor-auth related per-user settings
+// available backends are: 'roundcube', 'ldap', 'sql'
+$config['kolab_2fa_storage'] = 'roundcube';
+
+// additional config options for the above storage backend
+// here an example for the LDAP backend:
+$config['kolab_2fa_storage_config'] = array(
+    'hosts'     => array('localhost'),
+    'port'      => 389,
+    'bind_dn'   => 'uid=kolab-service,ou=Special Users,dc=example,dc=org',
+    'bind_pass' => 'Welcome2KolabSystems',
+    'base_dn'   => 'ou=People,dc=example,dc=org',
+    'filter'    => '(&(objectClass=inetOrgPerson)(mail=%fu))',
+    'scope'     => 'sub',
+    'fieldmap'  => array(
+        'uid'     => 'uid',
+        'mail'    => 'mail',
+        'totp'    => 'kolabAuthTOTP',
+        'yubikey' => 'kolabAuthYubikey',
+    ),
+    'debug'       => true,
+);
+
+// force a two-factor authentication for all users
+// $config['kolab_2fa_factors'] = array('totp');
+
+// timeout for 2nd factor auth submission (in seconds)
+$config['kolab_2fa_timeout'] = 60;
+
+// configuration parameters for TOTP (uncomment to adjust)
+$config['kolab_2fa_totp'] = array(
+    // 'digits'   => 6,
+    // 'interval' => 30,
+    // 'digest'   => 'sha1',
+    // 'issuer'   => 'Roundcube',
+);
+
+// configuration parameters for HOTP (uncomment to adjust)
+$config['kolab_2fa_hotp'] = array(
+    // 'digits' => 6,
+    // 'window' => 4,
+    // 'digest' => 'sha1',
+);
+
+// configuration parameters for Yubikey (uncomment to adjust)
+$config['kolab_2fa_yubikey'] = array(
+    'clientid' => '123456',
+    'apikey' => '<your-server-api-key>',
+    // 'hosts'  => array('api.myhost1.com','api2.myhost.com'),
+);
