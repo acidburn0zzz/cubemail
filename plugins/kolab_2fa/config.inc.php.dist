@@ -19,7 +19,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// available methods/providers
+// available methods/providers. Supported methods are: 'totp','hotp','yubikey'
 $config['kolab_2fa_drivers'] = array('totp','hotp');
 
 // backend for storing 2-factor-auth related per-user settings
@@ -40,12 +40,14 @@ $config['kolab_2fa_storage_config'] = array(
         'uid'     => 'uid',
         'mail'    => 'mail',
         'totp'    => 'kolabAuthTOTP',
+        'hotp'    => 'kolabAuthHOTP',
         'yubikey' => 'kolabAuthYubikey',
     ),
     'debug'       => true,
 );
 
 // force a two-factor authentication for all users
+// to be set by another plugin (e.g. kolab_auth based on LDAP roles)
 // $config['kolab_2fa_factors'] = array('totp');
 
 // timeout for 2nd factor auth submission (in seconds)

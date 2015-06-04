@@ -98,7 +98,7 @@ class TOTP extends Base
             }
         }
 
-        console('VERIFY TOTP', $this->username, $secret, $code, $timestamp, $pass);
+        // console('VERIFY TOTP', $this->username, $secret, $code, $timestamp, $pass);
         return $pass;
     }
 

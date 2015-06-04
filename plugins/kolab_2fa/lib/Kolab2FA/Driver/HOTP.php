@@ -98,7 +98,7 @@ class HOTP extends Base
         // store incremented counter value
         $this->set('counter', $this->backend->getCounter());
 
-        console('VERIFY HOTP', $this->username, $secret, $counter, $code, $pass);
+        // console('VERIFY HOTP', $this->username, $secret, $counter, $code, $pass);
         return $pass;
     }
 

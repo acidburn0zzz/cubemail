@@ -212,7 +212,6 @@ abstract class Base
     public function clear()
     {
         if ($this->storage) {
-            console('CLEAR prefs');
             $this->storage->remove($this->username . ':' . $this->method);
         }
     }

@@ -118,7 +118,7 @@ class kolab_2fa extends rcube_plugin
     public function login_step($factors)
     {
         // replace handler for login form
-        $this->login_factors = $factors;
+        $this->login_factors = array_values($factors);
         $this->api->output->add_handler('loginform', array($this, 'auth_form'));
 
         // focus the code input field on load
