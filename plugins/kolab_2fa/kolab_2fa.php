@@ -30,6 +30,7 @@ class kolab_2fa extends rcube_plugin
     protected $login_verified = null;
     protected $login_factors = array();
     protected $drivers = array();
+    protected $storage;
 
     /**
      * Plugin init
@@ -46,6 +47,10 @@ class kolab_2fa extends rcube_plugin
     public function startup($args)
     {
         $rcmail = rcmail::get_instance();
+
+        // register library namespace to autoloader
+        $loader = include(INSTALL_PATH . 'vendor/autoload.php');
+        $loader->set('Kolab2FA', array($this->home . '/lib'));
 
         if ($args['task'] === 'login' && $this->api->output) {
             $this->add_texts('localization/', false);
@@ -84,7 +89,7 @@ class kolab_2fa extends rcube_plugin
 
         // parse $host URL
         $a_host = parse_url($args['host']);
-        $hostname = $a_host['host'] ?: $args['host'];
+        $hostname = $_SESSION['hostname'] = $a_host['host'] ?: $args['host'];
 
         // 1. find user record (and its prefs) before IMAP login
         if ($user = rcube_user::query($args['user'], $hostname)) {
@@ -92,7 +97,7 @@ class kolab_2fa extends rcube_plugin
         }
 
         // 2. check if this user/system has 2FA enabled
-        if (count($factors = (array)$rcmail->config->get('kolab_2fa_factors', array())) > 0) {
+        if (($storage = $this->get_storage($args['user'])) && count($factors = (array)$storage->read('active')) > 0) {
             $args['abort'] = true;
 
             // 3. flag session as temporary (no further actions allowed)
@@ -101,7 +106,6 @@ class kolab_2fa extends rcube_plugin
             $_SESSION['kolab_2fa_factors'] = $factors;
 
             $_SESSION['username'] = $args['user'];
-            $_SESSION['hostname'] = $hostname;
             $_SESSION['host']     = $args['host'];
             $_SESSION['password'] = $rcmail->encrypt($args['pass']);
 
@@ -143,8 +147,6 @@ class kolab_2fa extends rcube_plugin
         $expired = $time < time() - $rcmail->config->get('kolab_2fa_timeout', 120);
 
         if (!empty($sign) && !empty($factors) && !empty($nonce) && !$expired) {
-            console('VERIFY', $sign, $factors);
-
             // TODO: check signature
 
             // try to verify each configured factor
@@ -224,7 +226,8 @@ class kolab_2fa extends rcube_plugin
         // render input for each configured auth method
         foreach ($this->login_factors as $i => $method) {
             if ($i > 0) {
-                $table->add(array('colspan' => 2, 'class' => 'hint'), $this->gettext('or'));
+                $table->add(array('colspan' => 2, 'class' => 'title hint', 'style' => 'text-align:center'),
+                    $this->gettext('or'));
             }
 
             $field_id = "rcmlogin2fa$method";
@@ -273,12 +276,6 @@ class kolab_2fa extends rcube_plugin
             return $this->drivers[$method];
         }
 
-        // register library namespace to autoloader
-        if (!class_exists('\\Kolab3FA\\Driver\\Base', false)) {
-            $loader = include(INSTALL_PATH . 'vendor/autoload.php');
-            $loader->set('Kolab2FA', array($this->home . '/lib'));
-        }
-
         $config = $rcmail->config->get('kolab_2fa_' . $method, array());
 
         // use product name as "issuer""
@@ -292,10 +289,7 @@ class kolab_2fa extends rcube_plugin
             $driver = \Kolab2FA\Driver\Base::factory($method, $config);
 
             // attach storage
-            $driver->storage = \Kolab2FA\Storage\Base::factory(
-                $rcmail->config->get('kolab_2fa_storage', 'roundcube'),
-                $rcmail->config->get('kolab_2fa_storage_config', array())
-            );
+            $driver->storage = $this->get_storage();
 
             // set user properties from active session
             if ($rcmail->user->ID) {
@@ -318,6 +312,37 @@ class kolab_2fa extends rcube_plugin
             true, false);
 
         return false;
+    }
+
+    /**
+     * Getter for a storage instance singleton
+     */
+    public function get_storage($for = null)
+    {
+        if (!isset($this->storage) || (!empty($for) && $this->storage->username !== $for)) {
+            $rcmail = rcmail::get_instance();
+
+            try {
+                $this->storage = \Kolab2FA\Storage\Base::factory(
+                    $rcmail->config->get('kolab_2fa_storage', 'roundcube'),
+                    $rcmail->config->get('kolab_2fa_storage_config', array())
+                );
+                $this->storage->set_username($for);
+            }
+            catch (Exception $e) {
+                $this->storage = false;
+
+                rcube::raise_error(array(
+                        'code' => 600,
+                        'type' => 'php',
+                        'file' => __FILE__,
+                        'line' => __LINE__,
+                        'message' => $error),
+                    true, false);
+            }
+        }
+
+        return $this->storage;
     }
 
     /**
@@ -365,7 +390,8 @@ class kolab_2fa extends rcube_plugin
     public function settings_factoradder($attrib)
     {
         $rcmail = rcmail::get_instance();
-        $active = (array)$rcmail->config->get('kolab_2fa_factors', array());
+        $storage = $this->get_storage($rcmail->get_user_name());
+        $active = $storage ? (array)$storage->read('active') : array();
 
         $select = new html_select(array('id' => 'kolab2fa-add'));
         $select->add($this->gettext('addfactor') . '...', '');
@@ -397,8 +423,9 @@ class kolab_2fa extends rcube_plugin
     public function settings_form($attrib = array())
     {
         $rcmail = rcmail::get_instance();
+        $storage = $this->get_storage($rcmail->get_user_name());
+        $factors = $storage ? (array)$storage->read('active') : array();
         $drivers = (array)$rcmail->config->get('kolab_2fa_drivers', array());
-        $factors = (array)$rcmail->config->get('kolab_2fa_factors', array());
 
         foreach ($drivers as $j => $method) {
             $out .= $this->settings_factor($method, $attrib);
@@ -432,10 +459,8 @@ class kolab_2fa extends rcube_plugin
         $out = '';
         $rcmail = rcmail::get_instance();
         $attrib += array('class' => 'propform');
-        $factors = (array)$rcmail->config->get('kolab_2fa_factors', array());
 
         if ($driver = $this->get_driver($method)) {
-            $active = in_array($method, $factors);
             $table = new html_table(array('cols' => 2, 'class' => $attrib['class']));
 
             foreach ($driver->props() as $field => $prop) {
@@ -530,7 +555,8 @@ class kolab_2fa extends rcube_plugin
         $data = @json_decode(rcube_utils::get_input_value('_data', rcube_utils::INPUT_POST), true);
 
         $rcmail = rcmail::get_instance();
-        $active = (array)$rcmail->config->get('kolab_2fa_factors', array());
+        $storage = $this->get_storage($rcmail->get_user_name());
+        $active = $storage ? (array)$storage->read('active') : array();
         $success = false;
         $errors = 0;
         $save_data = array();
@@ -575,7 +601,7 @@ class kolab_2fa extends rcube_plugin
 
             // update list of active factors for this user
             if (!$errors) {
-                $success = $rcmail->user->save_prefs(array('kolab_2fa_factors' => $active));
+                $success = $storage && $storage->write('active', $active);
                 $save_data = $data !== false ? $this->format_props($driver->props()) : array();
             }
         }

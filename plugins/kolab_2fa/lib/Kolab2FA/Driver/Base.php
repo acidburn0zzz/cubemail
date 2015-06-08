@@ -197,7 +197,7 @@ abstract class Base
 
         $setter = 'set_' . $key;
         if (method_exists($this, $setter)) {
-            call_user_method($this, $setter, $value);
+            call_user_func(array($this, $setter), $value);
         }
         else if (in_array($key, $this->allowed_props)) {
             $this->props[$key] = $value;
@@ -205,7 +205,21 @@ abstract class Base
 
         return true;
     }
-    
+
+    /**
+     * Dedicated setter for the username property
+     */
+    public function set_username($username)
+    {
+        $this->props['username'] = $username;
+
+        if ($this->storage) {
+            $this->storage->set_username($username);
+        }
+
+        return true;
+    }
+
     /**
      * Clear data stored for this driver
      */
@@ -222,7 +236,7 @@ abstract class Base
     protected function get_user_prop($key)
     {
         if (!isset($this->user_props[$key]) && $this->storage) {
-            $this->user_props = (array)$this->storage->read($this->username . ':' . $this->method);
+            $this->user_props = (array)$this->storage->read($this->method);
         }
 
         return $this->user_props[$key];
@@ -237,10 +251,9 @@ abstract class Base
         $this->user_props[$key] = $value;
 
         if ($this->user_settings[$key] && $this->storage) {
-            $storage_key = $this->username . ':' . $this->method;
-            $props = (array)$this->storage->read($storage_key);
+            $props = (array)$this->storage->read($this->method);
             $props[$key] = $value;
-            $success = $this->storage->write($storage_key, $props);
+            $success = $this->storage->write($this->method, $props);
         }
 
         return $success;

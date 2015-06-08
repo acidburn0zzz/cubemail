@@ -29,6 +29,7 @@ use \rcube_user;
 class RcubeUser extends Base
 {
     private $cache = array();
+    private $user;
 
     public function init(array $config)
     {
@@ -43,11 +44,9 @@ class RcubeUser extends Base
      */
     public function read($key)
     {
-        list($username, $method) = $this->split_key($key);
-
-        if (!isset($this->cache[$key]) && ($user = $this->get_user($username))) {
+        if (!isset($this->cache[$key]) && ($user = $this->get_user($this->username))) {
             $prefs = $user->get_prefs();
-            $pkey = 'kolab_2fa_props_' . $method;
+            $pkey = 'kolab_2fa_props_' . $key;
             $this->cache[$key] = $prefs[$pkey];
         }
 
@@ -59,11 +58,9 @@ class RcubeUser extends Base
      */
     public function write($key, $value)
     {
-        list($username, $method) = $this->split_key($key);
-
-        if ($user = $this->get_user($username)) {
+        if ($user = $this->get_user($this->username)) {
             $this->cache[$key] = $value;
-            $pkey = 'kolab_2fa_props_' . $method;
+            $pkey = 'kolab_2fa_props_' . $key;
             return $user->save_prefs(array($pkey => $value), true);
         }
 
@@ -79,11 +76,15 @@ class RcubeUser extends Base
     }
 
     /**
-     * Helper method to split the storage key into username and auth-method
+     * Set username to store data for
      */
-    private function split_key($key)
+    public function set_username($username)
     {
-        return explode(':', $key, 2);
+        parent::set_username($username);
+
+        // reset cached values
+        $this->cache = array();
+        $this->user = null;
     }
 
     /**
@@ -97,7 +98,11 @@ class RcubeUser extends Base
             return $rcmail->user;
         }
 
-        return rcube_user::query($username, $this->config['hostname']);
+        if (!$this->user) {
+            $this->user = rcube_user::query($username, $this->config['hostname']);
+        }
+
+        return $this->user;
     }
 
 }

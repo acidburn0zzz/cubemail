@@ -25,6 +25,7 @@ namespace Kolab2FA\Storage;
 
 abstract class Base
 {
+    public $username = null;
     protected $config = array();
 
     /**
@@ -62,6 +63,14 @@ abstract class Base
     public function init(array $config)
     {
         $this->config = array_merge($this->config, $config);
+    }
+
+    /**
+     * Set username to store data for
+     */
+    public function set_username($username)
+    {
+        $this->username = $username;
     }
 
     /**
