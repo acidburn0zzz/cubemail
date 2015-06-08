@@ -91,7 +91,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                         'class': 'mainaction',
                         click: function(e) {
                             save_data(method);
-                        },
+                        }
                     },
                     {
                         text: rcmail.gettext('cancel'),
