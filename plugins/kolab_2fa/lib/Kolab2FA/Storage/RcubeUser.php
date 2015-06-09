@@ -28,6 +28,13 @@ use \rcube_user;
 
 class RcubeUser extends Base
 {
+    // sefault config
+    protected $config = array(
+        'keymap' => array(
+            'active' => 'kolab_2fa_factors',
+        ),
+    );
+
     private $cache = array();
     private $user;
 
@@ -46,7 +53,7 @@ class RcubeUser extends Base
     {
         if (!isset($this->cache[$key]) && ($user = $this->get_user($this->username))) {
             $prefs = $user->get_prefs();
-            $pkey = 'kolab_2fa_props_' . $key;
+            $pkey = $this->key2property($key);
             $this->cache[$key] = $prefs[$pkey];
         }
 
@@ -60,7 +67,7 @@ class RcubeUser extends Base
     {
         if ($user = $this->get_user($this->username)) {
             $this->cache[$key] = $value;
-            $pkey = 'kolab_2fa_props_' . $key;
+            $pkey = $this->key2property($key);
             return $user->save_prefs(array($pkey => $value), true);
         }
 
@@ -103,6 +110,20 @@ class RcubeUser extends Base
         }
 
         return $this->user;
+    }
+
+    /**
+     *
+     */
+    private function key2property($key)
+    {
+        // map key to configured property name
+        if (is_array($this->config['keymap']) && isset($this->config['keymap'][$key])) {
+            return $this->config['keymap'][$key];
+        }
+
+        // default
+        return 'kolab_2fa_props_' . $key;
     }
 
 }

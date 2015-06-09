@@ -47,11 +47,6 @@ class TOTP extends Base
             'label' => 'created',
             'generator' => 'time',
         ),
-        'active' => array(
-            'type' => 'boolean',
-            'editable' => false,
-            'hidden' => true,
-        ),
     );
 
     protected $backend;
@@ -83,6 +78,7 @@ class TOTP extends Base
 
         if (!strlen($secret)) {
             // LOG: "no secret set for user $this->username"
+            console("VERIFY TOTP: no secret set for user $this->username");
             return false;
         }
 

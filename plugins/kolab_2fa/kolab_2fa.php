@@ -96,13 +96,27 @@ class kolab_2fa extends rcube_plugin
             $rcmail->config->set_user_prefs($user->get_prefs());
         }
 
-        // 2. check if this user/system has 2FA enabled
-        if (($storage = $this->get_storage($args['user'])) && count($factors = (array)$storage->read('active')) > 0) {
-            $args['abort'] = true;
+        // 2a. let plugins provide the list of active authentication factors
+        $lookup = $rcmail->plugins->exec_hook('kolab_2fa_factors', array(
+            'user'   => $args['user'],
+            'host'   => $hostname,
+            'active' => $rcmail->config->get('kolab_2fa_factors'),
+        ));
+        if (isset($lookup['active'])) {
+            $factors = (array)$lookup['active'];
+        }
+        // 2b. check storage if this user has 2FA enabled
+        else if ($storage = $this->get_storage($args['user'])) {
+            $factors = (array)$storage->read('active');
+        }
 
-            // 3. flag session as temporary (no further actions allowed)
-            $_SESSION['kolab_2fa_time'] = time();
-            $_SESSION['kolab_2fa_nonce'] = bin2hex(openssl_random_pseudo_bytes(32));
+        if (count($factors) > 0) {
+            $args['abort'] = true;
+            $factors = array_unique($factors);
+
+            // 3. flag session for 2nd factor verification
+            $_SESSION['kolab_2fa_time']    = time();
+            $_SESSION['kolab_2fa_nonce']   = bin2hex(openssl_random_pseudo_bytes(32));
             $_SESSION['kolab_2fa_factors'] = $factors;
 
             $_SESSION['username'] = $args['user'];
@@ -594,7 +608,6 @@ class kolab_2fa extends rcube_plugin
                 }
 
                 if (!in_array($method, $active)) {
-                    $driver->set('active', true);
                     $active[] = $method;
                 }
             }

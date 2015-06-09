@@ -28,6 +28,7 @@ use \Net_LDAP3;
 class LDAP extends Base
 {
     private $cache = array();
+    private $users = array();
     private $conn;
     private $error;
 
@@ -56,19 +57,15 @@ class LDAP extends Base
      */
     public function read($key)
     {
-        list($username, $method) = $this->split_key($key);
-
-        if (!$this->config['fieldmap'][$method]) {
-            $this->cache[$key] = false;
-            // throw new Exception("No LDAP attribute defined for " . $method);
-        }
-
-        if (!isset($this->cache[$key]) && ($rec = $this->get_user_record($username))) {
-            $data = false;
-            if (!empty($rec[$method])) {
-                $data = @json_decode($rec[$method], true);
+        if (!isset($this->cache[$key]) && ($rec = $this->get_ldap_record($this->username, $key))) {
+            $pkey = '@' . $key;
+            if (!empty($this->config['fieldmap'][$pkey])) {
+                $rec = @json_decode($rec[$pkey], true);
             }
-            $this->cache[$key] = $data;
+            else if ($this->config['fieldmap'][$key]) {
+                $rec = $rec[$key];
+            }
+            $this->cache[$key] = $rec;
         }
 
         return $this->cache[$key];
@@ -79,19 +76,45 @@ class LDAP extends Base
      */
     public function write($key, $value)
     {
-        list($username, $method) = $this->split_key($key);
+        if ($rec = $this->get_ldap_record($this->username, $key)) {
+            $old_attrs = $rec['_raw'];
+            $new_attrs = $old_attrs;
 
-        if (!$this->config['fieldmap'][$method]) {
-            // throw new Exception("No LDAP attribute defined for " . $method);
-            return false;
-        }
-/*
-        if ($rec = $this->get_user_record($username)) {
-            $attrib = $this->config['fieldmap'][$method];
-            $result = $this->conn->modify_entry($rec['dn], ...);
+            // serialize $value into one attribute
+            $pkey = '@' . $key;
+            if ($attr = $this->config['fieldmap'][$pkey]) {
+                $new_attrs[$attr] = $value === null ? '' : json_encode($value);
+            }
+            else if ($attr = $this->config['fieldmap'][$key]) {
+                $new_attrs[$attr] = $this->value_mapping($attr, $value, false);
+
+                // special case nsroledn: keep other roles unknown to us
+                if ($attr == 'nsroledn' && is_array($this->config['valuemap'][$attr])) {
+                    $map = $this->config['valuemap'][$attr];
+                    $new_attrs[$attr] = array_merge(
+                        $new_attrs[$attr],
+                        array_filter((array)$old_attrs[$attr], function($f) use ($map) { return !in_array($f, $map); })
+                    );
+                }
+            }
+            else if (is_array($value)) {
+                foreach ($value as $k => $val) {
+                    if ($attr = $this->config['fieldmap'][$k]) {
+                        $new_attrs[$attr] = $this->value_mapping($attr, $value, false);
+                    }
+                }
+            }
+
+            $result = $this->conn->modify_entry($rec['_dn'], $old_attrs, $new_attrs);
+
+            if (!empty($result)) {
+                $this->cache[$key] = $value;
+                $this->users = array();
+            }
+
             return !empty($result);
         }
-*/
+
         return false;
     }
 
@@ -104,35 +127,41 @@ class LDAP extends Base
     }
 
     /**
-     * Helper method to split the storage key into username and auth-method
+     * Set username to store data for
      */
-    private function split_key($key)
+    public function set_username($username)
     {
-        return explode(':', $key, 2);
+        parent::set_username($username);
+
+        // reset cached values
+        $this->cache = array();
+        $this->users = array();
     }
 
     /**
      * Fetches user data from LDAP addressbook
      */
-    function get_user_record($user)
+    protected function get_ldap_record($user, $key)
     {
-        $filter  = $this->parse_vars($this->config['filter'], $user);
-        $base_dn = $this->parse_vars($this->config['base_dn'], $user);
+        $filter  = $this->parse_vars($this->config['filter'], $user, $key);
+        $base_dn = $this->parse_vars($this->config['base_dn'], $user, $key);
         $scope   = $this->config['scope'] ?: 'sub';
 
-        // get record
-        if ($this->ready && ($result = $this->conn->search($base_dn, $filter, $scope, array_values($this->config['fieldmap'])))) {
-            if ($result->count() == 1) {
-                $entries = $result->entries(true);
-                $dn      = key($entries);
-                $entry   = array_pop($entries);
-                $entry   = $this->field_mapping($dn, $entry);
+        $cachekey = $base_dn . $filter;
+        if (!isset($this->users[$cachekey])) {
+            $this->users[$cachekey] = array();
 
-                return $entry;
+            if ($this->ready && ($result = $this->conn->search($base_dn, $filter, $scope, array_values($this->config['fieldmap'])))) {
+                if ($result->count() == 1) {
+                    $entries = $result->entries(true);
+                    $dn      = key($entries);
+                    $entry   = array_pop($entries);
+                    $this->users[$cachekey] = $this->field_mapping($dn, $entry);
+                }
             }
         }
 
-        return null;
+        return $this->users[$cachekey];
     }
 
     /**
@@ -140,16 +169,17 @@ class LDAP extends Base
      */
     protected function field_mapping($dn, $entry)
     {
-        $entry['dn'] = $dn;
+        $entry['_dn'] = $dn;
+        $entry['_raw'] = $entry;
 
         // fields mapping
         foreach ($this->config['fieldmap'] as $field => $attr) {
             $attr_lc = strtolower($attr);
             if (isset($entry[$attr_lc])) {
-                $entry[$field] = $entry[$attr_lc];
+                $entry[$field] = $this->value_mapping($attr_lc, $entry[$attr_lc], true);
             }
             else if (isset($entry[$attr])) {
-                $entry[$field] = $entry[$attr];
+                $entry[$field] = $this->value_mapping($attr, $entry[$attr], true);
             }
         }
 
@@ -157,19 +187,47 @@ class LDAP extends Base
     }
 
     /**
+     *
+     */
+    protected function value_mapping($attr, $value, $reverse = false)
+    {
+        if ($map = $this->config['valuemap'][$attr]) {
+            if ($reverse) {
+                $map = array_flip($map);
+            }
+
+            if (is_array($value)) {
+                $value = array_filter(array_map(function($val) use ($map) {
+                    return $map[$val];
+                }, $value));
+            }
+            else {
+                $value = $map[$value];
+            }
+        }
+
+        return $value;
+    }
+
+    /**
      * Prepares filter query for LDAP search
      */
-    protected function parse_vars($str, $user)
+    protected function parse_vars($str, $user, $key)
     {
         // replace variables in filter
         list($u, $d) = explode('@', $user);
 
-        // hierarchal domain string
-        if (empty($dc)) {
-            $dc = 'dc=' . strtr($d, array('.' => ',dc='));
+        // build hierarchal domain string
+        $dc = $this->conn->domain_root_dn($d);
+
+        // map key value
+        if (is_array($this->config['keymap']) && isset($this->config['keymap'][$key])) {
+            $key = $this->config['keymap'][$key];
         }
 
-        $replaces = array('%dc' => $dc, '%d' => $d, '%fu' => $user, '%u' => $u);
+        // TODO: resolve $user into its DN for %udn
+
+        $replaces = array('%dc' => $dc, '%d' => $d, '%fu' => $user, '%u' => $u, '%k' => $key);
 
         return strtr($str, $replaces);
     }

@@ -46,11 +46,6 @@ class Yubikey extends Base
             'label' => 'created',
             'generator' => 'time',
         ),
-        'active' => array(
-            'type' => 'boolean',
-            'editable' => false,
-            'hidden' => true,
-        ),
     );
 
     protected $backend;

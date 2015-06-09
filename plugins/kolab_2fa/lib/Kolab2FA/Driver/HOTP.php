@@ -47,11 +47,6 @@ class HOTP extends Base
             'label' => 'created',
             'generator' => 'time',
         ),
-        'active' => array(
-            'type' => 'boolean',
-            'editable' => false,
-            'hidden' => true,
-        ),
         'counter' => array(
             'type' => 'integer',
             'editable' => false,
@@ -89,6 +84,7 @@ class HOTP extends Base
 
         if (!strlen($secret)) {
             // LOG: "no secret set for user $this->username"
+            console("VERIFY HOTP: no secret set for user $this->username");
             return false;
         }
 

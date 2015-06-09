@@ -20,7 +20,7 @@
  */
 
 // available methods/providers. Supported methods are: 'totp','hotp','yubikey'
-$config['kolab_2fa_drivers'] = array('totp','hotp');
+$config['kolab_2fa_drivers'] = array('totp');
 
 // backend for storing 2-factor-auth related per-user settings
 // available backends are: 'roundcube', 'ldap', 'sql'
@@ -36,14 +36,20 @@ $config['kolab_2fa_storage_config'] = array(
     'base_dn'   => 'ou=People,dc=example,dc=org',
     'filter'    => '(&(objectClass=inetOrgPerson)(mail=%fu))',
     'scope'     => 'sub',
+    'debug'     => true,
     'fieldmap'  => array(
-        'uid'     => 'uid',
-        'mail'    => 'mail',
-        'totp'    => 'kolabAuthTOTP',
-        'hotp'    => 'kolabAuthHOTP',
-        'yubikey' => 'kolabAuthYubikey',
+        'active'   => 'nsroledn',
+        '@totp'    => 'kolabAuthTOTP',
+        '@hotp'    => 'kolabAuthHOTP',
+        '@yubikey' => 'kolabAuthYubikey',
     ),
-    'debug'       => true,
+    'valuemap' => array(
+        'nsroledn' => array(
+            'totp'    => 'cn=totp-user,dc=example,dc=org',
+            'hotp'    => 'cn=hotp-user,dc=example,dc=org',
+            'yubikey' => 'cn=yubikey-user,dc=example,dc=org',
+        ),
+    ),
 );
 
 // force a two-factor authentication for all users
