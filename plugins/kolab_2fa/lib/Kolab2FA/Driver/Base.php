@@ -26,21 +26,45 @@ namespace Kolab2FA\Driver;
 abstract class Base
 {
     public $method = null;
+    public $id = null;
     public $storage;
 
     protected $config = array();
     protected $props = array();
     protected $user_props = array();
+    protected $pending_changes = false;
 
     protected $allowed_props = array('username');
 
-    public $user_settings = array();
+    public $user_settings = array(
+        'active' => array(
+            'type' => 'boolean',
+            'editable' => false,
+            'hidden' => false,
+            'default' => false,
+        ),
+        'label' => array(
+            'type' => 'text',
+            'editable' => true,
+            'label' => 'label',
+            'generator' => 'default_label',
+        ),
+        'created' => array(
+            'type' => 'datetime',
+            'editable' => false,
+            'hidden' => false,
+            'label' => 'created',
+            'generator' => 'time',
+        ),
+    );
 
     /**
      * Static factory method
      */
-    public static function factory($method, $config)
+    public static function factory($id, $config)
     {
+        list($method) = explode(':', $id);
+
         $classmap = array(
             'totp'    => '\\Kolab2FA\\Driver\\TOTP',
             'hotp'    => '\\Kolab2FA\\Driver\\HOTP',
@@ -49,7 +73,7 @@ abstract class Base
 
         $cls = $classmap[strtolower($method)];
         if ($cls && class_exists($cls)) {
-            return new $cls($config);
+            return new $cls($config, $id);
         }
 
         throw new Exception("Unknown 2FA driver '$method'");
@@ -58,19 +82,26 @@ abstract class Base
     /**
      * Default constructor
      */
-    public function __construct($config = null)
+    public function __construct($config = null, $id = null)
     {
-        if (is_array($config)) {
-            $this->init($config);
+        $this->init($config);
+
+        if (!empty($id) && $id != $this->method) {
+            $this->id = $id;
+        }
+        else { // generate random ID
+            $this->id = $this->method . ':' . bin2hex(openssl_random_pseudo_bytes(12));
         }
     }
 
     /**
      * Initialize the driver with the given config options
      */
-    public function init(array $config)
+    public function init($config)
     {
-        $this->config = array_merge($this->config, $config);
+        if (is_array($config)) {
+            $this->config = array_merge($this->config, $config);
+        }
 
         if ($config['storage']) {
             $this->storage = \Kolab2FA\Storage\Base::factory($config['storage'], $config['storage_config']);
@@ -153,6 +184,18 @@ abstract class Base
     }
 
     /**
+     * Generate the default label based on the method
+     */
+    public function default_label()
+    {
+        if (class_exists('\\rcmail', false)) {
+            return \rcmail::get_instance()->gettext($this->method, 'kolab_2fa');
+        }
+
+        return strtoupper($this->method);
+    }
+
+    /**
      * Getter for read-only access to driver properties
      */
     public function get($key, $force = false)
@@ -170,7 +213,7 @@ abstract class Base
                 if (is_callable($func)) {
                     $value = call_user_func($func);
                 }
-                if (!isset($value)) {
+                if (isset($value)) {
                     $this->set_user_prop($key, $value);
                 }
             }
@@ -207,6 +250,20 @@ abstract class Base
     }
 
     /**
+     * Commit changes to storage
+     */
+    public function commit()
+    {
+        if (!empty($this->user_props) && $this->storage && $this->pending_changes) {
+            if ($this->storage->write($this->id, $this->user_props)) {
+                $this->pending_changes = false;
+            }
+        }
+
+        return !$this->pending_changes;
+    }
+
+    /**
      * Dedicated setter for the username property
      */
     public function set_username($username)
@@ -226,8 +283,10 @@ abstract class Base
     public function clear()
     {
         if ($this->storage) {
-            $this->storage->remove($this->method);
+            return $this->storage->remove($this->id);
         }
+
+        return false;
     }
 
     /**
@@ -235,8 +294,8 @@ abstract class Base
      */
     protected function get_user_prop($key)
     {
-        if (!isset($this->user_props[$key]) && $this->storage) {
-            $this->user_props = (array)$this->storage->read($this->method);
+        if (!isset($this->user_props[$key]) && $this->storage && !$this->pending_changes) {
+            $this->user_props = (array)$this->storage->read($this->id);
         }
 
         return $this->user_props[$key];
@@ -247,15 +306,17 @@ abstract class Base
      */
     protected function set_user_prop($key, $value)
     {
-        $success = false;
+        $success = true;
+        $this->pending_changes |= ($this->user_props[$key] !== $value);
         $this->user_props[$key] = $value;
 
+/*
         if ($this->user_settings[$key] && $this->storage) {
-            $props = (array)$this->storage->read($this->method);
+            $props = (array)$this->storage->read($this->id);
             $props[$key] = $value;
-            $success = $this->storage->write($this->method, $props);
+            $success = $this->storage->write($this->id, $props);
         }
-
+*/
         return $success;
     }
 

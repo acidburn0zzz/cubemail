@@ -33,21 +33,6 @@ class Yubikey extends Base
         'hosts'    => null,
     );
 
-    public $user_settings = array(
-        'yubikeyid' => array(
-            'type' => 'text',
-            'editable' => true,
-            'label' => 'secret',
-        ),
-        'created' => array(
-            'type' => 'datetime',
-            'editable' => false,
-            'hidden' => false,
-            'label' => 'created',
-            'generator' => 'time',
-        ),
-    );
-
     protected $backend;
 
     /**
@@ -56,6 +41,14 @@ class Yubikey extends Base
     public function init(array $config)
     {
         parent::init($config);
+
+        $this->user_settings += array(
+            'yubikeyid' => array(
+                'type' => 'text',
+                'editable' => true,
+                'label' => 'secret',
+            ),
+        );
 
         // initialize validator
         $this->backend = new \Yubikey\Validate($this->config['apikey'], $this->config['clientid']);

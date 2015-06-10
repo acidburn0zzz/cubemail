@@ -33,36 +33,29 @@ class HOTP extends Base
         'digest'   => 'sha1',
     );
 
-    public $user_settings = array(
-        'secret' => array(
-            'type' => 'text',
-            'private' => true,
-            'label' => 'secret',
-            'generator' => 'generate_secret',
-        ),
-        'created' => array(
-            'type' => 'datetime',
-            'editable' => false,
-            'hidden' => false,
-            'label' => 'created',
-            'generator' => 'time',
-        ),
-        'counter' => array(
-            'type' => 'integer',
-            'editable' => false,
-            'hidden' => true,
-            'generator' => 'random_counter',
-        ),
-    );
-
     protected $backend;
 
     /**
      *
      */
-    public function init(array $config)
+    public function init($config)
     {
         parent::init($config);
+
+        $this->user_settings += array(
+            'secret' => array(
+                'type' => 'text',
+                'private' => true,
+                'label' => 'secret',
+                'generator' => 'generate_secret',
+            ),
+            'counter' => array(
+                'type' => 'integer',
+                'editable' => false,
+                'hidden' => true,
+                'generator' => 'random_counter',
+            ),
+        );
 
         // copy config options
         $this->backend = new \Kolab2FA\OTP\HOTP();
@@ -108,6 +101,7 @@ class HOTP extends Base
             $this->set('secret', $this->get('secret', true));
             $this->set('counter', $this->get('counter', true));
             $this->set('created', $this->get('created', true));
+            $this->commit();
         }
 
         // TODO: deny call if already active?

@@ -45,29 +45,28 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         table.html('');
 
         var rows = 0;
-        $.each(rcmail.env.kolab_2fa_factors, function(method, props) {
+        $.each(rcmail.env.kolab_2fa_factors, function(id, props) {
             if (props.active) {
-                var tr = $('<tr>').addClass(method).appendTo(table);
-                $('<td>').addClass('name').text(props.name || method).appendTo(tr);
+                var tr = $('<tr>').addClass(props.method).appendTo(table);
+                $('<td>').addClass('name').text(props.label || props.name).appendTo(tr);
                 $('<td>').addClass('created').text(props.created || '??').appendTo(tr);
-                $('<td>').addClass('actions').html('<a class="button delete" rel="'+method+'">' + rcmail.get_label('remove','kolab_2fa') + '</a>').appendTo(tr);
+                $('<td>').addClass('actions').html('<a class="button delete" rel="'+id+'">' + rcmail.get_label('remove','kolab_2fa') + '</a>').appendTo(tr);
                 rows++;
             }
         });
 
         table.parent()[(rows > 0 ? 'show' : 'hide')]();
-
+/*
         var remaining = 0;
         $('#kolab2fa-add option').each(function(i, elem) {
             var method = elem.value;
-            if (rcmail.env.kolab_2fa_factors[method]) {
-                $(elem).prop('disabled', rcmail.env.kolab_2fa_factors[method].active);
-                if (!rcmail.env.kolab_2fa_factors[method].active) {
-                    remaining++;
-                }
+            $(elem).prop('disabled', active[method]);
+            if (!active[method]) {
+                remaining++;
             }
         });
         $('#kolab2fa-add').prop('disabled', !remaining).get(0).selectedIndex = 0;
+*/
     }
 
     /**
@@ -102,7 +101,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                 ],
                 {
                     open: function(event, ui) {
-                        
+                        $(event.target).find('input[name="_verify_code"]').keypress(function(e) {
+                            if (e.which == 13) {
+                                $(e.target).closest('.ui-dialog').find('.ui-button.mainaction').click();
+                            }
+                        });
                     },
                     close: function(event, ui) {
                         form.hide().appendTo(document.body);
@@ -128,21 +131,21 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     /**
      * Remove the given factor from the account
      */
-    function remove_factor(method) {
-        if (rcmail.env.kolab_2fa_factors[method]) {
-            rcmail.env.kolab_2fa_factors[method].active = false;
+    function remove_factor(id) {
+        if (rcmail.env.kolab_2fa_factors[id]) {
+            rcmail.env.kolab_2fa_factors[id].active = false;
         }
         render();
 
         var lock = rcmail.set_busy(true, 'saving');
-        rcmail.http_post('plugin.kolab-2fa-save', { _method: method, _data: 'false' }, lock);
+        rcmail.http_post('plugin.kolab-2fa-save', { _method: id, _data: 'false' }, lock);
     }
 
     /**
      * Submit factor settings form
      */
     function save_data(method) {
-        var lock, form = $('#kolab2fa-prop-' + method),
+        var lock, data, form = $('#kolab2fa-prop-' + method),
             verify = form.find('input[name="_verify_code"]');
 
         if (verify.length && !verify.val().length) {
@@ -151,10 +154,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
             return false;
         }
 
+        data = form_data(form);
         lock = rcmail.set_busy(true, 'saving');
         rcmail.http_post('plugin.kolab-2fa-save', {
-            _method: method,
-            _data: JSON.stringify(form_data(form)),
+            _method: data.id || method,
+            _data: JSON.stringify(data),
             _verify_code: verify.val(),
             _timestamp: factor_dialog ? factor_dialog.data('timestamp') : null
         }, lock);
@@ -181,18 +185,20 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     /**
      * Execute the given function after the user authorized the session with a 2nd factor
      */
-    function require_high_security(func)
+    function require_high_security(func, exclude)
     {
         // request 2nd factor auth
         if (!rcmail.env.session_secured || rcmail.env.session_secured < time() - 120) {
             var method, name;
 
             // find an active factor
-            $.each(rcmail.env.kolab_2fa_factors, function(m, prop) {
-                if (prop.active) {
-                    method = m;
-                    name = prop.name;
-                    return true;
+            $.each(rcmail.env.kolab_2fa_factors, function(id, prop) {
+                if (prop.active && !method || method == exclude) {
+                    method = id;
+                    name = prop.label || prop.name;
+                    if (!exclude || id !== exclude) {
+                        return true;
+                    }
                 }
             });
 
@@ -259,12 +265,12 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
     // callback for factor data provided by the server
     rcmail.addEventListener('plugin.render_data', function(data) {
-        var method = data._method,
+        var method = data.method,
             form = $('#kolab2fa-prop-' + method);
 
         if (form.length) {
             $.each(data, function(field, value) {
-                form.find('[name="_prop[' + method + '][' + field + ']"]').val(value);
+                form.find('[name="_prop[' + field + ']"]').val(value);
             });
 
             if (data.qrcode) {
@@ -278,8 +284,14 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
     // callback for save action
     rcmail.addEventListener('plugin.save_success', function(data) {
-        if (rcmail.env.kolab_2fa_factors[data.method]) {
-            $.extend(rcmail.env.kolab_2fa_factors[data.method], data);
+        if (!data.active && rcmail.env.kolab_2fa_factors[data.id]) {
+            delete rcmail.env.kolab_2fa_factors[data.id];
+        }
+        else if (rcmail.env.kolab_2fa_factors[data.id]) {
+            $.extend(rcmail.env.kolab_2fa_factors[data.id], data);
+        }
+        else {
+            rcmail.env.kolab_2fa_factors[data.id] = data;
         }
 
         if (factor_dialog) {
@@ -334,14 +346,14 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
     // handler for delete button clicks
     $('#kolab2fa-factors tbody').on('click', '.button.delete', function(e) {
-        var method = $(this).attr('rel');
+        var id = $(this).attr('rel');
 
         // require auth verification
         require_high_security(function() {
             if (confirm(rcmail.get_label('authremoveconfirm', 'kolab_2fa'))) {
-                remove_factor(method);
+                remove_factor(id);
             }
-        });
+        }, id);
 
         return false;
     });

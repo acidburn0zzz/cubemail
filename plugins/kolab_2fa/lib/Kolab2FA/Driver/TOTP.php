@@ -33,30 +33,23 @@ class TOTP extends Base
         'digest'   => 'sha1',
     );
 
-    public $user_settings = array(
-        'secret' => array(
-            'type' => 'text',
-            'private' => true,
-            'label' => 'secret',
-            'generator' => 'generate_secret',
-        ),
-        'created' => array(
-            'type' => 'datetime',
-            'editable' => false,
-            'hidden' => false,
-            'label' => 'created',
-            'generator' => 'time',
-        ),
-    );
-
     protected $backend;
 
     /**
      *
      */
-    public function init(array $config)
+    public function init($config)
     {
         parent::init($config);
+
+        $this->user_settings += array(
+            'secret' => array(
+                'type' => 'text',
+                'private' => true,
+                'label' => 'secret',
+                'generator' => 'generate_secret',
+            ),
+        );
 
         // copy config options
         $this->backend = new \Kolab2FA\OTP\TOTP();
@@ -103,10 +96,13 @@ class TOTP extends Base
      */
     public function get_provisioning_uri()
     {
+        console('PROV', $this->secret);
         if (!$this->secret) {
             // generate new secret and store it
             $this->set('secret', $this->get('secret', true));
             $this->set('created', $this->get('created', true));
+            console('PROV2', $this->secret);
+            $this->commit();
         }
 
         // TODO: deny call if already active?

@@ -23,8 +23,9 @@ $labels['yubikey'] = 'Yubikey';
 
 $labels['or'] = 'or';
 $labels['yes'] = 'yes';
-$labels['now'] = 'no';
+$labels['no'] = 'no';
 
+$labels['label'] = 'Name';
 $labels['qrcode'] = 'QR Code';
 $labels['showqrcode'] = 'Show QR Code';
 $labels['qrcodeexplaintotp'] = 'Download an authenticator app on your phone. Two apps which work well are <strong>FreeOTP</strong> and <strong>Google Authenticator</strong>, but any other TOTP app should also work.<br/><br/>

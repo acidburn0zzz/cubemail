@@ -74,6 +74,11 @@ abstract class Base
     }
 
     /**
+     * List keys holding settings for 2-factor-authentication
+     */
+    abstract public function enumerate();
+
+    /**
      * Read data for the given key
      */
     abstract public function read($key);

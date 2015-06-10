@@ -30,9 +30,7 @@ class RcubeUser extends Base
 {
     // sefault config
     protected $config = array(
-        'keymap' => array(
-            'active' => 'kolab_2fa_factors',
-        ),
+        'keymap' => array(),
     );
 
     private $cache = array();
@@ -47,14 +45,28 @@ class RcubeUser extends Base
     }
 
     /**
+     * List/set methods activated for this user
+     */
+    public function enumerate()
+    {
+        if ($factors = $this->get_factors()) {
+            return array_keys(array_filter($factors, function($prop) {
+                return !empty($prop['active']);
+            }));
+        }
+
+        return array();
+    }
+
+    /**
      * Read data for the given key
      */
     public function read($key)
     {
-        if (!isset($this->cache[$key]) && ($user = $this->get_user($this->username))) {
-            $prefs = $user->get_prefs();
-            $pkey = $this->key2property($key);
-            $this->cache[$key] = $prefs[$pkey];
+        if (!isset($this->cache[$key])) {
+            $factors = $this->get_factors();
+            console('READ', $key, $factors);
+            $this->cache[$key] = $factors[$key];
         }
 
         return $this->cache[$key];
@@ -67,8 +79,37 @@ class RcubeUser extends Base
     {
         if ($user = $this->get_user($this->username)) {
             $this->cache[$key] = $value;
-            $pkey = $this->key2property($key);
-            return $user->save_prefs(array($pkey => $value), true);
+
+            $factors = $this->get_factors();
+            $factors[$key] = $value;
+
+            $pkey = $this->key2property('blob');
+            $save_data = array($pkey => $factors);
+            $update_index = false;
+
+            // remove entry
+            if ($value === null) {
+                unset($factors[$key]);
+                $update_index = true;
+            }
+            // remove non-active entries
+            else if (!empty($value['active'])) {
+                $factors = array_filter($factors, function($prop) {
+                    return !empty($prop['active']);
+                });
+                $update_index = true;
+            }
+
+            // update the index of active factors
+            if ($update_index) {
+                $save_data[$this->key2property('factors')] = array_keys(
+                    array_filter($factors, function($prop) {
+                        return !empty($prop['active']);
+                    })
+                );
+            }
+
+            return $user->save_prefs($save_data, true);
         }
 
         return false;
@@ -115,6 +156,19 @@ class RcubeUser extends Base
     /**
      *
      */
+    private function get_factors()
+    {
+        if ($user = $this->get_user($this->username)) {
+            $prefs = $user->get_prefs();
+            return (array)$prefs[$this->key2property('blob')];
+        }
+
+        return null;
+    }
+
+    /**
+     *
+     */
     private function key2property($key)
     {
         // map key to configured property name
@@ -123,7 +177,7 @@ class RcubeUser extends Base
         }
 
         // default
-        return 'kolab_2fa_props_' . $key;
+        return 'kolab_2fa_' . $key;
     }
 
 }
