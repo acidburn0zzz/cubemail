@@ -621,10 +621,14 @@ class kolab_2fa extends rcube_plugin
                 $driver->set('active', true);
             }
 
-            // update list of active factors for this user
+            // commit changes to the user properties
             if (!$errors) {
-                $success = $driver->commit();
-                $save_data = $data !== false ? $this->format_props($driver->props()) : array();
+                if ($success = $driver->commit()) {
+                    $save_data = $data !== false ? $this->format_props($driver->props()) : array();
+                }
+                else {
+                    $errors++;
+                }
             }
         }
 

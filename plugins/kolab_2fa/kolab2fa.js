@@ -56,17 +56,6 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         });
 
         table.parent()[(rows > 0 ? 'show' : 'hide')]();
-/*
-        var remaining = 0;
-        $('#kolab2fa-add option').each(function(i, elem) {
-            var method = elem.value;
-            $(elem).prop('disabled', active[method]);
-            if (!active[method]) {
-                remaining++;
-            }
-        });
-        $('#kolab2fa-add').prop('disabled', !remaining).get(0).selectedIndex = 0;
-*/
     }
 
     /**
@@ -206,7 +195,9 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
             if (method) {
                 highsec_call_stack.push(func);
 
+                // TODO: list all active factors to choose from
                 var html = String($('#kolab2fa-highsecuritydialog').html()).replace('$name', name);
+
                 highsec_dialog = rcmail.show_popup_dialog(
                     html,
                     rcmail.get_label('highsecurityrequired', 'kolab_2fa'),
@@ -339,8 +330,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     $('#kolab2fa-add').change(function() {
         var method = $('option:selected', this).val();
 
-        // require high security?
-        add_factor(method);
+        // require auth verification
+        require_high_security(function() {
+            add_factor(method);
+        });
+
         this.selectedIndex = 0;
     });
 
