@@ -97,16 +97,17 @@ class kolab_2fa extends rcube_plugin
         }
 
         // 2a. let plugins provide the list of active authentication factors
-        $lookup = $rcmail->plugins->exec_hook('kolab_2fa_factors', array(
-            'user'   => $args['user'],
-            'host'   => $hostname,
-            'active' => $rcmail->config->get('kolab_2fa_factors'),
+        $lookup = $rcmail->plugins->exec_hook('kolab_2fa_lookup', array(
+            'user'    => $args['user'],
+            'host'    => $hostname,
+            'factors' => $rcmail->config->get('kolab_2fa_factors'),
+            'check'   => $rcmail->config->get('kolab_2fa_check', true),
         ));
-        if (isset($lookup['active'])) {
-            $factors = (array)$lookup['active'];
+        if (isset($lookup['factors'])) {
+            $factors = (array)$lookup['factors'];
         }
         // 2b. check storage if this user has 2FA enabled
-        else if ($storage = $this->get_storage($args['user'])) {
+        else if ($lookup['check'] !== false && ($storage = $this->get_storage($args['user']))) {
             $factors = (array)$storage->enumerate();
         }
 
@@ -304,7 +305,6 @@ class kolab_2fa extends rcube_plugin
             // attach storage
             $driver->storage = $this->get_storage();
 
-            // set user properties from active session
             if ($rcmail->user->ID) {
                 $driver->username  = $rcmail->get_user_name();
             }
@@ -334,13 +334,18 @@ class kolab_2fa extends rcube_plugin
     {
         if (!isset($this->storage) || (!empty($for) && $this->storage->username !== $for)) {
             $rcmail = rcmail::get_instance();
-
             try {
                 $this->storage = \Kolab2FA\Storage\Base::factory(
                     $rcmail->config->get('kolab_2fa_storage', 'roundcube'),
                     $rcmail->config->get('kolab_2fa_storage_config', array())
                 );
+
                 $this->storage->set_username($for);
+
+                // set user properties from active session
+                if (!empty($_SESSION['kolab_dn'])) {
+                    $this->storage->userdn = $_SESSION['kolab_dn'];
+                }
             }
             catch (Exception $e) {
                 $this->storage = false;

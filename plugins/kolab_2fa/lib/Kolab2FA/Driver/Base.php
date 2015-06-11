@@ -33,6 +33,7 @@ abstract class Base
     protected $props = array();
     protected $user_props = array();
     protected $pending_changes = false;
+    protected $temporary = false;
 
     protected $allowed_props = array('username');
 
@@ -91,6 +92,7 @@ abstract class Base
         }
         else { // generate random ID
             $this->id = $this->method . ':' . bin2hex(openssl_random_pseudo_bytes(12));
+            $this->temporary = true;
         }
     }
 
@@ -257,6 +259,7 @@ abstract class Base
         if (!empty($this->user_props) && $this->storage && $this->pending_changes) {
             if ($this->storage->write($this->id, $this->user_props)) {
                 $this->pending_changes = false;
+                $this->temporary = false;
             }
         }
 
@@ -294,7 +297,7 @@ abstract class Base
      */
     protected function get_user_prop($key)
     {
-        if (!isset($this->user_props[$key]) && $this->storage && !$this->pending_changes) {
+        if (!isset($this->user_props[$key]) && $this->storage && !$this->pending_changes && !$this->temporary) {
             $this->user_props = (array)$this->storage->read($this->id);
         }
 
@@ -306,18 +309,9 @@ abstract class Base
      */
     protected function set_user_prop($key, $value)
     {
-        $success = true;
         $this->pending_changes |= ($this->user_props[$key] !== $value);
         $this->user_props[$key] = $value;
-
-/*
-        if ($this->user_settings[$key] && $this->storage) {
-            $props = (array)$this->storage->read($this->id);
-            $props[$key] = $value;
-            $success = $this->storage->write($this->id, $props);
-        }
-*/
-        return $success;
+        return true;
     }
 
     /**

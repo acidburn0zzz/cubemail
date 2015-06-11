@@ -81,11 +81,19 @@ class HOTP extends Base
             return false;
         }
 
-        $this->backend->setLabel($this->username)->setSecret($secret)->setCounter($this->get('counter'));
-        $pass = $this->backend->verify($code, $counter, $this->config['window']);
+        try {
+            $this->backend->setLabel($this->username)->setSecret($secret)->setCounter(intval($this->get('counter')));
+            $pass = $this->backend->verify($code, $counter, $this->config['window']);
 
-        // store incremented counter value
-        $this->set('counter', $this->backend->getCounter());
+            // store incremented counter value
+            $this->set('counter', $this->backend->getCounter());
+            $this->commit();
+        }
+        catch (\Exception $e) {
+            // LOG: exception
+            console("VERIFY HOTP: $this->id, " . strval($e));
+            $pass = false;
+        }
 
         // console('VERIFY HOTP', $this->username, $secret, $counter, $code, $pass);
         return $pass;
@@ -106,7 +114,7 @@ class HOTP extends Base
 
         // TODO: deny call if already active?
 
-        $this->backend->setLabel($this->username)->setSecret($this->secret)->setCounter($this->get('counter'));
+        $this->backend->setLabel($this->username)->setSecret($this->secret)->setCounter(intval($this->get('counter')));
         return $this->backend->getProvisioningUri();
     }
 

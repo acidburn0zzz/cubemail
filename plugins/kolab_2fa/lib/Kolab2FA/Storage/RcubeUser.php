@@ -116,7 +116,7 @@ class RcubeUser extends Base
     }
 
     /**
-     * Remove the data stoed for the given key
+     * Remove the data stored for the given key
      */
     public function remove($key)
     {
