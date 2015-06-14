@@ -23,10 +23,14 @@
 
 namespace Kolab2FA\Storage;
 
+use \Kolab2FA\Log;
+
+
 abstract class Base
 {
     public $username = null;
     protected $config = array();
+    protected $logger;
 
     /**
      *
@@ -63,6 +67,24 @@ abstract class Base
     public function init(array $config)
     {
         $this->config = array_merge($this->config, $config);
+
+        // use syslog logger by default
+        $this->set_logger(new Log\Syslog());
+    }
+
+    /**
+     * 
+     */
+    public function set_logger(Log\Logger $logger)
+    {
+        $this->logger = $logger;
+
+        if ($this->config['debug']) {
+            $this->logger->set_level(LOG_DEBUG);
+        }
+        else if ($this->config['loglevel']) {
+            $this->logger->set_level($this->config['loglevel']);
+        }
     }
 
     /**
@@ -71,6 +93,16 @@ abstract class Base
     public function set_username($username)
     {
         $this->username = $username;
+    }
+
+    /**
+     * Send messager to the logging system
+     */
+    protected function log($level, $message)
+    {
+        if ($this->logger) {
+            $this->logger->log($level, $message);
+        }
     }
 
     /**

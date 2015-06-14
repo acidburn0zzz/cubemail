@@ -24,6 +24,7 @@
 namespace Kolab2FA\Storage;
 
 use \Net_LDAP3;
+use \Kolab2FA\Log\Logger;
 
 class LDAP extends Base
 {
@@ -345,30 +346,4 @@ class LDAP extends Base
         return strtr($str, $replaces);
     }
 
-    /**
-     * Prints debug/error info to the log
-     */
-    public function log($level, $msg)
-    {
-        $msg = implode("\n", $msg);
-
-        switch ($level) {
-        case LOG_DEBUG:
-        case LOG_INFO:
-        case LOG_NOTICE:
-            if ($this->config['debug'] && class_exists('\\rcube', false)) {
-                \rcube::write_log('ldap', $msg);
-            }
-            break;
-
-        case LOG_EMERGE:
-        case LOG_ALERT:
-        case LOG_CRIT:
-        case LOG_ERR:
-        case LOG_WARNING:
-            $this->error = $msg;
-            // throw new Exception("LDAP storage error: " . $msg);
-            break;
-        }
-    }
 }

@@ -341,6 +341,7 @@ class kolab_2fa extends rcube_plugin
                 );
 
                 $this->storage->set_username($for);
+                $this->storage->set_logger(new \Kolab2FA\Log\RcubeLogger());
 
                 // set user properties from active session
                 if (!empty($_SESSION['kolab_dn'])) {
