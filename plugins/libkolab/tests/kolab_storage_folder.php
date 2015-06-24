@@ -97,13 +97,15 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_003_get_resource_uri()
     {
-        $rcmail = rcmail::get_instance();
+        $rcmail     = rcmail::get_instance();
         $foldername = 'Calendar';
+        $uri        = parse_url($rcmail->config->get('default_host'));
+        $hostname   = $uri['host'];
 
         $folder = new kolab_storage_folder($foldername, 'event', 'event.default');
         $this->assertEquals($folder->get_resource_uri(), sprintf('imap://%s@%s/%s',
             urlencode($rcmail->config->get('tests_username')),
-            $rcmail->config->get('default_host'),
+            $hostname,
             $foldername
         ));
     }
