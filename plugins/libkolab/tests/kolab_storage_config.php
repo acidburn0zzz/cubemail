@@ -9,7 +9,7 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
         'date'       => 'Mon, 20 Apr 2015 15:30:30 UTC',
         'subject'    => 'Archived',
     );
-    private $url_personal = 'imap:///user/john.doe%40example.org/Archive/9?message-id=%3C1225270%40example.org%3E&date=Mon%2C+20+Apr+2015+15%3A30%3A30+UTC&subject=Archived';
+    private $url_personal = 'imap:///user/$user/Archive/9?message-id=%3C1225270%40example.org%3E&date=Mon%2C+20+Apr+2015+15%3A30%3A30+UTC&subject=Archived';
 
     private $params_shared = array(
         'folder'     => 'Shared Folders/shared/Collected',
@@ -29,36 +29,54 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
     );
     private $url_other = 'imap:///user/lucy.white%40example.org/Mailings/378?message-id=%3C22448899%40example.org%3E&date=Tue%2C+14+Apr+2015+14%3A14%3A30+%2B0200&subject=Happy+Holidays';
 
-
     public static function setUpBeforeClass()
     {
-        require_once __DIR__ . '/../../libkolab/libkolab.php';
+        $rcube = rcmail::get_instance();
+        $rcube->plugins->load_plugin('libkolab', true, true);
 
-        $rcube = rcube::get_instance();
-        $rcube->user = null;
+        if ($rcube->config->get('tests_username')) {
+            $authenticated = $rcube->login(
+                $rcube->config->get('tests_username'),
+                $rcube->config->get('tests_password'),
+                $rcube->config->get('default_host'),
+                false
+            );
 
-        $lib = new libkolab($rcube->plugins);
-        $lib->init();
+            if (!$authenticated) {
+                throw new Exception('IMAP login failed for user ' . $rcube->config->get('tests_username'));
+            }
 
-        // fake some session data to make storage work without an actual IMAP connection
-        $_SESSION['username'] = 'john.doe@example.org';
-        $_SESSION['imap_delimiter'] = '/';
-        $_SESSION['imap_namespace'] = array(
-            'personal' => array(array('','/')),
-            'other'    => array(array('Other Users/','/')),
-            'shared'   => array(array('Shared Folders/','/')),
-            'prefix'   => '',
-        );
+            // check for defult groupware folders and clear them
+            $imap    = $rcube->get_storage();
+            $folders = $imap->list_folders('', '*');
+
+            foreach (array('Configuration') as $folder) {
+                if (in_array($folder, $folders)) {
+                    if (!$imap->clear_folder($folder)) {
+                        throw new Exception("Failed to clear folder '$folder'");
+                    }
+                }
+                else {
+                    throw new Exception("Default folder '$folder' doesn't exits in test user account");
+                }
+            }
+        }
+        else {
+            throw new Exception('Missing test account username/password in config-test.inc.php');
+        }
+
+        kolab_storage::setup();
     }
 
     function test_001_build_member_url()
     {
-        $rcube = rcube::get_instance();
-        $this->assertEquals('john.doe@example.org', $rcube->get_user_name());
+        $rcube    = rcube::get_instance();
+        $email    = $rcube->get_user_email();
+        $personal = str_replace('$user', urlencode($email), $this->url_personal);
 
         // personal namespace
         $url = kolab_storage_config::build_member_url($this->params_personal);
-        $this->assertEquals($this->url_personal, $url);
+        $this->assertEquals($personal, $url);
 
         // shared namespace
         $url = kolab_storage_config::build_member_url($this->params_shared);
@@ -71,8 +89,12 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
 
     function test_002_parse_member_url()
     {
+        $rcube    = rcube::get_instance();
+        $email    = $rcube->get_user_email();
+        $personal = str_replace('$user', urlencode($email), $this->url_personal);
+
         // personal namespace
-        $params = kolab_storage_config::parse_member_url($this->url_personal);
+        $params   = kolab_storage_config::parse_member_url($personal);
         $this->assertEquals($this->params_personal['uid'], $params['uid']);
         $this->assertEquals($this->params_personal['folder'], $params['folder']);
         $this->assertEquals($this->params_personal['subject'], $params['params']['subject']);
@@ -109,6 +131,80 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
         $this->assertEquals($params['uid'], $params_['uid']);
         $this->assertEquals($params['folder'], $params_['folder']);
     }
-}
 
-    
+    /**
+     * Test relation/tag objects creation
+     * These objects will be used by following tests
+     */
+    function test_save()
+    {
+        $config = kolab_storage_config::get_instance();
+        $tags   = array(
+            array(
+                'category' => 'tag',
+                'name'     => 'test1',
+            ),
+            array(
+                'category' => 'tag',
+                'name'     => 'test2',
+            ),
+            array(
+                'category' => 'tag',
+                'name'     => 'test3',
+            ),
+            array(
+                'category' => 'tag',
+                'name'     => 'test4',
+            ),
+        );
+
+        foreach ($tags as $tag) {
+            $result = $config->save($tag, 'relation');
+
+            $this->assertTrue(!empty($result));
+            $this->assertTrue(!empty($tag['uid']));
+        }
+    }
+
+    /**
+     * Tests "race condition" in tags handling (T133)
+     */
+    function test_T133()
+    {
+        $config = kolab_storage_config::get_instance();
+
+        // get tags
+        $tags = $config->get_tags();
+        $this->assertCount(4, $tags);
+
+        // create a tag
+        $tag = array(
+            'category' => 'tag',
+            'name'     => 'new',
+        );
+        $result = $config->save($tag, 'relation');
+        $this->assertTrue(!empty($result));
+
+        // get tags again, make sure it contains the new tag
+        $tags = $config->get_tags();
+        $this->assertCount(5, $tags);
+
+        // update a tag
+        $tag['name'] = 'new-tag';
+        $result = $config->save($tag, 'relation');
+        $this->assertTrue(!empty($result));
+
+        // get tags again, make sure it contains the new tag
+        $tags = $config->get_tags();
+        $this->assertCount(5, $tags);
+        $this->assertSame('new-tag', $tags[4]['name']);
+
+        // remove a tag
+        $result = $config->delete($tag['uid']);
+        $this->assertTrue(!empty($result));
+
+        // get tags again, make sure it contains the new tag
+        $tags = $config->get_tags();
+        $this->assertCount(4, $tags);
+    }
+}

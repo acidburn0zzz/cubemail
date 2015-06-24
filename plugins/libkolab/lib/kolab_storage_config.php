@@ -38,6 +38,7 @@ class kolab_storage_config
     private $folders;
     private $default;
     private $enabled;
+    private $tags;
 
 
     /**
@@ -175,7 +176,26 @@ class kolab_storage_config
             $object['type'] = $type;
         }
 
-        return $folder->save($object, self::FOLDER_TYPE . '.' . $object['type'], $object['uid']);
+        $status = $folder->save($object, self::FOLDER_TYPE . '.' . $object['type'], $object['uid']);
+
+        // on success, update cached tags list
+        if ($status && is_array($this->tags)) {
+            $found = false;
+            unset($object['_formatobj']); // we don't need it anymore
+
+            foreach ($this->tags as $idx => $tag) {
+                if ($tag['uid'] == $object['uid']) {
+                    $found = true;
+                    $this->tags[$idx] = $object;
+                }
+            }
+
+            if (!$found) {
+                $this->tags[] = $object;
+            }
+        }
+
+        return !empty($status);
     }
 
     /**
@@ -199,8 +219,19 @@ class kolab_storage_config
         }
 
         $folder = $this->find_folder($object);
+        $status = $folder->delete($uid);
 
-        return $folder->delete($uid);
+        // on success, update cached tags list
+        if ($status && is_array($this->tags)) {
+            foreach ($this->tags as $idx => $tag) {
+                if ($tag['uid'] == $uid) {
+                    unset($this->tags[$idx]);
+                    break;
+                }
+            }
+        }
+
+        return $status;
     }
 
     /**

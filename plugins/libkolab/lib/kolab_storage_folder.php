@@ -122,12 +122,14 @@ class kolab_storage_folder extends kolab_storage_folder_api
      */
     public function get_resource_uri()
     {
-        if (!empty($this->resource_uri))
+        if (!empty($this->resource_uri)) {
             return $this->resource_uri;
+        }
 
         // strip namespace prefix from folder name
-        $ns = $this->get_namespace();
+        $ns     = $this->get_namespace();
         $nsdata = $this->imap->get_namespace($ns);
+
         if (is_array($nsdata[0]) && strlen($nsdata[0][0]) && strpos($this->name, $nsdata[0][0]) === 0) {
             $subpath = substr($this->name, strlen($nsdata[0][0]));
             if ($ns == 'other') {
@@ -601,10 +603,11 @@ class kolab_storage_folder extends kolab_storage_folder_api
     /**
      * Save an object in this folder.
      *
-     * @param array  $object    The array that holds the data of the object.
-     * @param string $type      The type of the kolab object.
-     * @param string $uid       The UID of the old object if it existed before
-     * @return boolean          True on success, false on error
+     * @param array  $object The array that holds the data of the object.
+     * @param string $type   The type of the kolab object.
+     * @param string $uid    The UID of the old object if it existed before
+     *
+     * @return mixed False on error or IMAP message UID on success
      */
     public function save(&$object, $type = null, $uid = null)
     {
