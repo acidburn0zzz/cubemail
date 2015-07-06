@@ -76,7 +76,13 @@ class TOTP extends Base
         }
 
         $this->backend->setLabel($this->username)->setSecret($secret);
-        $pass = $this->backend->verify($code);
+
+        // PHP gets a string, but we're comparing integers.
+        $code = (int)$code;
+
+        // Pass a window to indicate the maximum timeslip between client (mobile
+        // device) and server.
+        $pass = $this->backend->verify($code, $timestamp, 150);
 
         // try all codes from $timestamp till now
         if (!$pass && $timestamp) {
