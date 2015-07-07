@@ -2,7 +2,7 @@
     "name": "kolab/tinymce_config",
     "type": "roundcube-plugin",
     "description": "TinyMCE Editor Configurator",
-    "homepage": "http://git.kolab.org/roundcubemail-plugins-kolab/",
+    "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
     "version": "1.0.0",
     "authors": [

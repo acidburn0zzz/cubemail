@@ -2,7 +2,7 @@
     "name": "kolab/ldap_authentication",
     "type": "roundcube-plugin",
     "description": "LDAP Authentication (obsoleted)",
-    "homepage": "http://git.kolab.org/roundcubemail-plugins-kolab/",
+    "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
     "version": "0.1.0",
     "authors": [

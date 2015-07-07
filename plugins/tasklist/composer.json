@@ -2,7 +2,7 @@
     "name": "kolab/tasklist",
     "type": "roundcube-plugin",
     "description": "Task management plugin",
-    "homepage": "http://git.kolab.org/roundcubemail-plugins-kolab/",
+    "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
     "version": "3.2.9",
     "authors": [

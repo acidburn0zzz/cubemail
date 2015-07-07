@@ -2,7 +2,7 @@
     "name": "kolab/kolab_notes",
     "type": "roundcube-plugin",
     "description": "Notes module for Roundcube connecting to a Kolab server for storage",
-    "homepage": "http://git.kolab.org/roundcubemail-plugins-kolab/",
+    "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
     "version": "3.2.9",
     "authors": [
