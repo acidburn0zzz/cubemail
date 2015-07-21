@@ -135,7 +135,7 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_006_activate()
     {
-        $folder = new kolab_storage_folder('Calendar', 'contact');
+        $folder = new kolab_storage_folder('Calendar', 'event');
         $this->assertTrue($folder->activate(true));
         $this->assertTrue($folder->is_active());
 
@@ -166,5 +166,45 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
     {
         $folder = new kolab_storage_folder('Contacts', 'contact');
         $this->assertEquals($folder->count(), 1);
+    }
+
+    function test_T491_get_uid()
+    {
+        $rcmail = rcmail::get_instance();
+        $imap   = $rcmail->get_storage();
+        $db     = $rcmail->get_dbh();
+
+        // clear cache
+        //$imap->clear_cache('mailboxes.metadata', true);
+
+        // get folder UID
+        $folder = new kolab_storage_folder('Calendar', 'event', 'event');
+        $uid    = $folder->get_uid();
+
+        // now get folder uniqueid annotations
+        $annotations = array(
+            'cyrus'   => kolab_storage::UID_KEY_CYRUS,
+            'shared'  => kolab_storage::UID_KEY_SHARED,
+            'private' => '/private/vendor/kolab/uniqueid',
+        );
+        foreach ($annotations as $key => $annotation) {
+            $meta              = $imap->get_metadata('Calendar', $annotation);
+            $annotations[$key] = $meta['Calendar'][$annotation];
+        }
+
+        // compare results
+        if ($annotations['shared']) {
+            $this->assertSame($annotations['shared'], $uid);
+        }
+        else if ($annotations['cyrus']) {
+            $this->assertSame($annotations['cyrus'], $uid);
+        }
+        else {
+            // never use private namespace
+            $this->assertTrue($annotations['private'] != $uid);
+        }
+
+        // @TODO: check if the cache contains valid entries, not so simple with memcache
+        // as the cache key name is quite internal to the rcube_imap class.
     }
 }

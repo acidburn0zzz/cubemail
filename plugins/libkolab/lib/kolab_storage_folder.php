@@ -154,19 +154,24 @@ class kolab_storage_folder extends kolab_storage_folder_api
     public function get_uid()
     {
         // UID is defined in folder METADATA
-        $metakeys = array(kolab_storage::UID_KEY_SHARED, kolab_storage::UID_KEY_PRIVATE, kolab_storage::UID_KEY_CYRUS);
+        $metakeys = array(kolab_storage::UID_KEY_SHARED, kolab_storage::UID_KEY_CYRUS);
         $metadata = $this->get_metadata($metakeys);
-        foreach ($metakeys as $key) {
-            if (($uid = $metadata[$key])) {
+
+        if ($metadata !== null) {
+            foreach ($metakeys as $key) {
+                if ($uid = $metadata[$key]) {
+                    return $uid;
+                }
+            }
+
+            // generate a folder UID and set it to IMAP
+            $uid = rtrim(chunk_split(md5($this->name . $this->get_owner() . uniqid('-', true)), 12, '-'), '-');
+            if ($this->set_uid($uid)) {
                 return $uid;
             }
         }
 
-        // generate a folder UID and set it to IMAP
-        $uid = rtrim(chunk_split(md5($this->name . $this->get_owner() . uniqid('-', true)), 12, '-'), '-');
-        if ($this->set_uid($uid)) {
-            return $uid;
-        }
+        $this->check_error();
 
         // create hash from folder name if we can't write the UID metadata
         return md5($this->name . $this->get_owner());
@@ -180,9 +185,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
      */
     public function set_uid($uid)
     {
-        if (!($success = $this->set_metadata(array(kolab_storage::UID_KEY_SHARED => $uid)))) {
-            $success = $this->set_metadata(array(kolab_storage::UID_KEY_PRIVATE => $uid));
-        }
+        $success = $this->set_metadata(array(kolab_storage::UID_KEY_SHARED => $uid));
 
         $this->check_error();
         return $success;
