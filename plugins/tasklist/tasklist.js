@@ -2897,7 +2897,7 @@ function rcube_tasklist_ui(settings)
             $dialog.dialog('close');
 
         if (!list)
-            list = { name:'', editable:true, rights:'riwt', showalarms:true };
+            list = { name:'', editable:true, rights:'riwta', showalarms:true };
 
         var editform, name, alarms;
 

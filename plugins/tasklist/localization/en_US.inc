@@ -209,5 +209,5 @@ $labels['itipresponseerror'] = 'Failed to send the response to this task assignm
 $labels['itipinvalidrequest'] = 'This invitation is no longer valid';
 $labels['sentresponseto'] = 'Successfully sent assignment response to $mailto';
 $labels['successremoval'] = 'The task has been deleted successfully.';
-
+$labels['invalidlistproperties'] = 'Invalid list properties! Please set a valid name.';
 $labels['arialabelsortmenu'] = 'Tasks sorting options';

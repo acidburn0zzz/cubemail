@@ -505,7 +505,7 @@ function rcube_kolab_notes_ui(settings)
             $dialog.dialog('close');
         }
 
-        var list = me.notebooks[id] || { name:'', editable:true };
+        var list = me.notebooks[id] || { name:'', editable:true, rights: 'riwta' };
         var form, name;
 
         $dialog.html(rcmail.get_label('loading'));
