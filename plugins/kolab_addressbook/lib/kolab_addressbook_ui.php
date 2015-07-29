@@ -63,9 +63,21 @@ class kolab_addressbook_ui
             $options = array('book-create', 'book-edit', 'book-delete', 'book-remove');
             $idx     = 0;
 
-            if ($this->rc->config->get('kolab_addressbook_carddav_url')) {
+            if ($dav_url = $this->rc->config->get('kolab_addressbook_carddav_url')) {
               $options[] = 'book-showurl';
               $this->rc->output->set_env('kolab_addressbook_carddav_url', true);
+
+              // set CardDAV URI for specified ldap addressbook
+              if ($ldap_abook = $this->rc->config->get('kolab_addressbook_carddav_ldap')) {
+                $dav_ldap_url = strtr($dav_url, array(
+                    '%h' => $_SERVER['HTTP_HOST'],
+                    '%u' => urlencode($this->rc->get_user_name()),
+                    '%i' => 'ldap-directory',
+                    '%n' => '',
+                ));
+                $this->rc->output->set_env('kolab_addressbook_carddav_ldap', $ldap_abook);
+                $this->rc->output->set_env('kolab_addressbook_carddav_ldap_url', $dav_ldap_url);
+              }
             }
 
             foreach ($options as $command) {

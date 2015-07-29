@@ -17,4 +17,19 @@ $config['kolab_addressbook_prio'] = 0;
 // %i - Folder UUID
 // $config['kolab_addressbook_carddav_url'] = 'http://%h/iRony/addressbooks/%u/%i';
 
+// Name of LDAP addressbook (a key in ldap_public configuration array) for which
+// the CardDAV URI will be displayed if kolab_addressbook_carddav_url is set.
+// Use it when iRony's kolabdav_ldap_directory is enabled.
+// Note: kolab_addressbook_carddav_url must use %i and not %n.
+//
+// WARNING: There's limitations with volume and performance:
+// CardDAV does a full sync of the entire contact resource.
+// For LDAP this means that all entries matching the base_dn/filter are synced to every client.
+// It's thus only recommended for small setups with a couple hundred LDAP entries.
+// Other than that, the ldap-directory exposed in iRony is strictly read-only.
+// Although correctly stated in the CardDAV properties, some clients (e.g. the Thunderbird SoGO connector)
+// ignore these properties and allow modifications which then result in sync errors because the server
+// denies such updates.
+$config['kolab_addressbook_carddav_ldap'] = '';
+
 ?>

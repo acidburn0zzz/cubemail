@@ -167,7 +167,7 @@ rcube_webmail.prototype.set_book_actions = function()
     this.enable_command('book-edit',   props.rights.indexOf('a') >= 0);
     this.enable_command('book-delete', props.rights.indexOf('x') >= 0 || props.rights.indexOf('a') >= 0);
     this.enable_command('book-remove', props.removable);
-    this.enable_command('book-showurl', !!props.carddavurl);
+    this.enable_command('book-showurl', !!props.carddavurl || source == this.env.kolab_addressbook_carddav_ldap);
 };
 
 rcube_webmail.prototype.book_create = function()
@@ -199,24 +199,33 @@ rcube_webmail.prototype.book_delete = function()
 
 rcube_webmail.prototype.book_showurl = function()
 {
-    var source = this.env.source ? this.env.address_sources[this.env.source] : null;
-    if (source && source.carddavurl) {
+    var url, source;
+
+    if (this.env.source) {
+        if (this.env.source == this.env.kolab_addressbook_carddav_ldap)
+            url = this.env.kolab_addressbook_carddav_ldap_url;
+        else if (source = this.env.address_sources[this.env.source])
+            url = source.carddavurl;
+    }
+
+    if (url) {
         $('div.showurldialog:ui-dialog').dialog('close');
 
-        var $dialog = $('<div>').addClass('showurldialog').append('<p>'+rcmail.gettext('carddavurldescription', 'kolab_addressbook')+'</p>'),
+        var txt = rcmail.gettext('carddavurldescription', 'kolab_addressbook'),
+            $dialog = $('<div>').addClass('showurldialog').append('<p>' + txt + '</p>'),
             textbox = $('<textarea>').addClass('urlbox').css('width', '100%').attr('rows', 2).appendTo($dialog);
 
-          $dialog.dialog({
+        $dialog.dialog({
             resizable: true,
             closeOnEscape: true,
             title: rcmail.gettext('bookshowurl', 'kolab_addressbook'),
             close: function() {
-              $dialog.dialog("destroy").remove();
+                $dialog.dialog("destroy").remove();
             },
             width: 520
-          }).show();
+        }).show();
 
-          textbox.val(source.carddavurl).select();
+        textbox.val(url).select();
     }
 };
 
