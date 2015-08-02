@@ -43,7 +43,7 @@ function print_usage()
 }
 
 // read arguments
-$opts = get_opt(array(
+$opts = rcube_utils::get_opt(array(
     'a' => 'all',
     'h' => 'host',
     'u' => 'user',
