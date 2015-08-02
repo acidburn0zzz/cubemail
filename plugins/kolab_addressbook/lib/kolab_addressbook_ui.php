@@ -305,7 +305,7 @@ class kolab_addressbook_ui
             $table = new html_table(array('cols' => 2, 'class' => 'propform'));
             foreach ($form['content'] as $col => $colprop) {
                 $colprop['id'] = '_'.$col;
-                $label = !empty($colprop['label']) ? $colprop['label'] : rcube_label($col);
+                $label = !empty($colprop['label']) ? $colprop['label'] : $this->rc->gettext($col);
 
                 $table->add('title', sprintf('<label for="%s">%s</label>', $colprop['id'], Q($label)));
                 $table->add(null, $colprop['value']);

@@ -384,7 +384,8 @@ class kolab_files_engine
             $this->rc->output->set_env('col_movable', !in_array('kolab_files_list_cols', (array)$dont_override));
         }
         else {
-            $a_show_cols = preg_split('/[\s,;]+/', strip_quotes($attrib['columns']));
+            $columns     = str_replace(array("'", '"'), '', $attrib['columns']);
+            $a_show_cols = preg_split('/[\s,;]+/', $columns);
         }
 
         // make sure 'name' and 'options' column is present
@@ -497,8 +498,13 @@ class kolab_files_engine
             }
 
             // make sort links
-            if (in_array($col, $a_sort_cols))
-                $col_name = html::a(array('href'=>"#sort", 'onclick' => 'return '.JS_OBJECT_NAME.".command('files-sort','".$col."',this)", 'title' => rcube_label('sortby')), $col_name);
+            if (in_array($col, $a_sort_cols)) {
+                $col_name = html::a(array(
+                        'href'    => "#sort",
+                        'onclick' => 'return '.JS_OBJECT_NAME.".command('files-sort','".$col."',this)",
+                        'title'   => $this->plugin->gettext('sortby')
+                    ), $col_name);
+            }
             else if ($col_name[0] != '<')
                 $col_name = '<span class="' . $col .'">' . $col_name . '</span>';
 

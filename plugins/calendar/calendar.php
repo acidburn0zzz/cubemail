@@ -398,13 +398,13 @@ class calendar extends rcube_plugin
 
       $field_id = 'rcmfd_firstday';
       $select = new html_select(array('name' => '_first_day', 'id' => $field_id));
-      $select->add(rcube_label('sunday'), '0');
-      $select->add(rcube_label('monday'), '1');
-      $select->add(rcube_label('tuesday'), '2');
-      $select->add(rcube_label('wednesday'), '3');
-      $select->add(rcube_label('thursday'), '4');
-      $select->add(rcube_label('friday'), '5');
-      $select->add(rcube_label('saturday'), '6');
+      $select->add($this->gettext('sunday'), '0');
+      $select->add($this->gettext('monday'), '1');
+      $select->add($this->gettext('tuesday'), '2');
+      $select->add($this->gettext('wednesday'), '3');
+      $select->add($this->gettext('thursday'), '4');
+      $select->add($this->gettext('friday'), '5');
+      $select->add($this->gettext('saturday'), '6');
       $p['blocks']['view']['options']['first_day'] = array(
         'title' => html::label($field_id, Q($this->gettext('first_day'))),
         'content' => $select->show(strval($this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']))),
@@ -475,7 +475,7 @@ class calendar extends rcube_plugin
       $select_type = new html_select(array('name' => '_alarm_type', 'id' => $field_id));
       $select_type->add($this->gettext('none'), '');
       foreach ($this->driver->alarm_types as $type)
-        $select_type->add(rcube_label(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
+        $select_type->add($this->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
 
       $p['blocks']['view']['options']['alarmtype'] = array(
         'title' => html::label($field_id, Q($this->gettext('defaultalarmtype'))),
@@ -493,7 +493,7 @@ class calendar extends rcube_plugin
       $input_value = new html_inputfield(array('name' => '_alarm_value', 'id' => $field_id . 'value', 'size' => 3));
       $select_offset = new html_select(array('name' => '_alarm_offset', 'id' => $field_id . 'offset'));
       foreach (array('-M','-H','-D','+M','+H','+D') as $trigger)
-        $select_offset->add(rcube_label('trigger' . $trigger, 'libcalendaring'), $trigger);
+        $select_offset->add($this->gettext('trigger' . $trigger, 'libcalendaring'), $trigger);
 
       $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
       $p['blocks']['view']['options']['alarmoffset'] = array(
@@ -655,13 +655,13 @@ class calendar extends rcube_plugin
       $select_type = new html_select(array('name' => '_birthdays_alarm_type', 'id' => $field_id) + $input_attrib);
       $select_type->add($this->gettext('none'), '');
       foreach ($this->driver->alarm_types as $type) {
-        $select_type->add(rcube_label(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
+        $select_type->add($this->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
       }
 
       $input_value = new html_inputfield(array('name' => '_birthdays_alarm_value', 'id' => $field_id . 'value', 'size' => 3) + $input_attrib);
       $select_offset = new html_select(array('name' => '_birthdays_alarm_offset', 'id' => $field_id . 'offset') + $input_attrib);
       foreach (array('-M','-H','-D') as $trigger)
-        $select_offset->add(rcube_label('trigger' . $trigger, 'libcalendaring'), $trigger);
+        $select_offset->add($this->gettext('trigger' . $trigger, 'libcalendaring'), $trigger);
 
       $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_birthdays_alarm_offset', '-1D'));
       $p['blocks']['birthdays']['options']['birthdays_alarmoffset'] = array(
@@ -914,7 +914,7 @@ class calendar extends rcube_plugin
           // display message with Undo link.
           $msg = html::span(null, $this->gettext('successremoval'))
             . ' ' . html::a(array('onclick' => sprintf("%s.http_request('event', 'action=undo', %s.display_message('', 'loading'))",
-              JS_OBJECT_NAME, JS_OBJECT_NAME)), rcube_label('undo'));
+              JS_OBJECT_NAME, JS_OBJECT_NAME)), $this->gettext('undo'));
           $this->rc->output->show_message($msg, 'confirmation', null, true, $undo_time);
           $got_msg = true;
         }
@@ -1437,7 +1437,7 @@ class calendar extends rcube_plugin
   {
     // Upload progress update
     if (!empty($_GET['_progress'])) {
-      rcube_upload_progress();
+      $this->rc->upload_progress();
     }
 
     @set_time_limit(0);
@@ -1503,11 +1503,11 @@ class calendar extends rcube_plugin
     }
     else {
       if ($err == UPLOAD_ERR_INI_SIZE || $err == UPLOAD_ERR_FORM_SIZE) {
-        $msg = rcube_label(array('name' => 'filesizeerror', 'vars' => array(
-            'size' => show_bytes(parse_bytes(ini_get('upload_max_filesize'))))));
+        $msg = $this->gettext(array('name' => 'filesizeerror', 'vars' => array(
+            'size' => $this->rc->show_bytes(parse_bytes(ini_get('upload_max_filesize'))))));
       }
       else {
-        $msg = rcube_label('fileuploaderror');
+        $msg = $this->gettext('fileuploaderror');
       }
 
       $this->rc->output->command('plugin.import_error', array('message' => $msg));
