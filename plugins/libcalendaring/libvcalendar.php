@@ -990,7 +990,7 @@ class libvcalendar implements Iterator
 
         // set DTSTAMP according to RFC 5545, 3.8.7.2.
         $dtstamp = !empty($event['changed']) && !empty($this->method) ? $event['changed'] : new DateTime('now', new \DateTimeZone('UTC'));
-        $ve->DTSTAMP = $dtstamp;
+        $ve->add($this->datetime_prop($cal, 'DTSTAMP', $dtstamp, true));
 
         // all-day events end the next day
         if ($event['allday'] && !empty($event['end'])) {
