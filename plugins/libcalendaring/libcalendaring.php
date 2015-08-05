@@ -324,19 +324,21 @@ class libcalendaring extends rcube_plugin
     public function alarm_select($attrib, $alarm_types, $absolute_time = true)
     {
         unset($attrib['name']);
-        $select_type = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type', 'id' => $attrib['id']));
+
+        $input_value = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value', 'size' => 3));
+        $input_date  = new html_inputfield(array('name' => 'alarmdate[]', 'class' => 'edit-alarm-date', 'size' => 10));
+        $input_time  = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time', 'size' => 6));
+        $select_type   = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type', 'id' => $attrib['id']));
+        $select_offset = new html_select(array('name' => 'alarmoffset[]', 'class' => 'edit-alarm-offset'));
+
         $select_type->add($this->gettext('none'), '');
         foreach ($alarm_types as $type)
             $select_type->add($this->gettext(strtolower("alarm{$type}option")), $type);
 
-        $input_value = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value', 'size' => 3));
-        $input_date = new html_inputfield(array('name' => 'alarmdate[]', 'class' => 'edit-alarm-date', 'size' => 10));
-        $input_time = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time', 'size' => 6));
-
-        $select_offset = new html_select(array('name' => 'alarmoffset[]', 'class' => 'edit-alarm-offset'));
         foreach (array('-M','-H','-D','+M','+H','+D') as $trigger)
             $select_offset->add($this->gettext('trigger' . $trigger), $trigger);
 
+        $select_offset->add($this->gettext('trigger0'), '0');
         if ($absolute_time)
             $select_offset->add($this->gettext('trigger@'), '@');
 
