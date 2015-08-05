@@ -613,7 +613,8 @@ class libcalendaring extends rcube_plugin
                 $notify_time = $alarm['trigger'];
             }
             else if (is_string($alarm['trigger'])) {
-                $refdate = $alarm['trigger'][0] == '+' ? $rec['end'] : $rec['start'];
+//                $refdate = $alarm['trigger'][0] == '+' ? $rec['end'] : $rec['start'];
+                $refdate = $rec['start'];
 
                 // abort if no reference date is available to compute notification time
                 if (!is_a($refdate, 'DateTime'))
@@ -634,8 +635,8 @@ class libcalendaring extends rcube_plugin
             }
 
             if ($notify_time && (!$notify_at || ($notify_time > $notify_at && $notify_time > $expires))) {
-                $notify_at = $notify_time;
-                $action = $alarm['action'];
+                $notify_at  = $notify_time;
+                $action     = $alarm['action'];
                 $alarm_prop = $alarm;
 
                 // generate a unique alarm ID if multiple alarms are set
