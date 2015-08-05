@@ -80,7 +80,9 @@ class kolab_delegation extends rcube_plugin
         }
         // Calendar plugin UI bindings
         else if ($this->rc->task == 'calendar' && empty($_REQUEST['_framed'])) {
-            $this->calendar_ui();
+            if ($this->rc->output->type == 'html') {
+                $this->calendar_ui();
+            }
         }
     }
 
