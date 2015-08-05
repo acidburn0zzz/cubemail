@@ -123,6 +123,11 @@ function rcube_libcalendaring(settings)
      */
     this.parseISO8601 = function(s)
     {
+        // already a Date object?
+        if (s && s.getMonth) {
+            return s;
+        }
+
         // force d to be on check's YMD, for daylight savings purposes
         var fixDate = function(d, check) {
             if (+d) { // prevent infinite looping on invalid dates
