@@ -380,7 +380,7 @@ class kolab_auth extends rcube_plugin
         $pass    = $args['pass'];
         $loginas = trim(rcube_utils::get_input_value('_loginas', rcube_utils::INPUT_POST));
 
-        if (empty($user) || empty($pass)) {
+        if (empty($user) || (empty($pass) && empty($_SERVER['REMOTE_USER']))) {
             $args['abort'] = true;
             return $args;
         }
