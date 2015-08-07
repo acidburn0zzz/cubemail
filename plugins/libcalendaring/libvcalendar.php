@@ -611,18 +611,23 @@ class libvcalendar implements Iterator
 
         // find alarms
         foreach ($ve->select('VALARM') as $valarm) {
-            $action = 'DISPLAY';
+            $action  = 'DISPLAY';
             $trigger = null;
-            $alarm = array();
+            $alarm   = array();
 
             foreach ($valarm->children as $prop) {
                 $value = strval($prop);
 
                 switch ($prop->name) {
                 case 'TRIGGER':
-                    if ($prop['VALUE'] == 'DATE-TIME') {
-                        $trigger = '@' . $prop->getDateTime()->format('U');
-                        $alarm['trigger'] = $prop->getDateTime();
+                    foreach ($prop->parameters as $param) {
+                        if ($param->name == 'VALUE' && $param->value == 'DATE-TIME') {
+                            $trigger = '@' . $prop->getDateTime()->format('U');
+                            $alarm['trigger'] = $prop->getDateTime();
+                        }
+                        else if ($param->name == 'RELATED') {
+                            $alarm['related'] = $param->value;
+                        }
                     }
                     if (!$trigger && ($values = libcalendaring::parse_alarm_value($value))) {
                         $trigger = $values[2];
@@ -1111,7 +1116,11 @@ class libvcalendar implements Iterator
                     $va->add($this->datetime_prop($cal, 'TRIGGER', $alarm['trigger'], true, null, true));
                 }
                 else {
-                    $va->add('TRIGGER', $alarm['trigger']);
+                    $alarm_props = array();
+                    if (strtoupper($alarm['related']) == 'END') {
+                        $alarm_props['RELATED'] = 'END';
+                    }
+                    $va->add('TRIGGER', $alarm['trigger'], $alarm_props);
                 }
 
                 if ($alarm['action'] == 'EMAIL') {
@@ -1388,5 +1397,4 @@ class vobject_location_property extends VObject\Property\Text
         // iCalendar
         'REQUEST-STATUS',
     );
-
 }

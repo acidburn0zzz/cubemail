@@ -337,9 +337,10 @@ function rcube_libcalendaring(settings)
             $(this).parent().find('span.edit-alarm-values')[(this.selectedIndex>0?'show':'hide')]();
         });
         $(prefix+' select.edit-alarm-offset').change(function(){
-            var val = $(this).val();
-            $(this).parent().find('.edit-alarm-date, .edit-alarm-time')[val == '@' ? 'show' : 'hide']();
-            $(this).parent().find('.edit-alarm-value').prop('disabled', val === '@' || val === '0');
+            var val = $(this).val(), parent = $(this).parent();
+            parent.find('.edit-alarm-date, .edit-alarm-time')[val == '@' ? 'show' : 'hide']();
+            parent.find('.edit-alarm-value').prop('disabled', val === '@' || val === '0');
+            parent.find('.edit-alarm-related')[val == '@' ? 'hide' : 'show']();
         });
 
         $(prefix+' .edit-alarm-date').removeClass('hasDatepicker').removeAttr('id').datepicker(datepicker_settings);
@@ -389,6 +390,7 @@ function rcube_libcalendaring(settings)
           }
 
           $('select.edit-alarm-type', domnode).val(alarm.action);
+          $('select.edit-alarm-related', domnode).val(/END/i.test(alarm.related) ? 'end' : 'start');
 
           if (String(alarm.trigger).match(/@(\d+)/)) {
               var ondate = this.fromunixtime(parseInt(RegExp.$1));
@@ -417,7 +419,11 @@ function rcube_libcalendaring(settings)
         var valarms = [];
 
         $(prefix + ' .edit-alarm-item').each(function(i, elem) {
-            var val, offset, alarm = { action: $('select.edit-alarm-type', elem).val() };
+            var val, offset, alarm = {
+                    action: $('select.edit-alarm-type', elem).val(),
+                    related: $('select.edit-alarm-related', elem).val()
+                };
+
             if (alarm.action) {
                 offset = $('select.edit-alarm-offset', elem).val();
                 if (offset == '@') {

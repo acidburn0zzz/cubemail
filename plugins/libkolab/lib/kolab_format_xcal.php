@@ -231,12 +231,12 @@ abstract class kolab_format_xcal extends kolab_format
         $object['valarms'] = array();
         for ($i=0; $i < $valarms->size(); $i++) {
             $alarm = $valarms->get($i);
-            $type = $alarm_types[$alarm->type()];
+            $type  = $alarm_types[$alarm->type()];
 
             if ($type == 'DISPLAY' || $type == 'EMAIL' || $type == 'AUDIO') {  // only some alarms are supported
                 $valarm = array(
-                    'action' => $type,
-                    'summary' => $alarm->summary(),
+                    'action'      => $type,
+                    'summary'     => $alarm->summary(),
                     'description' => $alarm->description(),
                 );
 
@@ -254,12 +254,14 @@ abstract class kolab_format_xcal extends kolab_format
                 }
 
                 if ($start = self::php_datetime($alarm->start())) {
-                    $object['alarms'] = '@' . $start->format('U');
+                    $object['alarms']  = '@' . $start->format('U');
                     $valarm['trigger'] = $start;
                 }
                 else if ($offset = $alarm->relativeStart()) {
-                    $prefix = $alarm->relativeTo() == kolabformat::End ? '+' : '-';
-                    $value = $time = '';
+                    $prefix = $offset->isNegative() ? '-' : '+';
+                    $value  = '';
+                    $time   = '';
+
                     if      ($w = $offset->weeks())     $value .= $w . 'W';
                     else if ($d = $offset->days())      $value .= $d . 'D';
                     else if ($h = $offset->hours())     $time  .= $h . 'H';
@@ -269,23 +271,29 @@ abstract class kolab_format_xcal extends kolab_format
                     // assume 'at event time'
                     if (empty($value) && empty($time)) {
                         $prefix = '';
-                        $time = '0S';
+                        $time   = '0S';
                     }
 
-                    $object['alarms'] = $prefix . $value . $time;
+                    $object['alarms']  = $prefix . $value . $time;
                     $valarm['trigger'] = $prefix . 'P' . $value . ($time ? 'T' . $time : '');
+
+                    if ($alarm->relativeTo() == kolabformat::End) {
+                        $valarm['related'] == 'END';
+                    }
                 }
 
                 // read alarm duration and repeat properties
                 if (($duration = $alarm->duration()) && $duration->isValid()) {
                     $value = $time = '';
+
                     if      ($w = $duration->weeks())     $value .= $w . 'W';
                     else if ($d = $duration->days())      $value .= $d . 'D';
                     else if ($h = $duration->hours())     $time  .= $h . 'H';
                     else if ($m = $duration->minutes())   $time  .= $m . 'M';
                     else if ($s = $duration->seconds())   $time  .= $s . 'S';
+
                     $valarm['duration'] = 'P' . $value . ($time ? 'T' . $time : '');
-                    $valarm['repeat'] = $alarm->numrepeat();
+                    $valarm['repeat']   = $alarm->numrepeat();
                 }
 
                 $object['alarms']  .= ':' . $type;  // legacy property
@@ -508,9 +516,8 @@ abstract class kolab_format_xcal extends kolab_format
                 }
                 else {
                     try {
-                        $prefix = $valarm['trigger'][0];
-                        $period = new DateInterval(preg_replace('/[^0-9PTWDHMS]/', '', $valarm['trigger']));
-                        $duration = new Duration($period->d, $period->h, $period->i, $period->s, $prefix == '-');
+                        $period   = new DateInterval(preg_replace('/[^0-9PTWDHMS]/', '', $valarm['trigger']));
+                        $duration = new Duration($period->d, $period->h, $period->i, $period->s, $valarm['trigger'][0] == '-');
                     }
                     catch (Exception $e) {
                         // skip alarm with invalid trigger values
@@ -518,7 +525,8 @@ abstract class kolab_format_xcal extends kolab_format
                         continue;
                     }
 
-                    $alarm->setRelativeStart($duration, $prefix == '-' ? kolabformat::Start : kolabformat::End);
+                    $related = strtoupper($valarm['related']) == 'END' ? kolabformat::End : kolabformat::Start;
+                    $alarm->setRelativeStart($duration, $related);
                 }
 
                 if ($valarm['duration']) {
