@@ -355,6 +355,7 @@ class tasklist_ui
      */
     function alarm_select($attrib = array())
     {
+        $attrib['_type'] = 'task';
         return $this->plugin->lib->alarm_select($attrib, $this->plugin->driver->alarm_types, $this->plugin->driver->alarm_absolute);
     }
 
