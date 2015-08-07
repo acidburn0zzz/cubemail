@@ -621,12 +621,12 @@ class libvcalendar implements Iterator
                 switch ($prop->name) {
                 case 'TRIGGER':
                     foreach ($prop->parameters as $param) {
-                        if ($param->name == 'VALUE' && $param->value == 'DATE-TIME') {
+                        if ($param->name == 'VALUE' && $param->getValue() == 'DATE-TIME') {
                             $trigger = '@' . $prop->getDateTime()->format('U');
                             $alarm['trigger'] = $prop->getDateTime();
                         }
                         else if ($param->name == 'RELATED') {
-                            $alarm['related'] = $param->value;
+                            $alarm['related'] = $param->getValue();
                         }
                     }
                     if (!$trigger && ($values = libcalendaring::parse_alarm_value($value))) {
