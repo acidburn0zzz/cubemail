@@ -177,7 +177,7 @@ class calendar_ui
   {
     $color = $prop['color'];
     $class = 'cal-' . asciiwords($id, true);
-    $css .= "li .$class, #eventshow .$class { color: #$color }\n";
+    $css .= "li .$class, #eventshow .$class { color: #$color; }\n";
 
     if ($mode != 1) {
       if ($mode == 3) {
@@ -189,7 +189,7 @@ class calendar_ui
         $css .= ".fc-event-$class, ";
         $css .= ".fc-event-$class .fc-event-inner {";
       }
-      if (!$attrib['printmode'])
+      if (!$prop['printmode'])
         $css .= " background-color: #$color;";
       if ($mode % 2 == 0)
       $css .= " border-color: #$color;";
