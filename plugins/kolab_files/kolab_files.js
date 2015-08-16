@@ -1228,7 +1228,8 @@ function kolab_files_ui()
       .addEventListener('select', function(node) { file_api.folder_select(node.id); });
 
     // select first folder?
-    if (this.env.folder)
+    if (response.result.auth_errors) { }
+    else if (this.env.folder)
       rcmail.folder_list.select(this.env.folder);
     else if (this.env.collection)
       rcmail.folder_list.select('folder-collection-' + this.env.collection);
@@ -2274,7 +2275,7 @@ function kolab_files_ui()
     if (!this.response(response))
       return;
 
-    var folders,
+    var folders, found,
       folder = response.result.folder,
       id = 'rcmli' + rcmail.html_identifier_encode(folder),
       parent = $('#' + id);
@@ -2297,7 +2298,12 @@ function kolab_files_ui()
     // add folders from the external source to the list
     $.each(folders, function(i, f) {
       file_api.folder_list_row(i, f, parent.get(0));
+      found = true;
     });
+
+    // reset folders list widget
+    if (found)
+      rcmail.folder_list.reset(true);
 
     // add tree icons
 //    this.folder_list_tree(folders);
