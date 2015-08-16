@@ -85,17 +85,12 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
         column_movable: rcmail.env.col_movable,
         dblclick_time: rcmail.dblclick_time
       });
-/*
-      rcmail.file_list.row_init = function(o){ kolab_files_init_file_row(o); };
-      rcmail.file_list.addEventListener('dblclick', function(o){ p.msglist_dbl_click(o); });
-      rcmail.file_list.addEventListener('click', function(o){ p.msglist_click(o); });
-      rcmail.file_list.addEventListener('keypress', function(o){ p.msglist_keypress(o); });
-      rcmail.file_list.addEventListener('dragstart', function(o){ p.drag_start(o); });
-      rcmail.file_list.addEventListener('dragmove', function(e){ p.drag_move(e); });
-*/
+
       rcmail.file_list.addEventListener('dblclick', function(o) { kolab_files_list_dblclick(o); })
         .addEventListener('select', function(o) { kolab_files_list_select(o); })
         .addEventListener('keypress', function(o) { kolab_files_list_keypress(o); })
+        .addEventListener('dragstart', function(e) { kolab_files_drag_start(e); })
+        .addEventListener('dragmove', function(e) { kolab_files_drag_move(e); })
         .addEventListener('dragend', function(e) { kolab_files_drag_end(e); })
         .addEventListener('column_replace', function(e) { kolab_files_set_coltypes(e); })
         .addEventListener('listupdate', function(e) { rcmail.triggerEvent('listupdate', e); });
@@ -758,24 +753,42 @@ kolab_files_list_keypress = function(list)
     rcmail.command('files-delete');
 };
 
+kolab_files_drag_start = function(e)
+{
+  rcmail.env.drag_target = null;
+
+  if (rcmail.folder_list)
+    rcmail.folder_list.drag_start();
+};
+
 kolab_files_drag_end = function(e)
 {
-  var folder = $('#files-folder-list li.droptarget').removeClass('droptarget');
+  if (rcmail.folder_list) {
+    rcmail.folder_list.drag_end();
 
-  if (folder.length) {
-    folder = folder.data('folder');
+    if (rcmail.env.drag_target) {
+      var modkey = rcube_event.get_modifier(e),
+        menu = rcmail.gui_objects.file_dragmenu;
 
-    var modkey = rcube_event.get_modifier(e),
-      menu = rcmail.gui_objects.file_dragmenu;
+      rcmail.file_list.draglayer.hide();
 
-    if (menu && modkey == SHIFT_KEY && rcmail.commands['files-copy']) {
-      var pos = rcube_event.get_mouse_pos(e);
-      rcmail.env.drag_target = folder;
-      $(menu).css({top: (pos.y-10)+'px', left: (pos.x-10)+'px'}).show();
-      return;
+      if (menu && modkey == SHIFT_KEY && rcmail.commands['files-copy']) {
+        var pos = rcube_event.get_mouse_pos(e);
+        $(menu).css({top: (pos.y-10)+'px', left: (pos.x-10)+'px'}).show();
+        return;
+      }
+
+      rcmail.command('files-move', rcmail.env.drag_target);
     }
+  }
+};
 
-    rcmail.command('files-move', folder);
+kolab_files_drag_move = function(e)
+{
+  if (rcmail.folder_list) {
+    var mouse = rcube_event.get_mouse_pos(e);
+
+    rcmail.env.drag_target = rcmail.folder_list.intersects(mouse, true);
   }
 };
 
@@ -1158,8 +1171,9 @@ function kolab_files_ui()
     if (!this.response(response))
       return;
 
-    var first, elem = $('#files-folder-list'),
-      list = $('<ul class="listing"></ul>'),
+    var first, rows = [],
+      elem = $('#files-folder-list'),
+      list = $('<ul class="treelist listing folderlist"></ul>'),
       collections = !rcmail.env.action.match(/^(preview|show)$/) ? ['audio', 'video', 'image', 'document'] : [];
 
     // try parent window if the list element does not exist
@@ -1173,65 +1187,76 @@ function kolab_files_ui()
     this.env.folders = this.folder_list_parse(response.result && response.result.list ? response.result.list : response.result);
 
     $.each(this.env.folders, function(i, f) {
-      list.append(file_api.folder_list_row(i, f));
-      if (!first)
-        first = i;
+      var row;
+      if (row = file_api.folder_list_row(i, f)) {
+        if (!first)
+          first = i;
+        rows.push(row);
+      }
     });
 
     // add virtual collections
     $.each(collections, function(i, n) {
       var row = $('<li class="mailbox collection ' + n + '"></li>');
 
-      row.attr({id: 'folder-collection-' + n, tabindex: 0})
-        .append($('<span class="name"></span>').text(rcmail.gettext('kolab_files.collection_' + n)))
-        .click(function() { file_api.folder_select(n, true); });
+      row.attr('id', 'rcmli' + rcmail.html_identifier_encode('folder-collection-' + n))
+        .append($('<a class="name"></a>').text(rcmail.gettext('kolab_files.collection_' + n)))
 
-      list.append(row);
+      rows.push(row);
     });
+
+    list.append(rows);
+
+    // init treelist widget
+    rcmail.folder_list = new rcube_treelist_widget(list, {
+        selectable: true,
+        id_prefix: 'rcmli',
+        parent_focus: true,
+        id_encode: rcmail.html_identifier_encode,
+        id_decode: rcmail.html_identifier_decode,
+        check_droptarget: function(node) {
+          return !node.virtual
+            && node.id != file_api.env.folder
+            && $.inArray('collection', node.classes) == -1;
+        }
+    });
+
+    rcmail.folder_list
+      .addEventListener('collapse', function(node) { file_api.folder_collapsed(node); })
+      .addEventListener('expand', function(node) { file_api.folder_collapsed(node); })
+      .addEventListener('beforeselect', function(node) { return !rcmail.busy; })
+      .addEventListener('select', function(node) { file_api.folder_select(node.id); });
 
     // select first folder?
     if (this.env.folder)
-      this.folder_select(this.env.folder);
+      rcmail.folder_list.select(this.env.folder);
     else if (this.env.collection)
-      this.folder_select(this.env.collection, true);
+      rcmail.folder_list.select('folder-collection-' + this.env.collection);
     else if (first)
-      this.folder_select(first);
+      rcmail.folder_list.select(first);
 
     // add tree icons
-    this.folder_list_tree(this.env.folders);
+//    this.folder_list_tree(this.env.folders);
 
     // handle authentication errors on external sources
     this.folder_list_auth_errors(response.result);
   };
 
-  this.folder_select = function(folder, is_collection)
+  this.folder_select = function(folder)
   {
     if (rcmail.busy)
       return;
 
-    var list = $('#files-folder-list > ul');
-
-    // try parent window if the list element does not exist
-    // i.e. called from dialog in parent window
-    if (!list.length && window.parent && parent.rcmail) {
-      list = $('#files-folder-list > ul', window.parent.document.body);
-    }
-
-    $('li.selected', list).removeClass('selected');
+    var is_collection = folder.match(/^folder-collection-/);
 
     rcmail.enable_command('files-list', true);
+    rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-upload', !is_collection);
 
     if (is_collection) {
-      var found = $('#folder-collection-' + folder, list).addClass('selected');
-
-      rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-upload', false);
       this.env.folder = null;
-      rcmail.command('files-list', {collection: folder});
+      rcmail.command('files-list', {collection: folder.replace(/^folder-collection-/, '')});
     }
     else {
-      var found = $('#' + this.env.folders[folder].id, list).addClass('selected');
-
-      rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-upload', true);
       this.env.folder = folder;
       this.env.collection = null;
       rcmail.command('files-list', {folder: folder});
@@ -1242,41 +1267,73 @@ function kolab_files_ui()
 
   this.folder_unselect = function()
   {
-    var list = $('#files-folder-list > ul');
-    $('li.selected', list).removeClass('selected');
-    rcmail.enable_command('files-folder-delete', 'files-upload', false);
+    rcmail.folder_list.select();
     this.env.folder = null;
     this.env.collection = null;
+    rcmail.enable_command('files-folder-delete', 'files-upload', false);
   };
 
-  this.folder_list_row = function(i, folder)
+  this.folder_collapsed = function(node)
   {
-    var row = $('<li class="mailbox"><span class="branch"></span></li>');
+    var prefname = 'kolab_files_collapsed_folders',
+      old = rcmail.env[prefname],
+      entry = '&' + urlencode(node.id) + '&';
 
-    row.attr('id', folder.id).data('folder', i)
-      .append($('<span class="name"></span>').text(folder.name));
+    if (node.collapsed) {
+      rcmail.env[prefname] = rcmail.env[prefname] + entry;
 
-    if (folder.depth) {
-      $('span.branch', row).width(15 * folder.depth);
-      row.addClass('child');
+      // select the folder if one of its childs is currently selected
+      // don't select if it's virtual (#1488346)
+      if (!node.virtual && this.env.folder && this.env.folder.startsWith(node.id + '/')) {
+        rcmail.folder_list.select(node.id);
+      }
     }
+    else {
+      rcmail.env[prefname] = rcmail.env[prefname].replace(entry, '');
+    }
+
+    if (old !== rcmail.env[prefname] && (!rcmail.file_list || !rcmail.file_list.drag_active))
+      rcmail.command('save-pref', {name: prefname, value: rcmail.env[prefname]});
+  };
+
+  this.folder_list_row = function(i, folder, parent)
+  {
+    var toggle, sublist, collapsed, parent, parent_name,
+      row = $('<li class="mailbox"></li>'),
+      id = 'rcmli' + rcmail.html_identifier_encode(i);
+
+    row.attr('id', id).append($('<a></a>').text(folder.name));
 
     if (folder.virtual)
       row.addClass('virtual');
-    else
-      row.attr('tabindex', 0)
-        .keypress(function(e) { if (e.which == 13 || e.which == 32) file_api.folder_select(i); })
-        .click(function() { file_api.folder_select(i); })
-        .mouseenter(function() {
-          if (rcmail.file_list && rcmail.file_list.drag_active && !$(this).hasClass('selected'))
-            $(this).addClass('droptarget');
-        })
-        .mouseleave(function() {
-          if (rcmail.file_list && rcmail.file_list.drag_active)
-            $(this).removeClass('droptarget');
-        });
 
-    return row;
+    folder.ref = row;
+
+    if (folder.depth) {
+      // find parent folder
+      parent_name = i.replace(/\/[^/]+$/, '');
+      if (!parent)
+        parent = $(this.env.folders[parent_name].ref);
+
+      toggle = $('div.treetoggle', parent);
+      sublist = $('> ul', parent);
+
+      if (!toggle.length) {
+        collapsed = rcmail.env.kolab_files_collapsed_folders.indexOf('&' + urlencode(parent_name) + '&') > -1;
+
+        toggle = $('<div>').attr('class', 'treetoggle' + (collapsed ? ' collapsed' : ' expanded'))
+          .html('&nbsp;').appendTo(parent);
+
+        sublist = $('<ul>').attr({role: 'group'}).appendTo(parent);
+        if (collapsed)
+          sublist.hide();
+      }
+
+      sublist.append(row);
+    }
+    else {
+      return row;
+    }
   };
 
   // folder create request
@@ -2217,13 +2274,14 @@ function kolab_files_ui()
     if (!this.response(response))
       return;
 
-    var cnt = 0, folders,
+    var folders,
       folder = response.result.folder,
-      parent = $('#' + this.env.folders[folder].id);
+      id = 'rcmli' + rcmail.html_identifier_encode(folder),
+      parent = $('#' + id);
 
     // try parent window if the folder element does not exist
     if (!parent.length && window.parent && window.parent.rcmail) {
-      parent = $('#' + this.env.folders[folder].id, window.parent.document.body);
+      parent = $('#' + id, window.parent.document.body);
     }
 
     delete this.auth_errors[folder];
@@ -2232,22 +2290,17 @@ function kolab_files_ui()
     // go to the next one
     this.folder_list_auth_errors();
 
-    // count folders on the list
-    $.each(this.env.folders, function() { cnt++; });
-
     // parse result
-    folders = this.folder_list_parse(response.result.list, cnt);
+    folders = this.folder_list_parse(response.result.list);
     delete folders[folder]; // remove root added in folder_list_parse()
 
     // add folders from the external source to the list
     $.each(folders, function(i, f) {
-      var row = file_api.folder_list_row(i, f);
-      parent.after(row);
-      parent = row;
+      file_api.folder_list_row(i, f, parent.get(0));
     });
 
     // add tree icons
-    this.folder_list_tree(folders);
+//    this.folder_list_tree(folders);
 
     $.extend(this.env.folders, folders);
   };

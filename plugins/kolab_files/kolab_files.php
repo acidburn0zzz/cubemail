@@ -27,6 +27,7 @@ class kolab_files extends rcube_plugin
     // all task excluding 'login' and 'logout'
     public $task = '?(?!login|logout).*';
 
+    public $allowed_prefs = array('kolab_files_collapsed_folders');
     public $rc;
     public $home;
     private $engine;
