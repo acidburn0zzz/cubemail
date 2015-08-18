@@ -50,6 +50,7 @@ class kolab_storage_cache
     protected $order_by = null;
     protected $limit = null;
     protected $error = 0;
+    protected $server_timezone;
 
 
     /**
@@ -84,6 +85,7 @@ class kolab_storage_cache
         $this->enabled = $rcmail->config->get('kolab_cache', false);
         $this->folders_table = $this->db->table_name('kolab_folders');
         $this->cache_refresh = get_offset_sec($rcmail->config->get('kolab_cache_refresh', '12h'));
+        $this->server_timezone = new DateTimeZone(date_default_timezone_get());
 
         if ($this->enabled) {
             // always read folder cache and lock state from DB master
@@ -1145,4 +1147,19 @@ class kolab_storage_cache
         }
     }
 
+    /**
+     * Converts DateTime or unix timestamp into sql date format
+     * using server timezone.
+     */
+    protected function _convert_datetime($datetime)
+    {
+        if (is_object($datetime)) {
+            $dt = clone $datetime;
+            $dt->setTimeZone($this->server_timezone);
+            return $dt->format(self::DB_DATE_FORMAT);
+        }
+        else if ($datetime) {
+            return date(self::DB_DATE_FORMAT, $datetime);
+        }
+    }
 }
