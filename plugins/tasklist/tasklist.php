@@ -1263,6 +1263,12 @@ class tasklist extends rcube_plugin
             }
         }
 
+        // Convert HTML description into plain text
+        if ($this->is_html($rec)) {
+            $h2t = new rcube_html2text($rec['description'], false, true, 0);
+            $rec['description'] = $h2t->get_text();
+        }
+
         if (!is_array($rec['tags']))
             $rec['tags'] = (array)$rec['tags'];
         sort($rec['tags'], SORT_LOCALE_STRING);
@@ -1274,6 +1280,15 @@ class tasklist extends rcube_plugin
             $rec['parent_id'] = null;
 
         $this->task_titles[$rec['id']] = $rec['title'];
+    }
+
+    /**
+     * Determine whether the given task description is HTML formatted
+     */
+    private function is_html($task)
+    {
+        // check for opening and closing <html> or <body> tags
+        return (preg_match('/<(html|body)(\s+[a-z]|>)/', $task['description'], $m) && strpos($task['description'], '</'.$m[1].'>') > 0);
     }
 
     /**
