@@ -1773,6 +1773,12 @@ class calendar extends rcube_plugin
       array_unshift($event['attendees'], $organizer);
     }
 
+    // Convert HTML description into plain text
+    if ($this->is_html($event)) {
+      $h2t = new rcube_html2text($event['description'], false, true, 0);
+      $event['description'] = trim($h2t->get_text());
+    }
+
     // mapping url => vurl because of the fullcalendar client script
     $event['vurl'] = $event['url'];
     unset($event['url']);
@@ -1904,6 +1910,14 @@ class calendar extends rcube_plugin
     exit;
   }
 
+  /**
+   * Determine whether the given event description is HTML formatted
+   */
+  private function is_html($event)
+  {
+      // check for opening and closing <html> or <body> tags
+      return (preg_match('/<(html|body)(\s+[a-z]|>)/', $event['description'], $m) && strpos($event['description'], '</'.$m[1].'>') > 0);
+  }
 
   /**
    * Prepares new/edited event properties before save
