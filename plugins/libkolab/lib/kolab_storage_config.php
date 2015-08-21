@@ -649,11 +649,13 @@ class kolab_storage_config
     /**
      * Get tags (all or referring to specified object)
      *
-     * @param string $uid Optional object UID
+     * @param string $member Optional object UID or mail message-id
+     * @param int    $limit  Max. number of records (per-folder)
+     *                       Used when searching by member
      *
      * @return array List of Relation objects
      */
-    public function get_tags($uid = '*')
+    public function get_tags($member = '*', $limit = 0)
     {
         if (!isset($this->tags)) {
             $default = true;
@@ -663,9 +665,9 @@ class kolab_storage_config
             );
 
             // use faster method
-            if ($uid && $uid != '*') {
-                $filter[] = array('member', '=', $uid);
-                $tags = $this->get_objects($filter, $default);
+            if ($member && $member != '*') {
+                $filter[] = array('member', '=', $member);
+                $tags = $this->get_objects($filter, $default, $limit);
             }
             else {
                 $this->tags = $tags = $this->get_objects($filter, $default);
@@ -675,16 +677,30 @@ class kolab_storage_config
             $tags = $this->tags;
         }
 
-        if ($uid === '*') {
+        if ($member === '*') {
             return $tags;
         }
 
         $result = array();
-        $search = self::build_member_url($uid);
+
+        if ($member[0] == '<') {
+            $search_msg = urlencode($member);
+        }
+        else {
+            $search_uid = self::build_member_url($member);
+        }
 
         foreach ($tags as $tag) {
-            if (in_array($search, (array) $tag['members'])) {
+            if ($search_uid && in_array($search_uid, (array) $tag['members'])) {
                 $result[] = $tag;
+            }
+            else if ($search_msg) {
+                foreach ($tag['members'] as $m) {
+                    if (strpos($m, $search_msg) !== false) {
+                        $result[] = $tag;
+                        break;
+                    }
+                }
             }
         }
 
