@@ -369,7 +369,7 @@ class calendar extends rcube_plugin
       $select->add($this->gettext('month'), "month");
       $select->add($this->gettext('agenda'), "table");
       $p['blocks']['view']['options']['default_view'] = array(
-        'title' => html::label($field_id, Q($this->gettext('default_view'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('default_view'))),
         'content' => $select->show($this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view'])),
       );
     }
@@ -385,7 +385,7 @@ class calendar extends rcube_plugin
       $select = new html_select(array('name' => '_timeslots', 'id' => $field_id));
       $select->add($choices);
       $p['blocks']['view']['options']['timeslots'] = array(
-        'title' => html::label($field_id, Q($this->gettext('timeslots'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('timeslots'))),
         'content' => $select->show(strval($this->rc->config->get('calendar_timeslots', $this->defaults['calendar_timeslots']))),
       );
     }
@@ -406,7 +406,7 @@ class calendar extends rcube_plugin
       $select->add($this->gettext('friday'), '5');
       $select->add($this->gettext('saturday'), '6');
       $p['blocks']['view']['options']['first_day'] = array(
-        'title' => html::label($field_id, Q($this->gettext('first_day'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('first_day'))),
         'content' => $select->show(strval($this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']))),
       );
     }
@@ -424,7 +424,7 @@ class calendar extends rcube_plugin
 
       $field_id = 'rcmfd_firsthour';
       $p['blocks']['view']['options']['first_hour'] = array(
-        'title' => html::label($field_id, Q($this->gettext('first_hour'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('first_hour'))),
         'content' => $select_hours->show($this->rc->config->get('calendar_first_hour', $this->defaults['calendar_first_hour']), array('name' => '_first_hour', 'id' => $field_id)),
       );
     }
@@ -437,7 +437,7 @@ class calendar extends rcube_plugin
 
       $field_id = 'rcmfd_workstart';
       $p['blocks']['view']['options']['workinghours'] = array(
-        'title' => html::label($field_id, Q($this->gettext('workinghours'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('workinghours'))),
         'content' => $select_hours->show($this->rc->config->get('calendar_work_start', $this->defaults['calendar_work_start']), array('name' => '_work_start', 'id' => $field_id)) .
         ' &mdash; ' . $select_hours->show($this->rc->config->get('calendar_work_end', $this->defaults['calendar_work_end']), array('name' => '_work_end', 'id' => $field_id)),
       );
@@ -457,7 +457,7 @@ class calendar extends rcube_plugin
       $select_colors->add($this->gettext('coloringmode3'), 3);
 
       $p['blocks']['view']['options']['eventcolors'] = array(
-        'title' => html::label($field_id . 'value', Q($this->gettext('eventcoloring'))),
+        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('eventcoloring'))),
         'content' => $select_colors->show($this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring'])),
       );
     }
@@ -478,7 +478,7 @@ class calendar extends rcube_plugin
         $select_type->add($this->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
 
       $p['blocks']['view']['options']['alarmtype'] = array(
-        'title' => html::label($field_id, Q($this->gettext('defaultalarmtype'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('defaultalarmtype'))),
         'content' => $select_type->show($this->rc->config->get('calendar_default_alarm_type', '')),
       );
     }
@@ -497,7 +497,7 @@ class calendar extends rcube_plugin
 
       $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
       $p['blocks']['view']['options']['alarmoffset'] = array(
-        'title' => html::label($field_id . 'value', Q($this->gettext('defaultalarmoffset'))),
+        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('defaultalarmoffset'))),
         'content' => $input_value->show($preset[0]) . ' ' . $select_offset->show($preset[1]),
       );
     }
@@ -516,7 +516,7 @@ class calendar extends rcube_plugin
           $default_calendar = $id;
       }
       $p['blocks']['view']['options']['defaultcalendar'] = array(
-        'title' => html::label($field_id . 'value', Q($this->gettext('defaultcalendar'))),
+        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('defaultcalendar'))),
         'content' => $select_cal->show($this->rc->config->get('calendar_default_calendar', $default_calendar)),
       );
     }
@@ -556,7 +556,7 @@ class calendar extends rcube_plugin
       ));
 
       $p['blocks']['itip']['options']['after_action'] = array(
-        'title'   => html::label($field_id, Q($this->gettext('afteraction'))),
+        'title'   => html::label($field_id, rcube::Q($this->gettext('afteraction'))),
         'content' => $select->show($val) . $folders->show($folder),
       );
     }
@@ -2647,7 +2647,7 @@ class calendar extends rcube_plugin
 
     return html::div(rtrim('event-row ' . $class),
       html::span('event-date', $time) .
-      html::span('event-title', Q($event['title']))
+      html::span('event-title', rcube::Q($event['title']))
     );
   }
   

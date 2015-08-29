@@ -148,7 +148,7 @@ class kolab_activesync extends rcube_plugin
                 }
 
                 $this->rc->output->command('plugin.activesync_save_complete', array(
-                    'success' => !$err, 'id' => $imei, 'alias' => Q($devicealias)));
+                    'success' => !$err, 'id' => $imei, 'alias' => rcube::Q($devicealias)));
             }
 
             if ($err)

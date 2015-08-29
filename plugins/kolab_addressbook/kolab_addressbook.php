@@ -839,7 +839,7 @@ class kolab_addressbook extends rcube_plugin
             $select->add($this->gettext('personalonly'), self::PERSONAL_ONLY);
 
             $args['blocks']['main']['options']['kolab_addressbook_prio'] = array(
-                'title' => html::label($field_id, Q($this->gettext('addressbookprio'))),
+                'title' => html::label($field_id, rcube::Q($this->gettext('addressbookprio'))),
                 'content' => $select->show($prio),
             );
         }

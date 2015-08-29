@@ -213,7 +213,7 @@ class kolab_addressbook_ui
         );
 
         if (!empty($options) && ($options['norename'] || $options['protected'])) {
-            $foldername = Q(str_replace($delim, ' &raquo; ', kolab_storage::object_name($folder)));
+            $foldername = rcube::Q(str_replace($delim, ' &raquo; ', kolab_storage::object_name($folder)));
         }
         else {
             $foldername = new html_inputfield(array('name' => '_name', 'id' => '_name', 'size' => 30));
@@ -264,7 +264,7 @@ class kolab_addressbook_ui
                 foreach ($tab['fieldsets'] as $fieldset) {
                     $subcontent = $this->get_form_part($fieldset);
                     if ($subcontent) {
-                        $content .= html::tag('fieldset', null, html::tag('legend', null, Q($fieldset['name'])) . $subcontent) ."\n";
+                        $content .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($fieldset['name'])) . $subcontent) ."\n";
                     }
                 }
             }
@@ -273,7 +273,7 @@ class kolab_addressbook_ui
             }
 
             if ($content) {
-                $out .= html::tag('fieldset', null, html::tag('legend', null, Q($tab['name'])) . $content) ."\n";
+                $out .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
             }
         }
 
@@ -307,7 +307,7 @@ class kolab_addressbook_ui
                 $colprop['id'] = '_'.$col;
                 $label = !empty($colprop['label']) ? $colprop['label'] : $this->rc->gettext($col);
 
-                $table->add('title', sprintf('<label for="%s">%s</label>', $colprop['id'], Q($label)));
+                $table->add('title', sprintf('<label for="%s">%s</label>', $colprop['id'], rcube::Q($label)));
                 $table->add(null, $colprop['value']);
             }
             $content = $table->show();

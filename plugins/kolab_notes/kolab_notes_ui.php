@@ -352,7 +352,7 @@ class kolab_notes_ui
         // add folder ACL tab
         if ($action != 'form-new') {
             $form['sharing'] = array(
-                'name'    => Q($this->plugin->gettext('tabsharing')),
+                'name'    => rcube::Q($this->plugin->gettext('tabsharing')),
                 'content' => html::tag('iframe', array(
                     'src' => $this->rc->url(array('_action' => 'folder-acl', '_folder' => $folder_name, 'framed' => 1)),
                     'width' => '100%',
@@ -378,7 +378,7 @@ class kolab_notes_ui
                 foreach ($tab['fields'] as $col => $colprop) {
                     $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
 
-                    $table->add('title', html::label($colprop['id'], Q($label)));
+                    $table->add('title', html::label($colprop['id'], rcube::Q($label)));
                     $table->add(null, $colprop['value']);
                 }
                 $content = $table->show();
@@ -388,7 +388,7 @@ class kolab_notes_ui
             }
 
             if (!empty($content)) {
-                $form_html .= html::tag('fieldset', null, html::tag('legend', null, Q($tab['name'])) . $content) . "\n";
+                $form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) . "\n";
             }
         }
 
