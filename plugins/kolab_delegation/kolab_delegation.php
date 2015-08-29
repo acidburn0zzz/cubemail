@@ -404,7 +404,7 @@ class kolab_delegation extends rcube_plugin
 
         foreach ($list as $id => $delegate) {
             $table->add_row(array('id' => 'rcmrow' . $id));
-            $table->add(null, Q($delegate));
+            $table->add(null, rcube::Q($delegate));
         }
 
         $this->rc->output->add_gui_object('delegatelist', $attrib['id']);
@@ -429,7 +429,7 @@ class kolab_delegation extends rcube_plugin
 
         if ($delegate) {
             $input = new html_hiddenfield(array('name' => $field_id, 'id' => $field_id, 'size' => 40));
-            $input = Q($delegate['name']) . $input->show($id);
+            $input = rcube::Q($delegate['name']) . $input->show($id);
 
             $this->rc->output->set_env('active_delegate', $id);
             $this->rc->output->command('parent.enable_command','delegate-delete', true);
@@ -522,7 +522,7 @@ class kolab_delegation extends rcube_plugin
                 }
             }
 
-            $folder_id = 'rcmf' . html_identifier($folder);
+            $folder_id = 'rcmf' . rcube_utils::html_identifier($folder);
             $names[] = $origname;
             $classes = array('mailbox');
 

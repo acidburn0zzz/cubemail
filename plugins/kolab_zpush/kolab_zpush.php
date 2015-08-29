@@ -169,7 +169,7 @@ class kolab_zpush extends rcube_plugin
                 $this->cache->remove('folders');
                 $this->cache->write('folders', $this->folders_meta);
 
-                $this->rc->output->command('plugin.zpush_save_complete', array('success' => !$err, 'id' => $imei, 'devicealias' => Q($devicealias)));
+                $this->rc->output->command('plugin.zpush_save_complete', array('success' => !$err, 'id' => $imei, 'devicealias' => rcube::Q($devicealias)));
             }
 
             if ($err)

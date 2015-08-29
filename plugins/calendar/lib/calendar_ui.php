@@ -308,7 +308,7 @@ class calendar_ui
     if (!$activeonly || $prop['active']) {
       $label_id = 'cl:' . $id;
       $content = html::div(join(' ', $classes),
-        html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
+        html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? rcube::Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' :
           html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
           html::span('actions', 
@@ -790,7 +790,7 @@ class calendar_ui
       html::tag('table', array('id' => $attrib['id'] . '-owner', 'style' => 'display:none') + $attrib,
         html::tag('thead', null,
           html::tag('tr', null,
-            html::tag('td', array('colspan' => 2), Q($this->cal->gettext('resourceowner')))
+            html::tag('td', array('colspan' => 2), rcube::Q($this->cal->gettext('resourceowner')))
           )
         ) .
         html::tag('tbody', null, ''),

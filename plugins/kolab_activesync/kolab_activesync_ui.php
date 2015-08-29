@@ -52,7 +52,7 @@ class kolab_activesync_ui
         foreach ($devices as $id => $device) {
             $name = $device['ALIAS'] ? $device['ALIAS'] : $id;
             $table->add_row(array('id' => 'rcmrow' . $id));
-            $table->add(null, html::span('devicealias', Q($name)) . html::span('devicetype', Q($device['TYPE'])));
+            $table->add(null, html::span('devicealias', rcube::Q($name)) . html::span('devicetype', rcube::Q($device['TYPE'])));
         }
 
         $this->rc->output->add_gui_object('devicelist', $attrib['id']);
@@ -79,8 +79,8 @@ class kolab_activesync_ui
         if (!empty($info)) {
             foreach ($info as $key => $value) {
                 if ($value) {
-                    $table->add('title', Q($this->plugin->gettext($key)));
-                    $table->add(null, Q($value));
+                    $table->add('title', rcube::Q($this->plugin->gettext($key)));
+                    $table->add(null, rcube::Q($value));
                 }
             }
         }
@@ -176,7 +176,7 @@ class kolab_activesync_ui
                 }
             }
 
-            $folder_id = 'rcmf' . html_identifier($folder);
+            $folder_id = 'rcmf' . rcube_utils::html_identifier($folder);
             $names[] = $origname;
             $classes = array('mailbox');
 

@@ -752,7 +752,7 @@ class kolab_notes extends rcube_plugin
         $saved = $folder->save($object, 'note', $note['uid']);
 
         if (!$saved) {
-            raise_error(array(
+            rcube::raise_error(array(
                 'code' => 600, 'type' => 'php',
                 'file' => __FILE__, 'line' => __LINE__,
                 'message' => "Error saving note object to Kolab server"),
@@ -1188,7 +1188,7 @@ class kolab_notes extends rcube_plugin
                 'class' => 'kolabnotesref',
                 'rel' => $note['uid'] . '@' . $note['list'],
                 'target' => '_blank',
-            ), Q($note['title']));
+            ), rcube::Q($note['title']));
         }
 
         // prepend note links to message body

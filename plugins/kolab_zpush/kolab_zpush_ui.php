@@ -49,7 +49,7 @@ class kolab_zpush_ui
         foreach ($devices as $id => $device) {
             $name = $device['ALIAS'] ? $device['ALIAS'] : $id;
             $table->add_row(array('id' => 'rcmrow' . $id));
-            $table->add(null, html::span('devicealias', Q($name)) . html::span('devicetype', Q($device['TYPE'])));
+            $table->add(null, html::span('devicealias', rcube::Q($name)) . html::span('devicetype', rcube::Q($device['TYPE'])));
         }
 
         $this->rc->output->add_gui_object('devicelist', $attrib['id']);
@@ -150,7 +150,7 @@ class kolab_zpush_ui
                 $classes[] = $folder_class;
             }
 
-            $folder_id = 'rcmf' . html_identifier($folder);
+            $folder_id = 'rcmf' . rcube_utils::html_identifier($folder);
 
             $table->add_row();
             $table->add('subscription', $checkbox_sync->show('', array('value' => $folder, 'id' => $folder_id)));
@@ -160,7 +160,7 @@ class kolab_zpush_ui
             else
                 $table->add('alarm', '');
 
-            $table->add(join(' ', $classes), html::label($folder_id, Q($foldername)));
+            $table->add(join(' ', $classes), html::label($folder_id, rcube::Q($foldername)));
         }
 
         return $table->show();
