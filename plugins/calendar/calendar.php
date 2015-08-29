@@ -914,7 +914,7 @@ class calendar extends rcube_plugin
           // display message with Undo link.
           $msg = html::span(null, $this->gettext('successremoval'))
             . ' ' . html::a(array('onclick' => sprintf("%s.http_request('event', 'action=undo', %s.display_message('', 'loading'))",
-              JS_OBJECT_NAME, JS_OBJECT_NAME)), rcube_label('undo'));
+              rcmail_output::JS_OBJECT_NAME, rcmail_output::JS_OBJECT_NAME)), $this->gettext('undo'));
           $this->rc->output->show_message($msg, 'confirmation', null, true, $undo_time);
           $got_msg = true;
         }
@@ -3100,7 +3100,7 @@ class calendar extends rcube_plugin
     $uid     = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
     $mbox    = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
     $mime_id = rcube_utils::get_input_value('_part', rcube_utils::INPUT_POST);
-    $charset = RCMAIL_CHARSET;
+    $charset = RCUBE_CHARSET;
 
     // establish imap connection
     $imap = $this->rc->get_storage();

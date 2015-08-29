@@ -291,7 +291,7 @@ class calendar_ui
 
     $classes = array('calendar', 'cal-'  . asciiwords($id, true));
     $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
-      html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '');
+      html_entity_decode($prop['name'], ENT_COMPAT, RCUBE_CHARSET) : '');
 
     if ($prop['virtual'])
       $classes[] = 'virtual';
@@ -616,9 +616,9 @@ class calendar_ui
 
     return html::div($attrib,
       html::div(null, $input->show()) .
-      html::div('formbuttons', $button->show(rcube_label('upload'), array('class' => 'button mainaction',
-        'onclick' => JS_OBJECT_NAME . ".upload_file(this.form)"))) .
-      html::div('hint', rcube_label(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
+      html::div('formbuttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
+        'onclick' => rcmail_output::JS_OBJECT_NAME . ".upload_file(this.form)"))) .
+      html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
     );
   }
 

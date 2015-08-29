@@ -265,8 +265,8 @@ class libcalendaring_itip
         $message = new Mail_mime("\r\n");
         $message->setParam('text_encoding', 'quoted-printable');
         $message->setParam('head_encoding', 'quoted-printable');
-        $message->setParam('head_charset', RCMAIL_CHARSET);
-        $message->setParam('text_charset', RCMAIL_CHARSET . ";\r\n format=flowed");
+        $message->setParam('head_charset', RCUBE_CHARSET);
+        $message->setParam('text_charset', RCUBE_CHARSET . ";\r\n format=flowed");
         $message->setContentType('multipart/alternative');
 
         // compose common headers array
@@ -286,7 +286,7 @@ class libcalendaring_itip
         $ical = libcalendaring::get_ical();
         $ics = $ical->export(array($event), $method, false, $method == 'REQUEST' && $this->plugin->driver ? array($this->plugin->driver, 'get_attachment_body') : false);
         $filename = $event['_type'] == 'task' ? 'todo.ics' : 'event.ics';
-        $message->addAttachment($ics, 'text/calendar', $filename, false, '8bit', '', RCMAIL_CHARSET . "; method=" . $method);
+        $message->addAttachment($ics, 'text/calendar', $filename, false, '8bit', '', RCUBE_CHARSET . "; method=" . $method);
 
         return $message;
     }

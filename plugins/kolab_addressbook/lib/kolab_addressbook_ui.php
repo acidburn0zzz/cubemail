@@ -161,7 +161,7 @@ class kolab_addressbook_ui
 
         $hidden_fields[] = array('name' => '_source', 'value' => $folder);
 
-        $folder  = rcube_charset::convert($folder, RCMAIL_CHARSET, 'UTF7-IMAP');
+        $folder  = rcube_charset::convert($folder, RCUBE_CHARSET, 'UTF7-IMAP');
         $storage = $this->rc->get_storage();
         $delim   = $storage->get_hierarchy_delimiter();
 

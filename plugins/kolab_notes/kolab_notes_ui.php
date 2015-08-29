@@ -206,7 +206,7 @@ class kolab_notes_ui
         }
 
         $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
-          html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '');
+          html_entity_decode($prop['name'], ENT_COMPAT, RCUBE_CHARSET) : '');
 
         $label_id = 'nl:' . $id;
         $attr = $prop['virtual'] ? array('tabindex' => '0') : array('href' => $this->rc->url(array('_list' => $id)));

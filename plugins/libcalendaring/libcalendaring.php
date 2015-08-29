@@ -1100,7 +1100,7 @@ class libcalendaring extends rcube_plugin
                   $content = html::a(array(
                       'href' => "#delete",
                       'class' => 'delete',
-                      'onclick' => sprintf("return %s.remove_from_attachment_list('rcmfile%s')", JS_OBJECT_NAME, $id),
+                      'onclick' => sprintf("return %s.remove_from_attachment_list('rcmfile%s')", rcmail_output::JS_OBJECT_NAME, $id),
                       'title' => $this->rc->gettext('delete'),
                       'aria-label' => $this->rc->gettext('delete') . ' ' . $attachment['name'],
                   ), $button);
@@ -1194,7 +1194,7 @@ class libcalendaring extends rcube_plugin
 
             // display page, @TODO: support text/plain (and maybe some other text formats)
             if ($mimetype == 'text/html' && empty($_GET['_download'])) {
-                $OUTPUT = new rcube_html_page();
+                $OUTPUT = new rcmail_html_page();
                 // @TODO: use washtml on $body
                 $OUTPUT->write($plugin['body']);
             }
@@ -1331,7 +1331,7 @@ class libcalendaring extends rcube_plugin
 
             foreach ($this->ical_parts as $mime_id) {
                 $part    = $this->ical_message->mime_parts[$mime_id];
-                $charset = $part->ctype_parameters['charset'] ?: RCMAIL_CHARSET;
+                $charset = $part->ctype_parameters['charset'] ?: RCUBE_CHARSET;
                 $this->mail_ical_parser->import($this->ical_message->get_part_body($mime_id, true), $charset);
 
                 // check if the parsed object is an instance of a recurring event/task
@@ -1370,7 +1370,7 @@ class libcalendaring extends rcube_plugin
      */
     public function mail_get_itip_object($mbox, $uid, $mime_id, $type = null)
     {
-        $charset = RCMAIL_CHARSET;
+        $charset = RCUBE_CHARSET;
 
         // establish imap connection
         $imap = $this->rc->get_storage();
