@@ -291,7 +291,7 @@ class calendar_ui
 
     $classes = array('calendar', 'cal-'  . asciiwords($id, true));
     $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
-      html_entity_decode($prop['name'], ENT_COMPAT, RCMAIL_CHARSET) : '');
+      html_entity_decode($prop['name'], ENT_COMPAT, RCUBE_CHARSET) : '');
 
     if ($prop['virtual'])
       $classes[] = 'virtual';
@@ -308,7 +308,7 @@ class calendar_ui
     if (!$activeonly || $prop['active']) {
       $label_id = 'cl:' . $id;
       $content = html::div(join(' ', $classes),
-        html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? Q($prop['editname']) : $prop['listname']) .
+        html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? rcube::Q($prop['editname']) : $prop['listname']) .
         ($prop['virtual'] ? '' :
           html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
           html::span('actions', 
@@ -617,7 +617,7 @@ class calendar_ui
     return html::div($attrib,
       html::div(null, $input->show()) .
       html::div('formbuttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
-        'onclick' => JS_OBJECT_NAME . ".upload_file(this.form)"))) .
+        'onclick' => rcmail_output::JS_OBJECT_NAME . ".upload_file(this.form)"))) .
       html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
     );
   }
@@ -790,7 +790,7 @@ class calendar_ui
       html::tag('table', array('id' => $attrib['id'] . '-owner', 'style' => 'display:none') + $attrib,
         html::tag('thead', null,
           html::tag('tr', null,
-            html::tag('td', array('colspan' => 2), Q($this->cal->gettext('resourceowner')))
+            html::tag('td', array('colspan' => 2), rcube::Q($this->cal->gettext('resourceowner')))
           )
         ) .
         html::tag('tbody', null, ''),

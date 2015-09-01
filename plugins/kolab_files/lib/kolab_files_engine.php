@@ -464,7 +464,7 @@ class kolab_files_engine
             $a_sort_cols = $this->sort_cols;
 
         if (!empty($attrib['optionsmenuicon'])) {
-            $onclick = 'return ' . JS_OBJECT_NAME . ".command('menu-open', 'filelistmenu', this, event)";
+            $onclick = 'return ' . rcmail_output::JS_OBJECT_NAME . ".command('menu-open', 'filelistmenu', this, event)";
             $inner   = $this->rc->gettext('listoptions');
 
             if (is_string($attrib['optionsmenuicon']) && $attrib['optionsmenuicon'] != 'true') {
@@ -505,7 +505,7 @@ class kolab_files_engine
             if (in_array($col, $a_sort_cols)) {
                 $col_name = html::a(array(
                         'href'    => "#sort",
-                        'onclick' => 'return '.JS_OBJECT_NAME.".command('files-sort','".$col."',this)",
+                        'onclick' => 'return ' . rcmail_output::JS_OBJECT_NAME . ".command('files-sort','$col',this)",
                         'title'   => $this->plugin->gettext('sortby')
                     ), $col_name);
             }
@@ -1095,7 +1095,7 @@ class kolab_files_engine
 
                 $content = html::a(array(
                     'href' => "#delete",
-                    'onclick' => sprintf("return %s.command('remove-attachment','rcmfile%s', this)", JS_OBJECT_NAME, $id),
+                    'onclick' => sprintf("return %s.command('remove-attachment','rcmfile%s', this)", rcmail_output::JS_OBJECT_NAME, $id),
                     'title' => $this->rc->gettext('delete'),
                     'class' => 'delete',
                 ), $button);
