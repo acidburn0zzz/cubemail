@@ -465,40 +465,42 @@ class calendar extends rcube_plugin
     // loading driver is expensive, don't do it if not needed
     $this->load_driver();
 
-    if (!isset($no_override['calendar_default_alarm_type'])) {
+    if (!isset($no_override['calendar_default_alarm_type']) || !isset($no_override['calendar_default_alarm_offset'])) {
       if (!$p['current']) {
         $p['blocks']['view']['content'] = true;
         return $p;
       }
 
-      $field_id = 'rcmfd_alarm';
-      $select_type = new html_select(array('name' => '_alarm_type', 'id' => $field_id));
-      $select_type->add($this->gettext('none'), '');
-      foreach ($this->driver->alarm_types as $type)
-        $select_type->add($this->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
+      $alarm_type = $alarm_offset = '';
+
+      if (!isset($no_override['calendar_default_alarm_type'])) {
+        $field_id    = 'rcmfd_alarm';
+        $select_type = new html_select(array('name' => '_alarm_type', 'id' => $field_id));
+        $select_type->add($this->gettext('none'), '');
+
+        foreach ($this->driver->alarm_types as $type) {
+          $select_type->add($this->rc->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
+        }
+
+        $alarm_type = $select_type->show($this->rc->config->get('calendar_default_alarm_type', ''));
+      }
+
+      if (!isset($no_override['calendar_default_alarm_offset'])) {
+        $field_id      = 'rcmfd_alarm';
+        $input_value   = new html_inputfield(array('name' => '_alarm_value', 'id' => $field_id . 'value', 'size' => 3));
+        $select_offset = new html_select(array('name' => '_alarm_offset', 'id' => $field_id . 'offset'));
+
+        foreach (array('-M','-H','-D','+M','+H','+D') as $trigger) {
+          $select_offset->add($this->rc->gettext('trigger' . $trigger, 'libcalendaring'), $trigger);
+        }
+
+        $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
+        $alarm_offset = $input_value->show($preset[0]) . ' ' . $select_offset->show($preset[1]);
+      }
 
       $p['blocks']['view']['options']['alarmtype'] = array(
         'title' => html::label($field_id, Q($this->gettext('defaultalarmtype'))),
-        'content' => $select_type->show($this->rc->config->get('calendar_default_alarm_type', '')),
-      );
-    }
-
-    if (!isset($no_override['calendar_default_alarm_offset'])) {
-      if (!$p['current']) {
-        $p['blocks']['view']['content'] = true;
-        return $p;
-      }
-
-      $field_id = 'rcmfd_alarm';
-      $input_value = new html_inputfield(array('name' => '_alarm_value', 'id' => $field_id . 'value', 'size' => 3));
-      $select_offset = new html_select(array('name' => '_alarm_offset', 'id' => $field_id . 'offset'));
-      foreach (array('-M','-H','-D','+M','+H','+D') as $trigger)
-        $select_offset->add($this->rc->gettext('trigger' . $trigger, 'libcalendaring'), $trigger);
-
-      $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
-      $p['blocks']['view']['options']['alarmoffset'] = array(
-        'title' => html::label($field_id . 'value', Q($this->gettext('defaultalarmoffset'))),
-        'content' => $input_value->show($preset[0]) . ' ' . $select_offset->show($preset[1]),
+        'content' => $alarm_type . ' ' . $alarm_offset,
       );
     }
 
@@ -655,7 +657,7 @@ class calendar extends rcube_plugin
       $select_type = new html_select(array('name' => '_birthdays_alarm_type', 'id' => $field_id) + $input_attrib);
       $select_type->add($this->gettext('none'), '');
       foreach ($this->driver->alarm_types as $type) {
-        $select_type->add($this->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
+        $select_type->add($this->rc->gettext(strtolower("alarm{$type}option"), 'libcalendaring'), $type);
       }
 
       $input_value = new html_inputfield(array('name' => '_birthdays_alarm_value', 'id' => $field_id . 'value', 'size' => 3) + $input_attrib);
