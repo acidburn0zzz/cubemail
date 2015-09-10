@@ -456,7 +456,7 @@ class libvcalendar implements Iterator
                 $params = is_array($event['recurrence']) ? $event['recurrence'] : array();
                 // parse recurrence rule attributes
                 foreach ($prop->getParts() as $k => $v) {
-                    $params[strtoupper($k)] = $v;
+                    $params[strtoupper($k)] = is_array($v) ? implode(',', $v) : $v;
                 }
                 if ($params['UNTIL'])
                     $params['UNTIL'] = date_create($params['UNTIL']);
