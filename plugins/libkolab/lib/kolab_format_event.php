@@ -109,6 +109,7 @@ class kolab_format_event extends kolab_format_xcal
                 $exevent->set(($compacted = $this->compact_exception($exception, $object)));  // only save differing values
 
                 // get value for recurrence-id
+                $recurrence_id = null;
                 if (!empty($exception['recurrence_date']) && is_a($exception['recurrence_date'], 'DateTime')) {
                     $recurrence_id = $exception['recurrence_date'];
                     $compacted['_instance'] = $recurrence_id->format($recurrence_id_format);
@@ -117,6 +118,7 @@ class kolab_format_event extends kolab_format_xcal
                     $recurrence_id = rcube_utils::anytodatetime($exception['_instance'], $object['start']->getTimezone());
                     $compacted['recurrence_date'] = $recurrence_id;
                 }
+
                 $exevent->obj->setRecurrenceID(self::get_datetime($recurrence_id ?: $exception['start'], null,  $object['allday']), (bool)$exception['thisandfuture']);
 
                 $vexceptions->push($exevent->obj);
