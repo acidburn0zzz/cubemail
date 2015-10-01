@@ -26,6 +26,8 @@ function kolab_files_ui_init()
     if (menu.length) {
       rcmail.gui_object('file_searchmenu', 'filesearchmenu');
     }
+
+    UI.folder_search_init($('#folderlistbox'));
   });
 
   kolab_files_upload_input('#filestoolbar a.upload');

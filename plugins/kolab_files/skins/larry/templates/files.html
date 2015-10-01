@@ -33,8 +33,20 @@
 
 <div id="folderlistbox" class="uibox listbox" role="navigation" aria-labelledby="aria-label-folderlist">
     <h2 id="aria-label-folderlist" class="voice"><roundcube:label name="kolab_files.arialabelfolderlist" /></h2>
-    <div id="files-folder-list" class="scroller withfooter">
+    <h2 id="folderslist-header" class="boxtitle">
+        <roundcube:label name="folders" />
+        <a href="#folders" class="iconbutton search" title="<roundcube:label name='findfolders' />" tabindex="0"><roundcube:label name='findfolders' /></a>
+    </h2>
+    <div class="listsearchbox">
+        <div class="searchbox" role="search" aria-labelledby="aria-label-foldersearchform">
+            <h3 id="aria-label-foldersearchform" class="voice"><roundcube:label name="arialabelfoldersearchform" /></h3>
+            <label for="foldersearch" class="voice"><roundcube:label name="arialabelsearchterms" /></label>
+            <input type="text" name="q" id="foldersearch" placeholder="<roundcube:label name='findfolders' />" />
+            <a class="iconbutton searchicon"></a>
+            <roundcube:button command="reset-foldersearch" id="folderlistsearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+        </div>
     </div>
+    <div id="files-folder-list" class="scroller withfooter"></div>
     <div id="folderlist-footer" class="boxfooter">
         <roundcube:button command="folder-create" type="link" title="kolab_files.foldercreate" class="listbutton add" classAct="listbutton add" innerClass="inner" content="+" /><roundcube:button name="folderoptions" id="folderoptionslink" type="link" title="moreactions" class="listbutton groupactions" onclick="return UI.toggle_popup('folderoptions', event)" innerClass="inner" content="&#9881;" aria-haspopup="true" aria-expanded="false" aria-owns="folderoptionsmenu" />
         <roundcube:if condition="env:files_quota" />
@@ -45,7 +57,7 @@
 </div>
 
 <div id="filelistcontainer" class="uibox droptarget">
-    <h2 id="aria-label-filelist" class="voice"><roundcube:label name="arialabelfilelist" /></h2>
+    <h2 id="aria-label-filelist" class="voice"><roundcube:label name="kolab_files.arialabelfilelist" /></h2>
     <div id="filelistbox" class="boxlistcontent">
         <roundcube:object name="filelist" id="filelist" class="records-table filelist sortheader fixedheader" optionsmenuIcon="true" aria-labelledby="aria-label-filelist" />
     </div>

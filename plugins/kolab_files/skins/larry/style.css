@@ -106,6 +106,19 @@
   border: 0;
 }
 
+#folderlistbox .scroller {
+  top: 34px;
+}
+
+#folderlistbox .boxtitle a.iconbutton.search {
+  background-position: -2px -317px;
+  cursor: pointer;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 16px;
+}
+
 #files-folder-list ul li span.name {
   background: url(../../../../skins/larry/images/listicons.png) 6px 3px no-repeat;
   padding: 6px 8px 6px 32px;
@@ -327,7 +340,7 @@
 }
 
 #files-dialog #folderlistbox {
-  top: 5px;
+  top: 35px;
   bottom: 5px;
   left: 0;
   right: 0;
@@ -335,8 +348,20 @@
   box-shadow: none;
 }
 
+#files-dialog #folderlistbox .scroller {
+  top: 0;
+}
+
+#files-dialog .listsearchbox {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
 #files-dialog.saveas #folderlistbox {
-  top: 50px;
+  bottom: 40px;
 }
 
 #files-compose-dialog #filelistcontainer {
@@ -374,6 +399,11 @@ a.filesaveall {
 #file-save-as {
   height: 25px;
   white-space: nowrap;
+  position: absolute;
+  bottom: 8px;
+  left: 5px;
+  right: 5px;
+  text-align: center;
 }
 
 #file-save-as input {

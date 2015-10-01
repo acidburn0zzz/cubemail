@@ -91,6 +91,7 @@ $labels['arialabelquicksearchbox'] = 'Search input';
 $labels['arialabellistoptions'] = 'Files list options';
 $labels['arialabelfolderoptions'] = 'Folder actions';
 $labels['arialabelfileeditform'] = 'File editing form';
+$labels['arialabelfilelist'] = 'List of files';
 $labels['arialabelfoldercreateform'] = 'Folder creation form';
 $labels['arialabelfoldereditform'] = 'Folder editing form';
 $labels['arialabelfoldermountform'] = 'External storage form';

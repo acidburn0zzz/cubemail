@@ -173,7 +173,7 @@ function kolab_directory_selector_dialog(id)
     if (!filename) {
       attach = attach.clone();
       $('.attachment-size', attach).remove();
-      filename = attach.text();
+      filename = $.trim(attach.text());
     }
 
     form.show();
@@ -196,6 +196,9 @@ function kolab_directory_selector_dialog(id)
   $('#foldercreatelink').attr('tabindex', 0);
 
   buttons[rcmail.gettext('kolab_files.save')] = function () {
+    if (!file_api.env.folder)
+      return;
+
     var lock = rcmail.set_busy(true, 'saving'),
       request = {
         act: 'save-file',
@@ -231,7 +234,7 @@ function kolab_directory_selector_dialog(id)
     button_classes: ['mainaction'],
     minWidth: 250,
     minHeight: 300,
-    height: 350,
+    height: 400,
     width: 300
   }, fn);
 
@@ -1171,15 +1174,18 @@ function kolab_files_ui()
     if (!this.response(response))
       return;
 
-    var first, rows = [],
+    var first, body, rows = [],
       elem = $('#files-folder-list'),
+      searchbox = $('#foldersearch'),
       list = $('<ul class="treelist listing folderlist"></ul>'),
       collections = !rcmail.env.action.match(/^(preview|show)$/) ? ['audio', 'video', 'image', 'document'] : [];
 
     // try parent window if the list element does not exist
     // i.e. called from dialog in parent window
     if (!elem.length && window.parent && parent.rcmail) {
-      elem = $('#files-folder-list', window.parent.document.body);
+      body = window.parent.document.body;
+      elem = $('#files-folder-list', body);
+      searchbox = $('#foldersearch', body);
     }
 
     elem.html('').append(list);
@@ -1212,6 +1218,7 @@ function kolab_files_ui()
         selectable: true,
         id_prefix: 'rcmli',
         parent_focus: true,
+        searchbox: searchbox,
         id_encode: rcmail.html_identifier_encode,
         id_decode: rcmail.html_identifier_decode,
         check_droptarget: function(node) {
@@ -1248,20 +1255,22 @@ function kolab_files_ui()
     if (rcmail.busy)
       return;
 
-    var is_collection = folder.match(/^folder-collection-/);
+    var is_collection = folder.match(/^folder-collection-(.*)$/),
+      collection = RegExp.$1 || null;
+
+    if (is_collection)
+      folder = null;
+
+    // search-reset can re-select the same folder, skip
+    if (this.env.folder == folder && this.env.collection == collection)
+      return;
+
+    this.env.folder = folder;
+    this.env.collection = collection;
 
     rcmail.enable_command('files-list', true);
     rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-upload', !is_collection);
-
-    if (is_collection) {
-      this.env.folder = null;
-      rcmail.command('files-list', {collection: folder.replace(/^folder-collection-/, '')});
-    }
-    else {
-      this.env.folder = folder;
-      this.env.collection = null;
-      rcmail.command('files-list', {folder: folder});
-    }
+    rcmail.command('files-list', is_collection ? {collection: collection} : {folder: folder});
 
     this.quota();
   };
