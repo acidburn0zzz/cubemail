@@ -290,7 +290,7 @@ function kolab_files_selector_dialog()
     minHeight: 300,
     width: 700,
     height: 500
-  });
+  }, function() { rcmail.file_list.resize(); });
 
   if (!rcmail.env.files_loaded) {
     file_api.folder_list();
