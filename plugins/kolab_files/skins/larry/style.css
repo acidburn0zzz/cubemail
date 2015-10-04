@@ -119,43 +119,35 @@
   width: 16px;
 }
 
-#files-folder-list ul li a.name {
-  background: url(../../../../skins/larry/images/listicons.png) 6px 3px no-repeat;
-}
-
-#files-folder-list ul li.mailbox.collection a.name {
+.folderlist li.mailbox.collection a.name {
   background: url(images/folders.png) 5px 0 no-repeat;
 }
-#files-folder-list ul li.mailbox.collection.audio a.name {
+.folderlist li.mailbox.collection.audio a.name {
   background-position: 5px -96px;
 }
-#files-folder-list ul li.mailbox.collection.video a.name {
+.folderlist li.mailbox.collection.video a.name {
   background-position: 5px -144px;
 }
-#files-folder-list ul li.mailbox.collection.document a.name {
+.folderlist li.mailbox.collection.document a.name {
   background-position: 5px 0;
 }
-#files-folder-list ul li.mailbox.collection.image a.name {
+.folderlist li.mailbox.collection.image a.name {
   background-position: 5px -48px;
 }
-#files-folder-list ul li.mailbox.collection.audio.selected a.name {
+.folderlist li.mailbox.collection.audio.selected a.name {
   background-position: 5px -119px;
 }
-#files-folder-list ul li.mailbox.collection.video.selected a.name {
+.folderlist li.mailbox.collection.video.selected a.name {
   background-position: 5px -167px;
 }
-#files-folder-list ul li.mailbox.collection.document.selected a.name {
-  background-position: 5px -24px;
+.folderlist li.mailbox.collection.document.selected a.name {
+  backgroundposition: 5px -24px;
 }
-#files-folder-list ul li.mailbox.collection.image.selected a.name {
+.folderlist li.mailbox.collection.image.selected a.name {
   background-position: 5px -72px;
 }
 
-#files-folder-list ul li span.branch {
-  display: inline-block;
-}
-
-#files-folder-list ul li.virtual span {
+.folderlist li.virtual span {
   color: #aaa;
 }
 
