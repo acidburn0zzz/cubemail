@@ -87,6 +87,8 @@ class kolab_files_engine
                 }
             }
 
+            $this->folder_list_env();
+
             $this->plugin->add_label('save', 'cancel', 'saveto',
                 'saveall', 'fromcloud', 'attachsel', 'selectfiles', 'attaching',
                 'collection_audio', 'collection_video', 'collection_image', 'collection_document',
@@ -768,13 +770,13 @@ class kolab_files_engine
     protected function action_index()
     {
         $this->plugin->add_label(
-            'folderdeleting', 'folderdeleteconfirm', 'folderdeletenotice',
-            'uploading', 'attaching', 'uploadsizeerror',
+            'uploading', 'attaching', 'searching', 'uploadsizeerror',
             'filedeleting', 'filedeletenotice', 'filedeleteconfirm',
             'filemoving', 'filemovenotice', 'filemoveconfirm', 'filecopying', 'filecopynotice',
-            'collection_audio', 'collection_video', 'collection_image', 'collection_document',
             'fileskip', 'fileskipall', 'fileoverwrite', 'fileoverwriteall'
         );
+
+        $this->folder_list_env();
 
         $this->rc->output->add_label('uploadprogress', 'GB', 'MB', 'KB', 'B');
         $this->rc->output->set_pagetitle($this->plugin->gettext('files'));
@@ -1186,5 +1188,23 @@ class kolab_files_engine
         }
 
         $this->rc->output->set_env('external_sources', $sources);
+    }
+
+    /**
+     * Registers translation labels for folder lists in UI
+     */
+    protected function folder_list_env()
+    {
+        // folder list and actions
+        $this->plugin->add_label(
+            'folderdeleting', 'folderdeleteconfirm', 'folderdeletenotice',
+            'collection_audio', 'collection_video', 'collection_image', 'collection_document',
+            'additionalfolders', 'listpermanent'
+        );
+        $this->rc->output->add_label('foldersubscribing', 'foldersubscribed',
+            'folderunsubscribing', 'folderunsubscribed', 'searching'
+        );
+
+        $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
     }
 }

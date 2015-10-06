@@ -76,6 +76,8 @@ $labels['filemovenotice'] = 'File(s) moved successfully.';
 $labels['filecopynotice'] = 'File(s) copied successfully.';
 $labels['uploadsizeerror'] = 'Maximum file size ($size) exceeded!';
 
+$labels['listpermanent'] = 'List permanently';
+$labels['additionalfolders'] = 'Additional folders';
 $labels['allfolders'] = 'search in all folders';
 $labels['fileskip'] = 'Skip';
 $labels['fileskipall'] = 'Skip all';

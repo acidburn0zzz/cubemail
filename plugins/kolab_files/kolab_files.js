@@ -141,6 +141,7 @@ function kolab_files_init()
     sort_reverse: false,
     search_threads: rcmail.env.search_threads,
     resources_dir: rcmail.assets_path('program/resources'),
+    caps: rcmail.env.files_caps,
     supported_mimetypes: rcmail.env.file_mimetypes
   });
 
@@ -1188,7 +1189,7 @@ function kolab_files_ui()
       searchbox = $('#foldersearch', body);
     }
 
-    elem.html('').append(list);
+    elem.html('');
 
     this.env.folders = this.folder_list_parse(response.result && response.result.list ? response.result.list : response.result);
 
@@ -1211,7 +1212,15 @@ function kolab_files_ui()
       rows.push(row);
     });
 
-    list.append(rows);
+    list.append(rows).appendTo(elem)
+      .on('click', 'a.subscription', function(e) {
+        return file_api.folder_list_subscription_button_click(this);
+      });
+
+    if (rcmail.folder_list) {
+      rcmail.folder_list.reset();
+      this.search_results_widget = null;
+    }
 
     // init treelist widget
     rcmail.folder_list = new rcube_treelist_widget(list, {
@@ -1232,7 +1241,12 @@ function kolab_files_ui()
       .addEventListener('collapse', function(node) { file_api.folder_collapsed(node); })
       .addEventListener('expand', function(node) { file_api.folder_collapsed(node); })
       .addEventListener('beforeselect', function(node) { return !rcmail.busy; })
-      .addEventListener('select', function(node) { file_api.folder_select(node.id); });
+      .addEventListener('search', function(search) { file_api.folder_search(search); })
+      .addEventListener('select', function(node) {
+        if (file_api.search_results_widget)
+          file_api.search_results_widget.select();
+        file_api.folder_select(node.id);
+      });
 
     // select first folder?
     if (response.result.auth_errors) { }
@@ -1312,10 +1326,12 @@ function kolab_files_ui()
       row = $('<li class="mailbox"></li>'),
       id = 'rcmli' + rcmail.html_identifier_encode(i);
 
-    row.attr('id', id).append($('<a></a>').text(folder.name));
+    row.attr('id', id).append($('<a>').text(folder.name));
 
     if (folder.virtual)
       row.addClass('virtual');
+    else if (folder.subscribed !== undefined)
+      row.append(this.folder_list_subscription_button(folder.subscribed));
 
     folder.ref = row;
 
@@ -1344,6 +1360,290 @@ function kolab_files_ui()
     else {
       return row;
     }
+  };
+
+  // create subscription button element
+  this.folder_list_subscription_button = function(subscribed)
+  {
+    return $('<a>').attr({
+        title: rcmail.gettext('kolab_files.listpermanent'),
+        class: 'subscription' + (subscribed ? ' subscribed' : ''),
+        'aria-checked': subscribed,
+        role: 'checkbox'
+    });
+  };
+
+  // subscription button handler
+  this.folder_list_subscription_button_click = function(elem)
+  {
+    var folder = $(elem).parent('li').prop('id').replace(/^rcmli/, ''),
+      selected = $(elem).hasClass('subscribed');
+
+    folder = folder.replace(/--xsR$/, ''); // this might be a search result
+    folder = rcmail.html_identifier_decode(folder);
+    file_api['folder_' + (selected ? 'unsubscribe' : 'subscribe')](folder);
+    return false;
+  };
+
+  // sets subscription button status
+  this.folder_list_subscription_state = function(elem, status)
+  {
+    $(elem).children('a.subscription')
+      .prop('aria-checked', status)[status ? 'addClass' : 'removeClass']('subscribed');
+  };
+
+  // Folder searching handler (for unsubscribed folders)
+  this.folder_search = function(search)
+  {
+    // hide search results
+    if (this.search_results_widget) {
+      this.search_results_container.hide();
+      this.search_results_widget.reset();
+    }
+    this.search_results = {};
+
+    // send search request to the server
+    if (search.query && search.execute) {
+      // cancel previous search request
+      if (this.listsearch_request) {
+        this.listsearch_request.abort();
+        this.listsearch_request = null;
+      }
+
+      var params = {search: search.query, unsubscribed: 1};
+
+      this.req = this.set_busy(true, rcmail.gettext('searching'));
+      this.listsearch_request = this.request('folder_list', params, 'folder_search_response');
+    }
+    else if (!search.query) {
+      if (this.listsearch_request) {
+        this.listsearch_request.abort();
+        this.listsearch_request = null;
+      }
+
+      // any subscription changed, make sure the newly added records
+      // are listed before collections not after
+      if (this.folder_subscribe) {
+        var r, last, move = [], rows = $(rcmail.folder_list.container).children('li');
+
+        if (rows.length && !$(rows[rows.length-1]).hasClass('collection')) {
+          // collect all folders to move
+          while (rows.length--) {
+            r = $(rows[rows.length]);
+            if (r.hasClass('collection'))
+              last = r;
+            else if (last)
+              break;
+            else
+              move.push(r);
+          }
+
+          if (last)
+            $.each(move, function() {
+              this.remove();
+              last.before(this);
+            });
+        }
+      }
+    }
+  };
+
+  // folder search response handler
+  this.folder_search_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    var folders = response.result && response.result.list ? response.result.list : response.result;
+
+    if (!folders.length)
+      return;
+
+    folders = this.folder_list_parse(folders, 10000, false);
+
+    if (!this.search_results_widget) {
+      var list = rcmail.folder_list.container,
+        title = rcmail.gettext('kolab_files.additionalfolders'),
+        list_id = list.attr('id') || '0';
+
+      this.search_results_container = $('<div class="searchresults"></div>')
+          .append($('<h2 class="boxtitle" id="st:' + list_id + '"></h2>').text(title))
+          .insertAfter(list);
+
+      this.search_results_widget = new rcube_treelist_widget('<ul>', {
+          id_prefix: 'rcmli',
+          id_encode: rcmail.html_identifier_encode,
+          id_decode: rcmail.html_identifier_decode,
+          selectable: true
+      });
+
+      this.search_results_widget
+        .addEventListener('beforeselect', function(node) { return !rcmail.busy; })
+        .addEventListener('select', function(node) {
+          rcmail.folder_list.select();
+          file_api.folder_select(node.id);
+        });
+
+      this.search_results_widget.container
+        // copy classes from main list
+        .addClass(list.attr('class')).attr('aria-labelledby', 'st:' + list_id)
+        .appendTo(this.search_results_container)
+        .on('click', 'a.subscription', function(e) {
+          return file_api.folder_list_subscription_button_click(this);
+        });
+    }
+
+    // add results to the list
+    $.each(folders, function(i, folder) {
+      var node, separator = file_api.env.directory_separator,
+        path = i.split(separator),
+        html = [$('<a>').text(folder.name)];
+
+      // add subscription button
+      if (!folder.virtual)
+        html.push(file_api.folder_list_subscription_button(false));
+
+      path.pop();
+
+      file_api.search_results_widget.insert({
+          id: i,
+          classes: ['mailbox'],
+          text: folder.name,
+          html: html,
+          collapsed: false,
+          virtual: folder.virtual
+        }, path.length ? path.join(separator) : null);
+    });
+
+    this.search_results = folders;
+    this.search_results_container.show();
+  };
+
+  // folder subscribe request
+  this.folder_subscribe = function(folder)
+  {
+    this.env.folder_subscribe = folder;
+    this.req = this.set_busy(true, 'foldersubscribing');
+    this.request('folder_subscribe', {folder: folder}, 'folder_subscribe_response');
+  }
+
+  // folder subscribe response handler
+  this.folder_subscribe_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    this.display_message('foldersubscribed', 'confirmation');
+
+    var item, node = rcmail.folder_list.get_item(this.env.folder_subscribe);
+
+    if (this.search_results && this.search_results[this.env.folder_subscribe]) {
+      item = this.search_results_widget.get_item(this.env.folder_subscribe);
+      this.folder_list_subscription_state(item, true);
+      if (item = $(item).attr('id'))
+        this.folder_list_subscription_state($('#' + item.replace(/--xsR$/, '')), true);
+    }
+
+    // search result, move from search to main list widget
+    if (!node && this.search_results && this.search_results[this.env.folder_subscribe]) {
+      var i, html, dir, folder, separator = this.env.directory_separator,
+        path = this.env.folder_subscribe.split(separator);
+
+      // add all folders in a path to the main list if needed
+      // including the subscribed folder
+      for (i=0; i<path.length; i++) {
+        dir = path.slice(0, i + 1).join(separator);
+        node = rcmail.folder_list.get_node(dir);
+
+        if (!node) {
+          node = this.search_results_widget.get_node(dir);
+          if (!node) {
+            // sanity check
+            return;
+          }
+
+          if (i == path.length - 1) {
+            item = this.search_results_widget.get_item(dir);
+            this.folder_list_subscription_state(item, true);
+          }
+
+          folder = this.search_results[dir];
+          html = [$('<a>').text(folder.name)];
+          if (!folder.virtual)
+            html.push(this.folder_list_subscription_button(true));
+
+          node.html = html;
+          delete node.children;
+
+          rcmail.folder_list.insert(node, i > 0 ? path.slice(0, i).join(separator) : null);
+          // we're in search result, so there will be two records,
+          // add subscription button to the visible one, it was not cloned
+          if (!folder.virtual) {
+            node = rcmail.folder_list.get_item(dir);
+            $(node).append(file_api.folder_list_subscription_button(true));
+          }
+
+          this.env.folders[dir] = folder;
+        }
+      }
+
+      // now remove them from the search widget
+      while (path.length) {
+        dir = path.join(separator);
+        node = this.search_results_widget.get_item(dir);
+
+        if ($('ul[role="group"] > li', node).length)
+          break;
+
+        this.search_results_widget.remove(dir);
+
+        path.pop();
+      }
+
+      node = null;
+    }
+
+    if (node)
+      this.folder_list_subscription_state(node, true);
+
+    this.env.folders[this.env.folder_subscribe].subscribed = true;
+  };
+
+  // folder unsubscribe request
+  this.folder_unsubscribe = function(folder)
+  {
+    this.env.folder_subscribe = folder;
+    this.req = this.set_busy(true, 'folderunsubscribing');
+    this.request('folder_unsubscribe', {folder: folder}, 'folder_unsubscribe_response');
+  }
+
+  // folder unsubscribe response handler
+  this.folder_unsubscribe_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    this.display_message('folderunsubscribed', 'confirmation');
+
+    var folder = this.env.folders[this.env.folder_subscribe],
+      node = rcmail.folder_list.get_item(this.env.folder_subscribe);
+
+    if (this.search_results && this.search_results[this.env.folder_subscribe]) {
+      item = this.search_results_widget.get_item(this.env.folder_subscribe);
+
+      if (item) {
+        this.folder_list_subscription_state(item, false);
+        item = $('#' + $(item).attr('id').replace(/--xsR$/, ''));
+      }
+      else
+        item = $('#rcmli' + rcmail.html_identifier_encode(this.env.folder_subscribe), rcmail.folder_list.container);
+
+      this.folder_list_subscription_state(item, false);
+    }
+
+    this.folder_list_subscription_state(node, false);
+
+    folder.subscribed = false;
   };
 
   // folder create request
