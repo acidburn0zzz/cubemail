@@ -147,8 +147,30 @@
   background-position: 5px -72px;
 }
 
-.folderlist li.virtual span {
-  color: #aaa;
+#files-folder-list li a.subscription {
+  display: inline-block;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  height: 16px;
+  width: 16px;
+  padding: 0;
+  background: url(images/listicons.png) -16px -148px no-repeat;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#files-folder-list li a.subscription.subscribed {
+  background-position: -16px -110px;
+}
+
+#files-folder-list .searchresults .boxtitle {
+  border-radius: 0;
+  padding: 2px 8px;
+}
+
+#files-folder-list .searchresults {
+  margin-top: 8px;
 }
 
 .filelist thead tr th {
@@ -342,6 +364,7 @@
   top: 0;
   left: 0;
   right: 0;
+  background-color: #fff;
 }
 
 #files-dialog.saveas #folderlistbox {
