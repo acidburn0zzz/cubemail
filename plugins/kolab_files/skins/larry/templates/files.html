@@ -19,6 +19,7 @@
         <roundcube:button command="files-upload" type="link" class="button upload disabled" classAct="button upload" classSel="button upload pressed" label="kolab_files.upload" title="kolab_files.uploadfile" />
     </form>
     <roundcube:button command="files-get" type="link" class="button get disabled" classAct="button get" classSel="button get pressed" label="kolab_files.get" title="kolab_files.getfile" />
+    <roundcube:button command="files-create" type="link" class="button create disabled" classAct="button create" classSel="button create pressed" label="kolab_files.create" title="kolab_files.createfile" />
     <roundcube:button command="files-open" type="link" class="button open disabled" classAct="button open" classSel="button open pressed" label="kolab_files.view" title="kolab_files.viewfile" />
     <roundcube:button command="files-delete" type="link" class="button delete disabled" classAct="button delete" classSel="button delete pressed" label="delete" title="kolab_files.deletefile" />
 </div>
@@ -93,6 +94,10 @@
 <div id="files-file-edit-dialog" role="dialog" aria-labelledby="aria-label-fileeditform" aria-hidden="true">
     <h3 id="aria-label-fileeditform" class="voice"><roundcube:label name="kolab_files.arialabelfileeditform" /></h3>
     <roundcube:object name="file-edit-form" />
+</div>
+<div id="files-file-create-dialog" role="dialog" aria-labelledby="aria-label-filecreateform" aria-hidden="true">
+    <h3 id="aria-label-filecreateform" class="voice"><roundcube:label name="kolab_files.arialabelfilecreateform" /></h3>
+    <roundcube:object name="file-create-form" />
 </div>
 <div id="files-folder-auth-dialog" role="dialog" aria-labelledby="aria-label-folderauthform" aria-hidden="true">
     <h3 id="aria-label-folderauthform" class="voice"><roundcube:label name="kolab_files.arialabelfolderauthform" /></h3>

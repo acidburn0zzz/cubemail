@@ -44,6 +44,7 @@
   background-image: url(../../../../skins/larry/images/buttons.png);
 }
 
+#filestoolbar a.button.create,
 #filestoolbar a.button.edit {
   background-position: center -173px;
 }
@@ -330,6 +331,7 @@
 #files-dialog,
 #files-compose-dialog,
 #files-file-edit-dialog,
+#files-file-create-dialog,
 #files-folder-mount-dialog,
 #files-folder-auth-dialog,
 #files-folder-create-dialog,

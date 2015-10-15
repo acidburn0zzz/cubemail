@@ -352,25 +352,14 @@ function kolab_files_folder_create_dialog()
   $('form', dialog).submit(kolab_dialog_submit_handler);
 
   // build parent selector
-  select.append($('<option>').val('').text('---'));
-  $.each(file_api.env.folders, function(i, f) {
-    var n, option = $('<option>'), name = escapeHTML(f.name);
-
-    for (n=0; n<f.depth; n++)
-      name = '&nbsp;&nbsp;&nbsp;' + name;
-
-    option.val(i).html(name).appendTo(select);
-
-    if (i == file_api.env.folder)
-      option.attr('selected', true);
-  });
+  kolab_files_folder_select_element(select, {empty: true});
 };
 
 // folder edit dialog
 function kolab_files_folder_edit_dialog()
 {
   var dialog = $('#files-folder-edit-dialog'),
-    buttons = {}, options = [],
+    buttons = {},
     separator = file_api.env.directory_separator,
     arr = file_api.env.folder.split(separator),
     folder = arr.pop(),
@@ -408,17 +397,7 @@ function kolab_files_folder_edit_dialog()
   $('form', dialog).submit(kolab_dialog_submit_handler);
 
   // build parent selector
-  options.push($('<option>').val('').text('---'));
-  $.each(file_api.env.folders, function(i, f) {
-    var n, name = escapeHTML(f.name);
-
-    for (n=0; n<f.depth; n++)
-      name = '&nbsp;&nbsp;&nbsp;' + name;
-
-    options.push($('<option>').val(i).html(name));
-  });
-
-  select.append(options).val(path);
+  kolab_files_folder_select_element(select, {selected: path, empty: true});
 };
 
 // folder mounting dialog
@@ -515,6 +494,72 @@ function kolab_files_file_edit_dialog(file)
     buttons: buttons,
     button_classes: ['mainaction']
   });
+};
+
+// file creation dialog
+function kolab_files_file_create_dialog()
+{
+  var dialog = $('#files-file-create-dialog'),
+    buttons = {},
+    type_select = $('select[name="type"]', dialog),
+    select = $('select[name="parent"]', dialog).html(''),
+    input = $('input[name="name"]', dialog).val('');
+
+  buttons[rcmail.gettext('kolab_files.create')] = function () {
+    var folder = select.val(), type = type_select.val(), name = input.val();
+
+    if (!name || !folder)
+      return;
+
+    if (!/\.[a-z0-9]{1,5}$/.test(name)) {
+      name += '.' + rcmail.env.file_extensions[type];
+    }
+
+    name = folder + file_api.env.directory_separator + name;
+
+    file_api.file_create(name, type);
+    kolab_dialog_close(this);
+  };
+  buttons[rcmail.gettext('kolab_files.cancel')] = function () {
+    kolab_dialog_close(this);
+  };
+
+  // Fix submitting form with Enter
+  $('form', dialog).submit(kolab_dialog_submit_handler);
+
+  // show dialog window
+  kolab_dialog_show(dialog, {
+    title: rcmail.gettext('kolab_files.createfile'),
+    buttons: buttons,
+    button_classes: ['mainaction']
+  });
+
+  // build folder selector
+  kolab_files_folder_select_element(select);
+};
+
+// builds folder selector options
+kolab_files_folder_select_element = function(select, params)
+{
+  var options = [],
+    selected = params && params.selected ? params.selected : file_api.env.folder;
+
+  if (params && params.empty)
+    options.push($('<option>').val('').text('---'));
+
+  $.each(file_api.env.folders, function(i, f) {
+    var n, name = escapeHTML(f.name);
+
+    for (n=0; n<f.depth; n++)
+      name = '&nbsp;&nbsp;&nbsp;' + name;
+
+    options.push($('<option>').val(i).html(name));
+  });
+
+  select.empty().append(options);
+
+  if (selected)
+    select.val(selected);
 };
 
 function kolab_dialog_show(content, params, onopen)
@@ -1104,6 +1149,11 @@ rcube_webmail.prototype.files_set_quota = function(p)
   this.set_quota(p);
 };
 
+rcube_webmail.prototype.files_create = function()
+{
+  kolab_files_file_create_dialog();
+};
+
 rcube_webmail.prototype.folder_create = function()
 {
   kolab_files_folder_create_dialog();
@@ -1256,6 +1306,8 @@ function kolab_files_ui()
       rcmail.folder_list.select('folder-collection-' + this.env.collection);
     else if (first)
       rcmail.folder_list.select(first);
+
+    rcmail.enable_command('files-create', true);
 
     // add tree icons
 //    this.folder_list_tree(this.env.folders);
@@ -2203,6 +2255,25 @@ function kolab_files_ui()
       if (move)
         this.file_list();
     }
+  };
+
+  // file(s) create request
+  this.file_create = function(file, type)
+  {
+    this.req = this.set_busy(true, 'kolab_files.filecreating');
+    this.request('file_create', {file: file, 'content-type': type, content: ''}, 'file_create_response');
+  };
+
+  // file(s) create response handler
+  this.file_create_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    // @TODO: we could update metadata instead
+    this.file_list();
+
+    // @TODO: open the file for editing if editable
   };
 
   // file(s) rename request

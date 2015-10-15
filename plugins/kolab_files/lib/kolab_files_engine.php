@@ -133,6 +133,7 @@ class kolab_files_engine
                 'folder-auth-options'=> array($this, 'folder_auth_options'),
                 'file-search-form'   => array($this, 'file_search_form'),
                 'file-edit-form'     => array($this, 'file_edit_form'),
+                'file-create-form'   => array($this, 'file_create_form'),
                 'filelist'           => array($this, 'file_list'),
                 'filequotadisplay'   => array($this, 'quota_display'),
             ));
@@ -325,10 +326,10 @@ class kolab_files_engine
             $attrib['id'] = 'file-edit-form';
         }
 
-        $input_name = new html_inputfield(array('id' => 'file-name', 'name' => 'name', 'size' => 30));
+        $input_name = new html_inputfield(array('id' => 'file-edit-name', 'name' => 'name', 'size' => 30));
         $table      = new html_table(array('cols' => 2, 'class' => 'propform'));
 
-        $table->add('title', html::label('file-name', rcube::Q($this->plugin->gettext('filename'))));
+        $table->add('title', html::label('file-edit-name', rcube::Q($this->plugin->gettext('filename'))));
         $table->add(null, $input_name->show());
 
         $out = $table->show();
@@ -340,6 +341,54 @@ class kolab_files_engine
 
         $this->plugin->add_label('save', 'cancel', 'fileupdating', 'fileedit');
         $this->rc->output->add_gui_object('file-edit-form', $attrib['id']);
+
+        return $out;
+    }
+
+    /**
+     * Template object for file_create form
+     */
+    public function file_create_form($attrib)
+    {
+        $attrib['name'] = 'file-create-form';
+        if (empty($attrib['id'])) {
+            $attrib['id'] = 'file-create-form';
+        }
+
+        $input_name    = new html_inputfield(array('id' => 'file-create-name', 'name' => 'name', 'size' => 30));
+        $select_parent = new html_select(array('id' => 'file-create-parent', 'name' => 'parent'));
+        $select_type   = new html_select(array('id' => 'file-create-type', 'name' => 'type'));
+        $table         = new html_table(array('cols' => 2, 'class' => 'propform'));
+
+        // @TODO: get this list from Chwala API
+        $types = array(
+            'application/vnd.oasis.opendocument.text' => 'odt',
+            'text/plain' => 'txt',
+            'text/html'  => 'html',
+        );
+        foreach (array_keys($types) as $type) {
+            list ($app, $label) = explode('/', $type);
+            $label = preg_replace('/[^a-z]/', '', $label);
+            $select_type->add($this->plugin->gettext('type.' . $label), $type);
+        }
+
+        $table->add('title', html::label('file-create-name', rcube::Q($this->plugin->gettext('filename'))));
+        $table->add(null, $input_name->show());
+        $table->add('title', html::label('file-create-type', rcube::Q($this->plugin->gettext('type'))));
+        $table->add(null, $select_type->show());
+        $table->add('title', html::label('folder-parent', rcube::Q($this->plugin->gettext('folderinside'))));
+        $table->add(null, $select_parent->show());
+
+        $out = $table->show();
+
+        // add form tag around text field
+        if (empty($attrib['form'])) {
+            $out = $this->rc->output->form_tag($attrib, $out);
+        }
+
+        $this->plugin->add_label('create', 'cancel', 'filecreating', 'createfile');
+        $this->rc->output->add_gui_object('file-create-form', $attrib['id']);
+        $this->rc->output->set_env('file_extensions', $types);
 
         return $out;
     }

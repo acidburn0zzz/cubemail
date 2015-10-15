@@ -44,6 +44,7 @@ $labels['save'] = 'Save';
 $labels['savefile'] = 'Save file';
 $labels['printfile'] = 'Print file';
 $labels['fileedit'] = 'File properties';
+$labels['createfile'] = 'Create a file';
 
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
@@ -67,6 +68,7 @@ $labels['saveallnotice'] = 'Successfully saved $n file(s).';
 $labels['saveallerror'] = 'Saving $n file(s) failed.';
 $labels['attacherror'] = 'Failed to attach file(s) from the cloud';
 $labels['fileupdating'] = 'Updating file...';
+$labels['filecreating'] = 'Creating file...';
 $labels['filemoving'] = 'Moving file(s)...';
 $labels['filecopying'] = 'Copying file(s)...';
 $labels['filedeleting'] = 'Deleting file(s)...';
@@ -93,6 +95,7 @@ $labels['arialabelquicksearchbox'] = 'Search input';
 $labels['arialabellistoptions'] = 'Files list options';
 $labels['arialabelfolderoptions'] = 'Folder actions';
 $labels['arialabelfileeditform'] = 'File editing form';
+$labels['arialabelfilecreateform'] = 'File creation form';
 $labels['arialabelfilelist'] = 'List of files';
 $labels['arialabelfoldercreateform'] = 'Folder creation form';
 $labels['arialabelfoldereditform'] = 'Folder editing form';
@@ -105,4 +108,6 @@ $labels['arialabelfilesavedialog'] = 'File(s) saving dialog';
 $labels['arialabelfileprops'] = 'File properties';
 $labels['arialabelfilecontent'] = 'File content';
 
-?>
+$labels['type.plain'] = 'Plain Text Document';
+$labels['type.vndoasisopendocumenttext'] = 'Text Document (ODF)';
+$labels['type.html'] = 'HTML Document';
