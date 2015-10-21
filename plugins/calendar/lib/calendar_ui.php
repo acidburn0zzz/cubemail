@@ -504,7 +504,7 @@ class calendar_ui
       $attrib['id'] = 'rcmImportForm';
 
     // Get max filesize, enable upload progress bar
-    $max_filesize = rcube_upload_init();
+    $max_filesize = $this->rc->upload_init();
 
     $accept = '.ics, text/calendar, text/x-vcalendar, application/ics';
     if (class_exists('ZipArchive', false)) {
@@ -528,7 +528,7 @@ class calendar_ui
 
     $html .= html::div('form-section',
       html::div(null, $input->show()) .
-      html::div('hint', rcube_label(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
+      html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
     );
 
     $html .= html::div('form-section',
@@ -607,7 +607,7 @@ class calendar_ui
       $attrib['id'] = 'rcmUploadForm';
 
     // Get max filesize, enable upload progress bar
-    $max_filesize = rcube_upload_init();
+    $max_filesize =$this->rc->upload_init();
 
     $button = new html_inputfield(array('type' => 'button'));
     $input = new html_inputfield(array(

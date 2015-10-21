@@ -2450,7 +2450,7 @@ class kolab_driver extends calendar_driver
     if (is_array($form['content']) && !empty($form['content'])) {
       $table = new html_table(array('cols' => 2));
       foreach ($form['content'] as $col => $colprop) {
-        $label = !empty($colprop['label']) ? $colprop['label'] : rcube_label($col);
+        $label = !empty($colprop['label']) ? $colprop['label'] : $this->rc->gettext($col);
 
         $table->add('title', html::label($colprop['id'], rcube::Q($label)));
         $table->add(null, $colprop['value']);

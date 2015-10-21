@@ -642,7 +642,7 @@ class libcalendaring_itip
         $metadata['fallback'] = $rsvp_status;
         $metadata['rsvp'] = intval($metadata['rsvp']);
 
-        $this->rc->output->add_script("rcube_libcalendaring.fetch_itip_object_status(" . json_serialize($metadata) . ")", 'docready');
+        $this->rc->output->add_script("rcube_libcalendaring.fetch_itip_object_status(" . rcube_output::json_serialize($metadata) . ")", 'docready');
 
         // get localized texts from the right domain
         foreach (array('savingdata','deleteobjectconfirm','declinedeleteconfirm','declineattendee',

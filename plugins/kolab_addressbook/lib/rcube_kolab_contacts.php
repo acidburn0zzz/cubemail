@@ -111,11 +111,12 @@ class rcube_kolab_contacts extends rcube_addressbook
         $format = kolab_format::factory('contact');
         $this->coltypes['phone']['subtypes'] = array_keys($format->phonetypes);
         $this->coltypes['address']['subtypes'] = array_keys($format->addresstypes);
+        $rcmail = rcmail::get_instance();
 
         // set localized labels for proprietary cols
         foreach ($this->coltypes as $col => $prop) {
             if (is_string($prop['label']))
-                $this->coltypes[$col]['label'] = rcube_label($prop['label']);
+                $this->coltypes[$col]['label'] = $rcmail->gettext($prop['label']);
         }
 
         // fetch objects from the given IMAP folder

@@ -435,7 +435,7 @@ class tasklist_ui
             $attrib['id'] = 'rcmtaskuploadform';
 
         // Get max filesize, enable upload progress bar
-        $max_filesize = rcube_upload_init();
+        $max_filesize = $this->rc->upload_init();
 
         $button = new html_inputfield(array('type' => 'button'));
         $input = new html_inputfield(array(
