@@ -584,6 +584,8 @@ class libvcalendar implements Iterator
 
         // validate event dates
         if ($event['_type'] == 'event') {
+            $event['allday'] = false;
+
             // check for all-day dates
             if ($event['start']->_dateonly) {
                 $event['allday'] = true;
