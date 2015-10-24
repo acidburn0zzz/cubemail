@@ -146,11 +146,20 @@ if (window.rcmail) {
     // wait until rcmail.contact_list is ready and subscribe to 'select' events
     setTimeout(function() {
         rcmail.contact_list && rcmail.contact_list.addEventListener('select', function(list) {
-            var selected = list.selection.length,
-                source = rcmail.env.source ? rcmail.env.address_sources[rcmail.env.source] : null;
+            var source, is_writable = true;
 
-            if (selected && source.kolab) {
-                rcmail.enable_command('delete', 'move', selected && source.rights.indexOf('t') >= 0);
+            // delete/move commands status was set by Roundcube core,
+            // however, for Kolab addressbooks we like to check folder ACL
+            if (list.selection.length && rcmail.commands['delete']) {
+                for (n in rcmail.env.selection_sources) {
+                    source = rcmail.env.address_sources[n];
+                    if (source && source.kolab && source.rights.indexOf('t') < 0) {
+                        is_writable = false;
+                        break;
+                    }
+                }
+
+                rcmail.enable_command('delete', 'move', is_writable);
             }
         });
     }, 100);
@@ -160,9 +169,9 @@ if (window.rcmail) {
 rcube_webmail.prototype.set_book_actions = function()
 {
     var source = !this.env.group ? this.env.source : null,
-        sources = this.env.address_sources || {};
+        sources = this.env.address_sources || {},
+        props = source && sources[source] && sources[source].kolab ? sources[source] : { removable: false, rights: '' };
 
-    var props = source && sources[source] && sources[source].kolab ? sources[source] : { removable: false, rights: '' }
     this.enable_command('book-create', true);
     this.enable_command('book-edit',   props.rights.indexOf('a') >= 0);
     this.enable_command('book-delete', props.rights.indexOf('x') >= 0 || props.rights.indexOf('a') >= 0);
