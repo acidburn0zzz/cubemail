@@ -68,7 +68,7 @@ function kolab_files_show_listoptions(p)
 
   // set checkboxes
   $('input[name="list_col[]"]').each(function() {
-    $(this).prop('checked', $.inArray(this.value, rcmail.env.coltypes) != -1);
+    $(this).prop('checked', $.inArray(this.value, rcmail.env.file_coltypes) != -1);
   });
 
   $dialog.dialog({

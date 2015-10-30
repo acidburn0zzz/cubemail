@@ -50,13 +50,15 @@ class kolab_files_engine
     {
         $this->plugin->add_texts('localization/');
 
+        $templates = array();
+
         // set templates of Files UI and widgets
         if ($this->rc->task == 'mail') {
-            if ($this->rc->action == 'compose') {
-                $template = 'compose_plugin';
+            if (in_array($this->rc->action, array('', 'show', 'compose'))) {
+                $templates[] = 'compose_plugin';
             }
-            else if (in_array($this->rc->action, array('show', 'preview', 'get'))) {
-                $template = 'message_plugin';
+            if (in_array($this->rc->action, array('show', 'preview', 'get'))) {
+                $templates[] = 'message_plugin';
 
                 if ($this->rc->action == 'get') {
                     // add "Save as" button into attachment toolbar
@@ -87,6 +89,20 @@ class kolab_files_engine
                 }
             }
 
+            $list_widget = true;
+        }
+        else if ($this->rc->task == 'calendar' && !$this->rc->action) {
+            $list_widget = true;
+            $templates[] = 'compose_plugin';
+        }
+        else if ($this->rc->task == 'files') {
+            $templates[] = 'files';
+
+            // get list of external sources
+            $this->get_external_storage_drivers();
+        }
+
+        if ($list_widget) {
             $this->folder_list_env();
 
             $this->plugin->add_label('save', 'cancel', 'saveto',
@@ -94,12 +110,6 @@ class kolab_files_engine
                 'collection_audio', 'collection_video', 'collection_image', 'collection_document',
                 'folderauthtitle', 'authenticating'
             );
-        }
-        else if ($this->rc->task == 'files') {
-            $template = 'files';
-
-            // get list of external sources
-            $this->get_external_storage_drivers();
         }
 
         // add taskbar button
@@ -115,7 +125,7 @@ class kolab_files_engine
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/style.css');
 
-        if (!empty($template)) {
+        if (!empty($templates)) {
             $collapsed_folders = (string) $this->rc->config->get('kolab_files_collapsed_folders');
 
             $this->plugin->include_script($this->url . '/js/files_api.js');
@@ -138,9 +148,11 @@ class kolab_files_engine
             ));
 
             if ($this->rc->task != 'files') {
-                // add dialog content at the end of page body
-                $this->rc->output->add_footer(
-                    $this->rc->output->parse('kolab_files.' . $template, false, false));
+                // add dialog(s) content at the end of page body
+                foreach ($templates as $template) {
+                    $this->rc->output->add_footer(
+                        $this->rc->output->parse('kolab_files.' . $template, false, false));
+                }
             }
         }
     }
@@ -422,7 +434,7 @@ class kolab_files_engine
         $this->rc->output->add_gui_object('filelist', $attrib['id']);
         $this->rc->output->set_env('sort_col', $_SESSION['kolab_files_sort_col']);
         $this->rc->output->set_env('sort_order', $_SESSION['kolab_files_sort_order']);
-        $this->rc->output->set_env('coltypes', $a_show_cols);
+        $this->rc->output->set_env('file_coltypes', $a_show_cols);
         $this->rc->output->set_env('search_threads', $this->rc->config->get('kolab_files_search_threads'));
 
         $this->rc->output->include_script('list.js');
@@ -545,7 +557,7 @@ class kolab_files_engine
 
         $head = html::tag('tr', null, $head);
 
-        $this->rc->output->set_env('coltypes', $a_show_cols);
+        $this->rc->output->set_env('file_coltypes', $a_show_cols);
         $this->rc->output->command('files_list_update', $head);
     }
 
@@ -980,23 +992,26 @@ class kolab_files_engine
      */
     protected function action_attach_file()
     {
-        $files      = rcube_utils::get_input_value('files', rcube_utils::INPUT_POST);
-        $uploadid   = rcube_utils::get_input_value('uploadid', rcube_utils::INPUT_POST);
-        $COMPOSE_ID = rcube_utils::get_input_value('id', rcube_utils::INPUT_POST);
-        $COMPOSE    = null;
-        $errors     = array();
+        $files       = rcube_utils::get_input_value('files', rcube_utils::INPUT_POST);
+        $uploadid    = rcube_utils::get_input_value('uploadid', rcube_utils::INPUT_POST);
+        $COMPOSE_ID  = rcube_utils::get_input_value('id', rcube_utils::INPUT_POST);
+        $COMPOSE     = null;
+        $errors      = array();
+        $attachments = array();
 
-        if ($COMPOSE_ID && $_SESSION['compose_data_'.$COMPOSE_ID]) {
-            $COMPOSE =& $_SESSION['compose_data_'.$COMPOSE_ID];
-        }
+        if ($this->rc->task == 'mail') {
+            if ($COMPOSE_ID && $_SESSION['compose_data_'.$COMPOSE_ID]) {
+                $COMPOSE =& $_SESSION['compose_data_'.$COMPOSE_ID];
+            }
 
-        if (!$COMPOSE) {
-            die("Invalid session var!");
-        }
+            if (!$COMPOSE) {
+                die("Invalid session var!");
+            }
 
-        // attachment upload action
-        if (!is_array($COMPOSE['attachments'])) {
-            $COMPOSE['attachments'] = array();
+            // attachment upload action
+            if (!is_array($COMPOSE['attachments'])) {
+                $COMPOSE['attachments'] = array();
+            }
         }
 
         // clear all stored output properties (like scripts and env vars)
@@ -1069,12 +1084,17 @@ class kolab_files_engine
             }
 
             $attachment = array(
-                'path' => $path,
-                'size' => $file_params['size'],
-                'name' => $file_params['name'],
+                'path'     => $path,
+                'size'     => $file_params['size'],
+                'name'     => $file_params['name'],
                 'mimetype' => $file_params['type'],
-                'group' => $COMPOSE_ID,
+                'group'    => $COMPOSE_ID,
             );
+
+            if ($this->rc->task != 'mail') {
+                $attachments[] = $attachment;
+                continue;
+            }
 
             $attachment = $this->rc->plugins->exec_hook('attachment_save', $attachment);
 
@@ -1122,6 +1142,22 @@ class kolab_files_engine
         if (!empty($errors)) {
             $this->rc->output->command('display_message', $this->plugin->gettext('attacherror'), 'error');
             $this->rc->output->command('remove_from_attachment_list', $uploadid);
+        }
+        else if ($this->rc->task == 'calendar') {
+            // for uploads in events/tasks we'll use its standard upload handler,
+            // for this we have to fake $_FILES and some other POST args
+            foreach ($attachments as $attach) {
+                $_FILES['_attachments']['tmp_name'][] = $attachment['path'];
+                $_FILES['_attachments']['name'][]     = $attachment['name'];
+                $_FILES['_attachments']['size'][]     = $attachment['size'];
+                $_FILES['_attachments']['type'][]     = $attachment['mimetype'];
+                $_FILES['_attachments']['error'][]    = null;
+            }
+
+            $_GET['_uploadid'] = $uploadid;
+            $_GET['_id']       = $COMPOSE_ID;
+
+            libcalendaring::get_instance()->attachment_upload(calendar::SESSION_KEY, 'cal-');
         }
 
         // send html page with JS calls as response
