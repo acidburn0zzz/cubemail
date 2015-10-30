@@ -91,7 +91,7 @@ class kolab_files_engine
 
             $list_widget = true;
         }
-        else if ($this->rc->task == 'calendar' && !$this->rc->action) {
+        else if (!$this->rc->action && in_array($this->rc->task, array('calendar', 'tasks'))) {
             $list_widget = true;
             $templates[] = 'compose_plugin';
         }
@@ -1143,7 +1143,7 @@ class kolab_files_engine
             $this->rc->output->command('display_message', $this->plugin->gettext('attacherror'), 'error');
             $this->rc->output->command('remove_from_attachment_list', $uploadid);
         }
-        else if ($this->rc->task == 'calendar') {
+        else if ($this->rc->task == 'calendar' || $this->rc->task == 'tasks') {
             // for uploads in events/tasks we'll use its standard upload handler,
             // for this we have to fake $_FILES and some other POST args
             foreach ($attachments as $attach) {
@@ -1157,7 +1157,15 @@ class kolab_files_engine
             $_GET['_uploadid'] = $uploadid;
             $_GET['_id']       = $COMPOSE_ID;
 
-            libcalendaring::get_instance()->attachment_upload(calendar::SESSION_KEY, 'cal-');
+            switch ($this->rc->task) {
+            case 'tasks':
+                libcalendaring::get_instance()->attachment_upload(tasklist::SESSION_KEY);
+                break;
+
+            case 'calendar':
+                libcalendaring::get_instance()->attachment_upload(calendar::SESSION_KEY, 'cal-');
+                break;
+            }
         }
 
         // send html page with JS calls as response

@@ -64,9 +64,15 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
     kolab_files_init();
   }
   else if (rcmail.task == 'calendar') {
-    // add "attach from cloud" button for event/task dialog
+    // add "attach from cloud" button for event dialog
     if (!rcmail.env.action)
       kolab_files_from_cloud_widget($('#calendar-attachment-form > div.formbuttons'));
+    kolab_files_init();
+  }
+  else if (rcmail.task == 'tasks') {
+    // add "attach from cloud" button for task dialog
+    if (!rcmail.env.action)
+      kolab_files_from_cloud_widget($('#taskedit-attachment-form > div.formbuttons'));
     kolab_files_init();
   }
   else if (rcmail.task == 'files') {
