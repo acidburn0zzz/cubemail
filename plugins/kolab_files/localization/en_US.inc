@@ -45,6 +45,7 @@ $labels['savefile'] = 'Save file';
 $labels['printfile'] = 'Print file';
 $labels['fileedit'] = 'File properties';
 $labels['createfile'] = 'Create a file';
+$labels['documenttitle'] = 'Title:';
 
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';

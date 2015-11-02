@@ -115,6 +115,8 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
       if (rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore)
         manticore = new manticore_api({
           iframe: $('#fileframe').get(0),
+          export_menu: rcmail.gui_objects.exportmenu ? $('ul', rcmail.gui_objects.exportmenu).get(0) : null,
+          title_input: $('#document-title').get(0),
           ready: function(data) { manticore_init(); },
           set_busy: function(state, message) { return rcmail.set_busy(state, message ? 'kolab_files.' + message : ''); },
           hide_message: function(id) { return rcmail.hide_message(id); },
@@ -989,9 +991,6 @@ function kolab_files_progress_str(param)
 function manticore_init()
 {
   rcmail.enable_command('document-save', 'document-export', true);
-
-  // Populate document export menu with supported file types
-  manticore.export_menu($('ul', rcmail.gui_objects.exportmenu));
 };
 
 rcube_webmail.prototype.document_save = function()

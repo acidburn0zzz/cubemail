@@ -9,7 +9,7 @@
 
 <roundcube:include file="/includes/header.html" />
 
-<div id="mainscreen">
+<div id="mainscreen" class="manticore">
 
 <h1 class="voice"><roundcube:label name="kolab_files.docedit" /></h1>
 
@@ -23,7 +23,10 @@
 <!--
     <roundcube:button command="document-print" type="link" class="button print disabled" classAct="button print" classSel="button print pressed" label="print" title="kolab_files.printfile" />
 -->
+    <span class="spacer"></span>
     <roundcube:button command="document-save" type="link" class="button save disabled" classAct="button save" classSel="button save pressed" label="kolab_files.save" title="kolab_files.savefile" />
+    <span class="spacer"></span>
+    <label for="document-title"><roundcube:label name="kolab_files.documenttitle" />&nbsp;<input id="document-title" type="text" value="" /></label>
 </div>
 
 <div id="filecontent" class="uibox docedit">
