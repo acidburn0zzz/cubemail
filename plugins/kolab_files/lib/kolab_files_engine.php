@@ -880,14 +880,15 @@ class kolab_files_engine
      */
     protected function action_open()
     {
-        $file = rcube_utils::get_input_value('file', rcube_utils::INPUT_GET);
+        $file   = rcube_utils::get_input_value('file', rcube_utils::INPUT_GET);
+        $viewer = intval($_GET['viewer']);
 
         // get file info
         $token   = $this->get_api_token();
         $request = $this->get_request(array(
             'method' => 'file_info',
             'file'   => $file,
-            'viewer' => !empty($_GET['viewer']),
+            'viewer' => $viewer,
             ), $token);
 
         // send request to the API
@@ -925,7 +926,7 @@ class kolab_files_engine
         $this->rc->output->set_env('file', $file);
         $this->rc->output->set_env('file_data', $this->file_data);
         $this->rc->output->set_pagetitle(rcube::Q($file));
-        $this->rc->output->send('kolab_files.filepreview');
+        $this->rc->output->send('kolab_files.' . ($viewer & 4 ? 'docedit' : 'filepreview'));
     }
 
     /**

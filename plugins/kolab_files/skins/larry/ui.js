@@ -5,6 +5,9 @@ function kolab_files_ui_init()
       orientation:'v', relative:true, start:226, min:150, size:12 }).init();
 
     rcmail.addEventListener('enable-command', kolab_files_enable_command);
+
+    if ($('#exportmenu').length)
+      rcmail.gui_object('exportmenu', 'exportmenu');
   }
   else
     var filesviewsplit = new rcube_splitter({ id:'filesviewsplitter', p1:'#folderlistbox', p2:'#filelistcontainer',

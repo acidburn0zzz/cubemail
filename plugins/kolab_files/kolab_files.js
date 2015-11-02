@@ -111,6 +111,16 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
 
     if (rcmail.env.action == 'open') {
       rcmail.enable_command('files-get', 'files-delete', rcmail.env.file);
+
+      if (rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore)
+        manticore = new manticore_api({
+          iframe: $('#fileframe').get(0),
+          ready: function(data) { manticore_init(); },
+          set_busy: function(state, message) { return rcmail.set_busy(state, message ? 'kolab_files.' + message : ''); },
+          hide_message: function(id) { return rcmail.hide_message(id); },
+          display_message: function(label, type) { return rcmail.display_message('kolab_files.' + label, type); },
+          gettext: function(label) { return rcmail.get_label('kolab_files.' + label); }
+        });
     }
     else {
       file_api.folder_list();
@@ -539,7 +549,7 @@ function kolab_files_file_create_dialog()
 };
 
 // builds folder selector options
-kolab_files_folder_select_element = function(select, params)
+function kolab_files_folder_select_element(select, params)
 {
   var options = [],
     selected = params && params.selected ? params.selected : file_api.env.folder;
@@ -677,7 +687,7 @@ function kolab_files_upload_input(button)
 
 // for reordering column array (Konqueror workaround)
 // and for setting some message list global variables
-kolab_files_list_coltypes = function()
+function kolab_files_list_coltypes()
 {
   var n, list = rcmail.file_list;
 
@@ -691,7 +701,7 @@ kolab_files_list_coltypes = function()
   list.init_header();
 };
 
-kolab_files_set_list_options = function(cols, sort_col, sort_order)
+function kolab_files_set_list_options(cols, sort_col, sort_order)
 {
   var update = 0, i, idx, name, newcols = [], oldcols = rcmail.env.coltypes;
 
@@ -736,7 +746,7 @@ kolab_files_set_list_options = function(cols, sort_col, sort_order)
   }
 };
 
-kolab_files_set_coltypes = function(list)
+function kolab_files_set_coltypes(list)
 {
   var i, found, name, cols = list.list.tHead.rows[0].cells;
 
@@ -755,12 +765,12 @@ kolab_files_set_coltypes = function(list)
   rcmail.http_post('files/prefs', {kolab_files_list_cols: rcmail.env.coltypes});
 };
 
-kolab_files_list_dblclick = function(list)
+function kolab_files_list_dblclick(list)
 {
   rcmail.command('files-open');
 };
 
-kolab_files_list_select = function(list)
+function kolab_files_list_select(list)
 {
   var selected = list.selection.length;
 
@@ -775,7 +785,7 @@ kolab_files_list_select = function(list)
   if (selected == 1) {
     // get file mimetype
     var type = $('tr.selected', list.list).data('type');
-    rcmail.env.viewer = file_api.file_type_supported(type);
+    rcmail.env.viewer = file_api.file_type_supported(type, rcmail.env.files_caps);
   }
   else
     rcmail.env.viewer = 0;
@@ -791,7 +801,7 @@ kolab_files_list_select = function(list)
   rcmail.enable_command('files-open', rcmail.env.viewer);
 };
 
-kolab_files_list_keypress = function(list)
+function kolab_files_list_keypress(list)
 {
   if (list.modkey == CONTROL_KEY)
     return;
@@ -802,7 +812,7 @@ kolab_files_list_keypress = function(list)
     rcmail.command('files-delete');
 };
 
-kolab_files_drag_start = function(e)
+function kolab_files_drag_start(e)
 {
   rcmail.env.drag_target = null;
 
@@ -810,7 +820,7 @@ kolab_files_drag_start = function(e)
     rcmail.folder_list.drag_start();
 };
 
-kolab_files_drag_end = function(e)
+function kolab_files_drag_end(e)
 {
   if (rcmail.folder_list) {
     rcmail.folder_list.drag_end();
@@ -832,7 +842,7 @@ kolab_files_drag_end = function(e)
   }
 };
 
-kolab_files_drag_move = function(e)
+function kolab_files_drag_move(e)
 {
   if (rcmail.folder_list) {
     var mouse = rcube_event.get_mouse_pos(e);
@@ -841,7 +851,7 @@ kolab_files_drag_move = function(e)
   }
 };
 
-kolab_files_drag_menu_action = function(command)
+function kolab_files_drag_menu_action(command)
 {
   var menu = rcmail.gui_objects.file_dragmenu;
 
@@ -851,7 +861,7 @@ kolab_files_drag_menu_action = function(command)
   rcmail.command(command, rcmail.env.drag_target);
 };
 
-kolab_files_selected = function()
+function kolab_files_selected()
 {
   var files = [];
   $.each(rcmail.file_list.get_selection(), function(i, v) {
@@ -864,11 +874,14 @@ kolab_files_selected = function()
   return files;
 };
 
-kolab_files_frame_load = function(frame)
+function kolab_files_frame_load(frame)
 {
   var win = frame.contentWindow;
 
-  rcmail.file_editor = win.file_editor && win.file_editor.editable ? win.file_editor : null;
+  try {
+    rcmail.file_editor = win.file_editor && win.file_editor.editable ? win.file_editor : null;
+  }
+  catch (e) {};
 
   if (rcmail.file_editor)
     rcmail.enable_command('files-edit', true);
@@ -885,7 +898,7 @@ kolab_files_frame_load = function(frame)
 };
 
 // activate html5 file drop feature (if browser supports it)
-kolab_files_drag_drop_init = function(container)
+function kolab_files_drag_drop_init(container)
 {
   if (!window.FormData && !(window.XMLHttpRequest && XMLHttpRequest.prototype && XMLHttpRequest.prototype.sendAsBinary)) {
     return;
@@ -916,7 +929,7 @@ kolab_files_drag_drop_init = function(container)
 };
 
 // handler for drag/drop on element
-kolab_files_drag_hover = function(e)
+function kolab_files_drag_hover(e)
 {
   if (!file_api.env.folder)
     return;
@@ -933,7 +946,7 @@ kolab_files_drag_hover = function(e)
 };
 
 // returns localized file size
-kolab_files_file_size = function(size)
+function kolab_files_file_size(size)
 {
   var i, units = ['GB', 'MB', 'KB', 'B'];
 
@@ -946,7 +959,7 @@ kolab_files_file_size = function(size)
   return size;
 };
 
-kolab_files_progress_str = function(param)
+function kolab_files_progress_str(param)
 {
   var current, total = file_api.file_size(param.total).toUpperCase();
 
@@ -965,6 +978,30 @@ kolab_files_progress_str = function(param)
     .replace(/\$percent/, param.percent + '%')
     .replace(/\$current/, current)
     .replace(/\$total/, total);
+};
+
+
+/**********************************************************/
+/*********    Manticore editor functionality     **********/
+/**********************************************************/
+
+// Initialize document toolbar functionality
+function manticore_init()
+{
+  rcmail.enable_command('document-save', 'document-export', true);
+
+  // Populate document export menu with supported file types
+  manticore.export_menu($('ul', rcmail.gui_objects.exportmenu));
+};
+
+rcube_webmail.prototype.document_save = function()
+{
+  manticore.save();
+};
+
+rcube_webmail.prototype.document_export = function(type)
+{
+  manticore.export(type || 'odt');
 };
 
 
@@ -2556,7 +2593,7 @@ function kolab_files_ui()
   // open file in new window, using file API viewer
   this.file_open = function(file, viewer)
   {
-    var href = '?' + $.param({_task: 'files', _action: 'open', file: file, viewer: viewer == 2 ? 1 : 0});
+    var href = '?' + $.param({_task: 'files', _action: 'open', file: file, viewer: viewer || 0});
     rcmail.open_window(href, false, true);
   };
 

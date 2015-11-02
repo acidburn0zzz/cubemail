@@ -36,6 +36,11 @@
   background-position: center -93px;
 }
 
+#filestoolbar a.button.export {
+  background-position: 0 -93px;
+  min-width: 50px;
+}
+
 #filestoolbar a.button.open {
   background-position: center -131px;
 }
@@ -86,6 +91,10 @@
   right: 0;
   bottom: 0;
   overflow: auto;
+}
+
+#filecontent.docedit {
+  left: 0;
 }
 
 #filelistbox {
