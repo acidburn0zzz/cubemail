@@ -29,6 +29,11 @@
     <label for="document-title"><roundcube:label name="kolab_files.documenttitle" />&nbsp;<input id="document-title" type="text" value="" /></label>
 </div>
 
+<h2 id="aria-label-collaborators" class="voice"><roundcube:label name="kolab_files.arialabelcollaborators" /></h2>
+<div id="collaborators" class="toolbar" role="toolbar" aria-labelledby="aria-label-collaborators">
+    <div id="members"></div>
+</div>
+
 <div id="filecontent" class="uibox docedit">
     <div class="iframebox">
         <roundcube:object name="filepreviewframe" id="fileframe" frameborder="0" title="kolab_files.arialabelfilecontent" />

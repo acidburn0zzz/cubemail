@@ -79,6 +79,22 @@
   width: 200px;
 }
 
+#collaborators {
+  position: absolute;
+  right: 0;
+  top: -6px;
+}
+
+#collaborators #members img.photo {
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  background: url(../../../../skins/larry/images/contactpic_32px.png) center center no-repeat #fff;
+  border-radius: 5px;
+  border: solid 3px #eee;
+  margin-left: 5px;
+}
+
 #quicksearchbar #filesearchmenulink {
   position: absolute;
   top: 5px;

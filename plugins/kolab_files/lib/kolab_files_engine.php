@@ -921,10 +921,13 @@ class kolab_files_engine
             'filepreviewframe' => array($this, 'file_preview_frame'),
         ));
 
+        $placeholder = $this->rc->output->asset_url('program/resources/blank.gif');
+
         // this one is for styling purpose
         $this->rc->output->set_env('extwin', true);
         $this->rc->output->set_env('file', $file);
         $this->rc->output->set_env('file_data', $this->file_data);
+        $this->rc->output->set_env('photo_placeholder', $placeholder);
         $this->rc->output->set_pagetitle(rcube::Q($file));
         $this->rc->output->send('kolab_files.' . ($viewer & 4 ? 'docedit' : 'filepreview'));
     }
