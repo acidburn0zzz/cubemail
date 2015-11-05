@@ -249,7 +249,7 @@ function kolab_directory_selector_dialog(id)
     fn = function() {
       rcmail.env.folder_list_selector = '#files-dialog #files-folder-list';
       rcmail.env.folder_search_selector = '#files-dialog #foldersearch';
-      file_api.folder_list();
+      file_api.folder_list({writable: 1});
       rcmail.env.folders_loaded = true;
     };
   }
@@ -1191,10 +1191,15 @@ function kolab_files_ui()
   };
 
   // folders list request
-  this.folder_list = function()
+  this.folder_list = function(params)
   {
+    if (!params)
+      params = {}
+
+    params.permissions = 1;
+
     this.req = this.set_busy(true, 'loading');
-    this.request('folder_list', {}, 'folder_list_response');
+    this.request('folder_list', this.list_params = params, 'folder_list_response');
   };
 
   // folder list response handler
@@ -1443,7 +1448,7 @@ function kolab_files_ui()
         this.listsearch_request = null;
       }
 
-      var params = {search: search.query, unsubscribed: 1};
+      var params = $.extend({search: search.query, unsubscribed: 1}, this.list_params);
 
       this.req = this.set_busy(true, rcmail.gettext('searching'));
       this.listsearch_request = this.request('folder_list', params, 'folder_search_response');
