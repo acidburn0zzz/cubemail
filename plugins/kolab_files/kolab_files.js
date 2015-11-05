@@ -878,7 +878,7 @@ kolab_files_drag_drop_init = function(container)
     return;
 
   $(document.body).bind('dragover dragleave drop', function(e) {
-    if (!file_api.env.folder)
+    if (!kolab_files_current_folder_is_writable())
       return;
 
     e.preventDefault();
@@ -898,10 +898,21 @@ kolab_files_drag_drop_init = function(container)
     }, false);
 };
 
+function kolab_files_current_folder_is_writable()
+{
+  if (!file_api.env.folder)
+    return false;
+
+  if (file_api.env.folders[file_api.env.folder].readonly)
+    return false;
+
+  return true;
+}
+
 // handler for drag/drop on element
 kolab_files_drag_hover = function(e)
 {
-  if (!file_api.env.folder)
+  if (!kolab_files_current_folder_is_writable())
     return;
 
   e.preventDefault();
@@ -1271,6 +1282,7 @@ function kolab_files_ui()
         check_droptarget: function(node) {
           return !node.virtual
             && node.id != file_api.env.folder
+            && $.inArray('readonly', node.classes) == -1
             && $.inArray('collection', node.classes) == -1;
         }
     });
@@ -1360,16 +1372,23 @@ function kolab_files_ui()
 
   this.folder_list_row = function(i, folder, parent)
   {
-    var toggle, sublist, collapsed, parent, parent_name,
-      row = $('<li class="mailbox"></li>'),
+    var toggle, sublist, collapsed, parent, parent_name, classes = ['mailbox'],
+      row = $('<li>'),
       id = 'rcmli' + rcmail.html_identifier_encode(i);
 
     row.attr('id', id).append($('<a>').text(folder.name));
 
     if (folder.virtual)
-      row.addClass('virtual');
-    else if (folder.subscribed !== undefined)
-      row.append(this.folder_list_subscription_button(folder.subscribed));
+      classes.push('virtual');
+    else {
+      if (folder.subscribed !== undefined)
+        row.append(this.folder_list_subscription_button(folder.subscribed));
+
+      if (folder.readonly)
+        classes.push('readonly');
+    }
+
+    row.addClass(classes.join(' '));
 
     folder.ref = row;
 
@@ -1535,17 +1554,22 @@ function kolab_files_ui()
     $.each(folders, function(i, folder) {
       var node, separator = file_api.env.directory_separator,
         path = i.split(separator),
+        classes = ['mailbox'],
         html = [$('<a>').text(folder.name)];
 
-      // add subscription button
-      if (!folder.virtual)
+      if (!folder.virtual) {
+        // add subscription button
         html.push(file_api.folder_list_subscription_button(false));
+
+        if (folder.readonly)
+          classes.push('readonly');
+      }
 
       path.pop();
 
       file_api.search_results_widget.insert({
           id: i,
-          classes: ['mailbox'],
+          classes: classes,
           text: folder.name,
           html: html,
           collapsed: false,
