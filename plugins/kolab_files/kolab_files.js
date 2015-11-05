@@ -754,23 +754,20 @@ kolab_files_list_select = function(list)
 //  if (list.selection.length && list.selection.length != list.rowcount)
 //    rcmail.select_all_mode = false;
 
-  // enable files-
   if (selected == 1) {
     // get file mimetype
-    var type = $('tr.selected', list.list).data('type');
+    var elem = $('tr.selected', list.list),
+      type = elem.data('type'),
+      file = elem.data('file');
+
     rcmail.env.viewer = file_api.file_type_supported(type);
+
+    if (!file_api.is_writable(file.replace(/\/[^/]+$/, '')))
+      rcmail.enable_command('files-delete', false);
   }
   else
     rcmail.env.viewer = 0;
-/*
-    ) {
-//      caps = this.browser_capabilities().join();
-      href = '?' + $.param({_task: 'files', _action: 'open', file: file, viewer: viewer == 2 ? 1 : 0});
-      var win = window.open(href, rcmail.html_identifier('rcubefile'+file));
-      if (win)
-        setTimeout(function() { win.focus(); }, 10);
-    }
-*/
+
   rcmail.enable_command('files-open', rcmail.env.viewer);
 };
 
@@ -878,7 +875,7 @@ kolab_files_drag_drop_init = function(container)
     return;
 
   $(document.body).bind('dragover dragleave drop', function(e) {
-    if (!kolab_files_current_folder_is_writable())
+    if (!file_api.is_writable())
       return;
 
     e.preventDefault();
@@ -898,21 +895,11 @@ kolab_files_drag_drop_init = function(container)
     }, false);
 };
 
-function kolab_files_current_folder_is_writable()
-{
-  if (!file_api.env.folder)
-    return false;
-
-  if (file_api.env.folders[file_api.env.folder].readonly)
-    return false;
-
-  return true;
-}
 
 // handler for drag/drop on element
 kolab_files_drag_hover = function(e)
 {
-  if (!kolab_files_current_folder_is_writable())
+  if (!file_api.is_writable())
     return;
 
   e.preventDefault();
@@ -1201,6 +1188,21 @@ function kolab_files_ui()
     rcmail.http_error(request, status, err);
   };
 
+  // check if specified/current folder/view is writable
+  this.is_writable = function(folder)
+  {
+    if (!folder)
+      folder = this.env.folder;
+
+    if (!folder)
+      return false;
+
+    if (this.env.folders[folder].readonly)
+      return false;
+
+    return true;
+  };
+
   // folders list request
   this.folder_list = function(params)
   {
@@ -1333,7 +1335,8 @@ function kolab_files_ui()
     this.env.collection = collection;
 
     rcmail.enable_command('files-list', true);
-    rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-upload', !is_collection);
+    rcmail.enable_command('files-folder-delete', 'folder-rename', !is_collection);
+    rcmail.enable_command('files-upload', !is_collection && this.is_writable());
     rcmail.command('files-list', is_collection ? {collection: collection} : {folder: folder});
 
     this.quota();
