@@ -94,6 +94,11 @@
 	background-color: #c7e3ef;
 }
 
+#directorylistbox .searchresults .boxtitle {
+	padding: 2px 8px;
+	border-radius: 0;
+}
+
 #directorylist li.addressbook.readonly,
 #directorylist li.addressbook.shared,
 #directorylist li.addressbook.other {

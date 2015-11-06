@@ -453,7 +453,8 @@ pre {
 
 #calendars .searchresults .boxtitle {
 	background: none;
-	padding: 2px 8px 2px 8px;
+	padding: 2px 8px;
+	border-radius: 0;
 }
 
 #calendars .searchresults .listing li {
