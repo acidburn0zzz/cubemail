@@ -1197,7 +1197,9 @@ function kolab_files_ui()
     if (!folder)
       return false;
 
-    if (this.env.folders[folder].readonly)
+    var all_folders = $.extend({}, this.env.folders, this.search_results);
+
+    if (!all_folders[folder] || all_folders[folder].readonly || all_folders[folder].virtual)
       return false;
 
     return true;
@@ -1379,7 +1381,7 @@ function kolab_files_ui()
       row = $('<li>'),
       id = 'rcmli' + rcmail.html_identifier_encode(i);
 
-    row.attr('id', id).append($('<a>').text(folder.name));
+    row.attr('id', id).append($('<a class="name">').text(folder.name));
 
     if (folder.virtual)
       classes.push('virtual');
