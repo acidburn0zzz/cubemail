@@ -539,6 +539,7 @@ body.calendarmain #searchmenulink {
 	width: 15px;
 }
 
+#eventedit.uidialog,
 .calendarmain div.uidialog {
 	display: none;
 }
