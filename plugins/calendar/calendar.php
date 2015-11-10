@@ -2143,7 +2143,7 @@ class calendar extends rcube_plugin
     }
     
     // let this information be cached for 5min
-    send_future_expire_header(300);
+    $this->rc->output->future_expire_header(300);
     
     echo $status;
     exit;
@@ -2220,7 +2220,7 @@ class calendar extends rcube_plugin
     $dte->setTimezone($this->timezone);
     
     // let this information be cached for 5min
-    send_future_expire_header(300);
+    $this->rc->output->future_expire_header(300);
     
     echo json_encode(array(
       'email' => $email,
