@@ -604,12 +604,9 @@ class kolab_notes extends rcube_plugin
         $success = $silent = false;
         switch ($action) {
             case 'new':
-                $temp_id = $rec['tempid'];
-
             case 'edit':
                 if ($success = $this->save_note($note)) {
                     $refresh = $this->get_note($note);
-                    $refresh['tempid'] = $temp_id;
                 }
                 break;
 

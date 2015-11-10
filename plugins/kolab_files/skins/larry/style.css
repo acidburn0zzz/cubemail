@@ -210,6 +210,24 @@
   margin-top: 8px;
 }
 
+#files-folder-list li.readonly {
+  background-image: url(images/listicons.png);
+  background-position: right -1000px;
+  background-repeat: no-repeat;
+}
+
+#files-folder-list li.readonly {
+  background-position: 88% -14px;
+}
+
+#files-folder-list li.readonly a {
+  padding-right: 40px;
+}
+
+#files-folder-list li.readonly a.subscription {
+  padding-right: 0;
+}
+
 .filelist thead tr th {
   padding: 0;
 }

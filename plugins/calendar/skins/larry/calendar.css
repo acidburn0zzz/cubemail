@@ -453,7 +453,8 @@ pre {
 
 #calendars .searchresults .boxtitle {
 	background: none;
-	padding: 2px 8px 2px 8px;
+	padding: 2px 8px;
+	border-radius: 0;
 }
 
 #calendars .searchresults .listing li {
@@ -538,6 +539,7 @@ body.calendarmain #searchmenulink {
 	width: 15px;
 }
 
+#eventedit.uidialog,
 .calendarmain div.uidialog {
 	display: none;
 }
@@ -640,7 +642,7 @@ a.miniColors-trigger {
 	border-top: 2px solid #fafafa;
 }
 
-#edit-attachments-form .formbuttons {
+#edit-attachments-form .buttons {
 	margin: 0.5em 0;
 }
 

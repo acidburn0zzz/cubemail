@@ -607,7 +607,7 @@ class calendar_ui
       $attrib['id'] = 'rcmUploadForm';
 
     // Get max filesize, enable upload progress bar
-    $max_filesize = rcube_upload_init();
+    $max_filesize = $this->rc->upload_init();
 
     $button = new html_inputfield(array('type' => 'button'));
     $input = new html_inputfield(array(
@@ -616,7 +616,7 @@ class calendar_ui
 
     return html::div($attrib,
       html::div(null, $input->show()) .
-      html::div('formbuttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
+      html::div('buttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
         'onclick' => rcmail_output::JS_OBJECT_NAME . ".upload_file(this.form)"))) .
       html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
     );

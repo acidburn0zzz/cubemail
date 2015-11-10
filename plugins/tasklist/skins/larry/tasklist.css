@@ -26,6 +26,7 @@ ul.toolbarmenu li span.icon.taskadd,
 	background-position: -4px -90px;
 }
 
+#taskedit.uidialog,
 .tasklistview div.uidialog {
 	display: none;
 }
@@ -912,7 +913,7 @@ a.morelink:hover {
 	width: 97%;
 }
 
-#taskeditform .formbuttons {
+#taskeditform .buttons {
 	margin: 0.5em 0;
 }
 
