@@ -49,7 +49,10 @@
   background-image: url(../../../../skins/larry/images/buttons.png);
 }
 
-#filestoolbar a.button.create,
+#filestoolbar a.button.create {
+  background-position: center -315px;
+}
+
 #filestoolbar a.button.edit {
   background-position: center -173px;
 }

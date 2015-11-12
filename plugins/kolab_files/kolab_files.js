@@ -108,14 +108,17 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
 
     kolab_files_init();
 
-    if (rcmail.env.action == 'open') {
+    if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
       rcmail.enable_command('files-get', 'files-delete', rcmail.env.file);
 
-      if (rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore)
+      if (rcmail.env.action == 'edit' && rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore)
         manticore = new manticore_api({
           iframe: $('#fileframe').get(0),
           export_menu: rcmail.gui_objects.exportmenu ? $('ul', rcmail.gui_objects.exportmenu).get(0) : null,
           title_input: $('#document-title').get(0),
+          members_list: $('#members').get(0),
+          photo_url: '?_task=addressbook&_action=photo&_email=%email',
+          photo_default_url: rcmail.env.photo_placeholder,
           ready: function(data) { manticore_init(); },
           set_busy: function(state, message) { return rcmail.set_busy(state, message ? 'kolab_files.' + message : ''); },
           hide_message: function(id) { return rcmail.hide_message(id); },
@@ -825,6 +828,7 @@ function kolab_files_list_select(list)
   else
     rcmail.env.viewer = 0;
 
+  rcmail.enable_command('files-edit', (rcmail.env.viewer & 4) == 4);
   rcmail.enable_command('files-open', rcmail.env.viewer);
 };
 
@@ -910,11 +914,10 @@ function kolab_files_frame_load(frame)
   }
   catch (e) {};
 
-  if (rcmail.file_editor)
-    rcmail.enable_command('files-edit', true);
-
-  rcmail.enable_command('files-print', (rcmail.file_editor && rcmail.file_editor.printable) ||
-    (rcmail.env.file_data && /^image\//i.test(rcmail.env.file_data.type)));
+  rcmail.enable_command('files-edit', rcmail.file_editor
+    || (rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore));
+  rcmail.enable_command('files-print', (rcmail.file_editor && rcmail.file_editor.printable)
+    || (rcmail.env.file_data && /^image\//i.test(rcmail.env.file_data.type)));
 
   // detect Print button and check if it can be accessed
   try {
@@ -1142,6 +1145,16 @@ rcube_webmail.prototype.files_edit = function()
   if (this.file_editor) {
     this.file_editor.enable();
     this.enable_command('files-save', true);
+  }
+  else if (this.env.file) {
+    var viewer = file_api.file_type_supported(this.env.file_data.type, this.env.files_caps);
+    file_api.file_open(this.env.file, viewer, 'edit', true);
+  }
+  else if (!this.env.action) {
+    var files = kolab_files_selected();
+
+    if (files.length == 1)
+      file_api.file_open(files[0], this.env.viewer, 'edit');
   }
 };
 
@@ -2657,10 +2670,17 @@ function kolab_files_ui()
   };
 
   // open file in new window, using file API viewer
-  this.file_open = function(file, viewer)
+  this.file_open = function(file, viewer, action, local)
   {
-    var href = '?' + $.param({_task: 'files', _action: 'open', file: file, viewer: viewer || 0});
-    rcmail.open_window(href, false, true);
+    var href = '?' + $.param({_task: 'files', _action: action || 'open', file: file, viewer: viewer || 0});
+
+    if (rcmail.env.extwin)
+      href += '&_extwin=1';
+
+    if (local)
+      location.href = href;
+    else
+      rcmail.open_window(href, false, true);
   };
 
   // save file

@@ -892,56 +892,16 @@ class kolab_files_engine
      */
     protected function action_open()
     {
-        $file   = rcube_utils::get_input_value('file', rcube_utils::INPUT_GET);
-        $viewer = intval($_GET['viewer']);
+        $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
+        $this->file_opener(intval($_GET['viewer']) & ~4);
+    }
 
-        // get file info
-        $token   = $this->get_api_token();
-        $request = $this->get_request(array(
-            'method' => 'file_info',
-            'file'   => $file,
-            'viewer' => $viewer,
-            ), $token);
-
-        // send request to the API
-        try {
-            $response = $request->send();
-            $status   = $response->getStatus();
-            $body     = @json_decode($response->getBody(), true);
-
-            if ($status == 200 && $body['status'] == 'OK') {
-                $this->file_data = $body['result'];
-            }
-            else {
-                throw new Exception($body['reason']);
-            }
-        }
-        catch (Exception $e) {
-            rcube::raise_error(array(
-                'code' => 500, 'type' => 'php', 'line' => __LINE__, 'file' => __FILE__,
-                'message' => $e->getMessage()),
-                true, true);
-        }
-
-        $this->file_data['filename'] = $file;
-
-        $this->plugin->add_label('filedeleteconfirm', 'filedeleting', 'filedeletenotice');
-
-        // register template objects for dialogs (and main interface)
-        $this->rc->output->add_handlers(array(
-            'fileinfobox'      => array($this, 'file_info_box'),
-            'filepreviewframe' => array($this, 'file_preview_frame'),
-        ));
-
-        $placeholder = $this->rc->output->asset_url('program/resources/blank.gif');
-
-        // this one is for styling purpose
-        $this->rc->output->set_env('extwin', true);
-        $this->rc->output->set_env('file', $file);
-        $this->rc->output->set_env('file_data', $this->file_data);
-        $this->rc->output->set_env('photo_placeholder', $placeholder);
-        $this->rc->output->set_pagetitle(rcube::Q($file));
-        $this->rc->output->send('kolab_files.' . ($viewer & 4 ? 'docedit' : 'filepreview'));
+    /**
+     * Handler for file open action
+     */
+    protected function action_edit()
+    {
+        $this->file_opener(intval($_GET['viewer']));
     }
 
     /**
@@ -1224,6 +1184,62 @@ class kolab_files_engine
         // send html page with JS calls as response
         $this->rc->output->command('auto_save_start', false);
         $this->rc->output->send();
+    }
+
+    /**
+     * Handler for file open/edit action
+     */
+    protected function file_opener($viewer)
+    {
+        $file = rcube_utils::get_input_value('file', rcube_utils::INPUT_GET);
+
+        // get file info
+        $token   = $this->get_api_token();
+        $request = $this->get_request(array(
+            'method' => 'file_info',
+            'file'   => $file,
+            'viewer' => $viewer,
+            ), $token);
+
+        // send request to the API
+        try {
+            $response = $request->send();
+            $status   = $response->getStatus();
+            $body     = @json_decode($response->getBody(), true);
+
+            if ($status == 200 && $body['status'] == 'OK') {
+                $this->file_data = $body['result'];
+            }
+            else {
+                throw new Exception($body['reason']);
+            }
+        }
+        catch (Exception $e) {
+            rcube::raise_error(array(
+                'code' => 500, 'type' => 'php', 'line' => __LINE__, 'file' => __FILE__,
+                'message' => $e->getMessage()),
+                true, true);
+        }
+
+        $this->file_data['filename'] = $file;
+
+        $this->plugin->add_label('filedeleteconfirm', 'filedeleting', 'filedeletenotice');
+
+        // register template objects for dialogs (and main interface)
+        $this->rc->output->add_handlers(array(
+            'fileinfobox'      => array($this, 'file_info_box'),
+            'filepreviewframe' => array($this, 'file_preview_frame'),
+        ));
+
+        $placeholder = $this->rc->output->asset_url('program/resources/blank.gif');
+
+        // this one is for styling purpose
+        $this->rc->output->set_env('extwin', true);
+        $this->rc->output->set_env('file', $file);
+        $this->rc->output->set_env('file_data', $this->file_data);
+        $this->rc->output->set_env('photo_placeholder', $placeholder);
+        $this->rc->output->set_pagetitle(rcube::Q($file));
+        $this->rc->output->send('kolab_files.' . ($viewer & 4 ? 'docedit' : 'filepreview'));
     }
 
     /**

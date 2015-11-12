@@ -1,6 +1,6 @@
 function kolab_files_ui_init()
 {
-  if (rcmail.env.action == 'open') {
+  if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
     var filesviewsplit = new rcube_splitter({ id:'filesopensplitter', p1:'#fileinfobox', p2:'#filecontent',
       orientation:'v', relative:true, start:226, min:150, size:12 }).init();
 
