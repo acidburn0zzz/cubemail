@@ -102,7 +102,7 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
     }
 
     // "one file only" commands
-    rcmail.env.file_commands = ['files-get'];
+    rcmail.env.file_commands = ['files-get', 'files-rename'];
     // "one or more file" commands
     rcmail.env.file_commands_all = ['files-delete', 'files-move', 'files-copy'];
 
@@ -504,10 +504,10 @@ function kolab_files_folder_mount_dialog()
   });
 };
 
-// file edition dialog
-function kolab_files_file_edit_dialog(file)
+// file rename dialog
+function kolab_files_file_rename_dialog(file)
 {
-  var dialog = $('#files-file-edit-dialog'),
+  var dialog = $('#files-file-rename-dialog'),
     buttons = {}, name = file_api.file_name(file)
     input = $('input[name="name"]', dialog).val(name);
 
@@ -519,9 +519,9 @@ function kolab_files_file_edit_dialog(file)
 
     name = folder + file_api.env.directory_separator + name;
 
-    // @TODO: now we only update filename
     if (name != file)
       file_api.file_rename(file, name);
+
     kolab_dialog_close(this);
   };
   buttons[rcmail.gettext('kolab_files.cancel')] = function () {
@@ -533,7 +533,7 @@ function kolab_files_file_edit_dialog(file)
 
   // show dialog window
   kolab_dialog_show(dialog, {
-    title: rcmail.gettext('kolab_files.fileedit'),
+    title: rcmail.gettext('kolab_files.renamefile'),
     buttons: buttons,
     button_classes: ['mainaction']
   });
@@ -829,7 +829,7 @@ function kolab_files_list_select(list)
     rcmail.env.viewer = file_api.file_type_supported(type, rcmail.env.files_caps);
 
     if (!file_api.is_writable(file.replace(/\/[^/]+$/, '')))
-      rcmail.enable_command('files-delete', false);
+      rcmail.enable_command('files-delete', 'files-rename', false);
   }
   else
     rcmail.env.viewer = 0;
@@ -1237,6 +1237,12 @@ rcube_webmail.prototype.files_set_quota = function(p)
 rcube_webmail.prototype.files_create = function()
 {
   kolab_files_file_create_dialog();
+};
+
+rcube_webmail.prototype.files_rename = function()
+{
+  var files = kolab_files_selected();
+  kolab_files_file_rename_dialog(files[0]);
 };
 
 rcube_webmail.prototype.folder_create = function()
@@ -2154,10 +2160,6 @@ function kolab_files_ui()
     row = $('<tr>')
       .html(row)
       .attr({id: 'rcmrow' + index, 'data-file': file, 'data-type': data.type});
-
-    $('td.options > span', row).click(function(e) {
-      kolab_files_file_edit_dialog(file);
-    });
 
     // collection (or search) lists files from all folders
     // display file name with full path as title

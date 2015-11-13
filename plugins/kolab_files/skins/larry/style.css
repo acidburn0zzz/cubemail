@@ -256,7 +256,6 @@
 
 .filelist tr > .options {
   width: 32px;
-  cursor: pointer;
 }
 
 .filelist thead tr th.filename,
@@ -316,13 +315,6 @@
 
 .filelist thead tr th:first-child {
   border-radius: 4px 0 0 0;
-}
-
-.filelist tbody tr td.options:hover span {
-  width: 26px;
-  height: 18px;
-  background: url(../../../../skins/larry/images/buttons.png) -5px -417px no-repeat;
-  display: block;
 }
 
 .filelist td.filename {
@@ -387,7 +379,7 @@
 
 #files-dialog,
 #files-compose-dialog,
-#files-file-edit-dialog,
+#files-file-rename-dialog,
 #files-file-create-dialog,
 #files-folder-mount-dialog,
 #files-folder-auth-dialog,

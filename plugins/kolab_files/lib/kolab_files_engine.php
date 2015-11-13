@@ -142,7 +142,7 @@ class kolab_files_engine
                 'folder-mount-form'  => array($this, 'folder_mount_form'),
                 'folder-auth-options'=> array($this, 'folder_auth_options'),
                 'file-search-form'   => array($this, 'file_search_form'),
-                'file-edit-form'     => array($this, 'file_edit_form'),
+                'file-rename-form'   => array($this, 'file_rename_form'),
                 'file-create-form'   => array($this, 'file_create_form'),
                 'filelist'           => array($this, 'file_list'),
                 'filequotadisplay'   => array($this, 'quota_display'),
@@ -329,19 +329,19 @@ class kolab_files_engine
     }
 
     /**
-     * Template object for file_edit form
+     * Template object for file_rename form
      */
-    public function file_edit_form($attrib)
+    public function file_rename_form($attrib)
     {
-        $attrib['name'] = 'file-edit-form';
+        $attrib['name'] = 'file-rename-form';
         if (empty($attrib['id'])) {
-            $attrib['id'] = 'file-edit-form';
+            $attrib['id'] = 'file-rename-form';
         }
 
-        $input_name = new html_inputfield(array('id' => 'file-edit-name', 'name' => 'name', 'size' => 30));
+        $input_name = new html_inputfield(array('id' => 'file-rename-name', 'name' => 'name', 'size' => 30));
         $table      = new html_table(array('cols' => 2, 'class' => 'propform'));
 
-        $table->add('title', html::label('file-edit-name', rcube::Q($this->plugin->gettext('filename'))));
+        $table->add('title', html::label('file-rename-name', rcube::Q($this->plugin->gettext('filename'))));
         $table->add(null, $input_name->show());
 
         $out = $table->show();
@@ -351,8 +351,8 @@ class kolab_files_engine
             $out = $this->rc->output->form_tag($attrib, $out);
         }
 
-        $this->plugin->add_label('save', 'cancel', 'fileupdating', 'fileedit');
-        $this->rc->output->add_gui_object('file-edit-form', $attrib['id']);
+        $this->plugin->add_label('save', 'cancel', 'fileupdating', 'renamefile');
+        $this->rc->output->add_gui_object('file-rename-form', $attrib['id']);
 
         return $out;
     }
