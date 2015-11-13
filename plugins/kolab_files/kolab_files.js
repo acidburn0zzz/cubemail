@@ -546,22 +546,28 @@ function kolab_files_file_create_dialog()
     buttons = {},
     type_select = $('select[name="type"]', dialog),
     select = $('select[name="parent"]', dialog).html(''),
-    input = $('input[name="name"]', dialog).val('');
+    input = $('input[name="name"]', dialog).val(''),
+    create_func = function (dialog, editaction) {
+      var folder = select.val(), type = type_select.val(), name = input.val();
 
+      if (!name || !folder)
+        return;
+
+      if (!/\.[a-z0-9]{1,5}$/.test(name)) {
+        name += '.' + rcmail.env.file_extensions[type];
+      }
+
+      name = folder + file_api.env.directory_separator + name;
+
+      file_api.file_create(name, type, editaction);
+      kolab_dialog_close(dialog);
+  };
+
+  buttons[rcmail.gettext('kolab_files.createandedit')] = function () {
+    create_func(this, true);
+  };
   buttons[rcmail.gettext('kolab_files.create')] = function () {
-    var folder = select.val(), type = type_select.val(), name = input.val();
-
-    if (!name || !folder)
-      return;
-
-    if (!/\.[a-z0-9]{1,5}$/.test(name)) {
-      name += '.' + rcmail.env.file_extensions[type];
-    }
-
-    name = folder + file_api.env.directory_separator + name;
-
-    file_api.file_create(name, type);
-    kolab_dialog_close(this);
+    create_func(this);
   };
   buttons[rcmail.gettext('kolab_files.cancel')] = function () {
     kolab_dialog_close(this);
@@ -913,6 +919,10 @@ function kolab_files_frame_load(frame)
     rcmail.file_editor = win.file_editor && win.file_editor.editable ? win.file_editor : null;
   }
   catch (e) {};
+
+  // on edit page switch immediately to edit mode
+  if (rcmail.file_editor && rcmail.env.action == 'edit')
+    rcmail.files_edit();
 
   rcmail.enable_command('files-edit', rcmail.file_editor
     || (rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore));
@@ -2374,8 +2384,11 @@ function kolab_files_ui()
   };
 
   // file(s) create request
-  this.file_create = function(file, type)
+  this.file_create = function(file, type, edit)
   {
+    this.file_create_edit_file = edit ? file : null;
+    this.file_create_edit_type = edit ? type : null;
+
     this.req = this.set_busy(true, 'kolab_files.filecreating');
     this.request('file_create', {file: file, 'content-type': type, content: ''}, 'file_create_response');
   };
@@ -2389,7 +2402,11 @@ function kolab_files_ui()
     // @TODO: we could update metadata instead
     this.file_list();
 
-    // @TODO: open the file for editing if editable
+    // open the file for editing if editable
+    if (this.file_create_edit_file) {
+      var viewer = this.file_type_supported(this.file_create_edit_type, rcmail.env.files_caps);
+      this.file_open(this.file_create_edit_file, viewer, 'edit');
+    }
   };
 
   // file(s) rename request

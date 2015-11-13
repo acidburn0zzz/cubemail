@@ -398,7 +398,7 @@ class kolab_files_engine
             $out = $this->rc->output->form_tag($attrib, $out);
         }
 
-        $this->plugin->add_label('create', 'cancel', 'filecreating', 'createfile');
+        $this->plugin->add_label('create', 'cancel', 'filecreating', 'createfile', 'createandedit');
         $this->rc->output->add_gui_object('file-create-form', $attrib['id']);
         $this->rc->output->set_env('file_extensions', $types);
 
