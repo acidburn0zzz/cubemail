@@ -338,7 +338,7 @@ class kolab_files_engine
             $attrib['id'] = 'file-rename-form';
         }
 
-        $input_name = new html_inputfield(array('id' => 'file-rename-name', 'name' => 'name', 'size' => 30));
+        $input_name = new html_inputfield(array('id' => 'file-rename-name', 'name' => 'name', 'size' => 50));
         $table      = new html_table(array('cols' => 2, 'class' => 'propform'));
 
         $table->add('title', html::label('file-rename-name', rcube::Q($this->plugin->gettext('filename'))));

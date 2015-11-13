@@ -535,7 +535,9 @@ function kolab_files_file_rename_dialog(file)
   kolab_dialog_show(dialog, {
     title: rcmail.gettext('kolab_files.renamefile'),
     buttons: buttons,
-    button_classes: ['mainaction']
+    button_classes: ['mainaction'],
+    minHeight: 100,
+    height: 200
   });
 };
 
