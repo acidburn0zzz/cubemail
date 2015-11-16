@@ -57,6 +57,10 @@
   background-position: center -173px;
 }
 
+#filestoolbar a.button.rename {
+  background-position: center -357px;
+}
+
 #filestoolbar a.button.save {
   background-position: center -213px;
 }
@@ -327,12 +331,23 @@
   height: 16px;
 }
 
-/*
-.filelist tbody td.filename span input {
-  padding: 0 2px;
-  height: 18px;
+.filelist tbody td.options span {
+  background-image: url(images/listicons.png);
+  display: block;
+  height: 16px;
 }
-*/
+
+.filelist tbody tr.session > td.options span {
+  background-position: center -212px;
+}
+
+.filelist tbody tr.session.invited > td.options span {
+  background-position: center -236px;
+}
+
+.filelist tbody tr.session.owner > td.options span {
+  background-position: center -188px;
+}
 
 #fileinfobox table {
   table-layout: fixed;

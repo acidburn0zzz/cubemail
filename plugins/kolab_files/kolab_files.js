@@ -1270,6 +1270,7 @@ rcube_webmail.prototype.folder_mount = function()
 function kolab_files_ui()
 {
   this.requests = {};
+  this.sessions = {};
   this.uploads = [];
 
 /*
@@ -2006,6 +2007,10 @@ function kolab_files_ui()
 
     this.env.file_list = list;
     rcmail.file_list.resize();
+
+    // update document sessions info of this folder
+    if (list && list.length)
+      this.request('folder_info', {folder: this.file_path(list[0].filename), sessions: 1}, 'folder_info_response');
   };
 
   // call file_list request for every folder (used for search and virt. collections)
@@ -2078,7 +2083,7 @@ function kolab_files_ui()
     // lock table, other list responses will wait
     this.env.folders_loop_lock = true;
 
-    var n, i, len, elem, list = [], rows = [],
+    var n, i, len, elem, row, folder, list = [],
       index = this.env.file_list.length,
       table = rcmail.file_list;
 
@@ -2088,11 +2093,15 @@ function kolab_files_ui()
         if (this.sort_compare(elem, result[i]) < 0)
           break;
 
-        var row = this.file_list_row(i, result[i], ++index);
+        row = this.file_list_row(i, result[i], ++index);
         table.insert_row(row, elem.row);
         result[i].row = row;
         result[i].filename = i;
         list.push(result[i]);
+
+        if (!folder)
+          folder = this.file_path(i);
+
         delete result[i];
       }
 
@@ -2106,10 +2115,17 @@ function kolab_files_ui()
       result[key].row = row;
       result[key].filename = key;
       list.push(result[key]);
+
+      if (!folder)
+        folder = file_api.file_path(key);
     });
 
     this.env.file_list = list;
     this.env.folders_loop_lock = false;
+
+    // update document sessions info of this folder
+    if (folder)
+      this.request('folder_info', {folder: folder, sessions: 1}, 'folder_info_response');
   };
 
   // sort files list (without API request)
@@ -2187,6 +2203,35 @@ function kolab_files_ui()
       this.env.search = null;
       rcmail.command('files-list');
     }
+  };
+
+  // handler for folder info response
+  this.folder_info_response = function(response)
+  {
+    if (!this.response(response) || !response.result)
+      return;
+
+    if (response.result.sessions)
+      this.sessions[response.folder] = response.result.sessions;
+
+    // update files list with document session info
+    $.each(file_api.env.file_list || [], function(i, file) {
+      var classes = [];
+
+      $.each(response.result.sessions || [], function(session_id, session) {
+        if (file.filename == session.file) {
+          if ($.inArray('session', classes) < 0)
+            classes.push('session');
+
+          if (session.is_owner && $.inArray('owner', classes) < 0)
+            classes.push('owner');
+          else if (session.is_invited && $.inArray('invited', classes) < 0)
+            classes.push('invited');
+        }
+      });
+
+      $(file.row).attr('class', classes.join(' '));
+    });
   };
 
   this.file_get = function(file, params)
