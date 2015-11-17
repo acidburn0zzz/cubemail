@@ -43,6 +43,7 @@ class libkolab extends rcube_plugin
         set_include_path($include_path);
 
         $this->add_hook('storage_init', array($this, 'storage_init'));
+        $this->add_hook('storage_connect', array($this, 'storage_connect'));
         $this->add_hook('user_delete', array('kolab_storage', 'delete_user_folders'));
 
         $rcmail = rcube::get_instance();
@@ -87,6 +88,31 @@ class libkolab extends rcube_plugin
     function storage_init($p)
     {
         $p['fetch_headers'] = trim($p['fetch_headers'] .' X-KOLAB-TYPE X-KOLAB-MIME-VERSION');
+        return $p;
+    }
+
+    /**
+     * Hook into IMAP connection to replace client identity
+     */
+    function storage_connect($p)
+    {
+        $client_name = 'Roundcube/Kolab';
+
+        if (empty($p['ident'])) {
+            $p['ident'] = array(
+                'name'    => $client_name,
+                'version' => RCUBE_VERSION,
+/*
+                'php'     => PHP_VERSION,
+                'os'      => PHP_OS,
+                'command' => $_SERVER['REQUEST_URI'],
+*/
+            );
+        }
+        else {
+            $p['ident']['name'] = $client_name;
+        }
+
         return $p;
     }
 
