@@ -46,6 +46,8 @@ $labels['printfile'] = 'Print file';
 $labels['renamefile'] = 'Rename a file';
 $labels['createfile'] = 'Create a file';
 $labels['createandedit'] = 'Create and Edit';
+$labels['copyfile'] = 'Copy a file';
+$labels['copyandedit'] = 'Copy and Edit';
 $labels['documenttitle'] = 'Title:';
 
 $labels['collection_audio'] = 'Audio';
@@ -89,6 +91,17 @@ $labels['fileoverwrite'] = 'Overwrite';
 $labels['fileoverwriteall'] = 'Overwrite all';
 $labels['filemoveconfirm'] = 'This action is going to overwrite the destination file: <b>$file</b>.';
 
+$labels['editfiledialog'] = 'Confirm editing action';
+$labels['editfilesessions'] = 'There are ongoing sessions on the selected file. Please, select the action you want to take.';
+$labels['newsession'] = 'Create a new session';
+$labels['newsessionro'] = 'Create a new session (copy the file into read-write location)';
+$labels['ownedsession'] = 'Continue your existing session';
+$labels['invitedsession'] = 'Join the session of $user';
+$labels['joinsession'] = 'Request an invitation from $user';
+$labels['editfilero'] = 'This file is read-only. Do you want to create and edit a copy of the file?';
+$labels['editfilerotitle'] = 'Read-only file';
+$labels['select'] = 'Select';
+
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
 
@@ -109,6 +122,7 @@ $labels['arialabelattachmentoptions'] = 'Attachment save options';
 $labels['arialabelfilesavedialog'] = 'File(s) saving dialog';
 $labels['arialabelfileprops'] = 'File properties';
 $labels['arialabelfilecontent'] = 'File content';
+$labels['arialabelfileeditdialog'] = 'File editing dialog';
 
 $labels['type.plain'] = 'Plain Text Document';
 $labels['type.vndoasisopendocumenttext'] = 'Text Document (ODF)';

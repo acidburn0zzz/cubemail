@@ -35,7 +35,17 @@
 
 </div>
 
+<div id="files-file-create-dialog" role="dialog" aria-labelledby="aria-label-filecreateform" aria-hidden="true">
+    <h3 id="aria-label-filecreateform" class="voice"><roundcube:label name="kolab_files.arialabelfilecreateform" /></h3>
+    <roundcube:object name="file-create-form" />
+</div>
+<div id="files-file-edit-dialog" role="dialog" aria-labelledby="aria-label-fileeditdialog" aria-hidden="true">
+    <h3 id="aria-label-fileeditdialog" class="voice"><roundcube:label name="kolab_files.arialabelfileeditdialog" /></h3>
+    <roundcube:object name="file-edit-dialog">
+</div>
+
 <roundcube:include file="/includes/footer.html" />
+
 <script type="text/javascript">
 kolab_files_ui_init();
 </script>

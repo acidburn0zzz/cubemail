@@ -396,6 +396,7 @@
 #files-compose-dialog,
 #files-file-rename-dialog,
 #files-file-create-dialog,
+#files-file-edit-dialog,
 #files-folder-mount-dialog,
 #files-folder-auth-dialog,
 #files-folder-create-dialog,
@@ -461,6 +462,11 @@
 
 #files-compose-dialog #searchreset {
   cursor: pointer;
+}
+
+#files-file-edit-dialog label {
+  display: block;
+  height: 20px;
 }
 
 a.filesaveall {

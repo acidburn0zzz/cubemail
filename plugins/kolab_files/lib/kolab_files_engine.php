@@ -144,6 +144,7 @@ class kolab_files_engine
                 'file-search-form'   => array($this, 'file_search_form'),
                 'file-rename-form'   => array($this, 'file_rename_form'),
                 'file-create-form'   => array($this, 'file_create_form'),
+                'file-edit-dialog'   => array($this, 'file_edit_dialog'),
                 'filelist'           => array($this, 'file_list'),
                 'filequotadisplay'   => array($this, 'quota_display'),
             ));
@@ -329,6 +330,19 @@ class kolab_files_engine
     }
 
     /**
+     * Template object for file edit dialog/warnings
+     */
+    public function file_edit_dialog($attrib)
+    {
+        $this->plugin->add_label('select', 'create', 'cancel', 'editfiledialog', 'editfilesessions',
+            'newsession', 'ownedsession', 'invitedsession', 'joinsession', 'editfilero', 'editfilerotitle',
+            'newsessionro'
+        );
+
+        return '<div></div>';
+    }
+
+    /**
      * Template object for file_rename form
      */
     public function file_rename_form($attrib)
@@ -398,7 +412,8 @@ class kolab_files_engine
             $out = $this->rc->output->form_tag($attrib, $out);
         }
 
-        $this->plugin->add_label('create', 'cancel', 'filecreating', 'createfile', 'createandedit');
+        $this->plugin->add_label('create', 'cancel', 'filecreating', 'createfile', 'createandedit',
+            'copyfile', 'copyandedit');
         $this->rc->output->add_gui_object('file-create-form', $attrib['id']);
         $this->rc->output->set_env('file_extensions', $types);
 
@@ -893,7 +908,9 @@ class kolab_files_engine
     protected function action_open()
     {
         $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
-        $this->file_opener(intval($_GET['viewer']) & ~4);
+        $this->rc->output->set_env('file_mimetypes', $this->get_mimetypes());
+
+        $this->file_opener(intval($_GET['_viewer']) & ~4);
     }
 
     /**
@@ -901,7 +918,7 @@ class kolab_files_engine
      */
     protected function action_edit()
     {
-        $this->file_opener(intval($_GET['viewer']));
+        $this->file_opener(intval($_GET['_viewer']));
     }
 
     /**
@@ -1191,14 +1208,16 @@ class kolab_files_engine
      */
     protected function file_opener($viewer)
     {
-        $file = rcube_utils::get_input_value('file', rcube_utils::INPUT_GET);
+        $file    = rcube_utils::get_input_value('_file', rcube_utils::INPUT_GET);
+        $session = rcube_utils::get_input_value('_session', rcube_utils::INPUT_GET);
 
         // get file info
         $token   = $this->get_api_token();
         $request = $this->get_request(array(
-            'method' => 'file_info',
-            'file'   => $file,
-            'viewer' => $viewer,
+            'method'  => 'file_info',
+            'file'    => $file,
+            'viewer'  => $viewer,
+            'session' => $session,
             ), $token);
 
         // send request to the API

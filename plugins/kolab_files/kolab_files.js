@@ -6,7 +6,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -125,6 +125,14 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
           display_message: function(label, type) { return rcmail.display_message('kolab_files.' + label, type); },
           gettext: function(label) { return rcmail.get_label('kolab_files.' + label); }
         });
+
+      if (rcmail.env.action == 'open') {
+        // initialize folders list (for dialogs)
+        file_api.folder_list();
+
+        // get ongoing sessions
+        file_api.request('folder_info', {folder: file_api.file_path(rcmail.env.file), sessions: 1}, 'folder_info_response');
+      }
     }
     else {
       file_api.folder_list();
@@ -395,7 +403,7 @@ function kolab_files_folder_create_dialog()
   $('form', dialog).submit(kolab_dialog_submit_handler);
 
   // build parent selector
-  kolab_files_folder_select_element(select, {empty: true});
+  file_api.folder_select_element(select, {empty: true, writable: true});
 };
 
 // folder edit dialog
@@ -440,7 +448,7 @@ function kolab_files_folder_edit_dialog()
   $('form', dialog).submit(kolab_dialog_submit_handler);
 
   // build parent selector
-  kolab_files_folder_select_element(select, {selected: path, empty: true});
+  file_api.folder_select_element(select, {selected: path, empty: true});
 };
 
 // folder mounting dialog
@@ -504,6 +512,92 @@ function kolab_files_folder_mount_dialog()
   });
 };
 
+// file edit dialog
+function kolab_files_file_edit_dialog(file, sessions, readonly)
+{
+  var content = [], items = [], height = 300;
+    dialog = $('#files-file-edit-dialog'),
+    buttons = {}, name = file_api.file_name(file),
+    title = rcmail.gettext('kolab_files.editfiledialog'),
+    mainaction = rcmail.gettext('kolab_files.select'),
+    item_fn = function(id, txt, classes) {
+        return $('<label>').attr('class', 'session' + (classes ? ' ' + classes : ''))
+          .append($('<input>').attr({name: 'opt', value: id, type: 'radio'})).append($('<span>').text(txt));
+      },
+    select_fn = function(dlg) {
+      var input = $('input:checked', dialog), id = input.val();
+
+      if (dlg)
+        kolab_dialog_close(dlg);
+
+      if (readonly && (id == 0 || !input.length))
+        return kolab_files_file_create_dialog(file);
+
+      // @todo: invitations
+      rcmail.files_edit(id ? id : true);
+    };
+
+  // Create sessions selection
+  if (sessions && sessions.length) {
+    items.push($('<div>').text(rcmail.gettext('kolab_files.editfilesessions')));
+
+    // first display owned sessions, then invited, other at the end
+    $.each(sessions, function() {
+      if (this.is_owner) {
+        var txt = rcmail.gettext('kolab_files.ownedsession');
+        items.push(item_fn(this.id, txt, 'owner'));
+      }
+    });
+
+    if (items.length == 1)
+      items.push(item_fn(0, rcmail.gettext('kolab_files.newsession' + (readonly ? 'ro' : ''))));
+
+    $.each(sessions, function() {
+      if (this.is_invited) {
+        var txt = rcmail.gettext('kolab_files.invitedsession').replace('$user', this.owner);
+        items.push(item_fn(this.id, txt, 'invited'));
+      }
+    });
+
+    $.each(sessions, function() {
+      if (!this.is_owner && !this.is_invited) {
+        var txt = rcmail.gettext('kolab_files.joinsession').replace('$user', this.owner);
+        items.push(item_fn(this.id, txt));
+      }
+    });
+
+    // check the first option
+    $('input', items[1]).attr('checked', true);
+
+    $('div', dialog).html(items);
+
+    // if there's only one session and it's owned, skip the dialog
+    if (!readonly && items.length == 2 && $('input:checked', dialog).parent().is('.owner'))
+      return select_fn();
+  }
+  // no ongoing session, folder is readonly warning
+  else {
+    title = rcmail.gettext('kolab_files.editfilerotitle');
+    height = 150;
+    $('div', dialog).text(rcmail.gettext('kolab_files.editfilero'));
+    mainaction = rcmail.gettext('kolab_files.create');
+  }
+
+  buttons[mainaction] = function() { select_fn(this); };
+  buttons[rcmail.gettext('kolab_files.cancel')] = function () {
+    kolab_dialog_close(this);
+  };
+
+  // show dialog window
+  kolab_dialog_show(dialog, {
+    title: title,
+    buttons: buttons,
+    button_classes: ['mainaction'],
+    minHeight: height - 100,
+    height: height
+  });
+};
+
 // file rename dialog
 function kolab_files_file_rename_dialog(file)
 {
@@ -511,7 +605,7 @@ function kolab_files_file_rename_dialog(file)
     buttons = {}, name = file_api.file_name(file)
     input = $('input[name="name"]', dialog).val(name);
 
-  buttons[rcmail.gettext('kolab_files.save')] = function () {
+  buttons[rcmail.gettext('kolab_files.save')] = function() {
     var folder = file_api.file_path(file), name = input.val();
 
     if (!name)
@@ -524,7 +618,7 @@ function kolab_files_file_rename_dialog(file)
 
     kolab_dialog_close(this);
   };
-  buttons[rcmail.gettext('kolab_files.cancel')] = function () {
+  buttons[rcmail.gettext('kolab_files.cancel')] = function() {
     kolab_dialog_close(this);
   };
 
@@ -541,16 +635,16 @@ function kolab_files_file_rename_dialog(file)
   });
 };
 
-// file creation dialog
-function kolab_files_file_create_dialog()
+// file creation (or cloning) dialog
+function kolab_files_file_create_dialog(file)
 {
-  var dialog = $('#files-file-create-dialog'),
-    buttons = {},
+  var buttons = {}, action = file ? 'copy' : 'create',
+    dialog = $('#files-file-create-dialog'),
     type_select = $('select[name="type"]', dialog),
     select = $('select[name="parent"]', dialog).html(''),
     input = $('input[name="name"]', dialog).val(''),
-    create_func = function (dialog, editaction) {
-      var folder = select.val(), type = type_select.val(), name = input.val();
+    create_func = function(dialog, editaction) {
+      var sel, folder = select.val(), type = type_select.val(), name = input.val();
 
       if (!name || !folder)
         return;
@@ -561,17 +655,36 @@ function kolab_files_file_create_dialog()
 
       name = folder + file_api.env.directory_separator + name;
 
-      file_api.file_create(name, type, editaction);
+      // get type of cloned file
+      if (file) {
+        if (rcmail.env.file_data)
+          type = rcmail.env.file_data.type;
+        else {
+          sel = rcmail.file_list.get_selection();
+          type = $('#rcmrow' + sel[0]).data('type');
+        }
+      }
+
+      file_api.file_create(name, type, editaction, file);
       kolab_dialog_close(dialog);
   };
 
-  buttons[rcmail.gettext('kolab_files.createandedit')] = function () {
+  buttons[rcmail.gettext('kolab_files.' + action + 'andedit')] = function() {
     create_func(this, true);
   };
-  buttons[rcmail.gettext('kolab_files.create')] = function () {
-    create_func(this);
-  };
-  buttons[rcmail.gettext('kolab_files.cancel')] = function () {
+
+  if (action == 'create') {
+    buttons[rcmail.gettext('kolab_files.create')] = function() {
+      create_func(this);
+    };
+    type_select.parent('tr').show();
+  }
+  else {
+    input.val(file_api.file_name(file));
+    type_select.parent('tr').hide();
+  }
+
+  buttons[rcmail.gettext('kolab_files.cancel')] = function() {
     kolab_dialog_close(this);
   };
 
@@ -580,37 +693,15 @@ function kolab_files_file_create_dialog()
 
   // show dialog window
   kolab_dialog_show(dialog, {
-    title: rcmail.gettext('kolab_files.createfile'),
+    title: rcmail.gettext('kolab_files.' + action + 'file'),
     buttons: buttons,
-    button_classes: ['mainaction']
+    button_classes: ['mainaction'],
+    minHeight: 150,
+    height: 250
   });
 
   // build folder selector
-  kolab_files_folder_select_element(select);
-};
-
-// builds folder selector options
-function kolab_files_folder_select_element(select, params)
-{
-  var options = [],
-    selected = params && params.selected ? params.selected : file_api.env.folder;
-
-  if (params && params.empty)
-    options.push($('<option>').val('').text('---'));
-
-  $.each(file_api.env.folders, function(i, f) {
-    var n, name = escapeHTML(f.name);
-
-    for (n=0; n<f.depth; n++)
-      name = '&nbsp;&nbsp;&nbsp;' + name;
-
-    options.push($('<option>').val(i).html(name));
-  });
-
-  select.empty().append(options);
-
-  if (selected)
-    select.val(selected);
+  file_api.folder_select_element(select, {writable: true});
 };
 
 function kolab_dialog_show(content, params, onopen)
@@ -826,11 +917,11 @@ function kolab_files_list_select(list)
     // get file mimetype
     var elem = $('tr.selected', list.list),
       type = elem.data('type'),
-      file = elem.data('file');
+      folder = file_api.file_path(elem.data('file'));
 
     rcmail.env.viewer = file_api.file_type_supported(type, rcmail.env.files_caps);
 
-    if (!file_api.is_writable(file.replace(/\/[^/]+$/, '')))
+    if (!file_api.is_writable(folder))
       rcmail.enable_command('files-delete', 'files-rename', false);
   }
   else
@@ -1152,21 +1243,40 @@ rcube_webmail.prototype.files_open = function()
 };
 
 // enable file editor
-rcube_webmail.prototype.files_edit = function()
+rcube_webmail.prototype.files_edit = function(session)
 {
-  if (this.file_editor) {
+  var files, readonly, sessions, file = this.env.file,
+    params = {action: 'edit'};
+
+  if (!file && !this.env.action) {
+    files = kolab_files_selected();
+    if (files.length == 1)
+      file = files[0];
+  }
+
+  // check if the folder is read-only or there are ongoing sessions
+  // in such cases display dialog for the user to decide what to do
+  if (!session) {
+    sessions = file_api.file_sessions(file);
+    if (sessions.length || (readonly = !file_api.is_writable(file_api.file_path(file)))) {
+      kolab_files_file_edit_dialog(file, sessions, readonly);
+      return;
+    }
+  }
+  else if (session !== true)
+    params.session = session;
+
+  if (this.file_editor && !session) {
     this.file_editor.enable();
     this.enable_command('files-save', true);
   }
   else if (this.env.file) {
     var viewer = file_api.file_type_supported(this.env.file_data.type, this.env.files_caps);
-    file_api.file_open(this.env.file, viewer, 'edit', true);
+    params.local = true;
+    file_api.file_open(file, viewer, params);
   }
-  else if (!this.env.action) {
-    var files = kolab_files_selected();
-
-    if (files.length == 1)
-      file_api.file_open(files[0], this.env.viewer, 'edit');
+  else if (file) {
+    file_api.file_open(file, this.env.viewer, params);
   }
 };
 
@@ -1270,7 +1380,6 @@ rcube_webmail.prototype.folder_mount = function()
 function kolab_files_ui()
 {
   this.requests = {};
-  this.sessions = {};
   this.uploads = [];
 
 /*
@@ -1435,7 +1544,8 @@ function kolab_files_ui()
 //    this.folder_list_tree(this.env.folders);
 
     // handle authentication errors on external sources
-    this.folder_list_auth_errors(response.result);
+    if (elem.length)
+      this.folder_list_auth_errors(response.result);
   };
 
   this.folder_select = function(folder)
@@ -2212,7 +2322,7 @@ function kolab_files_ui()
       return;
 
     if (response.result.sessions)
-      this.sessions[response.folder] = response.result.sessions;
+      this.sessions[response.result.folder] = response.result.sessions;
 
     // update files list with document session info
     $.each(file_api.env.file_list || [], function(i, file) {
@@ -2432,14 +2542,21 @@ function kolab_files_ui()
     }
   };
 
-  // file(s) create request
-  this.file_create = function(file, type, edit)
+  // file(s) create (or clone) request
+  this.file_create = function(file, type, edit, cloneof)
   {
     this.file_create_edit_file = edit ? file : null;
     this.file_create_edit_type = edit ? type : null;
+    this.file_create_folder = this.file_path(file);
 
-    this.req = this.set_busy(true, 'kolab_files.filecreating');
-    this.request('file_create', {file: file, 'content-type': type, content: ''}, 'file_create_response');
+    if (cloneof) {
+      this.req = this.set_busy(true, 'kolab_files.filecopying');
+      this.request('file_copy', {file: cloneof, 'new': file}, 'file_create_response');
+    }
+    else {
+      this.req = this.set_busy(true, 'kolab_files.filecreating');
+      this.request('file_create', {file: file, 'content-type': type, content: ''}, 'file_create_response');
+    }
   };
 
   // file(s) create response handler
@@ -2449,12 +2566,13 @@ function kolab_files_ui()
       return;
 
     // @TODO: we could update metadata instead
-    this.file_list();
+    if (this.file_create_folder == this.env.folder)
+      this.file_list();
 
     // open the file for editing if editable
     if (this.file_create_edit_file) {
       var viewer = this.file_type_supported(this.file_create_edit_type, rcmail.env.files_caps);
-      this.file_open(this.file_create_edit_file, viewer, 'edit');
+      this.file_open(this.file_create_edit_file, viewer, {action: 'edit'});
     }
   };
 
@@ -2736,14 +2854,24 @@ function kolab_files_ui()
   };
 
   // open file in new window, using file API viewer
-  this.file_open = function(file, viewer, action, local)
+  this.file_open = function(file, viewer, params)
   {
-    var href = '?' + $.param({_task: 'files', _action: action || 'open', file: file, viewer: viewer || 0});
+    var args = {
+      _task: 'files',
+      _action: params && params.action ? params.action : 'open',
+      _file: file,
+      _viewer: viewer || 0,
+    };
+
+    if (params && params.session)
+      args._session = params.session;
 
     if (rcmail.env.extwin)
-      href += '&_extwin=1';
+      args._extwin = 1;
 
-    if (local)
+    href = '?' + $.param(args);
+
+    if (params && params.local)
       location.href = href;
     else
       rcmail.open_window(href, false, true);
