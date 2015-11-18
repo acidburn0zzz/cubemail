@@ -918,6 +918,8 @@ class kolab_files_engine
      */
     protected function action_edit()
     {
+        $this->plugin->add_label('sessionterminating');
+
         $this->file_opener(intval($_GET['_viewer']));
     }
 

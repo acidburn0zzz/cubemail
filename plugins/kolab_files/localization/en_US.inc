@@ -101,6 +101,9 @@ $labels['joinsession'] = 'Request an invitation from $user';
 $labels['editfilero'] = 'This file is read-only. Do you want to create and edit a copy of the file?';
 $labels['editfilerotitle'] = 'Read-only file';
 $labels['select'] = 'Select';
+$labels['terminatesession'] = 'Terminate the session';
+$labels['terminate'] = 'Terminate';
+$labels['sessionterminating'] = 'Terminating the session...';
 
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';

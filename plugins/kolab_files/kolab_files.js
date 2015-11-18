@@ -1006,7 +1006,8 @@ function kolab_files_selected()
 
 function kolab_files_frame_load(frame)
 {
-  var win = frame.contentWindow;
+  var win = frame.contentWindow,
+    info = rcmail.env.file_data;
 
   try {
     rcmail.file_editor = win.file_editor && win.file_editor.editable ? win.file_editor : null;
@@ -1018,10 +1019,9 @@ function kolab_files_frame_load(frame)
     rcmail.files_edit();
 
   rcmail.enable_command('files-edit', rcmail.file_editor
-    || (rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore));
+    || (info && info.viewer && info.viewer.manticore));
   rcmail.enable_command('files-print', (rcmail.file_editor && rcmail.file_editor.printable)
-    || (rcmail.env.file_data && /^image\//i.test(rcmail.env.file_data.type)));
-
+    || (info && /^image\//i.test(info.type)));
   // detect Print button and check if it can be accessed
   try {
     if ($('#fileframe').contents().find('#print').length)
@@ -1122,7 +1122,10 @@ function kolab_files_progress_str(param)
 // Initialize document toolbar functionality
 function manticore_init()
 {
+  var info = rcmail.env.file_data;
+
   rcmail.enable_command('document-save', 'document-export', true);
+  rcmail.enable_command('files-close', info && info.session && info.session.is_owner);
 };
 
 rcube_webmail.prototype.document_save = function()
@@ -1278,6 +1281,13 @@ rcube_webmail.prototype.files_edit = function(session)
   else if (file) {
     file_api.file_open(file, this.env.viewer, params);
   }
+};
+
+// close editing session
+rcube_webmail.prototype.files_close = function()
+{
+    // @todo: check document "unsaved changes" state and display a warning
+    file_api.document_delete(this.env.file_data.session.id);
 };
 
 rcube_webmail.prototype.files_save = function()
@@ -2904,6 +2914,25 @@ function kolab_files_ui()
       $('td.filesize', table).text(this.file_size(file.size));
       $('td.filemtime', table).text(file.mtime);
     }
+  };
+
+  // document session delete request
+  this.document_delete = function(id)
+  {
+    this.req = this.set_busy(true, 'kolab_files.sessionterminating');
+    this.request('document_delete', {id: id}, 'document_delete_response');
+  };
+
+  // document session delete response handler
+  this.document_delete_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    if (rcmail.task == 'files' && rcmail.env.action == 'edit')
+      window.close();
+
+    // @todo: force sessions info update
   };
 
   // handle auth errors on folder list
