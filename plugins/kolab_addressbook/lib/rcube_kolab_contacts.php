@@ -100,6 +100,29 @@ class rcube_kolab_contacts extends rcube_addressbook
     private $imap_folder = 'INBOX/Contacts';
     private $action;
 
+    // list of fields used for searching in "All fields" mode
+    private $search_fields = array(
+      'name',
+      'firstname',
+      'surname',
+      'middlename',
+      'prefix',
+      'suffix',
+      'nickname',
+      'jobtitle',
+      'organization',
+      'department',
+      'email',
+      'phone',
+      'address',
+      'profession',
+      'manager',
+      'assistant',
+      'spouse',
+      'children',
+      'notes',
+    );
+
 
     public function __construct($imap_folder = null)
     {
@@ -416,7 +439,7 @@ class rcube_kolab_contacts extends rcube_addressbook
             return $result;
         }
         else if ($fields == '*') {
-          $fields = array_keys($this->coltypes);
+          $fields = $this->search_fields;
         }
 
         if (!is_array($fields))
