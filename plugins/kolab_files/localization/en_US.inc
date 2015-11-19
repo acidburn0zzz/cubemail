@@ -49,6 +49,7 @@ $labels['createandedit'] = 'Create and Edit';
 $labels['copyfile'] = 'Copy a file';
 $labels['copyandedit'] = 'Copy and Edit';
 $labels['documenttitle'] = 'Title:';
+$labels['close'] = 'Close';
 
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
@@ -104,6 +105,18 @@ $labels['select'] = 'Select';
 $labels['terminatesession'] = 'Terminate the session';
 $labels['terminate'] = 'Terminate';
 $labels['sessionterminating'] = 'Terminating the session...';
+$labels['manageeditors'] = 'Invite to document';
+$labels['participant'] = 'Participant';
+$labels['status'] = 'Status';
+$labels['addparticipant'] = 'Add participant';
+$labels['delparticipant'] = 'Remove participant';
+$labels['invitationtexttitle'] = 'This comment will be attached to the invitation/notification message sent to the participant';
+$labels['invitationtextlabel'] = 'Invitation/notification comment';
+$labels['statusorganizer'] = 'Organizer';
+$labels['statusinvited'] = 'Invited';
+$labels['statusaccepted'] = 'Accepted';
+$labels['statusdeclined'] = 'Declined';
+$labels['statusrequested'] = 'Requested';
 
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';

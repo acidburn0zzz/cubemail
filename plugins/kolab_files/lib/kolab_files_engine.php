@@ -147,6 +147,7 @@ class kolab_files_engine
                 'file-edit-dialog'   => array($this, 'file_edit_dialog'),
                 'filelist'           => array($this, 'file_list'),
                 'filequotadisplay'   => array($this, 'quota_display'),
+                'document-editors-dialog' => array($this, 'document_editors_dialog'),
             ));
 
             if ($this->rc->task != 'files') {
@@ -340,6 +341,37 @@ class kolab_files_engine
         );
 
         return '<div></div>';
+    }
+
+    /**
+     * Template object for dcument editors dialog
+     */
+    public function document_editors_dialog($attrib)
+    {
+        $table = new html_table(array('cols' => 3, 'border' => 0, 'cellpadding' => 0, 'class' => 'records-table'));
+
+        $table->add_header('username', $this->plugin->gettext('participant'));
+        $table->add_header('status', $this->plugin->gettext('status'));
+        $table->add_header('options', null);
+
+        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'invitation-editor-name', 'size' => 30));
+        $textarea = new html_textarea(array('name' => 'comment', 'id' => 'invitation-comment',
+            'rows' => 4, 'cols' => 55, 'title' => $this->plugin->gettext('invitationtexttitle')));
+        $button   = new html_inputfield(array('type' => 'button', 'class' => 'button', 'id' => 'invitation-editor-add', 'value' => $this->plugin->gettext('addparticipant')));
+
+        $this->plugin->add_label('close', 'manageeditors', 'statusorganizer', 'statusaccepted',
+            'statusinvited', 'statusdeclined', 'statusrequested'
+        );
+
+        // initialize attendees autocompletion
+        $this->rc->autocomplete_init();
+
+        return '<div>' . $table->show() . html::div(null,
+            html::div(null, $input->show() . " " . $button->show())
+            . html::p('attendees-commentbox', html::label(null,
+                $this->plugin->gettext('invitationtextlabel') . $textarea->show())
+            )
+        ) . '</div>';
     }
 
     /**

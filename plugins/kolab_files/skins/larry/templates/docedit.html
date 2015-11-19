@@ -34,6 +34,7 @@
 
 <h2 id="aria-label-collaborators" class="voice"><roundcube:label name="kolab_files.arialabelcollaborators" /></h2>
 <div id="collaborators" class="toolbar" role="toolbar" aria-labelledby="aria-label-collaborators">
+    <roundcube:button command="document-editors" type="link" class="button add disabled" classAct="button add" classSel="button add pressed" content=" " title="kolab_files.manageeditors" />
     <div id="members"></div>
 </div>
 
@@ -49,11 +50,12 @@
     <h3 id="aria-label-exportmenu" class="voice"><roundcube:label name="kolab_files.arialabelexportoptions" /></h3>
     <ul id="exportmenu-menu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-exportmenu"></ul>
 </div>
-<!--
-<div id="editors-dialog" class="uidialog" data-editable="true" role="dialog" aria-labelledby="aria-label-doceditorsdialog" aria-hidden="true">
+
+<div id="document-editors-dialog" class="uidialog" data-editable="true" role="dialog" aria-labelledby="aria-label-doceditorsdialog" aria-hidden="true">
     <h3 id="aria-label-doceditorsdialog" class="voice"><roundcube:label name="kolab_files.arialabeldoceditorsdialog" /></h3>
+    <roundcube:object name="document-editors-dialog" />
 </div>
--->
+
 <roundcube:include file="/includes/footer.html" />
 
 <script type="text/javascript">

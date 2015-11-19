@@ -82,6 +82,10 @@
   text-shadow: 0 1px 1px #eee;
 }
 
+ul.toolbarmenu li span.saveas {
+  background: url(images/buttons.png) -5px -253px no-repeat;
+}
+
 #document-title {
   width: 200px;
 }
@@ -100,6 +104,15 @@
   border-radius: 5px;
   border: solid 3px #eee;
   margin-left: 5px;
+}
+
+#collaborators a.button.add {
+  background: url(../../../../skins/larry/images/buttons.png) -5px -357px no-repeat;
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  padding: 2px;
+  margin-top: 10px;
 }
 
 #quicksearchbar #filesearchmenulink {
@@ -400,7 +413,8 @@
 #files-folder-mount-dialog,
 #files-folder-auth-dialog,
 #files-folder-create-dialog,
-#files-folder-edit-dialog {
+#files-folder-edit-dialog,
+#document-editors-dialog {
   display: none;
 }
 
@@ -489,10 +503,6 @@ a.filesaveall {
   width: 200px;
 }
 
-ul.toolbarmenu li span.saveas {
-  background: url(images/buttons.png) -5px -253px no-repeat;
-}
-
 table.propform td.source.selected {
   background-color: #c7e3ef;
 }
@@ -541,4 +551,44 @@ table.propform td.source table.propform td {
 .auth-options input,
 .auth-options label {
   vertical-align: middle;
+}
+
+#document-editors-dialog textarea {
+  width: 98%
+}
+
+#document-editors-dialog label {
+  display: block;
+}
+
+#document-editors-dialog table {
+  margin-top: 0.5em;
+  margin-bottom: 1em;
+}
+
+#document-editors-dialog table th.status {
+  width: 9em;
+}
+
+#document-editors-dialog table th.options {
+  width: 40px
+}
+
+#document-editors-dialog table td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#document-editors-dialog table td.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: auto;
+}
+
+#document-editors-dialog table tr:last-child td {
+  border-bottom: 0;
+}
+
+#document-editors-dialog table tr.organizer td {
+  color: #888;
 }

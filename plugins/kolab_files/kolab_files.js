@@ -1125,7 +1125,9 @@ function manticore_init()
   var info = rcmail.env.file_data;
 
   rcmail.enable_command('document-save', 'document-export', true);
-  rcmail.enable_command('files-close', info && info.session && info.session.is_owner);
+
+  if (info && info.session && info.session.is_owner)
+    rcmail.enable_command('files-close', 'document-editors', true);
 };
 
 rcube_webmail.prototype.document_save = function()
@@ -1136,6 +1138,144 @@ rcube_webmail.prototype.document_save = function()
 rcube_webmail.prototype.document_export = function(type)
 {
   manticore.export(type || 'odt');
+};
+
+rcube_webmail.prototype.document_editors = function()
+{
+  var info = rcmail.env.file_data;
+
+  if (!info || !info.session || !info.session.is_owner)
+    return;
+
+  kolab_files_editors_dialog(info.session);
+};
+
+// close editing session
+rcube_webmail.prototype.files_close = function()
+{
+    // @todo: check document "unsaved changes" state and display a warning
+    file_api.document_delete(this.env.file_data.session.id);
+};
+
+// document editors management dialog
+function kolab_files_editors_dialog(session)
+{
+  var ac_props, items = [], buttons = {},
+    dialog = $('#document-editors-dialog');
+
+  // always add the session organizer
+  items.push(kolab_files_attendee_record(session.owner, 'organizer'));
+
+  $.each(session.invitations || [], function() {
+    items.push(kolab_files_attendee_record(this.user, this.status));
+  });
+
+  $('table > tbody', dialog).html(items);
+
+  buttons[rcmail.gettext('kolab_files.close')] = function() {
+    kolab_dialog_close(this);
+  };
+
+  // show dialog window
+  kolab_dialog_show(dialog, {
+    title: rcmail.gettext('kolab_files.manageeditors'),
+    buttons: buttons,
+    button_classes: ['mainaction']
+  });
+
+  if (!rcmail.env.editors_dialog) {
+    rcmail.env.editors_dialog = dialog;
+
+    // init attendees autocompletion
+    if (rcmail.env.autocomplete_threads > 0) {
+      ac_props = {
+        threads: rcmail.env.autocomplete_threads,
+        sources: rcmail.env.autocomplete_sources
+      };
+    }
+
+    rcmail.init_address_input_events($('#invitation-editor-name'), ac_props);
+
+    rcmail.addEventListener('autocomplete_insert', function(e) {
+      var success = false;
+      if (e.field.name == 'participant') {
+        success = kolab_files_add_attendees(e.insert, 'invited', e.data && e.data.type == 'group' ? 'GROUP' : 'INDIVIDUAL');
+      }
+      if (e.field && success) {
+        e.field.value = '';
+      }
+    });
+
+    $('#invitation-editor-add').click(function() {
+      var input = $('#invitation-editor-name');
+      rcmail.ksearch_blur();
+      if (kolab_files_add_attendees(input.val(), 'invited', 'INDIVIDUAL')) {
+        input.val('');
+      }
+    });
+  }
+};
+
+// add the given list of participants
+function kolab_files_add_attendees(names)
+{
+  var i, item, email, name, attendees = {}, counter = 0;
+
+  names = file_api.explode_quoted_string(names.replace(/,\s*$/, ''), ',');
+
+  // parse name/email pairs
+  for (i = 0; i < names.length; i++) {
+    email = name = '';
+    item = $.trim(names[i]);
+
+    if (!item.length) {
+      continue;
+    } // address in brackets without name (do nothing)
+    else if (item.match(/^<[^@]+@[^>]+>$/)) {
+      email = item.replace(/[<>]/g, '');
+    } // address without brackets and without name (add brackets)
+    else if (rcube_check_email(item)) {
+      email = item;
+    } // address with name
+    else if (item.match(/([^\s<@]+@[^>]+)>*$/)) {
+      email = RegExp.$1;
+      name = item.replace(email, '').replace(/^["\s<>]+/, '').replace(/["\s<>]+$/, '');
+    }
+
+    if (email) {
+      attendees[email] = {user: email, name: name};
+      counter++;
+    }
+    else {
+      alert(rcmail.gettext('noemailwarning'));
+    }
+  }
+
+  // remove already existing entries
+  if (counter) {
+    if (attendees[rcmail.env.file_data.session.owner]) {
+      delete attendees[this.user];
+      counter--;
+    }
+    $.each(rcmail.env.file_data.session.invitations || [], function() {
+      if (this.user in attendees) {
+        delete attendees[this.user];
+        counter--;
+      }
+    });
+  }
+
+  if (counter)
+    file_api.document_invite(rcmail.env.file_data.session.id, attendees);
+};
+
+function kolab_files_attendee_record(user, status)
+{
+  return $('<tr>').attr('class', 'invitation' + (status ? ' ' + status : ''))
+      .append($('<td class="name">').text(user))
+      .append($('<td class="status">').text(rcmail.gettext('kolab_files.status' + status)))
+      .append($('<td class="options">'));
+      // @todo: delete and accept button
 };
 
 
@@ -1283,13 +1423,7 @@ rcube_webmail.prototype.files_edit = function(session)
   }
 };
 
-// close editing session
-rcube_webmail.prototype.files_close = function()
-{
-    // @todo: check document "unsaved changes" state and display a warning
-    file_api.document_delete(this.env.file_data.session.id);
-};
-
+// save changes to the file
 rcube_webmail.prototype.files_save = function()
 {
   if (!this.file_editor)
@@ -2933,6 +3067,36 @@ function kolab_files_ui()
       window.close();
 
     // @todo: force sessions info update
+  };
+
+  // Invite document session participants
+  this.document_invite = function(id, attendees)
+  {
+    var list = [];
+
+    // expect attendees to be email => name hash
+    $.each(attendees || {}, function() { list.push(this); });
+
+    if (list.length) {
+      this.req = this.set_busy(true, 'kolab_files.documentinviting');
+      this.request('document_invite', {id: id, users: list}, 'document_invite_response');
+    }
+  };
+
+  // document invite response handler
+  this.document_invite_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    var info = rcmail.env.file_data,
+      table = $('#document-editors-dialog table > tbody');
+
+    $.each(response.list || {}, function() {
+      table.appned(kolab_files_attendee_record(this.user, this.status));
+      if (info.session && info.session.invitations)
+        info.session.invitations.push($.merge({status: 'invited'}, this));
+    });
   };
 
   // handle auth errors on folder list
