@@ -950,7 +950,8 @@ class kolab_files_engine
      */
     protected function action_edit()
     {
-        $this->plugin->add_label('sessionterminating', 'unsavedchanges');
+        $this->plugin->add_label('sessionterminating', 'unsavedchanges', 'documentinviting',
+            'documentremoving', 'removeparticipant');
 
         $this->file_opener(intval($_GET['_viewer']));
     }

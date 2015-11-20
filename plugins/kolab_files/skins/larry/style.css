@@ -596,3 +596,10 @@ table.propform td.source table.propform td {
 #document-editors-dialog table tr.organizer td {
   color: #888;
 }
+
+#document-editors-dialog table td.options a.delete {
+  background: url(../../../../skins/larry/images/buttons.png) -7px -379px no-repeat;
+  height: 16px;
+  width: 16px;
+  display: block;
+}

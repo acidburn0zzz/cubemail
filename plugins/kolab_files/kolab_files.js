@@ -1149,12 +1149,7 @@ rcube_webmail.prototype.document_export = function(type)
 
 rcube_webmail.prototype.document_editors = function()
 {
-  var info = rcmail.env.file_data;
-
-  if (!info || !info.session || !info.session.is_owner)
-    return;
-
-  kolab_files_editors_dialog(info.session);
+  kolab_files_editors_dialog();
 };
 
 // close editing session
@@ -1171,13 +1166,19 @@ rcube_webmail.prototype.document_close = function()
 function kolab_files_editors_dialog(session)
 {
   var ac_props, items = [], buttons = {},
+    info = rcmail.env.file_data,
     dialog = $('#document-editors-dialog');
 
-  // always add the session organizer
-  items.push(kolab_files_attendee_record(session.owner, 'organizer'));
+  if (!info || !info.session || !info.session.is_owner)
+    return;
 
-  $.each(session.invitations || [], function() {
-    items.push(kolab_files_attendee_record(this.user, this.status));
+  // always add the session organizer
+  items.push(kolab_files_attendee_record(info.session.owner, 'organizer'));
+
+  $.each(info.session.invitations || [], function(i, u) {
+    var record = kolab_files_attendee_record(u.user, u.status);
+    items.push(record);
+    info.session.invitations[i].record = record;
   });
 
   $('table > tbody', dialog).html(items);
@@ -1285,11 +1286,23 @@ function kolab_files_add_attendees(names)
 
 function kolab_files_attendee_record(user, status)
 {
+  var buttons = $('<td class="options">');
+
+  // @todo: accept invitation request button
+
+  // delete button
+  if (status != 'organizer') {
+    $('<a>').attr({'class': 'delete', href: '#', title: rcmail.gettext('kolab_files.removeparticipant')})
+      .click(function() {
+        file_api.document_remove(rcmail.env.file_data.session.id, [user]);
+      })
+      .appendTo(buttons);
+  }
+
   return $('<tr>').attr('class', 'invitation' + (status ? ' ' + status : ''))
       .append($('<td class="name">').text(user))
       .append($('<td class="status">').text(rcmail.gettext('kolab_files.status' + status)))
-      .append($('<td class="options">'));
-      // @todo: delete and accept button
+      .append(buttons);
 };
 
 
@@ -3107,9 +3120,39 @@ function kolab_files_ui()
       table = $('#document-editors-dialog table > tbody');
 
     $.each(response.result.list || {}, function() {
-      table.append(kolab_files_attendee_record(this.user, this.status));
+      var record = kolab_files_attendee_record(this.user, this.status);
+      table.append(record);
       if (info.session && info.session.invitations)
-        info.session.invitations.push($.extend({status: 'invited'}, this));
+        info.session.invitations.push($.extend({status: 'invited', record: record}, this));
+    });
+  };
+
+  // Remove document session participants
+  this.document_remove = function(id, attendees)
+  {
+    if (attendees.length) {
+      this.req = this.set_busy(true, 'kolab_files.documentremoving');
+      this.request('document_remove', {id: id, users: attendees}, 'document_remove_response');
+    }
+  };
+
+  // document remove response handler
+  this.document_remove_response = function(response)
+  {
+    if (!this.response(response) || !response.result)
+      return;
+
+    var info = rcmail.env.file_data;
+
+    $.each(response.result.list || {}, function(i, user) {
+      var invitations = [];
+      $.each(info.session.invitations, function(i, u) {
+        if (u.user == user && u.record)
+          u.record.remove();
+        else
+          invitations.push(u);
+      });
+      info.session.invitations = invitations;
     });
   };
 

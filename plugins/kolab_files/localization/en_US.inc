@@ -118,6 +118,9 @@ $labels['statusinvited'] = 'Invited';
 $labels['statusaccepted'] = 'Accepted';
 $labels['statusdeclined'] = 'Declined';
 $labels['statusrequested'] = 'Requested';
+$labels['documentinviting'] = 'Inviting participant(s)...';
+$labels['documentremoving'] = 'Removing participant(s)...';
+$labels['removeparticipant'] = 'Remove';
 
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
