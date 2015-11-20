@@ -125,6 +125,7 @@ class kolab_format_event extends kolab_format_xcal
 
                 // write cleaned-up exception data back to memory/cache
                 $object['exceptions'][$i] = $this->expand_exception($exevent->data, $object);
+                $object['exceptions'][$i]['_instance'] = $compacted['_instance'];
             }
             $this->obj->setExceptions($vexceptions);
 
