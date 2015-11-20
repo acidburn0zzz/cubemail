@@ -105,6 +105,7 @@ $labels['select'] = 'Select';
 $labels['terminatesession'] = 'Terminate the session';
 $labels['terminate'] = 'Terminate';
 $labels['sessionterminating'] = 'Terminating the session...';
+$labels['unsavedchanges'] = 'There are unsaved changes in the document that will be lost. Do you want to terminate the session anyway?';
 $labels['manageeditors'] = 'Invite to document';
 $labels['participant'] = 'Participant';
 $labels['status'] = 'Status';

@@ -113,13 +113,17 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
 
       if (rcmail.env.action == 'edit' && rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore)
         manticore = new manticore_api({
+          // UI elements
           iframe: $('#fileframe').get(0),
           export_menu: rcmail.gui_objects.exportmenu ? $('ul', rcmail.gui_objects.exportmenu).get(0) : null,
           title_input: $('#document-title').get(0),
           members_list: $('#members').get(0),
           photo_url: '?_task=addressbook&_action=photo&_email=%email',
           photo_default_url: rcmail.env.photo_placeholder,
+          // events
           ready: function(data) { manticore_init(); },
+          documentChanged: function(data) { rcmail.enable_command('document-save', true); },
+          // notifications/alerts
           set_busy: function(state, message) { return rcmail.set_busy(state, message ? 'kolab_files.' + message : ''); },
           hide_message: function(id) { return rcmail.hide_message(id); },
           display_message: function(label, type) { return rcmail.display_message('kolab_files.' + label, type); },
@@ -1124,15 +1128,17 @@ function manticore_init()
 {
   var info = rcmail.env.file_data;
 
-  rcmail.enable_command('document-save', 'document-export', true);
+  rcmail.enable_command('document-export', true);
 
   if (info && info.session && info.session.is_owner)
-    rcmail.enable_command('files-close', 'document-editors', true);
+    rcmail.enable_command('document-close', 'document-editors', true);
 };
 
 rcube_webmail.prototype.document_save = function()
 {
-  manticore.save();
+  manticore.save(function(data) {
+    rcmail.enable_command('document-save', false);
+  });
 };
 
 rcube_webmail.prototype.document_export = function(type)
@@ -1151,10 +1157,13 @@ rcube_webmail.prototype.document_editors = function()
 };
 
 // close editing session
-rcube_webmail.prototype.files_close = function()
+rcube_webmail.prototype.document_close = function()
 {
-    // @todo: check document "unsaved changes" state and display a warning
-    file_api.document_delete(this.env.file_data.session.id);
+  // check document "unsaved changes" state and display a warning
+  if (this.commands['document-save'] && !confirm(this.gettext('kolab_files.unsavedchanges')))
+    return;
+
+  file_api.document_delete(this.env.file_data.session.id);
 };
 
 // document editors management dialog
