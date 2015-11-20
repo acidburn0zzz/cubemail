@@ -96,6 +96,10 @@ ul.toolbarmenu li span.saveas {
   top: -6px;
 }
 
+#collaborators #members {
+  float: right;
+}
+
 #collaborators #members img.photo {
   width: 32px;
   height: 32px;
