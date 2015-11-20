@@ -713,7 +713,6 @@ function kolab_dialog_show(content, params, onopen)
   params = $.extend({
     modal: true,
     resizable: true,
-    closeOnEscape: (!bw.ie6 && !bw.ie7),  // disabled for performance reasons
     minWidth: 400,
     minHeight: 300,
     width: 500,
@@ -736,6 +735,8 @@ function kolab_dialog_show(content, params, onopen)
     }
 
     (elem && elem.length ? elem : window).focus();
+
+    rcmail.ksearch_blur();
   };
 
   // display it as popup
@@ -1228,7 +1229,7 @@ function kolab_files_editors_dialog(session)
 // add the given list of participants
 function kolab_files_add_attendees(names)
 {
-  var i, item, email, name, attendees = {}, counter = 0;
+  var i, item, success, email, name, attendees = {}, counter = 0;
 
   names = file_api.explode_quoted_string(names.replace(/,\s*$/, ''), ',');
 
@@ -1260,6 +1261,8 @@ function kolab_files_add_attendees(names)
     }
   }
 
+  success = counter > 0;
+
   // remove already existing entries
   if (counter) {
     if (attendees[rcmail.env.file_data.session.owner]) {
@@ -1276,6 +1279,8 @@ function kolab_files_add_attendees(names)
 
   if (counter)
     file_api.document_invite(rcmail.env.file_data.session.id, attendees);
+
+  return success;
 };
 
 function kolab_files_attendee_record(user, status)
@@ -3095,16 +3100,16 @@ function kolab_files_ui()
   // document invite response handler
   this.document_invite_response = function(response)
   {
-    if (!this.response(response))
+    if (!this.response(response) || !response.result)
       return;
 
     var info = rcmail.env.file_data,
       table = $('#document-editors-dialog table > tbody');
 
-    $.each(response.list || {}, function() {
-      table.appned(kolab_files_attendee_record(this.user, this.status));
+    $.each(response.result.list || {}, function() {
+      table.append(kolab_files_attendee_record(this.user, this.status));
       if (info.session && info.session.invitations)
-        info.session.invitations.push($.merge({status: 'invited'}, this));
+        info.session.invitations.push($.extend({status: 'invited'}, this));
     });
   };
 
