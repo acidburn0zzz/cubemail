@@ -124,15 +124,27 @@ class kolab_files_engine
         }
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/style.css');
+        $this->plugin->include_script($this->url . '/js/files_api.js');
+        $this->plugin->include_script('kolab_files.js');
+
+        $this->rc->output->set_env('files_token', $this->get_api_token());
+        $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
+        $this->rc->output->set_env('files_user', $this->rc->get_user_name());
+
+        if ($_SESSION['kolab_files_caps']['MANTICORE']) {
+            $this->plugin->add_label('declinednotice', 'invitednotice', 'acceptedownernotice',
+                'declinedownernotice', 'requestednotice', 'acceptednotice', 'declinednotice',
+                'more', 'accept', 'decline', 'join', 'status', 'when', 'file', 'comment',
+                'statusaccepted', 'statusinvited', 'statusdeclined', 'statusrequested',
+                'invitationaccepting', 'invitationdeclining', 'invitationrequesting',
+                'close', 'invitationtitle');
+        }
 
         if (!empty($templates)) {
             $collapsed_folders = (string) $this->rc->config->get('kolab_files_collapsed_folders');
 
-            $this->plugin->include_script($this->url . '/js/files_api.js');
-            $this->plugin->include_script('kolab_files.js');
             $this->rc->output->include_script('treelist.js');
             $this->rc->output->set_env('files_url', $this->url . '/api/');
-            $this->rc->output->set_env('files_token', $this->get_api_token());
             $this->rc->output->set_env('kolab_files_collapsed_folders', $collapsed_folders);
 
             // register template objects for dialogs (and main interface)
@@ -359,9 +371,7 @@ class kolab_files_engine
             'rows' => 4, 'cols' => 55, 'title' => $this->plugin->gettext('invitationtexttitle')));
         $button   = new html_inputfield(array('type' => 'button', 'class' => 'button', 'id' => 'invitation-editor-add', 'value' => $this->plugin->gettext('addparticipant')));
 
-        $this->plugin->add_label('close', 'manageeditors', 'statusorganizer', 'statusaccepted',
-            'statusinvited', 'statusdeclined', 'statusrequested'
-        );
+        $this->plugin->add_label('manageeditors', 'statusorganizer');
 
         // initialize attendees autocompletion
         $this->rc->autocomplete_init();
@@ -939,7 +949,6 @@ class kolab_files_engine
      */
     protected function action_open()
     {
-        $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
         $this->rc->output->set_env('file_mimetypes', $this->get_mimetypes());
 
         $this->file_opener(intval($_GET['_viewer']) & ~4);
@@ -951,7 +960,7 @@ class kolab_files_engine
     protected function action_edit()
     {
         $this->plugin->add_label('sessionterminating', 'unsavedchanges', 'documentinviting',
-            'documentremoving', 'removeparticipant');
+            'documentcancelling', 'removeparticipant');
 
         $this->file_opener(intval($_GET['_viewer']));
     }
@@ -1371,7 +1380,5 @@ class kolab_files_engine
         $this->rc->output->add_label('foldersubscribing', 'foldersubscribed',
             'folderunsubscribing', 'folderunsubscribed', 'searching'
         );
-
-        $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
     }
 }

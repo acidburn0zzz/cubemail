@@ -418,6 +418,7 @@ ul.toolbarmenu li span.saveas {
 #files-folder-auth-dialog,
 #files-folder-create-dialog,
 #files-folder-edit-dialog,
+#document-invitation-dialog,
 #document-editors-dialog {
   display: none;
 }
@@ -575,7 +576,7 @@ table.propform td.source table.propform td {
 }
 
 #document-editors-dialog table th.options {
-  width: 40px
+  width: 16px
 }
 
 #document-editors-dialog table td {
@@ -602,4 +603,14 @@ table.propform td.source table.propform td {
   height: 16px;
   width: 16px;
   display: block;
+}
+
+#document-invitation-dialog table {
+  margin-top: 15px;
+}
+
+#document-invitation-dialog table td.label {
+  width: 1%;
+  white-space: nowrap;
+  font-weight: bold;
 }
