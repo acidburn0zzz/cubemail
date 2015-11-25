@@ -1312,10 +1312,27 @@ function kolab_files_add_attendees(names)
 
 function kolab_files_attendee_record(user, status)
 {
-  var buttons = $('<td class="options">'),
-    type = status ? status.replace(/-.*$/, '') : '';
+  var options = [], select,
+    type = status ? status.replace(/-.*$/, '') : '',
+    buttons = $('<td class="options">'),
+    state = $('<td class="status">').text(rcmail.gettext('kolab_files.status' + type));
 
   // @todo: accept/decline invitation request
+  if (type == 'requested' || status == 'accepted-owner' || status == 'declined-owner') {
+    select = $('<select>').change(function() {
+        var val = $(this).val(), map = {accepted: 'invitation_accept', declined: 'invitation_decline'};
+        if (map[val])
+          manticore[map[val]]({user: user, session_id: rcmail.env.file_data.session.id});
+      });
+
+    if (type == 'requested')
+      options.push($('<option>').text(rcmail.gettext('kolab_files.statusrequested')).attr('value', 'requested'));
+
+    options.push($('<option>').text(rcmail.gettext('kolab_files.statusaccepted')).attr('value', 'accepted'));
+    options.push($('<option>').text(rcmail.gettext('kolab_files.statusdeclined')).attr('value', 'declined'));
+
+    state.html(select.html(options).val(type));
+  }
 
   // delete button
   if (status != 'organizer') {
@@ -1328,7 +1345,7 @@ function kolab_files_attendee_record(user, status)
 
   return $('<tr>').attr('class', 'invitation' + (type ? ' ' + type : ''))
       .append($('<td class="name">').text(user))
-      .append($('<td class="status">').text(rcmail.gettext('kolab_files.status' + type)))
+      .append(state)
       .append(buttons);
 };
 
@@ -1356,14 +1373,13 @@ function kolab_files_invitation_dialog(invitation)
           .append($('<td>').text(value))
         );
       };
-/*
     join_session = function() {
-        var viewer = file_api.file_type_supported('application//vnd.oasis.opendocument.text', rcmail.env.files_caps);
+        var viewer = file_api.file_type_supported('application/vnd.oasis.opendocument.text', rcmail.env.files_caps);
           params = {action: 'edit', session: invitation.session_id};
 
-        file_api.file_open(invitation.file, viewer, params);
+        file_api.file_open('', viewer, params);
       };
-*/
+
   if (!dialog.length)
     dialog = $('<div>').attr({id: 'document-invitation-dialog', role: 'dialog', 'aria-hidden': 'true'})
       .append($('<div>'))
@@ -1372,12 +1388,11 @@ function kolab_files_invitation_dialog(invitation)
   if (!invitation.is_session_owner) {
     if (invitation.status == 'invited') {
       text = manticore.invitation_msg(invitation);
-/*
+
       buttons[rcmail.gettext('kolab_files.join')] = function() {
         join_session();
         kolab_dialog_close(this);
       };
-*/
       buttons[rcmail.gettext('kolab_files.accept')] = function() {
         manticore.invitation_accept(invitation);
         kolab_dialog_close(this);
@@ -1393,12 +1408,11 @@ function kolab_files_invitation_dialog(invitation)
     }
     else if (invitation.status == 'accepted-owner') {
       text = manticore.invitation_msg(invitation);
-/*
+
       buttons[rcmail.gettext('kolab_files.join')] = function() {
         join_session();
         kolab_dialog_close(this);
       };
-*/
     }
   }
   else {
@@ -1411,6 +1425,7 @@ function kolab_files_invitation_dialog(invitation)
     }
     else if (invitation.status == 'requested') {
       text = manticore.invitation_msg(invitation);
+
       buttons[rcmail.gettext('kolab_files.accept')] = function() {
         manticore.invitation_accept(invitation);
         kolab_dialog_close(this);

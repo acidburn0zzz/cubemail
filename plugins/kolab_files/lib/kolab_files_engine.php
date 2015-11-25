@@ -1284,6 +1284,10 @@ class kolab_files_engine
                 true, true);
         }
 
+        if ($file === null || $file === '') {
+            $file = $this->file_data['file'];
+        }
+
         $this->file_data['filename'] = $file;
 
         $this->plugin->add_label('filedeleteconfirm', 'filedeleting', 'filedeletenotice');
