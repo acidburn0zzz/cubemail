@@ -170,7 +170,7 @@ function kolab_files_init()
     }
   }
 
-  if (rcmail.env.files_caps && rcmail.env.files_caps.MANTICORE)
+  if (rcmail.env.files_caps && rcmail.env.files_caps.MANTICORE && !rcmail.env.framed)
     $.extend(manticore_config, {
       // invitation notifications
       api: file_api,
@@ -186,10 +186,10 @@ function kolab_files_init()
     gettext: function(label) { return rcmail.get_label('kolab_files.' + label); },
     set_busy: function(state, message) { return rcmail.set_busy(state, message ? 'kolab_files.' + message : ''); },
     hide_message: function(id) { return rcmail.hide_message(id); },
-    display_message: function(label, type, is_txt) {
+    display_message: function(label, type, is_txt, timeout) {
         if (!is_txt)
             label = 'kolab_files.' + label;
-        return rcmail.display_message(label, type);
+        return rcmail.display_message(label, type, timeout * 1000);
     }
   });
 
@@ -584,14 +584,16 @@ function kolab_files_file_edit_dialog(file, sessions, readonly)
 
     $.each(sessions, function() {
       if (this.is_invited) {
-        var txt = rcmail.gettext('kolab_files.invitedsession').replace('$user', this.owner);
+        var txt = rcmail.gettext('kolab_files.invitedsession')
+          .replace('$user', this.owner_name ? this.owner_name : this.owner);
         items.push(item_fn(this.id, txt, 'invited'));
       }
     });
 
     $.each(sessions, function() {
       if (!this.is_owner && !this.is_invited) {
-        var txt = rcmail.gettext('kolab_files.joinsession').replace('$user', this.owner);
+        var txt = rcmail.gettext('kolab_files.joinsession')
+          .replace('$user', this.owner_name ? this.owner_name : this.owner);
         items.push(item_fn(this.id, txt, 'request'));
       }
     });
@@ -1193,7 +1195,8 @@ function kolab_files_editors_dialog(session)
 {
   var ac_props, items = [], buttons = {},
     info = rcmail.env.file_data,
-    dialog = $('#document-editors-dialog');
+    dialog = $('#document-editors-dialog'),
+    comment = $('#invitation-comment');
 
   if (!info || !info.session || !info.session.is_owner)
     return;
@@ -1202,7 +1205,7 @@ function kolab_files_editors_dialog(session)
   items.push(kolab_files_attendee_record(info.session.owner, 'organizer'));
 
   $.each(info.session.invitations || [], function(i, u) {
-    var record = kolab_files_attendee_record(u.user, u.status);
+    var record = kolab_files_attendee_record(u.user, u.status, u.user_name);
     items.push(record);
     info.session.invitations[i].record = record;
   });
@@ -1236,7 +1239,8 @@ function kolab_files_editors_dialog(session)
     rcmail.addEventListener('autocomplete_insert', function(e) {
       var success = false;
       if (e.field.name == 'participant') {
-        success = kolab_files_add_attendees(e.insert, 'invited', e.data && e.data.type == 'group' ? 'GROUP' : 'INDIVIDUAL');
+        // e.data && e.data.type == 'group' ? 'GROUP' : 'INDIVIDUAL'
+        success = kolab_files_add_attendees(e.insert, comment.val());
       }
       if (e.field && success) {
         e.field.value = '';
@@ -1246,7 +1250,7 @@ function kolab_files_editors_dialog(session)
     $('#invitation-editor-add').click(function() {
       var input = $('#invitation-editor-name');
       rcmail.ksearch_blur();
-      if (kolab_files_add_attendees(input.val(), 'invited', 'INDIVIDUAL')) {
+      if (kolab_files_add_attendees(input.val(), comment.val())) {
         input.val('');
       }
     });
@@ -1254,7 +1258,7 @@ function kolab_files_editors_dialog(session)
 };
 
 // add the given list of participants
-function kolab_files_add_attendees(names)
+function kolab_files_add_attendees(names, comment)
 {
   var i, item, success, email, name, attendees = {}, counter = 0;
 
@@ -1305,15 +1309,16 @@ function kolab_files_add_attendees(names)
   }
 
   if (counter)
-    file_api.document_invite(rcmail.env.file_data.session.id, attendees);
+    file_api.document_invite(rcmail.env.file_data.session.id, attendees, comment);
 
   return success;
 };
 
-function kolab_files_attendee_record(user, status)
+function kolab_files_attendee_record(user, status, username)
 {
   var options = [], select,
     type = status ? status.replace(/-.*$/, '') : '',
+    name = $('<td class="name">').text(user),
     buttons = $('<td class="options">'),
     state = $('<td class="status">').text(rcmail.gettext('kolab_files.status' + type));
 
@@ -1343,16 +1348,18 @@ function kolab_files_attendee_record(user, status)
       .appendTo(buttons);
   }
 
+  if (username && status != 'organizer')
+    name.html($('<a>').attr({href: 'mailto:' + user, 'class': 'mailtolink'}).text(username))
+      .click(function(e) { rcmail.command('compose', user, e.target, e); return false; });
+
   return $('<tr>').attr('class', 'invitation' + (type ? ' ' + type : ''))
-      .append($('<td class="name">').text(user))
-      .append(state)
-      .append(buttons);
+      .append(name).append(state).append(buttons);
 };
 
 function manticore_invitation_handler(invitation)
 {
   // make the "More" link clickable
-  $('#' + invitation.id).click(function() { kolab_files_invitation_dialog(invitation); });
+  $('#' + invitation.id).parent('div').click(function() { kolab_files_invitation_dialog(invitation); });
 
   // @todo: update session icon state on files list
 };
@@ -3256,7 +3263,7 @@ function kolab_files_ui()
   };
 
   // Invite document session participants
-  this.document_invite = function(id, attendees)
+  this.document_invite = function(id, attendees, comment)
   {
     var list = [];
 
@@ -3265,7 +3272,7 @@ function kolab_files_ui()
 
     if (list.length) {
       this.req = this.set_busy(true, 'kolab_files.documentinviting');
-      this.request('document_invite', {id: id, users: list}, 'document_invite_response');
+      this.request('document_invite', {id: id, users: list, comment: comment || ''}, 'document_invite_response');
     }
   };
 
@@ -3279,7 +3286,7 @@ function kolab_files_ui()
       table = $('#document-editors-dialog table > tbody');
 
     $.each(response.result.list || {}, function() {
-      var record = kolab_files_attendee_record(this.user, this.status);
+      var record = kolab_files_attendee_record(this.user, this.status, this.user_name);
       table.append(record);
       if (info.session && info.session.invitations)
         info.session.invitations.push($.extend({status: 'invited', record: record}, this));

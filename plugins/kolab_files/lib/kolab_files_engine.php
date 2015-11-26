@@ -127,6 +127,7 @@ class kolab_files_engine
         $this->plugin->include_script($this->url . '/js/files_api.js');
         $this->plugin->include_script('kolab_files.js');
 
+        $this->rc->output->set_env('files_url', $this->url . '/api/');
         $this->rc->output->set_env('files_token', $this->get_api_token());
         $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
         $this->rc->output->set_env('files_user', $this->rc->get_user_name());
@@ -144,7 +145,6 @@ class kolab_files_engine
             $collapsed_folders = (string) $this->rc->config->get('kolab_files_collapsed_folders');
 
             $this->rc->output->include_script('treelist.js');
-            $this->rc->output->set_env('files_url', $this->url . '/api/');
             $this->rc->output->set_env('kolab_files_collapsed_folders', $collapsed_folders);
 
             // register template objects for dialogs (and main interface)
