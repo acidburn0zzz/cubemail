@@ -658,7 +658,7 @@ class kolab_files_engine
         $head        = '';
 
         foreach ($this->file_list_head($attrib, $a_show_cols) as $cell) {
-            $head .= html::tag('td', array('class' => $cell['className'], 'id' => $cell['id']), $cell['html']);
+            $head .= html::tag('th', array('class' => $cell['className'], 'id' => $cell['id']), $cell['html']);
         }
 
         $head = html::tag('tr', null, $head);
