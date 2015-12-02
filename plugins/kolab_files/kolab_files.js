@@ -1192,7 +1192,7 @@ rcube_webmail.prototype.document_close = function()
 // document editors management dialog
 function kolab_files_editors_dialog(session)
 {
-  var ac_props, items = [], buttons = {},
+  var items = [], buttons = {},
     info = rcmail.env.file_data,
     dialog = $('#document-editors-dialog'),
     comment = $('#invitation-comment');
@@ -1224,16 +1224,7 @@ function kolab_files_editors_dialog(session)
 
   if (!rcmail.env.editors_dialog) {
     rcmail.env.editors_dialog = dialog;
-
-    // init attendees autocompletion
-    if (rcmail.env.autocomplete_threads > 0) {
-      ac_props = {
-        threads: rcmail.env.autocomplete_threads,
-        sources: rcmail.env.autocomplete_sources
-      };
-    }
-
-    rcmail.init_address_input_events($('#invitation-editor-name'), ac_props);
+    rcmail.init_address_input_events($('#invitation-editor-name'), {action: 'files/autocomplete'});
 
     rcmail.addEventListener('autocomplete_insert', function(e) {
       var success = false;

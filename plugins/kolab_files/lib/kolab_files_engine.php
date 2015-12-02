@@ -3,7 +3,6 @@
 /**
  * Kolab files storage engine
  *
- * @version @package_version@
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
  * Copyright (C) 2013, Kolab Systems AG <contact@kolabsys.com>
