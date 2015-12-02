@@ -3,9 +3,10 @@
 /**
  * Kolab files storage engine
  *
+ * @version @package_version@
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2013, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2013-2015, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -1298,6 +1299,7 @@ class kolab_files_engine
         ));
 
         $placeholder = $this->rc->output->asset_url('program/resources/blank.gif');
+        $manticore = ($viewer & 4) && $this->file_data['viewer']['manticore'];
 
         // this one is for styling purpose
         $this->rc->output->set_env('extwin', true);
@@ -1305,7 +1307,7 @@ class kolab_files_engine
         $this->rc->output->set_env('file_data', $this->file_data);
         $this->rc->output->set_env('photo_placeholder', $placeholder);
         $this->rc->output->set_pagetitle(rcube::Q($file));
-        $this->rc->output->send('kolab_files.' . ($viewer & 4 ? 'docedit' : 'filepreview'));
+        $this->rc->output->send('kolab_files.' . ($manticore ? 'docedit' : 'filepreview'));
     }
 
     /**

@@ -103,7 +103,8 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
     rcmail.env.file_commands_all = ['files-delete', 'files-move', 'files-copy'];
 
     if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
-      rcmail.enable_command('files-get', 'files-delete', rcmail.env.file);
+      rcmail.enable_command('files-get', true);
+      rcmail.enable_command('files-delete', rcmail.env.file_data.writable);
     }
     else {
       rcmail.enable_command('folder-mount', rcmail.env.external_sources);
@@ -1570,13 +1571,17 @@ rcube_webmail.prototype.files_edit = function(session)
     files = kolab_files_selected();
     if (files.length == 1)
       file = files[0];
+    readonly = !file_api.is_writable(file_api.file_path(file));
+  }
+  else {
+    readonly = !this.env.file_data.writable;
   }
 
   // check if the folder is read-only or there are ongoing sessions
   // in such cases display dialog for the user to decide what to do
   if (!session) {
     sessions = file_api.file_sessions(file);
-    if (sessions.length || (readonly = !file_api.is_writable(file_api.file_path(file)))) {
+    if (sessions.length || readonly) {
       kolab_files_file_edit_dialog(file, sessions, readonly);
       return;
     }

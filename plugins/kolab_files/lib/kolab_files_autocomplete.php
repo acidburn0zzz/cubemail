@@ -3,6 +3,7 @@
 /**
  * Kolab files collaborators autocompletion
  *
+ * @version @package_version@
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
  * Copyright (C) 2013-2015, Kolab Systems AG <contact@kolabsys.com>
