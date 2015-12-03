@@ -154,9 +154,11 @@ function kolab_files_init()
         photo_url: '?_task=addressbook&_action=photo&_email=%email',
         photo_default_url: rcmail.env.photo_placeholder,
         // events
-        ready: function(data) { manticore_init(); },
-        documentChanged: function(data) { rcmail.enable_command('document-save', true); },
+        ready: function(data) { manticore_init(); }
       };
+
+      if (rcmail.env.file_data.writable)
+        manticore_config.documentChanged = function(data) { rcmail.enable_command('document-save', true); };
     }
     else if (rcmail.env.action == 'open') {
       // initialize folders list (for dialogs)
