@@ -151,10 +151,11 @@ function kolab_files_init()
         export_menu: rcmail.gui_objects.exportmenu ? $('ul', rcmail.gui_objects.exportmenu).get(0) : null,
         title_input: $('#document-title').get(0),
         members_list: $('#members').get(0),
-        photo_url: '?_task=addressbook&_action=photo&_email=%email',
+        photo_url: '?_task=addressbook&_action=photo&_error=1&_email=%email',
         photo_default_url: rcmail.env.photo_placeholder,
         // events
-        ready: function(data) { manticore_init(); }
+        ready: function(data) { manticore_init(); },
+        sessionClosed: function(data) { return manticore_close(); }
       };
 
       if (rcmail.env.file_data.writable)
@@ -1163,6 +1164,25 @@ function manticore_init()
 
   if (info && info.session && info.session.is_owner)
     rcmail.enable_command('document-close', 'document-editors', true);
+};
+
+// executed on editing session termination
+function manticore_close()
+{
+  $('<div>').addClass('popupdialog').attr('role', 'alertdialog')
+    .html($('<span>').text(rcmail.gettext('kolab_files.sessionterminated')))
+    .dialog({
+      resizable: false,
+      closeOnEscape: true,
+      dialogClass: 'popupmessage error',
+      title: rcmail.gettext('kolab_files.sessionterminatedtitle'),
+      close: function() { window.close(); },
+      position: ['center', 'center'],
+      width: 420,
+      minHeight: 90
+    }).show();
+
+  return false; // skip Chwala's error message
 };
 
 rcube_webmail.prototype.document_save = function()
