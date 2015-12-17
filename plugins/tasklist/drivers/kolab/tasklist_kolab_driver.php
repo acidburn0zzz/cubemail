@@ -1365,7 +1365,7 @@ class tasklist_kolab_driver extends tasklist_driver
             rcube::raise_error(array(
                 'code' => 600, 'type' => 'php',
                 'file' => __FILE__, 'line' => __LINE__,
-                'message' => "Invalid list identifer to save task: " . var_dump($list_id, true)),
+                'message' => "Invalid list identifer to save task: " . print_r($list_id, true)),
                 true, false);
             return false;
         }
