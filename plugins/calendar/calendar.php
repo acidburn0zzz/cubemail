@@ -1412,7 +1412,7 @@ class calendar extends rcube_plugin
   }
 
   /**
-   * Handler for check-recent requests which are accidentally sent to calendar taks
+   * Handler for check-recent requests which are accidentally sent to calendar
    */
   function check_recent()
   {
