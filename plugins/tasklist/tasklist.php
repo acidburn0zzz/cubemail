@@ -1418,13 +1418,16 @@ class tasklist extends rcube_plugin
 
         $texts['tasklist.newtask'] = $this->gettext('createfrommail');
 
+
+        $this->ui->init_templates();
+        $this->ui->tasklists();
+
         // collect env variables
         $env = array(
-            'tasklists' => array(),
+            'tasklists' => $this->rc->output->get_env('tasklists'),
             'tasklist_settings' => $this->ui->load_settings(),
         );
 
-        $this->ui->init_templates();
         echo $this->api->output->parse('tasklist.taskedit', false, false);
 
         $script_add = '';
