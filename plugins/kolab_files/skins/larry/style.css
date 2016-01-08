@@ -36,6 +36,11 @@
   background-position: center -93px;
 }
 
+#filestoolbar a.button.export {
+  background-position: 0 -93px;
+  min-width: 50px;
+}
+
 #filestoolbar a.button.open {
   background-position: center -131px;
 }
@@ -44,8 +49,16 @@
   background-image: url(../../../../skins/larry/images/buttons.png);
 }
 
+#filestoolbar a.button.create {
+  background-position: center -315px;
+}
+
 #filestoolbar a.button.edit {
   background-position: center -173px;
+}
+
+#filestoolbar a.button.rename {
+  background-position: center -357px;
 }
 
 #filestoolbar a.button.save {
@@ -60,6 +73,50 @@
 
 #filestoolbar form {
   display: inline;
+}
+
+#filestoolbar > label {
+  line-height: 42px;
+  vertical-align: top;
+  color: #555;
+  text-shadow: 0 1px 1px #eee;
+}
+
+ul.toolbarmenu li span.saveas {
+  background: url(images/buttons.png) -5px -253px no-repeat;
+}
+
+#document-title {
+  width: 200px;
+}
+
+#collaborators {
+  position: absolute;
+  right: 0;
+  top: -6px;
+}
+
+#collaborators #members {
+  float: right;
+}
+
+#collaborators #members img.photo {
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  background: url(../../../../skins/larry/images/contactpic_32px.png) center center no-repeat #fff;
+  border-radius: 5px;
+  border: solid 3px #eee;
+  margin-left: 5px;
+}
+
+#collaborators a.button.add {
+  background: url(../../../../skins/larry/images/buttons.png) -5px -357px no-repeat;
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  padding: 2px;
+  margin-top: 10px;
 }
 
 #quicksearchbar #filesearchmenulink {
@@ -85,6 +142,10 @@
   right: 0;
   bottom: 0;
   overflow: auto;
+}
+
+#filecontent.docedit {
+  left: 0;
 }
 
 #filelistbox {
@@ -216,7 +277,6 @@
 
 .filelist tr > .options {
   width: 32px;
-  cursor: pointer;
 }
 
 .filelist thead tr th.filename,
@@ -278,13 +338,6 @@
   border-radius: 4px 0 0 0;
 }
 
-.filelist tbody tr td.options:hover span {
-  width: 26px;
-  height: 18px;
-  background: url(../../../../skins/larry/images/buttons.png) -5px -417px no-repeat;
-  display: block;
-}
-
 .filelist td.filename {
   padding: 0 4px;
 }
@@ -295,12 +348,23 @@
   height: 16px;
 }
 
-/*
-.filelist tbody td.filename span input {
-  padding: 0 2px;
-  height: 18px;
+.filelist tbody td.options span {
+  background-image: url(images/listicons.png);
+  display: block;
+  height: 16px;
 }
-*/
+
+.filelist tbody tr.session > td.options span {
+  background-position: center -212px;
+}
+
+.filelist tbody tr.session.invited > td.options span {
+  background-position: center -236px;
+}
+
+.filelist tbody tr.session.owner > td.options span {
+  background-position: center -188px;
+}
 
 #fileinfobox table {
   table-layout: fixed;
@@ -347,11 +411,15 @@
 
 #files-dialog,
 #files-compose-dialog,
+#files-file-rename-dialog,
+#files-file-create-dialog,
 #files-file-edit-dialog,
 #files-folder-mount-dialog,
 #files-folder-auth-dialog,
 #files-folder-create-dialog,
-#files-folder-edit-dialog {
+#files-folder-edit-dialog,
+#document-invitation-dialog,
+#document-editors-dialog {
   display: none;
 }
 
@@ -415,6 +483,11 @@
   cursor: pointer;
 }
 
+#files-file-edit-dialog label {
+  display: block;
+  height: 20px;
+}
+
 a.filesaveall {
   display: inline-block;
   margin-top: .5em;
@@ -433,10 +506,6 @@ a.filesaveall {
 
 #file-save-as input {
   width: 200px;
-}
-
-ul.toolbarmenu li span.saveas {
-  background: url(images/buttons.png) -5px -253px no-repeat;
 }
 
 table.propform td.source.selected {
@@ -487,4 +556,65 @@ table.propform td.source table.propform td {
 .auth-options input,
 .auth-options label {
   vertical-align: middle;
+}
+
+#document-editors-dialog textarea {
+  width: 98%
+}
+
+#document-editors-dialog label {
+  display: block;
+}
+
+#document-editors-dialog table {
+  margin-top: 0.5em;
+  margin-bottom: 1em;
+}
+
+#document-editors-dialog table th.status {
+  width: 9em;
+}
+
+#document-editors-dialog table th.options {
+  width: 16px
+}
+
+#document-editors-dialog table td.status select {
+  width: 100%;
+}
+
+#document-editors-dialog table td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#document-editors-dialog table td.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: auto;
+}
+
+#document-editors-dialog table tr:last-child td {
+  border-bottom: 0;
+}
+
+#document-editors-dialog table tr.organizer td {
+  color: #888;
+}
+
+#document-editors-dialog table td.options a.delete {
+  background: url(../../../../skins/larry/images/buttons.png) -7px -379px no-repeat;
+  height: 16px;
+  width: 16px;
+  display: block;
+}
+
+#document-invitation-dialog table {
+  margin-top: 15px;
+}
+
+#document-invitation-dialog table td.label {
+  width: 1%;
+  white-space: nowrap;
+  font-weight: bold;
 }

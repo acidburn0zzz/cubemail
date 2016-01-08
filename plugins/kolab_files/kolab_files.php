@@ -49,6 +49,8 @@ class kolab_files extends rcube_plugin
         $this->register_action('index', array($this, 'actions'));
         $this->register_action('prefs', array($this, 'actions'));
         $this->register_action('open',  array($this, 'actions'));
+        $this->register_action('edit',  array($this, 'actions'));
+        $this->register_action('autocomplete', array($this, 'autocomplete'));
 
         // we use libkolab::http_request() from libkolab with its configuration
         $this->require_plugin('libkolab');
@@ -76,7 +78,7 @@ class kolab_files extends rcube_plugin
                 return $this->engine = false;
             }
 
-            require_once $this->home . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'kolab_files_engine.php';
+            require_once $this->home . '/lib/kolab_files_engine.php';
 
             $this->engine = new kolab_files_engine($this, $url);
         }
@@ -130,5 +132,17 @@ class kolab_files extends rcube_plugin
         if ($engine = $this->engine()) {
             $engine->actions();
         }
+    }
+
+    /**
+     * Handler for user autocomplete request
+     */
+    function autocomplete()
+    {
+        $this->load_config();
+
+        require_once $this->home . '/lib/kolab_files_autocomplete.php';
+
+        new kolab_files_autocomplete($this);
     }
 }
