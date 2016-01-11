@@ -3230,7 +3230,7 @@ function kolab_files_ui()
       _task: 'files',
       _action: params && params.action ? params.action : 'open',
       _file: file,
-      _viewer: viewer || 0,
+      _viewer: viewer || 0
     };
 
     if (params && params.session)
