@@ -203,7 +203,7 @@ class kolab_storage_cache
                 $this->index = $imap_index->get();
 
                 // determine objects to fetch or to invalidate
-                if ($imap_index->is_error()) {
+                if (!$imap_index->is_error()) {
                     // read cache index
                     $sql_result = $this->db->query(
                         "SELECT msguid, uid FROM $this->cache_table WHERE folder_id=?",
