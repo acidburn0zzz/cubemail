@@ -584,7 +584,7 @@ class tasklist_database_driver extends tasklist_driver
             join(',', (array)$prop['tags']),
             $prop['flagged'] ? 1 : 0,
             intval($prop['complete']),
-            $prop['status'],
+            strval($prop['status']),
             $prop['alarms'],
             $prop['recurrence'],
             $notify_at
