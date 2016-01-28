@@ -25,36 +25,35 @@ namespace Kolab2FA\Driver;
 
 abstract class Base
 {
-    public $method = null;
-    public $id = null;
+    public $method;
+    public $id;
     public $storage;
 
-    protected $config = array();
-    protected $props = array();
-    protected $user_props = array();
+    protected $config          = array();
+    protected $props           = array();
+    protected $user_props      = array();
     protected $pending_changes = false;
-    protected $temporary = false;
-
-    protected $allowed_props = array('username');
+    protected $temporary       = false;
+    protected $allowed_props   = array('username');
 
     public $user_settings = array(
         'active' => array(
-            'type' => 'boolean',
+            'type'     => 'boolean',
             'editable' => false,
-            'hidden' => false,
-            'default' => false,
+            'hidden'   => false,
+            'default'  => false,
         ),
         'label' => array(
-            'type' => 'text',
-            'editable' => true,
-            'label' => 'label',
+            'type'      => 'text',
+            'editable'  => true,
+            'label'     => 'label',
             'generator' => 'default_label',
         ),
         'created' => array(
-            'type' => 'datetime',
-            'editable' => false,
-            'hidden' => false,
-            'label' => 'created',
+            'type'      => 'datetime',
+            'editable'  => false,
+            'hidden'    => false,
+            'label'     => 'created',
             'generator' => 'time',
         ),
     );
@@ -342,5 +341,4 @@ abstract class Base
     {
         return isset($this->props[$key]);
     }
-
 }

@@ -44,15 +44,15 @@ class HOTP extends Base
 
         $this->user_settings += array(
             'secret' => array(
-                'type' => 'text',
-                'private' => true,
-                'label' => 'secret',
+                'type'      => 'text',
+                'private'   => true,
+                'label'     => 'secret',
                 'generator' => 'generate_secret',
             ),
             'counter' => array(
-                'type' => 'integer',
-                'editable' => false,
-                'hidden' => true,
+                'type'      => 'integer',
+                'editable'  => false,
+                'hidden'    => true,
                 'generator' => 'random_counter',
             ),
         );
@@ -72,12 +72,12 @@ class HOTP extends Base
     public function verify($code, $timestamp = null)
     {
         // get my secret from the user storage
-        $secret = $this->get('secret');
+        $secret  = $this->get('secret');
         $counter = $this->get('counter');
 
         if (!strlen($secret)) {
             // LOG: "no secret set for user $this->username"
-            console("VERIFY HOTP: no secret set for user $this->username");
+            // rcube::console("VERIFY HOTP: no secret set for user $this->username");
             return false;
         }
 
@@ -91,11 +91,11 @@ class HOTP extends Base
         }
         catch (\Exception $e) {
             // LOG: exception
-            console("VERIFY HOTP: $this->id, " . strval($e));
+            // rcube::console("VERIFY HOTP: $this->id, " . strval($e));
             $pass = false;
         }
 
-        // console('VERIFY HOTP', $this->username, $secret, $counter, $code, $pass);
+        // rcube::console('VERIFY HOTP', $this->username, $secret, $counter, $code, $pass);
         return $pass;
     }
 
@@ -125,5 +125,4 @@ class HOTP extends Base
     {
         return mt_rand(1, 999);
     }
-
 }

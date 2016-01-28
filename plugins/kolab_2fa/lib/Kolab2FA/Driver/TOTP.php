@@ -44,9 +44,9 @@ class TOTP extends Base
 
         $this->user_settings += array(
             'secret' => array(
-                'type' => 'text',
-                'private' => true,
-                'label' => 'secret',
+                'type'      => 'text',
+                'private'   => true,
+                'label'     => 'secret',
                 'generator' => 'generate_secret',
             ),
         );
@@ -71,7 +71,7 @@ class TOTP extends Base
 
         if (!strlen($secret)) {
             // LOG: "no secret set for user $this->username"
-            console("VERIFY TOTP: no secret set for user $this->username");
+            // rcube::console("VERIFY TOTP: no secret set for user $this->username");
             return false;
         }
 
@@ -93,7 +93,7 @@ class TOTP extends Base
             }
         }
 
-        // console('VERIFY TOTP', $this->username, $secret, $code, $timestamp, $pass);
+        // rcube::console('VERIFY TOTP', $this->username, $secret, $code, $timestamp, $pass);
         return $pass;
     }
 
@@ -102,12 +102,12 @@ class TOTP extends Base
      */
     public function get_provisioning_uri()
     {
-        console('PROV', $this->secret);
+        // rcube::console('PROV', $this->secret);
         if (!$this->secret) {
             // generate new secret and store it
             $this->set('secret', $this->get('secret', true));
             $this->set('created', $this->get('created', true));
-            console('PROV2', $this->secret);
+            // rcube::console('PROV2', $this->secret);
             $this->commit();
         }
 

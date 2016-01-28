@@ -44,9 +44,9 @@ class Yubikey extends Base
 
         $this->user_settings += array(
             'yubikeyid' => array(
-                'type' => 'text',
+                'type'     => 'text',
                 'editable' => true,
-                'label' => 'secret',
+                'label'    => 'secret',
             ),
         );
 
@@ -66,7 +66,7 @@ class Yubikey extends Base
     {
         // get my secret from the user storage
         $keyid = $this->get('yubikeyid');
-        $pass = false;
+        $pass  = false;
 
         if (!strlen($keyid)) {
             // LOG: "no key registered for user $this->username"
@@ -77,14 +77,14 @@ class Yubikey extends Base
         if (strpos($code, $keyid) === 0) {
             try {
                 $response = $this->backend->check($code);
-                $pass = $response->success() === true;
+                $pass     = $response->success() === true;
             }
             catch (\Exception $e) {
                 // TODO: log exception
             }
         }
 
-        console('VERIFY TOTP', $this->username, $keyid, $code, $pass);
+        // rcube::console('VERIFY TOTP', $this->username, $keyid, $code, $pass);
         return $pass;
     }
 
