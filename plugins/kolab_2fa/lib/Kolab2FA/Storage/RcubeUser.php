@@ -116,6 +116,8 @@ class RcubeUser extends Base
             if (!$success) {
                 $this->log(LOG_WARNING, sprintf('Failed to save prefs for user %s', $this->username));
             }
+
+            return $success;
         }
 
         return false;
