@@ -72,29 +72,46 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
       kolab_files_from_cloud_widget($('#taskedit-attachment-form > div.buttons'));
   }
   else if (rcmail.task == 'files') {
-    if (rcmail.gui_objects.filelist) {
-      rcmail.file_list = new rcube_list_widget(rcmail.gui_objects.filelist, {
+    if (rcmail.gui_objects.fileslist) {
+      rcmail.fileslist = new rcube_list_widget(rcmail.gui_objects.fileslist, {
         multiselect: true,
         draggable: true,
         keyboard: true,
-        column_movable: rcmail.env.col_movable,
+        column_movable: rcmail.env.files_col_movable,
         dblclick_time: rcmail.dblclick_time
       });
 
-      rcmail.file_list.addEventListener('dblclick', function(o) { kolab_files_list_dblclick(o); })
+      rcmail.fileslist.addEventListener('dblclick', function(o) { kolab_files_list_dblclick(o); })
         .addEventListener('select', function(o) { kolab_files_list_select(o); })
         .addEventListener('keypress', function(o) { kolab_files_list_keypress(o); })
         .addEventListener('dragstart', function(e) { kolab_files_drag_start(e); })
         .addEventListener('dragmove', function(e) { kolab_files_drag_move(e); })
         .addEventListener('dragend', function(e) { kolab_files_drag_end(e); })
-        .addEventListener('column_replace', function(e) { kolab_files_set_coltypes(e); })
+        .addEventListener('column_replace', function(e) { kolab_files_set_coltypes(e, 'files'); })
         .addEventListener('listupdate', function(e) { rcmail.triggerEvent('listupdate', e); });
 
       rcmail.enable_command('menu-open', 'menu-save', 'files-sort', 'files-search', 'files-search-reset', 'folder-create', true);
 
-      rcmail.file_list.init();
-      kolab_files_list_coltypes();
-      kolab_files_drag_drop_init($(rcmail.gui_objects.filelist).parents('.droptarget'));
+      rcmail.fileslist.init();
+      kolab_files_list_coltypes('files');
+      kolab_files_drag_drop_init($(rcmail.gui_objects.fileslist).parents('.droptarget'));
+    }
+
+    if (rcmail.gui_objects.sessionslist) {
+      rcmail.sessionslist = new rcube_list_widget(rcmail.gui_objects.sessionslist, {
+        keyboard: true,
+        column_movable: rcmail.env.sessions_col_movable,
+        dblclick_time: rcmail.dblclick_time
+      });
+
+      rcmail.sessionslist.addEventListener('dblclick', function(o) { kolab_files_sessions_list_dblclick(o); })
+        .addEventListener('select', function(o) { kolab_files_sessions_list_select(o); })
+        .addEventListener('keypress', function(o) { kolab_files_sessions_list_keypress(o); })
+        .addEventListener('column_replace', function(e) { kolab_files_set_coltypes(e, 'sessions'); })
+        .addEventListener('listupdate', function(e) { rcmail.triggerEvent('listupdate', e); });
+
+      rcmail.sessionslist.init();
+      kolab_files_list_coltypes('sessions');
     }
 
     // "one file only" commands
@@ -215,19 +232,19 @@ function kolab_files_from_cloud_widget(elem)
       .click(function() { kolab_files_selector_dialog(); })
       .appendTo(elem);
 
-  if (rcmail.gui_objects.filelist) {
-    rcmail.file_list = new rcube_list_widget(rcmail.gui_objects.filelist, {
+  if (rcmail.gui_objects.fileslist) {
+    rcmail.fileslist = new rcube_list_widget(rcmail.gui_objects.fileslist, {
       multiselect: true,
       keyboard: true,
       column_movable: false,
       dblclick_time: rcmail.dblclick_time
     });
-    rcmail.file_list.addEventListener('select', function(o) { kolab_files_list_select(o); })
+    rcmail.fileslist.addEventListener('select', function(o) { kolab_files_list_select(o); })
       .addEventListener('listupdate', function(e) { rcmail.triggerEvent('listupdate', e); });
 
     rcmail.enable_command('files-sort', 'files-search', 'files-search-reset', true);
 
-    rcmail.file_list.init();
+    rcmail.fileslist.init();
     kolab_files_list_coltypes();
   }
 }
@@ -333,7 +350,7 @@ function kolab_files_selector_dialog()
 
   buttons[rcmail.gettext('kolab_files.attachsel')] = function () {
     var list = [];
-    $('#filelist tr.selected').each(function() {
+    $('#fileslist tr.selected').each(function() {
       list.push($(this).data('file'));
     });
 
@@ -369,7 +386,7 @@ function kolab_files_selector_dialog()
     minHeight: 300,
     width: 700,
     height: 500
-  }, function() { rcmail.file_list.resize(); });
+  }, function() { rcmail.fileslist.resize(); });
 
   if (!rcmail.env.files_loaded) {
     rcmail.env.folder_list_selector = '#files-compose-dialog #files-folder-list';
@@ -378,7 +395,7 @@ function kolab_files_selector_dialog()
     rcmail.env.files_loaded = true;
   }
   else {
-    rcmail.file_list.clear_selection();
+    rcmail.fileslist.clear_selection();
   }
 };
 
@@ -695,7 +712,7 @@ function kolab_files_file_create_dialog(file)
         if (rcmail.env.file_data)
           type = rcmail.env.file_data.type;
         else {
-          sel = rcmail.file_list.get_selection();
+          sel = rcmail.fileslist.get_selection();
           type = $('#rcmrow' + sel[0]).data('type');
         }
       }
@@ -737,6 +754,67 @@ function kolab_files_file_create_dialog(file)
 
   // build folder selector
   file_api.folder_select_element(select, {writable: true});
+};
+
+// file session dialog
+function kolab_files_session_dialog(session)
+{
+  var buttons = {},
+    dialog = $('#files-session-dialog'),
+    filename = file_api.file_name(session.file),
+    owner = session.owner_name || session.owner,
+    title = rcmail.gettext('kolab_files.sessiondialog'),
+    content = rcmail.gettext('kolab_files.sessiondialogcontent'),
+    button_classes = ['mainaction'],
+    join_session = function(id) {
+      var viewer = file_api.file_type_supported('application/vnd.oasis.opendocument.text', rcmail.env.files_caps);
+        params = {action: 'edit', session: id};
+
+      file_api.file_open('', viewer, params);
+    };
+
+  content = content.replace('$file', filename).replace('$owner', owner);
+  $('div', dialog).text(content);
+
+  if (session.is_owner) {
+    buttons[rcmail.gettext('kolab_files.open')] = function() {
+      kolab_dialog_close(this);
+      join_session(session.id);
+    };
+    buttons[rcmail.gettext('kolab_files.close')] = function() {
+      kolab_dialog_close(this);
+      file_api.document_delete(session.id);
+    };
+    button_classes.push('delete');
+  }
+  else if (session.is_invited) {
+    // @TODO: check if not-accepted and provide "Decline invitation" button
+    // @TODO: Add "Accept button", add comment field to the dialog
+    buttons[rcmail.gettext('kolab_files.join')] = function() {
+      kolab_dialog_close(this);
+      join_session(session.id);
+    };
+  }
+  else {
+    buttons[rcmail.gettext('kolab_files.request')] = function() {
+      kolab_dialog_close(this);
+      // @TODO: Add comment field to the dialog
+      manticore.invitation_request({session_id: session.id});
+    };
+  }
+
+  buttons[rcmail.gettext('kolab_files.cancel')] = function() {
+    kolab_dialog_close(this);
+  };
+
+  // show dialog window
+  kolab_dialog_show(dialog, {
+    title: title,
+    buttons: buttons,
+    button_classes: button_classes,
+    minHeight: 100,
+    height: 150
+  });
 };
 
 function kolab_dialog_show(content, params, onopen)
@@ -854,14 +932,16 @@ function kolab_files_upload_input(button)
 /***********************************************************/
 
 // for reordering column array (Konqueror workaround)
-// and for setting some message list global variables
-function kolab_files_list_coltypes()
+// and for setting some files/sessions list global variables
+function kolab_files_list_coltypes(type)
 {
-  var n, list = rcmail.file_list;
+  if (!type) type = 'files';
+
+  var n, list = rcmail[type + 'list'];
 
   rcmail.env.subject_col = null;
 
-  if ((n = $.inArray('name', rcmail.env.file_coltypes)) >= 0) {
+  if ((n = $.inArray('name', rcmail.env[type + '_coltypes'])) >= 0) {
     rcmail.env.subject_col = n;
     list.subject_col = n;
   }
@@ -869,18 +949,19 @@ function kolab_files_list_coltypes()
   list.init_header();
 };
 
-function kolab_files_set_list_options(cols, sort_col, sort_order)
+function kolab_files_set_list_options(cols, sort_col, sort_order, type)
 {
-  var update = 0, i, idx, name, newcols = [], oldcols = rcmail.env.file_coltypes;
+  var update = 0, i, idx, name, newcols = [], oldcols = rcmail.env[type + '_coltypes'];
 
   if (sort_col === undefined)
-    sort_col = rcmail.env.sort_col;
+    sort_col = rcmail.env[type + '_sort_col'];
   if (!sort_order)
-    sort_order = rcmail.env.sort_order;
+    sort_order = rcmail.env[type + '_sort_order'];
 
-  if (rcmail.env.sort_col != sort_col || rcmail.env.sort_order != sort_order) {
+  if (rcmail.env[type + '_sort_col'] != sort_col || rcmail.env[type + '_sort_order'] != sort_order) {
     update = 1;
-    rcmail.set_list_sorting(sort_col, sort_order);
+    // set table header class
+    kolab_files_set_list_sorting(sort_col, sort_order, type);
   }
 
   if (cols && cols.length) {
@@ -904,9 +985,10 @@ function kolab_files_set_list_options(cols, sort_col, sort_order)
   }
 
   if (update == 1)
-    rcmail.command('files-list', {sort: sort_col, reverse: sort_order == 'DESC'});
+    rcmail.command(type + '-list', {sort: sort_col, reverse: sort_order == 'DESC'});
   else if (update) {
     rcmail.http_post('files/prefs', {
+      type: type,
       kolab_files_list_cols: oldcols,
       kolab_files_sort_col: sort_col,
       kolab_files_sort_order: sort_order
@@ -914,23 +996,61 @@ function kolab_files_set_list_options(cols, sort_col, sort_order)
   }
 };
 
-function kolab_files_set_coltypes(list)
+function kolab_files_set_list_sorting(sort_col, sort_order, type)
+{
+  // set table header class
+  var old_col = rcmail.env[type + '_sort_col'],
+    old_sort = rcmail.env[type + '_sort_order'];
+
+  $('#rcm' + old_col).removeClass('sortedASC sortedDESC');
+  $('#rcm' + sort_col).addClass('sorted' + sort_order);
+
+  rcmail.env[type + '_sort_col'] = sort_col;
+  rcmail.env[type + '_sort_order'] = sort_order;
+};
+
+function kolab_files_set_coltypes(list, type)
 {
   var i, found, name, cols = list.list.tHead.rows[0].cells;
 
-  rcmail.env.file_coltypes = [];
+  rcmail.env[type + '_coltypes'] = [];
 
   for (i=0; i<cols.length; i++)
     if (cols[i].id && cols[i].id.match(/^rcm/)) {
       name = cols[i].id.replace(/^rcm/, '');
-      rcmail.env.file_coltypes.push(name);
+      rcmail.env[type + '_coltypes'].push(name);
     }
 
-//  if ((found = $.inArray('name', rcmail.env.file_coltypes)) >= 0)
+//  if ((found = $.inArray('name', rcmail.env.files_coltypes)) >= 0)
 //    rcmail.env.subject_col = found;
   rcmail.env.subject_col = list.subject_col;
 
-  rcmail.http_post('files/prefs', {kolab_files_list_cols: rcmail.env.file_coltypes});
+  rcmail.http_post('files/prefs', {kolab_files_list_cols: rcmail.env[type + '_coltypes'], type: type});
+};
+
+function kolab_files_sessions_list_dblclick(list)
+{
+  rcmail.command('sessions-open');
+};
+
+function kolab_files_sessions_list_select(list)
+{
+  var selected = list.selection.length;
+
+  rcmail.enable_command('sessions-open', selected == 1);
+};
+
+function kolab_files_sessions_list_keypress(list)
+{
+  if (list.modkey == CONTROL_KEY)
+    return;
+
+  if (list.key_pressed == list.ENTER_KEY) {
+    // use setTimeout(), otherwise the opened dialog will be immediately closed
+    setTimeout(function() { rcmail.command('sessions-open'); }, 50);
+  }
+//  else if (list.key_pressed == list.DELETE_KEY || list.key_pressed == list.BACKSPACE_KEY)
+//    rcmail.command('sessions-delete');
 };
 
 function kolab_files_list_dblclick(list)
@@ -995,7 +1115,7 @@ function kolab_files_drag_end(e)
       var modkey = rcube_event.get_modifier(e),
         menu = rcmail.gui_objects.file_dragmenu;
 
-      rcmail.file_list.draglayer.hide();
+      rcmail.fileslist.draglayer.hide();
 
       if (menu && modkey == SHIFT_KEY && rcmail.commands['files-copy']) {
         var pos = rcube_event.get_mouse_pos(e);
@@ -1030,7 +1150,7 @@ function kolab_files_drag_menu_action(command)
 function kolab_files_selected()
 {
   var files = [];
-  $.each(rcmail.file_list.get_selection(), function(i, v) {
+  $.each(rcmail.fileslist.get_selection(), function(i, v) {
     var name, row = $('#rcmrow'+v);
 
     if (row.length == 1 && (name = row.data('file')))
@@ -1096,7 +1216,6 @@ function kolab_files_drag_drop_init(container)
       return file_api.file_drop(e);
     }, false);
 };
-
 
 // handler for drag/drop on element
 function kolab_files_drag_hover(e)
@@ -1484,22 +1603,33 @@ function kolab_files_invitation_dialog(invitation)
 
 rcube_webmail.prototype.files_sort = function(props)
 {
-  var params = {},
-    sort_order = this.env.sort_order,
-    sort_col = !this.env.disabled_sort_col ? props : this.env.sort_col;
+  this.files_sort_handler(props, 'files');
+};
 
-  if (!this.env.disabled_sort_order)
-    sort_order = this.env.sort_col == sort_col && sort_order == 'ASC' ? 'DESC' : 'ASC';
+rcube_webmail.prototype.sessions_sort = function(props)
+{
+  this.files_sort_handler(props, 'sessions');
+};
+
+rcube_webmail.prototype.files_sort_handler = function(col, type)
+{
+  var params = {},
+    c = type == 'files' ? '' : ('_' + type),
+    sort_order = this.env[type + '_sort_order'],
+    sort_col = !this.env['kolab_files' + c + '_disabled_sort_col'] ? col : this.env[type + '_sort_col'];
+
+  if (!this.env['kolab_files' + c + '_disabled_sort_order'])
+    sort_order = this.env[type + '_sort_col'] == sort_col && sort_order == 'ASC' ? 'DESC' : 'ASC';
 
   // set table header and update env
-  this.set_list_sorting(sort_col, sort_order);
+  kolab_files_set_list_sorting(sort_col, sort_order, type);
 
-  this.http_post('files/prefs', {kolab_files_sort_col: sort_col, kolab_files_sort_order: sort_order});
+  this.http_post('files/prefs', {kolab_files_sort_col: sort_col, kolab_files_sort_order: sort_order, type: type});
 
   params.sort = sort_col;
   params.reverse = sort_order == 'DESC';
 
-  this.command('files-list', params);
+  this.command(type + '-list', params);
 };
 
 rcube_webmail.prototype.files_search = function()
@@ -1560,11 +1690,26 @@ rcube_webmail.prototype.files_list = function(param)
 
 rcube_webmail.prototype.files_list_update = function(head)
 {
-  var list = this.file_list;
+  var list = this.fileslist;
 
   $('thead', list.fixed_header ? list.fixed_header : list.list).html(head);
   kolab_files_list_coltypes();
   file_api.file_list();
+};
+
+rcube_webmail.prototype.sessions_list = function(param)
+{
+  // just rcmail wrapper, to handle command busy states
+  file_api.session_list(param);
+}
+
+rcube_webmail.prototype.sessions_list_update = function(head)
+{
+  var list = this.sessionslist;
+
+  $('thead', list.fixed_header ? list.fixed_header : list.list).html(head);
+  kolab_files_list_coltypes();
+  file_api.sessions_list();
 };
 
 rcube_webmail.prototype.files_get = function()
@@ -1718,6 +1863,16 @@ rcube_webmail.prototype.folder_mount = function()
   kolab_files_folder_mount_dialog();
 };
 
+// open a session dialog
+rcube_webmail.prototype.sessions_open = function()
+{
+  var id = this.sessionslist.get_selection(),
+    session = id ? file_api.env.sessions_list[id] : null;
+
+  if (session)
+    kolab_files_session_dialog(session);
+};
+
 
 /**********************************************************/
 /*********          Files API handler            **********/
@@ -1839,6 +1994,14 @@ function kolab_files_ui()
       rows.push(row);
     });
 
+    // add Sessions entry
+    if (rcmail.task == 'files' && !rcmail.env.action && rcmail.env.files_caps && rcmail.env.files_caps.MANTICORE) {
+      rows.push($('<li class="mailbox collection sessions"></li>')
+        .attr('id', 'rcmli' + rcmail.html_identifier_encode('folder-collection-sessions'))
+        .append($('<a class="name"></a>').text(rcmail.gettext('kolab_files.sessions')))
+      );
+    }
+
     list.append(rows).appendTo(elem)
       .on('click', 'a.subscription', function(e) {
         return file_api.folder_list_subscription_button_click(this);
@@ -1903,6 +2066,12 @@ function kolab_files_ui()
     var is_collection = folder.match(/^folder-collection-(.*)$/),
       collection = RegExp.$1 || null;
 
+    if (collection == 'sessions') {
+      rcmail.enable_command('files-list', 'files-folder-delete', 'folder-rename', 'files-upload', false);
+      this.sessions_list();
+      return;
+    }
+
     if (is_collection)
       folder = null;
 
@@ -1948,7 +2117,7 @@ function kolab_files_ui()
       rcmail.env[prefname] = rcmail.env[prefname].replace(entry, '');
     }
 
-    if (old !== rcmail.env[prefname] && (!rcmail.file_list || !rcmail.file_list.drag_active))
+    if (old !== rcmail.env[prefname] && (!rcmail.fileslist || !rcmail.fileslist.drag_active))
       rcmail.command('save-pref', {name: prefname, value: rcmail.env[prefname]});
   };
 
@@ -2390,9 +2559,58 @@ function kolab_files_ui()
     rcmail.files_set_quota(response.result);
   };
 
+  // List of sessions
+  this.sessions_list = function(params)
+  {
+    if (!rcmail.gui_objects.sessionslist)
+      return;
+
+    if (!params)
+      params = {};
+
+    if (rcmail.gui_objects.fileslist) {
+      $(rcmail.gui_objects.fileslist).parent().hide();
+      $(rcmail.gui_objects.sessionslist).parent().show();
+      rcmail.fileslist.clear();
+    }
+
+    this.env.folder = null;
+    this.env.collection = null;
+
+    // empty the list
+    this.env.sessions_list = {};
+    rcmail.sessionslist.clear(true);
+
+    rcmail.enable_command(rcmail.env.file_commands, false);
+    rcmail.enable_command(rcmail.env.file_commands_all, false);
+
+    params.req_id = this.set_busy(true, 'loading');
+    this.requests[params.req_id] = this.request('sessions', params, 'sessions_list_response');
+  };
+
+  // file list response handler
+  this.sessions_list_response = function(response)
+  {
+    if (response.req_id)
+      rcmail.hide_message(response.req_id);
+
+    if (!this.response(response))
+      return;
+
+    $.each(response.result, function(sess_id, data) {
+      var row = file_api.session_list_row(sess_id, data);
+      rcmail.sessionslist.insert_row(row);
+      response.result[sess_id].row = row;
+    });
+
+    this.env.sessions_list = response.result;
+    rcmail.sessionslist.resize();
+  };
+
+  // Files list
   this.file_list = function(params)
   {
-    if (!rcmail.gui_objects.filelist)
+    if (!rcmail.gui_objects.fileslist)
       return;
 
     if (!params)
@@ -2423,23 +2641,29 @@ function kolab_files_ui()
     if (params.folder == undefined)
       params.folder = this.env.folder;
     if (params.sort == undefined)
-      params.sort = this.env.sort_col;
+      params.sort = this.env.files_sort_col;
     if (params.reverse == undefined)
-      params.reverse = this.env.sort_reverse;
+      params.reverse = this.env.files_sort_reverse;
     if (params.search == undefined)
       params.search = this.env.search;
 
     this.env.folder = params.folder;
     this.env.collection = params.collection;
-    this.env.sort_col = params.sort;
-    this.env.sort_reverse = params.reverse;
+    this.env.files_sort_col = params.sort;
+    this.env.files_sort_reverse = params.reverse;
 
     rcmail.enable_command(rcmail.env.file_commands, false);
     rcmail.enable_command(rcmail.env.file_commands_all, false);
 
+    if (rcmail.gui_objects.sessionslist) {
+      $(rcmail.gui_objects.sessionslist).parent().hide();
+      $(rcmail.gui_objects.fileslist).parent().show();
+      rcmail.sessionslist.clear(true)
+    }
+
     // empty the list
     this.env.file_list = [];
-    rcmail.file_list.clear(true);
+    rcmail.fileslist.clear(true);
 
     // request
     if (params.collection || params.all_folders)
@@ -2459,18 +2683,18 @@ function kolab_files_ui()
     if (!this.response(response))
       return;
 
-    var i = 0, list = [], table = $('#filelist');
+    var i = 0, list = [];
 
     $.each(response.result, function(key, data) {
       var row = file_api.file_list_row(key, data, ++i);
-      rcmail.file_list.insert_row(row);
+      rcmail.fileslist.insert_row(row);
       data.row = row;
       data.filename = key;
       list.push(data);
     });
 
     this.env.file_list = list;
-    rcmail.file_list.resize();
+    rcmail.fileslist.resize();
 
     // update document sessions info of this folder
     if (list && list.length)
@@ -2524,7 +2748,7 @@ function kolab_files_ui()
       this.requests[params.req_id] = this.request('file_list', params, 'file_list_loop_response');
     }
 
-    rcmail.file_list.resize();
+    rcmail.fileslist.resize();
 
     if (!valid)
       return;
@@ -2549,7 +2773,7 @@ function kolab_files_ui()
 
     var n, i, len, elem, row, folder, list = [],
       index = this.env.file_list.length,
-      table = rcmail.file_list;
+      table = rcmail.fileslist;
 
     for (n=0, len=index; n<len; n++) {
       elem = this.env.file_list[n];
@@ -2596,7 +2820,7 @@ function kolab_files_ui()
   this.file_list_sort = function(col, reverse)
   {
     var n, len, list = this.env.file_list,
-      table = $('#filelist'), tbody = $('<tbody>');
+      table = $('#fileslist'), tbody = $('<tbody>', table);
 
     this.env.sort_col = col;
     this.env.sort_reverse = reverse;
@@ -2618,12 +2842,13 @@ function kolab_files_ui()
     $('tbody', table).replaceWith(tbody);
   };
 
+  // Files list record
   this.file_list_row = function(file, data, index)
   {
     var c, col, row = '';
 
-    for (c in rcmail.env.file_coltypes) {
-      c = rcmail.env.file_coltypes[c];
+    for (c in rcmail.env.files_coltypes) {
+      c = rcmail.env.files_coltypes[c];
       if (c == 'name')
         col = '<td class="name filename ' + this.file_type_class(data.type) + '">'
           + '<span>' + escapeHTML(data.name) + '</span></td>';
@@ -2647,6 +2872,42 @@ function kolab_files_ui()
     // display file name with full path as title
     if (!this.env.folder)
       $('td.name span', row).attr('title', file);
+
+    return row.get(0);
+  };
+
+  // Sessions list record
+  this.session_list_row = function(id, data)
+  {
+    var c, col, row = '', classes = ['session'];
+
+    for (c in rcmail.env.sessions_coltypes) {
+      c = rcmail.env.sessions_coltypes[c];
+      if (c == 'name')
+        col = '<td class="name filename ' + this.file_type_class(data.type) + '">'
+          + '<span>' + escapeHTML(file_api.file_name(data.file)) + '</span></td>';
+/*
+      else if (c == 'mtime')
+        col = '<td class="mtime">' + data.mtime + '</td>';
+      else if (c == 'size')
+        col = '<td class="size">' + this.file_size(data.size) + '</td>';
+*/
+      else if (c == 'owner')
+        col = '<td class="owner">' + escapeHTML(data.owner_name || data.owner) + '</td>';
+      else if (c == 'options')
+        col = '<td class="options"><span></span></td>';
+
+      row += col;
+    }
+
+    if (data.is_owner)
+      classes.push('owner');
+    else if (data.is_invited)
+      classes.push('invited');
+
+    row = $('<tr>')
+      .html(row)
+      .attr({id: 'rcmrow' + id, 'class': classes.join(' ')});
 
     return row.get(0);
   };
@@ -2708,7 +2969,7 @@ function kolab_files_ui()
     });
 
     // refresh sessions info in time intervals
-    if (rcmail.env.files_caps && rcmail.env.files_caps.MANTICORE && (rcmail.file_list || rcmail.env.file))
+    if (rcmail.env.files_caps && rcmail.env.files_caps.MANTICORE && (rcmail.fileslist || rcmail.env.file))
       this.workers[folder] = setTimeout(function() {
         file_api.request('folder_info', {folder: folder, sessions: 1}, 'folder_info_response');
       }, (rcmail.env.files_interval || 60) * 1000);
@@ -2747,7 +3008,7 @@ function kolab_files_ui()
       dir = this.file_path(rcmail.env.file);
 
       // check if opener window contains files list, if not we can just close current window
-      if (rco && rco.file_list && (opener.file_api.env.folder == dir || !opener.file_api.env.folder))
+      if (rco && rco.fileslist && (opener.file_api.env.folder == dir || !opener.file_api.env.folder))
         self = opener.file_api;
       else
         window.close();
@@ -3280,6 +3541,7 @@ function kolab_files_ui()
   this.document_delete = function(id)
   {
     this.req = this.set_busy(true, 'kolab_files.sessionterminating');
+    this.deleted_session = id;
     this.request('document_delete', {id: id}, 'document_delete_response');
   };
 
@@ -3293,6 +3555,20 @@ function kolab_files_ui()
       window.close();
 
     // @todo: force sessions info update
+
+    var win = window, list = rcmail.sessionslist;
+
+    if (!list) {
+      win = window.opener;
+      if (win && win.rcmail && win.file_api)
+        list = win.rcmail.sessionslist;
+    }
+
+    // remove session from the list (if sessions list exist)
+    if (list) {
+      list.remove(this.deleted_session);
+      delete win.file_api.env.sessions_list[this.deleted_session];
+    }
   };
 
   // Invite document session participants

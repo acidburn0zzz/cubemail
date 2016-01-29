@@ -64,6 +64,10 @@
     <div id="filelistbox" class="boxlistcontent">
         <roundcube:object name="filelist" id="filelist" class="records-table filelist sortheader fixedheader" optionsmenuIcon="true" aria-labelledby="aria-label-filelist" />
     </div>
+    <h2 id="aria-label-sessionslist" class="voice"><roundcube:label name="kolab_files.arialabelsessionslist" /></h2>
+    <div id="sessionslistbox" class="boxlistcontent" style="display:none">
+        <roundcube:object name="sessionslist" id="sessionslist" class="records-table filelist sortheader fixedheader" optionsmenuIcon="true" aria-labelledby="aria-label-sessionslist" />
+    </div>
 </div>
 
 </div>
@@ -109,9 +113,13 @@
     <h3 id="aria-label-fileeditdialog" class="voice"><roundcube:label name="kolab_files.arialabelfileeditdialog" /></h3>
     <roundcube:object name="file-edit-dialog">
 </div>
+<div id="files-session-dialog" role="dialog" aria-labelledby="aria-label-filesessiondialog" aria-hidden="true">
+    <h3 id="aria-label-filesessiondialog" class="voice"><roundcube:label name="kolab_files.arialabelfilesessiondialog" /></h3>
+    <roundcube:object name="file-session-dialog">
+</div>
 
-<div id="listoptions" class="propform popupdialog" data-editable="true" role="dialog" aria-labelledby="aria-label-listoptions" aria-hidden="true">
-    <h3 id="aria-label-listoptions" class="voice"><roundcube:label name="kolab_files.arialabellistoptions" /></h3>
+<div id="fileslistoptions" class="propform popupdialog" data-editable="true" role="dialog" aria-labelledby="aria-label-fileslistoptions" aria-hidden="true">
+    <h3 id="aria-label-fileslistoptions" class="voice"><roundcube:label name="kolab_files.arialabellistoptions" /></h3>
     <roundcube:if condition="!in_array('kolab_files_list_cols', (array)config:dont_override)" />
     <fieldset class="floating">
         <legend><roundcube:label name="listcolumns" /></legend>
@@ -144,8 +152,52 @@
     <roundcube:endif />
     <br style="clear:both" />
     <div class="formbuttons">
-        <roundcube:button command="menu-save" id="listmenusave" type="input" class="button mainaction" label="save" />
-        <roundcube:button command="menu-close" prop="filelistmenu" id="listmenucancel" type="input" class="button" label="cancel" />
+        <roundcube:button command="menu-save" id="fileslistmenusave" type="input" class="button mainaction" label="save" />
+        <roundcube:button command="menu-close" prop="fileslistmenu" id="fileslistmenucancel" type="input" class="button" label="cancel" />
+    </div>
+</div>
+
+<div id="sessionslistoptions" class="propform popupdialog" data-editable="true" role="dialog" aria-labelledby="aria-label-sessionslistoptions" aria-hidden="true">
+    <h3 id="aria-label-sessionslistoptions" class="voice"><roundcube:label name="kolab_files.arialabellistoptions" /></h3>
+    <roundcube:if condition="!in_array('kolab_files_sessions_list_cols', (array)config:dont_override)" />
+    <fieldset class="floating">
+        <legend><roundcube:label name="listcolumns" /></legend>
+        <ul class="proplist">
+            <li><label class="disabled"><input type="checkbox" name="list_col[]" value="options" checked="checked" disabled="disabled" /> <span><roundcube:label name="options" /></span></label></li>
+            <li><label class="disabled"><input type="checkbox" name="list_col[]" value="name" checked="checked" disabled="disabled" /> <span><roundcube:label name="kolab_files.name" /></span></label></li>
+            <li><label><input type="checkbox" name="list_col[]" value="owner" /> <span><roundcube:label name="kolab_files.owner" /></span></label></li>
+<!--
+            <li><label><input type="checkbox" name="list_col[]" value="mtime" /> <span><roundcube:label name="kolab_files.mtime" /></span></label></li>
+            <li><label><input type="checkbox" name="list_col[]" value="size" /> <span><roundcube:label name="size" /></span></label></li>
+-->
+        </ul>
+    </fieldset>
+    <roundcube:endif />
+    <roundcube:if condition="!in_array('kolab_files_sessions_sort_col', (array)config:dont_override)" />
+    <fieldset class="floating">
+        <legend><roundcube:label name="listsorting" /></legend>
+        <ul class="proplist">
+            <li><label><input type="radio" name="sort_col" value="name" /> <span><roundcube:label name="kolab_files.name" /></span></label></li>
+<!--
+            <li><label><input type="radio" name="sort_col" value="mtime" /> <span><roundcube:label name="kolab_files.mtime" /></span></label></li>
+            <li><label><input type="radio" name="sort_col" value="size" /> <span><roundcube:label name="size" /></span></label></li>
+-->
+        </ul>
+    </fieldset>
+    <roundcube:endif />
+    <roundcube:if condition="!in_array('kolab_files_sessions_sort_order', (array)config:dont_override)" />
+    <fieldset class="floating">
+        <legend><roundcube:label name="listorder" /></legend>
+        <ul class="proplist">
+            <li><label><input type="radio" name="sort_ord" value="ASC" /> <span><roundcube:label name="asc" /></span></label></li>
+            <li><label><input type="radio" name="sort_ord" value="DESC" /> <span><roundcube:label name="desc" /></span></label></li>
+        </ul>
+    </fieldset>
+    <roundcube:endif />
+    <br style="clear:both" />
+    <div class="formbuttons">
+        <roundcube:button command="menu-save" id="sessionslistmenusave" type="input" class="button mainaction" label="save" />
+        <roundcube:button command="menu-close" prop="sessionslistmenu" id="sessionslistmenucancel" type="input" class="button" label="cancel" />
     </div>
 </div>
 

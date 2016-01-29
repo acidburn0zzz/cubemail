@@ -27,7 +27,8 @@ class kolab_files_engine
     private $plugin;
     private $rc;
     private $timeout = 600;
-    private $sort_cols = array('name', 'mtime', 'size');
+    private $files_sort_cols    = array('name', 'mtime', 'size');
+    private $sessions_sort_cols = array('name');
 
     const API_VERSION = 2;
 
@@ -138,7 +139,7 @@ class kolab_files_engine
                 'more', 'accept', 'decline', 'join', 'status', 'when', 'file', 'comment',
                 'statusaccepted', 'statusinvited', 'statusdeclined', 'statusrequested',
                 'invitationaccepting', 'invitationdeclining', 'invitationrequesting',
-                'close', 'invitationtitle');
+                'close', 'invitationtitle', 'sessions');
         }
 
         if (!empty($templates)) {
@@ -157,7 +158,9 @@ class kolab_files_engine
                 'file-rename-form'   => array($this, 'file_rename_form'),
                 'file-create-form'   => array($this, 'file_create_form'),
                 'file-edit-dialog'   => array($this, 'file_edit_dialog'),
+                'file-session-dialog' => array($this, 'file_session_dialog'),
                 'filelist'           => array($this, 'file_list'),
+                'sessionslist'       => array($this, 'sessions_list'),
                 'filequotadisplay'   => array($this, 'quota_display'),
                 'document-editors-dialog' => array($this, 'document_editors_dialog'),
             ));
@@ -356,6 +359,17 @@ class kolab_files_engine
     }
 
     /**
+     * Template object for file session dialog
+     */
+    public function file_session_dialog($attrib)
+    {
+        $this->plugin->add_label('join', 'open', 'close', 'request', 'cancel',
+            'sessiondialog', 'sessiondialogcontent');
+
+        return '<div></div>';
+    }
+
+    /**
      * Template object for dcument editors dialog
      */
     public function document_editors_dialog($attrib)
@@ -500,12 +514,31 @@ class kolab_files_engine
      */
     public function file_list($attrib)
     {
+        return $this->list_handler($attrib, 'files');
+    }
+
+    /**
+     * Template object for sessions list
+     */
+    public function sessions_list($attrib)
+    {
+        return $this->list_handler($attrib, 'sessions');
+    }
+
+    /**
+     * Creates unified template object for files|sessions list
+     */
+    protected function list_handler($attrib, $type = 'files')
+    {
+        $prefix   = 'kolab_' . $type . '_';
+        $c_prefix = 'kolab_files' . ($type != 'files' ? '_' . $type : '') . '_';
+
         // define list of cols to be displayed based on parameter or config
         if (empty($attrib['columns'])) {
-            $list_cols     = $this->rc->config->get('kolab_files_list_cols');
+            $list_cols     = $this->rc->config->get($c_prefix . 'list_cols');
             $dont_override = $this->rc->config->get('dont_override');
             $a_show_cols = is_array($list_cols) ? $list_cols : array('name');
-            $this->rc->output->set_env('col_movable', !in_array('kolab_files_list_cols', (array)$dont_override));
+            $this->rc->output->set_env($type . '_col_movable', !in_array($c_prefix . 'list_cols', (array)$dont_override));
         }
         else {
             $columns     = str_replace(array("'", '"'), '', $attrib['columns']);
@@ -523,33 +556,35 @@ class kolab_files_engine
         $attrib['columns'] = $a_show_cols;
 
         // save some variables for use in ajax list
-        $_SESSION['kolab_files_list_attrib'] = $attrib;
+        $_SESSION[$prefix . 'list_attrib'] = $attrib;
 
         // For list in dialog(s) remove all option-like columns
         if ($this->rc->task != 'files') {
-            $a_show_cols = array_intersect($a_show_cols, $this->sort_cols);
+            $a_show_cols = array_intersect($a_show_cols, $this->{$type . '_sort_cols'});
         }
 
         // set default sort col/order to session
-        if (!isset($_SESSION['kolab_files_sort_col']))
-            $_SESSION['kolab_files_sort_col'] = $this->rc->config->get('kolab_files_sort_col') ?: 'name';
-        if (!isset($_SESSION['kolab_files_sort_order']))
-            $_SESSION['kolab_files_sort_order'] = strtoupper($this->rc->config->get('kolab_files_sort_order') ?: 'asc');
+        if (!isset($_SESSION[$prefix . 'sort_col']))
+            $_SESSION[$prefix . 'sort_col'] = $this->rc->config->get($c_prefix . 'sort_col') ?: 'name';
+        if (!isset($_SESSION[$prefix . 'sort_order']))
+            $_SESSION[$prefix . 'sort_order'] = strtoupper($this->rc->config->get($c_prefix . 'sort_order') ?: 'asc');
 
         // set client env
-        $this->rc->output->add_gui_object('filelist', $attrib['id']);
-        $this->rc->output->set_env('sort_col', $_SESSION['kolab_files_sort_col']);
-        $this->rc->output->set_env('sort_order', $_SESSION['kolab_files_sort_order']);
-        $this->rc->output->set_env('file_coltypes', $a_show_cols);
-        $this->rc->output->set_env('search_threads', $this->rc->config->get('kolab_files_search_threads'));
+        $this->rc->output->add_gui_object($type . 'list', $attrib['id']);
+        $this->rc->output->set_env($type . '_sort_col', $_SESSION[$prefix . 'sort_col']);
+        $this->rc->output->set_env($type . '_sort_order', $_SESSION[$prefix . 'sort_order']);
+        $this->rc->output->set_env($type . '_coltypes', $a_show_cols);
 
         $this->rc->output->include_script('list.js');
 
         // attach css rules for mimetype icons
-        $this->plugin->include_stylesheet($this->url . '/skins/default/images/mimetypes/style.css');
+        if (!$this->filetypes_style) {
+            $this->plugin->include_stylesheet($this->url . '/skins/default/images/mimetypes/style.css');
+            $this->filetypes_style = true;
+        }
 
         $thead = '';
-        foreach ($this->file_list_head($attrib, $a_show_cols) as $cell) {
+        foreach ($this->list_head($attrib, $a_show_cols, $type) as $cell) {
             $thead .= html::tag('th', array('class' => $cell['className'], 'id' => $cell['id']), $cell['html']);
         }
 
@@ -561,30 +596,31 @@ class kolab_files_engine
     /**
      * Creates <THEAD> for message list table
      */
-    protected function file_list_head($attrib, $a_show_cols)
+    protected function list_head($attrib, $a_show_cols, $type = 'files')
     {
+        $prefix    = 'kolab_' . $type . '_';
+        $c_prefix  = 'kolab_files_' . ($type != 'files' ? $type : '') . '_';
         $skin_path = $_SESSION['skin_path'];
-//        $image_tag = html::img(array('src' => "%s%s", 'alt' => "%s"));
 
         // check to see if we have some settings for sorting
-        $sort_col   = $_SESSION['kolab_files_sort_col'];
-        $sort_order = $_SESSION['kolab_files_sort_order'];
+        $sort_col   = $_SESSION[$prefix . 'sort_col'];
+        $sort_order = $_SESSION[$prefix . 'sort_order'];
 
         $dont_override  = (array)$this->rc->config->get('dont_override');
-        $disabled_sort  = in_array('message_sort_col', $dont_override);
-        $disabled_order = in_array('message_sort_order', $dont_override);
+        $disabled_sort  = in_array($c_prefix . 'sort_col', $dont_override);
+        $disabled_order = in_array($c_prefix . 'sort_order', $dont_override);
 
-        $this->rc->output->set_env('disabled_sort_col', $disabled_sort);
-        $this->rc->output->set_env('disabled_sort_order', $disabled_order);
+        $this->rc->output->set_env($prefix . 'disabled_sort_col', $disabled_sort);
+        $this->rc->output->set_env($prefix . 'disabled_sort_order', $disabled_order);
 
         // define sortable columns
         if ($disabled_sort)
             $a_sort_cols = $sort_col && !$disabled_order ? array($sort_col) : array();
         else
-            $a_sort_cols = $this->sort_cols;
+            $a_sort_cols = $this->{$type . '_sort_cols'};
 
         if (!empty($attrib['optionsmenuicon'])) {
-            $onclick = 'return ' . rcmail_output::JS_OBJECT_NAME . ".command('menu-open', 'filelistmenu', this, event)";
+            $onclick = 'return ' . rcmail_output::JS_OBJECT_NAME . ".command('menu-open', '{$type}listmenu', this, event)";
             $inner   = $this->rc->gettext('listoptions');
 
             if (is_string($attrib['optionsmenuicon']) && $attrib['optionsmenuicon'] != 'true') {
@@ -595,7 +631,7 @@ class kolab_files_engine
                 'href'     => '#list-options',
                 'onclick'  => $onclick,
                 'class'    => 'listmenu',
-                'id'       => 'listmenulink',
+                'id'       => $type . 'listmenulink',
                 'title'    => $this->rc->gettext('listoptions'),
                 'tabindex' => '0',
             ), $inner);
@@ -609,11 +645,6 @@ class kolab_files_engine
         foreach ($a_show_cols as $col) {
             // get column name
             switch ($col) {
-/*
-            case 'status':
-                $col_name = '<span class="' . $col .'">&nbsp;</span>';
-                break;
-*/
             case 'options':
                 $col_name = $list_menu;
                 break;
@@ -625,12 +656,13 @@ class kolab_files_engine
             if (in_array($col, $a_sort_cols)) {
                 $col_name = html::a(array(
                         'href'    => "#sort",
-                        'onclick' => 'return ' . rcmail_output::JS_OBJECT_NAME . ".command('files-sort','$col',this)",
+                        'onclick' => 'return ' . rcmail_output::JS_OBJECT_NAME . ".command('$type-sort','$col',this)",
                         'title'   => $this->plugin->gettext('sortby')
                     ), $col_name);
             }
-            else if ($col_name[0] != '<')
+            else if ($col_name[0] != '<') {
                 $col_name = '<span class="' . $col .'">' . $col_name . '</span>';
+            }
 
             $sort_class = $col == $sort_col && !$disabled_order ? " sorted$sort_order" : '';
             $class_name = $col.$sort_class;
@@ -643,28 +675,29 @@ class kolab_files_engine
     }
 
     /**
-     * Update files list object
+     * Update files|sessions list object
      */
-    protected function file_list_update($prefs)
+    protected function list_update($prefs, $type = 'files')
     {
-        $attrib = $_SESSION['kolab_files_list_attrib'];
+        $prefix = 'kolab_' . $type . '_list_';
+        $attrib = $_SESSION[$prefix . 'attrib'];
 
-        if (!empty($prefs['kolab_files_list_cols'])) {
-            $attrib['columns'] = $prefs['kolab_files_list_cols'];
-            $_SESSION['kolab_files_list_attrib'] = $attrib;
+        if (!empty($prefs[$prefix . 'cols'])) {
+            $attrib['columns'] = $prefs[$prefix . 'cols'];
+            $_SESSION[$prefix . 'attrib'] = $attrib;
         }
 
         $a_show_cols = $attrib['columns'];
         $head        = '';
 
-        foreach ($this->file_list_head($attrib, $a_show_cols) as $cell) {
+        foreach ($this->list_head($attrib, $a_show_cols, $type) as $cell) {
             $head .= html::tag('th', array('class' => $cell['className'], 'id' => $cell['id']), $cell['html']);
         }
 
         $head = html::tag('tr', null, $head);
 
-        $this->rc->output->set_env('file_coltypes', $a_show_cols);
-        $this->rc->output->command('files_list_update', $head);
+        $this->rc->output->set_env($type . '_coltypes', $a_show_cols);
+        $this->rc->output->command($type . '_list_update', $head);
     }
 
     /**
@@ -913,21 +946,34 @@ class kolab_files_engine
     {
         $dont_override = (array)$this->rc->config->get('dont_override');
         $prefs = array();
+        $type  = rcube_utils::get_input_value('type', rcube_utils::INPUT_POST);
         $opts  = array(
-            'kolab_files_sort_col' => true,
+            'kolab_files_sort_col'   => true,
             'kolab_files_sort_order' => true,
-            'kolab_files_list_cols' => false,
+            'kolab_files_list_cols'  => false,
         );
 
         foreach ($opts as $o => $sess) {
-            if (isset($_POST[$o]) && !in_array($o, $dont_override)) {
-                $prefs[$o] = rcube_utils::get_input_value($o, rcube_utils::INPUT_POST);
-                if ($sess) {
-                    $_SESSION[$o] = $prefs[$o];
+            if (isset($_POST[$o])) {
+                $value       = rcube_utils::get_input_value($o, rcube_utils::INPUT_POST);
+                $session_key = $o;
+                $config_key  = $o;
+
+                if ($type != 'files') {
+                    $config_key = str_replace('files', 'files_' . $type, $config_key);
+                }
+
+                if (in_array($config_key, $dont_override)) {
+                    continue;
                 }
 
                 if ($o == 'kolab_files_list_cols') {
                     $update_list = true;
+                }
+
+                $prefs[$config_key] = $value;
+                if ($sess) {
+                    $_SESSION[$session_key] = $prefs[$config_key];
                 }
             }
         }
@@ -938,7 +984,7 @@ class kolab_files_engine
         }
 
         if (!empty($update_list)) {
-            $this->file_list_update($prefs);
+            $this->list_update($prefs, $type);
         }
 
         $this->rc->output->send();

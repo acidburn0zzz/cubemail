@@ -195,6 +195,9 @@ ul.toolbarmenu li span.saveas {
 .folderlist li.mailbox.collection.image a.name {
   background-position: 5px -48px;
 }
+.folderlist li.mailbox.collection.sessions a.name {
+  background-position: 5px -192px;
+}
 .folderlist li.mailbox.collection.audio.selected a.name {
   background-position: 5px -119px;
 }
@@ -206,6 +209,9 @@ ul.toolbarmenu li span.saveas {
 }
 .folderlist li.mailbox.collection.image.selected a.name {
   background-position: 5px -72px;
+}
+.folderlist li.mailbox.collection.sessions.selected a.name {
+  background-position: 5px -216px;
 }
 
 #files-folder-list li a.subscription {
