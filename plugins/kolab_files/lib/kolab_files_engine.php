@@ -679,11 +679,12 @@ class kolab_files_engine
      */
     protected function list_update($prefs, $type = 'files')
     {
-        $prefix = 'kolab_' . $type . '_list_';
-        $attrib = $_SESSION[$prefix . 'attrib'];
+        $prefix   = 'kolab_' . $type . '_list_';
+        $c_prefix = 'kolab_files' . ($type != 'files' ? '_' . $type : '') . '_list_';
+        $attrib   = $_SESSION[$prefix . 'attrib'];
 
-        if (!empty($prefs[$prefix . 'cols'])) {
-            $attrib['columns'] = $prefs[$prefix . 'cols'];
+        if (!empty($prefs[$c_prefix . 'cols'])) {
+            $attrib['columns'] = $prefs[$c_prefix . 'cols'];
             $_SESSION[$prefix . 'attrib'] = $attrib;
         }
 

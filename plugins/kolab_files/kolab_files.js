@@ -1708,7 +1708,7 @@ rcube_webmail.prototype.sessions_list_update = function(head)
   var list = this.sessionslist;
 
   $('thead', list.fixed_header ? list.fixed_header : list.list).html(head);
-  kolab_files_list_coltypes();
+  kolab_files_list_coltypes('sessions');
   file_api.sessions_list();
 };
 
@@ -1912,9 +1912,9 @@ function kolab_files_ui()
     return rcmail.display_message(this.t(label), type);
   };
 
-  this.http_error = function(request, status, err)
+  this.http_error = function(request, status, err, data)
   {
-    rcmail.http_error(request, status, err);
+    rcmail.http_error(request, status, err, data ? data.req_id : null);
   };
 
   // check if specified/current folder/view is writable
