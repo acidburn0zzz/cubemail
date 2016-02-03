@@ -133,3 +133,8 @@ source_lang = en_US
 file_filter = plugins/libcalendaring/localization/<lang>.inc
 source_file = plugins/libcalendaring/localization/en_US.inc
 source_lang = en_US
+
+[kolab.csv_export]
+file_filter = plugins/csv_export/localization/<lang>.inc
+source_file = plugins/csv_export/localization/en_US.inc
+source_lang = en_US
