@@ -1941,14 +1941,16 @@ function kolab_files_ui()
       params = {}
 
     params.permissions = 1;
+    params.req = this.set_busy(true, 'loading');
 
-    this.req = this.set_busy(true, 'loading');
     this.request('folder_list', this.list_params = params, 'folder_list_response');
   };
 
   // folder list response handler
   this.folder_list_response = function(response)
   {
+    rcmail.hide_message(this.list_params.req);
+
     if (!this.response(response))
       return;
 
