@@ -67,7 +67,9 @@ class kolab_delegation extends rcube_plugin
 
             $this->add_hook('settings_actions', array($this, 'settings_actions'));
 
-            if ($this->rc->action == 'plugin.delegation' || empty($_REQUEST['_framed'])) {
+            if ($this->rc->output->type == 'html'
+                && ($this->rc->action == 'plugin.delegation' || empty($_REQUEST['_framed']))
+            ) {
                 $this->add_texts('localization/', array('deleteconfirm', 'savingdata', 'yes', 'no'));
 
                 if ($this->rc->action == 'plugin.delegation') {
