@@ -257,7 +257,7 @@ class kolab_invitation_calendar
         }
 
         if ($match) {
-          $events[$event['id']] = $this->_mod_event($event);
+          $events[$event['uid']] = $this->_mod_event($event);
         }
       }
 
