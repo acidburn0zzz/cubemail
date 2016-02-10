@@ -514,6 +514,10 @@ a.filesaveall {
   width: 200px;
 }
 
+#file-rename-form input {
+  width: 98%;
+}
+
 table.propform td.source.selected {
   background-color: #c7e3ef;
 }
