@@ -2793,10 +2793,13 @@ class calendar extends rcube_plugin
     if ($event = $this->lib->mail_get_itip_object($mbox, $uid, $mime_id, 'event')) {
       // forward iTip request to delegatee
       if ($delegate) {
-        $rsvpme = intval(rcube_utils::get_input_value('_rsvp', rcube_utils::INPUT_POST));
+        $rsvpme  = (bool) intval(rcube_utils::get_input_value('_rsvp', rcube_utils::INPUT_POST));
+        $comment = rcube_utils::get_input_value('_comment', rcube_utils::INPUT_POST);
 
-        $itip = $this->load_itip();
-        if ($itip->delegate_to($event, $delegate, $rsvpme ? true : false)) {
+        $d_event = $comment ? array_merge($event, array('comment' => $comment)) : $event;
+        $itip    = $this->load_itip();
+
+        if ($itip->delegate_to($d_event, $delegate, $rsvpme)) {
           $this->rc->output->show_message('calendar.itipsendsuccess', 'confirmation');
         }
         else {
