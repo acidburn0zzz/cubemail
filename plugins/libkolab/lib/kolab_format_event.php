@@ -106,7 +106,7 @@ class kolab_format_event extends kolab_format_xcal
             $vexceptions = new vectorevent;
             foreach ($object['exceptions'] as $i => $exception) {
                 $exevent = new kolab_format_event;
-                $exevent->set(($compacted = $this->compact_exception($exception, $object)));  // only save differing values
+                $exevent->set($compacted = $this->compact_exception($exception, $object));  // only save differing values
 
                 // get value for recurrence-id
                 $recurrence_id = null;
@@ -320,11 +320,17 @@ class kolab_format_event extends kolab_format_xcal
      */
     private function expand_exception($exception, $master)
     {
+        // Note: If an exception has no attendees it means there's "no attendees
+        // for this occurrence", not "attendees are the same as in the event" (#5300)
+
+        $forbidden    = array('exceptions', 'attendees');
         $is_recurring = !empty($master['recurrence']);
 
         foreach ($master as $prop => $value) {
-            if (empty($exception[$prop]) && !empty($value) && $prop != 'exceptions' && $prop[0] != '_'
-                  && ($is_recurring || in_array($prop, array('uid','organizer','_attachments')))) {
+            if (empty($exception[$prop]) && !empty($value) && $prop[0] != '_'
+                && !in_array($prop, $forbidden)
+                && ($is_recurring || in_array($prop, array('uid','organizer')))
+            ) {
                 $exception[$prop] = $value;
                 if ($prop == 'recurrence') {
                     unset($exception[$prop]['EXCEPTIONS']);
@@ -334,5 +340,4 @@ class kolab_format_event extends kolab_format_xcal
 
         return $exception;
     }
-
 }
