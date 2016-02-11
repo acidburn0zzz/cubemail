@@ -49,8 +49,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                 .attr('name', 'kolabnotesdialog')
                 .attr('src', 'about:blank')
                 .css('min-width', '100%')
-                .appendTo(document.body)
-                .bind('load', function(e){
+                .on('load', function(e) {
                     frame = rcmail.get_frame_window('kolabnotesinlinegui');
                     name = $('.notetitle', frame.rcmail.gui_objects.noteviewtitle);
                     frame.rcmail.addEventListener('responseafteraction', refresh_mailview);
@@ -111,7 +110,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                 $dialog.parent().find('.ui-dialog-buttonset .ui-button').prop('disabled', true).first().addClass('mainaction');
             },
             close: function() {
-                $dialog.dialog('destroy').remove();
+                $dialog.dialog('destroy');
                 rcmail.removeEventListener('kolab_notes_render', dialog_render);
             },
             buttons: buttons,
