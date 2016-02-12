@@ -46,7 +46,7 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function __construct($plugin)
     {
-        $this->rc = $plugin->rc;
+        $this->rc     = $plugin->rc;
         $this->plugin = $plugin;
 
         if (kolab_storage::$version == '2.0') {
@@ -59,8 +59,6 @@ class tasklist_kolab_driver extends tasklist_driver
         // get configuration for the Bonnie API
         $this->bonnie_api = libkolab::get_bonnie_api();
 
-        $this->_read_lists();
-
         $this->plugin->register_action('folder-acl', array($this, 'folder_acl'));
     }
 
@@ -70,8 +68,9 @@ class tasklist_kolab_driver extends tasklist_driver
     private function _read_lists($force = false)
     {
         // already read sources
-        if (isset($this->lists) && !$force)
+        if (isset($this->lists) && !$force) {
             return $this->lists;
+        }
 
         // get all folders that have type "task"
         $folders = kolab_storage::sort_folders(kolab_storage::get_folders('task'));
@@ -102,6 +101,8 @@ class tasklist_kolab_driver extends tasklist_driver
             $this->folders[$tasklist['id']] = $folder;
             $this->folders[$folder->name] = $folder;
         }
+
+        return $this->lists;
     }
 
     /**
@@ -165,6 +166,8 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function get_lists(&$tree = null)
     {
+        $this->_read_lists();
+
         // attempt to create a default list for this user
         if (empty($this->lists) && !isset($this->search_more_results)) {
             $prop = array('name' => 'Tasks', 'color' => '0000CC', 'default' => true);
@@ -256,6 +259,8 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     protected function get_folder($id)
     {
+        $this->_read_lists();
+
         // create list and folder instance if necesary
         if (!$this->lists[$id]) {
             $folder = kolab_storage::get_folder(kolab_storage::id_decode($id));
@@ -385,8 +390,10 @@ class tasklist_kolab_driver extends tasklist_driver
                         ($prop['active'] ? kolab_storage::folder_activate($subfolder) : kolab_storage::folder_deactivate($subfolder));
                 }
             }
+
             return $ret;
         }
+
         return false;
     }
 
@@ -400,10 +407,11 @@ class tasklist_kolab_driver extends tasklist_driver
     public function delete_list($prop)
     {
         if ($prop['id'] && ($folder = $this->get_folder($prop['id']))) {
-          if (kolab_storage::folder_delete($folder->name))
-              return true;
-          else
-              $this->last_error = kolab_storage::$last_error;
+            if (kolab_storage::folder_delete($folder->name)) {
+                return true;
+            }
+
+            $this->last_error = kolab_storage::$last_error;
         }
 
         return false;
@@ -486,21 +494,26 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function count_tasks($lists = null)
     {
-        if (empty($lists))
-            $lists = array_keys($this->lists);
-        else if (is_string($lists))
+        if (empty($lists)) {
+            $lists = $this->_read_lists();
+            $lists = array_keys($lists);
+        }
+        else if (is_string($lists)) {
             $lists = explode(',', $lists);
+        }
 
-        $today_date = new DateTime('now', $this->plugin->timezone);
-        $today = $today_date->format('Y-m-d');
+        $today_date    = new DateTime('now', $this->plugin->timezone);
+        $today         = $today_date->format('Y-m-d');
         $tomorrow_date = new DateTime('now + 1 day', $this->plugin->timezone);
-        $tomorrow = $tomorrow_date->format('Y-m-d');
+        $tomorrow      = $tomorrow_date->format('Y-m-d');
 
         $counts = array('all' => 0, 'flagged' => 0, 'today' => 0, 'tomorrow' => 0, 'overdue' => 0, 'nodate' => 0, 'mytasks' => 0);
+
         foreach ($lists as $list_id) {
             if (!$folder = $this->get_folder($list_id)) {
                 continue;
             }
+
             foreach ($folder->select(array(array('tags','!~','x-complete'))) as $record) {
                 $rec = $this->_to_rcube_task($record, $list_id, false);
 
@@ -542,10 +555,13 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function list_tasks($filter, $lists = null)
     {
-        if (empty($lists))
-            $lists = array_keys($this->lists);
-        else if (is_string($lists))
+        if (empty($lists)) {
+            $lists = $this->_read_lists();
+            $lists = array_keys($lists);
+        }
+        else if (is_string($lists)) {
             $lists = explode(',', $lists);
+        }
 
         $results = array();
 
@@ -599,7 +615,9 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function get_task($prop)
     {
+        $this->_read_lists();
         $this->_parse_id($prop);
+
         $id      = $prop['uid'];
         $list_id = $prop['list'];
         $folders = $list_id ? array($list_id => $this->get_folder($list_id)) : $this->folders;
@@ -745,7 +763,7 @@ class tasklist_kolab_driver extends tasklist_driver
         $list_id = $prop['list'];
         list($uid, $mailbox, $msguid) = $this->_resolve_task_identity($prop);
 
-        $folder = $this->get_folder($list_id);
+        $folder  = $this->get_folder($list_id);
         $success = false;
 
         if ($folder && ($raw_msg = $this->bonnie_api->rawdata('task', $uid, $rev, $mailbox))) {
@@ -908,7 +926,6 @@ class tasklist_kolab_driver extends tasklist_driver
         return array($uid, $mailbox, $msguid);
     }
 
-
     /**
      * Get a list of pending alarms to be displayed to the user
      *
@@ -938,7 +955,13 @@ class tasklist_kolab_driver extends tasklist_driver
         $time = $slot + $interval;
 
         $candidates = array();
-        $query = array(array('tags', '=', 'x-has-alarms'), array('tags', '!=', 'x-complete'));
+        $query      = array(
+            array('tags', '=', 'x-has-alarms'),
+            array('tags', '!=', 'x-complete')
+        );
+
+        $this->_read_lists();
+
         foreach ($this->lists as $lid => $list) {
             // skip lists with alarms disabled
             if (!$list['showalarms'] || ($lists && !in_array($lid, $lists)))
@@ -1238,7 +1261,7 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     private function _from_rcube_task($task, $old = array())
     {
-        $object = $task;
+        $object    = $task;
         $id_prefix = $task['list'] . ':';
 
         if (!empty($task['date'])) {
@@ -1372,7 +1395,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         // email links and tags are stored separately
         $links = $task['links'];
-        $tags = $task['tags'];
+        $tags  = $task['tags'];
         unset($task['tags'], $task['links']);
 
         // moved from another folder
@@ -1603,6 +1626,8 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     public function tasklist_edit_form($action, $list, $fieldprop)
     {
+        $this->_read_lists();
+
         if ($list['id'] && ($list = $this->lists[$list['id']])) {
             $folder_name = $this->get_folder($list['id'])->name; // UTF7
         }
