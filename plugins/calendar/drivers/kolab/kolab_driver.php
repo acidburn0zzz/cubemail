@@ -162,8 +162,8 @@ class kolab_driver extends calendar_driver
       // special handling for user or virtual folders
       if ($cal instanceof kolab_storage_folder_user) {
         $calendars[$cal->id] = array(
-          'id' => $cal->id,
-          'name' => kolab_storage::object_name($fullname),
+          'id'       => $cal->id,
+          'name'     => $fullname,
           'listname' => $listname,
           'editname' => $cal->get_foldername(),
           'color'    => $cal->get_color(),

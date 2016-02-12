@@ -64,15 +64,16 @@ class kolab_storage_folder extends kolab_storage_folder_api
      */
     public function set_folder($name, $type = null, $type_annotation = null)
     {
+        $this->name = $name;
+
         if (empty($type_annotation)) {
-            $type_annotation = kolab_storage::folder_type($name);
+            $type_annotation = $this->get_type();
         }
 
         $oldtype = $this->type;
         list($this->type, $suffix) = explode('.', $type_annotation);
         $this->default      = $suffix == 'default';
         $this->subtype      = $this->default ? '' : $suffix;
-        $this->name         = $name;
         $this->id           = kolab_storage::folder_id($name);
         $this->valid        = !empty($this->type) && $this->type != 'mail' && (!$type || $this->type == $type);
 
@@ -155,7 +156,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
     {
         // UID is defined in folder METADATA
         $metakeys = array(kolab_storage::UID_KEY_SHARED, kolab_storage::UID_KEY_CYRUS);
-        $metadata = $this->get_metadata($metakeys);
+        $metadata = $this->get_metadata();
 
         if ($metadata !== null) {
             foreach ($metakeys as $key) {
@@ -1168,6 +1169,4 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         return true;
     }
-
 }
-

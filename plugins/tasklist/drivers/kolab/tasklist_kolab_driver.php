@@ -214,7 +214,7 @@ class tasklist_kolab_driver extends tasklist_driver
             if ($folder instanceof kolab_storage_folder_user) {
                 $lists[$list_id] = array(
                     'id'       => $list_id,
-                    'name'     => $folder->get_name(),
+                    'name'     => $fullname,
                     'listname' => $listname,
                     'title'    => $folder->get_title(),
                     'virtual'  => true,
@@ -228,7 +228,7 @@ class tasklist_kolab_driver extends tasklist_driver
             else if ($folder->virtual) {
                 $lists[$list_id] = array(
                     'id'       => $list_id,
-                    'name'     => kolab_storage::object_name($fullname),
+                    'name'     => $fullname,
                     'listname' => $listname,
                     'virtual'  => true,
                     'editable' => false,

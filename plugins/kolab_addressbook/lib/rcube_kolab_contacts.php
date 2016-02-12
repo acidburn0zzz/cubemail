@@ -166,7 +166,6 @@ class rcube_kolab_contacts extends rcube_addressbook
         $this->action = rcube::get_instance()->action;
     }
 
-
     /**
      * Getter for the address book name to be displayed
      *
@@ -174,8 +173,7 @@ class rcube_kolab_contacts extends rcube_addressbook
      */
     public function get_name()
     {
-        $folder = kolab_storage::object_name($this->imap_folder, $this->namespace);
-        return $folder;
+        return $this->storagefolder->get_name();
     }
 
     /**
@@ -186,7 +184,6 @@ class rcube_kolab_contacts extends rcube_addressbook
         return $this->storagefolder->get_foldername();
     }
 
-
     /**
      * Getter for the IMAP folder name
      *
@@ -196,7 +193,6 @@ class rcube_kolab_contacts extends rcube_addressbook
     {
         return $this->imap_folder;
     }
-
 
     /**
      * Getter for the name of the namespace to which the IMAP folder belongs

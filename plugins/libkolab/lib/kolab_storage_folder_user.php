@@ -72,7 +72,7 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
      */
     public function get_title()
     {
-      return trim($this->ldaprec['displayname'] . '; ' . $this->ldaprec['mail'], '; ');
+        return trim($this->ldaprec['displayname'] . '; ' . $this->ldaprec['mail'], '; ');
     }
 
     /**
@@ -131,5 +131,4 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
 
         return $success;
     }
-
 }

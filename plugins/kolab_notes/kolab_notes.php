@@ -239,7 +239,7 @@ class kolab_notes extends rcube_plugin
             else if ($folder->virtual) {
                 $lists[$list_id] = array(
                     'id'       => $list_id,
-                    'name'     => kolab_storage::object_name($fullname),
+                    'name'     => $fullname,
                     'listname' => $listname,
                     'virtual'  => true,
                     'editable' => false,
@@ -1045,7 +1045,7 @@ class kolab_notes extends rcube_plugin
                 $newfolder = kolab_storage::folder_update($list);
 
                 if ($newfolder === false) {
-                  $save_error = $this->gettext(kolab_storage::$last_error);
+                    $save_error = $this->gettext(kolab_storage::$last_error);
                 }
                 else {
                     $success = true;
@@ -1056,7 +1056,7 @@ class kolab_notes extends rcube_plugin
                     // compose the new display name
                     $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
                     $path_imap = explode($delim, $newfolder);
-                    $list['name'] = kolab_storage::object_name($newfolder);
+                    $list['name']     = kolab_storage::object_name($newfolder);
                     $list['editname'] = rcube_charset::convert(array_pop($path_imap), 'UTF7-IMAP');
                     $list['listname'] = str_repeat('&nbsp;&nbsp;&nbsp;', count($path_imap)) . '&raquo; ' . $list['editname'];
                 }
