@@ -1685,7 +1685,7 @@ class tasklist extends rcube_plugin
                     'class' => 'messagetasklink',
                     'rel' => $task['id'] . '@' . $task['list'],
                     'target' => '_blank',
-                ), Q($task['title']))
+                ), rcube::Q($task['title']))
             );
         }
         if (count($links)) {
