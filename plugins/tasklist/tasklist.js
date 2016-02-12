@@ -2793,6 +2793,9 @@ function rcube_tasklist_ui(settings)
      */
     function match_filter(rec, cache, recursive)
     {
+        if (!rec)
+            return false;
+
         // return cached result
         if (typeof cache[rec.id] != 'undefined' && recursive != 2) {
             return cache[rec.id];
@@ -2832,6 +2835,7 @@ function rcube_tasklist_ui(settings)
         if (recursive != 1) {
             cache[rec.id] = match;
         }
+
         return match;
     }
 
