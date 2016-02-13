@@ -572,14 +572,8 @@ class kolab_calendar extends kolab_storage_folder_api
    */
   protected function save_links($uid, $links)
   {
-    // make sure we have a valid array
-    if (empty($links)) {
-      $links = array();
-    }
-
     $storage = kolab_storage_config::get_instance();
-    $remove = array_diff($storage->get_object_links($uid), $links);
-    return $storage->save_object_links($uid, $links, $remove);
+    return $storage->save_object_links($uid, (array) $links);
   }
 
   /**

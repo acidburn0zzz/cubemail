@@ -1247,12 +1247,8 @@ class kolab_notes extends rcube_plugin
 
     private function save_links($uid, $links)
     {
-        if (empty($links)) {
-            $links = array();
-        }
         $config = kolab_storage_config::get_instance();
-        $remove = array_diff($config->get_object_links($uid), $links);
-        return $config->save_object_links($uid, $links, $remove);
+        return $config->save_object_links($uid, (array) $links);
     }
 
     /**

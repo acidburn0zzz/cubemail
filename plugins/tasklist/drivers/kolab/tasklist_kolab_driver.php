@@ -1114,14 +1114,8 @@ class tasklist_kolab_driver extends tasklist_driver
      */
     private function save_links($uid, $links)
     {
-        // make sure we have a valid array
-        if (empty($links)) {
-            $links = array();
-        }
-
         $config = kolab_storage_config::get_instance();
-        $remove = array_diff($config->get_object_links($uid), $links);
-        return $config->save_object_links($uid, $links, $remove);
+        return $config->save_object_links($uid, (array) $links);
     }
 
     /**

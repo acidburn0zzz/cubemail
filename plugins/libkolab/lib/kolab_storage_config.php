@@ -711,7 +711,8 @@ class kolab_storage_config
      * Find objects linked with the given groupware object through a relation
      *
      * @param string Object UUID
-     * @param array List of related URIs
+     *
+     * @return array List of related URIs
      */
     public function get_object_links($uid)
     {
@@ -735,26 +736,29 @@ class kolab_storage_config
     }
 
     /**
+     * Save relations of an object.
+     * Note, that we already support only one-to-one relations.
+     * So, all relations to the object that are not provided in $links
+     * argument will be removed.
      *
+     * @param string $uid   Object UUID
+     * @param array  $links List of related-object URIs
+     *
+     * @return bool True on success, False on failure
      */
-    public function save_object_links($uid, $links, $remove = array())
+    public function save_object_links($uid, $links)
     {
         $object_uri = self::build_member_url($uid);
-        $relations = $this->get_relations_for_member($uid);
-        $done = false;
+        $relations  = $this->get_relations_for_member($uid);
+        $done       = false;
 
         foreach ($relations as $relation) {
             // make relation members up-to-date
             kolab_storage_config::resolve_members($relation);
 
             // remove and add links
-            $members = array_diff($relation['members'], (array)$remove);
+            $members = array($object_uri);
             $members = array_unique(array_merge($members, $links));
-
-            // make sure the object_uri is still a member
-            if (!in_array($object_uri, $members)) {
-                $members[$object_uri];
-            }
 
             // remove relation if no other members remain
             if (count($members) <= 1) {
@@ -768,7 +772,7 @@ class kolab_storage_config
             }
             // no changes, we're happy
             else {
-                $done = true;
+                $done  = true;
                 $links = array();
             }
         }
