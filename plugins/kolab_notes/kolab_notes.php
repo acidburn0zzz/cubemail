@@ -441,6 +441,7 @@ class kolab_notes extends rcube_plugin
     {
         $config = kolab_storage_config::get_instance();
         $tags   = $config->apply_tags($records);
+        $config->apply_links($records, 'note');
 
         foreach ($records as $i => $rec) {
             unset($records[$i]['description']);
@@ -586,9 +587,11 @@ class kolab_notes extends rcube_plugin
         }
 
         // resolve message links
-        $note['links'] = array_map(function($link) {
-                return kolab_storage_config::get_message_reference($link, 'note') ?: array('uri' => $link);
-            }, $this->get_links($note['uid']));
+        if (!array_key_exists('links', $note)) {
+            $note['links'] = array_map(function($link) {
+                    return kolab_storage_config::get_message_reference($link, 'note') ?: array('uri' => $link);
+                }, $this->get_links($note['uid']));
+        }
 
         return $note;
     }

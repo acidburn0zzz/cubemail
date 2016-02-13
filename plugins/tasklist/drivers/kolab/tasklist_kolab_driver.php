@@ -563,6 +563,7 @@ class tasklist_kolab_driver extends tasklist_driver
             $lists = explode(',', $lists);
         }
 
+        $config  = kolab_storage_config::get_instance();
         $results = array();
 
         // query Kolab storage
@@ -584,21 +585,23 @@ class tasklist_kolab_driver extends tasklist_driver
             $query[] = array('changed', '>=', $filter['since']);
         }
 
-        // load all tags into memory first
-        kolab_storage_config::get_instance()->get_tags();
-
         foreach ($lists as $list_id) {
             if (!$folder = $this->get_folder($list_id)) {
                 continue;
             }
+
             foreach ($folder->select($query) as $record) {
-                $this->load_tags($record);
-                $task = $this->_to_rcube_task($record, $list_id);
-
                 // TODO: post-filter tasks returned from storage
-
-                $results[] = $task;
+                $record['list_id'] = $list_id;
+                $results[] = $record;
             }
+        }
+
+        $config->apply_tags($results);
+        $config->apply_links($results);
+
+        foreach (array_keys($results) as $idx) {
+            $results[$idx] = $this->_to_rcube_task($results[$idx], $results[$idx]['list_id']);
         }
 
         // avoid session race conditions that will loose temporary subscriptions
@@ -1188,10 +1191,11 @@ class tasklist_kolab_driver extends tasklist_driver
             'sequence' => $record['sequence'],
             'tags' => $record['tags'],
             'list' => $list_id,
+            'links' => $record['links'],
         );
 
         // we can sometimes skip this expensive operation
-        if ($all) {
+        if ($all && !array_key_exists('links', $task)) {
             $task['links'] = $this->get_links($task['uid']);
         }
 

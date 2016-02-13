@@ -25,6 +25,7 @@
 class kolab_storage_cache
 {
     const DB_DATE_FORMAT = 'Y-m-d H:i:s';
+    const MAX_RECORDS    = 500;
 
     public $sync_complete = false;
 
@@ -528,7 +529,7 @@ class kolab_storage_cache
             $this->_read_folder_data();
 
             // fetch full object data on one query if a small result set is expected
-            $fetchall = !$uids && ($this->limit ? $this->limit[0] : ($count = $this->count($query))) < 500;
+            $fetchall = !$uids && ($this->limit ? $this->limit[0] : ($count = $this->count($query))) < self::MAX_RECORDS;
 
             // skip SELECT if we know it will return nothing
             if ($count === 0) {

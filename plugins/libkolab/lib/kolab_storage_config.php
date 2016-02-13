@@ -25,8 +25,8 @@
 
 class kolab_storage_config
 {
-    const FOLDER_TYPE = 'configuration';
-
+    const FOLDER_TYPE   = 'configuration';
+    const MAX_RELATIONS = 499; // should be less than kolab_storage_cache::MAX_RECORDS
 
     /**
      * Singleton instace of kolab_storage_config
@@ -593,6 +593,72 @@ class kolab_storage_config
     }
 
     /**
+     * Assign links (relations) to kolab objects
+     *
+     * @param array  $records List of kolab objects
+     * @param string $type    Object type
+     */
+    public function apply_links(&$records, $type = null)
+    {
+        $links = array();
+        $uids  = array();
+        $ids   = array();
+        $limit = 25;
+
+        // get list of object UIDs and UIRs map
+        foreach ($records as $i => $rec) {
+            $uids[] = $rec['uid'];
+            $ids[self::build_member_url($rec['uid'])] = $i;
+            $records[$i]['links'] = array();
+        }
+
+        // The whole story here is to not do SELECT for every object.
+        // We'll build one SELECT for many (limit above) objects at once
+
+        while (!empty($uids)) {
+            $chunk = array_splice($uids, 0, $limit);
+            $chunk = array_map(function($v) { return array('member', '=', $v); }, $chunk);
+
+            $filter = array(
+                array('type', '=', 'relation'),
+                array('category', '=', 'generic'),
+                array($chunk, 'OR'),
+            );
+
+            $relations = $this->get_objects($filter, true, self::MAX_RELATIONS);
+
+            foreach ($relations as $relation) {
+                $links[$relation['uid']] = $relation;
+            }
+        }
+
+        if (empty($links)) {
+            return;
+        }
+
+        // assign links of related messages
+        foreach ($links as $relation) {
+            // make relation members up-to-date
+            kolab_storage_config::resolve_members($relation);
+
+            // replace link URIs with message reference URLs
+            $members = array();
+            foreach ((array) $relation['members'] as $member) {
+                if (strpos($member, 'imap://') === 0) {
+                    $members[$member] = kolab_storage_config::get_message_reference($link, $type) ?: array('uri' => $link);
+                }
+            }
+
+            // assign links to objects
+            foreach ((array) $relation['members'] as $member) {
+                if (($id = $ids[$member]) !== null) {
+                    $records[$id]['links'] = array_unique(array_merge($records[$id]['links'], $members));
+                }
+            }
+        }
+    }
+
+    /**
      * Update object tags
      *
      * @param string $uid  Kolab object UID
@@ -650,12 +716,10 @@ class kolab_storage_config
      * Get tags (all or referring to specified object)
      *
      * @param string $member Optional object UID or mail message-id
-     * @param int    $limit  Max. number of records (per-folder)
-     *                       Used when searching by member
      *
      * @return array List of Relation objects
      */
-    public function get_tags($member = '*', $limit = 0)
+    public function get_tags($member = '*')
     {
         if (!isset($this->tags)) {
             $default = true;
@@ -667,10 +731,10 @@ class kolab_storage_config
             // use faster method
             if ($member && $member != '*') {
                 $filter[] = array('member', '=', $member);
-                $tags = $this->get_objects($filter, $default, $limit);
+                $tags = $this->get_objects($filter, $default, self::MAX_RELATIONS);
             }
             else {
-                $this->tags = $tags = $this->get_objects($filter, $default);
+                $this->tags = $tags = $this->get_objects($filter, $default, self::MAX_RELATIONS);
             }
         }
         else {
@@ -802,7 +866,7 @@ class kolab_storage_config
             array('member', '=', $uid),
         );
 
-        return $this->get_objects($filter, $default, 100);
+        return $this->get_objects($filter, $default, self::MAX_RELATIONS);
     }
 
     /**
