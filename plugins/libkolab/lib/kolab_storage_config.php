@@ -930,7 +930,7 @@ class kolab_storage_config
         // get kolab objects of specified type
         if (!empty($uids)) {
             $query  = array(array('uid', '=', array_unique($uids)));
-            $result = kolab_storage::select($query, $type);
+            $result = kolab_storage::select($query, $type, count($uids));
         }
 
         return $result;

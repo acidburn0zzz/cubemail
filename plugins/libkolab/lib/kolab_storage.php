@@ -233,20 +233,23 @@ class kolab_storage
      *
      * @param array  Pseudo-SQL query as list of filter parameter triplets
      * @param string Object type (contact,event,task,journal,file,note,configuration)
+     * @param int    Expected number of records or limit (for performance reasons)
+     *
      * @return array List of Kolab data objects (each represented as hash array)
      * @see kolab_storage_format::select()
      */
-    public static function select($query, $type)
+    public static function select($query, $type, $limit = null)
     {
         self::setup();
         $folder = null;
         $result = array();
 
         foreach ((array)self::list_folders('', '*', $type, null, $folderdata) as $foldername) {
-            if (!$folder)
-                $folder = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
-            else
-                $folder->set_folder($foldername, $type, $folderdata[$foldername]);
+            $folder = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
+
+            if ($limit) {
+                $folder->set_order_and_limit(null, $limit);
+            }
 
             foreach ($folder->select($query, '*') as $object) {
                 $result[] = $object;
