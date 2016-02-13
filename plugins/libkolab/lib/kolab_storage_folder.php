@@ -348,6 +348,12 @@ class kolab_storage_folder extends kolab_storage_folder_api
         if ($length !== null) {
             $this->cache->set_limit($length, $offset);
         }
+
+        $this->order_and_limit = array(
+            'cols'   => $sortcols,
+            'limit'  => $length,
+            'offset' => $offset,
+        );
     }
 
     /**
@@ -376,7 +382,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
         return $query;
     }
 
-
     /**
      * Getter for a single Kolab object, identified by its UID
      *
@@ -388,17 +393,35 @@ class kolab_storage_folder extends kolab_storage_folder_api
      */
     public function get_object($uid, $type = null)
     {
-        if (!$this->valid) {
+        if (!$this->valid || !$uid) {
             return false;
+        }
+
+        $query = array(array('uid', '=', $uid));
+
+        if ($type) {
+            $query[] = array('type', '=', $type);
         }
 
         // synchronize caches
         $this->cache->synchronize();
 
-        $msguid = $this->cache->uid2msguid($uid);
+        // we don't use cache->get() here because we don't have msguid
+        // yet, using select() is faster
 
-        if ($msguid && ($object = $this->cache->get($msguid, $type))) {
-            return $object;
+        // set order to make sure we get most recent object version
+        // set limit to skip count query
+        $this->cache->set_order_by('msguid DESC');
+        $this->cache->set_limit(1);
+
+        $list = $this->cache->select($this->_prepare_query($query));
+
+        // set the order/limit back to defined value
+        $this->cache->set_order_by($this->order_and_limit['order']);
+        $this->cache->set_limit($this->order_and_limit['limit'], $this->order_and_limit['offset']);
+
+        if (!empty($list) && !empty($list[0])) {
+            return $list[0];
         }
 
         return false;

@@ -665,7 +665,12 @@ class kolab_storage_cache
     public function set_order_by($sortcols)
     {
         if (!empty($sortcols)) {
-            $this->order_by = '`' . join('`, `', (array)$sortcols) . '`';
+            $sortcols = array_map(function($v) {
+                list($column, $order) = explode(' ', $v, 2);
+                return "`$column`" . ($order ? " $order" : '');
+            }, (array) $sortcols);
+
+            $this->order_by = join(', ', $sortcols);
         }
         else {
             $this->order_by = null;
