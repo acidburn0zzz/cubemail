@@ -34,6 +34,7 @@ class kolab_invitation_calendar
   public $categories = array();
   public $name = 'Invitations';
 
+
   /**
    * Default constructor
    */
@@ -62,7 +63,6 @@ class kolab_invitation_calendar
       $this->alarms = $prefs[$this->id]['showalarms'];
   }
 
-
   /**
    * Getter for a nice and human readable name for this calendar
    *
@@ -72,7 +72,6 @@ class kolab_invitation_calendar
   {
     return $this->name;
   }
-
 
   /**
    * Getter for the IMAP folder owner
@@ -84,7 +83,6 @@ class kolab_invitation_calendar
     return $this->cal->rc->get_user_name();
   }
 
-
   /**
    *
    */
@@ -92,7 +90,6 @@ class kolab_invitation_calendar
   {
     return $this->get_name();
   }
-
 
   /**
    * Getter for the name of the namespace to which the IMAP folder belongs
@@ -103,7 +100,6 @@ class kolab_invitation_calendar
   {
     return 'x-special';
   }
-
 
   /**
    * Getter for the top-end calendar folder name (not the entire path)
@@ -171,7 +167,6 @@ class kolab_invitation_calendar
     return $prop['id'];
   }
 
-
   /**
    * Getter for a single event object
    */
@@ -215,7 +210,6 @@ class kolab_invitation_calendar
 
     return false;
   }
-
 
   /**
    * @param  integer Event's new start (unix timestamp)
@@ -318,7 +312,6 @@ class kolab_invitation_calendar
     return $event;
   }
 
-
   /**
    * Create a new event record
    *
@@ -337,7 +330,6 @@ class kolab_invitation_calendar
    * @see calendar_driver::new_event()
    * @return boolean True on success, False on error
    */
-
   public function update_event($event, $exception_id = null)
   {
     // forward call to the actual storage folder
@@ -372,6 +364,4 @@ class kolab_invitation_calendar
   {
     return false;
   }
-
-
 }

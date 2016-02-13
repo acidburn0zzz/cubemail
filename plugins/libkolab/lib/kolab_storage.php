@@ -613,6 +613,7 @@ class kolab_storage
                 }
             }
         }
+
         if (!$found && !empty($namespace['other'])) {
             foreach ($namespace['other'] as $ns) {
                 if (strlen($ns[0]) && strpos($folder, $ns[0]) === 0) {
@@ -636,6 +637,7 @@ class kolab_storage
                 }
             }
         }
+
         if (!$found && !empty($namespace['personal'])) {
             foreach ($namespace['personal'] as $ns) {
                 if (strlen($ns[0]) && strpos($folder, $ns[0]) === 0) {
@@ -973,7 +975,7 @@ class kolab_storage
         $nsnames = array('personal' => array(), 'shared' => array(), 'other' => array());
 
         foreach ($folders as $folder) {
-            $folders[$folder->name] = $folder;
+            $_folders[$folder->name] = $folder;
             $ns = $folder->get_namespace();
             $nsnames[$ns][$folder->name] = strtolower(html_entity_decode($folder->get_name(), ENT_COMPAT, RCUBE_CHARSET)) . $pad;  // decode &raquo;
         }
@@ -982,7 +984,7 @@ class kolab_storage
         foreach (array_keys($nsnames) as $ns) {
             asort($nsnames[$ns], SORT_LOCALE_STRING);
             foreach (array_keys($nsnames[$ns]) as $utf7name) {
-                $out[] = $folders[$utf7name];
+                $out[] = $_folders[$utf7name];
             }
         }
 
@@ -1023,6 +1025,7 @@ class kolab_storage
                 while (count($path) >= $depth && ($parent = join($delim, $path))) {
                     array_pop($path);
                     $parent_parent = join($delim, $path);
+
                     if (!$refs[$parent]) {
                         if ($folder->type && self::folder_type($parent) == $folder->type) {
                             $refs[$parent] = new kolab_storage_folder($parent, $folder->type, $folder->type);
