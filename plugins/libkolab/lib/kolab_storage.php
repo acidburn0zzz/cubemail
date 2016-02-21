@@ -1018,7 +1018,7 @@ class kolab_storage
             $folder->children = array();  // reset list
 
             // skip top folders or ones with a custom displayname
-            if (count($path) < 1 || kolab_storage::custom_displayname($folder->name)) {
+            if (count($path) < 1 || $folder->get_custom_displayname()) {
                 $tree->children[] = $folder;
             }
             else {
