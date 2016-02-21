@@ -441,7 +441,7 @@ class kolab_notes extends rcube_plugin
     {
         $config = kolab_storage_config::get_instance();
         $tags   = $config->apply_tags($records);
-        $config->apply_links($records, 'note');
+        $config->apply_links($records);
 
         foreach ($records as $i => $rec) {
             unset($records[$i]['description']);
@@ -558,6 +558,8 @@ class kolab_notes extends rcube_plugin
         if ($result) {
             // get note tags
             $result['tags'] = $this->get_tags($result['uid']);
+            // get note links
+            $result['links'] = $this->get_links($result['uid']);
         }
 
         return $result;
@@ -566,7 +568,7 @@ class kolab_notes extends rcube_plugin
     /**
      * Helper method to encode the given note record for use in the client
      */
-    private function _client_encode(&$note, $resolve = false)
+    private function _client_encode(&$note)
     {
         foreach ($note as $key => $prop) {
             if ($key[0] == '_' || $key == 'x-custom') {
@@ -586,11 +588,13 @@ class kolab_notes extends rcube_plugin
             $note['html'] = $this->_wash_html($note['description']);
         }
 
-        // resolve message links
-        if (!array_key_exists('links', $note)) {
-            $note['links'] = array_map(function($link) {
-                    return kolab_storage_config::get_message_reference($link, 'note') ?: array('uri' => $link);
-                }, $this->get_links($note['uid']));
+        // convert link URIs references into structs
+        if (array_key_exists('links', $note)) {
+            foreach ((array)$note['links'] as $i => $link) {
+                if (strpos($link, 'imap://') === 0 && ($msgref = kolab_storage_config::get_message_reference($link, 'note'))) {
+                    $note['links'][$i] = $msgref;
+                }
+            }
         }
 
         return $note;

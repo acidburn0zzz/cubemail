@@ -383,7 +383,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
     // Apply event-to-mail relations
     $config = kolab_storage_config::get_instance();
-    $config->apply_links($events, 'event');
+    $config->apply_links($events);
 
     // avoid session race conditions that will loose temporary subscriptions
     $this->cal->rc->session->nowrite = true;

@@ -595,10 +595,9 @@ class kolab_storage_config
     /**
      * Assign links (relations) to kolab objects
      *
-     * @param array  $records List of kolab objects
-     * @param string $type    Object type
+     * @param array $records List of kolab objects
      */
-    public function apply_links(&$records, $type = null)
+    public function apply_links(&$records)
     {
         $links = array();
         $uids  = array();
@@ -646,11 +645,10 @@ class kolab_storage_config
             // make relation members up-to-date
             kolab_storage_config::resolve_members($relation);
 
-            // replace link URIs with message reference URLs
             $members = array();
             foreach ((array) $relation['members'] as $member) {
                 if (strpos($member, 'imap://') === 0) {
-                    $members[$member] = kolab_storage_config::get_message_reference($member, $type) ?: array('uri' => $member);
+                    $members[$member] = $member;
                 }
             }
             $members = array_values($members);
