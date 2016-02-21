@@ -298,13 +298,13 @@ class kolab_calendar extends kolab_storage_folder_api
 
     $events = array();
     foreach ($this->storage->select($query) as $record) {
-      $event = $this->_to_driver_event($record, !$virtual);
+      $event = $this->_to_driver_event($record, !$virtual, false);
 
       // remember seen categories
       if ($event['categories']) {
         $cat = is_array($event['categories']) ? $event['categories'][0] : $event['categories'];
         $this->categories[$cat]++;
-    }
+      }
 
       // list events in requested time window
       if ($event['start'] <= $end && $event['end'] >= $start) {
@@ -347,7 +347,7 @@ class kolab_calendar extends kolab_storage_folder_api
       // add top-level exceptions (aka loose single occurrences)
       else if (is_array($record['exceptions'])) {
         foreach ($record['exceptions'] as $ex) {
-          $component = $this->_to_driver_event($ex);
+          $component = $this->_to_driver_event($ex, false, false);
           if ($component['start'] <= $end && $component['end'] >= $start) {
             $events[] = $component;
           }
@@ -380,6 +380,10 @@ class kolab_calendar extends kolab_storage_folder_api
 
       return true;
     });
+
+    // Apply event-to-mail relations
+    $config = kolab_storage_config::get_instance();
+    $config->apply_links($events, 'event');
 
     // avoid session race conditions that will loose temporary subscriptions
     $this->cal->rc->session->nowrite = true;
@@ -622,7 +626,7 @@ class kolab_calendar extends kolab_storage_folder_api
         if (!$exception['_instance'])
           $exception['_instance'] = libcalendaring::recurrence_instance_identifier($exception);
 
-        $rec_event = $this->_to_driver_event($exception);
+        $rec_event = $this->_to_driver_event($exception, false, false);
         $rec_event['id'] = $event['uid'] . '-' . $exception['_instance'];
         $rec_event['isexception'] = 1;
 
@@ -671,7 +675,7 @@ class kolab_calendar extends kolab_storage_folder_api
       // add to output if in range
       $rec_id = $event['uid'] . '-' . $instance_id;
       if (($next_event['start'] <= $end && $next_event['end'] >= $start) || ($event_id && $rec_id == $event_id)) {
-        $rec_event = $this->_to_driver_event($next_event);
+        $rec_event = $this->_to_driver_event($next_event, false, false);
         $rec_event['_instance'] = $instance_id;
         $rec_event['_count'] = $i + 1;
 
@@ -703,10 +707,13 @@ class kolab_calendar extends kolab_storage_folder_api
   /**
    * Convert from Kolab_Format to internal representation
    */
-  private function _to_driver_event($record, $noinst = false)
+  private function _to_driver_event($record, $noinst = false, $links = true)
   {
     $record['calendar'] = $this->id;
-    $record['links'] = $this->get_links($record['uid']);
+
+    if ($links) {
+      $record['links'] = $this->get_links($record['uid']);
+    }
 
     if ($this->get_namespace() == 'other') {
       $record['className'] = 'fc-event-ns-other';

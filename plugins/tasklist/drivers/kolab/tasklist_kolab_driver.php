@@ -598,7 +598,7 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         $config->apply_tags($results);
-        $config->apply_links($results);
+        $config->apply_links($results, 'task');
 
         foreach (array_keys($results) as $idx) {
             $results[$idx] = $this->_to_rcube_task($results[$idx], $results[$idx]['list_id']);

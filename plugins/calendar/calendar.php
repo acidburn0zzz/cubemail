@@ -1744,15 +1744,6 @@ class calendar extends rcube_plugin
       $event['attachments'][$k]['classname'] = rcube_utils::file2class($attachment['mimetype'], $attachment['name']);
     }
 
-    // convert link URIs references into structs
-    if (array_key_exists('links', $event)) {
-      foreach ((array)$event['links'] as $i => $link) {
-        if (strpos($link, 'imap://') === 0 && ($msgref = $this->driver->get_message_reference($link))) {
-          $event['links'][$i] = $msgref;
-        }
-      }
-    }
-
     // check for organizer in attendees list
     $organizer = null;
     foreach ((array)$event['attendees'] as $i => $attendee) {

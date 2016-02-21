@@ -608,8 +608,13 @@ class kolab_storage_config
         // get list of object UIDs and UIRs map
         foreach ($records as $i => $rec) {
             $uids[] = $rec['uid'];
-            $ids[self::build_member_url($rec['uid'])] = $i;
+            // there can be many objects with the same uid (recurring events)
+            $ids[self::build_member_url($rec['uid'])][] = $i;
             $records[$i]['links'] = array();
+        }
+
+        if (!empty($uids)) {
+            $uids = array_unique($uids);
         }
 
         // The whole story here is to not do SELECT for every object.
@@ -645,14 +650,17 @@ class kolab_storage_config
             $members = array();
             foreach ((array) $relation['members'] as $member) {
                 if (strpos($member, 'imap://') === 0) {
-                    $members[$member] = kolab_storage_config::get_message_reference($link, $type) ?: array('uri' => $link);
+                    $members[$member] = kolab_storage_config::get_message_reference($member, $type) ?: array('uri' => $member);
                 }
             }
+            $members = array_values($members);
 
             // assign links to objects
             foreach ((array) $relation['members'] as $member) {
                 if (($id = $ids[$member]) !== null) {
-                    $records[$id]['links'] = array_unique(array_merge($records[$id]['links'], $members));
+                    foreach ($id as $i) {
+                        $records[$i]['links'] = array_unique(array_merge($records[$i]['links'], $members));
+                    }
                 }
             }
         }
