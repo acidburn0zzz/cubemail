@@ -211,25 +211,27 @@ class kolab_storage_config
     /**
      * Remove configuration object
      *
-     * @param string $uid Object UID
+     * @param string|array $object Object array or its UID
      *
      * @return bool True on success, False on failure
      */
-    public function delete($uid)
+    public function delete($object)
     {
         if (!$this->is_enabled()) {
             return false;
         }
 
         // fetch the object to find folder
-        $object = $this->get_object($uid);
+        if (!is_array($object)) {
+            $object = $this->get_object($object);
+        }
 
         if (!$object) {
             return false;
         }
 
         $folder = $this->find_folder($object);
-        $status = $folder->delete($uid);
+        $status = $folder->delete($object);
 
         // on success, update cached tags list
         if ($status && is_array($this->tags)) {
@@ -846,7 +848,7 @@ class kolab_storage_config
 
             // remove relation if no other members remain
             if (count($members) <= 1) {
-                $done = $this->delete($relation['uid']);
+                $done = $this->delete($relation);
             }
             // update relation object if members changed
             else if (count(array_diff($members, $relation['members'])) || count(array_diff($relation['members'], $members))) {
