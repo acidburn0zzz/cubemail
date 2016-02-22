@@ -58,8 +58,12 @@ class kolab_storage_config
     /**
      * Private constructor (finds default configuration folder as a config source)
      */
-    private function __construct()
+    private function _init()
     {
+        if ($this->enabled !== null) {
+            return $this->enabled;
+        }
+
         // get all configuration folders
         $this->folders = kolab_storage::get_folders(self::FOLDER_TYPE, false);
 
@@ -86,9 +90,7 @@ class kolab_storage_config
         }
 
         // check if configuration folder exist
-        if ($this->default && $this->default->name) {
-            $this->enabled = true;
-        }
+        return $this->enabled = $this->default && $this->default->name;
     }
 
     /**
@@ -98,7 +100,7 @@ class kolab_storage_config
      */
     public function is_enabled()
     {
-        return $this->enabled;
+        return $this->_init();
     }
 
     /**
@@ -113,6 +115,10 @@ class kolab_storage_config
     public function get_objects($filter = array(), $default = false, $limit = 0)
     {
         $list = array();
+
+        if (!$this->is_enabled()) {
+            return $list;
+        }
 
         foreach ($this->folders as $folder) {
             // we only want to read from default folder
@@ -144,6 +150,10 @@ class kolab_storage_config
      */
     public function get_object($uid, $default = false)
     {
+        if (!$this->is_enabled()) {
+            return;
+        }
+
         foreach ($this->folders as $folder) {
             // we only want to read from default folder
             if ($default && !$folder->default) {
@@ -166,7 +176,7 @@ class kolab_storage_config
      */
     public function save(&$object, $type)
     {
-        if (!$this->enabled) {
+        if (!$this->is_enabled()) {
             return false;
         }
 
@@ -207,7 +217,7 @@ class kolab_storage_config
      */
     public function delete($uid)
     {
-        if (!$this->enabled) {
+        if (!$this->is_enabled()) {
             return false;
         }
 
@@ -239,6 +249,10 @@ class kolab_storage_config
      */
     public function find_folder($object = array())
     {
+        if (!$this->is_enabled()) {
+            return;
+        }
+
         // find folder object
         if ($object['_mailbox']) {
             foreach ($this->folders as $folder) {
@@ -967,7 +981,7 @@ class kolab_storage_config
     /**
      * Resolve the email message reference from the given URI
      */
-    public function get_message_reference($uri, $rel = null)
+    public static function get_message_reference($uri, $rel = null)
     {
         if ($linkref = self::parse_member_url($uri)) {
             $linkref['subject'] = $linkref['params']['subject'];
