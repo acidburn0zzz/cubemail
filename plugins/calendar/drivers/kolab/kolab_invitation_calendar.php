@@ -197,7 +197,7 @@ class kolab_invitation_calendar
     else {
       $cal = null;
       foreach (kolab_storage::list_folders('', '*', 'event', null) as $foldername) {
-        $cal = new kolab_calendar($foldername, $this->cal);
+        $cal = $this->_get_calendar($foldername);
         if ($cal->ready && $cal->storage && $cal->get_event($event['id'])) {
           break;
         }
@@ -233,7 +233,7 @@ class kolab_invitation_calendar
     // aggregate events from all calendar folders
     $events = array();
     foreach (kolab_storage::list_folders('', '*', 'event', null) as $foldername) {
-      $cal = new kolab_calendar($foldername, $this->cal);
+      $cal = $this->_get_calendar($foldername);
       if ($cal->get_namespace() == 'other')
         continue;
 
@@ -287,7 +287,7 @@ class kolab_invitation_calendar
     // aggregate counts from all calendar folders
     $count = 0;
     foreach (kolab_storage::list_folders('', '*', 'event', null) as $foldername) {
-      $cal = new kolab_calendar($foldername, $this->cal);
+      $cal = $this->_get_calendar($foldername);
       if ($cal->get_namespace() == 'other')
         continue;
 
@@ -295,6 +295,15 @@ class kolab_invitation_calendar
     }
 
     return $count;
+  }
+
+  /**
+   * Get calendar object instance (that maybe already initialized)
+   */
+  private function _get_calendar($folder_name)
+  {
+    $id = kolab_storage::folder_id($folder_name, true);
+    return $this->cal->driver->get_calendar($id);
   }
 
   /**

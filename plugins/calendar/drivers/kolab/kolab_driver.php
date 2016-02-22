@@ -346,13 +346,16 @@ class kolab_driver extends calendar_driver
     $this->_read_calendars();
 
     // create calendar object if necesary
-    if (!$this->calendars[$id] && in_array($id, array(self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED))) {
-      $this->calendars[$id] = new kolab_invitation_calendar($id, $this->cal);
-    }
-    else if (!$this->calendars[$id] && $id !== self::BIRTHDAY_CALENDAR_ID) {
-      $calendar = kolab_calendar::factory($id, $this->cal);
-      if ($calendar->ready)
-        $this->calendars[$calendar->id] = $calendar;
+    if (!$this->calendars[$id]) {
+      if (in_array($id, array(self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED))) {
+        $this->calendars[$id] = new kolab_invitation_calendar($id, $this->cal);
+      }
+      else if ($id !== self::BIRTHDAY_CALENDAR_ID) {
+        $calendar = kolab_calendar::factory($id, $this->cal);
+        if ($calendar->ready) {
+          $this->calendars[$calendar->id] = $calendar;
+        }
+      }
     }
 
     return $this->calendars[$id];
