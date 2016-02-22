@@ -101,6 +101,9 @@ class kolab_files_engine
 
             // get list of external sources
             $this->get_external_storage_drivers();
+
+            // these labels may be needed even if fetching ext sources failed
+            $this->plugin->add_label('folderauthtitle', 'authenticating');
         }
 
         if ($list_widget) {
