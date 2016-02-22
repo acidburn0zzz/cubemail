@@ -868,10 +868,10 @@ class kolab_storage_config
                 'category' => 'generic',
             );
 
-            $ret = $this->save($relation, 'relation');
+            $done = $this->save($relation, 'relation');
         }
 
-        return $ret;
+        return $done;
     }
 
     /**

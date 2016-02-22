@@ -188,29 +188,35 @@ class kolab_calendar extends kolab_storage_folder_api
    */
   public function get_event($id)
   {
-    // directly access storage object
-    if (!$this->events[$id] && ($record = $this->storage->get_object($id)))
-        $this->events[$id] = $this->_to_driver_event($record, true);
+    // remove our occurrence identifier if it's there
+    $master_id = preg_replace('/-\d{8}(T\d{6})?$/', '', $id);
 
-    // event not found, maybe a recurring instance is requested
-    if (!$this->events[$id]) {
-      $master_id = preg_replace('/-\d+(T\d{6})?$/', '', $id);
+    // directly access storage object
+    if (!$this->events[$id] && $master_id == $id && ($record = $this->storage->get_object($id))) {
+      $this->events[$id] = $this->_to_driver_event($record, true);
+    }
+
+    // maybe a recurring instance is requested
+    if (!$this->events[$id] && $master_id != $id) {
       $instance_id = substr($id, strlen($master_id) + 1);
 
-      if ($master_id != $id && ($record = $this->storage->get_object($master_id))) {
-        $master = $this->_to_driver_event($record);
+      if ($record = $this->storage->get_object($master_id)) {
+        $master = $this->_to_driver_event($record, true);
+        $this->events[$master_id] = $master;
       }
 
-      // check for match in top-level exceptions (aka loose single occurrences)
-      if ($master && $master['_formatobj'] && ($instance = $master['_formatobj']->get_instance($instance_id))) {
-        $this->events[$id] = $this->_to_driver_event($instance);
-      }
-      // check for match on the first instance already
-      else if ($master['_instance'] && $master['_instance'] == $instance_id) {
-        $this->events[$id] = $master;
-      }
-      else if ($master && is_array($master['recurrence'])) {
-        $this->get_recurring_events($record, $master['start'], null, $id);
+      if ($master) {
+        // check for match in top-level exceptions (aka loose single occurrences)
+        if ($master['_formatobj'] && ($instance = $master['_formatobj']->get_instance($instance_id))) {
+          $this->events[$id] = $this->_to_driver_event($instance);
+        }
+        // check for match on the first instance already
+        else if ($master['_instance'] && $master['_instance'] == $instance_id) {
+          $this->events[$id] = $master;
+        }
+        else if (is_array($master['recurrence'])) {
+          $this->get_recurring_events($record, $master['start'], null, $id);
+        }
       }
     }
 
@@ -455,8 +461,8 @@ class kolab_calendar extends kolab_storage_folder_api
 
     //generate new event from RC input
     $object = $this->_from_driver_event($event);
-    $saved = $this->storage->save($object, 'event');
-    
+    $saved  = $this->storage->save($object, 'event');
+
     if (!$saved) {
       rcube::raise_error(array(
         'code' => 600, 'type' => 'php',
@@ -467,11 +473,13 @@ class kolab_calendar extends kolab_storage_folder_api
     }
     else {
       // save links in configuration.relation object
-      $this->save_links($event['uid'], $links);
+      if ($this->save_links($event['uid'], $links)) {
+        $object['links'] = $links;
+      }
 
       $this->events = array($event['uid'] => $this->_to_driver_event($object, true));
     }
-    
+
     return $saved;
   }
 
@@ -494,7 +502,7 @@ class kolab_calendar extends kolab_storage_folder_api
     unset($event['links']);
 
     $object = $this->_from_driver_event($event, $old);
-    $saved = $this->storage->save($object, 'event', $old['uid']);
+    $saved  = $this->storage->save($object, 'event', $old['uid']);
 
     if (!$saved) {
       rcube::raise_error(array(
@@ -505,7 +513,9 @@ class kolab_calendar extends kolab_storage_folder_api
     }
     else {
       // save links in configuration.relation object
-      $this->save_links($event['uid'], $links);
+      if ($this->save_links($event['uid'], $links)) {
+        $object['links'] = $links;
+      }
 
       $updated = true;
       $this->events = array($event['uid'] => $this->_to_driver_event($object, true));
@@ -711,7 +721,7 @@ class kolab_calendar extends kolab_storage_folder_api
   {
     $record['calendar'] = $this->id;
 
-    if ($links) {
+    if ($links && !array_key_exists('links', $record)) {
       $record['links'] = $this->get_links($record['uid']);
     }
 
