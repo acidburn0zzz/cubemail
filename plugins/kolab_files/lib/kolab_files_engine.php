@@ -797,7 +797,7 @@ class kolab_files_engine
                 $quota = $body['result'];
             }
             else {
-                throw new Exception($body['reason']);
+                throw new Exception($body['reason'] ?: "Failed to get quota. Status: $status");
             }
         }
         catch (Exception $e) {
@@ -1076,7 +1076,7 @@ class kolab_files_engine
                     $files[] = $attach_name;
                 }
                 else {
-                    throw new Exception($body['reason']);
+                    throw new Exception($body['reason'] ?: "Failed to post file_upload. Status: $status");
                 }
             }
             catch (Exception $e) {
@@ -1165,7 +1165,7 @@ class kolab_files_engine
                     $file_params = $body['result'];
                 }
                 else {
-                    throw new Exception($body['reason']);
+                    throw new Exception($body['reason'] ?: "Failed to get file_info. Status: $status");
                 }
             }
             catch (Exception $e) {
@@ -1321,7 +1321,7 @@ class kolab_files_engine
                 $this->file_data = $body['result'];
             }
             else {
-                throw new Exception($body['reason']);
+                throw new Exception($body['reason'] ?: "Failed to get file_info. Status: $status");
             }
         }
         catch (Exception $e) {
@@ -1375,7 +1375,7 @@ class kolab_files_engine
                 $mimetypes = $body['result'];
             }
             else {
-                throw new Exception($body['reason']);
+                throw new Exception($body['reason'] ?: "Failed to get mimetypes. Status: $status");
             }
         }
         catch (Exception $e) {
@@ -1407,7 +1407,7 @@ class kolab_files_engine
                 $sources = $body['result'];
             }
             else {
-                throw new Exception($body['reason']);
+                throw new Exception($body['reason'] ?: "Failed to get folder_types. Status: $status");
             }
         }
         catch (Exception $e) {
