@@ -579,9 +579,13 @@ class kolab_storage
     {
         // find custom display name in folder METADATA
         if (self::$config->get('kolab_custom_display_names', true) && self::setup()) {
-            $metadata = self::$imap->get_metadata($folder, array(self::NAME_KEY_PRIVATE, self::NAME_KEY_SHARED));
-            if (($name = $metadata[$folder][self::NAME_KEY_PRIVATE]) || ($name = $metadata[$folder][self::NAME_KEY_SHARED])) {
-                return $name;
+            // For performance reasons ask for all folders, it will be cached as one cache entry
+            $metadata = self::$imap->get_metadata("*", array(self::NAME_KEY_PRIVATE, self::NAME_KEY_SHARED));
+
+            if ($data = $metadata[$folder]) {
+                if (($name = $data[self::NAME_KEY_PRIVATE]) || ($name = $data[self::NAME_KEY_SHARED])) {
+                    return $name;
+                }
             }
         }
 
@@ -765,7 +769,7 @@ class kolab_storage
                 }
             }
 
-            $names[$name] = $folder->get_name();
+            $names[$name] = $c_folder->get_name();
         }
 
         // Build SELECT field of parent folder
@@ -1018,7 +1022,7 @@ class kolab_storage
             $folder->children = array();  // reset list
 
             // skip top folders or ones with a custom displayname
-            if (count($path) < 1 || $folder->get_custom_displayname()) {
+            if (count($path) < 1 || kolab_storage::custom_displayname($folder->name)) {
                 $tree->children[] = $folder;
             }
             else {
@@ -1631,8 +1635,9 @@ class kolab_storage
     {
         if (self::setup()) {
             $keys = array(
-                self::NAME_KEY_PRIVATE,
-                self::NAME_KEY_SHARED,
+                // For better performance we skip displayname here, see (self::custom_displayname())
+                // self::NAME_KEY_PRIVATE,
+                // self::NAME_KEY_SHARED,
                 self::CTYPE_KEY,
                 self::CTYPE_KEY_PRIVATE,
                 self::COLOR_KEY_PRIVATE,

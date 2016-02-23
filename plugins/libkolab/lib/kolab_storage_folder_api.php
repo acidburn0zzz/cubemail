@@ -147,34 +147,7 @@ abstract class kolab_storage_folder_api
      */
     public function get_name()
     {
-        if ($name = $this->get_custom_displayname()) {
-            return $name;
-        }
-
-        return kolab_storage::object_prettyname($this->name);
-    }
-
-    /**
-     * Get the custom display name of this folder
-     *
-     * @return string Folder custom name
-     */
-    public function get_custom_displayname()
-    {
-        $rcmail = rcube::get_instance();
-
-        // find custom display name in folder METADATA
-        if ($rcmail->config->get('kolab_custom_display_names', true)) {
-            $metadata = $this->get_metadata();
-
-            if ($name = $metadata[kolab_storage::NAME_KEY_PRIVATE]) {
-                return $name;
-            }
-
-            if ($name = $metadata[kolab_storage::NAME_KEY_SHARED]) {
-                return $name;
-            }
-        }
+        return kolab_storage::object_name($this->name);
     }
 
     /**
