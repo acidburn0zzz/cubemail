@@ -930,7 +930,8 @@ class kolab_storage_folder extends kolab_storage_folder_api
             $this->cache->bypass(false);
 
             if ($result) {
-                $this->cache->move($msguid, $uid, $target_folder);
+                $new_uid = ($copyuid = $this->imap->conn->data['COPYUID']) ? $copyuid[1] : null;
+                $this->cache->move($msguid, $uid, $target_folder, $new_uid);
                 return true;
             }
             else {
