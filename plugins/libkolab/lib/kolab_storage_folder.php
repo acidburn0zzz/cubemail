@@ -64,15 +64,16 @@ class kolab_storage_folder extends kolab_storage_folder_api
      */
     public function set_folder($name, $type = null, $type_annotation = null)
     {
+        $this->name = $name;
+
         if (empty($type_annotation)) {
-            $type_annotation = kolab_storage::folder_type($name);
+            $type_annotation = $this->get_type();
         }
 
         $oldtype = $this->type;
         list($this->type, $suffix) = explode('.', $type_annotation);
         $this->default      = $suffix == 'default';
         $this->subtype      = $this->default ? '' : $suffix;
-        $this->name         = $name;
         $this->id           = kolab_storage::folder_id($name);
         $this->valid        = !empty($this->type) && $this->type != 'mail' && (!$type || $this->type == $type);
 
@@ -155,7 +156,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
     {
         // UID is defined in folder METADATA
         $metakeys = array(kolab_storage::UID_KEY_SHARED, kolab_storage::UID_KEY_CYRUS);
-        $metadata = $this->get_metadata($metakeys);
+        $metadata = $this->get_metadata();
 
         if ($metadata !== null) {
             foreach ($metakeys as $key) {
@@ -347,6 +348,12 @@ class kolab_storage_folder extends kolab_storage_folder_api
         if ($length !== null) {
             $this->cache->set_limit($length, $offset);
         }
+
+        $this->order_and_limit = array(
+            'cols'   => $sortcols,
+            'limit'  => $length,
+            'offset' => $offset,
+        );
     }
 
     /**
@@ -375,7 +382,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
         return $query;
     }
 
-
     /**
      * Getter for a single Kolab object, identified by its UID
      *
@@ -387,17 +393,35 @@ class kolab_storage_folder extends kolab_storage_folder_api
      */
     public function get_object($uid, $type = null)
     {
-        if (!$this->valid) {
+        if (!$this->valid || !$uid) {
             return false;
+        }
+
+        $query = array(array('uid', '=', $uid));
+
+        if ($type) {
+            $query[] = array('type', '=', $type);
         }
 
         // synchronize caches
         $this->cache->synchronize();
 
-        $msguid = $this->cache->uid2msguid($uid);
+        // we don't use cache->get() here because we don't have msguid
+        // yet, using select() is faster
 
-        if ($msguid && ($object = $this->cache->get($msguid, $type))) {
-            return $object;
+        // set order to make sure we get most recent object version
+        // set limit to skip count query
+        $this->cache->set_order_by('msguid DESC');
+        $this->cache->set_limit(1);
+
+        $list = $this->cache->select($this->_prepare_query($query));
+
+        // set the order/limit back to defined value
+        $this->cache->set_order_by($this->order_and_limit['order']);
+        $this->cache->set_limit($this->order_and_limit['limit'], $this->order_and_limit['offset']);
+
+        if (!empty($list) && !empty($list[0])) {
+            return $list[0];
         }
 
         return false;
@@ -906,7 +930,8 @@ class kolab_storage_folder extends kolab_storage_folder_api
             $this->cache->bypass(false);
 
             if ($result) {
-                $this->cache->move($msguid, $uid, $target_folder);
+                $new_uid = ($copyuid = $this->imap->conn->data['COPYUID']) ? $copyuid[1] : null;
+                $this->cache->move($msguid, $uid, $target_folder, $new_uid);
                 return true;
             }
             else {
@@ -1168,6 +1193,4 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         return true;
     }
-
 }
-

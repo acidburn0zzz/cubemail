@@ -57,7 +57,7 @@ abstract class kolab_storage_folder_api
      * @var array
      */
     public $children = array();
-    
+
     /**
      * Name of the parent folder
      * @var string
@@ -69,6 +69,7 @@ abstract class kolab_storage_folder_api
     protected $info;
     protected $idata;
     protected $namespace;
+    protected $metadata;
 
 
     /**
@@ -135,9 +136,9 @@ abstract class kolab_storage_folder_api
     {
         if (!isset($this->namespace))
             $this->namespace = $this->imap->folder_namespace($this->name);
+
         return $this->namespace;
     }
-
 
     /**
      * Get the display name value of this folder
@@ -146,9 +147,8 @@ abstract class kolab_storage_folder_api
      */
     public function get_name()
     {
-        return kolab_storage::object_name($this->name, $this->get_namespace());
+        return kolab_storage::object_name($this->name);
     }
-
 
     /**
      * Getter for the top-end folder name (not the entire path)
@@ -221,7 +221,7 @@ abstract class kolab_storage_folder_api
     public function get_color($default = null)
     {
         // color is defined in folder METADATA
-        $metadata = $this->get_metadata(array(kolab_storage::COLOR_KEY_PRIVATE, kolab_storage::COLOR_KEY_SHARED));
+        $metadata = $this->get_metadata();
         if (($color = $metadata[kolab_storage::COLOR_KEY_PRIVATE]) || ($color = $metadata[kolab_storage::COLOR_KEY_SHARED])) {
             return $color;
         }
@@ -229,19 +229,20 @@ abstract class kolab_storage_folder_api
         return $default;
     }
 
-
     /**
      * Returns IMAP metadata/annotations (GETMETADATA/GETANNOTATION)
+     * supported by kolab_storage
      *
-     * @param array List of metadata keys to read
      * @return array Metadata entry-value hash array on success, NULL on error
      */
-    public function get_metadata($keys)
+    public function get_metadata()
     {
-        $metadata = rcube::get_instance()->get_storage()->get_metadata($this->name, (array)$keys);
-        return $metadata[$this->name];
-    }
+        if ($this->metadata === null) {
+            $this->metadata = kolab_storage::folder_metadata($this->name);
+        }
 
+        return $this->metadata;
+    }
 
     /**
      * Sets IMAP metadata/annotations (SETMETADATA/SETANNOTATION)
@@ -251,9 +252,9 @@ abstract class kolab_storage_folder_api
      */
     public function set_metadata($entries)
     {
+        $this->metadata = null;
         return $this->imap->set_metadata($this->name, $entries);
     }
-
 
     /**
      *
@@ -277,6 +278,21 @@ abstract class kolab_storage_folder_api
         return $this->idata;
     }
 
+    /**
+     * Returns (full) type of IMAP folder
+     *
+     * @return string Folder type
+     */
+    public function get_type()
+    {
+        $metadata = $this->get_metadata();
+
+        if (!empty($metadata)) {
+            return kolab_storage::folder_select_metadata($metadata);
+        }
+
+        return $this->type;
+    }
 
     /**
      * Get IMAP ACL information for this folder
@@ -358,4 +374,3 @@ abstract class kolab_storage_folder_api
         return $this->name;
     }
 }
-

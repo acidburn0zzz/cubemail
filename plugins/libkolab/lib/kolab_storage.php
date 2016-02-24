@@ -25,7 +25,7 @@
 
 class kolab_storage
 {
-    const CTYPE_KEY = '/shared/vendor/kolab/folder-type';
+    const CTYPE_KEY         = '/shared/vendor/kolab/folder-type';
     const CTYPE_KEY_PRIVATE = '/private/vendor/kolab/folder-type';
     const COLOR_KEY_SHARED  = '/shared/vendor/kolab/color';
     const COLOR_KEY_PRIVATE = '/private/vendor/kolab/color';
@@ -233,20 +233,23 @@ class kolab_storage
      *
      * @param array  Pseudo-SQL query as list of filter parameter triplets
      * @param string Object type (contact,event,task,journal,file,note,configuration)
+     * @param int    Expected number of records or limit (for performance reasons)
+     *
      * @return array List of Kolab data objects (each represented as hash array)
      * @see kolab_storage_format::select()
      */
-    public static function select($query, $type)
+    public static function select($query, $type, $limit = null)
     {
         self::setup();
         $folder = null;
         $result = array();
 
         foreach ((array)self::list_folders('', '*', $type, null, $folderdata) as $foldername) {
-            if (!$folder)
-                $folder = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
-            else
-                $folder->set_folder($foldername, $type, $folderdata[$foldername]);
+            $folder = new kolab_storage_folder($foldername, $type, $folderdata[$foldername]);
+
+            if ($limit) {
+                $folder->set_order_and_limit(null, $limit);
+            }
 
             foreach ($folder->select($query, '*') as $object) {
                 $result[] = $object;
@@ -551,6 +554,7 @@ class kolab_storage
 
     /**
      * Getter for human-readable name of Kolab object (folder)
+     * with kolab_custom_display_names support.
      * See http://wiki.kolab.org/UI-Concepts/Folder-Listing for reference
      *
      * @param string $folder    IMAP folder name (UTF7-IMAP)
@@ -560,12 +564,46 @@ class kolab_storage
      */
     public static function object_name($folder, &$folder_ns=null)
     {
-        self::setup();
-
         // find custom display name in folder METADATA
         if ($name = self::custom_displayname($folder)) {
             return $name;
         }
+
+        return self::object_prettyname($folder, $folder_ns);
+    }
+
+    /**
+     * Get custom display name (saved in metadata) for the given folder
+     */
+    public static function custom_displayname($folder)
+    {
+        // find custom display name in folder METADATA
+        if (self::$config->get('kolab_custom_display_names', true) && self::setup()) {
+            // For performance reasons ask for all folders, it will be cached as one cache entry
+            $metadata = self::$imap->get_metadata("*", array(self::NAME_KEY_PRIVATE, self::NAME_KEY_SHARED));
+
+            if ($data = $metadata[$folder]) {
+                if (($name = $data[self::NAME_KEY_PRIVATE]) || ($name = $data[self::NAME_KEY_SHARED])) {
+                    return $name;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Getter for human-readable name of Kolab object (folder)
+     * See http://wiki.kolab.org/UI-Concepts/Folder-Listing for reference
+     *
+     * @param string $folder    IMAP folder name (UTF7-IMAP)
+     * @param string $folder_ns Will be set to namespace name of the folder
+     *
+     * @return string Name of the folder-object
+     */
+    public static function object_prettyname($folder, &$folder_ns=null)
+    {
+        self::setup();
 
         $found     = false;
         $namespace = self::$imap->get_namespace();
@@ -582,6 +620,7 @@ class kolab_storage
                 }
             }
         }
+
         if (!$found && !empty($namespace['other'])) {
             foreach ($namespace['other'] as $ns) {
                 if (strlen($ns[0]) && strpos($folder, $ns[0]) === 0) {
@@ -605,6 +644,7 @@ class kolab_storage
                 }
             }
         }
+
         if (!$found && !empty($namespace['personal'])) {
             foreach ($namespace['personal'] as $ns) {
                 if (strlen($ns[0]) && strpos($folder, $ns[0]) === 0) {
@@ -632,22 +672,6 @@ class kolab_storage
             $folder_ns = 'personal';
 
         return $folder;
-    }
-
-    /**
-     * Get custom display name (saved in metadata) for the given folder
-     */
-    public static function custom_displayname($folder)
-    {
-      // find custom display name in folder METADATA
-      if (self::$config->get('kolab_custom_display_names', true)) {
-          $metadata = self::$imap->get_metadata($folder, array(self::NAME_KEY_PRIVATE, self::NAME_KEY_SHARED));
-          if (($name = $metadata[$folder][self::NAME_KEY_PRIVATE]) || ($name = $metadata[$folder][self::NAME_KEY_SHARED])) {
-              return $name;
-          }
-      }
-
-      return false;
     }
 
     /**
@@ -745,7 +769,7 @@ class kolab_storage
                 }
             }
 
-            $names[$name] = self::object_name($name);
+            $names[$name] = $c_folder->get_name();
         }
 
         // Build SELECT field of parent folder
@@ -958,16 +982,16 @@ class kolab_storage
         $nsnames = array('personal' => array(), 'shared' => array(), 'other' => array());
 
         foreach ($folders as $folder) {
-            $folders[$folder->name] = $folder;
+            $_folders[$folder->name] = $folder;
             $ns = $folder->get_namespace();
-            $nsnames[$ns][$folder->name] = strtolower(html_entity_decode(self::object_name($folder->name, $ns), ENT_COMPAT, RCUBE_CHARSET)) . $pad;  // decode &raquo;
+            $nsnames[$ns][$folder->name] = strtolower(html_entity_decode($folder->get_name(), ENT_COMPAT, RCUBE_CHARSET)) . $pad;  // decode &raquo;
         }
 
         // $folders is a result of get_folders() we can assume folders were already sorted
         foreach (array_keys($nsnames) as $ns) {
             asort($nsnames[$ns], SORT_LOCALE_STRING);
             foreach (array_keys($nsnames[$ns]) as $utf7name) {
-                $out[] = $folders[$utf7name];
+                $out[] = $_folders[$utf7name];
             }
         }
 
@@ -1008,6 +1032,7 @@ class kolab_storage
                 while (count($path) >= $depth && ($parent = join($delim, $path))) {
                     array_pop($path);
                     $parent_parent = join($delim, $path);
+
                     if (!$refs[$parent]) {
                         if ($folder->type && self::folder_type($parent) == $folder->type) {
                             $refs[$parent] = new kolab_storage_folder($parent, $folder->type, $folder->type);
@@ -1017,7 +1042,7 @@ class kolab_storage
                             $refs[$parent] = new kolab_storage_folder_user($parent, $parent_parent);
                         }
                         else {
-                            $name = kolab_storage::object_name($parent, $folder->get_namespace());
+                            $name = kolab_storage::object_name($parent);
                             $refs[$parent] = new kolab_storage_folder_virtual($parent, $name, $folder->get_namespace(), $parent_parent);
                         }
                         $parents[] = $refs[$parent];
@@ -1599,5 +1624,31 @@ class kolab_storage
         $db = rcmail::get_instance()->get_dbh();
         $prefix = 'imap://' . urlencode($args['username']) . '@' . $args['host'] . '/%';
         $db->query("DELETE FROM " . $db->table_name('kolab_folders', true) . " WHERE `resource` LIKE ?", $prefix);
+
+    }
+
+    /**
+     * Get folder METADATA for all supported keys
+     * Do this in one go for better caching performance
+     */
+    public static function folder_metadata($folder)
+    {
+        if (self::setup()) {
+            $keys = array(
+                // For better performance we skip displayname here, see (self::custom_displayname())
+                // self::NAME_KEY_PRIVATE,
+                // self::NAME_KEY_SHARED,
+                self::CTYPE_KEY,
+                self::CTYPE_KEY_PRIVATE,
+                self::COLOR_KEY_PRIVATE,
+                self::COLOR_KEY_SHARED,
+                self::UID_KEY_SHARED,
+                self::UID_KEY_CYRUS,
+            );
+
+            $metadata = self::$imap->get_metadata($folder, $keys);
+
+            return $metadata[$folder];
+        }
     }
 }

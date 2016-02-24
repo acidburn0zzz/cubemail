@@ -278,6 +278,12 @@ class kolab_tags_engine
     public function taglist($attrib)
     {
         $taglist = $this->backend->list_tags();
+
+        // Performance: Save the list for later
+        if ($this->rc->action == 'show' || $this->rc->action == 'preview') {
+            $this->taglist = $taglist;
+        }
+
         $taglist = array_map(array($this, 'parse_tag'), $taglist);
 
         $this->rc->output->set_env('tags', $taglist);
@@ -329,7 +335,7 @@ class kolab_tags_engine
      */
     public function message_headers_handler($args)
     {
-        $taglist = $this->backend->list_tags();
+        $taglist = $this->taglist ?: $this->backend->list_tags();
         $uid     = $args['uid'];
         $folder  = $args['folder'];
         $tags    = array();

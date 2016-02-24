@@ -239,7 +239,7 @@ class kolab_notes extends rcube_plugin
             else if ($folder->virtual) {
                 $lists[$list_id] = array(
                     'id'       => $list_id,
-                    'name'     => kolab_storage::object_name($fullname),
+                    'name'     => $fullname,
                     'listname' => $listname,
                     'virtual'  => true,
                     'editable' => false,
@@ -441,6 +441,7 @@ class kolab_notes extends rcube_plugin
     {
         $config = kolab_storage_config::get_instance();
         $tags   = $config->apply_tags($records);
+        $config->apply_links($records);
 
         foreach ($records as $i => $rec) {
             unset($records[$i]['description']);
@@ -557,6 +558,8 @@ class kolab_notes extends rcube_plugin
         if ($result) {
             // get note tags
             $result['tags'] = $this->get_tags($result['uid']);
+            // get note links
+            $result['links'] = $this->get_links($result['uid']);
         }
 
         return $result;
@@ -565,7 +568,7 @@ class kolab_notes extends rcube_plugin
     /**
      * Helper method to encode the given note record for use in the client
      */
-    private function _client_encode(&$note, $resolve = false)
+    private function _client_encode(&$note)
     {
         foreach ($note as $key => $prop) {
             if ($key[0] == '_' || $key == 'x-custom') {
@@ -585,10 +588,14 @@ class kolab_notes extends rcube_plugin
             $note['html'] = $this->_wash_html($note['description']);
         }
 
-        // resolve message links
-        $note['links'] = array_map(function($link) {
-                return kolab_storage_config::get_message_reference($link, 'note') ?: array('uri' => $link);
-            }, $this->get_links($note['uid']));
+        // convert link URIs references into structs
+        if (array_key_exists('links', $note)) {
+            foreach ((array)$note['links'] as $i => $link) {
+                if (strpos($link, 'imap://') === 0 && ($msgref = kolab_storage_config::get_message_reference($link, 'note'))) {
+                    $note['links'][$i] = $msgref;
+                }
+            }
+        }
 
         return $note;
     }
@@ -1045,7 +1052,7 @@ class kolab_notes extends rcube_plugin
                 $newfolder = kolab_storage::folder_update($list);
 
                 if ($newfolder === false) {
-                  $save_error = $this->gettext(kolab_storage::$last_error);
+                    $save_error = $this->gettext(kolab_storage::$last_error);
                 }
                 else {
                     $success = true;
@@ -1056,7 +1063,7 @@ class kolab_notes extends rcube_plugin
                     // compose the new display name
                     $delim = $this->rc->get_storage()->get_hierarchy_delimiter();
                     $path_imap = explode($delim, $newfolder);
-                    $list['name'] = kolab_storage::object_name($newfolder);
+                    $list['name']     = kolab_storage::object_name($newfolder);
                     $list['editname'] = rcube_charset::convert(array_pop($path_imap), 'UTF7-IMAP');
                     $list['listname'] = str_repeat('&nbsp;&nbsp;&nbsp;', count($path_imap)) . '&raquo; ' . $list['editname'];
                 }
@@ -1247,12 +1254,8 @@ class kolab_notes extends rcube_plugin
 
     private function save_links($uid, $links)
     {
-        if (empty($links)) {
-            $links = array();
-        }
         $config = kolab_storage_config::get_instance();
-        $remove = array_diff($config->get_object_links($uid), $links);
-        return $config->save_object_links($uid, $links, $remove);
+        return $config->save_object_links($uid, (array) $links);
     }
 
     /**

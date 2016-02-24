@@ -33,7 +33,7 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
      */
     public function __construct($name, $parent = '', $ldaprec = null)
     {
-        parent::__construct($name, $name, 'other', $parent);
+        parent::__construct($name, kolab_storage::object_prettyname($name), 'other', $parent);
 
         if (!empty($ldaprec)) {
             self::$ldapcache[$name] = $this->ldaprec = $ldaprec;
@@ -72,7 +72,7 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
      */
     public function get_title()
     {
-      return trim($this->ldaprec['displayname'] . '; ' . $this->ldaprec['mail'], '; ');
+        return trim($this->ldaprec['displayname'] . '; ' . $this->ldaprec['mail'], '; ');
     }
 
     /**
@@ -131,5 +131,4 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
 
         return $success;
     }
-
 }

@@ -120,6 +120,10 @@ class kolab_tags extends rcube_plugin
             return $args;
         }
 
+        if ($this->rc->action == 'print') {
+            return;
+        }
+
         $this->mail_headers_done = true;
 
         if ($engine = $this->engine()) {

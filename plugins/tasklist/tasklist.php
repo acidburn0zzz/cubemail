@@ -1256,8 +1256,8 @@ class tasklist extends rcube_plugin
 
         // convert link URIs references into structs
         if (array_key_exists('links', $rec)) {
-            foreach ((array)$rec['links'] as $i => $link) {
-                if (strpos($link, 'imap://') === 0 && ($msgref = $this->driver->get_message_reference($link))) {
+            foreach ((array) $rec['links'] as $i => $link) {
+                if (strpos($link, 'imap://') === 0 && ($msgref = $this->driver->get_message_reference($link, 'task'))) {
                     $rec['links'][$i] = $msgref;
                 }
             }

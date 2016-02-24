@@ -25,6 +25,7 @@
 class kolab_storage_cache
 {
     const DB_DATE_FORMAT = 'Y-m-d H:i:s';
+    const MAX_RECORDS    = 500;
 
     public $sync_complete = false;
 
@@ -428,18 +429,23 @@ class kolab_storage_cache
     /**
      * Move an existing cache entry to a new resource
      *
-     * @param string Entry's IMAP message UID
-     * @param string Entry's Object UID
-     * @param object kolab_storage_folder Target storage folder instance
+     * @param string               Entry's IMAP message UID
+     * @param string               Entry's Object UID
+     * @param kolab_storage_folder Target storage folder instance
+     * @param string               Target entry's IMAP message UID
      */
-    public function move($msguid, $uid, $target)
+    public function move($msguid, $uid, $target, $new_msguid = null)
     {
-        if ($this->ready) {
+        if ($this->ready && $target) {
             // clear cached uid mapping and force new lookup
             unset($target->cache->uid2msg[$uid]);
 
             // resolve new message UID in target folder
-            if ($new_msguid = $target->cache->uid2msguid($uid)) {
+            if (!$new_msguid) {
+                $new_msguid = $target->cache->uid2msguid($uid);
+            }
+
+            if ($new_msguid) {
                 $this->_read_folder_data();
 
                 $this->db->query(
@@ -528,7 +534,7 @@ class kolab_storage_cache
             $this->_read_folder_data();
 
             // fetch full object data on one query if a small result set is expected
-            $fetchall = !$uids && ($this->limit ? $this->limit[0] : ($count = $this->count($query))) < 500;
+            $fetchall = !$uids && ($this->limit ? $this->limit[0] : ($count = $this->count($query))) < self::MAX_RECORDS;
 
             // skip SELECT if we know it will return nothing
             if ($count === 0) {
@@ -665,7 +671,12 @@ class kolab_storage_cache
     public function set_order_by($sortcols)
     {
         if (!empty($sortcols)) {
-            $this->order_by = '`' . join('`, `', (array)$sortcols) . '`';
+            $sortcols = array_map(function($v) {
+                list($column, $order) = explode(' ', $v, 2);
+                return "`$column`" . ($order ? " $order" : '');
+            }, (array) $sortcols);
+
+            $this->order_by = join(', ', $sortcols);
         }
         else {
             $this->order_by = null;
