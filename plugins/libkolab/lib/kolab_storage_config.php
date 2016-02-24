@@ -567,12 +567,17 @@ class kolab_storage_config
     /**
      * Assign tags to kolab objects
      *
-     * @param array $records List of kolab objects
+     * @param array $records   List of kolab objects
+     * @param bool  $no_return Don't return anything
      *
      * @return array List of tags
      */
-    public function apply_tags(&$records)
+    public function apply_tags(&$records, $no_return = false)
     {
+        if (empty($records) && $no_return) {
+            return;
+        }
+
         // first convert categories into tags
         foreach ($records as $i => $rec) {
             if (!empty($rec['categories'])) {
@@ -603,7 +608,7 @@ class kolab_storage_config
             $tags[] = $tag['name'];
         }
 
-        $tags = array_unique($tags);
+        $tags = $no_return ? null : array_unique($tags);
 
         return $tags;
     }

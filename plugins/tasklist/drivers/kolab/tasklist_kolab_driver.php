@@ -597,7 +597,7 @@ class tasklist_kolab_driver extends tasklist_driver
             }
         }
 
-        $config->apply_tags($results);
+        $config->apply_tags($results, true);
         $config->apply_links($results);
 
         foreach (array_keys($results) as $idx) {
