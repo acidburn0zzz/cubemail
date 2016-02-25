@@ -252,12 +252,16 @@ class tasklist extends rcube_plugin
             $rec = $this->prepare_task($rec);
             $clone = $this->handle_recurrence($rec, $this->driver->get_task($rec));
             if ($success = $this->driver->edit_task($rec)) {
-                $refresh[] = $this->driver->get_task($rec);
+                $new_task = $this->driver->get_task($rec);
+                $new_task['tempid'] = $rec['id'];
+                $refresh[] = $new_task;
                 $this->cleanup_task($rec);
 
                 // add clone from recurring task
                 if ($clone && $this->driver->create_task($clone)) {
-                    $refresh[] = $this->driver->get_task($clone);
+                    $new_clone = $this->driver->get_task($clone);
+                    $new_clone['tempid'] = $clone['id'];
+                    $refresh[] = $new_clone;
                     $this->driver->clear_alarms($rec['id']);
                 }
 
@@ -268,6 +272,7 @@ class tasklist extends rcube_plugin
                         if ($this->driver->move_task($child)) {
                             $r = $this->driver->get_task($child);
                             if ((bool)($filter & self::FILTER_MASK_COMPLETE) == $this->driver->is_complete($r)) {
+                                $r['tempid'] = $cid;
                                 $refresh[] = $r;
                             }
                         }
