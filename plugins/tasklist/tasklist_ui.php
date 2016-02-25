@@ -44,6 +44,10 @@ class tasklist_ui
             return;
         }
 
+        if ($this->rc->action && !in_array($this->rc->action, array('show', 'preview', 'print', 'index'))) {
+            return;
+        }
+
         // add taskbar button
         $this->plugin->add_button(array(
             'command'    => 'tasks',
