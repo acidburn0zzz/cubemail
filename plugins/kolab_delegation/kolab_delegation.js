@@ -188,8 +188,8 @@ rcube_webmail.prototype.delegate_save = function()
   }
 
   data.folders = {};
-  $('input.read:checked').each(function(i, elem) {
-    data.folders[elem.value] = 1;
+  $('input.read').each(function(i, elem) {
+    data.folders[elem.value] = this.checked ? 1 : 0;
   });
   $('input.write:checked').each(function(i, elem) {
     data.folders[elem.value] = 2;
