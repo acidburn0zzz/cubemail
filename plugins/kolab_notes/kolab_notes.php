@@ -1152,10 +1152,12 @@ class kolab_notes extends rcube_plugin
 
             foreach ($uids as $uid) {
                 if ($note = $this->get_note(array('uid' => $uid, 'list' => $list))) {
+                    $data = $this->note2message($note);
                     $args['attachments'][] = array(
                         'name'     => abbreviate_string($note['title'], 50, ''),
                         'mimetype' => 'message/rfc822',
-                        'data'     => $this->note2message($note),
+                        'data'     => $data,
+                        'size'     => strlen($data),
                     );
 
                     if (empty($args['param']['subject'])) {
