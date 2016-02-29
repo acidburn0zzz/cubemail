@@ -6,7 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
-
 $labels['folderctype'] = 'Innehållstyp';
 $labels['foldertypemail'] = 'E-post';
 $labels['foldertypeevent'] = 'Kalender';
@@ -26,5 +25,4 @@ $labels['wastebasket'] = 'Papperskorg';
 $labels['junkemail'] = 'Skräp';
 $labels['confidential'] = 'Konfidentiellt';
 $messages['defaultfolderexists'] = 'Det finns redan en standardmapp för specificerad typ';
-
 ?>
