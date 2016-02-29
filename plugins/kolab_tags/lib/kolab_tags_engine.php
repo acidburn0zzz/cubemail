@@ -47,26 +47,32 @@ class kolab_tags_engine
     public function ui()
     {
         // set templates of Files UI and widgets
-        if ($this->rc->task == 'mail') {
-            $this->plugin->add_texts('localization/');
-
-            $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/style.css');
-            $this->plugin->include_script('kolab_tags.js');
-            $this->rc->output->add_label('cancel', 'save');
-            $this->plugin->add_label('tags', 'add', 'edit', 'delete', 'saving',
-                'nameempty', 'nameexists', 'colorinvalid', 'untag', 'tagname',
-                'tagcolor', 'tagsearchnew', 'newtag');
-
-            $this->rc->output->add_handlers(array(
-                'plugin.taglist' => array($this, 'taglist'),
-            ));
-
-            $ui = $this->rc->output->parse('kolab_tags.ui', false, false);
-            $this->rc->output->add_footer($ui);
-
-            // load miniColors
-            jqueryui::miniColors();
+        if ($this->rc->task != 'mail') {
+            return;
         }
+
+        if ($this->rc->action && !in_array($this->rc->action, array('show', 'preview'))) {
+            return;
+        }
+
+        $this->plugin->add_texts('localization/');
+
+        $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/style.css');
+        $this->plugin->include_script('kolab_tags.js');
+        $this->rc->output->add_label('cancel', 'save');
+        $this->plugin->add_label('tags', 'add', 'edit', 'delete', 'saving',
+            'nameempty', 'nameexists', 'colorinvalid', 'untag', 'tagname',
+            'tagcolor', 'tagsearchnew', 'newtag');
+
+        $this->rc->output->add_handlers(array(
+            'plugin.taglist' => array($this, 'taglist'),
+        ));
+
+        $ui = $this->rc->output->parse('kolab_tags.ui', false, false);
+        $this->rc->output->add_footer($ui);
+
+        // load miniColors
+        jqueryui::miniColors();
     }
 
     /**

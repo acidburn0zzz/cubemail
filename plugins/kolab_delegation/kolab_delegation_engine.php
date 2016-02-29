@@ -105,6 +105,9 @@ class kolab_delegation_engine
             if ($r) {
                 $storage->set_acl($folder_name, $uid, $r);
             }
+            else {
+                $storage->delete_acl($folder_name, $uid);
+            }
 
             if (!empty($folders) && isset($folders[$folder_name])) {
                 unset($folders[$folder_name]);
@@ -863,12 +866,10 @@ class kolab_delegation_engine
     /**
      * Compares two ACLs (according to supported rights)
      *
-     * @todo: this is stolen from acl plugin, move to rcube_storage/rcube_imap
-     *
      * @param array $acl1 ACL rights array (or string)
      * @param array $acl2 ACL rights array (or string)
      *
-     * @param int Comparision result, 2 - full match, 1 - partial match, 0 - no match
+     * @param bool True if $acl1 contains all rights from $acl2
      */
     function acl_compare($acl1, $acl2)
     {
@@ -884,12 +885,9 @@ class kolab_delegation_engine
         $cnt1 = count($res);
         $cnt2 = count($acl2);
 
-        if ($cnt1 == $cnt2)
-            return 2;
-        else if ($cnt1)
-            return 1;
-        else
-            return 0;
+        if ($cnt1 >= $cnt2) {
+            return true;
+        }
     }
 
     /**
