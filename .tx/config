@@ -96,11 +96,6 @@ file_filter = plugins/kolab_tags/localization/<lang>.inc
 source_file = plugins/kolab_tags/localization/en_US.inc
 source_lang = en_US
 
-[kolab.owncloud]
-file_filter = plugins/owncloud/localization/<lang>.inc
-source_file = plugins/owncloud/localization/en_US.inc
-source_lang = en_US
-
 [kolab.tasklist]
 file_filter = plugins/tasklist/localization/<lang>.inc
 source_file = plugins/tasklist/localization/en_US.inc
