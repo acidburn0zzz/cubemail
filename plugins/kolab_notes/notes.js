@@ -954,6 +954,7 @@ function rcube_kolab_notes_ui(settings)
         if (!readonly && editor) {
             gui_object('notesdetailview', container).hide();
             gui_object('noteseditform', container).show();
+            editor.setContent(''); // #4781
             editor.setContent(html);
             node = editor.getContentAreaContainer().childNodes[0];
             if (node) node.tabIndex = content.get(0).tabIndex;
