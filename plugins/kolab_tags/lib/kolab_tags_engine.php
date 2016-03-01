@@ -73,6 +73,11 @@ class kolab_tags_engine
 
         // load miniColors
         jqueryui::miniColors();
+
+        // Modify search filter (and set selected tags)
+        if ($this->rc->action == 'show' || !$this->rc->action) {
+            $this->search_filter_mods();
+        }
     }
 
     /**
@@ -441,6 +446,26 @@ class kolab_tags_engine
         }
 
         return $args;
+    }
+
+    /**
+     * Get selected tags when in search-mode
+     */
+    protected function search_filter_mods()
+    {
+       if (!empty($_REQUEST['_search']) && !empty($_SESSION['search'])
+            && $_SESSION['search_request'] == $_REQUEST['_search']
+            && ($filter = $_SESSION['search_filter'])
+       ) {
+            if (preg_match('/^(kolab_tags_[0-9]{10,}:([^:]+):)/', $filter, $m)) {
+                $search_tags   = explode(',', $m[2]);
+                $search_filter = substr($filter, strlen($m[1]));
+
+                // send current search properties to the browser
+                $this->rc->output->set_env('search_filter_selected', $search_filter);
+                $this->rc->output->set_env('selected_tags', $search_tags);
+            }
+        }
     }
 
     /**
