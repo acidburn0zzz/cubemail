@@ -276,6 +276,7 @@ function rcube_tasklist_ui(settings)
         rcmail.addEventListener('plugin.update_tasklist', update_list);
         rcmail.addEventListener('plugin.destroy_tasklist', destroy_list);
         rcmail.addEventListener('plugin.unlock_saving', unlock_saving);
+        rcmail.addEventListener('plugin.refresh_tagcloud', function() { update_tagcloud(); });
         rcmail.addEventListener('requestrefresh', before_refresh);
         rcmail.addEventListener('plugin.reload_data', function(){
             list_tasks(null, true);

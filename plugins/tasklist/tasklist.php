@@ -562,6 +562,9 @@ class tasklist extends rcube_plugin
             }
             $this->rc->output->command('plugin.update_task', $refresh);
         }
+        else if ($success && ($action == 'delete' || $action == 'undelete')) {
+            $this->rc->output->command('plugin.refresh_tagcloud');
+        }
     }
 
     /**
