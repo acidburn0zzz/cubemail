@@ -2961,6 +2961,15 @@ function rcube_calendar_ui(settings)
       return false;
     };
 
+    this.calendar_refresh_source = function(id)
+    {
+      // got race-conditions fc.currentFetchID when using refetchEvents,
+      // so we remove and add the source instead
+      // fc.fullCalendar('refetchEvents', me.calendars[id]);
+      fc.fullCalendar('removeEventSource', me.calendars[id]);
+      fc.fullCalendar('addEventSource', me.calendars[id]);
+    };
+
     this.calendar_destroy_source = function(id)
     {
       var delete_ids = [];
@@ -4238,6 +4247,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.register_command('add-resource', function(){ cal.add_resource2event(); }, false);
 
   // register callback commands
+  rcmail.addEventListener('plugin.refresh_source', function(data) { cal.calendar_refresh_source(data); });
   rcmail.addEventListener('plugin.destroy_source', function(p){ cal.calendar_destroy_source(p.id); });
   rcmail.addEventListener('plugin.unlock_saving', function(p){ cal.unlock_saving(); });
   rcmail.addEventListener('plugin.refresh_calendar', function(p){ cal.refresh(p); });
