@@ -225,11 +225,11 @@ class kolab_user_calendar extends kolab_calendar
       }
     }
 
-    // aggregate all calendar folders the user shares (but are not subscribed)
-    foreach (kolab_storage::list_user_folders($this->userdata, 'event', false) as $foldername) {
+    // aggregate all calendar folders the user shares (but are not activated)
+    foreach (kolab_storage::list_user_folders($this->userdata, 'event', 2) as $foldername) {
       $cal = new kolab_calendar($foldername, $this->cal);
       foreach ($cal->list_events($start, $end, $search, 1) as $event) {
-        $this->events[$event['id']] = $event;
+        $this->events[$event['id'] ?: $event['uid']] = $event;
         $this->timeindex[$this->time_key($event)] = $event['id'];
       }
     }

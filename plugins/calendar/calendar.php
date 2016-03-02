@@ -786,6 +786,22 @@ class calendar extends rcube_plugin
       case "subscribe":
         if (!$this->driver->subscribe_calendar($cal))
           $this->rc->output->show_message($this->gettext('errorsaving'), 'error');
+        else {
+          $calendars = $this->driver->list_calendars();
+          $calendar  = $calendars[$cal['id']];
+
+          // find parent folder and check if it's a "user calendar"
+          // if it's also activated we need to refresh it (#5340)
+          while ($calendar['parent']) {
+            if (isset($calendars[$calendar['parent']]))
+              $calendar = $calendars[$calendar['parent']];
+            else
+              break;
+          }
+
+          if ($calendar['id'] != $cal['id'] && $calendar['active'] && $calendar['group'] == "other user")
+            $this->rc->output->command('plugin.refresh_source', $calendar['id']);
+        }
         return;
       case "search":
         $results    = array();

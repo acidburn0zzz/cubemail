@@ -778,11 +778,7 @@ class kolab_storage
         if (!$filter) {
             // Get ALL folders list, standard way
             if ($subscribed) {
-                $folders = self::$imap->list_folders_subscribed($root, $mbox);
-                // add temporarily subscribed folders
-                if (self::$with_tempsubs && is_array($_SESSION['kolab_subscribed_folders'])) {
-                    $folders = array_unique(array_merge($folders, $_SESSION['kolab_subscribed_folders']));
-                }
+                $folders = self::_imap_list_subscribed($root, $mbox);
             }
             else {
                 $folders = self::_imap_list_folders($root, $mbox);
@@ -819,12 +815,7 @@ class kolab_storage
 
         // Get folders list
         if ($subscribed) {
-            $folders = self::$imap->list_folders_subscribed($root, $mbox);
-
-            // add temporarily subscribed folders
-            if (self::$with_tempsubs && is_array($_SESSION['kolab_subscribed_folders'])) {
-                $folders = array_unique(array_merge($folders, $_SESSION['kolab_subscribed_folders']));
-            }
+            $folders = self::_imap_list_subscribed($root, $mbox);
         }
         else {
             $folders = self::_imap_list_folders($root, $mbox);
@@ -887,6 +878,21 @@ class kolab_storage
         return $folders;
     }
 
+    /**
+     * Wrapper for rcube_imap::list_folders_subscribed()
+     * with support for temporarily subscribed folders
+     */
+    protected static function _imap_list_subscribed($root, $mbox)
+    {
+        $folders = self::$imap->list_folders_subscribed($root, $mbox);
+
+        // add temporarily subscribed folders
+        if (self::$with_tempsubs && is_array($_SESSION['kolab_subscribed_folders'])) {
+            $folders = array_unique(array_merge($folders, $_SESSION['kolab_subscribed_folders']));
+        }
+
+        return $folders;
+    }
 
     /**
      * Search for shared or otherwise not listed groupware folders the user has access
@@ -1490,12 +1496,12 @@ class kolab_storage
      *
      * @param array   User entry from LDAP
      * @param string  Data type to list folders for (contact,event,task,journal,file,note,mail,configuration)
-     * @param boolean Return subscribed folders only (null to use configured subscription mode)
+     * @param int     1 - subscribed folders only, 0 - all folders, 2 - all non-active
      * @param array   Will be filled with folder-types data
      *
      * @return array List of folders
      */
-    public static function list_user_folders($user, $type, $subscribed = null, &$folderdata = array())
+    public static function list_user_folders($user, $type, $subscribed = 0, &$folderdata = array())
     {
         self::setup();
 
@@ -1506,9 +1512,19 @@ class kolab_storage
         if (!empty($user[$user_attrib])) {
             list($mbox) = explode('@', $user[$user_attrib]);
 
-            $delimiter = self::$imap->get_hierarchy_delimiter();
-            $other_ns = self::namespace_root('other');
-            $folders = self::list_folders($other_ns . $mbox . $delimiter, '*', $type, $subscribed, $folderdata);
+            $delimiter  = self::$imap->get_hierarchy_delimiter();
+            $other_ns   = self::namespace_root('other');
+            $prefix     = $other_ns . $mbox . $delimiter;
+            $subscribed = (int) $subscribed;
+            $subs       = $subscribed < 2 ? (bool) $subscribed : false;
+            $folders    = self::list_folders($prefix, '*', $type, $subs, $folderdata);
+
+            if ($subscribed === 2 && !empty($folders)) {
+                $active = self::get_states();
+                if (!empty($active)) {
+                    $folders = array_diff($folders, $active);
+                }
+            }
         }
 
         return $folders;
