@@ -1344,14 +1344,63 @@ class tasklist extends rcube_plugin
         else if ($rec['date'] < $today)
             $mask |= self::FILTER_MASK_OVERDUE;
 
-        if ($duedate <= $today || ($rec['startdate'] && $start <= $today))
-            $mask |= self::FILTER_MASK_TODAY;
-        if ($duedate <= $tomorrow || ($rec['startdate'] && $start <= $tomorrow))
-            $mask |= self::FILTER_MASK_TOMORROW;
-        if (($start > $tomorrow && $start <= $weeklimit) || ($duedate > $tomorrow && $duedate <= $weeklimit))
-            $mask |= self::FILTER_MASK_WEEK;
-        else if ($start > $weeklimit || ($rec['date'] && $duedate > $weeklimit))
-            $mask |= self::FILTER_MASK_LATER;
+        if (empty($rec['recurrence']) || $duedate < $today || $start > $weeklimit) {
+            if ($duedate <= $today || ($rec['startdate'] && $start <= $today))
+                $mask |= self::FILTER_MASK_TODAY;
+            if ($duedate <= $tomorrow || ($rec['startdate'] && $start <= $tomorrow))
+                $mask |= self::FILTER_MASK_TOMORROW;
+            if (($start > $tomorrow && $start <= $weeklimit) || ($duedate > $tomorrow && $duedate <= $weeklimit))
+                $mask |= self::FILTER_MASK_WEEK;
+            else if ($start > $weeklimit || $duedate > $weeklimit)
+                $mask |= self::FILTER_MASK_LATER;
+        }
+        else if ($rec['startdate'] || $rec['date']) {
+            $date = new DateTime($rec['startdate'] ?: $rec['date'], $this->timezone);
+
+            // set safe recurrence start
+            while ($date->format('Y-m-d') >= $today) {
+                switch ($rec['recurrence']['FREQ']) {
+                    case 'DAILY':
+                        $date = clone $today_date;
+                        $date->sub(new DateInterval('P1D'));
+                        break;
+                    case 'WEEKLY': $date->sub(new DateInterval('P7D')); break;
+                    case 'MONTHLY': $date->sub(new DateInterval('P1M')); break;
+                    case 'YEARLY': $date->sub(new DateInterval('P1Y')); break;
+                    default; break 2;
+                }
+            }
+
+            $date->_dateonly = true;
+
+            $engine = libcalendaring::get_recurrence();
+            $engine->init($rec['recurrence'], $date);
+
+            // check task occurrences (stop next week)
+            // FIXME: is there a faster way of doing this?
+            while ($date = $engine->next()) {
+                $date = $date->format('Y-m-d');
+
+                // break iteration asap
+                if ($date > $duedate || ($mask & self::FILTER_MASK_LATER)) {
+                    break;
+                }
+
+                if ($date == $today) {
+                    $mask |= self::FILTER_MASK_TODAY;
+                }
+                else if ($date == $tomorrow) {
+                    $mask |= self::FILTER_MASK_TOMORROW;
+                }
+                else if ($date > $tomorrow && $date <= $weeklimit) {
+                    $mask |= self::FILTER_MASK_WEEK;
+                }
+                else if ($date > $weeklimit) {
+                    $mask |= self::FILTER_MASK_LATER;
+                    break;
+                }
+            }
+        }
 
         // add masks for assigned tasks
         if ($this->is_organizer($rec) && !empty($rec['attendees']) && $this->is_attendee($rec) === false)
