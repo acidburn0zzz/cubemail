@@ -323,6 +323,33 @@ class kolab_storage_cache
         return $this->objects[$msguid];
     }
 
+    /**
+     * Getter for a single Kolab object identified by its UID
+     *
+     * @param string $uid Object UID
+     *
+     * @return array The Kolab object represented as hash array
+     */
+    public function get_by_uid($uid)
+    {
+        $old_order_by = $this->order_by;
+        $old_limit    = $this->limit;
+
+        // set order to make sure we get most recent object version
+        // set limit to skip count query
+        $this->order_by = '`msguid` DESC';
+        $this->limit    = array(1, 0);
+
+        $list = $this->select(array(array('uid', '=', $uid)));
+
+        // set the order/limit back to defined value
+        $this->order_by = $old_order_by;
+        $this->limit    = $old_limit;
+
+        if (!empty($list) && !empty($list[0])) {
+            return $list[0];
+        }
+    }
 
     /**
      * Insert/Update a cache entry

@@ -348,12 +348,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
         if ($length !== null) {
             $this->cache->set_limit($length, $offset);
         }
-
-        $this->order_and_limit = array(
-            'cols'   => $sortcols,
-            'limit'  => $length,
-            'offset' => $offset,
-        );
     }
 
     /**
@@ -383,48 +377,22 @@ class kolab_storage_folder extends kolab_storage_folder_api
     }
 
     /**
-     * Getter for a single Kolab object, identified by its UID
+     * Getter for a single Kolab object identified by its UID
      *
-     * @param string $uid  Object UID
-     * @param string $type Object type (e.g. contact, event, todo, journal, note, configuration)
-     *                     Defaults to folder type
+     * @param string $uid Object UID
      *
      * @return array The Kolab object represented as hash array
      */
-    public function get_object($uid, $type = null)
+    public function get_object($uid)
     {
         if (!$this->valid || !$uid) {
             return false;
         }
 
-        $query = array(array('uid', '=', $uid));
-
-        if ($type) {
-            $query[] = array('type', '=', $type);
-        }
-
         // synchronize caches
         $this->cache->synchronize();
 
-        // we don't use cache->get() here because we don't have msguid
-        // yet, using select() is faster
-
-        // set order to make sure we get most recent object version
-        // set limit to skip count query
-        $this->cache->set_order_by('msguid DESC');
-        $this->cache->set_limit(1);
-
-        $list = $this->cache->select($this->_prepare_query($query));
-
-        // set the order/limit back to defined value
-        $this->cache->set_order_by($this->order_and_limit['order']);
-        $this->cache->set_limit($this->order_and_limit['limit'], $this->order_and_limit['offset']);
-
-        if (!empty($list) && !empty($list[0])) {
-            return $list[0];
-        }
-
-        return false;
+        return $this->cache->get_by_uid($uid);
     }
 
 

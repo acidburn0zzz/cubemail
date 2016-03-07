@@ -221,7 +221,7 @@ class kolab_storage
             else
                 $folder->set_folder($foldername, $type, $folderdata[$foldername]);
 
-            if ($object = $folder->get_object($uid, '*'))
+            if ($object = $folder->get_object($uid))
                 return $object;
         }
 
