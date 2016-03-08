@@ -1505,11 +1505,11 @@ class calendar extends rcube_plugin
     }
     else {
       if ($err == UPLOAD_ERR_INI_SIZE || $err == UPLOAD_ERR_FORM_SIZE) {
-        $msg = $this->gettext(array('name' => 'filesizeerror', 'vars' => array(
+        $msg = $this->rc->gettext(array('name' => 'filesizeerror', 'vars' => array(
             'size' => $this->rc->show_bytes(parse_bytes(ini_get('upload_max_filesize'))))));
       }
       else {
-        $msg = $this->gettext('fileuploaderror');
+        $msg = $this->rc->gettext('fileuploaderror');
       }
 
       $this->rc->output->command('plugin.import_error', array('message' => $msg));
