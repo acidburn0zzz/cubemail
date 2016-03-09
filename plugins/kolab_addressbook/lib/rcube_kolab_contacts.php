@@ -1123,7 +1123,7 @@ class rcube_kolab_contacts extends rcube_addressbook
     {
         if (!isset($this->distlists)) {
             $this->distlists = $this->groupmembers = array();
-            foreach ($this->storagefolder->get_objects('distribution-list') as $record) {
+            foreach ($this->storagefolder->select('distribution-list') as $record) {
                 $record['ID'] = $this->uid2id($record['uid']);
                 foreach ((array)$record['member'] as $i => $member) {
                     $mid = $this->uid2id($member['uid'] ? $member['uid'] : 'mailto:' . $member['email']);

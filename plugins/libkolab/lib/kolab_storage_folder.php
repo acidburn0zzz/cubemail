@@ -37,7 +37,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
     public $valid = false;
 
     protected $error = 0;
-
     protected $resource_uri;
 
 
@@ -53,7 +52,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
         $this->imap->set_options(array('skip_deleted' => true));
         $this->set_folder($name, $type, $type_annotation);
     }
-
 
     /**
      * Set the IMAP folder this instance connects to
@@ -249,8 +247,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
     /**
      * Get number of objects stored in this folder
      *
-     * @param mixed  Pseudo-SQL query as list of filter parameter triplets
+     * @param mixed Pseudo-SQL query as list of filter parameter triplets
      *    or string with object type (e.g. contact, event, todo, journal, note, configuration)
+     *
      * @return integer The number of objects of the given type
      * @see self::select()
      */
@@ -266,34 +265,26 @@ class kolab_storage_folder extends kolab_storage_folder_api
         return $this->cache->count($this->_prepare_query($query));
     }
 
-
     /**
-     * List all Kolab objects of the given type
+     * List Kolab objects matching the given query
      *
-     * @param string  $type Object type (e.g. contact, event, todo, journal, note, configuration)
-     * @return array  List of Kolab data objects (each represented as hash array)
+     * @param mixed Pseudo-SQL query as list of filter parameter triplets
+     *    or string with object type (e.g. contact, event, todo, journal, note, configuration)
+     *
+     * @return array List of Kolab data objects (each represented as hash array)
+     * @deprecated Use select()
      */
-    public function get_objects($type = null)
+    public function get_objects($query = array())
     {
-        if (!$type) $type = $this->type;
-
-        if (!$this->valid) {
-            return array();
-        }
-
-        // synchronize caches
-        $this->cache->synchronize();
-
-        // fetch objects from cache
-        return $this->cache->select($this->_prepare_query($type));
+        return $this->select($query);
     }
 
-
     /**
-     * Select *some* Kolab objects matching the given query
+     * Select Kolab objects matching the given query
      *
-     * @param array Pseudo-SQL query as list of filter parameter triplets
-     *   triplet: array('<colname>', '<comparator>', '<value>')
+     * @param mixed Pseudo-SQL query as list of filter parameter triplets
+     *    or string with object type (e.g. contact, event, todo, journal, note, configuration)
+     *
      * @return array List of Kolab data objects (each represented as hash array)
      */
     public function select($query = array())
@@ -302,18 +293,12 @@ class kolab_storage_folder extends kolab_storage_folder_api
             return array();
         }
 
-        // check query argument
-        if (empty($query)) {
-            return $this->get_objects();
-        }
-
         // synchronize caches
         $this->cache->synchronize();
 
         // fetch objects from cache
         return $this->cache->select($this->_prepare_query($query));
     }
-
 
     /**
      * Getter for object UIDs only
@@ -395,7 +380,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
         return $this->cache->get_by_uid($uid);
     }
 
-
     /**
      * Fetch a Kolab object attachment which is stored in a separate part
      * of the mail MIME message that represents the Kolab record.
@@ -442,7 +426,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         return null;
     }
-
 
     /**
      * Fetch the mime message from the storage server and extract
@@ -831,7 +814,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
         return $success;
     }
 
-
     /**
      *
      */
@@ -848,7 +830,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         return $result;
     }
-
 
     /**
      * Restore a previously deleted object
@@ -874,7 +855,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         return false;
     }
-
 
     /**
      * Move a Kolab object message to another IMAP folder
@@ -913,7 +893,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         return false;
     }
-
 
     /**
      * Creates source of the configuration object message
@@ -1094,7 +1073,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         return $message;
     }
-
 
     /**
      * Triggers any required updates after changes within the

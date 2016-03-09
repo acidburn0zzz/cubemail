@@ -232,7 +232,7 @@ class kolab_storage
      * Execute cross-folder searches with the given query.
      *
      * @param array  Pseudo-SQL query as list of filter parameter triplets
-     * @param string Object type (contact,event,task,journal,file,note,configuration)
+     * @param string Folder type (contact,event,task,journal,file,note,configuration)
      * @param int    Expected number of records or limit (for performance reasons)
      *
      * @return array List of Kolab data objects (each represented as hash array)
@@ -251,7 +251,7 @@ class kolab_storage
                 $folder->set_order_and_limit(null, $limit);
             }
 
-            foreach ($folder->select($query, '*') as $object) {
+            foreach ($folder->select($query) as $object) {
                 $result[] = $object;
             }
         }
