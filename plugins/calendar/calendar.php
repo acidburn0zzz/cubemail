@@ -1721,7 +1721,7 @@ class calendar extends rcube_plugin
     foreach ($events as $event) {
       $json[] = $this->_client_event($event, $addcss);
     }
-    return json_encode($json);
+    return rcube_output::json_serialize($json);
   }
 
   /**
@@ -2243,7 +2243,7 @@ class calendar extends rcube_plugin
     // let this information be cached for 5min
     $this->rc->output->future_expire_header(300);
     
-    echo json_encode(array(
+    echo rcube_output::json_serialize(array(
       'email' => $email,
       'start' => $dts->format('c'),
       'end'   => $dte->format('c'),
@@ -2311,12 +2311,12 @@ class calendar extends rcube_plugin
     $this->ui->calendar_list();  # set env['calendars']
     echo $this->api->output->parse('calendar.eventedit', false, false);
     echo html::tag('script', array('type' => 'text/javascript'),
-      "rcmail.set_env('calendars', " . json_encode($this->api->output->env['calendars']) . ");\n".
+      "rcmail.set_env('calendars', " . rcube_output::json_serialize($this->api->output->env['calendars']) . ");\n".
       "rcmail.set_env('deleteicon', '" . $this->api->output->env['deleteicon'] . "');\n".
       "rcmail.set_env('cancelicon', '" . $this->api->output->env['cancelicon'] . "');\n".
       "rcmail.set_env('loadingicon', '" . $this->api->output->env['loadingicon'] . "');\n".
       "rcmail.gui_object('attachmentlist', '"  . $this->ui->attachmentlist_id . "');\n".
-      "rcmail.add_label(" . json_encode($texts) . ");\n"
+      "rcmail.add_label(" . rcube_output::json_serialize($texts) . ");\n"
     );
     exit;
   }
