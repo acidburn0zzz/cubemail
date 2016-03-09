@@ -335,6 +335,9 @@ function rcube_calendar_ui(settings)
       if (event.rev)
         query._rev = event.rev;
 
+      if (event.calendar == "--invitation--itip")
+        $.extend(query, {_uid: event._uid, _part: event._part, _mbox: event._mbox});
+
       // open attachment in frame if it's of a supported mimetype
       if (id && att.mimetype && $.inArray(att.mimetype, settings.mimetypes)>=0) {
         if (rcmail.open_window(rcmail.url('get-attachment', query), true, true)) {
