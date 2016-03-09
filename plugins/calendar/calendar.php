@@ -1742,6 +1742,12 @@ class calendar extends rcube_plugin
 
     foreach ((array)$event['attachments'] as $k => $attachment) {
       $event['attachments'][$k]['classname'] = rcube_utils::file2class($attachment['mimetype'], $attachment['name']);
+
+      unset($event['attachments'][$k]['data'], $event['attachments'][$k]['content']);
+
+      if (!$attachment['id']) {
+        $event['attachments'][$k]['id'] = $k;
+      }
     }
 
     // convert link URIs references into structs
@@ -1892,7 +1898,19 @@ class calendar extends rcube_plugin
     $rev      = rcube_utils::get_input_value('_rev', rcube_utils::INPUT_GPC);
 
     $event = array('id' => $event_id, 'calendar' => $calendar, 'rev' => $rev);
-    $attachment = $this->driver->get_attachment($id, $event);
+
+    if ($calendar == '--invitation--itip') {
+        $uid  = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GPC);
+        $part = rcube_utils::get_input_value('_part', rcube_utils::INPUT_GPC);
+        $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GPC);
+
+        $event      = $this->lib->mail_get_itip_object($mbox, $uid, $part, 'event');
+        $attachment = $event['attachments'][$id];
+        $attachment['body'] = &$attachment['data'];
+    }
+    else {
+        $attachment = $this->driver->get_attachment($id, $event);
+    }
 
     // show part page
     if (!empty($_GET['_frame'])) {
@@ -1903,7 +1921,10 @@ class calendar extends rcube_plugin
     }
     // deliver attachment content
     else if ($attachment) {
-        $attachment['body'] = $this->driver->get_attachment_body($id, $event);
+        if ($calendar != '--invitation--itip') {
+            $attachment['body'] = $this->driver->get_attachment_body($id, $event);
+        }
+
         $this->lib->attachment_get($attachment);
     }
 
