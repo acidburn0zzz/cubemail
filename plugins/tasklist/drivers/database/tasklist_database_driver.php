@@ -558,6 +558,9 @@ class tasklist_database_driver extends tasklist_driver
         if (is_array($prop['recurrence'])) {
             $prop['recurrence'] = $this->serialize_recurrence($prop['recurrence']);
         }
+        if (array_key_exists('complete', $prop)) {
+            $prop['complete'] = number_format($prop['complete'], 2, '.', '');
+        }
 
         foreach (array('parent_id', 'date', 'time', 'startdate', 'starttime', 'alarms', 'recurrence', 'status') as $col) {
             if (empty($prop[$col]))
@@ -610,6 +613,9 @@ class tasklist_database_driver extends tasklist_driver
         }
         if (is_array($prop['recurrence'])) {
             $prop['recurrence'] = $this->serialize_recurrence($prop['recurrence']);
+        }
+        if (array_key_exists('complete', $prop)) {
+            $prop['complete'] = number_format($prop['complete'], 2, '.', '');
         }
 
         $sql_set = array();
