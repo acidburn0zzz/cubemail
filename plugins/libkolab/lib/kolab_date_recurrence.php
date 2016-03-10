@@ -49,8 +49,11 @@ class kolab_date_recurrence
 
         if (is_object($data['start']) && is_object($data['end']))
             $this->duration = $data['start']->diff($data['end']);
-        else
-            $this->duration = new DateInterval('PT' . ($data['end'] - $data['start']) . 'S');
+        else {
+            // Prevent from errors when end date is not set (#5307) RFC5545 3.6.1
+            $seconds = !empty($data['end']) ? ($data['end'] - $data['start']) : 0;
+            $this->duration = new DateInterval('PT' . $seconds . 'S');
+        }
     }
 
     /**
