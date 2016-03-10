@@ -191,6 +191,10 @@ class kolab_format_event extends kolab_format_xcal
             $object['end'] = clone $object['start'];
             $object['end']->add($interval);
         }
+        // make sure end date is specified (#5307) RFC5545 3.6.1
+        else if (!$object['end'] && $object['start']) {
+            $object['end'] = clone $object['start'];
+        }
 
         // organizer is part of the attendees list in Roundcube
         if ($object['organizer']) {
