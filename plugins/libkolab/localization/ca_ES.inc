@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab libkolab plugin
  *
@@ -7,8 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
-
-$labels = array();
 $labels['revision'] = 'Revisió';
 $labels['user'] = 'Usuari';
 $labels['operation'] = 'Acció';
@@ -18,4 +15,3 @@ $labels['actiondelete'] = 'Suprimit';
 $labels['compare'] = 'Compara';
 $labels['showrevision'] = 'Mostra aquesta versió';
 $labels['restore'] = 'Restaura aquesta versió';
-

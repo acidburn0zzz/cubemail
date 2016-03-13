@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab calendaring utilities plugin
  *
@@ -7,7 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
  */
-
 $labels['until'] = 'до';
 $labels['alarmemailoption'] = 'Електронна поща';
 $labels['itipcancellation'] = 'Отказано:';
@@ -22,4 +20,3 @@ $labels['youhaveaccepted'] = 'Вие сте приели тази покана';
 $labels['importtocalendar'] = 'Запазване в моя календар';
 $labels['removefromcalendar'] = 'Премахване от моя календар';
 $labels['savingdata'] = 'Запазване на данни...';
-

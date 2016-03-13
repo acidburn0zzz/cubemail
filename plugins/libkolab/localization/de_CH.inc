@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab libkolab plugin
  *
@@ -7,10 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
-
-$labels = array();
-
-// history dialog
 $labels['showhistory'] = 'Verlauf anzeigen';
 $labels['compare'] = 'Vergleichen';
 $labels['objectchangelog'] = 'Verlauf';
@@ -28,4 +23,3 @@ $labels['actionflagclear'] = 'Status entfernt';
 $labels['showrevision'] = 'Diese Version anzeigen';
 $labels['restore'] = 'Diese Version wiederherstellen';
 $labels['objectchangelognotavailable'] = 'Verlauf ist nicht verfügbar für diese Nachricht';
-
