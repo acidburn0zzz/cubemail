@@ -33,7 +33,7 @@ class calendar extends rcube_plugin
 
   const SESSION_KEY = 'calendar_temp';
 
-  public $task = '?(?!logout).*';
+  public $task = '?(?!login|logout).*';
   public $rc;
   public $lib;
   public $resources_dir;
