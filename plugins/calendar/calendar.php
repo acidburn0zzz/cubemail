@@ -2994,6 +2994,13 @@ class calendar extends rcube_plugin
             // set status=CANCELLED on CANCEL messages
             if ($event['_method'] == 'CANCEL')
               $event['status'] = 'CANCELLED';
+
+            // update attachments list, allow attachments update only on REQUEST (#5342)
+            if ($event['_method'] == 'REQUEST')
+              $event['deleted_attachments'] = true;
+            else
+              unset($event['attachments']);
+
             // show me as free when declined (#1670)
             if ($status == 'declined' || $event['status'] == 'CANCELLED' || $event_attendee['role'] == 'NON-PARTICIPANT')
               $event['free_busy'] = 'free';

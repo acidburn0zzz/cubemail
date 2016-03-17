@@ -2080,6 +2080,15 @@ class tasklist extends rcube_plugin
                         if ($task['_method'] == 'CANCEL') {
                             $task['status'] = 'CANCELLED';
                         }
+
+                        // update attachments list, allow attachments update only on REQUEST (#5342)
+                        if ($task['_method'] == 'REQUEST') {
+                            $task['deleted_attachments'] = true;
+                        }
+                        else {
+                            unset($task['attachments']);
+                        }
+
                         // show me as free when declined (#1670)
                         if ($status == 'declined' || $task['status'] == 'CANCELLED') {
                             $task['free_busy'] = 'free';
