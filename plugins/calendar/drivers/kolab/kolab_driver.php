@@ -1972,46 +1972,7 @@ class kolab_driver extends calendar_driver
    */
   public static function from_rcube_event($event, $old = array())
   {
-    // in kolab_storage attachments are indexed by content-id
-    if (is_array($event['attachments']) || !empty($event['deleted_attachments'])) {
-      $event['_attachments'] = array();
-
-      foreach ($event['attachments'] as $attachment) {
-        $key = null;
-        // Roundcube ID has nothing to do with the storage ID, remove it
-        if ($attachment['content'] || $attachment['path']) {
-          unset($attachment['id']);
-        }
-        else {
-          foreach ((array)$old['_attachments'] as $cid => $oldatt) {
-            if ($attachment['id'] == $oldatt['id'])
-              $key = $cid;
-          }
-        }
-
-        // flagged for deletion => set to false
-        if ($attachment['_deleted'] || in_array($attachment['id'], (array)$event['deleted_attachments'])) {
-          $event['_attachments'][$key] = false;
-        }
-        // replace existing entry
-        else if ($key) {
-          $event['_attachments'][$key] = $attachment;
-        }
-        // append as new attachment
-        else {
-          $event['_attachments'][] = $attachment;
-        }
-      }
-
-      $event['_attachments'] = array_merge((array)$old['_attachments'], $event['_attachments']);
-
-      // attachments flagged for deletion => set to false
-      foreach ($event['_attachments'] as $key => $attachment) {
-        if ($attachment['_deleted'] || in_array($attachment['id'], (array)$event['deleted_attachments'])) {
-          $event['_attachments'][$key] = false;
-        }
-      }
-    }
+    kolab_format::merge_attachments($event, $old);
 
     return $event;
   }

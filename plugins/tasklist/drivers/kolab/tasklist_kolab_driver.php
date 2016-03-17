@@ -1308,46 +1308,8 @@ class tasklist_kolab_driver extends tasklist_driver
             $object['recurrence'] = $old['recurrence'];
         }
 
-        // delete existing attachment(s)
-        if (!empty($task['deleted_attachments'])) {
-            foreach ($task['deleted_attachments'] as $attachment) {
-                if (is_array($object['_attachments'])) {
-                    foreach ($object['_attachments'] as $idx => $att) {
-                        if ($att['id'] == $attachment)
-                            $object['_attachments'][$idx] = false;
-                    }
-                }
-            }
-            unset($task['deleted_attachments']);
-        }
-
-        // in kolab_storage attachments are indexed by content-id
-        if (is_array($task['attachments'])) {
-            foreach ($task['attachments'] as $idx => $attachment) {
-                $key = null;
-                // Roundcube ID has nothing to do with the storage ID, remove it
-                if ($attachment['content'] || $attachment['path']) {
-                    unset($attachment['id']);
-                }
-                else {
-                    foreach ((array)$old['_attachments'] as $cid => $oldatt) {
-                        if ($oldatt && $attachment['id'] == $oldatt['id'])
-                            $key = $cid;
-                    }
-                }
-
-                // replace existing entry
-                if ($key) {
-                    $object['_attachments'][$key] = $attachment;
-                }
-                // append as new attachment
-                else {
-                    $object['_attachments'][] = $attachment;
-                }
-            }
-
-            unset($object['attachments']);
-        }
+        unset($task['attachments']);
+        kolab_format::merge_attachments($object, $old);
 
         // allow sequence increments if I'm the organizer
         if ($this->plugin->is_organizer($object) && empty($object['_method'])) {
