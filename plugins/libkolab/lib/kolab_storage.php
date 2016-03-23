@@ -528,16 +528,17 @@ class kolab_storage
             ) {
                 self::$last_error = 'No permission to create folder';
                 return false;
-          }
+            }
         }
 
         // update the folder name
         if (strlen($oldfolder)) {
             if ($oldfolder != $folder) {
                 $result = self::folder_rename($oldfolder, $folder);
-          }
-          else
-              $result = true;
+            }
+            else {
+                $result = true;
+            }
         }
         // create new folder
         else {
