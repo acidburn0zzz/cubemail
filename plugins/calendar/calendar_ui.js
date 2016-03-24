@@ -38,7 +38,7 @@ function rcube_calendar_ui(settings)
     this.selected_event = null;
     this.selected_calendar = null;
     this.search_request = null;
-    this.saving_lock;
+    this.saving_lock = null;
     this.calendars = {};
     this.quickview_sources = [];
 

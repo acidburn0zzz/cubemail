@@ -106,8 +106,8 @@ function rcube_tasklist_ui(settings)
 
     /*  public members  */
     this.tasklists = rcmail.env.tasklists;
-    this.selected_task;
-    this.selected_list;
+    this.selected_task = null;
+    this.selected_list = null;
 
     /*  public methods  */
     this.init = init;
@@ -150,7 +150,7 @@ function rcube_tasklist_ui(settings)
                 me.selected_list = settings.selected_list;
                 $(rcmail.gui_objects.tasklistslist).find("input[value='"+settings.selected_list+"']").prop('checked', true);
             }
-            if (me.tasklists[id].editable && (!me.selected_list || me.tasklists[id].default || (me.tasklists[id].active && !me.tasklists[me.selected_list].active))) {
+            if (me.tasklists[id].editable && (!me.selected_list || me.tasklists[id]['default'] || (me.tasklists[id].active && !me.tasklists[me.selected_list].active))) {
                 me.selected_list = id;
             }
         }

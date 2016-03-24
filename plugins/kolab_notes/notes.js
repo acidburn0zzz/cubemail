@@ -122,7 +122,7 @@ function rcube_kolab_notes_ui(settings)
                     rcmail.enable_command('createnote', has_permission(me.notebooks[id], 'i'));
                     rcmail.enable_command('list-edit', has_permission(me.notebooks[id], 'a'));
                     rcmail.enable_command('list-delete', has_permission(me.notebooks[id], 'xa'));
-                    rcmail.enable_command('list-remove', !me.notebooks[id].default);
+                    rcmail.enable_command('list-remove', !me.notebooks[id]['default']);
                     fetch_notes(id);  // sets me.selected_list
                 },
                 function(){
@@ -142,7 +142,7 @@ function rcube_kolab_notes_ui(settings)
             }
         });
         notebookslist.addEventListener('remove', function(p) {
-            if (me.notebooks[p.id] && !me.notebooks[p.id].default) {
+            if (me.notebooks[p.id] && !me.notebooks[p.id]['default']) {
                 list_remove(p.id);
             }
         });

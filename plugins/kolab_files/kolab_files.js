@@ -2177,7 +2177,7 @@ function kolab_files_ui()
   {
     return $('<a>').attr({
         title: rcmail.gettext('kolab_files.listpermanent'),
-        class: 'subscription' + (subscribed ? ' subscribed' : ''),
+        'class': 'subscription' + (subscribed ? ' subscribed' : ''),
         'aria-checked': subscribed,
         role: 'checkbox'
     });
