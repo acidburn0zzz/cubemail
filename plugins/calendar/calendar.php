@@ -33,7 +33,7 @@ class calendar extends rcube_plugin
 
   const SESSION_KEY = 'calendar_temp';
 
-  public $task = '?(?!login|logout).*';
+  public $task = '?(?!logout).*';
   public $rc;
   public $lib;
   public $resources_dir;
@@ -68,26 +68,12 @@ class calendar extends rcube_plugin
    */
   function init()
   {
-    $this->require_plugin('libcalendaring');
-
     $this->rc = rcube::get_instance();
-    $this->lib = libcalendaring::get_instance();
 
     $this->register_task('calendar', 'calendar');
 
     // load calendar configuration
     $this->load_config();
-
-    // load localizations
-    $this->add_texts('localization/', $this->rc->task == 'calendar' && (!$this->rc->action || $this->rc->action == 'print'));
-
-    $this->timezone = $this->lib->timezone;
-    $this->gmt_offset = $this->lib->gmt_offset;
-    $this->dst_active = $this->lib->dst_active;
-    $this->timezone_offset = $this->gmt_offset / 3600 - $this->dst_active;
-
-    require($this->home . '/lib/calendar_ui.php');
-    $this->ui = new calendar_ui($this);
 
     // catch iTIP confirmation requests that don're require a valid session
     if ($this->rc->action == 'attend' && !empty($_REQUEST['_t'])) {
@@ -96,12 +82,32 @@ class calendar extends rcube_plugin
     else if ($this->rc->action == 'feed' && !empty($_REQUEST['_cal'])) {
       $this->add_hook('startup', array($this, 'ical_feed_export'));
     }
-    else {
+    else if ($this->rc->task != 'login') {
       // default startup routine
       $this->add_hook('startup', array($this, 'startup'));
     }
 
     $this->add_hook('user_delete', array($this, 'user_delete'));
+  }
+
+  /**
+   * Setup basic plugin environment and UI
+   */
+  protected function setup()
+  {
+    $this->require_plugin('libcalendaring');
+
+    $this->lib             = libcalendaring::get_instance();
+    $this->timezone        = $this->lib->timezone;
+    $this->gmt_offset      = $this->lib->gmt_offset;
+    $this->dst_active      = $this->lib->dst_active;
+    $this->timezone_offset = $this->gmt_offset / 3600 - $this->dst_active;
+
+    // load localizations
+    $this->add_texts('localization/', $this->rc->task == 'calendar' && (!$this->rc->action || $this->rc->action == 'print'));
+
+    require($this->home . '/lib/calendar_ui.php');
+    $this->ui = new calendar_ui($this);
   }
 
   /**
@@ -112,6 +118,8 @@ class calendar extends rcube_plugin
     // the calendar module can be enabled/disabled by the kolab_auth plugin
     if ($this->rc->config->get('calendar_disabled', false) || !$this->rc->config->get('calendar_enabled', true))
         return;
+
+    $this->setup();
 
     // load Calendar user interface
     if (!$this->rc->output->ajax_call && (!$this->rc->output->env['framed'] || $args['action'] == 'preview')) {
@@ -1665,6 +1673,7 @@ class calendar extends rcube_plugin
 
     // sanity check user
     if ($this->rc->user->get_username() == $user) {
+      $this->setup();
       $this->load_driver();
       $this->export_events(false);
     }
@@ -1677,7 +1686,6 @@ class calendar extends rcube_plugin
       session_destroy();
     exit;
   }
-
 
   /**
    *
@@ -2596,6 +2604,8 @@ class calendar extends rcube_plugin
    */
   public function itip_attend_response($p)
   {
+    $this->setup();
+
     if ($p['action'] == 'attend') {
       $this->ui->init();
 
@@ -3331,6 +3341,7 @@ class calendar extends rcube_plugin
      $table_itipinvitations = $db->table_name('itipinvitations', true);
      $db->query("DELETE FROM $table_itipinvitations WHERE `user_id` = ?", $args['user']->ID);
 
+     $this->setup();
      $this->load_driver();
      return $this->driver->user_delete($args);
   }
