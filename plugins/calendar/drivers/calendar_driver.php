@@ -704,8 +704,10 @@ abstract class calendar_driver
           // birthday is within requested range
           if ($bday <= $end && $bday >= $start) {
             $age = $this_year - $birthyear;
+            $uid = rcube_ldap::dn_encode('bday:' . $source . ':' . $contact['ID'] . ':' . $this_year);
             $event = array(
-              'id'          => rcube_ldap::dn_encode('bday:' . $source . ':' . $contact['ID'] . ':' . $this_year),
+              'id'          => $uid,
+              'uid'         => $uid,
               'calendar'    => self::BIRTHDAY_CALENDAR_ID,
               'title'       => $event_title,
               'description' => $rcmail->gettext(array('name' => 'birthdayage', 'vars' => array('age' => $age)), 'calendar'),
@@ -765,10 +767,11 @@ abstract class calendar_driver
 
         $display_name = rcube_addressbook::compose_display_name($contact);
         $event_title = $rcmail->gettext(array('name' => 'birthdayeventtitle', 'vars' => array('name' => $display_name)), 'calendar');
+        $uid = rcube_ldap::dn_encode('bday:' . $source . ':' . $contact['ID'] . ':' . $birthyear);
 
         $event = array(
-          'id'          => rcube_ldap::dn_encode('bday:' . $source . ':' . $contact['ID'] . ':' . $year),
-          'uid'         => rcube_ldap::dn_encode('bday:' . $source . ':' . $contact['ID'] . ':' . $birthyear),
+          'id'          => $uid,
+          'uid'         => $uid,
           'calendar'    => self::BIRTHDAY_CALENDAR_ID,
           'title'       => $event_title,
           'description' => '',
