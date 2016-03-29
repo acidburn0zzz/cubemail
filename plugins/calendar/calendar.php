@@ -3300,7 +3300,12 @@ class calendar extends rcube_plugin
         $tmp_path = tempnam($this->rc->config->get('temp_dir'), 'rcmAttmntCal');
         file_put_contents($tmp_path, $this->get_ical()->export(array($event), '', false, array($this->driver, 'get_attachment_body')));
 
-        $args['attachments'][] = array('path' => $tmp_path, 'name' => $filename . '.ics', 'mimetype' => 'text/calendar');
+        $args['attachments'][] = array(
+          'path'     => $tmp_path,
+          'name'     => $filename . '.ics',
+          'mimetype' => 'text/calendar',
+          'size'     => filesize($tmp_path),
+        );
         $args['param']['subject'] = $event['title'];
       }
     }
