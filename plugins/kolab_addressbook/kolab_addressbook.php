@@ -29,7 +29,7 @@
 
 class kolab_addressbook extends rcube_plugin
 {
-    public $task = '?(?!login|logout).*';
+    public $task = '?(?!logout).*';
 
     private $sources;
     private $folders;
@@ -96,7 +96,6 @@ class kolab_addressbook extends rcube_plugin
         $this->add_hook('folder_rename', array($this, 'prefs_folder_rename'));
         $this->add_hook('folder_update', array($this, 'prefs_folder_update'));
     }
-
 
     /**
      * Handler for the addressbooks_list hook.
