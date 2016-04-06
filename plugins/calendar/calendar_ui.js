@@ -513,7 +513,7 @@ function rcube_calendar_ui(settings)
           return (j - k);
         });
 
-        var data, mystatus = null, rsvp, line, morelink, html = '', overflow = '';
+        var data, organizer, mystatus = null, rsvp, line, morelink, html = '', overflow = '';
         for (var j=0; j < event.attendees.length; j++) {
           data = event.attendees[j];
           if (data.email) {
