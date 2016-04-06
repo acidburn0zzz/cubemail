@@ -1013,6 +1013,7 @@ class calendar extends rcube_plugin
         $ev['attendees'] = $event['attendees'];
         $ev['free_busy'] = $event['free_busy'];
         $ev['_savemode'] = $event['_savemode'];
+        $ev['comment']   = $reply_comment;
 
         // send invitation to delegatee + add it as attendee
         if ($status == 'delegated' && $event['to']) {
@@ -1049,7 +1050,6 @@ class calendar extends rcube_plugin
           if (!$noreply) {
             $itip = $this->load_itip();
             $itip->set_sender_email($reply_sender);
-            $event['comment'] = $reply_comment;
             $event['thisandfuture'] = $event['_savemode'] == 'future';
             if ($organizer && $itip->send_itip_message($event, 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
               $this->rc->output->command('display_message', $this->gettext(array('name' => 'sentresponseto', 'vars' => array('mailto' => $organizer['name'] ? $organizer['name'] : $organizer['email']))), 'confirmation');
