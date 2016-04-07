@@ -9,7 +9,7 @@
  * @version @package_version@
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2012, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2016, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -36,7 +36,7 @@ class kolab_date_recurrence
     /**
      * Default constructor
      *
-     * @param array The Kolab object to operate on
+     * @param kolab_format_xcal The Kolab object to operate on
      */
     function __construct($object)
     {
@@ -44,11 +44,12 @@ class kolab_date_recurrence
 
         $this->object = $object;
         $this->engine = $object->to_libcal();
-        $this->start = $this->next = $data['start'];
-        $this->cnext = kolab_format::get_datetime($this->next);
+        $this->start  = $this->next = $data['start'];
+        $this->cnext  = kolab_format::get_datetime($this->next);
 
-        if (is_object($data['start']) && is_object($data['end']))
+        if (is_object($data['start']) && is_object($data['end'])) {
             $this->duration = $data['start']->diff($data['end']);
+        }
         else {
             // Prevent from errors when end date is not set (#5307) RFC5545 3.6.1
             $seconds = !empty($data['end']) ? ($data['end'] - $data['start']) : 0;
@@ -70,8 +71,9 @@ class kolab_date_recurrence
             if (($cnext = new cDateTime($this->engine->getNextOccurence($this->cnext))) && $cnext->isValid()) {
                 $next = kolab_format::php_datetime($cnext);
                 $time = $timestamp ? $next->format('U') : $next;
+
                 $this->cnext = $cnext;
-                $this->next = $next;
+                $this->next  = $next;
             }
         }
 
@@ -89,13 +91,13 @@ class kolab_date_recurrence
             $next_end = clone $next_start;
             $next_end->add($this->duration);
 
-            $next = $this->object->to_array();
+            $next          = $this->object->to_array();
             $next['start'] = $next_start;
-            $next['end'] = $next_end;
+            $next['end']   = $next_end;
 
-            $recurrence_id_format = libkolab::recurrence_id_format($next);
+            $recurrence_id_format    = libkolab::recurrence_id_format($next);
             $next['recurrence_date'] = clone $next_start;
-            $next['_instance'] = $next_start->format($recurrence_id_format);
+            $next['_instance']       = $next_start->format($recurrence_id_format);
 
             unset($next['_formatobj']);
 
@@ -120,21 +122,24 @@ class kolab_date_recurrence
         }
 
         // let libkolab do the work
-        if ($this->engine && ($cend = $this->engine->getLastOccurrence()) && ($end_dt = kolab_format::php_datetime(new cDateTime($cend)))) {
+        if ($this->engine && ($cend = $this->engine->getLastOccurrence())
+            && ($end_dt = kolab_format::php_datetime(new cDateTime($cend)))
+        ) {
             return $end_dt;
         }
 
         // determine a reasonable end date if none given
         if (!$event['recurrence']['COUNT'] && $event['end'] instanceof DateTime) {
-          switch ($event['recurrence']['FREQ']) {
-            case 'YEARLY':  $intvl = 'P100Y'; break;
-            case 'MONTHLY': $intvl = 'P20Y';  break;
-            default:        $intvl = 'P10Y';  break;
-          }
+            switch ($event['recurrence']['FREQ']) {
+                case 'YEARLY':  $intvl = 'P100Y'; break;
+                case 'MONTHLY': $intvl = 'P20Y';  break;
+                default:        $intvl = 'P10Y';  break;
+            }
 
-          $end_dt = clone $event['end'];
-          $end_dt->add(new DateInterval($intvl));
-          return $end_dt;
+            $end_dt = clone $event['end'];
+            $end_dt->add(new DateInterval($intvl));
+
+            return $end_dt;
         }
 
         return false;
