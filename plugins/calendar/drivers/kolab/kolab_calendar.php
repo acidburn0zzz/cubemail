@@ -289,7 +289,9 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     // set partstat filter to skip pending and declined invitations
-    if (empty($filter_query) && $this->get_namespace() != 'other') {
+    if (empty($filter_query) && $this->cal->rc->config->get('kolab_invitation_calendars')
+      && $this->get_namespace() != 'other'
+    ) {
       $partstat_exclude = array('NEEDS-ACTION','DECLINED');
     }
     else {
