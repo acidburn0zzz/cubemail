@@ -50,29 +50,6 @@ class kolab_format_event extends kolab_format_xcal
     }
 
     /**
-     * Clones into an instance of libcalendaring's extended EventCal class
-     *
-     * @return mixed EventCal object or false on failure
-     */
-    public function to_libcal()
-    {
-        static $error_logged = false;
-
-        if (class_exists('kolabcalendaring')) {
-            return new EventCal($this->obj);
-        }
-        else if (!$error_logged) {
-            $error_logged = true;
-            rcube::raise_error(array(
-                'code' => 900, 'type' => 'php',
-                'message' => "required kolabcalendaring module not found"
-            ), true);
-        }
-
-        return false;
-    }
-
-    /**
      * Set event properties to the kolabformat object
      *
      * @param array  Event data as hash array
