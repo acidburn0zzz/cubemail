@@ -518,7 +518,7 @@ class calendar extends rcube_plugin
       // default calendar selection
       $field_id = 'rcmfd_default_calendar';
       $select_cal = new html_select(array('name' => '_default_calendar', 'id' => $field_id, 'is_escaped' => true));
-      foreach ((array)$this->driver->list_calendars(calendar_driver::FILTER_PERSONAL) as $id => $prop) {
+      foreach ((array)$this->driver->list_calendars(calendar_driver::FILTER_PERSONAL | calendar_driver::FILTER_ACTIVE) as $id => $prop) {
         $select_cal->add($prop['name'], strval($id));
         if ($prop['default'])
           $default_calendar = $id;
