@@ -49,7 +49,6 @@ class kolab_storage_folder extends kolab_storage_folder_api
     function __construct($name, $type = null, $type_annotation = null)
     {
         parent::__construct($name);
-        $this->imap->set_options(array('skip_deleted' => true));
         $this->set_folder($name, $type, $type_annotation);
     }
 
@@ -448,9 +447,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
         $this->imap->set_folder($folder);
 
-        $this->cache->bypass(true);
+        $this->cache->imap_mode(true);
         $message = new rcube_message($msguid);
-        $this->cache->bypass(false);
+        $this->cache->imap_mode(false);
 
         // Message doesn't exist?
         if (empty($message->headers)) {
@@ -698,9 +697,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
 
                 if ($old_uid) {
                     // delete old message
-                    $this->cache->bypass(true);
+                    $this->cache->imap_mode(true);
                     $this->imap->delete_message($old_uid, $object['_mailbox']);
-                    $this->cache->bypass(false);
+                    $this->cache->imap_mode(false);
                 }
 
                 // insert/update message in cache
@@ -796,7 +795,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
         $msguid = is_array($object) ? $object['_msguid'] : $this->cache->uid2msguid($object);
         $success = false;
 
-        $this->cache->bypass(true);
+        $this->cache->imap_mode(true);
 
         if ($msguid && $expunge) {
             $success = $this->imap->delete_message($msguid, $this->name);
@@ -805,7 +804,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
             $success = $this->imap->set_flag($msguid, 'DELETED', $this->name);
         }
 
-        $this->cache->bypass(false);
+        $this->cache->imap_mode(false);
 
         if ($success) {
             $this->cache->set($msguid, false);
@@ -824,9 +823,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
         }
 
         $this->cache->purge();
-        $this->cache->bypass(true);
+        $this->cache->imap_mode(true);
         $result = $this->imap->clear_folder($this->name);
-        $this->cache->bypass(false);
+        $this->cache->imap_mode(false);
 
         return $result;
     }
@@ -844,9 +843,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
         }
 
         if ($msguid = $this->cache->uid2msguid($uid, true)) {
-            $this->cache->bypass(true);
+            $this->cache->imap_mode(true);
             $result = $this->imap->set_flag($msguid, 'UNDELETED', $this->name);
-            $this->cache->bypass(false);
+            $this->cache->imap_mode(false);
 
             if ($result) {
                 return $msguid;
@@ -873,9 +872,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
             $target_folder = kolab_storage::get_folder($target_folder);
 
         if ($msguid = $this->cache->uid2msguid($uid)) {
-            $this->cache->bypass(true);
+            $this->cache->imap_mode(true);
             $result = $this->imap->move_message($msguid, $target_folder->name, $this->name);
-            $this->cache->bypass(false);
+            $this->cache->imap_mode(false);
 
             if ($result) {
                 $new_uid = ($copyuid = $this->imap->conn->data['COPYUID']) ? $copyuid[1] : null;

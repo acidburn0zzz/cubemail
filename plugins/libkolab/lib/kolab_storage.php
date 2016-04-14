@@ -86,11 +86,7 @@ class kolab_storage
             (self::$imap->get_capability('METADATA') || self::$imap->get_capability('ANNOTATEMORE') || self::$imap->get_capability('ANNOTATEMORE2'));
 
         if (self::$ready) {
-            // set imap options
-            self::$imap->set_options(array(
-                'skip_deleted' => true,
-                'threading' => false,
-            ));
+            // do nothing
         }
         else if (!class_exists('kolabformat')) {
             rcube::raise_error(array(
