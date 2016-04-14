@@ -185,7 +185,9 @@ class kolab_storage_cache
 
         if (!$this->ready) {
             // kolab cache is disabled, synchronize IMAP mailbox cache only
+            $this->imap_mode(true);
             $this->imap->folder_sync($this->folder->name);
+            $this->imap_mode(false);
         }
         else {
             // read cached folder metadata
@@ -203,13 +205,15 @@ class kolab_storage_cache
                 $this->_sync_lock();
 
                 // disable messages cache if configured to do so
-                $this->bypass(true);
+                $this->imap_mode(true);
 
                 // synchronize IMAP mailbox cache
                 $this->imap->folder_sync($this->folder->name);
 
                 // compare IMAP index with object cache index
                 $imap_index = $this->imap->index($this->folder->name, null, null, true, true);
+
+                $this->imap_mode(false);
 
                 // determine objects to fetch or to invalidate
                 if (!$imap_index->is_error()) {
@@ -259,8 +263,6 @@ class kolab_storage_cache
                         $this->metadata['objectcount'] = $this->count();
                     }
                 }
-
-                $this->bypass(false);
 
                 // remove lock
                 $this->_sync_unlock();
@@ -564,6 +566,8 @@ class kolab_storage_cache
         else {
             $filter = $this->_query2assoc($query);
 
+            $this->imap_mode(true);
+
             if ($filter['type']) {
                 $search = 'UNDELETED HEADER X-Kolab-Type ' . kolab_format::KTYPE_PREFIX . $filter['type'];
                 $index  = $this->imap->search_once($this->folder->name, $search);
@@ -571,6 +575,8 @@ class kolab_storage_cache
             else {
                 $index = $this->imap->index($this->folder->name, null, null, true, true);
             }
+
+            $this->imap_mode(false);
 
             if ($index->is_error()) {
                 $this->check_error();
@@ -631,6 +637,8 @@ class kolab_storage_cache
         else {
             $filter = $this->_query2assoc($query);
 
+            $this->imap_mode(true);
+
             if ($filter['type']) {
                 $search = 'UNDELETED HEADER X-Kolab-Type ' . kolab_format::KTYPE_PREFIX . $filter['type'];
                 $index  = $this->imap->search_once($this->folder->name, $search);
@@ -638,6 +646,8 @@ class kolab_storage_cache
             else {
                 $index = $this->imap->index($this->folder->name, null, null, true, true);
             }
+
+            $this->imap_mode(false);
 
             if ($index->is_error()) {
                 $this->check_error();
@@ -1092,13 +1102,31 @@ class kolab_storage_cache
     }
 
     /**
-     * Bypass Roundcube messages cache.
-     * Roundcube cache duplicates information already stored in kolab_cache.
+     * Set Roundcube storage options and bypass messages cache.
      *
-     * @param bool $disable True disables, False enables messages cache
+     * We use skip_deleted and threading settings specific to Kolab,
+     * we have to change these global settings only temporarily.
+     * Roundcube cache duplicates information already stored in kolab_cache,
+     * that's why we can disable it for better performance.
+     *
+     * @param bool $force True to start Kolab mode, False to stop it.
      */
-    public function bypass($disable = false)
+    public function imap_mode($force = false)
     {
+        // remember current IMAP settings
+        if ($force) {
+            $this->imap_options = array(
+                'skip_deleted' => $this->imap->get_option('skip_deleted'),
+                'threading'    => $this->imap->get_threading(),
+            );
+        }
+
+        // re-set IMAP settings
+        $this->imap->set_threading($force ? false : $this->imap_options['threading']);
+        $this->imap->set_options(array(
+                'skip_deleted' => $force ? true : $this->imap_options['skip_deleted'],
+        ));
+
         // if kolab cache is disabled do nothing
         if (!$this->enabled) {
             return;
@@ -1114,7 +1142,7 @@ class kolab_storage_cache
 
         if ($messages_cache) {
             // handle recurrent (multilevel) bypass() calls
-            if ($disable) {
+            if ($force) {
                 $this->cache_bypassed += 1;
                 if ($this->cache_bypassed > 1) {
                     return;
@@ -1130,7 +1158,7 @@ class kolab_storage_cache
             switch ($cache_bypass) {
                 case 2:
                     // Disable messages cache completely
-                    $this->imap->set_messages_caching(!$disable);
+                    $this->imap->set_messages_caching(!$force);
                     break;
 
                 case 1:
@@ -1138,7 +1166,7 @@ class kolab_storage_cache
                     // Default mode is both (MODE_INDEX | MODE_MESSAGE)
                     $mode = rcube_imap_cache::MODE_INDEX;
 
-                    if (!$disable) {
+                    if (!$force) {
                         $mode |= rcube_imap_cache::MODE_MESSAGE;
                     }
 
