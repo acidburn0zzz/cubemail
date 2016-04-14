@@ -1537,6 +1537,54 @@ class libcalendaring extends rcube_plugin
         $this->rc->output->command('plugin.expand_attendee_callback', $result);
     }
 
+    /**
+     * Merge attendees of the old and new event version
+     * with keeping current user and his delegatees status
+     *
+     * @param array &$new New object data
+     * @param array $old  Old object data
+     */
+    public function merge_attendees(&$new, $old)
+    {
+        $emails    = $this->get_user_emails();
+        $delegates = array();
+        $attendees = array();
+
+        // keep attendee status of the current user
+        foreach ((array) $new['attendees'] as $i => $attendee) {
+            if (empty($attendee['email'])) {
+                continue;
+            }
+
+            $attendees[] = $email = strtolower($attendee['email']);
+
+            if (in_array($email, $emails)) {
+                foreach ($old['attendees'] as $_attendee) {
+                    if ($attendee['email'] == $_attendee['email']) {
+                        $new['attendees'][$i] = $_attendee;
+                        if ($_attendee['status'] == 'DELEGATED' && ($email = $_attendee['delegated-to'])) {
+                            $delegates[] = strtolower($email);
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        // make sure delegated attendee is not lost
+        foreach ($delegates as $delegatee) {
+            if (!in_array($delegatee, $attendees)) {
+                foreach ((array) $old['attendees'] as $attendee) {
+                    if ($attendee['email'] && ($email = strtolower($attendee['email'])) && $email == $delegatee) {
+                        $new['attendees'][] = $attendee;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
 
     /*********  Static utility functions  *********/
 
