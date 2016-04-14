@@ -2515,7 +2515,7 @@ function rcube_tasklist_ui(settings)
             }
 
             // tell server to send notifications
-            if ((data.attendees.length || (rec.id && rec.attendees.length)) && allow_invitations && (notify.checked || invite.checked || need_invitation)) {
+            if ((has_attendees(data) || (rec.id && has_attendees(rec))) && allow_invitations && (notify.checked || invite.checked || need_invitation)) {
                 data._notify = settings.itip_notify;
                 data._comment = comment.val();
             }

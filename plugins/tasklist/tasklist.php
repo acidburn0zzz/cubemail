@@ -522,9 +522,12 @@ class tasklist extends rcube_plugin
                     $this->rc->output->show_message('tasklist.errornotifying', 'error');
             }
         }
-        else if ($success && $rec['_reportpartstat'] && $rec['_reportpartstat'] != 'NEEDS-ACTION') {
+
+        if ($success && $rec['_reportpartstat'] && $rec['_reportpartstat'] != 'NEEDS-ACTION') {
             // get the full record after update
-            $task = $this->driver->get_task($rec);
+            if (!$task) {
+                $task = $this->driver->get_task($rec);
+            }
 
             // send iTip REPLY with the updated partstat
             if ($task['organizer'] && ($idx = $this->is_attendee($task)) !== false) {
