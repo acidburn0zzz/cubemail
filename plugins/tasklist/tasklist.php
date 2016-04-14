@@ -2074,17 +2074,7 @@ class tasklist extends rcube_plugin
 
                         // preserve my participant status for regular updates
                         if (empty($status)) {
-                            $emails = $this->lib->get_user_emails();
-                            foreach ($task['attendees'] as $i => $attendee) {
-                                if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
-                                    foreach ($existing['attendees'] as $j => $_attendee) {
-                                        if ($attendee['email'] == $_attendee['email']) {
-                                            $task['attendees'][$i] = $existing['attendees'][$j];
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
+                            $this->lib->merge_attendees($task, $existing);
                         }
 
                         // set status=CANCELLED on CANCEL messages
