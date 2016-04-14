@@ -1906,12 +1906,12 @@ class tasklist extends rcube_plugin
         $mbox    = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
         $mime_id = rcube_utils::get_input_value('_part', rcube_utils::INPUT_POST);
         $status  = rcube_utils::get_input_value('_status', rcube_utils::INPUT_POST);
+        $comment = rcube_utils::get_input_value('_comment', rcube_utils::INPUT_POST);
         $delete  = intval(rcube_utils::get_input_value('_del', rcube_utils::INPUT_POST));
         $noreply = intval(rcube_utils::get_input_value('_noreply', rcube_utils::INPUT_POST)) || $status == 'needs-action';
 
         $error_msg = $this->gettext('errorimportingtask');
         $success   = false;
-        $delegate = null;
 
         if ($status == 'delegated') {
             $delegates = rcube_mime::decode_address_list(rcube_utils::get_input_value('_to', rcube_utils::INPUT_POST, true), 1, false);
@@ -1929,15 +1929,19 @@ class tasklist extends rcube_plugin
 
             // forward iTip request to delegatee
             if ($delegate) {
-                $rsvpme = intval(rcube_utils::get_input_value('_rsvp', rcube_utils::INPUT_POST));
+                $rsvpme = rcube_utils::get_input_value('_rsvp', rcube_utils::INPUT_POST);
+                $itip   = $this->load_itip();
 
-                $itip = $this->load_itip();
-                if ($itip->delegate_to($task, $delegate, $rsvpme ? true : false)) {
+                $task['comment'] = $comment;
+
+                if ($itip->delegate_to($task, $delegate, !empty($rsvpme))) {
                     $this->rc->output->show_message('tasklist.itipsendsuccess', 'confirmation');
                 }
                 else {
                     $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
                 }
+
+                unset($task['comment']);
             }
 
             // find writeable list to store the task
@@ -2134,7 +2138,7 @@ class tasklist extends rcube_plugin
 
         // send iTip reply
         if ($task['_method'] == 'REQUEST' && $organizer && !$noreply && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
-            $task['comment'] = rcube_utils::get_input_value('_comment', rcube_utils::INPUT_POST);
+            $task['comment'] = $comment;
             $itip = $this->load_itip();
             $itip->set_sender_email($reply_sender);
 

@@ -2819,17 +2819,17 @@ class calendar extends rcube_plugin
     $noreply = $noreply || $status == 'needs-action' || $itip_sending === 0;
     $instance = rcube_utils::get_input_value('_instance', rcube_utils::INPUT_POST);
     $savemode = rcube_utils::get_input_value('_savemode', rcube_utils::INPUT_POST);
+    $comment  = rcube_utils::get_input_value('_comment', rcube_utils::INPUT_POST);
 
     $error_msg = $this->gettext('errorimportingevent');
-    $success = false;
-    $delegate = null;
+    $success   = false;
 
     if ($status == 'delegated') {
       $delegates = rcube_mime::decode_address_list(rcube_utils::get_input_value('_to', rcube_utils::INPUT_POST, true), 1, false);
       $delegate  = reset($delegates);
 
       if (empty($delegate) || empty($delegate['mailto'])) {
-        $this->rc->output->command('display_message', $this->gettext('libcalendaring.delegateinvalidaddress'), 'error');
+        $this->rc->output->command('display_message', $this->rc->gettext('libcalendaring.delegateinvalidaddress'), 'error');
         return;
       }
     }
@@ -2838,18 +2838,19 @@ class calendar extends rcube_plugin
     if ($event = $this->lib->mail_get_itip_object($mbox, $uid, $mime_id, 'event')) {
       // forward iTip request to delegatee
       if ($delegate) {
-        $rsvpme  = (bool) intval(rcube_utils::get_input_value('_rsvp', rcube_utils::INPUT_POST));
-        $comment = rcube_utils::get_input_value('_comment', rcube_utils::INPUT_POST);
+        $rsvpme = rcube_utils::get_input_value('_rsvp', rcube_utils::INPUT_POST);
+        $itip   = $this->load_itip();
 
-        $d_event = $comment ? array_merge($event, array('comment' => $comment)) : $event;
-        $itip    = $this->load_itip();
+        $event['comment'] = $comment;
 
-        if ($itip->delegate_to($d_event, $delegate, $rsvpme)) {
+        if ($itip->delegate_to($event, $delegate, !empty($rsvpme))) {
           $this->rc->output->show_message('calendar.itipsendsuccess', 'confirmation');
         }
         else {
           $this->rc->output->command('display_message', $this->gettext('itipresponseerror'), 'error');
         }
+
+        unset($event['comment']);
 
         // the delegator is set to non-participant, thus save as non-blocking
         $event['free_busy'] = 'free';
@@ -3086,7 +3087,7 @@ class calendar extends rcube_plugin
 
     // send iTip reply
     if ($event['_method'] == 'REQUEST' && $organizer && !$noreply && !in_array(strtolower($organizer['email']), $emails) && !$error_msg) {
-      $event['comment'] = rcube_utils::get_input_value('_comment', rcube_utils::INPUT_POST);
+      $event['comment'] = $comment;
       $itip = $this->load_itip();
       $itip->set_sender_email($reply_sender);
       if ($itip->send_itip_message($event, 'REPLY', $organizer, 'itipsubject' . $status, 'itipmailbody' . $status))
@@ -3097,7 +3098,6 @@ class calendar extends rcube_plugin
 
     $this->rc->output->send();
   }
-
 
   /**
    * Handler for calendar/itip-remove requests
