@@ -3154,6 +3154,18 @@ function rcube_calendar_ui(settings)
       }
     };
 
+    // display the edit dialog, request 'new' action and pass the selected event
+    this.event_copy = function(event) {
+        if (event && event.id) {
+            var copy = $.extend(true, {}, event);
+            delete copy.id;
+            delete copy._id;
+            delete copy.created;
+            delete copy.changed;
+            event_edit_dialog('new', copy);
+        }
+    };
+
     // show URL of the given calendar in a dialog box
     this.showurl = function(calendar)
     {
@@ -4234,6 +4246,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.register_command('calendar-showurl', function(){ cal.showurl(cal.calendars[cal.selected_calendar]); }, false);
   rcmail.register_command('event-download', function(){ cal.event_download(cal.selected_event); }, true);
   rcmail.register_command('event-sendbymail', function(p, obj, e){ cal.event_sendbymail(cal.selected_event, e); }, true);
+  rcmail.register_command('event-copy', function(){ cal.event_copy(cal.selected_event); }, true);
   rcmail.register_command('event-history', function(p, obj, e){ cal.event_history_dialog(cal.selected_event); }, false);
 
   // search and export events
