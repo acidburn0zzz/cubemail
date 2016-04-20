@@ -193,7 +193,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
     // directly access storage object
     if (!$this->events[$id] && $master_id == $id && ($record = $this->storage->get_object($id))) {
-      $this->events[$id] = $this->_to_driver_event($record);
+      $this->events[$id] = $this->_to_driver_event($record, true);
     }
 
     // maybe a recurring instance is requested
@@ -202,7 +202,6 @@ class kolab_calendar extends kolab_storage_folder_api
 
       if ($record = $this->storage->get_object($master_id)) {
         $master = $this->_to_driver_event($record);
-        $this->events[$master_id] = $master;
       }
 
       if ($master) {
@@ -216,11 +215,6 @@ class kolab_calendar extends kolab_storage_folder_api
         }
         else if (is_array($master['recurrence'])) {
           $this->get_recurring_events($record, $master['start'], null, $id);
-
-          // above does not resolve first occurence on the start date (T1214)
-          if (empty($this->events[$id]) && $instance_id === libcalendaring::recurrence_instance_identifier($master)) {
-            $this->events[$id] = $master;
-          }
         }
       }
     }
