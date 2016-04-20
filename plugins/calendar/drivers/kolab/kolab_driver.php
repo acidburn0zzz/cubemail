@@ -897,7 +897,7 @@ class kolab_driver extends calendar_driver
           break;
       }
     }
-    
+
     if ($success && $this->freebusy_trigger)
       $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
 
