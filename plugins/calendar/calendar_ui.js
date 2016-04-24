@@ -800,8 +800,8 @@ function rcube_calendar_ui(settings)
       event_attendees = [];
       attendees_list = $('#edit-attendees-table > tbody').html('');
       resources_list = $('#edit-resources-table > tbody').html('');
-      $('#edit-attendees-notify')[(allow_invitations && has_attendees(event) && (settings.itip_notify & 2) ? 'show' : 'hide')]();
-      $('#edit-localchanges-warning')[(has_attendees(event) && !(allow_invitations || (calendar.owner && is_organizer(event, calendar.owner))) ? 'show' : 'hide')]();
+      $('#edit-attendees-notify')[(action != 'new' && allow_invitations && has_attendees(event) && (settings.itip_notify & 2) ? 'show' : 'hide')]();
+      $('#edit-localchanges-warning')[(action != 'new' && has_attendees(event) && !(allow_invitations || (calendar.owner && is_organizer(event, calendar.owner))) ? 'show' : 'hide')]();
 
       var load_attendees_tab = function()
       {
@@ -3156,14 +3156,24 @@ function rcube_calendar_ui(settings)
 
     // display the edit dialog, request 'new' action and pass the selected event
     this.event_copy = function(event) {
-        if (event && event.id) {
-            var copy = $.extend(true, {}, event);
-            delete copy.id;
-            delete copy._id;
-            delete copy.created;
-            delete copy.changed;
-            event_edit_dialog('new', copy);
-        }
+      if (event && event.id) {
+        var copy = $.extend(true, {}, event);
+
+        delete copy.id;
+        delete copy._id;
+        delete copy.created;
+        delete copy.changed;
+        delete copy.recurrence_id;
+        delete copy.attachments; // @TODO
+
+        $.each(copy.attendees, function (k, v) {
+          if (v.role != 'ORGANIZER') {
+            v.status = 'NEEDS-ACTION';
+          }
+        })
+
+        event_edit_dialog('new', copy);
+      }
     };
 
     // show URL of the given calendar in a dialog box
