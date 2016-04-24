@@ -757,77 +757,74 @@ class libcalendaring extends rcube_plugin
      */
     public function recurrence_text($rrule)
     {
-        // derive missing FREQ and INTERVAL from RDATE list
+        $limit     = 10;
+        $exdates   = array();
+        $format    = $this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format']);
+        $format    = self::to_php_date_format($format);
+        $format_fn = function($dt) use ($format) {
+            return rcmail::get_instance()->format_date($dt, $format);
+        };
+
+        if (is_array($rrule['EXDATE']) && !empty($rrule['EXDATE'])) {
+            $exdates = array_map($format_fn, $rrule['EXDATE']);
+        }
+
         if (empty($rrule['FREQ']) && !empty($rrule['RDATE'])) {
-            $first = $rrule['RDATE'][0];
-            $second = $rrule['RDATE'][1];
-            $third  = $rrule['RDATE'][2];
-            if (is_a($first, 'DateTime') && is_a($second, 'DateTime')) {
-                $diff = $first->diff($second);
-                foreach (array('y' => 'YEARLY', 'm' => 'MONTHLY', 'd' => 'DAILY') as $k => $freq) {
-                    if ($diff->$k != 0) {
-                        $rrule['FREQ'] = $freq;
-                        $rrule['INTERVAL'] = $diff->$k;
+            $rdates = array_map($format_fn, $rrule['RDATE']);
 
-                        // verify interval with next item
-                        if (is_a($third, 'DateTime')) {
-                            $diff2 = $second->diff($third);
-                            if ($diff2->$k != $diff->$k) {
-                                unset($rrule['INTERVAL']);
-                            }
-                        }
-                        break;
-                    }
-                }
+            if (!empty($exdates)) {
+                $rdates = array_diff($rdates, $exdates);
             }
-            if (!$rrule['INTERVAL']) {
-                $rrule['FREQ'] = 'RDATE';
+
+            if (count($rdates) > $limit) {
+                $rdates = array_slice($rdates, 0, $limit);
+                $more   = true;
             }
-            $rrule['UNTIL'] = end($rrule['RDATE']);
+
+            return $this->gettext('ondate') . ' ' . join(', ', $rdates)
+                . ($more ? '...' : '');
         }
 
-        $freq = sprintf('%s %d ', $this->gettext('every'), $rrule['INTERVAL']);
-        $details = '';
+        $output  = sprintf('%s %d ', $this->gettext('every'), $rrule['INTERVAL'] ?: 1);
+
         switch ($rrule['FREQ']) {
-            case 'DAILY':
-                $freq .= $this->gettext('days');
-                break;
-            case 'WEEKLY':
-                $freq .= $this->gettext('weeks');
-                break;
-            case 'MONTHLY':
-                $freq .= $this->gettext('months');
-                break;
-            case 'YEARLY':
-                $freq .= $this->gettext('years');
-                break;
-        }
-
-        if ($rrule['INTERVAL'] <= 1) {
-            $freq = $this->gettext(strtolower($rrule['FREQ']));
+        case 'DAILY':
+            $output .= $this->gettext('days');
+            break;
+        case 'WEEKLY':
+            $output .= $this->gettext('weeks');
+            break;
+        case 'MONTHLY':
+            $output .= $this->gettext('months');
+            break;
+        case 'YEARLY':
+            $output .= $this->gettext('years');
+            break;
         }
 
         if ($rrule['COUNT']) {
-            $until =  $this->gettext(array('name' => 'forntimes', 'vars' => array('nr' => $rrule['COUNT'])));
+            $until = $this->gettext(array('name' => 'forntimes', 'vars' => array('nr' => $rrule['COUNT'])));
         }
         else if ($rrule['UNTIL']) {
-            $until = $this->gettext('recurrencend') . ' ' . $this->rc->format_date($rrule['UNTIL'], self::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format'])));
+            $until = $this->gettext('recurrencend') . ' ' . $this->rc->format_date($rrule['UNTIL'], $format);
         }
         else {
             $until = $this->gettext('forever');
         }
 
-        $except = '';
-        if (is_array($rrule['EXDATE']) && !empty($rrule['EXDATE'])) {
-          $format = self::to_php_date_format($this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format']));
-          $exdates = array_map(
-            function($dt) use ($format) { return rcmail::get_instance()->format_date($dt, $format); },
-            array_slice($rrule['EXDATE'], 0, 10)
-          );
-          $except = '; ' . $this->gettext('except') . ' ' . join(', ', $exdates);
+        $output .= ', ' . $until;
+
+        if (!empty($exdates)) {
+            if (count($exdates) > $limit) {
+                $exdates = array_slice($exdates, 0, $limit);
+                $more    = true;
+            }
+
+            $output  = '; ' . $this->gettext('except') . ' ' . join(', ', $exdates)
+                . ($more ? '...' : '');
         }
 
-        return rtrim($freq . $details . ', ' . $until . $except);
+        return $output;
     }
 
     /**
