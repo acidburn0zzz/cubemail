@@ -1012,6 +1012,10 @@ class kolab_storage
      */
     public static function folder_hierarchy($folders, &$tree = null)
     {
+        if (!self::setup()) {
+            return array();
+        }
+
         $_folders = array();
         $delim    = self::$imap->get_hierarchy_delimiter();
         $other_ns = rtrim(self::namespace_root('other'), $delim);
