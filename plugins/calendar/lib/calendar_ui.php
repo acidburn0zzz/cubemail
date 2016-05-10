@@ -585,7 +585,7 @@ class calendar_ui
 
     $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'event-export-attachments', 'value' => 1));
     $html .= html::div('form-section',
-      html::label('event-export-range', $this->cal->gettext('exportattachments')) .
+      html::label('event-export-attachments', $this->cal->gettext('exportattachments')) .
       $checkbox->show(1)
     );
 
