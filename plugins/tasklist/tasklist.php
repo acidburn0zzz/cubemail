@@ -1330,7 +1330,7 @@ class tasklist extends rcube_plugin
      */
     public function filter_mask($rec)
     {
-        static $today, $tomorrow, $weeklimit;
+        static $today, $today_date, $tomorrow, $tomorrow_date, $week_date, $weeklimit;
 
         if (!$today) {
             $today_date = new DateTime('now', $this->timezone);
