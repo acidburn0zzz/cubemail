@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Folders plugin
+ *
+ * Copyright (C) 2015, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
+ */
 $labels['navtitle'] = '笔记';
 $labels['tags'] = '标签';
 $labels['lists'] = '笔记本';
@@ -26,6 +33,7 @@ $labels['unsavedchanges'] = '更改未保存';
 $labels['appendnote'] = '增加新笔记';
 $labels['editnote'] = '编辑笔记';
 $labels['savein'] = '保存为';
+$labels['nonotebooksfound'] = '未发现笔记本';
 $labels['removelist'] = '从列表中移除';
 $labels['savingdata'] = '保存数据...';
 $labels['recordnotfound'] = '未找到记录';

@@ -6,8 +6,9 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
+$labels['compare'] = 'Vergelijken';
+$labels['objectchangelog'] = 'Geschiedenis';
 $labels['user'] = 'Gebruiker';
 $labels['actionappend'] = 'Opgeslagen';
 $labels['actionmove'] = 'Verplaatst';
 $labels['actiondelete'] = 'Verwijderd';
-$labels['compare'] = 'Vergelijken';

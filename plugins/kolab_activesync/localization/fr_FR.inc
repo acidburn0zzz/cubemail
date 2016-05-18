@@ -15,6 +15,7 @@ $labels['task'] = 'Tâches';
 $labels['note'] = 'Notes';
 $labels['configuration'] = 'Configuration';
 $labels['deletedevice'] = 'Supprimer ce périphérique';
+$labels['nodevices'] = 'Il n\'y a actuellement pas de périphérique enregistré.<br/><br/>Afin d\'enregistrer un périphérique, commencez par le connecter au serveur d\'abord. Pour cela, utilisez les instructions de <a href="http://wiki.kolab.org/Setup_ActiveSync">cette page</a>. Ensuite le périphérique devrait devenir disponible ici pour configuration.';
 $labels['savingdata'] = 'Enregistrer...';
 $labels['savingerror'] = 'Échec de l\'enregistrement de la configuration';
 $labels['notsupported'] = 'Votre serveur ne supporte pas les métadonnées ou les annotations';

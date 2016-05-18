@@ -6,12 +6,17 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
-$labels['revision'] = 'Verze';
+$labels['showhistory'] = 'Ukázat historii';
+$labels['compare'] = 'Porovnat';
+$labels['objectchangelog'] = 'Historie';
+$labels['objectdiff'] = 'Změny od $rev1 do $rev2';
+$labels['revision'] = 'Revize';
 $labels['user'] = 'Uživatel';
 $labels['operation'] = 'Činnost';
 $labels['actionappend'] = 'Uloženo';
 $labels['actionmove'] = 'Přesunuto';
 $labels['actiondelete'] = 'Smazáno';
-$labels['compare'] = 'Porovnat';
+$labels['actionread'] = 'Označeno jako přečtené';
 $labels['showrevision'] = 'Ukázat tuto verzi';
 $labels['restore'] = 'Obnovit tuto verzi';
+$labels['objectchangelognotavailable'] = 'Pro tuto zprávu není historie k dispozici';

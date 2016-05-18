@@ -11,5 +11,4 @@ $labels['at'] = 'a';
 $labels['alarmemailoption'] = 'Email';
 $labels['frequency'] = 'Repeteix';
 $labels['recurrencend'] = 'fins';
-$labels['itipdelegated'] = 'Delegate';
 $labels['savingdata'] = 'S\'estan desant les dades...';

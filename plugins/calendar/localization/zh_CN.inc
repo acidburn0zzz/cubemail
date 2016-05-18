@@ -63,6 +63,7 @@ $labels['created'] = '已创建';
 $labels['changed'] = '最后更改';
 $labels['unknown'] = '未知';
 $labels['eventoptions'] = '选项';
+$labels['eventhistory'] = '历史';
 $labels['weekofyear'] = '周';
 $labels['confirmstate'] = '状态';
 $labels['availfree'] = '空闲';

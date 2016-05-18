@@ -6,6 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_auth/
  */
-$labels['loginas'] = 'Logga in som';
-$labels['loginasnotallowed'] = 'Du har inte befogenhet att logga in som $user';
+$labels['loginas'] = 'Увійти як користувач';
+$labels['loginasnotallowed'] = 'Немає привілеїв, увійти як $user';
 ?>
