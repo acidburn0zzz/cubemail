@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Folders plugin
+ *
+ * Copyright (C) 2015, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
+ */
 $labels['navtitle'] = 'Notes';
 $labels['tags'] = 'Étiquettes';
 $labels['lists'] = 'Carnets';
@@ -52,3 +59,4 @@ $labels['arialabelnotesoptionsmenu'] = 'Menu des actions pour un carnet';
 $labels['arialabelnotebookform'] = 'Propriétés du carnet';
 $labels['arialabelmessagereferences'] = 'Mails liés';
 $labels['arialabelfolderearchform'] = 'Masque de recherche des carnets';
+$labels['arialabelnoteform'] = 'Zone d\'édition de note';

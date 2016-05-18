@@ -56,18 +56,6 @@ $labels['invalidlistproperties'] = 'Invalid notebook properties! Please set a va
 $labels['entertitle'] = 'Please enter a title for this note!';
 $labels['aclnorights'] = 'You do not have administrator rights for this notebook.';
 
-// history dialog
-$labels['showhistory'] = 'Show History';
-$labels['objectchangelog'] = 'Change History';
-$labels['objectdiff'] = 'Changes from $rev1 to $rev2';
-$labels['objectnotfound'] = 'Failed to load note data';
-$labels['objectchangelognotavailable'] = 'Change history is not available for this note';
-$labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';
-$labels['revisionrestoreconfirm'] = 'Do you really want to restore revision $rev of this note? This will replace the current note with the old version.';
-$labels['objectrestoresuccess'] = 'Revision $rev successfully restored';
-$labels['objectrestoreerror'] = 'Failed to restore the old revision';
-
-// (hidden) titles and labels for accessibility annotations
 $labels['arialabelnoteslist'] = 'List of notes';
 $labels['arialabelnotesearchform'] = 'Notes search form';
 $labels['arialabelnotesquicksearchbox'] = 'Notes search input';

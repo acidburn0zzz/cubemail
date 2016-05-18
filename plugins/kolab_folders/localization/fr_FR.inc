@@ -24,5 +24,6 @@ $labels['outbox'] = 'Courrier sortant';
 $labels['wastebasket'] = 'Corbeille';
 $labels['junkemail'] = 'Indésirables';
 $labels['confidential'] = 'Confidentiel';
+$labels['private'] = 'Privé';
 $messages['defaultfolderexists'] = 'Il existe déjà un répertoire par défaut pour le type spécifié';
 ?>

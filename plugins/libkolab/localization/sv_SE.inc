@@ -6,12 +6,13 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
+$labels['compare'] = 'Jämför';
+$labels['objectchangelog'] = 'Historik';
 $labels['revision'] = 'Revision';
 $labels['user'] = 'Användare';
 $labels['operation'] = 'Åtgärd';
 $labels['actionappend'] = 'Sparad';
 $labels['actionmove'] = 'Flyttad';
 $labels['actiondelete'] = 'Borttagen';
-$labels['compare'] = 'Jämför';
 $labels['showrevision'] = 'Visa denna version';
 $labels['restore'] = 'Återställ denna verson';

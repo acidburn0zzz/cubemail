@@ -56,6 +56,7 @@ $labels['folderdeletenotice'] = 'Složka byla úspěšně smazána.';
 $labels['folderupdatenotice'] = 'Složka aktualizována.';
 $labels['foldercreatenotice'] = 'Složka úspěšně vytvořena.';
 $labels['foldermountnotice'] = 'Úložiště bylo úspěšně přidáno.';
+$labels['folderauthtitle'] = 'Přihlášení k $title';
 $labels['saveallnotice'] = 'Úspěšně uloženo $n soubor(ů).';
 $labels['saveallerror'] = 'Ukládání $n souborů selhalo.';
 $labels['attacherror'] = 'Nepodařilo se připojit soubor(y) ze serveru';
