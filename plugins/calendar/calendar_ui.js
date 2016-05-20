@@ -3033,11 +3033,11 @@ function rcube_calendar_ui(settings)
           rcmail.env.request_timeout = timeout;
         }
       };
-      
+
       buttons[rcmail.gettext('cancel', 'calendar')] = function() {
         $dialog.dialog("close");
       };
-      
+
       // open jquery UI dialog
       $dialog.dialog({
         modal: true,
@@ -3054,7 +3054,6 @@ function rcube_calendar_ui(settings)
         buttons: buttons,
         width: 520
       }).show();
-      
     };
 
     // callback from server if import succeeded
@@ -3097,7 +3096,7 @@ function rcube_calendar_ui(settings)
         if (custom)
           input.select();
       })
-      
+
       var buttons = {};
       buttons[rcmail.gettext('export', 'calendar')] = function() {
         if (form) {
@@ -3112,8 +3111,9 @@ function rcube_calendar_ui(settings)
 
           rcmail.goto_url('export_events', { source:source, start:start, attachments:attachmt?1:0 });
         }
+        $dialog.dialog("close");
       };
-      
+
       buttons[rcmail.gettext('cancel', 'calendar')] = function() {
         $dialog.dialog("close");
       };
@@ -3134,7 +3134,6 @@ function rcube_calendar_ui(settings)
         buttons: buttons,
         width: 520
       }).show();
-      
     };
 
     // download the selected event as iCal
