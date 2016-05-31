@@ -1342,6 +1342,7 @@ function rcube_calendar_ui(settings)
         closeOnEscape: (!bw.ie6 && !bw.ie7),
         title: rcmail.gettext('scheduletime', 'calendar'),
         open: function() {
+          rcmail.ksearch_blur();
           $dialog.attr('aria-hidden', 'false').find('#shedule-find-next, #shedule-find-prev').not(':disabled').first().focus();
         },
         close: function() {
@@ -2048,6 +2049,7 @@ function rcube_calendar_ui(settings)
         closeOnEscape: true,
         title: rcmail.gettext('findresources', 'calendar'),
         open: function() {
+          rcmail.ksearch_blur();
           $dialog.attr('aria-hidden', 'false');
         },
         close: function() {
