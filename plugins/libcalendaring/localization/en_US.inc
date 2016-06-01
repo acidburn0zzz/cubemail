@@ -65,6 +65,7 @@ $labels['weekly'] = 'weekly';
 $labels['monthly'] = 'monthly';
 $labels['yearly'] = 'annually';
 $labels['rdate'] = 'on dates';
+$labels['ondate'] = 'on date';
 $labels['every'] = 'Every';
 $labels['days'] = 'day(s)';
 $labels['weeks'] = 'week(s)';
