@@ -465,13 +465,17 @@ class libvcalendar implements Iterator
                 break;
 
             case 'EXDATE':
-                if (!empty($prop->value))
-                    $event['recurrence']['EXDATE'] = array_merge((array)$event['recurrence']['EXDATE'], self::convert_datetime($prop, true));
+                if (!empty($prop->value)) {
+                    $rdates = array_map(function($_) { return is_array($_) ? $_[0] : $_; }, self::convert_datetime($prop, true));
+                    $event['recurrence']['EXDATE'] = array_merge((array)$event['recurrence']['EXDATE'], $rdates);
+                }
                 break;
 
             case 'RDATE':
-                if (!empty($prop->value))
-                    $event['recurrence']['RDATE'] = array_merge((array)$event['recurrence']['RDATE'], self::convert_datetime($prop, true));
+                if (!empty($prop->value)) {
+                    $rdates = array_map(function($_) { return is_array($_) ? $_[0] : $_; }, self::convert_datetime($prop, true));
+                    $event['recurrence']['RDATE'] = array_merge((array)$event['recurrence']['RDATE'], $rdates);
+                }
                 break;
 
             case 'RECURRENCE-ID':
@@ -782,20 +786,26 @@ class libvcalendar implements Iterator
                 $dt[] = $item;
             }
         }
-        else if ($prop instanceof VObject\Property\DateTime) {
-            $dt = $prop->getDateTime();
-            if ($prop->getDateType() & VObject\Property\DateTime::DATE) {
-                $dt->_dateonly = true;
-            }
-        }
-        else if ($prop instanceof VObject\Property && ($prop['VALUE'] == 'DATE' || $prop['VALUE'] == 'DATE-TIME')) {
-            try {
-                list($type, $dt) = VObject\Property\DateTime::parseData($prop->value, $prop);
-                $dt->_dateonly = ($type & VObject\Property\DateTime::DATE);
-            }
-            catch (Exception $e) {
-                // ignore date parse errors
-            }
+        else if (($prop instanceof VObject\Property\DateTime)
+            || ($prop instanceof VObject\Property && ($prop['VALUE'] == 'DATE' || $prop['VALUE'] == 'DATE-TIME')) 
+        ) {
+            // Because of VObject 2.1 bug RDATE can end up here, so
+            // we workaround it by handling multiple values (T1278)
+            $dt = array();
+            foreach (explode(',', $prop->value) as $val) {
+                try {
+                    list($type, $item) = VObject\Property\DateTime::parseData($val, $prop);
+                    $item->_dateonly = ($type & VObject\Property\DateTime::DATE);
+                    $dt[] = $item;
+                }
+                catch (Exception $e) {
+                    // ignore single date parse errors
+                }
+           }
+
+           if (!$as_array) {
+               $dt = $dt[0];
+           }
         }
         else if ($prop instanceof VObject\Property && $prop['VALUE'] == 'PERIOD') {
             $dt = array();
