@@ -58,9 +58,10 @@ class calendar extends rcube_plugin
     'calendar_itip_after_action'   => 0,
   );
 
-  private $ical;
-  private $itip;
-  private $driver;
+// These are implemented with __get()
+//  private $ical;
+//  private $itip;
+//  private $driver;
 
 
   /**
@@ -2925,14 +2926,14 @@ class calendar extends rcube_plugin
             $existing_attendee_emails = array();
             foreach ($existing['attendees'] as $i => $attendee) {
               $existing_attendee_emails[] = $attendee['email'];
-              if ($event['_sender'] && ($attendee['email'] == $event['_sender'] || $attendee['email'] == $event['_sender_utf'])) {
+              if ($this->itip->compare_email($attendee['email'], $event['_sender'], $event['_sender_utf'])) {
                 $existing_attendee = $i;
               }
             }
             $event_attendee = null;
             $update_attendees = array();
             foreach ($event['attendees'] as $attendee) {
-              if ($event['_sender'] && ($attendee['email'] == $event['_sender'] || $attendee['email'] == $event['_sender_utf'])) {
+              if ($this->itip->compare_email($attendee['email'], $event['_sender'], $event['_sender_utf'])) {
                 $event_attendee = $attendee;
                 $update_attendees[] = $attendee;
                 $metadata['fallback'] = $attendee['status'];
@@ -2943,11 +2944,11 @@ class calendar extends rcube_plugin
                 }
               }
               // also copy delegate attendee
-              else if (!empty($attendee['delegated-from']) &&
-                       (stripos($attendee['delegated-from'], $event['_sender']) !== false ||
-                        stripos($attendee['delegated-from'], $event['_sender_utf']) !== false)) {
+              else if (!empty($attendee['delegated-from'])
+                && $this->itip->compare_email($attendee['delegated-from'], $event['_sender'], $event['_sender_utf'])
+              ) {
                 $update_attendees[] = $attendee;
-                if (!in_array($attendee['email'], $existing_attendee_emails)) {
+                if (!in_array_nocase($attendee['email'], $existing_attendee_emails)) {
                   $existing['attendees'][] = $attendee;
                 }
               }
