@@ -492,13 +492,15 @@ class libcalendaring_itip
             $title = $this->gettext('itipreply');
 
             foreach ($event['attendees'] as $attendee) {
-                if (!empty($attendee['email']) && $attendee['role'] != 'ORGANIZER' &&
-                      (empty($event['_sender']) || ($attendee['email'] == $event['_sender'] || $attendee['email'] == $event['_sender_utf']))) {
-                    $metadata['attendee'] = $attendee['email'];
-                    $rsvp_status = strtoupper($attendee['status']);
-                    if ($attendee['delegated-to'])
-                        $metadata['delegated-to'] = $attendee['delegated-to'];
-                    break;
+                if (!empty($attendee['email']) && $attendee['role'] != 'ORGANIZER') {
+                    if (empty($event['_sender']) || self::compare_email($attendee['email'], $event['_sender'], $event['_sender_utf'])) {
+                        $metadata['attendee'] = $attendee['email'];
+                        $rsvp_status = strtoupper($attendee['status']);
+                        if ($attendee['delegated-to']) {
+                            $metadata['delegated-to'] = $attendee['delegated-to'];
+                        }
+                        break;
+                    }
                 }
             }
 
@@ -814,4 +816,14 @@ class libcalendaring_itip
       return $ret;
     }
 
+    /**
+     * Compare email address
+     */
+    public static function compare_email($value, $email, $email_utf = null)
+    {
+        $v1 = !empty($email) && strcasecmp($value, $email) === 0;
+        $v2 = !empty($email_utf) && strcasecmp($value, $email_utf) === 0;
+
+        return $v1 || $v2;
+    }
 }
