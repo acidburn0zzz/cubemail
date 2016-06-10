@@ -44,10 +44,6 @@ class tasklist_ui
             return;
         }
 
-        if ($this->rc->action && !in_array($this->rc->action, array('show', 'preview', 'print', 'index'))) {
-            return;
-        }
-
         // add taskbar button
         $this->plugin->add_button(array(
             'command'    => 'tasks',
@@ -56,6 +52,10 @@ class tasklist_ui
             'innerclass' => 'button-inner',
             'label'      => 'tasklist.navtitle',
         ), 'taskbar');
+
+        if ($this->rc->action && !in_array($this->rc->action, array('show', 'preview', 'print', 'index'))) {
+            return;
+        }
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tasklist.css');
 
