@@ -55,15 +55,17 @@ class tasklist extends rcube_plugin
 
     public $rc;
     public $lib;
-    public $driver;
     public $timezone;
     public $ui;
     public $home;  // declare public to be used in other classes
 
+    // These are handled by __get()
+    // public $driver;
+    // public $itip;
+    // public $ical;
+
     private $collapsed_tasks = array();
-    private $message_tasks = array();
-    private $itip;
-    private $ical;
+    private $message_tasks   = array();
 
 
     /**
