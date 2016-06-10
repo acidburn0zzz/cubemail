@@ -464,13 +464,11 @@ class kolab_folders extends rcube_plugin
             // we're dealing with a groupware folder here...
             if ($type && $type !== 'mail') {
                 if ($args['rights']['write'] && $args['rights']['delete']) {
-                    $writeperms = $args['rights']['write'] . $args['rights']['delete'];
-                    $items = array(
-                        'read'   => 'lr',
-                        'write'  => $writeperms,
-                        'other'  => preg_replace('/[lr'.$writeperms.']/', '', $args['rights']['other']),
-                    );
-                    $args['rights'] = $items;
+                    $write_perms = $args['rights']['write'] . $args['rights']['delete'];
+                    $rw_perms    = $write_perms . $args['rights']['read'];
+
+                    $args['rights']['write'] = $write_perms;
+                    $args['rights']['other'] = preg_replace("/[$rw_perms]/", '', $args['rights']['other']);
 
                     // add localized labels and titles for the altered items
                     $args['labels'] = array(
@@ -501,7 +499,7 @@ class kolab_folders extends rcube_plugin
             // we're dealing with a groupware folder here...
             if ($type && $type !== 'mail') {
                 // remove some irrelevant (for groupware objects) rights
-                $args['rights'] = str_split(preg_replace('/[sp]/', '', join('', $args['rights'])));
+                $args['rights'] = str_split(preg_replace('/[p]/', '', join('', $args['rights'])));
             }
         }
 
