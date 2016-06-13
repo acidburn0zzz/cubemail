@@ -125,7 +125,6 @@ $labels['invitationmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attend
 $labels['itipupdatesubject'] = '"$title" has been updated';
 $labels['itipupdatesubjectempty'] = 'A task that concerns you has been updated';
 $labels['itipupdatemailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nPlease find attached an iCalendar file with the updated task details which you can import to your tasks application.";
-$labels['itipcancelsubject'] = '"$title" has been canceled';
 $labels['itipcancelmailbody'] = "*\$title*\n\nDue: \$date\n\nAssignees: \$attendees\n\nThe task has been cancelled by \$organizer.\n\nPlease find attached an iCalendar file with the updated task details.";
 $labels['saveintasklist'] = 'save in ';
 $labels['itipobjectnotfound'] = 'The task referred by this message was not found in your tasks list.';

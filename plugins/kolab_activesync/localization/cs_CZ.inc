@@ -1,8 +1,10 @@
 <?php
 $labels['tabtitle'] = 'Activesync';
+$labels['activesynctitle'] = 'Správa Avtivesync zařízení';
 $labels['devices'] = 'Zařízení';
 $labels['devicealias'] = 'Název zařízení';
 $labels['synchronize'] = 'Synchronizovat';
+$labels['withalarms'] = 'Připomenutí';
 $labels['syncsettings'] = 'Nastavení synchronizace';
 $labels['deviceconfig'] = 'Konfigurace zařízení';
 $labels['folderstosync'] = 'Složky k synchronizaci';
@@ -13,15 +15,19 @@ $labels['task'] = 'Úkoly';
 $labels['note'] = 'Poznámky';
 $labels['configuration'] = 'Nastavení';
 $labels['deletedevice'] = 'Smazat zařízení';
+$labels['nodevices'] = 'V současné době nemáte registrována žádná zařízení.<br/><br/>Zařízení musíte nejprve připojit k serveru dle <a href="$url" target="_blank">těchto pokynů</a>. Po úspěšném připojení zde bude dostupná konfigurace připojených zařízení.';
 $labels['savingdata'] = 'Ukládám data...';
 $labels['savingerror'] = 'Nepodařilo se uložit konfiguraci';
+$labels['notsupported'] = 'Váš server nepodporuje metadata/annotations';
 $labels['devicedeleteconfirm'] = 'Opravdu chcete smazat konfiguraci pro toto zařízení?';
 $labels['successfullydeleted'] = 'Konfigurace zařízení byla úspěšně odebrána';
 $labels['devicenotfound'] = 'Nelze přečíst konfigurace zařízení';
 $labels['devicetype'] = 'Typ zařízení';
 $labels['acsversion'] = 'Verze protokolu';
+$labels['useragent'] = 'User-Agent';
 $labels['friendlyname'] = 'Zobrazovaný název';
 $labels['os'] = 'Operační systém';
 $labels['oslanguage'] = 'Jazyk OS';
 $labels['phonenumber'] = 'Telefonní číslo';
+$labels['arialabeldeviceframe'] = 'Nastavení synchronizace zařízení';
 ?>

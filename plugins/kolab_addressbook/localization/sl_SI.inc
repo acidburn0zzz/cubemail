@@ -9,4 +9,6 @@
 $labels['bookremove'] = 'Odstrani iz seznama';
 $labels['searchterms'] = 'Iskalni pogoji';
 $labels['foldersubscribe'] = 'Označi za vedno';
+$labels['objectchangelog'] = 'Spremeni Zgodovino';
+$labels['objectdiffnotavailable'] = 'Primerjava za izbrane verzije ni na voljo';
 ?>

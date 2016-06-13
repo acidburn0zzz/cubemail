@@ -11,4 +11,5 @@ $labels['cancel'] = 'Zrušiť';
 $labels['name'] = 'Meno';
 $labels['edit'] = 'Upraviť';
 $labels['save'] = 'Uložiť';
-?>
+$labels['select'] = 'Vybrať';
+$labels['status'] = 'Stav';

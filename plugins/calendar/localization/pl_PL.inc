@@ -169,7 +169,6 @@ $labels['invitationattendlinks'] = "W przypadku gdy klient poczty elektronicznej
 $labels['eventupdatesubject'] = '"$title" zostało zaktualizowane';
 $labels['eventupdatesubjectempty'] = 'Zdarzenie które cię dotyczy zostało zaktualizowane';
 $labels['eventupdatemailbody'] = "*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees\n\nW załączeniu plik w formacie iCalendar zawierający zaktualizowane szczegóły zdarzenia, które możesz zaimportować do swojej aplikacji kalendarza.";
-$labels['eventcancelsubject'] = '"$title" zostało anulowane';
 $labels['eventcancelmailbody'] = "*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees\n\nZdarzenie zostało anulowane przez \$organizer.\n\nW załączeniu plik w formacie iCalendar ze zaktualizowanymi szczegółami zdarzenia.";
 $labels['itipobjectnotfound'] = 'W twoim kalendarzu nie znaleziono zdarzenia związanego z tą wiadomością.';
 $labels['itipmailbodyaccepted'] = "\$sender zaakceptował zaproszenie do następującego zdarzenia:\n\n*\$title*\n\nKiedy: \$date\n\nZaproszeni: \$attendees";

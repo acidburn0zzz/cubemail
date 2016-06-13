@@ -28,3 +28,5 @@ $labels['updateerror'] = 'Tunnistetietojen päivittäminen epäonnistui.';
 $labels['taggingsuccess'] = 'Tunnisteet on asetettu onnistuneesti.';
 $labels['taggingerror'] = 'Tunnisteiden asettaminen epäonnistui.';
 $labels['untaggingsuccess'] = 'Tunnisteet on poistettu onnistuneesti.';
+$labels['newtag'] = 'Uusi tunniste';
+$labels['tagsearchnew'] = 'Kirjoita haettava teksti tai luo uusi tunniste';

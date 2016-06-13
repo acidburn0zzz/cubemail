@@ -13,4 +13,13 @@ $labels['folderinside'] = 'Vstavi';
 $labels['name'] = 'Ime';
 $labels['edit'] = 'Uredi';
 $labels['save'] = 'Shrani';
-?>
+$labels['listpermanent'] = 'Označi za vedno';
+$labels['select'] = 'Izberi';
+$labels['participant'] = 'Udeleženec';
+$labels['status'] = 'Status';
+$labels['addparticipant'] = 'Dodaj udeleženca';
+$labels['invitationtextlabel'] = 'Komentar vabila/obvestila';
+$labels['statusorganizer'] = 'Organizator';
+$labels['removeparticipant'] = 'Odstrani';
+$labels['owner'] = 'Lastnik';
+$labels['comment'] = 'Komentar';

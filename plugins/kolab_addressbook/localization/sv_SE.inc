@@ -9,4 +9,6 @@
 $labels['bookremove'] = 'Ta bort från lista';
 $labels['searchterms'] = 'Sökord';
 $labels['foldersubscribe'] = 'Lista permanent';
+$labels['objectchangelog'] = 'Ändringshistorik';
+$labels['objectdiffnotavailable'] = 'Ingen jämförelse möjlig för valda revisioner';
 ?>

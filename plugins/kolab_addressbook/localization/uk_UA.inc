@@ -10,4 +10,5 @@ $labels['settings'] = 'Налаштування';
 $labels['bookremove'] = 'Вилучити зі списку';
 $labels['searchterms'] = 'Умови пошуку';
 $labels['foldersubscribe'] = 'Завжди показувати';
+$labels['objectchangelog'] = 'Історія змін';
 ?>

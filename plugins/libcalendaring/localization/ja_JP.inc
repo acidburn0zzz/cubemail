@@ -22,7 +22,6 @@ $labels['trigger-D'] = '分後';
 $labels['trigger+M'] = '分後';
 $labels['trigger+H'] = '時間後';
 $labels['trigger+D'] = '日後';
-$labels['triggerattime'] = 'その時に';
 $labels['addalarm'] = 'アラーム追加';
 $labels['removealarm'] = 'アラーム削除';
 $labels['alarmtitle'] = '今後のイベント';

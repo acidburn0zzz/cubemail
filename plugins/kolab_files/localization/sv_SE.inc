@@ -13,4 +13,12 @@ $labels['folderinside'] = 'Infoga inuti';
 $labels['name'] = 'Namn';
 $labels['edit'] = 'Redigera';
 $labels['save'] = 'Spara';
-?>
+$labels['listpermanent'] = 'Lista permanent';
+$labels['select'] = 'Välj';
+$labels['participant'] = 'Deltagare';
+$labels['status'] = 'Status';
+$labels['addparticipant'] = 'Lägg till deltagare';
+$labels['invitationtextlabel'] = 'Kommentar till inbjudan/meddelande';
+$labels['statusorganizer'] = 'Organisatör';
+$labels['owner'] = 'Ägare';
+$labels['comment'] = 'Kommentar';

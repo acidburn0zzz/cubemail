@@ -22,7 +22,6 @@ $labels['trigger-D'] = 'dnů před';
 $labels['trigger+M'] = 'minut po';
 $labels['trigger+H'] = 'hodin po';
 $labels['trigger+D'] = 'dnů po';
-$labels['triggerattime'] = 'v čase';
 $labels['addalarm'] = 'Přidat upozornění';
 $labels['removealarm'] = 'Odstranit upozornění';
 $labels['alarmtitle'] = 'Blížící se události';

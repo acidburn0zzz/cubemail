@@ -22,7 +22,6 @@ $labels['trigger-D'] = 'jours avant';
 $labels['trigger+M'] = 'minutes après';
 $labels['trigger+H'] = 'heures après';
 $labels['trigger+D'] = 'jours après';
-$labels['triggerattime'] = 'à l\'heure';
 $labels['addalarm'] = 'Ajouter une alarme';
 $labels['removealarm'] = 'Supprimer l\'alarme';
 $labels['alarmtitle'] = 'Evénements à venir';

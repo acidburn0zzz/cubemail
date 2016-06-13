@@ -14,4 +14,12 @@ $labels['folderinside'] = 'Вставити всередину';
 $labels['name'] = 'Назва';
 $labels['edit'] = 'Редагувати';
 $labels['save'] = 'Зберегти';
-?>
+$labels['listpermanent'] = 'Завжди показувати';
+$labels['select'] = 'Вибрати';
+$labels['participant'] = 'Учасний';
+$labels['status'] = 'Статус';
+$labels['addparticipant'] = 'Додати учасника';
+$labels['invitationtextlabel'] = 'Коментар до запрошення/повідомлення';
+$labels['statusorganizer'] = 'Організатор';
+$labels['owner'] = 'Власник';
+$labels['comment'] = 'Коментарій';

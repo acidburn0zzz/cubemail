@@ -31,5 +31,4 @@ $labels['yes'] = '是';
 $labels['savingdata'] = '保存数据...';
 $labels['confirmstate'] = '状态';
 $labels['taskhistory'] = '历史';
-$labels['compare'] = '对比';
 $labels['comment'] = '注释';
