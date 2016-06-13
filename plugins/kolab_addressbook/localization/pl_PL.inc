@@ -9,4 +9,6 @@
 $labels['bookremove'] = 'Usuń z listy';
 $labels['searchterms'] = 'Szukana fraza';
 $labels['foldersubscribe'] = 'Dodaj do listy na stałe';
+$labels['objectchangelog'] = 'Historia zmian';
+$labels['objectdiffnotavailable'] = 'Nie można porównać wybranych wersji';
 ?>

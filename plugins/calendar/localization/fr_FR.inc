@@ -169,7 +169,6 @@ $labels['invitationattendlinks'] = "Dans le cas où votre application de message
 $labels['eventupdatesubject'] = '"$title" a été modifié';
 $labels['eventupdatesubjectempty'] = 'Un évènement vous concernant a été modifié';
 $labels['eventupdatemailbody'] = "*\$title*\n\nQuand: \$date\n\nParticipants: \$attendees\n\nVous trouverez ci-joint un fichier iCalendar avec tous les modifications de l'évènement que vous pourrez importer dans votre agenda électronique.";
-$labels['eventcancelsubject'] = '"$title" a été annulé';
 $labels['eventcancelmailbody'] = "*\$title*\n\nQuand: \$date\n\nParticipants: \$attendees\n\nL'évènement a été annulé par \$organizer.\n\nVous trouverez en pièce jointe un fichier iCalendar avec les modifications de l'évènement que vous pourrez importer dans votre agenda électronique.";
 $labels['itipobjectnotfound'] = 'L\'évènement lié à ce message n\'a pas été trouvé dans votre calendrier.';
 $labels['itipmailbodyaccepted'] = "\$sender a accepté l'invitation à l'évènement suivant :\n\n*\$title*\n\nQuand: \$date\n\nParticipants: \$attendees";

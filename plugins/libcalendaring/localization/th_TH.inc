@@ -21,7 +21,6 @@ $labels['trigger-D'] = 'วัน ก่อน';
 $labels['trigger+M'] = 'นาที หลัง';
 $labels['trigger+H'] = 'ชั่วโมง หลัง';
 $labels['trigger+D'] = 'วัน หลัง';
-$labels['triggerattime'] = 'เมื่อเวลา';
 $labels['addalarm'] = 'เพิ่มการเตือน';
 $labels['removealarm'] = 'ลบการเตือน';
 $labels['alarmtitle'] = 'เหตุการณ์ที่กำลังจะถึง';

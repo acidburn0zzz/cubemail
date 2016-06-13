@@ -20,7 +20,6 @@ $labels['trigger-D'] = 'dagen voor';
 $labels['trigger+M'] = 'minuten na';
 $labels['trigger+H'] = 'uren na';
 $labels['trigger+D'] = 'dagen na';
-$labels['triggerattime'] = 'at time';
 $labels['alarmtitle'] = 'Aankomende evenementen';
 $labels['repeatinmin'] = 'Herhaal over $min minuten';
 $labels['repeatinhr'] = 'Herhaal over 1 uur';

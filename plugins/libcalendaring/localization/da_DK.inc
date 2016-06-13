@@ -22,7 +22,6 @@ $labels['trigger-D'] = 'dage før';
 $labels['trigger+M'] = 'minutter efter';
 $labels['trigger+H'] = 'timer efter';
 $labels['trigger+D'] = 'dage efter';
-$labels['triggerattime'] = 'på tidspunktet';
 $labels['addalarm'] = 'Tilføj alarm';
 $labels['removealarm'] = 'Fjern alarm';
 $labels['alarmtitle'] = 'Kommende arrangementer';

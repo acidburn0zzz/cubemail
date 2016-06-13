@@ -10,4 +10,5 @@ $labels['officelocation'] = '办公地点';
 $labels['typecallback'] = '反馈';
 $labels['settings'] = '设置';
 $labels['bookremove'] = '从列表中移除';
+$labels['showhistory'] = '显示历史';
 ?>

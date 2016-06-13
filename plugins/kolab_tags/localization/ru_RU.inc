@@ -29,3 +29,5 @@ $labels['taggingsuccess'] = 'Теги успешно назначены.';
 $labels['taggingerror'] = 'Не удалось назначить теги.';
 $labels['untaggingsuccess'] = 'Тег(и) успешно убраны.';
 $labels['untaggingerror'] = 'Не удалось снять назначенные теги.';
+$labels['newtag'] = 'Новый тег';
+$labels['tagsearchnew'] = 'Введите текст для поиска или создания тега';
