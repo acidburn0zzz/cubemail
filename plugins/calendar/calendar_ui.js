@@ -3867,77 +3867,6 @@ function rcube_calendar_ui(settings)
       }
     }));
 
-    // format time string
-    var formattime = function(hour, minutes, start) {
-      var time, diff, unit, duration = '', d = new Date();
-      d.setHours(hour);
-      d.setMinutes(minutes);
-      time = $.fullCalendar.formatDate(d, settings['time_format']);
-      if (start) {
-        diff = Math.floor((d.getTime() - start.getTime()) / 60000);
-        if (diff > 0) {
-          unit = 'm';
-          if (diff >= 60) {
-            unit = 'h';
-            diff = Math.round(diff / 3) / 20;
-          }
-          duration = ' (' + diff + unit + ')';
-        }
-      }
-      return [time, duration];
-    };
-
-    var autocomplete_times = function(p, callback) {
-      /* Time completions */
-      var result = [];
-      var now = new Date();
-      var st, start = (String(this.element.attr('id')).indexOf('endtime') > 0
-        && (st = $('#edit-starttime').val())
-        && $('#edit-startdate').val() == $('#edit-enddate').val())
-        ? parse_datetime(st, '') : null;
-      var full = p.term - 1 > 0 || p.term.length > 1;
-      var hours = start ? start.getHours() :
-        (full ? parse_datetime(p.term, '') : now).getHours();
-      var step = 15;
-      var minutes = hours * 60 + (full ? 0 : now.getMinutes());
-      var min = Math.ceil(minutes / step) * step % 60;
-      var hour = Math.floor(Math.ceil(minutes / step) * step / 60);
-      // list hours from 0:00 till now
-      for (var h = start ? start.getHours() : 0; h < hours; h++)
-        result.push(formattime(h, 0, start));
-      // list 15min steps for the next two hours
-      for (; h < hour + 2 && h < 24; h++) {
-        while (min < 60) {
-          result.push(formattime(h, min, start));
-          min += step;
-        }
-        min = 0;
-      }
-      // list the remaining hours till 23:00
-      while (h < 24)
-        result.push(formattime((h++), 0, start));
-      
-      return callback(result);
-    };
-
-    var autocomplete_open = function(event, ui) {
-      // scroll to current time
-      var $this = $(this);
-      var widget = $this.autocomplete('widget');
-      var menu = $this.data('ui-autocomplete').menu;
-      var amregex = /^(.+)(a[.m]*)/i;
-      var pmregex = /^(.+)(a[.m]*)/i;
-      var val = $(this).val().replace(amregex, '0:$1').replace(pmregex, '1:$1');
-      var li, html;
-      widget.css('width', '10em');
-      widget.children().each(function(){
-        li = $(this);
-        html = li.children().first().html().replace(/\s+\(.+\)$/, '').replace(amregex, '0:$1').replace(pmregex, '1:$1');
-        if (html.indexOf(val) == 0)
-          menu._scrollIntoView(li);
-      });
-    };
-
     // if start date is changed, shift end date according to initial duration
     var shift_enddate = function(dateText) {
       var newstart = parse_datetime('0', dateText);
@@ -4038,30 +3967,12 @@ function rcube_calendar_ui(settings)
       $('#edit-allday').click(function(){ $('#edit-starttime, #edit-endtime')[(this.checked?'hide':'show')](); event_times_changed(); });
 
       // configure drop-down menu on time input fields based on jquery UI autocomplete
-      $('#edit-starttime, #edit-endtime, #eventedit input.edit-alarm-time')
-        .attr('autocomplete', "off")
-        .autocomplete({
-          delay: 100,
-          minLength: 1,
-          appendTo: '#eventedit',
-          source: autocomplete_times,
-          open: autocomplete_open,
-          change: event_times_changed,
-          select: function(event, ui) {
-            $(this).val(ui.item[0]).change();
-            return false;
-          }
-        })
-        .click(function() {  // show drop-down upon clicks
-          $(this).autocomplete('search', $(this).val() ? $(this).val().replace(/\D.*/, "") : " ");
-        }).each(function(){
-          $(this).data('ui-autocomplete')._renderItem = function(ul, item) {
-            return $('<li>')
-              .data('ui-autocomplete-item', item)
-              .append('<a>' + item[0] + item[1] + '</a>')
-              .appendTo(ul);
-            };
+      $('#edit-starttime, #edit-endtime, #eventedit input.edit-alarm-time').each(function() {
+        me.init_time_autocomplete(this, {
+          container: '#eventedit',
+          change: event_times_changed
         });
+      });
 
       // adjust end time when changing start
       $('#edit-starttime').change(function(e) {
