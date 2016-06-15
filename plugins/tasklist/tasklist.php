@@ -1332,19 +1332,27 @@ class tasklist extends rcube_plugin
      */
     public function filter_mask($rec)
     {
-        static $today, $today_date, $tomorrow, $tomorrow_date, $week_date, $weeklimit;
+        static $today, $today_date, $tomorrow, $weeklimit;
 
         if (!$today) {
-            $today_date = new DateTime('now', $this->timezone);
-            $today = $today_date->format('Y-m-d');
+            $today_date    = new DateTime('now', $this->timezone);
+            $today         = $today_date->format('Y-m-d');
             $tomorrow_date = new DateTime('now + 1 day', $this->timezone);
-            $tomorrow = $tomorrow_date->format('Y-m-d');
-            $week_date = new DateTime('now + 7 days', $this->timezone);
-            $weeklimit = $week_date->format('Y-m-d');
+            $tomorrow      = $tomorrow_date->format('Y-m-d');
+
+            // In Kolab-mode we hide "Next 7 days" filter, which means
+            // "Later" should catch tasks with date after tomorrow (#5353)
+            if ($this->rc->output->get_env('tasklist_driver') == 'kolab') {
+                $weeklimit = $tomorrow;
+            }
+            else {
+                $week_date = new DateTime('now + 7 days', $this->timezone);
+                $weeklimit = $week_date->format('Y-m-d');
+            }
         }
 
-        $mask = 0;
-        $start = $rec['startdate'] ?: '1900-00-00';
+        $mask    = 0;
+        $start   = $rec['startdate'] ?: '1900-00-00';
         $duedate = $rec['date'] ?: '3000-00-00';
 
         if ($rec['flagged'])
