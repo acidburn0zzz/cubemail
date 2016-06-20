@@ -2504,17 +2504,37 @@ class calendar extends rcube_plugin
   /****  Event invitation plugin hooks ****/
 
   /**
+   * Find an event in user calendars
+   */
+  protected function find_event($event)
+  {
+    $this->load_driver();
+
+    // We search for writeable calendars in personal namespace by default
+    $result = $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
+
+    // Some plugins may search in other users calendars, e.g. where delegation is involved
+    $plugin = $this->rc->plugins->exec_hook('calendar_event_find', array(
+            'search'   => $event,
+            'result'   => $result,
+            'calendar' => $this,
+    ));
+
+    return $plugin['result'];
+  }
+
+  /**
    * Handler for calendar/itip-status requests
    */
   function event_itip_status()
   {
     $data = rcube_utils::get_input_value('data', rcube_utils::INPUT_POST, true);
 
-    // find local copy of the referenced event
     $this->load_driver();
-    $existing = $this->driver->get_event($data, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
 
-    $itip = $this->load_itip();
+    // find local copy of the referenced event
+    $existing = $this->find_event($data);
+    $itip     = $this->load_itip();
     $response = $itip->get_itip_status($data, $existing);
 
     // get a list of writeable calendars to save new events to
@@ -2913,7 +2933,7 @@ class calendar extends rcube_plugin
       // save to calendar
       if ($calendar && $calendar['editable']) {
         // check for existing event with the same UID
-        $existing = $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
+        $existing = $this->find_event($event);
 
         if ($existing) {
           // forward savemode for correct updates of recurring events
