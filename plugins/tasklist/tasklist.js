@@ -819,6 +819,92 @@ function rcube_tasklist_ui(settings)
         loadstate.lists = active_lists();
     }
 
+    // open a tasks export dialog
+    this.export_tasks = function()
+    {
+      // close show dialog first
+      var $dialog = $("#tasksexport"),
+        form = rcmail.gui_objects.exportform,
+        buttons = {};
+
+      if (!form)
+        return;
+
+      if ($dialog.is(':ui-dialog'))
+        $dialog.dialog('close');
+
+      $("#task-export-list").val('');
+
+      buttons[rcmail.gettext('export', 'tasklist')] = function() {
+        var source = $('#task-export-list option:selected').val();
+
+        // "current view" export, use hidden form to POST task IDs
+        if (source === '') {
+          var cache = {}, tasks = [], inputs = [],
+            postform = $('#tasks-export-form-post');
+
+          $.each(listindex || [], function() {
+            var rec = listdata[this];
+            if (match_filter(rec, cache)) {
+              tasks.push(rec.id);
+            }
+          });
+
+          // copy form inputs, there may be controls added by other plugins
+          $('#tasksexport select, #tasksexport input').each(function() {
+            if (this.type != 'checkbox' || this.checked)
+              inputs.push($('<input>').attr({type: 'hidden', name: this.name, value: this.value}));
+          });
+
+          inputs.push($('<input>').attr({type: 'hidden', name: '_token', value: rcmail.env.request_token}));
+          inputs.push($('<input>').attr({type: 'hidden', name: 'id', value: tasks.join(',')}));
+
+          if (!postform.length)
+            postform = $('<form>')
+              .attr({style: 'display: none', method: 'POST', action: '?_task=tasks&_action=export'})
+              .appendTo('body');
+
+          postform.html('').append(inputs).submit();
+        }
+        // otherwise we can use simple GET
+        else {
+          rcmail.goto_url('export', {source: source, attachments: attach});
+        }
+
+        $dialog.dialog("close");
+      };
+
+      buttons[rcmail.gettext('cancel', 'tasklist')] = function() {
+        $dialog.dialog("close");
+      };
+
+      // open jquery UI dialog
+      $dialog.dialog({
+        modal: true,
+        resizable: false,
+        closeOnEscape: false,
+        title: rcmail.gettext('exporttitle', 'tasklist'),
+        open: function() {
+          $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+        },
+        close: function() {
+          $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
+          $dialog.dialog("destroy").hide();
+        },
+        buttons: buttons,
+        width: 520
+      }).show();
+    };
+/*
+    // download the selected task as iCal
+    this.task_download = function(task)
+    {
+      if (task && task.id) {
+        rcmail.goto_url('export', {source: task.list, id: task.id, attachments: 1});
+      }
+    };
+*/
+
     /**
      * Modify query parameters for refresh requests
      */
@@ -3362,6 +3448,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.register_command('list-remove', function(){ rctasks.list_remove(rctasks.selected_list); }, false);
   rcmail.register_command('list-showurl', function(){ rctasks.list_showurl(rctasks.selected_list); }, false);
 
+  rcmail.register_command('export', function(){ rctasks.export_tasks(); }, true);
   rcmail.register_command('search', function(){ rctasks.quicksearch(); }, true);
   rcmail.register_command('reset-search', function(){ rctasks.reset_search(); }, true);
   rcmail.register_command('expand-all', function(){ rctasks.expand_collapse(true); }, true);

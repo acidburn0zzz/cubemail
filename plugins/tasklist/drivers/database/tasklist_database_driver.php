@@ -332,6 +332,10 @@ class tasklist_database_driver extends tasklist_driver
             $sql_add .= ' AND changed >= ' . $this->rc->db->quote(date('Y-m-d H:i:s', $filter['since']));
         }
 
+        if ($filter['uid']) {
+            $sql_add .= ' AND `uid` IN (' . implode(',', array_map(array($this->rc->db, 'quote'), $filter['uid'])) . ')');
+        }
+
         $tasks = array();
         if (!empty($list_ids)) {
             $result = $this->rc->db->query(sprintf(
