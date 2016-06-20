@@ -119,6 +119,7 @@ class tasklist extends rcube_plugin
             $this->register_action('mail2task', array($this, 'mail_message2task'));
             $this->register_action('get-attachment', array($this, 'attachment_get'));
             $this->register_action('upload', array($this, 'attachment_upload'));
+            $this->register_action('export', array($this, 'export_tasks'));
             $this->register_action('mailimportitip', array($this, 'mail_import_itip'));
             $this->register_action('mailimportattach', array($this, 'mail_import_attachment'));
             $this->register_action('itip-status', array($this, 'task_itip_status'));
@@ -1576,6 +1577,79 @@ class tasklist extends rcube_plugin
         }
 
         return $p;
+    }
+
+    /**
+     * Construct the ics file for exporting tasks to iCalendar format
+     */
+    function export_tasks()
+    {
+        $source      = rcube_utils::get_input_value('source', rcube_utils::INPUT_GPC);
+        $task_id     = rcube_utils::get_input_value('id', rcube_utils::INPUT_GPC);
+        $attachments = (bool) rcube_utils::get_input_value('attachments', rcube_utils::INPUT_GPC);
+
+        $this->load_driver();
+
+        $browser = new rcube_browser;
+        $lists   = $this->driver->get_lists();
+        $tasks   = array();
+        $filter  = array();
+
+        // get message UIDs for filter
+        if ($source && ($list = $lists[$source])) {
+            $filename = html_entity_decode($list['name']) ?: $sorce;
+            $filter   = array($source => true);
+        }
+        else if ($task_id) {
+            $filename = 'tasks';
+            foreach (explode(',', $task_id) as $id) {
+                list($list_id, $task_id) = explode(':', $id, 2);
+                if ($list_id && $task_id) {
+                    $filter[$list_id][] = $task_id;
+                }
+            }
+        }
+
+        // Get tasks
+        foreach ($filter as $list_id => $uids) {
+            $_filter = is_array($uids) ? array('uid' => $uids) : null;
+            $_tasks  = $this->driver->list_tasks($_filter, $list_id);
+            if (!empty($_tasks)) {
+                $tasks = array_merge($tasks, $_tasks);
+            }
+        }
+
+        // Set file name
+        if ($source && count($tasks) == 1) {
+            $filename = $tasks[0]['title'] ?: 'task';
+        }
+        $filename .= '.ics';
+        $filename = $browser->ie ? rawurlencode($filename) : addcslashes($filename, '"');
+
+        $tasks = array_map(array($this, 'to_libcal'), $tasks);
+
+        // Give plugins a possibility to implement other output formats or modify the result
+        $plugin = $this->rc->plugins->exec_hook('tasks_export', array(
+                'result'      => $tasks,
+                'attachments' => $attachments,
+                'filename'    => $filename,
+                'plugin'      => $this,
+        ));
+
+        if ($plugin['abort']) {
+            exit;
+        }
+
+        $this->rc->output->nocacheing_headers();
+
+        // don't kill the connection if download takes more than 30 sec.
+        @set_time_limit(0);
+        header("Content-Type: text/calendar");
+        header("Content-Disposition: inline; filename=\"". $plugin['filename'] ."\"");
+
+        $this->get_ical()->export($plugin['tasks'], '', true,
+            $plugins['attachments'] ? array($this->driver, 'get_attachment_body') : null);
+        exit;
     }
 
 

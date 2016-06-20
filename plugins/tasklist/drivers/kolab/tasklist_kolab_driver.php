@@ -550,6 +550,7 @@ class tasklist_kolab_driver extends tasklist_driver
      *  - from:  Date range start as string (Y-m-d)
      *  - to:    Date range end as string (Y-m-d)
      *  - search: Search query string
+     *  - uid:   Task UIDs
      * @param array List of lists to get tasks from
      * @return array List of tasks records matchin the criteria
      */
@@ -583,6 +584,10 @@ class tasklist_kolab_driver extends tasklist_driver
 
         if ($filter['since']) {
             $query[] = array('changed', '>=', $filter['since']);
+        }
+
+        if ($filter['uid']) {
+            $query[] = array('uid', '=', (array) $filter['uid']);
         }
 
         foreach ($lists as $list_id) {
