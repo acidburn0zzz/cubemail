@@ -135,4 +135,11 @@ Remove entire Calendars
 2. Click the gear icon in the calendars list footer and select *Remove* from the options menu.
 3. After a confirmation dialog, the selected calendar with all its events will be deleted.
    Caution: This action cannot be undone!
- 
+
+Special Calendars
+-----------------
+
+A number of special calendars are prepared a default:
+* ``Birthdays``: This calendar is listing birthdays of contacts as selected in the :ref:`settings-calendar`.
+* ``Pending Invitations``: All pending invitations are listed in this calendar.
+* ``Declined Invitations``: When invitations are declined, the events are listed in this calendar.
