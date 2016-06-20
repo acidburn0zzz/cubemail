@@ -565,13 +565,19 @@ function rcube_libcalendaring(settings)
         if (this.alarm_dialog)
             this.alarm_dialog.dialog('destroy').remove();
 
-        this.alarm_dialog = $('<div>').attr('id', 'alarm-display');
+        var i, actions, adismiss, asnooze, alarm, html,
+            audio_alarms = [], records = [], event_ids = [], buttons = {};
 
-        var i, actions, adismiss, asnooze, alarm, html, event_ids = [], buttons = {};
         for (i=0; i < alarms.length; i++) {
             alarm = alarms[i];
             alarm.start = this.parseISO8601(alarm.start);
             alarm.end = this.parseISO8601(alarm.end);
+
+            if (alarm.action == 'AUDIO') {
+                audio_alarms.push(alarm);
+                continue;
+            }
+
             event_ids.push(alarm.id);
 
             html = '<h3 class="event-title">' + Q(alarm.title) + '</h3>';
@@ -589,8 +595,16 @@ function rcube_libcalendaring(settings)
             });
             actions = $('<div>').addClass('alarm-actions').append(adismiss.data('id', alarm.id)).append(asnooze.data('id', alarm.id));
 
-            $('<div>').addClass('alarm-item').html(html).append(actions).appendTo(this.alarm_dialog);
+            records.push($('<div>').addClass('alarm-item').html(html).append(actions));
         }
+
+        if (audio_alarms.length)
+            this.audio_alarms(audio_alarms);
+
+        if (!records.length)
+            return;
+
+        this.alarm_dialog = $('<div>').attr('id', 'alarm-display').append(records);
 
         buttons[rcmail.gettext('close')] = function() {
             $(this).dialog('close');
@@ -628,6 +642,38 @@ function rcube_libcalendaring(settings)
         this.alarm_dialog.closest('div[role=dialog]').attr('role', 'alertdialog');
 
         this.alarm_ids = event_ids;
+    };
+
+    /**
+     * Display a notification and play a sound for a set of alarms
+     */
+    this.audio_alarms = function(alarms)
+    {
+        var elem, txt = [],
+            src = rcmail.assets_path('plugins/libcalendaring/alarm'),
+            plugin = navigator.mimeTypes ? navigator.mimeTypes['audio/mp3'] : {};
+
+        // first generate and display notification text
+        $.each(alarms, function() { txt.push(this.title); });
+
+        rcmail.display_message(rcmail.gettext('alarmtitle','libcalendaring') + ': ' + Q(txt.join(', ')), 'notice', 10000);
+
+        // Internet Explorer does not support wav files,
+        // support in other browsers depends on enabled plugins,
+        // so we use wav as a fallback
+        src += bw.ie || (plugin && plugin.enabledPlugin) ? '.mp3' : '.wav';
+
+        // HTML5
+        try {
+            elem = $('<audio>').attr('src', src);
+            elem.get(0).play();
+        }
+        // old method
+        catch (e) {
+            elem = $('<embed id="libcalsound" src="' + src + '" hidden=true autostart=true loop=false />');
+            elem.appendTo($('body'));
+            window.setTimeout("$('#libcalsound').remove()", 10000);
+        }
     };
 
     /**
