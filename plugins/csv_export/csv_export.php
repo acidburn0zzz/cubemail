@@ -24,7 +24,7 @@
 
 class csv_export extends rcube_plugin
 {
-    public $task = 'addressbook';
+    public $task = 'addressbook|tasks';
 
 
     /**
@@ -36,9 +36,10 @@ class csv_export extends rcube_plugin
 
         // register hooks
         $this->add_hook('addressbook_export', array($this, 'addressbook_export'));
+        $this->add_hook('tasks_export', array($this, 'tasks_export'));
 
         // Add localization and js script
-        if ($this->api->output->type == 'html' && !$this->rcmail->action) {
+        if ($this->api->output->type == 'html' && !$rcmail->action) {
             $this->add_texts('localization', true);
             $this->api->output->add_label('export', 'cancel');
             $this->include_script('csv_export.js');
@@ -62,7 +63,10 @@ class csv_export extends rcube_plugin
 
         require_once(__DIR__ . '/vcard2csv.php');
 
-        $csv = new vcard2csv;
+        $csv    = new vcard2csv;
+        $rcmail = rcube::get_instance();
+
+        $rcmail->output->nocacheing_headers();
 
         // send downlaod headers
         $csv->headers();
@@ -79,6 +83,42 @@ class csv_export extends rcube_plugin
             }
 
             echo $csv->record($row['vcard']);
+        }
+
+        exit;
+    }
+
+    /**
+     * Handler for the tasks_export hook.
+     *
+     * @param array $p Hash array with hook parameters
+     *
+     * @return array Hash array with modified hook parameters
+     */
+    public function tasks_export($p)
+    {
+        if ($_GET['_format'] != 'csv' && $_POST['_format'] != 'csv') {
+            return $p;
+        }
+
+        require_once(__DIR__ . '/event2csv.php');
+
+        $csv    = new event2csv;
+        $rcmail = rcube::get_instance();
+
+        $rcmail->output->nocacheing_headers();
+
+        // don't kill the connection if download takes more than 30 sec.
+        @set_time_limit(300);
+
+        // send downlaod headers
+        $csv->headers(preg_replace('/\.ics$/', '.csv', $p['filename']));
+
+        // sent format line
+        echo $csv->head();
+
+        foreach ((array) $p['result'] as $record) {
+            echo $csv->record($record);
         }
 
         exit;

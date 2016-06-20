@@ -25,10 +25,24 @@
  * for the JavaScript code in this file.
  */
 
-if (window.rcmail) {
-    rcmail.addEventListener('beforeexport', function(e) { return csv_export_dialog(e, 'export'); })
-        .addEventListener('beforeexport-selected', function(e) { return csv_export_dialog(e, 'export-selected'); });
-}
+window.rcmail && rcmail.addEventListener('init', function() {
+    if (rcmail.task == 'addressbook') {
+        rcmail.addEventListener('beforeexport', function(e) { return csv_export_dialog(e, 'export'); })
+            .addEventListener('beforeexport-selected', function(e) { return csv_export_dialog(e, 'export-selected'); });
+    }
+    // for tasks export we already have dialog, add format selector there
+    else if (rcmail.task == 'tasks') {
+      var options = [
+          $('<option>').attr({value: 'itip', selected: true}).text('iCal'),
+          $('<option>').attr({value: 'csv'}).text('csv')
+        ],
+        entry = $('<div>').attr('class', 'form-section')
+          .append($('<label>').attr('for', 'tasks-export-form-format').text(rcmail.get_label('csv_export.format')))
+          .append($('<select>').attr({name: '_format', id: 'tasks-export-form-format'}).append(options));
+
+      $('#tasks-export-form').append(entry);
+    }
+});
 
 // Display dialog with format selection
 function csv_export_dialog(event, action)
@@ -90,7 +104,12 @@ function csv_export_dialog_action(format, action)
         return;
     }
 
-    var params = {_source: rcmail.env.source, _gid: rcmail.env.group, _format: 'csv'};
+    var params = {
+        _source: rcmail.env.source,
+        _gid: rcmail.env.group,
+        _format: 'csv',
+        _token: rcmail.env.request_token
+      };
 
     if (action == 'export') {
         params._search = rcmail.env.search_request;

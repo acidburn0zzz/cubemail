@@ -158,11 +158,11 @@ class vcard2csv
     /**
      * Send headers of file download
      */
-    public static function headers()
+    public static function headers($filename = 'contacts.csv')
     {
         // send downlaod headers
         header('Content-Type: text/csv; charset=' . RCUBE_CHARSET);
-        header('Content-Disposition: attachment; filename="contacts.csv"');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
     }
 
     protected function csv($fields = array(), $delimiter = ',', $enclosure = '"')

@@ -13,3 +13,4 @@ $labels['title'] = 'Contacts export';
 $labels['text'] = 'Please, choose the export file format:';
 $labels['csv'] = 'CSV (comma-separated)';
 $labels['vcf'] = 'vCard';
+$labels['format'] = 'Format';
