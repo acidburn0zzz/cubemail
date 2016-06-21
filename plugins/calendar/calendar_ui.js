@@ -905,13 +905,9 @@ function rcube_calendar_ui(settings)
           if (data.attendees[i])
             data.attendees[i].role = $(elem).val();
         });
-        
+
         if (organizer)
           data._identity = $('#edit-identities-list option:selected').val();
-        
-        // don't submit attendees if only myself is added as organizer
-        if (data.attendees.length == 1 && data.attendees[0].role == 'ORGANIZER' && String(data.attendees[0].email).toLowerCase() == settings.identity.email)
-          data.attendees = [];
 
         // per-attendee notification suppression
         var need_invitation = false;
