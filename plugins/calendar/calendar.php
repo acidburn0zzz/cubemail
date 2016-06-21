@@ -2030,16 +2030,27 @@ class calendar extends rcube_plugin
           $event['attendees'][$i]['rsvp'] = $attendee['rsvp'] == 'true' || $attendee['rsvp'] == '1';
       }
 
+      if (!empty($event['_identity'])) {
+        $identity = $this->rc->user->get_identity($event['_identity']);
+      }
+
       // set new organizer identity
-      if ($organizer !== false && !empty($event['_identity']) && ($identity = $this->rc->user->get_identity($event['_identity']))) {
+      if ($organizer !== false && $identity) {
         $event['attendees'][$organizer]['name'] = $identity['name'];
         $event['attendees'][$organizer]['email'] = $identity['email'];
       }
-
       // set owner as organizer if yet missing
-      if ($organizer === false && $owner !== false) {
+      else if ($organizer === false && $owner !== false) {
         $event['attendees'][$owner]['role'] = 'ORGANIZER';
         unset($event['attendees'][$owner]['rsvp']);
+      }
+      // fallback to the selected identity
+      else if ($organizer === false && $identity) {
+        $event['attendees'][] = array(
+          'role'  => 'ORGANIZER',
+          'name'  => $identity['name'],
+          'email' => $identity['email'],
+        );
       }
     }
 
