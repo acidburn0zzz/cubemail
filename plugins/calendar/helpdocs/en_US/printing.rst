@@ -12,8 +12,13 @@ The calendar(s) currently shown in the main view can be printed to the default p
 3. A new print preview page will open.
 4. Push the *Print* button in the top left corner of the print preview page.
 
-    .. figure:: _static/_skin/calendar-toolbar.png
-Calendar toolbar
+.. figure:: _static/_skin/calendar-toolbar.png
+    :align: center
 
-    .. figure:: _static/_skin/calendar-print.png
-Print view page
+    Calendar toolbar
+
+.. figure:: _static/_skin/calendar-print.png
+    :scale: 75 %
+    :align: center
+
+    Print view page
