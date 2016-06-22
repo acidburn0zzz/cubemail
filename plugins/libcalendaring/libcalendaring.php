@@ -197,18 +197,19 @@ class libcalendaring extends rcube_plugin
     public function load_settings()
     {
         $this->date_format_defaults();
-        $settings = array();
 
-        // configuration
-        $settings['date_format'] = (string)$this->rc->config->get('calendar_date_format', $this->defaults['calendar_date_format']);
-        $settings['time_format'] = (string)$this->rc->config->get('calendar_time_format', $this->defaults['calendar_time_format']);
-        $settings['date_short']  = (string)$this->rc->config->get('calendar_date_short', $this->defaults['calendar_date_short']);
-        $settings['date_long']   = (string)$this->rc->config->get('calendar_date_long', $this->defaults['calendar_date_long']);
+        $settings = array();
+        $keys     = array('date_format', 'time_format', 'date_short', 'date_long');
+
+        foreach ($keys as $key) {
+            $settings[$key] = (string)$this->rc->config->get('calendar_' . $key, $this->defaults['calendar_' . $key]);
+            $settings[$key] = str_replace('Y', 'y', $settings[$key]);
+        }
+
         $settings['dates_long']  = str_replace(' yyyy', '[ yyyy]', $settings['date_long']) . "{ '&mdash;' " . $settings['date_long'] . '}';
         $settings['first_day']   = (int)$this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']);
-
-        $settings['timezone'] = $this->timezone_offset;
-        $settings['dst'] = $this->dst_active;
+        $settings['timezone']    = $this->timezone_offset;
+        $settings['dst']         = $this->dst_active;
 
         // localization
         $settings['days'] = array(
@@ -1651,6 +1652,8 @@ class libcalendaring extends rcube_plugin
     {
         // "dd.MM.yyyy HH:mm:ss" => "d.m.Y H:i:s"
         return strtr(strtr($from, array(
+            'YYYY' => 'Y',
+            'YY'   => 'y',
             'yyyy' => 'Y',
             'yy'   => 'y',
             'MMMM' => 'F',
