@@ -367,7 +367,7 @@ class kolab_user_calendar extends kolab_calendar
    */
   private function time_key($event)
   {
-    return sprintf('%s/%s', $event['start']->format('U'), is_object($event['end']->format('U')) ?: '0');
+    return sprintf('%s/%s', $event['start']->format('U'), is_object($event['end']) ? $event['end']->format('U') : '0');
   }
 
 
