@@ -64,7 +64,6 @@ class kolab_auth extends rcube_plugin
         // Enable debug logs (per-user), when logged as another user
         if (!empty($_SESSION['kolab_auth_admin']) && $rcmail->config->get('kolab_auth_auditlog')) {
             $rcmail->config->set('debug_level', 1);
-            $rcmail->config->set('devel_mode', true);
             $rcmail->config->set('smtp_log', true);
             $rcmail->config->set('log_logins', true);
             $rcmail->config->set('log_session', true);
