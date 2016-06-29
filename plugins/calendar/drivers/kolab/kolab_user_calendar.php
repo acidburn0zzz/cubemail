@@ -229,8 +229,9 @@ class kolab_user_calendar extends kolab_calendar
     foreach (kolab_storage::list_user_folders($this->userdata, 'event', 2) as $foldername) {
       $cal = new kolab_calendar($foldername, $this->cal);
       foreach ($cal->list_events($start, $end, $search, 1) as $event) {
-        $this->events[$event['id'] ?: $event['uid']] = $event;
-        $this->timeindex[$this->time_key($event)] = $event['id'];
+        $uid = $event['id'] ?: $event['uid'];
+        $this->events[$uid] = $event;
+        $this->timeindex[$this->time_key($event)] = $uid;
       }
     }
 
@@ -334,7 +335,7 @@ class kolab_user_calendar extends kolab_calendar
         foreach ($fb['periods'] as $tuple) {
           list($from, $to, $type) = $tuple;
           $event = array(
-            'id'        => md5($this->id . $from->format('U') . '/' . $to->format('U')),
+            'uid'       => md5($this->id . $from->format('U') . '/' . $to->format('U')),
             'calendar'  => $this->id,
             'changed'   => $fb['created'] ?: new DateTime(),
             'title'     => $this->get_name() . ' ' . ($titlemap[$type] ?: $type),
@@ -351,8 +352,8 @@ class kolab_user_calendar extends kolab_calendar
           // avoid duplicate entries
           $key = $this->time_key($event);
           if (!$this->timeindex[$key]) {
-            $this->events[$event['id']] = $event;
-            $this->timeindex[$key] = $event['id'];
+            $this->events[$event['uid']] = $event;
+            $this->timeindex[$key] = $event['uid'];
             $count++;
           }
         }
@@ -416,17 +417,4 @@ class kolab_user_calendar extends kolab_calendar
   {
     return false;
   }
-
-
-  /**
-   * Convert from Kolab_Format to internal representation
-   */
-  private function _to_rcube_event($record)
-  {
-    $record['id'] = $record['uid'];
-    $record['calendar'] = $this->id;
-
-    return kolab_driver::to_rcube_event($record);
-  }
-
 }
