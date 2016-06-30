@@ -1652,15 +1652,14 @@ class kolab_driver extends calendar_driver
       $event = $storage->get_event($event['id']);
     }
 
-    if ($event && !empty($event['_attachments'])) {
-      foreach ($event['_attachments'] as $att) {
+    if ($event) {
+      $attachments = isset($event['_attachments']) ? $event['_attachments'] : $event['attachments'];
+      foreach ((array) $attachments as $att) {
         if ($att['id'] == $id) {
           return $att;
         }
       }
     }
-
-    return null;
   }
 
   /**
