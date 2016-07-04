@@ -4,7 +4,7 @@
     "description": "Type-aware folder management/listing for Kolab",
     "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
-    "version": "3.2.13",
+    "version": "3.2.14",
     "authors": [
         {
             "name": "Aleksander Machniak",
