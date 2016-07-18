@@ -1639,7 +1639,7 @@ class tasklist extends rcube_plugin
         header("Content-Type: text/calendar");
         header("Content-Disposition: inline; filename=\"". $plugin['filename'] ."\"");
 
-        $this->get_ical()->export($plugin['tasks'], '', true,
+        $this->get_ical()->export($plugin['result'], '', true,
             $plugins['attachments'] ? array($this->driver, 'get_attachment_body') : null);
         exit;
     }

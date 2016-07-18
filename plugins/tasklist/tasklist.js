@@ -836,7 +836,9 @@ function rcube_tasklist_ui(settings)
       $("#task-export-list").val('');
 
       buttons[rcmail.gettext('export', 'tasklist')] = function() {
-        var source = $('#task-export-list option:selected').val();
+        var data = {},
+            source = $('#task-export-list option:selected').val(),
+            form_elements = $('select, input', form);
 
         // "current view" export, use hidden form to POST task IDs
         if (source === '') {
@@ -851,7 +853,7 @@ function rcube_tasklist_ui(settings)
           });
 
           // copy form inputs, there may be controls added by other plugins
-          $('#tasksexport select, #tasksexport input').each(function() {
+          form_elements.each(function() {
             if (this.type != 'checkbox' || this.checked)
               inputs.push($('<input>').attr({type: 'hidden', name: this.name, value: this.value}));
           });
@@ -868,7 +870,12 @@ function rcube_tasklist_ui(settings)
         }
         // otherwise we can use simple GET
         else {
-          rcmail.goto_url('export', {source: source, attachments: attach});
+          form_elements.each(function() {
+            if (this.type != 'checkbox' || this.checked)
+              data[this.name] = $(this).val();
+          });
+
+          rcmail.goto_url('export', data);
         }
 
         $dialog.dialog("close");
