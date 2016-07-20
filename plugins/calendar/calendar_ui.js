@@ -1900,7 +1900,8 @@ function rcube_calendar_ui(settings)
       // delete icon
       var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : rcmail.gettext('delete');
       var dellink = '<a href="#delete" class="iconlink delete deletelink" title="' + Q(rcmail.gettext('delete')) + '">' + icon + '</a>';
-      var tooltip = data.status || '';
+      var tooltip = '', status = (data.status || '').toLowerCase(),
+        status_label = rcmail.gettext('status' + status, 'libcalendaring');
 
       // send invitation checkbox
       var invbox = '<input type="checkbox" class="edit-attendee-reply" value="' + Q(data.email) +'" title="' + Q(rcmail.gettext('calendar.sendinvitations')) + '" '
@@ -1910,6 +1911,8 @@ function rcube_calendar_ui(settings)
         tooltip = rcmail.gettext('delegatedto', 'calendar') + data['delegated-to'];
       else if (data['delegated-from'])
         tooltip = rcmail.gettext('delegatedfrom', 'calendar') + data['delegated-from'];
+      else if (status)
+        tooltip = status_label;
 
       // add expand button for groups
       if (data.cutype == 'GROUP') {
@@ -1921,7 +1924,7 @@ function rcube_calendar_ui(settings)
       var html = '<td class="role">' + select + '</td>' +
         '<td class="name"><span class="attendee-name">' + dispname + '</span></td>' +
         '<td class="availability"><img src="' + img_src + '" class="availabilityicon ' + avail + '" data-email="' + data.email + '" alt="" /></td>' +
-        '<td class="confirmstate"><span class="' + String(data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + Q(data.status || '') + '</span></td>' +
+        '<td class="confirmstate"><span class="' + status + '" title="' + Q(tooltip) + '">' + Q(status ? status_label : '') + '</span></td>' +
         (data.cutype != 'RESOURCE' ? '<td class="invite">' + (organizer || readonly || !invbox ? '' : invbox) + '</td>' : '') +
         '<td class="options">' + (organizer || readonly ? '' : dellink) + '</td>';
 
