@@ -526,7 +526,7 @@ function rcube_calendar_ui(settings)
             }
           }
 
-          line = event_attendee_html(data);
+          line = rcube_libcalendaring.attendee_html(data);
 
           if (morelink)
             overflow += line;
@@ -669,24 +669,6 @@ function rcube_calendar_ui(settings)
       }
 
       rcmail.enable_command('event-history', calendar.history)
-    };
-
-    // render HTML code for displaying an attendee record
-    var event_attendee_html = function(data)
-    {
-      var dispname = Q(data.name || data.email), tooltip = '';
-
-      if (data.email) {
-        tooltip = data.email + '; ' + data.status;
-        dispname = '<a href="mailto:' + data.email + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
-      }
-
-      if (data['delegated-to'])
-        tooltip = rcmail.gettext('delegatedto', 'calendar') + data['delegated-to'];
-      else if (data['delegated-from'])
-        tooltip = rcmail.gettext('delegatedfrom', 'calendar') + data['delegated-from'];
-
-      return '<span class="attendee ' + String(data.role == 'ORGANIZER' ? 'organizer' : data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + dispname + '</span> ';
     };
 
     // event handler for clicks on an attendee link
@@ -1115,8 +1097,8 @@ function rcube_calendar_ui(settings)
           }
           // format attendees struct
           else if (prop == 'attendees') {
-            if (change['old']) change.old_ = event_attendee_html(change['old']);
-            if (change['new']) change.new_ = event_attendee_html($.extend({}, change['old'] || {}, change['new']));
+            if (change['old']) change.old_ = rcube_libcalendaring.attendee_html(change['old']);
+            if (change['new']) change.new_ = rcube_libcalendaring.attendee_html($.extend({}, change['old'] || {}, change['new']));
             html = true;
           }
           // localize priority values
