@@ -131,6 +131,14 @@ class libcalendaring extends rcube_plugin
             $this->rc->output->set_env('libcal_settings', $this->load_settings());
             $this->include_script('libcalendaring.js');
             $this->include_stylesheet($this->local_skin_path() . '/libcal.css');
+
+            $this->rc->output->add_label(
+                'libcalendaring.itipaccepted', 'libcalendaring.itiptentative', 'libcalendaring.itipdeclined',
+                'libcalendaring.itipdelegated', 'libcalendaring.expandattendeegroup', 'libcalendaring.expandattendeegroupnodata',
+                'libcalendaring.statusorganizer', 'libcalendaring.statusaccepted', 'libcalendaring.statusdeclined',
+                'libcalendaring.statusdelegated', 'libcalendaring.statusunknown', 'libcalendaring.statusneeds-action',
+                'libcalendaring.statustentative'
+            );
         }
 
         if ($args['task'] == 'mail') {

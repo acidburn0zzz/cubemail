@@ -88,6 +88,14 @@ $labels['dayofmonth'] = 'Day of month';
 $labels['addrdate'] = 'Add repeat date';
 $labels['except'] = 'except';
 
+$labels['statusorganizer'] = 'Organizer';
+$labels['statusaccepted'] = 'Accepted';
+$labels['statustentative'] = 'Tentative';
+$labels['statusdeclined'] = 'Declined';
+$labels['statusdelegated'] = 'Delegated';
+$labels['statusneeds-action'] = 'Needs action';
+$labels['statusunknown'] = 'Unknown';
+
 // itip related labels
 $labels['itipinvitation'] = 'Invitation to';
 $labels['itipupdate'] = 'Update of';

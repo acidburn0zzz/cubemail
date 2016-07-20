@@ -1004,6 +1004,37 @@ function rcube_libcalendaring(settings)
 
 //////  static methods
 
+// render HTML code for displaying an attendee record
+rcube_libcalendaring.attendee_html = function(data)
+{
+    var name, tooltip = '', context = 'libcalendaring',
+        dispname = data.name || data.email,
+        status = data.role == 'ORGANIZER' ? 'ORGANIZER' : data.status;
+
+    if (status)
+        status = status.toLowerCase();
+
+    if (data.email) {
+        tooltip = data.email;
+        name = $('<a>').attr({href: 'mailto:' + data.email, 'class': 'mailtolink', 'data-cutype': data.cutype})
+
+        if (status)
+            tooltip += ' (' + rcmail.gettext('status' + status, context) + ')';
+    }
+    else {
+        name = $('<span>');
+    }
+
+    if (data['delegated-to'])
+        tooltip = rcmail.gettext('delegatedto', context) + data['delegated-to'];
+    else if (data['delegated-from'])
+        tooltip = rcmail.gettext('delegatedfrom', context) + data['delegated-from'];
+
+    return $('<span>').append(
+            $('<span>').attr({'class': 'attendee ' + status, title: tooltip}).append(name.text(dispname))
+        ).html();
+};
+
 /**
  *
  */

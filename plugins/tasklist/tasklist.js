@@ -2053,7 +2053,7 @@ function rcube_tasklist_ui(settings)
                         rsvp = mystatus;
                 }
 
-                line = task_attendee_html(data);
+                line = rcube_libcalendaring.attendee_html(data);
 
                 if (morelink)
                     overflow += line;
@@ -2107,7 +2107,7 @@ function rcube_tasklist_ui(settings)
             $('#task-rsvp .itip-reply-comment textarea').hide().val('');
 
             if (rec.organizer && !organizer) {
-                $('#task-organizer').show().children('.task-text').html(task_attendee_html($.extend(rec.organizer, { role:'ORGANIZER' })));
+                $('#task-organizer').show().children('.task-text').html(rcube_libcalendaring.attendee_html($.extend(rec.organizer, { role:'ORGANIZER' })));
             }
         }
 
@@ -2161,24 +2161,6 @@ function rcube_tasklist_ui(settings)
 
         // set dialog size according to content
         me.dialog_resize($dialog.get(0), $dialog.height(), 580);
-    }
-
-    // render HTML code for displaying an attendee record
-    function task_attendee_html(data)
-    {
-        var dispname = Q(data.name || data.email), tooltip = '';
-
-        if (data.email) {
-          tooltip = data.email;
-          dispname = '<a href="mailto:' + data.email + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
-        }
-
-        if (data['delegated-to'])
-          tooltip = rcmail.gettext('delegatedto', 'tasklist') + data['delegated-to'];
-        else if (data['delegated-from'])
-          tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
-
-        return '<span class="attendee ' + String(data.role == 'ORGANIZER' ? 'organizer' : data.status).toLowerCase() + '" title="' + Q(tooltip) + '">' + dispname + '</span> ';
     }
 
     /**
@@ -2285,8 +2267,8 @@ function rcube_tasklist_ui(settings)
               }
               // format attendees struct
               else if (prop == 'attendees') {
-                  if (change['old']) change.old_ = task_attendee_html(change['old']);
-                  if (change['new']) change.new_ = task_attendee_html($.extend({}, change['old'] || {}, change['new']));
+                  if (change['old']) change.old_ = rcube_libcalendaring.attendee_html(change['old']);
+                  if (change['new']) change.new_ = rcube_libcalendaring.attendee_html($.extend({}, change['old'] || {}, change['new']));
                   html = true;
               }
               // localize status
