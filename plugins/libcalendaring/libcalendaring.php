@@ -123,7 +123,7 @@ class libcalendaring extends rcube_plugin
                 'libcalendaring.itipdelegated', 'libcalendaring.expandattendeegroup', 'libcalendaring.expandattendeegroupnodata',
                 'libcalendaring.statusorganizer', 'libcalendaring.statusaccepted', 'libcalendaring.statusdeclined',
                 'libcalendaring.statusdelegated', 'libcalendaring.statusunknown', 'libcalendaring.statusneeds-action',
-                'libcalendaring.statustentative'
+                'libcalendaring.statustentative', 'libcalendaring.statuscompleted', 'libcalendaring.statusin-process'
             );
         }
 
