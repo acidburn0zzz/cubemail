@@ -565,7 +565,7 @@ function rcube_calendar_ui(settings)
             .removeClass('accepted tentative declined delegated needs-action')
             .addClass(mystatus)
             .children('.event-text')
-            .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
+            .text(rcmail.gettext('status' + mystatus, 'libcalendaring'));
         }
 
         var show_rsvp = rsvp && !is_organizer(event) && event.status != 'CANCELLED' && has_permission(calendar, 'v');
