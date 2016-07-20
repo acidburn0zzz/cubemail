@@ -2095,7 +2095,7 @@ function rcube_tasklist_ui(settings)
                     .removeClass('accepted tentative declined delegated needs-action')
                     .addClass(mystatus)
                     .children('.task-text')
-                    .html(Q(rcmail.gettext('itip' + mystatus, 'libcalendaring')));
+                    .html(rcmail.gettext('status' + mystatus, 'libcalendaring'));
             }
 */
             var show_rsvp = !temp && rsvp && list.editable && !is_organizer(rec) && rec.status != 'CANCELLED';
