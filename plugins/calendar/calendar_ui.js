@@ -423,7 +423,7 @@ function rcube_calendar_ui(settings)
       if ($dialog.is(':ui-dialog'))
         $dialog.dialog('close');
 
-      // remove status-* classes
+      // remove status-* and sensitivity-* classes
       $dialog.removeClass(function(i, oldclass) {
           var oldies = String(oldclass).split(' ');
           return $.grep(oldies, function(cls) { return cls.indexOf('status-') === 0 || cls.indexOf('sensitivity-') === 0 }).join(' ');
@@ -471,11 +471,13 @@ function rcube_calendar_ui(settings)
 
       if (event.status) {
         var status_lc = String(event.status).toLowerCase();
-        $('#event-status').show().children('.event-text').html(Q(rcmail.gettext('status-'+status_lc,'calendar')));
+        $('#event-status').show().children('.event-text').text(rcmail.gettext('status-'+status_lc,'calendar'));
+        $('#event-status-badge > span').text(rcmail.gettext('status-'+status_lc,'calendar'));
         $dialog.addClass('status-'+status_lc);
       }
       if (event.sensitivity && event.sensitivity != 'public') {
-        $('#event-sensitivity').show().children('.event-text').html(Q(sensitivitylabels[event.sensitivity]));
+        $('#event-sensitivity').show().children('.event-text').text(sensitivitylabels[event.sensitivity]);
+        $('#event-status-badge > span').text(sensitivitylabels[event.sensitivity]);
         $dialog.addClass('sensitivity-'+event.sensitivity);
       }
       if (event.created || event.changed) {
