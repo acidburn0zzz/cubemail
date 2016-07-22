@@ -8,6 +8,9 @@
  */
 $labels['navtitle'] = 'Uppgifter';
 $labels['tags'] = 'Taggar';
+$labels['export'] = 'Exportera';
+$labels['exporttitle'] = 'Exportera till iCalendar';
+$labels['exportattachments'] = 'Med bilagor';
 $labels['tasklistsubscribe'] = 'Lista permanent';
 $labels['searchterms'] = 'Sökord';
 $labels['removelist'] = 'Ta bort från lista';

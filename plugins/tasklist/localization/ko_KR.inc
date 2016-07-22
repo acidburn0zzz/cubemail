@@ -6,6 +6,9 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
  */
+$labels['export'] = '내보내기';
+$labels['exporttitle'] = 'iCalendar로 내보내기';
+$labels['exportattachments'] = '첨부됨';
 $labels['removelist'] = '목록에서 삭제';
 $labels['printdescriptions'] = '내용 출력';
 $labels['edit'] = '수정';

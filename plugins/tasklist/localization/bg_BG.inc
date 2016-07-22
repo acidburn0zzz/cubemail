@@ -11,6 +11,9 @@ $labels['lists'] = 'Списъци със задачи';
 $labels['list'] = 'Списък със задачи
 ';
 $labels['tags'] = 'Етикети';
+$labels['export'] = 'Извличане';
+$labels['exporttitle'] = 'Извличане към iCalendar';
+$labels['exportattachments'] = 'С прикачени файлове';
 $labels['tasklistsubscribe'] = 'Постоянен списък';
 $labels['listsearchresults'] = 'Налични списъци със задачи';
 $labels['findlists'] = 'Намери списъци със задачи...';

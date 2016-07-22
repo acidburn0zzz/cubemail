@@ -6,6 +6,9 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
  */
+$labels['export'] = 'Export';
+$labels['exporttitle'] = 'Export to iCalendar';
+$labels['exportattachments'] = 'With attachments';
 $labels['tasklistsubscribe'] = 'List permanently';
 $labels['searchterms'] = 'Search terms';
 $labels['removelist'] = 'Remove from list';
