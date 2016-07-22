@@ -6,10 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
  */
-$labels['until'] = 'until';
-$labels['frequency'] = 'Repeat';
-$labels['recurrencend'] = 'until';
 $labels['statusorganizer'] = 'Organizer';
 $labels['statustentative'] = 'Tentative';
 $labels['statusunknown'] = 'Unknown';
-$labels['savingdata'] = 'Saving data...';

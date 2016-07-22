@@ -29,3 +29,5 @@ $labels['taggingsuccess'] = 'Las etiquetas han sido asignadas exitosamente.';
 $labels['taggingerror'] = 'Fallo al asignar etiquetas.';
 $labels['untaggingsuccess'] = 'Una o más etiquetas han sido eliminadas exitosamente.';
 $labels['untaggingerror'] = 'Fallo al eliminar asignaciones de etiquetas.';
+$labels['newtag'] = 'Nueva etiqueta';
+$labels['tagsearchnew'] = 'Ingrese el texto a buscar o cree una nueva etiqueta';

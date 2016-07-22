@@ -9,6 +9,12 @@
 $labels['until'] = 'до';
 $labels['alarmemailoption'] = 'Електронна поща';
 $labels['frequency'] = 'Повтори';
+$labels['statusorganizer'] = 'Организатор';
+$labels['statustentative'] = 'Предварително';
+$labels['statusneeds-action'] = 'Нужно е действие';
+$labels['statusunknown'] = 'Няма информация';
+$labels['statuscompleted'] = 'Завършен';
+$labels['statusin-process'] = 'В процес';
 $labels['itipcancellation'] = 'Отказано:';
 $labels['itipreply'] = 'Отговор на';
 $labels['itipaccepted'] = 'Приемане';

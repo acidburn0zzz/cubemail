@@ -8,6 +8,7 @@
  */
 $labels['compare'] = 'Porównaj';
 $labels['objectchangelog'] = 'Historia';
+$labels['objectdiff'] = 'Zmiany od $rev1 do $rev2';
 $labels['revision'] = 'Wersja';
 $labels['user'] = 'Użytkownik';
 $labels['operation'] = 'Akcja';

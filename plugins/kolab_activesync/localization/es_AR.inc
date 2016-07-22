@@ -15,6 +15,7 @@ $labels['task'] = 'Tareas';
 $labels['note'] = 'Notas';
 $labels['configuration'] = 'Configuración';
 $labels['deletedevice'] = 'Eliminar dispositivo';
+$labels['nodevices'] = 'En este momento no hay dispositivos registrados.<br/><br/>Para registrar un dispositivo, por favor conéctelo primero al servidor, usando las instrucciones de <a href="$url" target="_blank">esta página</a>. Posteriormente el dispositivo debería estar disponible para su configuración aquí.';
 $labels['savingdata'] = 'Guardando...';
 $labels['savingerror'] = 'Fallo al guardar la configuración';
 $labels['notsupported'] = 'Su servidor no soporta metadatos/anotaciones';

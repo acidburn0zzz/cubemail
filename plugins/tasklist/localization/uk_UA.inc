@@ -7,6 +7,9 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
  */
 $labels['navtitle'] = 'Задачі';
+$labels['export'] = 'Експорт';
+$labels['exporttitle'] = 'Експорт в iCalendar';
+$labels['exportattachments'] = 'Із вкладеннями';
 $labels['tasklistsubscribe'] = 'Завжди показувати';
 $labels['searchterms'] = 'Умови пошуку';
 $labels['removelist'] = 'Вилучити зі списку';
