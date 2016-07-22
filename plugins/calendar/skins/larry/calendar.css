@@ -784,7 +784,6 @@ a.miniColors-trigger {
 	width: 150px;
 	height: 20px;
 	line-height: 20px;
-	display: block;
 	position: absolute;
 	left: -20px;
 	top: 35px;
@@ -803,14 +802,17 @@ a.miniColors-trigger {
 
 .eventdialog.status-cancelled #event-status-badge span {
 	background: url(images/badge.png) 26px -24px no-repeat #cc0000;
+	display: block;
 }
 
 .eventdialog.sensitivity-private #event-status-badge span {
 	background: url(images/badge.png) 40px -52px no-repeat #0066ff;
+	display: block;
 }
 
 .eventdialog.sensitivity-confidential #event-status-badge span {
 	background: url(images/badge.png) 20px 2px no-repeat #cc0000;
+	display: block;
 }
 
 .calendarmain .status-cancelled #event-title,
