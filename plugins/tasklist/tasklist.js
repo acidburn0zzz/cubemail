@@ -1188,7 +1188,7 @@ function rcube_tasklist_ui(settings)
         // iterate over all selector links and update counts
         $('#taskselector a').each(function(i, elem){
             var link = $(elem),
-                f = link.parent().attr('class').replace(/\s\w+/, '');
+                f = link.parent().attr('class').replace(/\s\w+/g, '');
             if (f != 'all')
                 link.children('span').html(taskcounts[f] || '')[(taskcounts[f] ? 'show' : 'hide')]();
         });
