@@ -1097,49 +1097,19 @@ class tasklist extends rcube_plugin
      */
     public function fetch_tasks()
     {
-        $f = intval(rcube_utils::get_input_value('filter', rcube_utils::INPUT_GPC));
+        $mask   = intval(rcube_utils::get_input_value('filter', rcube_utils::INPUT_GPC));
         $search = rcube_utils::get_input_value('q', rcube_utils::INPUT_GPC);
         $lists  = rcube_utils::get_input_value('lists', rcube_utils::INPUT_GPC);
-        $filter = array('mask' => $f, 'search' => $search);
-/*
-        // convert magic date filters into a real date range
-        switch ($f) {
-        case self::FILTER_MASK_TODAY:
-            $today = new DateTime('now', $this->timezone);
-            $filter['from'] = $filter['to'] = $today->format('Y-m-d');
-            break;
+        $filter = array('mask' => $mask, 'search' => $search);
 
-        case self::FILTER_MASK_TOMORROW:
-            $tomorrow = new DateTime('now + 1 day', $this->timezone);
-            $filter['from'] = $filter['to'] = $tomorrow->format('Y-m-d');
-            break;
+        $data = $this->tasks_data($this->driver->list_tasks($filter, $lists));
 
-        case self::FILTER_MASK_OVERDUE:
-            $yesterday = new DateTime('yesterday', $this->timezone);
-            $filter['to'] = $yesterday->format('Y-m-d');
-            break;
-
-        case self::FILTER_MASK_WEEK:
-            $today = new DateTime('now', $this->timezone);
-            $filter['from'] = $today->format('Y-m-d');
-            $weekend = new DateTime('now + 7 days', $this->timezone);
-            $filter['to'] = $weekend->format('Y-m-d');
-            break;
-
-        case self::FILTER_MASK_LATER:
-            $date = new DateTime('now + 8 days', $this->timezone);
-            $filter['from'] = $date->format('Y-m-d');
-            break;
-
-        }
-*/
-        $data = $this->tasks_data($this->driver->list_tasks($filter, $lists), $f);
         $this->rc->output->command('plugin.data_ready', array(
-            'filter' => $f,
-            'lists' => $lists,
-            'search' => $search,
-            'data' => $data,
-            'tags' => $this->driver->get_tags(),
+                'filter' => $mask,
+                'lists'  => $lists,
+                'search' => $search,
+                'data'   => $data,
+                'tags'   => $this->driver->get_tags(),
         ));
     }
 
@@ -1167,16 +1137,17 @@ class tasklist extends rcube_plugin
      */
     public function print_tasks_list($attrib)
     {
-        $f      = intval(rcube_utils::get_input_value('filter', rcube_utils::INPUT_GPC));
+        $mask   = intval(rcube_utils::get_input_value('filter', rcube_utils::INPUT_GPC));
         $search = rcube_utils::get_input_value('q', rcube_utils::INPUT_GPC);
         $lists  = rcube_utils::get_input_value('lists', rcube_utils::INPUT_GPC);
-        $filter = array('mask' => $f, 'search' => $search);
+        $filter = array('mask' => $mask, 'search' => $search);
 
-        $data = $this->tasks_data($this->driver->list_tasks($filter, $lists), $f);
+        $data = $this->tasks_data($this->driver->list_tasks($filter, $lists));
 
         // we'll build the tasks table in javascript on page load
         // where we have sorting methods, etc.
         $this->rc->output->set_env('tasks', $data);
+        $this->rc->output->set_env('filtermask', $mask);
 
         return $this->ui->tasks_resultview($attrib);
     }
@@ -1184,7 +1155,7 @@ class tasklist extends rcube_plugin
     /**
      * Prepare and sort the given task records to be sent to the client
      */
-    private function tasks_data($records, $f)
+    private function tasks_data($records)
     {
         $data = $this->task_tree = $this->task_titles = array();
 
@@ -1195,9 +1166,7 @@ class tasklist extends rcube_plugin
 
             $this->encode_task($rec);
 
-            // apply filter; don't trust the driver on this :-)
-            if ((!$f && !$this->driver->is_complete($rec)) || ($rec['mask'] & $f))
-                $data[] = $rec;
+            $data[] = $rec;
         }
 
         // assign hierarchy level indicators for later sorting
@@ -1535,7 +1504,7 @@ class tasklist extends rcube_plugin
 
         $updates = $this->driver->list_tasks($filter, $lists);
         if (!empty($updates)) {
-            $this->rc->output->command('plugin.refresh_tasks', $this->tasks_data($updates, 255), true);
+            $this->rc->output->command('plugin.refresh_tasks', $this->tasks_data($updates), true);
 
             // update counts
             $counts = $this->driver->count_tasks($lists);
