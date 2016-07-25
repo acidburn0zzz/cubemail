@@ -139,6 +139,7 @@ function rcube_tasklist_ui(settings)
     function init()
     {
         if (rcmail.env.action == 'print' && rcmail.task == 'tasks') {
+            filtermask = rcmail.env.filtermask;
             data_ready({data: rcmail.env.tasks});
             return;
         }
@@ -1284,7 +1285,7 @@ function rcube_tasklist_ui(settings)
             $('button.ui-button:ui-button').button('option', 'disabled', rcmail.busy);
             return true;
         }
-        
+
         return false;
     }
 
