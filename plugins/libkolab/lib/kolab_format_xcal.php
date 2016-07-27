@@ -92,12 +92,14 @@ abstract class kolab_format_xcal extends kolab_format
     );
 
     protected $part_status_map = array(
-        'UNKNOWN' => kolabformat::PartNeedsAction,
+        'UNKNOWN'      => kolabformat::PartNeedsAction,
         'NEEDS-ACTION' => kolabformat::PartNeedsAction,
-        'TENTATIVE' => kolabformat::PartTentative,
-        'ACCEPTED' => kolabformat::PartAccepted,
-        'DECLINED' => kolabformat::PartDeclined,
-        'DELEGATED' => kolabformat::PartDelegated,
+        'TENTATIVE'    => kolabformat::PartTentative,
+        'ACCEPTED'     => kolabformat::PartAccepted,
+        'DECLINED'     => kolabformat::PartDeclined,
+        'DELEGATED'    => kolabformat::PartDelegated,
+        'IN-PROCESS'   => kolabformat::PartInProcess,
+        'COMPLETED'    => kolabformat::PartCompleted,
       );
 
 
