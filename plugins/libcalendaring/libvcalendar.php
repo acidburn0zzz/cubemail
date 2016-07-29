@@ -588,8 +588,8 @@ class libvcalendar implements Iterator
                 $event['allday'] = true;
             }
 
-            // all-day events may lack the DTEND property
-            if ($event['allday'] && empty($event['end'])) {
+            // events may lack the DTEND property, set it to DTSTART (RFC5545 3.6.1)
+            if (empty($event['end'])) {
                 $event['end'] = clone $event['start'];
             }
             // shift end-date by one day (except Thunderbird)
