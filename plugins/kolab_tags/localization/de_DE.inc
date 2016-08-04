@@ -29,3 +29,5 @@ $labels['taggingsuccess'] = 'Schlagwort wurde erfolgreich zugewiesen.';
 $labels['taggingerror'] = 'Konnte Schlagwort nicht zuweisen.';
 $labels['untaggingsuccess'] = 'Schlagwort(e) wurden erfolgreich entfernt.';
 $labels['untaggingerror'] = 'Schlagwort konnte nicht entfernt werden.';
+$labels['newtag'] = 'Neues Schlagwort';
+$labels['tagsearchnew'] = 'Text eingeben zur Suche oder für die Anlage eines neuen Schlagworts';
