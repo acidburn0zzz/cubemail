@@ -302,12 +302,13 @@ class rcube_kolab_contacts extends rcube_addressbook
         $groups = array();
 
         foreach ((array)$this->distlists as $group) {
-            if (!$search || strstr(strtolower($group['name']), strtolower($search)))
-                $groups[$group['name']] = array('ID' => $group['ID'], 'name' => $group['name']);
+            if (!$search || strstr(mb_strtolower($group['name']), mb_strtolower($search))) {
+                $groups[$group['ID']] = array('ID' => $group['ID'], 'name' => $group['name']);
+            }
         }
 
-        // sort groups
-        ksort($groups, SORT_LOCALE_STRING);
+        // sort groups by name
+        uasort($groups, function($a, $b) { return strcoll($a['name'], $b['name']); });
 
         return array_values($groups);
     }
