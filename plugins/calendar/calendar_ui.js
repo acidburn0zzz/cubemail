@@ -2500,13 +2500,20 @@ function rcube_calendar_ui(settings)
     // display confirm dialog when modifying/deleting an event
     var update_event_confirm = function(action, event, data)
     {
+      // Allow other plugins to do actions here
+      // E.g. when you move/resize the event init wasn't called
+      // but we need it as some plugins may modify user identities
+      // we depend on here (kolab_delegation)
+      rcmail.triggerEvent('calendar-event-init', {o: event});
+
       if (!data) data = event;
       var decline = false, notify = false, html = '', cal = me.calendars[event.calendar],
         _has_attendees = has_attendees(event), _is_organizer = is_organizer(event);
-      
+
       // event has attendees, ask whether to notify them
       if (_has_attendees) {
         var checked = (settings.itip_notify & 1 ? ' checked="checked"' : '');
+
         if (_is_organizer) {
           notify = true;
           if (settings.itip_notify & 2) {
@@ -2531,7 +2538,7 @@ function rcube_calendar_ui(settings)
           html += '<div class="message">' + rcmail.gettext('localchangeswarning', 'calendar') + '</div>';
         }
       }
-      
+
       // recurring event: user needs to select the savemode
       if (event.recurrence) {
         var future_disabled = '', message_label = (action == 'remove' ? 'removerecurringeventwarning' : 'changerecurringeventwarning');
