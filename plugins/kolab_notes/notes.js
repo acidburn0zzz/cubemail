@@ -1233,7 +1233,7 @@ function rcube_kolab_notes_ui(settings)
                 }
             }
 
-            $(printwin).load(function(){
+            $(printwin).on('load', function() {
                 printwin.document.title = data.title;
                 $('#notetitle', printwin.document).html(Q(data.title));
                 $('#notebody',  printwin.document).html(data.description);
