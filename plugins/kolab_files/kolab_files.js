@@ -1296,7 +1296,6 @@ function manticore_close()
       dialogClass: 'popupmessage error',
       title: rcmail.gettext('kolab_files.sessionterminatedtitle'),
       close: function() { window.close(); },
-      position: ['center', 'center'],
       width: 420,
       minHeight: 90
     }).show();

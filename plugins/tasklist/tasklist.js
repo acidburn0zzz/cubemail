@@ -3334,8 +3334,7 @@ function rcube_tasklist_ui(settings)
     this.dialog_resize = function(id, height, width)
     {
         var win = $(window), w = win.width(), h = win.height();
-            $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
-                .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
+        $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) });
     };
 
     /**
