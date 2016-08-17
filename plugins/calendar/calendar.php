@@ -2267,7 +2267,7 @@ class calendar extends rcube_plugin
       }
       
       $slots[$s] = $status;
-      $times[$s] = intval($dt->format($strformat));
+      $times[$s] = $dt->format($strformat);
       $t = $t_end;
     }
     
