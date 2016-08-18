@@ -53,10 +53,6 @@ class tasklist_ui
             'label'      => 'tasklist.navtitle',
         ), 'taskbar');
 
-        if ($this->rc->action && !in_array($this->rc->action, array('show', 'preview', 'print', 'index'))) {
-            return;
-        }
-
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tasklist.css');
 
         if ($this->rc->task == 'mail' || $this->rc->task == 'tasks') {
