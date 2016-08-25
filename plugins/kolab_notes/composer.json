@@ -4,7 +4,7 @@
     "description": "Notes module for Roundcube connecting to a Kolab server for storage",
     "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
-    "version": "3.2.14",
+    "version": "3.2.15",
     "authors": [
         {
             "name": "Thomas Bruederli",
