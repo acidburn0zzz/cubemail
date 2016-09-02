@@ -520,11 +520,11 @@ abstract class kolab_format
             $this->obj->setUid($object['uid']);
 
         // set some automatic values if missing
-        if (empty($object['created']) && method_exists($this->obj, 'setCreated')) {
-            $cdt = $this->obj->created();
-            $object['created'] = $cdt && $cdt->isValid() ? self::php_datetime($cdt) : new DateTime('now', new DateTimeZone('UTC'));
-            if (!$cdt || !$cdt->isValid())
-                $this->obj->setCreated(self::get_datetime($object['created']));
+        if (method_exists($this->obj, 'setCreated')) {
+            // Always set created date to workaround libkolabxml (>1.1.4) bug
+            $created = $object['created'] ?: new DateTime('now');
+            $created->setTimezone(new DateTimeZone('UTC')); // must be UTC
+            $this->obj->setCreated(self::get_datetime($created));
         }
 
         $object['changed'] = new DateTime('now', new DateTimeZone('UTC'));
