@@ -801,7 +801,7 @@ class kolab_delegation_engine
                 continue;
             }
             if ($args['personal']) {
-                $ns   = $cal->get_namespace();
+                $ns = $cal->get_namespace();
 
                 if (empty($context)) {
                     if ($ns != 'personal') {
@@ -859,39 +859,6 @@ class kolab_delegation_engine
                 $sender   = format_email_recipient($identity['email'], $identity['name']);
 
                 $message->headers(array('Sender' => $sender), false, true);
-            }
-        }
-    }
-
-    /**
-     * Finds an event in delegators' folders. Calendar looks only in
-     * personal namespace, we "extend" this to delegators' folders.
-     *
-     * @param array $args Reference to plugin hook arguments
-     */
-    public function delegator_find_event(&$args)
-    {
-        // The event wasn't found and current user has delegators
-        if (!empty($_SESSION['delegators']) && empty($args['result'])) {
-            $event     = $args['search'];
-            $ns_root   = kolab_storage::namespace_root('other');
-            $storage   = $this->rc->get_storage();
-            $delimiter = $storage->get_hierarchy_delimiter();
-            $folders   = $storage->list_folders_subscribed($ns_root, '*', 'event', 'w');
-
-            // search in all delegators' calendars
-            foreach ($folders as $folder) {
-                list($uid, $path) = explode($delimiter, substr($folder, strlen($ns_root)), 2);
-
-                if (!empty($_SESSION['delegators'][$uid])) {
-                    $event['calendar'] = kolab_storage::folder_id($folder, true);
-                    $result = $args['calendar']->driver->get_event($event, calendar_driver::FILTER_WRITEABLE);
-
-                    if ($result) {
-                        $args['result'] = $result;
-                        return;
-                    }
-                }
             }
         }
     }
