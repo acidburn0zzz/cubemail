@@ -54,7 +54,6 @@ class kolab_delegation extends rcube_plugin
         $this->add_hook('calendar_user_emails', array($this, 'calendar_user_emails'));
         $this->add_hook('calendar_list_filter', array($this, 'calendar_list_filter'));
         $this->add_hook('calendar_load_itip', array($this, 'calendar_load_itip'));
-        $this->add_hook('calendar_event_find', array($this, 'calendar_event_find'));
 
         // delegation support in kolab_auth plugin
         $this->add_hook('kolab_auth_emails', array($this, 'kolab_auth_emails'));
@@ -253,22 +252,6 @@ class kolab_delegation extends rcube_plugin
         if (!empty($_SESSION['delegators'])) {
             $engine = $this->engine();
             $engine->delegator_identity_filter($args);
-        }
-
-        return $args;
-    }
-
-    /**
-     * calendar::find_event() handler
-     */
-    public function calendar_event_find($args)
-    {
-        // If the event can't be found in user personal folders, we'll
-        // look in delegators' folders (T1264)
-
-        if (!empty($_SESSION['delegators']) && empty($args['result'])) {
-            $engine = $this->engine();
-            $engine->delegator_find_event($args);
         }
 
         return $args;

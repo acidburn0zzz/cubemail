@@ -269,11 +269,15 @@ class calendar extends rcube_plugin
   /**
    * Get properties of the calendar this user has specified as default
    */
-  public function get_default_calendar($sensitivity = null)
+  public function get_default_calendar($sensitivity = null, $calendars = null)
   {
+    if ($calendars === null) {
+      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL | calendar_driver::FILTER_WRITEABLE);
+    }
+
     $default_id = $this->rc->config->get('calendar_default_calendar');
-    $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL | calendar_driver::FILTER_WRITEABLE);
-    $calendar = $calendars[$default_id] ?: null;
+    $calendar   = $calendars[$default_id] ?: null;
+
     if (!$calendar || $sensitivity) {
       foreach ($calendars as $cal) {
         if ($sensitivity && $cal['subtype'] == $sensitivity) {
@@ -2521,16 +2525,7 @@ class calendar extends rcube_plugin
     $this->load_driver();
 
     // We search for writeable calendars in personal namespace by default
-    $result = $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
-
-    // Some plugins may search in other users calendars, e.g. where delegation is involved
-    $plugin = $this->rc->plugins->exec_hook('calendar_event_find', array(
-            'search'   => $event,
-            'result'   => $result,
-            'calendar' => $this,
-    ));
-
-    return $plugin['result'];
+    return $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
   }
 
   /**
@@ -2549,7 +2544,7 @@ class calendar extends rcube_plugin
 
     // get a list of writeable calendars to save new events to
     if (!$existing && !$data['nosave'] && $response['action'] == 'rsvp' || $response['action'] == 'import') {
-      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
+      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
       $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'itip-saveto', 'is_escaped' => true));
       $calendar_select->add('--', '');
       $numcals = 0;
@@ -2559,12 +2554,12 @@ class calendar extends rcube_plugin
           $numcals++;
         }
       }
-      if ($numcals <= 1)
+      if ($numcals < 1)
         $calendar_select = null;
     }
 
     if ($calendar_select) {
-      $default_calendar = $this->get_default_calendar($data['sensitivity']);
+      $default_calendar = $this->get_default_calendar($data['sensitivity'], $calendars);
       $response['select'] = html::span('folder-select', $this->gettext('saveincalendar') . '&nbsp;' .
         $calendar_select->show($default_calendar['id']));
     }
