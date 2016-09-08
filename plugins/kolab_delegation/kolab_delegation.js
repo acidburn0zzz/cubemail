@@ -31,6 +31,8 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     // set delegator context for calendar requests on invitation message
     rcmail.addEventListener('requestcalendar/event', function(o) { rcmail.event_delegator_request(o); });
     rcmail.addEventListener('requestcalendar/mailimportevent', function(o) { rcmail.event_delegator_request(o); });
+    rcmail.addEventListener('requestcalendar/mailimportitip', function(o) { rcmail.event_delegator_request(o); });
+    rcmail.addEventListener('requestcalendar/itip-status', function(o) { rcmail.event_delegator_request(o); });
 
     if (rcmail.env.delegators && window.rcube_calendar_ui) {
       rcmail.calendar_identity_init();

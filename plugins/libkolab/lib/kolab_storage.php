@@ -344,6 +344,8 @@ class kolab_storage
      */
     public static function namespace_root($name)
     {
+        self::setup();
+
         foreach ((array)self::$imap->get_namespace($name) as $paths) {
             if (strlen($paths[0]) > 1) {
                 return $paths[0];
