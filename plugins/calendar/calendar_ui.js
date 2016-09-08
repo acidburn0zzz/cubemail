@@ -3931,23 +3931,24 @@ function rcube_calendar_ui(settings)
       // init event dialog
       $('#eventtabs').tabs({
         activate: function(event, ui) {
-          if (ui.newPanel.selector == '#event-panel-attendees' || ui.newPanel.selector == '#event-panel-resources') {
-            var tab = ui.newPanel.selector == '#event-panel-resources' ? 'resource' : 'attendee';
+          // newPanel.selector for jQuery-UI 1.10, newPanel.attr('id') for jQuery-UI 1.12
+          var tab = String(ui.newPanel.selector || ui.newPanel.attr('id'))
+              .replace(/^#?event-panel-/, '').replace(/s$/, '');
+
+          if (tab == 'attendee' || tab == 'resource') {
             if (!rcube_event.is_keyboard(event))
               $('#edit-'+tab+'-name').select();
             // update free-busy status if needed
             if (freebusy_ui.needsupdate && me.selected_event)
               update_freebusy_status(me.selected_event);
             // add current user as organizer if non added yet
-            if (!event_attendees.length) {
+            if (tab == 'attendee' && !event_attendees.length) {
               add_attendee($.extend({ role:'ORGANIZER' }, settings.identity));
               $('#edit-attendees-form .attendees-invitebox').show();
             }
           }
           // reset autocompletion on tab change (#3389)
-          if (ui.oldPanel.selector == '#event-panel-attendees' || ui.oldPanel.selector == '#event-panel-resources') {
-            rcmail.ksearch_blur();
-          }
+          rcmail.ksearch_blur();
         }
       });
       $('#edit-enddate').datepicker(datepicker_settings);

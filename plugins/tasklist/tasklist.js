@@ -651,9 +651,7 @@ function rcube_tasklist_ui(settings)
         $('#taskedit').tabs({
             activate: function(event, ui) {
                 // reset autocompletion on tab change (#3389)
-                if (ui.oldPanel.selector == '#taskedit-panel-attendees') {
-                    rcmail.ksearch_blur();
-                }
+                rcmail.ksearch_blur();
             }
         });
 
