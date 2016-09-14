@@ -18,6 +18,18 @@ $labels['savingerror'] = 'Fehler beim Speichern';
 $labels['notsupported'] = 'Ihr Server unterstützt keine Activesync-Konfiguration';
 $labels['devicedeleteconfirm'] = 'Wollen Sie wirklich alle Einstellungen für dieses Gerät löschen?';
 $labels['successfullydeleted'] = 'Die Geräteinstellungen wurden erfolgreich gelöscht';
-$labels['devicenotfound'] = 'Es kann nicht auf die Gerätekonfiguration zugegriffen werden';
-$labels['devicetype'] = 'Gerätename';
+$labels['activesynctitle'] = 'Verwalte ActiveSync-Geräte';
+$labels['deviceconfig'] = 'Gerätekonfiguration';
+$labels['nodevices'] = 'Es sind aktuell keine Geräte registriert.<br/><br/>Um ein Gerät zu registrieren, bitte zuerst nach der Anleitung von <a href="$url" target="_blank">dieser Seite</a> mit dem Server verbinden. Anschließend sollte das Gerät für die Konfiguration hier zur Verfügung stehen.';
+$labels['savingerror'] = 'Fehler beim Speichern der Konfiguration';
+$labels['devicenotfound'] = 'Es kann nicht auf die Gerätekonfiguration zugegriffen werden.';
+$labels['devicetype'] = 'Gerätetyp';
+$labels['acsversion'] = 'Protokollversion';
+$labels['useragent'] = 'User Agent';
+$labels['friendlyname'] = 'Lesbarer Name';
+$labels['os'] = 'Betriebssystem';
+$labels['oslanguage'] = 'Betriebssystemsprache';
+$labels['phonenumber'] = 'Telefonnummer';
+$labels['arialabeldeviceframe'] = 'Formular für die Einstellungen zur Gerätesynchronisation';
+
 ?>
