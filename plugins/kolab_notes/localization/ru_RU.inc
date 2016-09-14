@@ -55,7 +55,6 @@ $labels['arialabelnoteslist'] = 'Список заметок';
 $labels['arialabelnotesearchform'] = 'Форма поиска заметок';
 $labels['arialabelnotesquicksearchbox'] = 'Поиск заметок';
 $labels['arialabelnotessortmenu'] = 'Настройки сортировки списка заметок';
-$labels['arialabelnotesoptionsmenu'] = 'Действия с записными книжками';
 $labels['arialabelnotebookform'] = 'Свойства записной книжки';
 $labels['arialabelmessagereferences'] = 'Связанные сообщения почты';
 $labels['arialabelfolderearchform'] = 'Форма поиска записных книжек';
