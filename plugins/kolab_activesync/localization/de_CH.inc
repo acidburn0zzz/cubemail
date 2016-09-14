@@ -19,4 +19,5 @@ $labels['notsupported'] = 'Ihr Server unterstützt keine Activesync-Konfiguratio
 $labels['devicedeleteconfirm'] = 'Wollen Sie wirklich alle Einstellungen für dieses Gerät löschen?';
 $labels['successfullydeleted'] = 'Die Geräteinstellungen wurden erfolgreich gelöscht';
 $labels['devicenotfound'] = 'Es kann nicht auf die Gerätekonfiguration zugegriffen werden';
+$labels['devicetype'] = 'Gerätename';
 ?>

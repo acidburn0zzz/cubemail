@@ -6,6 +6,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
+$labels['files'] = 'Ficheiros';
 $labels['save'] = 'Gravar';
 $labels['cancel'] = 'Cancelar';
 $labels['folderinside'] = 'Inserir dentro';

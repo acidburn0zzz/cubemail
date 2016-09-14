@@ -87,6 +87,7 @@ $labels['roleoptional'] = 'Optional';
 $labels['rolechair'] = 'Chair';
 $labels['sendinvitations'] = 'Einladungen versenden';
 $labels['itipupdatesubject'] = '"$title" wurde aktualisiert';
+$labels['itipcancelsubject'] = '"$title" wurde abgesagt';
 $labels['taskhistory'] = 'Verlauf';
 $labels['objectchangelog'] = 'Änderungsverlauf';
 $labels['objectdiff'] = 'Änderungen aus $rev1 nach $rev2';
