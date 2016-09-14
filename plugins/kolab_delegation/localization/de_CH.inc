@@ -28,4 +28,9 @@ $labels['updatesuccess'] = 'Der Vertreter wurde erfolgreich aktualisiert.';
 $labels['updateerror'] = 'Vertreter konnte nicht aktualisiert werden.';
 $labels['createsuccess'] = 'Der Vertreter wurde erfolgreich hinzugefügt.';
 $labels['createerror'] = 'Vertreter konnte nicht hinzugefügt werden.';
+$labels['delegationtitle'] = 'Verwalte Vertreter';
+$labels['read'] = 'Schreibgeschützt';
+$labels['write'] = 'Schreiben';
+$labels['arialabeldelegatedelete'] = 'Vertreter Löschen Dialog';
+$labels['arialabeldelegateform'] = 'Verterter Eigenschaften Maske';
 ?>
