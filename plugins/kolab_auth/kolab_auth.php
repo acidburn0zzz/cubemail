@@ -769,6 +769,17 @@ class kolab_auth extends rcube_plugin
     }
 
     /**
+     * Close LDAP connection
+     */
+    public static function ldap_close()
+    {
+        if (self::$ldap) {
+            self::$ldap->close();
+            self::$ldap = null;
+        }
+    }
+
+    /**
      * Parses LDAP DN string with replacing supported variables.
      * See kolab_auth_ldap::parse_vars()
      *
