@@ -813,11 +813,16 @@ class kolab_delegation_engine
                         continue;
                     }
 
+                    $found = false;
                     foreach ($other_ns as $ns) {
                         $folder = $ns[0] . $context . $delim;
-                        if (strpos($cal->name, $folder) !== 0) {
-                            continue;
+                        if (strpos($cal->name, $folder) === 0) {
+                            $found = true;
                         }
+                    }
+
+                    if (!$found) {
+                        continue;
                     }
                 }
             }
