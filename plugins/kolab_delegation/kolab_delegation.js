@@ -33,6 +33,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     rcmail.addEventListener('requestcalendar/mailimportevent', function(o) { rcmail.event_delegator_request(o); });
     rcmail.addEventListener('requestcalendar/mailimportitip', function(o) { rcmail.event_delegator_request(o); });
     rcmail.addEventListener('requestcalendar/itip-status', function(o) { rcmail.event_delegator_request(o); });
+    rcmail.addEventListener('requestcalendar/itip-remove', function(o) { rcmail.event_delegator_request(o); });
 
     if (rcmail.env.delegators && window.rcube_calendar_ui) {
       rcmail.calendar_identity_init();

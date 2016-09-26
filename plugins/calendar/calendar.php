@@ -2611,9 +2611,10 @@ class calendar extends rcube_plugin
     $uid      = rcube_utils::get_input_value('uid', rcube_utils::INPUT_POST);
     $instance = rcube_utils::get_input_value('_instance', rcube_utils::INPUT_POST);
     $savemode = rcube_utils::get_input_value('_savemode', rcube_utils::INPUT_POST);
+    $listmode = calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL;
 
     // search for event if only UID is given
-    if ($event = $this->driver->get_event(array('uid' => $uid, '_instance' => $instance), calendar_driver::FILTER_WRITEABLE)) {
+    if ($event = $this->driver->get_event(array('uid' => $uid, '_instance' => $instance), $listmode)) {
       $event['_savemode'] = $savemode;
       $success = $this->driver->remove_event($event, true);
     }
