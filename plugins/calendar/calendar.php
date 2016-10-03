@@ -2520,12 +2520,22 @@ class calendar extends rcube_plugin
   /**
    * Find an event in user calendars
    */
-  protected function find_event($event)
+  protected function find_event($event, &$mode)
   {
     $this->load_driver();
 
     // We search for writeable calendars in personal namespace by default
-    return $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
+    $mode   = calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL;
+    $result = $this->driver->get_event($event, $mode);
+    // ... now check shared folders if not found
+    if (!$result) {
+      $result = $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_SHARED);
+      if ($result) {
+        $mode |= calendar_driver::FILTER_SHARED;
+      }
+    }
+
+    return $result;
   }
 
   /**
@@ -2537,14 +2547,18 @@ class calendar extends rcube_plugin
 
     $this->load_driver();
 
-    // find local copy of the referenced event
-    $existing = $this->find_event($data);
-    $itip     = $this->load_itip();
-    $response = $itip->get_itip_status($data, $existing);
+    // find local copy of the referenced event (in personal namespace)
+    $existing  = $this->find_event($data, $mode);
+    $is_shared = $mode & calendar_driver::FILTER_SHARED;
+    $itip      = $this->load_itip();
+    $response  = $itip->get_itip_status($data, $existing);
 
     // get a list of writeable calendars to save new events to
-    if (!$existing && !$data['nosave'] && $response['action'] == 'rsvp' || $response['action'] == 'import') {
-      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_WRITEABLE | calendar_driver::FILTER_PERSONAL);
+    if ((!$existing || $is_shared)
+      && !$data['nosave']
+      && ($response['action'] == 'rsvp' || $response['action'] == 'import')
+    ) {
+      $calendars = $this->driver->list_calendars($mode);
       $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'itip-saveto', 'is_escaped' => true));
       $calendar_select->add('--', '');
       $numcals = 0;
@@ -2561,7 +2575,7 @@ class calendar extends rcube_plugin
     if ($calendar_select) {
       $default_calendar = $this->get_default_calendar($data['sensitivity'], $calendars);
       $response['select'] = html::span('folder-select', $this->gettext('saveincalendar') . '&nbsp;' .
-        $calendar_select->show($default_calendar['id']));
+        $calendar_select->show($is_shared ? $existing['calendar'] : $default_calendar['id']));
     }
     else if ($data['nosave']) {
       $response['select'] = html::tag('input', array('type' => 'hidden', 'name' => 'calendar', 'id' => 'itip-saveto', 'value' => ''));
@@ -2883,15 +2897,19 @@ class calendar extends rcube_plugin
         $event['free_busy'] = 'free';
       }
 
+      $mode = calendar_driver::FILTER_PERSONAL
+        | calendar_driver::FILTER_SHARED
+        | calendar_driver::FILTER_WRITEABLE;
+
       // find writeable calendar to store event
-      $cal_id = !empty($_REQUEST['_folder']) ? rcube_utils::get_input_value('_folder', rcube_utils::INPUT_POST) : null;
-      $dontsave = ($_REQUEST['_folder'] === '' && $event['_method'] == 'REQUEST');
-      $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
-      $calendar = $calendars[$cal_id];
+      $cal_id    = rcube_utils::get_input_value('_folder', rcube_utils::INPUT_POST);
+      $dontsave  = $cal_id === '' && $event['_method'] == 'REQUEST';
+      $calendars = $this->driver->list_calendars($mode);
+      $calendar  = $calendars[$cal_id];
 
       // select default calendar except user explicitly selected 'none'
       if (!$calendar && !$dontsave)
-         $calendar = $this->get_default_calendar($event['sensitivity']);
+         $calendar = $this->get_default_calendar($event['sensitivity'], $calendars);
 
       $metadata = array(
         'uid' => $event['uid'],
@@ -2939,9 +2957,16 @@ class calendar extends rcube_plugin
       // save to calendar
       if ($calendar && $calendar['editable']) {
         // check for existing event with the same UID
-        $existing = $this->find_event($event);
+        $existing = $this->find_event($event, $mode);
+
+        // we'll create a new copy if user decided to change the calendar
+        if ($existing && $cal_id && $calendar && $calendar['id'] != $existing['calendar']) {
+          $existing = null;
+        }
 
         if ($existing) {
+          $calendar = $calendars[$existing['calendar']];
+
           // forward savemode for correct updates of recurring events
           $existing['_savemode'] = $savemode ?: $event['_savemode'];
 
@@ -3014,10 +3039,9 @@ class calendar extends rcube_plugin
             $event['id'] = $existing['id'];
             $event['calendar'] = $existing['calendar'];
 
-            // preserve my participant status for regular updates
-            if (empty($status)) {
-              $this->lib->merge_attendees($event, $existing);
-            }
+            // merge attendees status
+            // e.g. preserve my participant status for regular updates
+            $this->lib->merge_attendees($event, $existing, $status);
 
             // set status=CANCELLED on CANCEL messages
             if ($event['_method'] == 'CANCEL')

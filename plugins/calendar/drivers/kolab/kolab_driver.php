@@ -293,15 +293,14 @@ class kolab_driver extends calendar_driver
       'list'      => $this->calendars,
       'calendars' => $calendars,
       'filter'    => $filter,
-      'editable'  => ($filter & self::FILTER_WRITEABLE),
-      'insert'    => ($filter & self::FILTER_INSERTABLE),
-      'active'    => ($filter & self::FILTER_ACTIVE),
-      'personal'  => ($filter & self::FILTER_PERSONAL)
     ));
 
     if ($plugin['abort']) {
       return $plugin['calendars'];
     }
+
+    $personal = $filter & self::FILTER_PERSONAL;
+    $shared   = $filter & self::FILTER_SHARED;
 
     foreach ($this->calendars as $cal) {
       if (!$cal->ready) {
@@ -322,9 +321,13 @@ class kolab_driver extends calendar_driver
       if (($filter & self::FILTER_CONFIDENTIAL) && $cal->subtype != 'confidential') {
         continue;
       }
-      if (($filter & self::FILTER_PERSONAL) && $cal->get_namespace() != 'personal') {
-        continue;
+      if ($personal || $shared) {
+        $ns = $cal->get_namespace();
+        if (!(($personal && $ns == 'personal') || ($shared && $ns == 'shared'))) {
+          continue;
+        }
       }
+
       $calendars[$cal->id] = $cal;
     }
 

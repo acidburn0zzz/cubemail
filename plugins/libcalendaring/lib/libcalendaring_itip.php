@@ -406,8 +406,8 @@ class libcalendaring_itip
           else if (!$existing && !$rsvp) {
             $action = 'import';
           }
-          else if ($latest && $status_lc != 'needs-action') {
-            $action = 'update';
+          else if ($status_lc != 'needs-action') {
+            $action = !$latest ? 'update' : '';
           }
 
           $html = html::div('rsvp-status ' . $status_lc, $status_text);
