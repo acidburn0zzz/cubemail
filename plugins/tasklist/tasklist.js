@@ -1189,7 +1189,7 @@ function rcube_tasklist_ui(settings)
             var link = $(elem),
                 f = link.parent().attr('class').replace(/\s\w+/g, '');
             if (f != 'all')
-                link.children('span').html(taskcounts[f] || '')[(taskcounts[f] ? 'show' : 'hide')]();
+                link.children('span').html('+' + (taskcounts[f] || ''))[(taskcounts[f] ? 'show' : 'hide')]();
         });
 
         // spacial case: overdue

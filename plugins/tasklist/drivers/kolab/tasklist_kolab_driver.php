@@ -507,7 +507,7 @@ class tasklist_kolab_driver extends tasklist_driver
         $tomorrow_date = new DateTime('now + 1 day', $this->plugin->timezone);
         $tomorrow      = $tomorrow_date->format('Y-m-d');
 
-        $counts = array('all' => 0, 'flagged' => 0, 'today' => 0, 'tomorrow' => 0, 'overdue' => 0, 'nodate' => 0, 'mytasks' => 0);
+        $counts = array('all' => 0, 'today' => 0, 'tomorrow' => 0, 'later' => 0, 'overdue'  => 0);
 
         foreach ($lists as $list_id) {
             if (!$folder = $this->get_folder($list_id)) {
@@ -521,18 +521,16 @@ class tasklist_kolab_driver extends tasklist_driver
                     continue;
 
                 $counts['all']++;
-                if ($rec['flagged'])
-                    $counts['flagged']++;
                 if (empty($rec['date']))
-                    $counts['nodate']++;
+                    $counts['later']++;
                 else if ($rec['date'] == $today)
                     $counts['today']++;
                 else if ($rec['date'] == $tomorrow)
                     $counts['tomorrow']++;
                 else if ($rec['date'] < $today)
                     $counts['overdue']++;
-                if ($this->plugin->is_attendee($rec) !== false)
-                    $counts['mytasks']++;
+                else if ($rec['date'] > $tomorrow)
+                    $counts['later']++;
             }
         }
 
