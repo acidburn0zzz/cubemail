@@ -254,19 +254,19 @@ class tasklist_database_driver extends tasklist_driver
             join(',', $list_ids)
         ));
 
-        $counts = array('all' => 0, 'flagged' => 0, 'today' => 0, 'tomorrow' => 0, 'overdue' => 0, 'nodate' => 0);
+        $counts = array('all' => 0, 'today' => 0, 'tomorrow' => 0, 'overdue' => 0, 'later' => 0);
         while ($result && ($rec = $this->rc->db->fetch_assoc($result))) {
             $counts['all']++;
-            if ($rec['flagged'])
-                $counts['flagged']++;
             if (empty($rec['date']))
-                $counts['nodate']++;
+                $counts['later']++;
             else if ($rec['date'] == $today)
                 $counts['today']++;
             else if ($rec['date'] == $tomorrow)
                 $counts['tomorrow']++;
             else if ($rec['date'] < $today)
                 $counts['overdue']++;
+            else if ($rec['date'] > $tomorrow)
+                $counts['later']++;
         }
 
         return $counts;
