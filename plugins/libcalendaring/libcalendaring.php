@@ -1565,43 +1565,61 @@ class libcalendaring extends rcube_plugin
      * Merge attendees of the old and new event version
      * with keeping current user and his delegatees status
      *
-     * @param array &$new New object data
-     * @param array $old  Old object data
+     * @param array &$new   New object data
+     * @param array $old    Old object data
+     * @param bool  $status New status of the current user
      */
-    public function merge_attendees(&$new, $old)
+    public function merge_attendees(&$new, $old, $status = null)
     {
-        $emails    = $this->get_user_emails();
-        $delegates = array();
-        $attendees = array();
+        if (empty($status)) {
+            $emails    = $this->get_user_emails();
+            $delegates = array();
+            $attendees = array();
 
-        // keep attendee status of the current user
-        foreach ((array) $new['attendees'] as $i => $attendee) {
-            if (empty($attendee['email'])) {
-                continue;
+            // keep attendee status of the current user
+            foreach ((array) $new['attendees'] as $i => $attendee) {
+                if (empty($attendee['email'])) {
+                    continue;
+                }
+
+                $attendees[] = $email = strtolower($attendee['email']);
+
+                if (in_array($email, $emails)) {
+                    foreach ($old['attendees'] as $_attendee) {
+                        if ($attendee['email'] == $_attendee['email']) {
+                            $new['attendees'][$i] = $_attendee;
+                            if ($_attendee['status'] == 'DELEGATED' && ($email = $_attendee['delegated-to'])) {
+                                $delegates[] = strtolower($email);
+                            }
+
+                            break;
+                        }
+                    }
+                }
             }
 
-            $attendees[] = $email = strtolower($attendee['email']);
-
-            if (in_array($email, $emails)) {
-                foreach ($old['attendees'] as $_attendee) {
-                    if ($attendee['email'] == $_attendee['email']) {
-                        $new['attendees'][$i] = $_attendee;
-                        if ($_attendee['status'] == 'DELEGATED' && ($email = $_attendee['delegated-to'])) {
-                            $delegates[] = strtolower($email);
+            // make sure delegated attendee is not lost
+            foreach ($delegates as $delegatee) {
+                if (!in_array($delegatee, $attendees)) {
+                    foreach ((array) $old['attendees'] as $attendee) {
+                        if ($attendee['email'] && ($email = strtolower($attendee['email'])) && $email == $delegatee) {
+                            $new['attendees'][] = $attendee;
+                            break;
                         }
-
-                        break;
                     }
                 }
             }
         }
 
-        // make sure delegated attendee is not lost
-        foreach ($delegates as $delegatee) {
-            if (!in_array($delegatee, $attendees)) {
-                foreach ((array) $old['attendees'] as $attendee) {
-                    if ($attendee['email'] && ($email = strtolower($attendee['email'])) && $email == $delegatee) {
-                        $new['attendees'][] = $attendee;
+        // We also make sure that status of any attendee
+        // is not overriden by NEEDS-ACTION if it was already set
+        // which could happen if you work with shared events
+        foreach ((array) $new['attendees'] as $i => $attendee) {
+            if ($attendee['email'] && $attendee['status'] == 'NEEDS-ACTION') {
+                foreach ($old['attendees'] as $_attendee) {
+                    if ($attendee['email'] == $_attendee['email']) {
+                        $new['attendees'][$i]['status'] = $_attendee['status'];
+                        unset($new['attendees'][$i]['rsvp']);
                         break;
                     }
                 }

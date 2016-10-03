@@ -783,10 +783,19 @@ class kolab_delegation_engine
      */
     public function delegator_folder_filter(&$args)
     {
-        $context   = $this->delegator_context();
+        $context = $this->delegator_context();
+
+        if (empty($context)) {
+            return $args;
+        }
+
         $storage   = $this->rc->get_storage();
         $other_ns  = $storage->get_namespace('other');
         $delim     = $storage->get_hierarchy_delimiter();
+        $editable  = $filter & calendar_driver::FILTER_WRITEABLE;
+        $active    = $filter & calendar_driver::FILTER_ACTIVE;
+        $personal  = $filter & calendar_driver::FILTER_PERSONAL;
+        $shared    = $filter & calendar_driver::FILTER_SHARED;
         $calendars = array();
 
         // code parts derived from kolab_driver::filter_calendars()
@@ -794,25 +803,19 @@ class kolab_delegation_engine
             if (!$cal->ready) {
                 continue;
             }
-            if ($args['writeable'] && $cal->readonly) {
+            if ($editable && !$cal->editable) {
                 continue;
             }
-            if ($args['active'] && !$cal->storage->is_active()) {
+            if ($active && !$cal->storage->is_active()) {
                 continue;
             }
-            if ($args['personal']) {
+            if ($personal || $shared) {
                 $ns = $cal->get_namespace();
 
-                if (empty($context)) {
-                    if ($ns != 'personal') {
-                        continue;
-                    }
+                if ($personal && $ns == 'personal') {
+                    continue;
                 }
-                else {
-                    if ($ns != 'other') {
-                        continue;
-                    }
-
+                else if ($personal && $ns == 'other') {
                     $found = false;
                     foreach ($other_ns as $ns) {
                         $folder = $ns[0] . $context . $delim;
@@ -824,6 +827,9 @@ class kolab_delegation_engine
                     if (!$found) {
                         continue;
                     }
+                }
+                else if (!$shared || $ns != 'shared') {
+                    continue;
                 }
             }
 

@@ -101,6 +101,7 @@ abstract class calendar_driver
   const FILTER_PERSONAL      = 8;
   const FILTER_PRIVATE       = 16;
   const FILTER_CONFIDENTIAL  = 32;
+  const FILTER_SHARED        = 64;
   const BIRTHDAY_CALENDAR_ID = '__bdays__';
 
   // features supported by backend
