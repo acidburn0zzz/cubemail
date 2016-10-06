@@ -769,7 +769,27 @@ class kolab_files_engine
         $attrib['src']             = $href;
         $attrib['onload']          = 'kolab_files_frame_load(this)';
 
-        return html::iframe($attrib);
+        // editor requires additional arguments via POST
+        if (!empty($this->file_data['viewer']['post'])) {
+            $attrib['src'] = $this->rc->output->asset_url('program/resources/blank.gif');
+
+            $form_content = new html_hiddenfield();
+            $form_attrib  = array(
+                'action' => $href,
+                'id'     => $attrib['id'] . '-form',
+                'target' => $attrib['name'],
+                'method' => 'post',
+            );
+
+            foreach ($this->file_data['viewer']['post'] as $name => $value) {
+                $form_content->add(array('name' => $name, 'value' => $value));
+            }
+
+            $form = html::tag('form', $form_attrib, $form_content->show())
+                . html::script(array(), "\$('#{$attrib['id']}-form').submit()");
+        }
+
+        return html::iframe($attrib) . $form;
     }
 
     /**
@@ -1349,7 +1369,7 @@ class kolab_files_engine
         ));
 
         $placeholder = $this->rc->output->asset_url('program/resources/blank.gif');
-        $manticore = ($viewer & 4) && $this->file_data['viewer']['manticore'];
+        $got_editor  = ($viewer & 4) && ($this->file_data['viewer']['manticore'] || $this->file_data['viewer']['wopi']);
 
         // this one is for styling purpose
         $this->rc->output->set_env('extwin', true);
@@ -1357,7 +1377,7 @@ class kolab_files_engine
         $this->rc->output->set_env('file_data', $this->file_data);
         $this->rc->output->set_env('photo_placeholder', $placeholder);
         $this->rc->output->set_pagetitle(rcube::Q($file));
-        $this->rc->output->send('kolab_files.' . ($manticore ? 'docedit' : 'filepreview'));
+        $this->rc->output->send('kolab_files.' . ($got_editor ? 'docedit' : 'filepreview'));
     }
 
     /**
