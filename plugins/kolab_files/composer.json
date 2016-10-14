@@ -4,7 +4,7 @@
     "description": "User interface for Kolab File Manager (Chwala)",
     "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
-    "version": "3.2.15",
+    "version": "3.2.16",
     "authors": [
         {
             "name": "Aleksander Machniak",
