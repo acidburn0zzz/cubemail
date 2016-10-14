@@ -168,6 +168,9 @@ $labels['arialabelfilesavedialog'] = 'File(s) saving dialog';
 $labels['arialabelfileprops'] = 'File properties';
 $labels['arialabelfilecontent'] = 'File content';
 $labels['arialabelfileeditdialog'] = 'File editing dialog';
+$labels['arialabeldoceditorsdialog'] = 'Document session management dialog';
+$labels['arialabelexportoptions'] = 'Document export options';
+$labels['arialabelcollaborators'] = 'List of document editors';
 
 $labels['type.plain'] = 'Plain Text Document';
 $labels['type.vndoasisopendocumenttext'] = 'Text Document (ODF)';

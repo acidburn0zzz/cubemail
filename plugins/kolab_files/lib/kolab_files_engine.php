@@ -445,16 +445,11 @@ class kolab_files_engine
         $select_type   = new html_select(array('id' => 'file-create-type', 'name' => 'type'));
         $table         = new html_table(array('cols' => 2, 'class' => 'propform'));
 
-        // @TODO: get this list from Chwala API
-        $types = array(
-            'application/vnd.oasis.opendocument.text' => 'odt',
-            'text/plain' => 'txt',
-            'text/html'  => 'html',
-        );
-        foreach (array_keys($types) as $type) {
-            list ($app, $label) = explode('/', $type);
-            $label = preg_replace('/[^a-z]/', '', $label);
-            $select_type->add($this->plugin->gettext('type.' . $label), $type);
+        $types = array();
+
+        foreach ($this->get_mimetypes('edit') as $type => $mimetype) {
+            $types[$type] = $mimetype['ext'];
+            $select_type->add($mimetype['label'], $type);
         }
 
         $table->add('title', html::label('file-create-name', rcube::Q($this->plugin->gettext('filename'))));
@@ -1383,22 +1378,52 @@ class kolab_files_engine
     /**
      * Returns mimetypes supported by File API viewers
      */
-    protected function get_mimetypes()
+    protected function get_mimetypes($type = 'view')
     {
-        $token   = $this->get_api_token();
-        $request = $this->get_request(array('method' => 'mimetypes'), $token);
+        $mimetypes = array();
 
         // send request to the API
         try {
-            $response = $request->send();
-            $status   = $response->getStatus();
-            $body     = @json_decode($response->getBody(), true);
+            if ($this->mimetypes === null) {
+                $this->mimetypes = false;
 
-            if ($status == 200 && $body['status'] == 'OK') {
-                $mimetypes = $body['result'];
+                $token    = $this->get_api_token();
+                $request  = $this->get_request(array('method' => 'mimetypes'), $token);
+                $response = $request->send();
+                $status   = $response->getStatus();
+                $body     = @json_decode($response->getBody(), true);
+
+                if ($status == 200 && $body['status'] == 'OK') {
+                    $this->mimetypes = $body['result'];
+                }
+                else {
+                    throw new Exception($body['reason'] ?: "Failed to get mimetypes. Status: $status");
+                }
+            }
+
+            if (is_array($this->mimetypes) && array_key_exists($type, $this->mimetypes)) {
+                $mimetypes = $this->mimetypes[$type];
             }
             else {
-                throw new Exception($body['reason'] ?: "Failed to get mimetypes. Status: $status");
+                $mimetypes = (array) $this->mimetypes;
+            }
+
+            // fallback to static definition if old Chwala is used
+            if ($type == 'edit' && empty($mimetypes)) {
+                $mimetypes = array(
+                    'application/vnd.oasis.opendocument.text' => 'odt',
+                    'text/plain' => 'txt',
+                    'text/html'  => 'html',
+                );
+
+                foreach (array_keys($mimetypes) as $type) {
+                    list ($app, $label) = explode('/', $type);
+                    $label = preg_replace('/[^a-z]/', '', $label);
+                    $mimetypes[$type] = array(
+                        'ext'   => $mimetypes[$type],
+                        'label' => $this->plugin->gettext('type.' . $label),
+                    );
+                }
             }
         }
         catch (Exception $e) {
