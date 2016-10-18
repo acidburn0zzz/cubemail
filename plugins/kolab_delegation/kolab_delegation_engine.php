@@ -792,10 +792,10 @@ class kolab_delegation_engine
         $storage   = $this->rc->get_storage();
         $other_ns  = $storage->get_namespace('other');
         $delim     = $storage->get_hierarchy_delimiter();
-        $editable  = $filter & calendar_driver::FILTER_WRITEABLE;
-        $active    = $filter & calendar_driver::FILTER_ACTIVE;
-        $personal  = $filter & calendar_driver::FILTER_PERSONAL;
-        $shared    = $filter & calendar_driver::FILTER_SHARED;
+        $editable  = $args['filter'] & calendar_driver::FILTER_WRITEABLE;
+        $active    = $args['filter'] & calendar_driver::FILTER_ACTIVE;
+        $personal  = $args['filter'] & calendar_driver::FILTER_PERSONAL;
+        $shared    = $args['filter'] & calendar_driver::FILTER_SHARED;
         $calendars = array();
 
         // code parts derived from kolab_driver::filter_calendars()
