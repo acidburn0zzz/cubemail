@@ -1401,11 +1401,13 @@ class kolab_files_engine
                 }
             }
 
-            if (is_array($this->mimetypes) && array_key_exists($type, $this->mimetypes)) {
-                $mimetypes = $this->mimetypes[$type];
-            }
-            else {
-                $mimetypes = (array) $this->mimetypes;
+            if (is_array($this->mimetypes)) {
+                if (array_key_exists($type, $this->mimetypes)) {
+                    $mimetypes = $this->mimetypes[$type];
+                }
+                else {
+                    $mimetypes = $this->mimetypes;
+                }
             }
 
             // fallback to static definition if old Chwala is used

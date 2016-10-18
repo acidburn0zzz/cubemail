@@ -1166,15 +1166,15 @@ function kolab_files_frame_load(frame)
     info = rcmail.env.file_data;
 
   try {
-    rcmail.file_editor = win.file_editor && win.file_editor.editable ? win.file_editor : null;
+    rcmail.file_editor = win.file_editor;
   }
   catch (e) {};
 
   // on edit page switch immediately to edit mode
-  if (rcmail.file_editor && rcmail.env.action == 'edit')
+  if (rcmail.file_editor && rcmail.file_editor.editable && rcmail.env.action == 'edit')
     rcmail.files_edit();
 
-  rcmail.enable_command('files-edit', rcmail.file_editor
+  rcmail.enable_command('files-edit', (rcmail.file_editor && rcmail.file_editor.editable)
     || (info && info.viewer && info.viewer.manticore));
   rcmail.enable_command('files-print', (rcmail.file_editor && rcmail.file_editor.printable)
     || (info && /^image\//i.test(info.type)));
