@@ -612,14 +612,8 @@ class kolab_calendar extends kolab_storage_folder_api
 
     // determine a reasonable end date if none given
     if (!$end) {
-      switch ($event['recurrence']['FREQ']) {
-        case 'YEARLY':  $intvl = 'P100Y'; break;
-        case 'MONTHLY': $intvl = 'P20Y';  break;
-        default:        $intvl = 'P10Y';  break;
-      }
-
       $end = clone $event['start'];
-      $end->add(new DateInterval($intvl));
+      $end->add(new DateInterval('P100Y'));
     }
 
     // copy the recurrence rule from the master event (to be used in the UI)
@@ -708,7 +702,7 @@ class kolab_calendar extends kolab_storage_folder_api
         break;
 
       // avoid endless recursion loops
-      if (++$i > 1000)
+      if (++$i > 100000)
           break;
     }
     
