@@ -80,6 +80,7 @@
   vertical-align: top;
   color: #555;
   text-shadow: 0 1px 1px #eee;
+  display: inline-block;
 }
 
 ul.toolbarmenu li span.saveas {
