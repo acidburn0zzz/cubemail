@@ -1175,9 +1175,12 @@ function kolab_files_frame_load(frame)
     rcmail.files_edit();
 
   rcmail.enable_command('files-edit', (rcmail.file_editor && rcmail.file_editor.editable)
-    || (info && info.viewer && info.viewer.manticore));
+    || (info && info.viewer && (info.viewer.manticore || info.viewer.wopi))
+    || (file_api.file_type_supported(rcmail.env.file_data.type, rcmail.env.files_caps) & 4));
+
   rcmail.enable_command('files-print', (rcmail.file_editor && rcmail.file_editor.printable)
     || (info && /^image\//i.test(info.type)));
+
   // detect Print button and check if it can be accessed
   try {
     if ($('#fileframe').contents().find('#print').length)
@@ -1755,7 +1758,7 @@ rcube_webmail.prototype.files_edit = function(session)
   else if (session !== true)
     params.session = session;
 
-  if (this.file_editor && !session) {
+  if (this.file_editor && this.file_editor.editable && !session) {
     this.file_editor.enable();
     this.enable_command('files-save', true);
   }
