@@ -50,6 +50,7 @@ $labels['copyfile'] = 'Copy a file';
 $labels['copyandedit'] = 'Copy and Edit';
 $labels['documenttitle'] = 'Title:';
 $labels['close'] = 'Close';
+$labels['docedit'] = 'Document editing';
 
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';

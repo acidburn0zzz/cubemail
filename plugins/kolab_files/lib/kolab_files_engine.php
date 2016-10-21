@@ -1364,12 +1364,21 @@ class kolab_files_engine
         ));
 
         $placeholder = $this->rc->output->asset_url('program/resources/blank.gif');
-        $got_editor  = ($viewer & 4) && ($this->file_data['viewer']['manticore'] || $this->file_data['viewer']['wopi']);
+
+        if ($this->file_data['viewer']['wopi']) {
+            $editor_type = 'wopi';
+            $got_editor  = ($viewer & 4);
+        }
+        else if ($this->file_data['viewer']['manticore']) {
+            $editor_type = 'manticore';
+            $got_editor = ($viewer & 4);
+        }
 
         // this one is for styling purpose
         $this->rc->output->set_env('extwin', true);
         $this->rc->output->set_env('file', $file);
         $this->rc->output->set_env('file_data', $this->file_data);
+        $this->rc->output->set_env('editor_type', $editor_type);
         $this->rc->output->set_env('photo_placeholder', $placeholder);
         $this->rc->output->set_pagetitle(rcube::Q($file));
         $this->rc->output->send('kolab_files.' . ($got_editor ? 'docedit' : 'filepreview'));
