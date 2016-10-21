@@ -1393,7 +1393,6 @@ class kolab_driver extends calendar_driver
     }
   }
 
-
   /**
    * Merge certain properties from the overlay event to the base event object
    *
@@ -1408,31 +1407,47 @@ class kolab_driver extends calendar_driver
     if (is_array($blacklist))
       $forbidden = array_merge($forbidden, $blacklist);
 
-    // compute date offset from the exception
-    if ($overlay['start'] instanceof DateTime && $overlay['recurrence_date'] instanceof DateTime) {
-      $date_offset = $overlay['recurrence_date']->diff($overlay['start']);
-    }
-
     foreach ($overlay as $prop => $value) {
       if ($prop == 'start' || $prop == 'end') {
-        if (is_object($event[$prop]) && $event[$prop] instanceof DateTime) {
-          // set date value if overlay is an exception of the current instance
-          if (substr($overlay['_instance'], 0, 8) == substr($event['_instance'], 0, 8)) {
-            $event[$prop]->setDate(intval($value->format('Y')), intval($value->format('n')), intval($value->format('j')));
-          }
-          // apply date offset
-          else if ($date_offset) {
-            $event[$prop]->add($date_offset);
-          }
-          // adjust time of the recurring event instance
-          $event[$prop]->setTime($value->format('G'), intval($value->format('i')), intval($value->format('s')));
-        }
+        // handled by merge_exception_dates() below
       }
       else if ($prop == 'thisandfuture' && $overlay['_instance'] == $event['_instance']) {
         $event[$prop] = $value;
       }
       else if ($prop[0] != '_' && !in_array($prop, $forbidden))
         $event[$prop] = $value;
+    }
+
+    self::merge_exception_dates($event, $overlay);
+  }
+
+  /**
+   * Merge start/end date from the overlay event to the base event object
+   *
+   * @param array The event object to be altered
+   * @param array The overlay event object to be merged over $event
+   */
+  public static function merge_exception_dates(&$event, $overlay)
+  {
+    // compute date offset from the exception
+    if ($overlay['start'] instanceof DateTime && $overlay['recurrence_date'] instanceof DateTime) {
+      $date_offset = $overlay['recurrence_date']->diff($overlay['start']);
+    }
+
+    foreach (array('start', 'end') as $prop) {
+      $value = $overlay[$prop];
+      if (is_object($event[$prop]) && $event[$prop] instanceof DateTime) {
+        // set date value if overlay is an exception of the current instance
+        if (substr($overlay['_instance'], 0, 8) == substr($event['_instance'], 0, 8)) {
+          $event[$prop]->setDate(intval($value->format('Y')), intval($value->format('n')), intval($value->format('j')));
+        }
+        // apply date offset
+        else if ($date_offset) {
+          $event[$prop]->add($date_offset);
+        }
+        // adjust time of the recurring event instance
+        $event[$prop]->setTime($value->format('G'), intval($value->format('i')), intval($value->format('s')));
+      }
     }
   }
 

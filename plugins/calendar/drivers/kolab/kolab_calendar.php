@@ -670,22 +670,34 @@ class kolab_calendar extends kolab_storage_folder_api
 
     $i = 0;
     while ($next_event = $recurrence->next_instance()) {
-      $datestr = $next_event['start']->format('Ymd');
+      $datestr     = $next_event['start']->format('Ymd');
       $instance_id = $next_event['start']->format($recurrence_id_format);
 
       // use this event data for future recurring instances
       if ($futuredata[$datestr])
         $overlay_data = $futuredata[$datestr];
 
+      $rec_id      = $event['uid'] . '-' . $instance_id;
+      $exception   = $exdata[$datestr] ?: $overlay_data;
+      $event_start = $next_event['start'];
+      $event_end   = $next_event['end'];
+
+      // copy some event from exception to get proper start/end dates
+      if ($exception) {
+        $event_copy = $next_event;
+        kolab_driver::merge_exception_dates($event_copy, $exception);
+        $event_start = $event_copy['start'];
+        $event_end   = $event_copy['end'];
+      }
+
       // add to output if in range
-      $rec_id = $event['uid'] . '-' . $instance_id;
-      if (($next_event['start'] <= $end && $next_event['end'] >= $start) || ($event_id && $rec_id == $event_id)) {
+      if (($event_start <= $end && $event_end >= $start) || ($event_id && $rec_id == $event_id)) {
         $rec_event = $this->_to_driver_event($next_event, false, false);
         $rec_event['_instance'] = $instance_id;
         $rec_event['_count'] = $i + 1;
 
-        if ($overlay_data || $exdata[$datestr])  // copy data from exception
-          kolab_driver::merge_exception_data($rec_event, $exdata[$datestr] ?: $overlay_data);
+        if ($exception)  // copy data from exception
+          kolab_driver::merge_exception_data($rec_event, $exception);
 
         $rec_event['id'] = $rec_id;
         $rec_event['recurrence_id'] = $event['uid'];
