@@ -3579,10 +3579,10 @@ function kolab_files_ui()
     }
 
     // remove session from the list (if sessions list exist)
-    if (list) {
-      list.remove(this.deleted_session);
+    if (list)
+      list.remove_row(this.deleted_session);
+    if (win.file_api && win.file_api.env.sessions_list)
       delete win.file_api.env.sessions_list[this.deleted_session];
-    }
   };
 
   // Invite document session participants
