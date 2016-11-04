@@ -142,7 +142,7 @@ function kolab_files_init()
   if (window.file_api)
     return;
 
-  var manticore_config = {};
+  var editor_config = {};
 
   // Initialize application object (don't change var name!)
   file_api = $.extend(new files_api(), new kolab_files_ui());
@@ -161,22 +161,29 @@ function kolab_files_init()
   file_api.translations = rcmail.labels;
 
   if (rcmail.task == 'files') {
-    if (rcmail.env.action == 'edit' && rcmail.env.file_data.viewer && rcmail.env.file_data.viewer.manticore) {
-      manticore_config = {
+    if (rcmail.env.action == 'edit' && rcmail.env.editor_type) {
+      // Extract the domain here, it can't be done by Chwala
+      // when using WOPI, which does not set iframe src attribute
+      var domain, href = rcmail.env.file_data.viewer.href;
+      if (href && /^(https?:\/\/[^/]+)/i.test(href))
+        domain = RegExp.$1;
+
+      editor_config = {
         // UI elements
         iframe: $('#fileframe').get(0),
+        domain: domain,
         export_menu: rcmail.gui_objects.exportmenu ? $('ul', rcmail.gui_objects.exportmenu).get(0) : null,
         title_input: $('#document-title').get(0),
         members_list: $('#members').get(0),
         photo_url: '?_task=addressbook&_action=photo&_error=1&_email=%email',
         photo_default_url: rcmail.env.photo_placeholder,
         // events
-        ready: function(data) { manticore_init(); },
-        sessionClosed: function(data) { return manticore_close(); }
+        ready: function(data) { document_editor_init(); },
+        sessionClosed: function(data) { return document_editor_close(); }
       };
 
       if (rcmail.env.file_data.writable)
-        manticore_config.documentChanged = function(data) { rcmail.enable_command('document-save', true); };
+        editor_config.documentChanged = function(data) { rcmail.enable_command('document-save', true); };
     }
     else if (rcmail.env.action == 'open') {
       // initialize folders list (for dialogs)
@@ -191,17 +198,17 @@ function kolab_files_init()
     }
   }
 
-  if (rcmail.env.files_caps && rcmail.env.files_caps.MANTICORE && !rcmail.env.framed)
-    $.extend(manticore_config, {
+  if (rcmail.env.files_caps && !rcmail.env.framed && rcmail.env.files_caps.DOCEDIT)
+    $.extend(editor_config, {
       // invitation notifications
       api: file_api,
       owner: rcmail.env.files_user,
       interval: rcmail.env.files_interval || 60,
       invitationMore: true,
-      invitationChange: manticore_invitation_handler
+      invitationChange: document_editor_invitation_handler
     });
 
-  $.extend(manticore_config, {
+  $.extend(editor_config, {
     // notifications/alerts
     gettext: function(label) { return rcmail.get_label('kolab_files.' + label); },
     set_busy: function(state, message) { return rcmail.set_busy(state, message ? 'kolab_files.' + message : ''); },
@@ -213,7 +220,10 @@ function kolab_files_init()
     }
   });
 
-  manticore = new manticore_api(manticore_config);
+  if (window.document_editor_api)
+    document_editor = new document_editor_api(editor_config);
+  else
+    document_editor = new manticore_api(editor_config);
 };
 
 // returns API authorization token
@@ -577,7 +587,7 @@ function kolab_files_file_edit_dialog(file, sessions, readonly)
         kolab_dialog_close(dlg);
 
       if (id && input.parent().is('.session.request')) {
-        manticore.invitation_request({session_id: id});
+        document_editor.invitation_request({session_id: id});
         return;
       }
 
@@ -799,7 +809,7 @@ function kolab_files_session_dialog(session)
     buttons[rcmail.gettext('kolab_files.request')] = function() {
       kolab_dialog_close(this);
       // @TODO: Add comment field to the dialog
-      manticore.invitation_request({session_id: session.id});
+      document_editor.invitation_request({session_id: session.id});
     };
   }
 
@@ -1175,7 +1185,7 @@ function kolab_files_frame_load(frame)
     rcmail.files_edit();
 
   rcmail.enable_command('files-edit', (rcmail.file_editor && rcmail.file_editor.editable)
-    || (info && info.viewer && (info.viewer.manticore || info.viewer.wopi))
+    || rcmail.env.editor_type
     || (file_api.file_type_supported(rcmail.env.file_data.type, rcmail.env.files_caps) & 4));
 
   rcmail.enable_command('files-print', (rcmail.file_editor && rcmail.file_editor.printable)
@@ -1274,11 +1284,11 @@ function kolab_files_progress_str(param)
 
 
 /**********************************************************/
-/*********    Manticore editor functionality     **********/
+/*********     document editor functionality     **********/
 /**********************************************************/
 
 // Initialize document toolbar functionality
-function manticore_init()
+function document_editor_init()
 {
   var info = rcmail.env.file_data;
 
@@ -1289,7 +1299,7 @@ function manticore_init()
 };
 
 // executed on editing session termination
-function manticore_close()
+function document_editor_close()
 {
   $('<div>').addClass('popupdialog').attr('role', 'alertdialog')
     .html($('<span>').text(rcmail.gettext('kolab_files.sessionterminated')))
@@ -1308,14 +1318,14 @@ function manticore_close()
 
 rcube_webmail.prototype.document_save = function()
 {
-  manticore.save(function(data) {
+  document_editor.save(function(data) {
     rcmail.enable_command('document-save', false);
   });
 };
 
 rcube_webmail.prototype.document_export = function(type)
 {
-  manticore.export(type || 'odt');
+  document_editor.export(type || 'odt');
 };
 
 rcube_webmail.prototype.document_editors = function()
@@ -1461,7 +1471,7 @@ function kolab_files_attendee_record(user, status, username)
     select = $('<select>').change(function() {
         var val = $(this).val(), map = {accepted: 'invitation_accept', declined: 'invitation_decline'};
         if (map[val])
-          manticore[map[val]]({user: user, session_id: rcmail.env.file_data.session.id});
+          document_editor[map[val]]({user: user, session_id: rcmail.env.file_data.session.id});
       });
 
     if (type == 'requested')
@@ -1490,7 +1500,7 @@ function kolab_files_attendee_record(user, status, username)
       .append(name).append(state).append(buttons);
 };
 
-function manticore_invitation_handler(invitation)
+function document_editor_invitation_handler(invitation)
 {
   // make the "More" link clickable
   $('#' + invitation.id).parent('div').click(function() { kolab_files_invitation_dialog(invitation); });
@@ -1521,27 +1531,27 @@ function kolab_files_invitation_dialog(invitation)
 
   if (!invitation.is_session_owner) {
     if (invitation.status == 'invited') {
-      text = manticore.invitation_msg(invitation);
+      text = document_editor.invitation_msg(invitation);
 
       buttons[rcmail.gettext('kolab_files.join')] = function() {
         join_session();
         kolab_dialog_close(this);
       };
       buttons[rcmail.gettext('kolab_files.accept')] = function() {
-        manticore.invitation_accept(invitation);
+        document_editor.invitation_accept(invitation);
         kolab_dialog_close(this);
       };
       buttons[rcmail.gettext('kolab_files.decline')] = function() {
-        manticore.invitation_decline(invitation);
+        document_editor.invitation_decline(invitation);
         kolab_dialog_close(this);
       };
     }
     else if (invitation.status == 'declined-owner') {
       // @todo: add option to request for an invitation again?
-      text = manticore.invitation_msg(invitation);
+      text = document_editor.invitation_msg(invitation);
     }
     else if (invitation.status == 'accepted-owner') {
-      text = manticore.invitation_msg(invitation);
+      text = document_editor.invitation_msg(invitation);
 
       buttons[rcmail.gettext('kolab_files.join')] = function() {
         join_session();
@@ -1551,21 +1561,21 @@ function kolab_files_invitation_dialog(invitation)
   }
   else {
     if (invitation.status == 'accepted') {
-      text = manticore.invitation_msg(invitation);
+      text = document_editor.invitation_msg(invitation);
     }
     else if (invitation.status == 'declined') {
       // @todo: add option to invite the user again?
-      text = manticore.invitation_msg(invitation);
+      text = document_editor.invitation_msg(invitation);
     }
     else if (invitation.status == 'requested') {
-      text = manticore.invitation_msg(invitation);
+      text = document_editor.invitation_msg(invitation);
 
       buttons[rcmail.gettext('kolab_files.accept')] = function() {
-        manticore.invitation_accept(invitation);
+        document_editor.invitation_accept(invitation);
         kolab_dialog_close(this);
       };
       buttons[rcmail.gettext('kolab_files.decline')] = function() {
-        manticore.invitation_decline(invitation);
+        document_editor.invitation_decline(invitation);
         kolab_dialog_close(this);
       };
     }
@@ -1999,7 +2009,7 @@ function kolab_files_ui()
     });
 
     // add Sessions entry
-    if (rcmail.task == 'files' && !rcmail.env.action && rcmail.env.files_caps && rcmail.env.files_caps.MANTICORE) {
+    if (rcmail.task == 'files' && !rcmail.env.action && rcmail.env.files_caps && rcmail.env.files_caps.DOCEDIT) {
       rows.push($('<li class="mailbox collection sessions"></li>')
         .attr('id', 'rcmli' + rcmail.html_identifier_encode('folder-collection-sessions'))
         .append($('<a class="name"></a>').text(rcmail.gettext('kolab_files.sessions')))
@@ -2973,7 +2983,7 @@ function kolab_files_ui()
     });
 
     // refresh sessions info in time intervals
-    if (rcmail.env.files_caps && rcmail.env.files_caps.MANTICORE && (rcmail.fileslist || rcmail.env.file))
+    if (rcmail.env.files_caps && rcmail.env.files_caps.DOCEDIT && (rcmail.fileslist || rcmail.env.file))
       this.workers[folder] = setTimeout(function() {
         file_api.request('folder_info', {folder: folder, sessions: 1}, 'folder_info_response');
       }, (rcmail.env.files_interval || 60) * 1000);

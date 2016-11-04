@@ -127,6 +127,11 @@ class kolab_files_engine
                 ), 'taskbar');
         }
 
+        if ($_SESSION['kolab_files_caps']['MANTICORE'] || $_SESSION['kolab_files_caps']['WOPI']) {
+            $_SESSION['kolab_files_caps']['DOCEDIT'] = true;
+            $_SESSION['kolab_files_caps']['DOCTYPE'] = $_SESSION['kolab_files_caps']['MANTICORE'] ? 'manticore' : 'wopi';
+        }
+
         $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/style.css');
         $this->plugin->include_script($this->url . '/js/files_api.js');
         $this->plugin->include_script('kolab_files.js');
@@ -136,7 +141,7 @@ class kolab_files_engine
         $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
         $this->rc->output->set_env('files_user', $this->rc->get_user_name());
 
-        if ($_SESSION['kolab_files_caps']['MANTICORE']) {
+        if ($_SESSION['kolab_files_caps']['DOCEDIT']) {
             $this->plugin->add_label('declinednotice', 'invitednotice', 'acceptedownernotice',
                 'declinedownernotice', 'requestednotice', 'acceptednotice', 'declinednotice',
                 'more', 'accept', 'decline', 'join', 'status', 'when', 'file', 'comment',
@@ -930,6 +935,11 @@ class kolab_files_engine
 
         // some HTTP server configurations require this header
         $this->request->setHeader('accept', "application/json,text/javascript,*/*");
+
+        // set Referer which is used as an origin for cross-window
+        // communication with document editor iframe
+        $host = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'];
+        $this->request->setHeader('referer', $host);
 
         return $this->request;
     }
