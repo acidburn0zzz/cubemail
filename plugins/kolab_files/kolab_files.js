@@ -1306,7 +1306,7 @@ function document_editor_close()
     .dialog({
       resizable: false,
       closeOnEscape: true,
-      dialogClass: 'popupmessage error',
+      dialogClass: 'error',
       title: rcmail.gettext('kolab_files.sessionterminatedtitle'),
       close: function() { window.close(); },
       width: 420,
