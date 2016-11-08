@@ -936,6 +936,9 @@ class kolab_files_engine
         // some HTTP server configurations require this header
         $this->request->setHeader('accept', "application/json,text/javascript,*/*");
 
+        // Localization
+        $this->request->setHeader('accept-language', $_SESSION['language']);
+
         // set Referer which is used as an origin for cross-window
         // communication with document editor iframe
         $host = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'];
