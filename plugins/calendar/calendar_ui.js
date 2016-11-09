@@ -996,6 +996,8 @@ function rcube_calendar_ui(settings)
         window.setTimeout(load_attendees_tab, exec_deferred);
       if (calendar.attachments)
         window.setTimeout(load_attachments_tab, exec_deferred);
+
+      rcmail.triggerEvent('calendar-event-dialog', {dialog: $dialog});
     };
 
     // show event changelog in a dialog
