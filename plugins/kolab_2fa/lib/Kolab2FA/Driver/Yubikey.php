@@ -27,12 +27,6 @@ class Yubikey extends Base
 {
     public $method = 'yubikey';
 
-    protected $config = array(
-        'clientid' => '42',
-        'apikey'   => 'FOOBAR=',
-        'hosts'    => null,
-    );
-
     protected $backend;
 
     /**
@@ -56,6 +50,10 @@ class Yubikey extends Base
         // set configured validation hosts
         if (!empty($this->config['hosts'])) {
             $this->backend->setHosts((array)$this->config['hosts']);
+        }
+
+        if (isset($this->config['use_https'])) {
+            $this->backend->setUseSecure((bool)$this->config['use_https']);
         }
     }
 
@@ -84,7 +82,7 @@ class Yubikey extends Base
             }
         }
 
-        // rcube::console('VERIFY TOTP', $this->username, $keyid, $code, $pass);
+        // rcube::console('VERIFY Yubikey', $this->username, $keyid, $code, $pass);
         return $pass;
     }
 
