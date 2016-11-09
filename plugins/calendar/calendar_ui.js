@@ -671,6 +671,8 @@ function rcube_calendar_ui(settings)
       }
 
       rcmail.enable_command('event-history', calendar.history)
+
+      rcmail.triggerEvent('calendar-event-dialog', {dialog: $dialog});
     };
 
     // event handler for clicks on an attendee link
