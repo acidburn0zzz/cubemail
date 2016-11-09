@@ -280,14 +280,19 @@ class kolab_2fa extends rcube_plugin
     }
 
     /**
-     * Load driver class for the given method
+     * Load driver class for the given authentication factor
+     *
+     * @param string $factor Factor identifier (<method>:<id>)
+     * @return Kolab2FA\Driver\Base
      */
-    public function get_driver($method)
+    public function get_driver($factor)
     {
+        list($method) = explode(':', $factor, 2);
+
         $rcmail = rcmail::get_instance();
 
-        if ($this->drivers[$method]) {
-            return $this->drivers[$method];
+        if ($this->drivers[$factor]) {
+            return $this->drivers[$factor];
         }
 
         $config = $rcmail->config->get('kolab_2fa_' . $method, array());
@@ -300,7 +305,7 @@ class kolab_2fa extends rcube_plugin
         try {
             // TODO: use external auth service if configured
 
-            $driver = \Kolab2FA\Driver\Base::factory($method, $config);
+            $driver = \Kolab2FA\Driver\Base::factory($factor, $config);
 
             // attach storage
             $driver->storage = $this->get_storage();
@@ -309,7 +314,7 @@ class kolab_2fa extends rcube_plugin
                 $driver->username  = $rcmail->get_user_name();
             }
 
-            $this->drivers[$method] = $driver;
+            $this->drivers[$factor] = $driver;
             return $driver;
         }
         catch (Exception $e) {

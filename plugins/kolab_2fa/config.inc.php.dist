@@ -121,4 +121,5 @@ $config['kolab_2fa_yubikey'] = array(
     'clientid' => '123456',
     'apikey' => '<your-server-api-key>',
     // 'hosts'  => array('api.myhost1.com','api2.myhost.com'),
+    'use_https' => true,  // connect via https if set to true
 );
