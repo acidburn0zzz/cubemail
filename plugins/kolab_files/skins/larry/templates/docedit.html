@@ -28,7 +28,9 @@
     <roundcube:button command="document-print" type="link" class="button print disabled" classAct="button print" classSel="button print pressed" label="print" title="kolab_files.printfile" />
     <span class="spacer"></span>
 -->
+<roundcube:endif />
     <roundcube:button command="document-save" type="link" class="button save disabled" classAct="button save" classSel="button save pressed" label="kolab_files.save" title="kolab_files.savefile" />
+<roundcube:if condition="env:editor_type != 'wopi'" />
     <span class="spacer"></span>
     <label for="document-title"><roundcube:label name="kolab_files.documenttitle" />&nbsp;<input id="document-title" type="text" value="" /></label>
 <roundcube:endif />
