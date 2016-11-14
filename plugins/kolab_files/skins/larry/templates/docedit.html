@@ -23,11 +23,8 @@
         <roundcube:button command="document-export" type="link" class="button export disabled" classAct="button export" classSel="button export pressed" label="kolab_files.get" title="kolab_files.getfile" />
         <a href="#export" class="dropbuttontip" id="exportmenulink" onclick="UI.toggle_popup('exportmenu',event);return false" aria-haspopup="true" aria-expanded="false" aria-owns="exportmenu-menu" tabindex="0">Export options</a>
     </span>
-<roundcube:if condition="env:editor_type != 'wopi'" />
-<!--
+<roundcube:if condition="env:editor_type == 'wopi'" />
     <roundcube:button command="document-print" type="link" class="button print disabled" classAct="button print" classSel="button print pressed" label="print" title="kolab_files.printfile" />
-    <span class="spacer"></span>
--->
 <roundcube:endif />
     <roundcube:button command="document-save" type="link" class="button save disabled" classAct="button save" classSel="button save pressed" label="kolab_files.save" title="kolab_files.savefile" />
 <roundcube:if condition="env:editor_type != 'wopi'" />

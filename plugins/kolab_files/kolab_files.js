@@ -1292,7 +1292,7 @@ function document_editor_init()
 {
   var info = rcmail.env.file_data;
 
-  rcmail.enable_command('document-export', true);
+  rcmail.enable_command('document-export', 'document-print', true);
 
   if (info && info.session && info.session.is_owner)
     rcmail.enable_command('document-close', 'document-editors', true);
@@ -1326,6 +1326,11 @@ rcube_webmail.prototype.document_save = function()
 rcube_webmail.prototype.document_export = function(type)
 {
   document_editor.export(type || 'odt');
+};
+
+rcube_webmail.prototype.document_print = function()
+{
+  document_editor.print();
 };
 
 rcube_webmail.prototype.document_editors = function()
