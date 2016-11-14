@@ -3565,8 +3565,12 @@ function kolab_files_ui()
     if (!this.response(response))
       return;
 
-    if (rcmail.task == 'files' && rcmail.env.action == 'edit')
-      window.close();
+    if (rcmail.task == 'files' && rcmail.env.action == 'edit') {
+      if (document_editor && document_editor.terminate)
+        document_editor.terminate();
+      // use timeout to have a chance to properly propagate termination request
+      setTimeout(function() { window.close(); }, 500);
+    }
 
     // @todo: force sessions info update
 
