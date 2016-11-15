@@ -360,7 +360,7 @@ function kolab_files_selector_dialog()
 
   buttons[rcmail.gettext('kolab_files.attachsel')] = function () {
     var list = [];
-    $('#fileslist tr.selected').each(function() {
+    $('#filelist tr.selected').each(function() {
       list.push($(this).data('file'));
     });
 
@@ -2839,7 +2839,7 @@ function kolab_files_ui()
   this.file_list_sort = function(col, reverse)
   {
     var n, len, list = this.env.file_list,
-      table = $('#fileslist'), tbody = $('<tbody>', table);
+      table = $('#filelist'), tbody = $('<tbody>', table);
 
     this.env.sort_col = col;
     this.env.sort_reverse = reverse;
