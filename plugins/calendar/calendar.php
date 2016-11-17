@@ -1974,8 +1974,8 @@ class calendar extends rcube_plugin
   private function write_preprocess(&$event, $action)
   {
     // convert dates into DateTime objects in user's current timezone
-    $event['start'] = new DateTime($event['start'], $this->timezone);
-    $event['end'] = new DateTime($event['end'], $this->timezone);
+    $event['start']  = new DateTime($event['start'], $this->timezone);
+    $event['end']    = new DateTime($event['end'], $this->timezone);
     $event['allday'] = (bool)$event['allday'];
 
     // start/end is all we need for 'move' action (#1480)
@@ -2025,7 +2025,7 @@ class calendar extends rcube_plugin
       foreach ((array)$event['attendees'] as $i => $attendee) {
         if ($attendee['role'] == 'ORGANIZER')
           $organizer = $i;
-        if ($attendee['email'] == in_array(strtolower($attendee['email']), $emails))
+        if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails))
           $owner = $i;
         if (!isset($attendee['rsvp']))
           $event['attendees'][$i]['rsvp'] = true;
