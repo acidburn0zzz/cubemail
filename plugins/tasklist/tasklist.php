@@ -1330,9 +1330,9 @@ class tasklist extends rcube_plugin
         if (empty($rec['recurrence']) || $duedate < $today || $start > $weeklimit) {
             if ($duedate <= $today || ($rec['startdate'] && $start <= $today))
                 $mask |= self::FILTER_MASK_TODAY;
-            if ($duedate <= $tomorrow || ($rec['startdate'] && $start <= $tomorrow))
+            else if (($start > $today && $start <= $tomorrow) || ($duedate > $today && $duedate <= $tomorrow))
                 $mask |= self::FILTER_MASK_TOMORROW;
-            if (($start > $tomorrow && $start <= $weeklimit) || ($duedate > $tomorrow && $duedate <= $weeklimit))
+            else if (($start > $tomorrow && $start <= $weeklimit) || ($duedate > $tomorrow && $duedate <= $weeklimit))
                 $mask |= self::FILTER_MASK_WEEK;
             else if ($start > $weeklimit || $duedate > $weeklimit)
                 $mask |= self::FILTER_MASK_LATER;
