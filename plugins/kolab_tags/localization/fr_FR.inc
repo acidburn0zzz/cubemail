@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Tags plugin
  *
@@ -6,6 +7,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
+
 $labels['tags'] = 'Étiquettes';
 $labels['unset'] = 'Tout déselectionner';
 $labels['manage'] = 'Gestion des étiquettes...';
@@ -29,3 +31,5 @@ $labels['taggingsuccess'] = 'Les étiquettes ont été affectées avec succès.'
 $labels['taggingerror'] = 'Impossible d\'affecter les étiquettes.';
 $labels['untaggingsuccess'] = 'Étiquette(s) supprimée(s) avec succès.';
 $labels['untaggingerror'] = 'Impossible de supprimer les affectations.';
+$labels['newtag'] = 'New tag';
+$labels['tagsearchnew'] = 'Enter text to search or create a new tag';

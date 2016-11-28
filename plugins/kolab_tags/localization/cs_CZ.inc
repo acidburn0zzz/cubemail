@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Tags plugin
  *
@@ -6,6 +7,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
+
 $labels['tags'] = 'Značky';
 $labels['unset'] = 'Odznačit vše';
 $labels['manage'] = 'Spravovat značky...';
@@ -29,3 +31,5 @@ $labels['taggingsuccess'] = 'Značky byly úspěšně přiřazeny.';
 $labels['taggingerror'] = 'Nepodařilo se přiřadit značky.';
 $labels['untaggingsuccess'] = 'Značka (značky) byly úspěšně odstraněny.';
 $labels['untaggingerror'] = 'Nepodařilo se odstranit přiřazení značek.';
+$labels['newtag'] = 'New tag';
+$labels['tagsearchnew'] = 'Enter text to search or create a new tag';

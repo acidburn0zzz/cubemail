@@ -1,4 +1,5 @@
 <?php
+
 $labels['tabtitle'] = 'Activesync';
 $labels['activesynctitle'] = 'Beheer Activesync-apparaten';
 $labels['devices'] = 'Apparaten';
@@ -15,6 +16,7 @@ $labels['task'] = 'Taken';
 $labels['note'] = 'Notities';
 $labels['configuration'] = 'Configuratie';
 $labels['deletedevice'] = 'Verwijder apparaat';
+$labels['nodevices'] = 'There are currently no devices registered.<br/><br/>In order to register a device, please connect it to the server first, using instructions from <a href="$url" target="_blank">this page</a>. Afterwards the device should become available for configuration here.';
 $labels['savingdata'] = 'Data wordt opgeslagen...';
 $labels['savingerror'] = 'Fout in opslaan van configuratie';
 $labels['notsupported'] = 'Uw server ondersteunt geen metadata/annotaties';
@@ -28,4 +30,6 @@ $labels['friendlyname'] = 'Weergave naam';
 $labels['os'] = 'Besturingssysteem';
 $labels['oslanguage'] = 'Taal besturingssysteem';
 $labels['phonenumber'] = 'Telefoonnummer';
+$labels['arialabeldeviceframe'] = 'Device synchronization settings form';
+
 ?>

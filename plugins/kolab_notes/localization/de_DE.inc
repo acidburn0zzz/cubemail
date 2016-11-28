@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Folders plugin
  *
@@ -6,6 +7,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
  */
+
+$labels = array();
 $labels['navtitle'] = 'Notizen';
 $labels['tags'] = 'Schlagworte';
 $labels['lists'] = 'Notizbücher';
@@ -40,6 +43,7 @@ $labels['nrnotebooksfound'] = '$nr Notizbücher gefunden';
 $labels['nonotebooksfound'] = 'Keine Notizbücher gefunden';
 $labels['removelist'] = 'Von der Liste entfernen';
 $labels['removelink'] = 'E-Mail-Referenz entfernen';
+
 $labels['savingdata'] = 'Daten werden gespeichert...';
 $labels['recordnotfound'] = 'Eintrag nicht gefunden';
 $labels['norecordsfound'] = 'Keine Notizen gefunden';
@@ -51,6 +55,7 @@ $labels['discardunsavedchanges'] = 'Die aktuelle Notiz wurde noch nicht gespeich
 $labels['invalidlistproperties'] = 'Ungültige Notizbuch Eigenschaften! Bitte gebe einen gültigen Namen ein.';
 $labels['entertitle'] = 'Bitte geben Sie einen Titel für diese Notiz ein!';
 $labels['aclnorights'] = 'Dir fehlen die Administrationsrechte für dieses Notizbuch.';
+
 $labels['arialabelnoteslist'] = 'Notizliste';
 $labels['arialabelnotesearchform'] = 'Notizen-Suchmaske';
 $labels['arialabelnotesquicksearchbox'] = 'Notiz-Sucheingabe';

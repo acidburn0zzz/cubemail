@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Address Book plugin
  *
@@ -6,6 +7,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
  */
+
+$labels = array();
 $labels['initials'] = 'Initialer';
 $labels['profession'] = 'Stilling';
 $labels['officelocation'] = 'Arbejdsplads';
@@ -23,6 +26,7 @@ $labels['typeisdn'] = 'ISDN';
 $labels['typettytdd'] = 'TTY/TDD';
 $labels['typecallback'] = 'Tilbagekald';
 $labels['settings'] = 'Indstillinger';
+
 $labels['bookcreate'] = 'Opret adressebog';
 $labels['bookedit'] = 'Redigér adressebog';
 $labels['bookdelete'] = 'Slet adressebog';
@@ -32,24 +36,32 @@ $labels['bookname'] = 'Navn på bog';
 $labels['parentbook'] = 'Overordnet bog';
 $labels['bookshowurl'] = 'Vis CardDAV-URL';
 $labels['carddavurldescription'] = 'Kopiér denne adresse til et <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a>-klientprogram for komplet synkronisering af denne specifikke adressebog med din maskine eller mobilenhed.';
+
 $labels['addressbookprio'] = 'Markering/adfærd for adressebøger';
 $labels['personalfirst'] = 'Personlige adressebøger først';
 $labels['globalfirst'] = 'Globale adressebøger først';
 $labels['personalonly'] = 'Kun personlige adresse';
 $labels['globalonly'] = 'Kun globale adressebøger';
+
 $labels['findaddressbooks'] = 'Find adressebøger';
-$labels['searchterms'] = 'Search terms';
+$labels['searchterms'] = 'Søgetermer';
 $labels['listsearchresults'] = 'Yderligere adressebøger';
 $labels['foldersearchform'] = 'Søgeformular for adressebog';
-$labels['foldersubscribe'] = 'List permanently';
+$labels['foldersubscribe'] = 'Vis permanent';
 $labels['nraddressbooksfound'] = 'Der blev fundet $nr adressebøger ';
 $labels['noaddressbooksfound'] = 'Fandt ingen adressebøger';
+
+// history dialog
 $labels['showhistory'] = 'Vis historik';
 $labels['objectchangelog'] = 'Ændringshistorik';
 $labels['objectdiff'] = 'Ændringer fra $rev1 til $rev2';
+$labels['revisionrestoreconfirm'] = 'Er du sikker på at du vil genskabe revision $rev af denne kontakt? Det vil overskirve den nuværende kontakt med en tidligere version.';
+$labels['objectnotfound'] = 'Kunne ikke læse kontakt data';
+$labels['objectchangelognotavailable'] = 'Ændringshistorik er ikke tilgængelig for denne kontakt.';
 $labels['objectdiffnotavailable'] = 'Det er ikke muligt at sammenligne de valgte revisioner';
 $labels['objectrestoresuccess'] = 'Revision $rev blev genskabt';
 $labels['objectrestoreerror'] = 'Mislykkedes med at genskabe den gamle revision';
+
 $messages['bookdeleteconfirm']  = 'Vil du virkelig slette den valgte adressebog og alle kontakterne i den?';
 $messages['bookdeleting'] = 'Sletter adressebog...';
 $messages['booksaving'] = 'Gemmer adressebog...';
@@ -61,4 +73,5 @@ $messages['bookupdateerror'] = 'Der opstod en fejl under opdatering af adressebo
 $messages['bookcreateerror'] = 'Der opstod en fejl under oprettelse af adressebogen.';
 $messages['nobooknamewarning'] = 'Angiv venligst navnet på adressebogen.';
 $messages['noemailnamewarning'] = 'Angiv venligst e-postadresse eller kontaktnavn.';
+
 ?>

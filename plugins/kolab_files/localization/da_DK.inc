@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Files plugin
  *
@@ -6,6 +7,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
+
 $labels['files'] = 'Filer';
 $labels['filepreview'] = 'Forhåndsvisning af fil';
 $labels['saveall'] = 'Gem alle i skyen...';
@@ -21,11 +23,13 @@ $labels['foldercreate'] = 'Opret mappe';
 $labels['folderedit'] = 'Redigér mappe';
 $labels['foldermount'] = 'Tilføj lagerplads';
 $labels['folderdelete'] = 'Slet mappe';
+
 $labels['folderinside'] = 'Indsæt indeni';
 $labels['foldername'] = 'Mappenavn';
 $labels['name'] = 'Navn';
 $labels['mtime'] = 'Ændret';
 $labels['type'] = 'Type';
+
 $labels['upload'] = 'Overfør';
 $labels['uploadfile'] = 'Overfør fil(er)';
 $labels['get'] = 'Hent';
@@ -39,11 +43,20 @@ $labels['editfile'] = 'Redigér fil';
 $labels['save'] = 'Gem';
 $labels['savefile'] = 'Gem fil';
 $labels['printfile'] = 'Udskriv fil';
+$labels['renamefile'] = 'Omdøb fil';
+$labels['createfile'] = 'Opret fil';
+$labels['createandedit'] = 'Opret og rediger';
+$labels['copyfile'] = 'Kopiér fil';
+$labels['copyandedit'] = 'Kopiér og rediger';
+$labels['documenttitle'] = 'Titel:';
 $labels['close'] = 'Luk';
+
 $labels['collection_audio'] = 'Lyd';
 $labels['collection_video'] = 'Video';
 $labels['collection_image'] = 'Billeder';
 $labels['collection_document'] = 'Dokumenter';
+$labels['sessions'] = 'Sessioner';
+
 $labels['uploading'] = 'Overfører fil(er)..';
 $labels['attaching'] = 'Vedhæfter fil(er)..';
 $labels['authenticating'] = 'Godkender ...';
@@ -61,6 +74,7 @@ $labels['saveallnotice'] = 'Gennemførte lagring af $n fil(er).';
 $labels['saveallerror'] = 'Lagringen af $n fil(er) mislykkedes.';
 $labels['attacherror'] = 'Mislykkedes med at vedhæfte fil(er) fra skyen';
 $labels['fileupdating'] = 'Opdaterer fil...';
+$labels['filecreating'] = 'Opretter fil...';
 $labels['filemoving'] = 'Flytter fil(er)...';
 $labels['filecopying'] = 'Kopierer fil(er)...';
 $labels['filedeleting'] = 'Sletter fil(er)...';
@@ -69,32 +83,80 @@ $labels['filedeletenotice'] = 'Sletningen af fil(er) blev gennemført.';
 $labels['filemovenotice'] = 'Flytning af fil(er) blev gennemført.';
 $labels['filecopynotice'] = 'Kopiering af fil(er) blev gennemført.';
 $labels['uploadsizeerror'] = 'Maksimal filstørrelse ($size) er overskredet!';
+
 $labels['listpermanent'] = 'Vis bestandigt';
+$labels['additionalfolders'] = 'Additional folders';
 $labels['allfolders'] = 'søg i alle mapper';
 $labels['fileskip'] = 'Spring over';
 $labels['fileskipall'] = 'Spring alle over';
 $labels['fileoverwrite'] = 'Overskriv';
 $labels['fileoverwriteall'] = 'Overskriv alle';
 $labels['filemoveconfirm'] = 'Denne handling vil overskrive destinationsfilen: <b>$file</b>.';
+
+$labels['editfiledialog'] = 'Confirm editing action';
+$labels['editfilesessions'] = 'There are ongoing sessions on the selected file. Please, select the action you want to take.';
+$labels['newsession'] = 'Opret ny session';
+$labels['newsessionro'] = 'Create a new session (copy the file into read-write location)';
+$labels['ownedsession'] = 'Continue your existing session';
+$labels['invitedsession'] = 'Join the session of $user';
+$labels['joinsession'] = 'Request an invitation from $user';
+$labels['editfilero'] = 'This file is read-only. Do you want to create and edit a copy of the file?';
+$labels['editfilerotitle'] = 'Skrivebeskyttet fil';
 $labels['select'] = 'Vælg';
+$labels['terminatesession'] = 'Terminate the session';
+$labels['sessionterminatedtitle'] = 'Session terminated';
+$labels['sessionterminated'] = 'The session has been terminated. The window will be closed.';
+$labels['terminate'] = 'Terminate';
+$labels['sessionterminating'] = 'Terminating the session...';
+$labels['unsavedchanges'] = 'There are unsaved changes in the document that will be lost. Do you want to terminate the session anyway?';
+$labels['manageeditors'] = 'Invite to document';
 $labels['participant'] = 'Deltager';
 $labels['status'] = 'Status';
 $labels['addparticipant'] = 'Tilføj deltager';
+$labels['delparticipant'] = 'Fjern deltager';
+$labels['invitationtexttitle'] = 'This comment will be attached to the invitation/notification message sent to the participant';
 $labels['invitationtextlabel'] = 'Invitation/notification comment';
 $labels['statusorganizer'] = 'Organisator';
+$labels['statusinvited'] = 'Inviteret';
+$labels['statusaccepted'] = 'Accepteret';
+$labels['statusdeclined'] = 'Afvist';
+$labels['statusrequested'] = 'Anmodet';
+$labels['documentinviting'] = 'Inviter deltager(ere)...';
+$labels['documentcancelling'] = 'Fjerner deltager(ere)...';
 $labels['removeparticipant'] = 'Fjern';
+$labels['invitednotice'] = 'You have been invited to the editing session by $owner.';
+$labels['acceptedownernotice'] = '$owner accepted your request to join the editing session.';
+$labels['declinedownernotice'] = '$owner declined your request to join the editing session.';
+$labels['acceptednotice'] = '$user accepted your invitation to the editing session.';
+$labels['declinednotice'] = '$user declined your invitation to the editing session.';
+$labels['requestednotice'] = '$user requested to join the editing session.';
+$labels['sessiondialog'] = 'Document editing session';
+$labels['sessiondialogcontent'] = 'There is ongoing editing session on $file created by $owner.';
+$labels['more'] = 'Mere';
 $labels['accept'] = 'Acceptér';
+$labels['join'] = 'Deltag i sessionen';
 $labels['decline'] = 'Afvis';
 $labels['owner'] = 'Ejer';
+$labels['when'] = 'Hvornår';
+$labels['file'] = 'Fil';
 $labels['comment'] = 'Comment';
 $labels['open'] = 'Åbn';
+$labels['request'] = 'Anmod om invitation';
+$labels['invitationtitle'] = 'Invitation for $file';
+$labels['ivitationaccepting'] = 'Accepter invitation...';
+$labels['ivitationdeclining'] = 'Afvis invitation...';
+$labels['ivitationrequesting'] = 'Ammod invitation';
+
 $labels['storepasswords'] = 'husk adgangskode';
 $labels['storepasswordsdesc'] = 'Gemte adgangskoder vil blive krypteret. Slå dette til, hvis du ikke ønsker at blive spurgt om adgangskoden ved hvert login, eller hvis du ønsker at denne lagerplads skal være tilgængelig gennem WebDAV.';
+
 $labels['arialabelsearchform'] = 'Formular for filsøgning';
 $labels['arialabelquicksearchbox'] = 'Søgeinput';
 $labels['arialabellistoptions'] = 'Tilvalg for visning af filer';
 $labels['arialabelfolderoptions'] = 'Mappehandlinger';
 $labels['arialabelfileeditform'] = 'Formular for filredigering';
+$labels['arialabelfilecreateform'] = 'Fil oprettelsesformular';
+$labels['arialabelfilelist'] = 'List filer';
 $labels['arialabelfoldercreateform'] = 'Formular for mappeoprettelse';
 $labels['arialabelfoldereditform'] = 'Formular for mapperedigering';
 $labels['arialabelfoldermountform'] = 'Formular for ekstern lagerplads';
@@ -105,3 +167,8 @@ $labels['arialabelattachmentoptions'] = 'Tilvalg for lagring af vedhæftninger';
 $labels['arialabelfilesavedialog'] = 'Vindue for lagring af fil(er)';
 $labels['arialabelfileprops'] = 'Filegenskaber';
 $labels['arialabelfilecontent'] = 'Filindhold';
+$labels['arialabelfileeditdialog'] = 'File editing dialog';
+
+$labels['type.plain'] = 'Plain Text Document';
+$labels['type.vndoasisopendocumenttext'] = 'Text Dokument (ODF)';
+$labels['type.html'] = 'HTML Dokument';

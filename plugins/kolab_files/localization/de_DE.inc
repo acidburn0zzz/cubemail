@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Files plugin
  *
@@ -6,26 +7,29 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
+
 $labels['files'] = 'Dateien';
-$labels['filepreview'] = 'Datei Vorschau';
-$labels['saveall'] = 'Alles in die Cloud speichern...';
-$labels['saveto'] = 'In die Cloud speichern...';
+$labels['filepreview'] = 'Dateivorschau';
+$labels['saveall'] = 'Alles in der Cloud speichern …';
+$labels['saveto'] = 'In der Cloud speichern …';
 $labels['saveas'] = 'Speichern als:';
 $labels['create'] = 'Erstellen';
 $labels['save'] = 'Speichern';
 $labels['cancel'] = 'Abbrechen';
-$labels['fromcloud'] = 'Aus der Cloud...';
-$labels['selectfiles'] = 'Datei(en) zum Anhängen auswählen...';
+$labels['fromcloud'] = 'Aus der Cloud …';
+$labels['selectfiles'] = 'Datei(en) zum Anhängen auswählen …';
 $labels['attachsel'] = 'Ausgewählte anhängen';
 $labels['foldercreate'] = 'Ordner erstellen';
-$labels['folderedit'] = 'Verzeichnis ändern';
+$labels['folderedit'] = 'Ordner ändern';
 $labels['foldermount'] = 'Speicher hinzufügen';
 $labels['folderdelete'] = 'Ordner löschen';
+
 $labels['folderinside'] = 'Erstellen in';
 $labels['foldername'] = 'Ordnername';
 $labels['name'] = 'Name';
 $labels['mtime'] = 'Geändert';
 $labels['type'] = 'Typ';
+
 $labels['upload'] = 'Hochladen';
 $labels['uploadfile'] = 'Datei(en) hochladen';
 $labels['get'] = 'Herunterladen';
@@ -46,94 +50,125 @@ $labels['copyfile'] = 'Datei kopieren';
 $labels['copyandedit'] = 'Kopieren und Bearbeiten';
 $labels['documenttitle'] = 'Titel:';
 $labels['close'] = 'Schließen';
+
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
 $labels['collection_image'] = 'Bilder';
 $labels['collection_document'] = 'Dokumente';
 $labels['sessions'] = 'Sitzungen';
-$labels['uploading'] = 'Lade Datei(en) hoch...';
-$labels['attaching'] = 'Hänge Datei(en) an...';
-$labels['authenticating'] = 'Authentifiziere...';
-$labels['foldercreating'] = 'Erstelle Ordner...';
-$labels['folderupdating'] = 'Aktualisiere Verzeichnis...';
-$labels['foldermounting'] = 'Hinzufügen externen Speichers...';
-$labels['folderdeleting'] = 'Lösche Ordner...';
+
+$labels['uploading'] = 'Datei(en) wird/werden hochgeladen …';
+$labels['attaching'] = 'Datei(en) wird/werden angehängt …';
+$labels['authenticating'] = 'Legitimierung wird durchgeführt …';
+$labels['foldercreating'] = 'Ordner wird erstellt …';
+$labels['folderupdating'] = 'Ordner wird aktualisiert …';
+$labels['foldermounting'] = 'Externer Speicher wird hinzugefügt …';
+$labels['folderdeleting'] = 'Ordner werden gelöscht …';
 $labels['folderdeleteconfirm'] = 'Sind Sie sicher, dass Sie den gewählten Ordner löschen möchten?';
 $labels['folderdeletenotice'] = 'Ordner erfolgreich gelöscht.';
-$labels['folderupdatenotice'] = 'Verzeichnis erfolgreich aktualisiert.';
+$labels['folderupdatenotice'] = 'Ordner erfolgreich aktualisiert.';
 $labels['foldercreatenotice'] = 'Ordner erfolgreich erstellt.';
 $labels['foldermountnotice'] = 'Speicher erfolgreich hinzugefügt.';
-$labels['folderauthtitle'] = 'Einloggen zu $title';
+$labels['folderauthtitle'] = 'Anmelden in $title';
 $labels['saveallnotice'] = '$n Datei(en) erfolgreich gespeichert.';
 $labels['saveallerror'] = 'Speichern von $n Datei(en) fehlgeschlagen.';
 $labels['attacherror'] = 'Anhängen von Datei(en) aus der Cloud fehlgeschlagen.';
-$labels['fileupdating'] = 'Aktualisiere Datei...';
-$labels['filecreating'] = 'Datei wird erstellt...';
-$labels['filemoving'] = 'Verschiebe Datei(en)...';
-$labels['filecopying'] = 'Kopiere Datei(en)...';
-$labels['filedeleting'] = 'Lösche Datei(en)...';
+$labels['fileupdating'] = 'Datei wird aktualisiert …';
+$labels['filecreating'] = 'Datei wird erstellt …';
+$labels['filemoving'] = 'Datei(en) wird/werden verschoben …';
+$labels['filecopying'] = 'Datei(en) wird/werden kopiert …';
+$labels['filedeleting'] = 'Datei(en) wird/werden gelöscht …';
 $labels['filedeleteconfirm'] = 'Sind Sie sicher, dass Sie die gewählten Dateien löschen möchten?';
 $labels['filedeletenotice'] = 'Datei(en) erfolgreich gelöscht.';
 $labels['filemovenotice'] = 'Datei(en) erfolgreich verschoben.';
 $labels['filecopynotice'] = 'Datei(en) erfolgreich kopiert.';
-$labels['uploadsizeerror'] = 'Maimale Dateigröße ($size) überschritten!';
-$labels['listpermanent'] = 'Permanent anzeigen';
+$labels['uploadsizeerror'] = 'Maximale Dateigröße ($size) überschritten!';
+
+$labels['listpermanent'] = 'Dauerhaft anzeigen';
 $labels['additionalfolders'] = 'Zusätzliche Ordner';
-$labels['allfolders'] = 'suche in allen Ordnern';
+$labels['allfolders'] = 'in allen Ordnern suchen';
 $labels['fileskip'] = 'Überspringen';
 $labels['fileskipall'] = 'Alle überspringen';
 $labels['fileoverwrite'] = 'Überschreiben';
 $labels['fileoverwriteall'] = 'Alle überschreiben';
 $labels['filemoveconfirm'] = 'Diese Aktion wird die Zieldatei <b>$file</b> überschreiben.';
+
 $labels['editfiledialog'] = 'Bearbeitungsaktion bestätigen';
+$labels['editfilesessions'] = 'There are ongoing sessions on the selected file. Please, select the action you want to take.';
 $labels['newsession'] = 'Neue Sitzung erstellen';
+$labels['newsessionro'] = 'Create a new session (copy the file into read-write location)';
+$labels['ownedsession'] = 'Vorhandene Sitzung vortsetzen';
+$labels['invitedsession'] = 'Sitzung des Benutzers $user beitreten';
+$labels['joinsession'] = 'Request an invitation from $user';
+$labels['editfilero'] = 'This file is read-only. Do you want to create and edit a copy of the file?';
 $labels['editfilerotitle'] = 'Schreibgeschützte Datei';
 $labels['select'] = 'Auswählen';
 $labels['terminatesession'] = 'Sitzung beenden';
 $labels['sessionterminatedtitle'] = 'Sitzung beendet';
+$labels['sessionterminated'] = 'The session has been terminated. The window will be closed.';
 $labels['terminate'] = 'Beenden';
-$labels['sessionterminating'] = 'Sitzung wird beendet...';
+$labels['sessionterminating'] = 'Sitzung wird beendet …';
+$labels['unsavedchanges'] = 'There are unsaved changes in the document that will be lost. Do you want to terminate the session anyway?';
+$labels['manageeditors'] = 'Invite to document';
 $labels['participant'] = 'Teilnehmer';
 $labels['status'] = 'Status';
 $labels['addparticipant'] = 'Hinzufügen';
 $labels['delparticipant'] = 'Teilnehmer entfernen';
+$labels['invitationtexttitle'] = 'This comment will be attached to the invitation/notification message sent to the participant';
 $labels['invitationtextlabel'] = 'Kommentar zur Einladungs-/Benachrichtigungsnachricht';
 $labels['statusorganizer'] = 'Organisator';
 $labels['statusinvited'] = 'Eingeladen';
-$labels['statusaccepted'] = 'Akzeptiert';
+$labels['statusaccepted'] = 'Angenommen';
 $labels['statusdeclined'] = 'Abgelehnt';
-$labels['documentinviting'] = 'Teilnehmer wird/werden eingeladen...';
-$labels['documentcancelling'] = 'Teilnehmer wird/werden entfernt...';
+$labels['statusrequested'] = 'Requested';
+$labels['documentinviting'] = 'Teilnehmer wird/werden eingeladen …';
+$labels['documentcancelling'] = 'Teilnehmer wird/werden entfernt …';
 $labels['removeparticipant'] = 'Entfernen';
+$labels['invitednotice'] = 'You have been invited to the editing session by $owner.';
+$labels['acceptedownernotice'] = '$owner accepted your request to join the editing session.';
+$labels['declinedownernotice'] = '$owner declined your request to join the editing session.';
+$labels['acceptednotice'] = '$user accepted your invitation to the editing session.';
+$labels['declinednotice'] = '$user declined your invitation to the editing session.';
+$labels['requestednotice'] = '$user requested to join the editing session.';
 $labels['sessiondialog'] = 'Dokumentbearbeitungssitzung';
-$labels['accept'] = 'Akzeptieren';
+$labels['sessiondialogcontent'] = 'There is ongoing editing session on $file created by $owner.';
+$labels['more'] = 'Mehr.';
+$labels['accept'] = 'Annehmen';
+$labels['join'] = 'Der Sitzung beitreten';
 $labels['decline'] = 'Ablehnen';
 $labels['owner'] = 'Eigentümer';
 $labels['when'] = 'Wenn';
 $labels['file'] = 'Datei';
 $labels['comment'] = 'Kommentar';
 $labels['open'] = 'Öffnen';
+$labels['request'] = 'Request an invitation';
 $labels['invitationtitle'] = 'Einladung für $file';
+$labels['ivitationaccepting'] = 'Eine Einladung wird angenommen …';
+$labels['ivitationdeclining'] = 'Eine Einladung wird abgelehnt …';
+$labels['ivitationrequesting'] = 'Einladung wird angefordert …';
+
 $labels['storepasswords'] = 'Passwort merken';
 $labels['storepasswordsdesc'] = 'Gespeicherte Passwörter werden verschlüsselt. Aktivieren Sie dies, wenn Sie nicht bei jedem Login nach dem Passwort gefragt werden möchten oder wenn dieser Speicher via WebDAV verfügbar sein soll.';
+
 $labels['arialabelsearchform'] = 'Suchformular für Dateien';
 $labels['arialabelquicksearchbox'] = 'Sucheingabe';
 $labels['arialabellistoptions'] = 'Dateilisten Optionen';
-$labels['arialabelfolderoptions'] = 'Ordner Aktionen';
-$labels['arialabelfileeditform'] = 'Datei Bearbeiten Maske';
-$labels['arialabelfilecreateform'] = 'Datei Erstellen Maske';
+$labels['arialabelfolderoptions'] = 'Ordneraktionen';
+$labels['arialabelfileeditform'] = 'Dateibearbeitenformular';
+$labels['arialabelfilecreateform'] = 'Dateierstellenformular';
 $labels['arialabelfilelist'] = 'Dateiliste';
-$labels['arialabelfoldercreateform'] = 'Ordner Erstellen Maske';
-$labels['arialabelfoldereditform'] = 'Formular Verzeichnis ändern';
-$labels['arialabelfoldermountform'] = 'Formular Externer Speicher';
-$labels['arialabelfolderauthform'] = 'Formular Authentifizierung Externer Speicher';
-$labels['arialabelfolderlist'] = 'Ordner / Sammlungs Auswahl';
-$labels['arialabelfileselectdialog'] = 'Datei Auswahl Dialog';
-$labels['arialabelattachmentoptions'] = 'Anhänge speichern Optionen';
-$labels['arialabelfilesavedialog'] = 'Datei(en) speichern Dialog';
+$labels['arialabelfoldercreateform'] = 'Ordnererstellenformular';
+$labels['arialabelfoldereditform'] = 'Ordnerbearbeitenformular';
+$labels['arialabelfoldermountform'] = 'Externer-Speicherformular';
+$labels['arialabelfolderauthform'] = 'Legitimierungsformular des externen Speichers';
+$labels['arialabelfolderlist'] = 'Ordner-/Sammelauswahl';
+$labels['arialabelfileselectdialog'] = 'Dateiauswahldialog';
+$labels['arialabelattachmentoptions'] = 'Anhängespeichernoptionen';
+$labels['arialabelfilesavedialog'] = 'Datei(en)speicherndialog';
 $labels['arialabelfileprops'] = 'Dateieigenschaften';
-$labels['arialabelfilecontent'] = 'Datei Inhalt';
+$labels['arialabelfilecontent'] = 'Dateiinhalt';
 $labels['arialabelfileeditdialog'] = 'Dateibearbeitungsdialog';
+
 $labels['type.plain'] = 'Klartextdokument';
 $labels['type.vndoasisopendocumenttext'] = 'Textdokument (ODF)';
 $labels['type.html'] = 'HTML-Dokument';

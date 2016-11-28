@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Folders plugin
  *
@@ -6,6 +7,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
  */
+
+$labels = array();
 $labels['navtitle'] = 'Noter';
 $labels['tags'] = 'Mærker';
 $labels['lists'] = 'Notesbøger';
@@ -40,6 +43,7 @@ $labels['nrnotebooksfound'] = '$nr notesbøger blev fundet';
 $labels['nonotebooksfound'] = 'Fandt ingen notesbøger';
 $labels['removelist'] = 'Fjern fra listen';
 $labels['removelink'] = 'Fjern e-mailreference';
+
 $labels['savingdata'] = 'Gemmer data...';
 $labels['recordnotfound'] = 'Post blev ikke fundet';
 $labels['norecordsfound'] = 'Fandt ingen noter';
@@ -51,6 +55,7 @@ $labels['discardunsavedchanges'] = 'Den aktuelle note er endnu ikke blevet gemt.
 $labels['invalidlistproperties'] = 'Ugyldige egenskaber for notesbog! Angiv venligst et gyldigt navn.';
 $labels['entertitle'] = 'Angiv venligst en titel for denne note!';
 $labels['aclnorights'] = 'Du har ikke administratorrettigheder for denne notesbog.';
+
 $labels['arialabelnoteslist'] = 'Liste med noter';
 $labels['arialabelnotesearchform'] = 'Søgeformular for noter';
 $labels['arialabelnotesquicksearchbox'] = 'Søgeinput for noter';

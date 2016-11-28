@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Localizations for the Kolab Files plugin
  *
@@ -6,6 +7,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
  */
+
 $labels['files'] = 'Файлы';
 $labels['filepreview'] = 'Предпросмотр файла';
 $labels['saveall'] = 'Сохранить всё в облако...';
@@ -21,11 +23,13 @@ $labels['foldercreate'] = 'Создать папку';
 $labels['folderedit'] = 'Редактировать папку';
 $labels['foldermount'] = 'Добавить хранилище';
 $labels['folderdelete'] = 'Удалить папку';
+
 $labels['folderinside'] = 'Вставить внутрь';
 $labels['foldername'] = 'Имя папки';
 $labels['name'] = 'Имя';
 $labels['mtime'] = 'Изменён';
 $labels['type'] = 'Тип';
+
 $labels['upload'] = 'Закачать';
 $labels['uploadfile'] = 'Закачать файл(ы)';
 $labels['get'] = 'Скачать';
@@ -46,11 +50,13 @@ $labels['copyfile'] = 'Скопировать файл';
 $labels['copyandedit'] = 'Скопировать и редактировать';
 $labels['documenttitle'] = 'Заголовок:';
 $labels['close'] = 'Закрыть';
+
 $labels['collection_audio'] = 'Аудио';
 $labels['collection_video'] = 'Видео';
 $labels['collection_image'] = 'Картинки';
 $labels['collection_document'] = 'Документы';
 $labels['sessions'] = 'Сессии';
+
 $labels['uploading'] = 'Закачиваются файлы...';
 $labels['attaching'] = 'Прикрепляются файлы...';
 $labels['authenticating'] = 'Аутентификация...';
@@ -77,6 +83,7 @@ $labels['filedeletenotice'] = 'Файл(ы) удален(ы) успешно.';
 $labels['filemovenotice'] = 'Файл(ы) перемещен(ы) успешно.';
 $labels['filecopynotice'] = 'Файл(ы) скопирован(ы) успешно.';
 $labels['uploadsizeerror'] = 'Максимальный размер файла ($size) превышен!';
+
 $labels['listpermanent'] = 'Всегда показывать';
 $labels['additionalfolders'] = 'Дополнительные папки';
 $labels['allfolders'] = 'искать во всех папках';
@@ -85,6 +92,9 @@ $labels['fileskipall'] = 'Пропустить все';
 $labels['fileoverwrite'] = 'Перезаписать';
 $labels['fileoverwriteall'] = 'Перезаписать все';
 $labels['filemoveconfirm'] = 'Это действие перезапишет файл: <b>$file</b>.';
+
+$labels['editfiledialog'] = 'Подтвердить выполненные действия';
+$labels['editfilesessions'] = 'There are ongoing sessions on the selected file. Please, select the action you want to take.';
 $labels['newsession'] = 'Создать новую сессию';
 $labels['newsessionro'] = 'Создать новую сессию (скопировать файл в область для для редактирования)';
 $labels['ownedsession'] = 'Продолжить существующую сессию';
@@ -104,10 +114,25 @@ $labels['participant'] = 'Участник';
 $labels['status'] = 'Статус';
 $labels['addparticipant'] = 'Добавить участника';
 $labels['delparticipant'] = 'Удалить участника';
+$labels['invitationtexttitle'] = 'Комментарий будет прикреплен к приглашению/сообщению, отправленному участнику';
 $labels['invitationtextlabel'] = 'Комментарий к приглашению/извещению';
 $labels['statusorganizer'] = 'Организатор';
+$labels['statusinvited'] = 'Приглашенный';
+$labels['statusaccepted'] = 'Принято';
+$labels['statusdeclined'] = 'Отклонено';
+$labels['statusrequested'] = 'Запрошенный';
+$labels['documentinviting'] = 'Inviting participant(s)...';
+$labels['documentcancelling'] = 'Removing participant(s)...';
 $labels['removeparticipant'] = 'Убрать';
+$labels['invitednotice'] = 'Вы были приглашены $owner для совместного редактирования.';
+$labels['acceptedownernotice'] = '$owner accepted your request to join the editing session.';
+$labels['declinedownernotice'] = '$owner declined your request to join the editing session.';
+$labels['acceptednotice'] = '$user accepted your invitation to the editing session.';
+$labels['declinednotice'] = '$user declined your invitation to the editing session.';
+$labels['requestednotice'] = '$user requested to join the editing session.';
 $labels['sessiondialog'] = 'Сессия редактирования документа';
+$labels['sessiondialogcontent'] = 'There is ongoing editing session on $file created by $owner.';
+$labels['more'] = 'Больше.';
 $labels['accept'] = 'Принять';
 $labels['join'] = 'Присоединиться к сессии';
 $labels['decline'] = 'Отклонить';
@@ -121,8 +146,10 @@ $labels['invitationtitle'] = 'Приглашение в $file';
 $labels['ivitationaccepting'] = 'Приглашение принимается...';
 $labels['ivitationdeclining'] = 'Приглашение отклоняется...';
 $labels['ivitationrequesting'] = 'Приглашение запрашивается...';
+
 $labels['storepasswords'] = 'запомнить пароль';
 $labels['storepasswordsdesc'] = 'Сохранённые пароли будут зашифрованы. Включите, если не хотите, чтобы пароль запрашивался при каждом входе, или если хотите, чтобы это хранилище было доступно через WebDAV.';
+
 $labels['arialabelsearchform'] = 'Искать файлы от';
 $labels['arialabelquicksearchbox'] = 'Искать';
 $labels['arialabellistoptions'] = 'Настройки списка файлов';
@@ -141,6 +168,7 @@ $labels['arialabelfilesavedialog'] = 'Диалог сохранения файл
 $labels['arialabelfileprops'] = 'Свойства файла';
 $labels['arialabelfilecontent'] = 'Содержимое файла';
 $labels['arialabelfileeditdialog'] = 'Диалог редактирования файла';
+
 $labels['type.plain'] = 'Простой текстовый файл';
 $labels['type.vndoasisopendocumenttext'] = 'Текстовый документ (ODF)';
 $labels['type.html'] = 'Документ HTML';
