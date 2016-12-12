@@ -92,11 +92,9 @@ Calendars List
 Events can be organized in different calendars which are all displayed in the lower left list.
 Use the checkboxes in that list to show or hide events from the specific calendars in the main view.
 
-.. only:: kolab
-
-    Beside your personal calendars, the list also displays calendars shared by other users
-    or ones that are shared amongst your workgroup. Small icons in the list give a hint
-    about the origin and some of them are possibly read-only which is denoted with a small lock icon.
+Beside your personal calendars, the list also displays calendars shared by other users
+or ones that are shared amongst your workgroup. Small icons in the list give a hint
+about the origin and some of them are possibly read-only which is denoted with a small lock icon.
 
 
 Colorized Events

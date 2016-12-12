@@ -50,11 +50,7 @@ This general section has text fields and selectors for various properties. Hereâ
 * ``Complete``: The completeness state of a task in percent. Use the slider or enter a number.
 * ``Tasklist``: The list the task is saved in. Change it to move an event from one list to another.
 
-
-.. only:: kolab
-
-
-    **Recurrence**
+**Recurrence**
 
 For periodically recurring task series, this tab has the settings how a task is repeated
 over time.
@@ -64,7 +60,7 @@ over time.
 If you choose a frequency of weekly or monthly you can select which days of the week or month the task will occur.
 * ``Until``: Determines the duration of the repetition. The recurrence can either run forever, for a number of times or until a specific date.
 
-   **Assignments**
+**Assignments**
 
 One, or a list of, users can be assigned to the task. The list is managed in this tab.
 
@@ -72,7 +68,7 @@ One, or a list of, users can be assigned to the task. The list is managed in thi
 * ``Add Assignee``: Type three letters of the username, and the search box will show a dropdown list of relevant users. Then clieck the 'Add Assignee' button.
 * ``Invitation/notification comment``: When a user is assigned to a task, an email notificatino is sent out. This field is giving the opportunity to add extra test to this mail notification.
 
-   **Attachments**
+**Attachments**
 
 Sometimes a description text isn't enough to collect information for a specific task.
 Switch to this tab to attach files to the current task or to remove them again. Adding

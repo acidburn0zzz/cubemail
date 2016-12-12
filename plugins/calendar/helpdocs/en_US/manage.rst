@@ -153,21 +153,19 @@ When creating a new event, switch to the *Participants* tab. You're already list
 
 Invitations will be sent out when you click *Save* and the event is created.
 
-.. only:: kolab
+.. index:: Availability
+.. _calendar-availability-finder:
 
-    .. index:: Availability
-    .. _calendar-availability-finder:
+Find Availability
+^^^^^^^^^^^^^^^^^
 
-    Find Availability
-    ^^^^^^^^^^^^^^^^^
+Once all the participants are added to the list, you see the individual availability status for each one
+of them, given that this information is available. In case not everybody is free, click the *Find availability...*
+button to open the scheduling dialog. In that dialog, detailed availability information for all participants is
+displayed. Use the *Previous/Next Slot* buttons to find the next time slot where all required participants are
+available. Or drag the gray area representing the event duration with the mouse to manually select a free slot.
 
-    Once all the participants are added to the list, you see the individual availability status for each one
-    of them, given that this information is available. In case not everybody is free, click the *Find availability...*
-    button to open the scheduling dialog. In that dialog, detailed availability information for all participants is
-    displayed. Use the *Previous/Next Slot* buttons to find the next time slot where all required participants are
-    available. Or drag the gray area representing the event duration with the mouse to manually select a free slot.
-
-    Click *Select* to copy the rescheduled date/time back into the event form and to close this dialog.
+Click *Select* to copy the rescheduled date/time back into the event form and to close this dialog.
 
 
 Receive Event Invitations
