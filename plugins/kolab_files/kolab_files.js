@@ -2061,7 +2061,8 @@ function kolab_files_ui()
       });
 
     // select first folder?
-    if (response.result.auth_errors && response.result.auth_errors.length) { }
+    if (response.result.auth_errors && response.result.auth_errors.length)
+      this.env.folder = this.env.collection = null;
     else if (this.env.folder)
       rcmail.folder_list.select(this.env.folder);
     else if (this.env.collection)
