@@ -193,6 +193,8 @@ function kolab_files_init()
       file_api.request('folder_info', {folder: file_api.file_path(rcmail.env.file), sessions: 1}, 'folder_info_response');
     }
     else {
+      file_api.env.folder = rcmail.env.folder;
+      file_api.env.collection = rcmail.env.collection;
       file_api.folder_list();
       file_api.browser_capabilities_check();
     }
@@ -2059,7 +2061,7 @@ function kolab_files_ui()
       });
 
     // select first folder?
-    if (response.result.auth_errors) { }
+    if (response.result.auth_errors && response.result.auth_errors.length) { }
     else if (this.env.folder)
       rcmail.folder_list.select(this.env.folder);
     else if (this.env.collection)
@@ -2084,6 +2086,9 @@ function kolab_files_ui()
 
     var is_collection = folder.match(/^folder-collection-(.*)$/),
       collection = RegExp.$1 || null;
+
+    if (rcmail.task == 'files' && !rcmail.env.action)
+      rcmail.update_state(is_collection ? {collection: collection} : {folder: folder});
 
     if (collection == 'sessions') {
       rcmail.enable_command('files-list', 'files-folder-delete', 'folder-rename', 'files-upload', false);

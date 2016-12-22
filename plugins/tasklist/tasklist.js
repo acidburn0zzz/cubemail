@@ -156,6 +156,9 @@ function rcube_tasklist_ui(settings)
             }
         }
 
+        if (rcmail.env.source && me.tasklists[rcmail.env.source])
+            me.selected_list = rcmail.env.source;
+
         // initialize treelist widget that controls the tasklists list
         var widget_class = window.kolab_folderlist || rcube_treelist_widget;
         tasklists_widget = new widget_class(rcmail.gui_objects.tasklistslist, {
@@ -176,6 +179,7 @@ function rcube_tasklist_ui(settings)
             rcmail.enable_command('list-remove', me.tasklists[node.id] && me.tasklists[node.id].removable);
             rcmail.enable_command('list-showurl', me.tasklists[node.id] && !!me.tasklists[node.id].caldavurl);
             me.selected_list = node.id;
+            rcmail.update_state({source: node.id});
         });
         tasklists_widget.addEventListener('subscribe', function(p) {
             var list;
@@ -2939,7 +2943,7 @@ function rcube_tasklist_ui(settings)
             }
         }
 
-        return $.unqiqueStrings(itags);
+        return $.uniqueStrings(itags);
     }
 
     /**
@@ -3414,7 +3418,7 @@ jQuery.fn.sortElements = (function(){
 })();
 
 // equivalent to $.unique() but working on arrays of strings
-jQuery.unqiqueStrings = (function() {
+jQuery.uniqueStrings = (function() {
     return function(arr) {
         var hash = {}, out = [];
 

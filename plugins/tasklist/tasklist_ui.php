@@ -202,6 +202,7 @@ class tasklist_ui
             }
         }
 
+        $this->rc->output->set_env('source', rcube_utils::get_input_value('source', rcube_utils::INPUT_GET));
         $this->rc->output->set_env('tasklists', $jsenv);
         $this->register_gui_object('tasklistslist', $attrib['id']);
 

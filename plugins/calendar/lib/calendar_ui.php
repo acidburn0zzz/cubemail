@@ -235,6 +235,7 @@ class calendar_ui
       );
     }
 
+    $this->rc->output->set_env('source', rcube_utils::get_input_value('source', rcube_utils::INPUT_GET));
     $this->rc->output->set_env('calendars', $jsenv);
     $this->rc->output->add_gui_object('calendarslist', $attrib['id']);
 

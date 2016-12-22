@@ -961,6 +961,11 @@ class kolab_files_engine
 
         $this->folder_list_env();
 
+        if ($this->rc->task == 'files') {
+            $this->rc->output->set_env('folder', rcube_utils::get_input_value('folder', rcube_utils::INPUT_GET));
+            $this->rc->output->set_env('collection', rcube_utils::get_input_value('collection', rcube_utils::INPUT_GET));
+        }
+
         $this->rc->output->add_label('uploadprogress', 'GB', 'MB', 'KB', 'B');
         $this->rc->output->set_pagetitle($this->plugin->gettext('files'));
         $this->rc->output->set_env('file_mimetypes', $this->get_mimetypes());
