@@ -118,6 +118,8 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
       rcmail.enable_command('files-get', 'files-delete', rcmail.env.file);
     }
     else {
+      file_api.env.folder = rcmail.env.folder;
+      file_api.env.collection = rcmail.env.collection;
       file_api.folder_list();
       file_api.browser_capabilities_check();
       rcmail.enable_command('folder-mount', rcmail.env.external_sources);
@@ -1227,6 +1229,8 @@ function kolab_files_ui()
       rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-upload', false);
       this.env.folder = null;
       rcmail.command('files-list', {collection: folder});
+      if (rcmail.task == 'files' && !rcmail.env.action)
+        rcmail.update_state({collection: collection});
     }
     else {
       var found = $('#' + this.env.folders[folder].id, list).addClass('selected');
@@ -1235,6 +1239,8 @@ function kolab_files_ui()
       this.env.folder = folder;
       this.env.collection = null;
       rcmail.command('files-list', {folder: folder});
+      if (rcmail.task == 'files' && !rcmail.env.action)
+        rcmail.update_state({folder: folder});
     }
 
     this.quota();

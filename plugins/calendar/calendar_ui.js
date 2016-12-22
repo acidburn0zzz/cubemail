@@ -732,6 +732,10 @@ function rcube_calendar_ui(settings)
       var invite = $('#edit-attendees-invite').get(0);
       var comment = $('#edit-attendees-comment');
 
+      // make sure any calendar is selected
+      if (!calendars.val())
+        calendars.val($('option:first', calendars).attr('value'));
+
       invite.checked = settings.itip_notify & 1 > 0;
       notify.checked = has_attendees(event) && invite.checked;
 
@@ -3517,6 +3521,8 @@ function rcube_calendar_ui(settings)
       rcmail.triggerEvent('selectfolder', { folder:id, prefix:'rcmlical' });
 
       this.selected_calendar = id;
+
+      rcmail.update_state({source: id});
     };
 
     // register the given calendar to the current view
@@ -3723,7 +3729,9 @@ function rcube_calendar_ui(settings)
     });
 
     // select default calendar
-    if (settings.default_calendar && this.calendars[settings.default_calendar] && this.calendars[settings.default_calendar].editable)
+    if (rcmail.env.source && this.calendars[rcmail.env.source])
+      this.selected_calendar = rcmail.env.source;
+    else if (settings.default_calendar && this.calendars[settings.default_calendar] && this.calendars[settings.default_calendar].editable)
       this.selected_calendar = settings.default_calendar;
     
     if (this.selected_calendar)
