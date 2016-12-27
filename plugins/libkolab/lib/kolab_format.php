@@ -234,7 +234,10 @@ abstract class kolab_format
             if (!$dateonly)
                 $result->setTime($datetime->format('G'), $datetime->format('i'), $datetime->format('s'));
 
-            if ($tz && in_array($tz->getName(), array('UTC', 'GMT', '+00:00', 'Z'))) {
+            // libkolabxml throws errors on some deprecated timezone names
+            $utc_aliases = array('UTC', 'GMT', '+00:00', 'Z', 'Etc/GMT');
+
+            if ($tz && in_array($tz->getName(), $utc_aliases)) {
                 $result->setUTC(true);
             }
             else if ($tz !== false) {
