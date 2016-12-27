@@ -1129,21 +1129,21 @@ class kolab_driver extends calendar_driver
         // use start date from master but try to be smart on time or duration changes
         $old_start_date = $old['start']->format('Y-m-d');
         $old_start_time = $old['allday'] ? '' : $old['start']->format('H:i');
-        $old_duration = $old['end']->format('U') - $old['start']->format('U');
-        
+        $old_duration   = $old['allday'] ? 0 : $old['end']->format('U') - $old['start']->format('U');
+
         $new_start_date = $event['start']->format('Y-m-d');
         $new_start_time = $event['allday'] ? '' : $event['start']->format('H:i');
-        $new_duration = $event['end']->format('U') - $event['start']->format('U');
-        
+        $new_duration   = $event['allday'] ? 0 : $event['end']->format('U') - $event['start']->format('U');
+
         $diff = $old_start_date != $new_start_date || $old_start_time != $new_start_time || $old_duration != $new_duration;
         $date_shift = $old['start']->diff($event['start']);
-        
+
         // shifted or resized
         if ($diff && ($old_start_date == $new_start_date || $old_duration == $new_duration)) {
           $event['start'] = $master['start']->add($date_shift);
           $event['end'] = clone $event['start'];
           $event['end']->add(new DateInterval('PT'.$new_duration.'S'));
-          
+
           // remove fixed weekday, will be re-set to the new weekday in kolab_calendar::update_event()
           if ($old_start_date != $new_start_date) {
             if (strlen($event['recurrence']['BYDAY']) == 2)
@@ -1161,6 +1161,7 @@ class kolab_driver extends calendar_driver
         // when saving an instance in 'all' mode, copy recurrence exceptions over
         if ($old['recurrence_id']) {
           $event['recurrence']['EXCEPTIONS'] = $master['recurrence']['EXCEPTIONS'];
+          $event['recurrence']['EXDATE']     = $master['recurrence']['EXDATE'];
         }
         else if ($master['_instance']) {
           $event['_instance'] = $master['_instance'];
@@ -1213,7 +1214,7 @@ class kolab_driver extends calendar_driver
 
     if ($success && $this->freebusy_trigger)
       $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
-    
+
     return $success;
   }
 
