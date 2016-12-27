@@ -25,7 +25,7 @@
 
 class kolab_delegation extends rcube_plugin
 {
-    public $task = 'login|mail|settings|calendar';
+    public $task = 'login|mail|settings|calendar|tasks';
 
     private $rc;
     private $engine;
@@ -49,11 +49,12 @@ class kolab_delegation extends rcube_plugin
         // on-message-send delegation support
         $this->add_hook('message_before_send', array($this, 'message_before_send'));
 
-        // delegation support in Calendar plugin
+        // delegation support in Calendar and Tasklist plugins
         $this->add_hook('message_load', array($this, 'message_load'));
         $this->add_hook('calendar_user_emails', array($this, 'calendar_user_emails'));
         $this->add_hook('calendar_list_filter', array($this, 'calendar_list_filter'));
         $this->add_hook('calendar_load_itip', array($this, 'calendar_load_itip'));
+        $this->add_hook('tasklist_list_filter', array($this, 'tasklist_list_filter'));
 
         // delegation support in kolab_auth plugin
         $this->add_hook('kolab_auth_emails', array($this, 'kolab_auth_emails'));
@@ -78,8 +79,10 @@ class kolab_delegation extends rcube_plugin
                 $this->include_stylesheet($this->skin_path . '/style.css');
             }
         }
-        // Calendar plugin UI bindings
-        else if ($this->rc->task == 'calendar' && empty($_REQUEST['_framed'])) {
+        // Calendar/Tasklist plugin UI bindings
+        else if (($this->rc->task == 'calendar' || $this->rc->task == 'tasks')
+            && empty($_REQUEST['_framed'])
+        ) {
             if ($this->rc->output->type == 'html') {
                 $this->calendar_ui();
             }
@@ -198,7 +201,7 @@ class kolab_delegation extends rcube_plugin
             return $args;
         }
 
-        $engine = $this->engine();
+        $engine  = $this->engine();
         $context = $engine->delegator_context_from_message($args['object']);
 
         if ($context) {
@@ -235,7 +238,23 @@ class kolab_delegation extends rcube_plugin
 
         if (!empty($_SESSION['delegators'])) {
             $engine = $this->engine();
-            $engine->delegator_folder_filter($args);
+            $engine->delegator_folder_filter($args, 'calendars');
+        }
+
+        return $args;
+    }
+
+    /**
+     * tasklist_driver::get_lists() handler
+     */
+    public function tasklist_list_filter($args)
+    {
+        // In delegator context we'll use delegator's folders
+        // instead of current user folders
+
+        if (!empty($_SESSION['delegators'])) {
+            $engine = $this->engine();
+            $engine->delegator_folder_filter($args, 'tasklists');
         }
 
         return $args;
@@ -258,7 +277,7 @@ class kolab_delegation extends rcube_plugin
     }
 
     /**
-     * Delegation support in Calendar plugin UI
+     * Delegation support in Calendar/Tasks plugin UI
      */
     public function calendar_ui()
     {

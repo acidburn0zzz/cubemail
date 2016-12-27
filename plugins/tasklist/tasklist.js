@@ -2374,6 +2374,9 @@ function rcube_tasklist_ui(settings)
         // reset dialog first
         $('#taskeditform').get(0).reset();
 
+        // allow other plugins to do actions when task form is opened
+        rcmail.triggerEvent('tasklist-task-init', {o: rec});
+
         // fill form data
         var title = $('#taskedit-title').val(rec.title || '');
         var description = $('#taskedit-description').val(rec.description || '');

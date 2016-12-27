@@ -178,7 +178,7 @@ class tasklist_ui
     {
         $tree = true;
         $jsenv = array();
-        $lists = $this->plugin->driver->get_lists($tree);
+        $lists = $this->plugin->driver->get_lists(0, $tree);
 
         // walk folder tree
         if (is_object($tree)) {

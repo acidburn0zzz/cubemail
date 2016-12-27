@@ -777,11 +777,11 @@ class kolab_delegation_engine
     }
 
     /**
-     * Filters list of calendars according to delegator context
+     * Filters list of calendar/task folders according to delegator context
      *
      * @param array $args Reference to plugin hook arguments
      */
-    public function delegator_folder_filter(&$args)
+    public function delegator_folder_filter(&$args, $mode = 'calendars')
     {
         $context = $this->delegator_context();
 
@@ -789,28 +789,40 @@ class kolab_delegation_engine
             return $args;
         }
 
-        $storage   = $this->rc->get_storage();
-        $other_ns  = $storage->get_namespace('other');
-        $delim     = $storage->get_hierarchy_delimiter();
-        $editable  = $args['filter'] & calendar_driver::FILTER_WRITEABLE;
-        $active    = $args['filter'] & calendar_driver::FILTER_ACTIVE;
-        $personal  = $args['filter'] & calendar_driver::FILTER_PERSONAL;
-        $shared    = $args['filter'] & calendar_driver::FILTER_SHARED;
-        $calendars = array();
+        $storage  = $this->rc->get_storage();
+        $other_ns = $storage->get_namespace('other');
+        $delim    = $storage->get_hierarchy_delimiter();
 
-        // code parts derived from kolab_driver::filter_calendars()
-        foreach ($args['list'] as $cal) {
-            if (!$cal->ready) {
+        if ($mode == 'calendars') {
+            $editable = $args['filter'] & calendar_driver::FILTER_WRITEABLE;
+            $active   = $args['filter'] & calendar_driver::FILTER_ACTIVE;
+            $personal = $args['filter'] & calendar_driver::FILTER_PERSONAL;
+            $shared   = $args['filter'] & calendar_driver::FILTER_SHARED;
+        }
+        else {
+            $editable = $args['filter'] & tasklist_driver::FILTER_WRITEABLE;
+            $active   = $args['filter'] & tasklist_driver::FILTER_ACTIVE;
+            $personal = $args['filter'] & tasklist_driver::FILTER_PERSONAL;
+            $shared   = $args['filter'] & tasklist_driver::FILTER_SHARED;
+        }
+
+        $folders = array();
+
+        foreach ($args['list'] as $folder) {
+            if (isset($folder->ready) && !$folder->ready) {
                 continue;
             }
-            if ($editable && !$cal->editable) {
+
+            if ($editable && !$folder->editable) {
                 continue;
             }
-            if ($active && !$cal->storage->is_active()) {
+
+            if ($active && !$folder->storage->is_active()) {
                 continue;
             }
+
             if ($personal || $shared) {
-                $ns = $cal->get_namespace();
+                $ns = $folder->get_namespace();
 
                 if ($personal && $ns == 'personal') {
                     continue;
@@ -818,8 +830,8 @@ class kolab_delegation_engine
                 else if ($personal && $ns == 'other') {
                     $found = false;
                     foreach ($other_ns as $ns) {
-                        $folder = $ns[0] . $context . $delim;
-                        if (strpos($cal->name, $folder) === 0) {
+                        $c_folder = $ns[0] . $context . $delim;
+                        if (strpos($folder->name, $c_folder) === 0) {
                             $found = true;
                         }
                     }
@@ -833,11 +845,11 @@ class kolab_delegation_engine
                 }
             }
 
-            $calendars[$cal->id] = $cal;
+            $folders[$folder->id] = $folder;
         }
 
-        $args['calendars'] = $calendars;
-        $args['abort']     = true;
+        $args[$mode]   = $folders;
+        $args['abort'] = true;
     }
 
     /**
