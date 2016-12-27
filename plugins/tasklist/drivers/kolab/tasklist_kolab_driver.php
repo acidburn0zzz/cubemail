@@ -120,10 +120,10 @@ class tasklist_kolab_driver extends tasklist_driver
             $alarms = false;
             $rights = 'lr';
             $editable = false;
-            if (($myrights = $folder->get_myrights()) && !PEAR::isError($myrights)) {
+            if ($myrights = $folder->get_myrights()) {
                 $rights = $myrights;
                 if (strpos($rights, 't') !== false || strpos($rights, 'd') !== false)
-                    $editable = strpos($rights, 'i');
+                    $editable = strpos($rights, 'i') !== false;
             }
             $info = $folder->get_folder_info();
             $norename = $readonly || $info['norename'] || $info['protected'];
@@ -147,6 +147,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'rights'    => $rights,
             'norename' => $norename,
             'active' => $folder->is_active(),
+            'owner' => $folder->get_owner(),
             'parentfolder' => $folder->get_parent(),
             'default' => $folder->default,
             'virtual' => $folder->virtual,
@@ -163,8 +164,11 @@ class tasklist_kolab_driver extends tasklist_driver
 
     /**
      * Get a list of available task lists from this source
+     *
+     * @param integer Bitmask defining filter criterias.
+     *                See FILTER_* constants for possible values.
      */
-    public function get_lists(&$tree = null)
+    public function get_lists($filter = 0, &$tree = null)
     {
         $this->_read_lists();
 
@@ -175,12 +179,7 @@ class tasklist_kolab_driver extends tasklist_driver
                 $this->_read_lists(true);
         }
 
-        $folders = array();
-        foreach ($this->lists as $id => $list) {
-            if (!empty($this->folders[$id])) {
-                $folders[] = $this->folders[$id];
-            }
-        }
+        $folders = $this->filter_folders($filter);
 
         // include virtual folders for a full folder tree
         if (!is_null($tree)) {
@@ -249,6 +248,80 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         return $lists;
+    }
+
+    /**
+     * Get list of folders according to specified filters
+     *
+     * @param integer Bitmask defining restrictions. See FILTER_* constants for possible values.
+     *
+     * @return array List of task folders
+     */
+    protected function filter_folders($filter)
+    {
+        $this->_read_lists();
+
+        $folders = array();
+        foreach ($this->lists as $id => $list) {
+            if (!empty($this->folders[$id])) {
+                $folder = $this->folders[$id];
+
+                if ($folder->get_namespace() == 'personal') {
+                    $folder->editable = true;
+                }
+                else if ($rights = $folder->get_myrights()) {
+                    if (strpos($rights, 't') !== false || strpos($rights, 'd') !== false) {
+                        $folder->editable = strpos($rights, 'i') !== false;
+                    }
+                }
+
+                $folders[] = $folder;
+            }
+        }
+
+        $plugin = $this->rc->plugins->exec_hook('tasklist_list_filter', array(
+            'list'      => $folders,
+            'filter'    => $filter,
+            'tasklists' => $folders,
+        ));
+
+        if ($plugin['abort'] || !$filter) {
+            return $plugin['tasklists'];
+        }
+
+        $personal = $filter & self::FILTER_PERSONAL;
+        $shared   = $filter & self::FILTER_SHARED;
+
+        $tasklists = array();
+        foreach ($folders as $folder) {
+            if (($filter & self::FILTER_WRITEABLE) && !$folder->editable) {
+                continue;
+            }
+/*
+            if (($filter & self::FILTER_INSERTABLE) && !$folder->insert) {
+                continue;
+            }
+            if (($filter & self::FILTER_ACTIVE) && !$folder->is_active()) {
+                continue;
+            }
+            if (($filter & self::FILTER_PRIVATE) && $folder->subtype != 'private') {
+                continue;
+            }
+            if (($filter & self::FILTER_CONFIDENTIAL) && $folder->subtype != 'confidential') {
+                continue;
+            }
+*/
+            if ($personal || $shared) {
+                $ns = $folder->get_namespace();
+                if (!(($personal && $ns == 'personal') || ($shared && $ns == 'shared'))) {
+                    continue;
+                }
+            }
+
+            $tasklists[$folder->id] = $folder;
+        }
+
+        return $tasklists;
     }
 
     /**
@@ -616,20 +689,24 @@ class tasklist_kolab_driver extends tasklist_driver
     /**
      * Return data of a specific task
      *
-     * @param mixed  Hash array with task properties or task UID
+     * @param mixed   Hash array with task properties or task UID
+     * @param integer Bitmask defining filter criterias for folders.
+     *                See FILTER_* constants for possible values.
+     *
      * @return array Hash array with task properties or false if not found
      */
-    public function get_task($prop)
+    public function get_task($prop, $filter = 0)
     {
-        $this->_read_lists();
         $this->_parse_id($prop);
 
         $id      = $prop['uid'];
         $list_id = $prop['list'];
-        $folders = $list_id ? array($list_id => $this->get_folder($list_id)) : $this->folders;
+        $folders = $list_id ? array($list_id => $this->get_folder($list_id)) : $this->get_lists($filter);
 
         // find task in the available folders
         foreach ($folders as $list_id => $folder) {
+            if (is_array($folder))
+                $folder = $this->folders[$list_id];
             if (is_numeric($list_id) || !$folder)
                 continue;
             if (!$this->tasks[$id] && ($object = $folder->get_object($id))) {
