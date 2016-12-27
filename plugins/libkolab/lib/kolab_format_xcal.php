@@ -420,7 +420,10 @@ abstract class kolab_format_xcal extends kolab_format
         $rr->setFrequency(RecurrenceRule::FreqNone);
 
         if ($object['recurrence'] && !empty($object['recurrence']['FREQ'])) {
-            $rr->setFrequency($this->rrule_type_map[$object['recurrence']['FREQ']]);
+            $freq     = $object['recurrence']['FREQ'];
+            $bysetpos = explode(',', $object['recurrence']['BYSETPOS']);
+
+            $rr->setFrequency($this->rrule_type_map[$freq]);
 
             if ($object['recurrence']['INTERVAL'])
                 $rr->setInterval(intval($object['recurrence']['INTERVAL']));
@@ -433,8 +436,19 @@ abstract class kolab_format_xcal extends kolab_format
                         $occurrence = intval($m[1]);
                         $day = $m[2];
                     }
-                    if (isset($this->weekday_map[$day]))
-                        $byday->push(new DayPos($occurrence, $this->weekday_map[$day]));
+
+                    if (isset($this->weekday_map[$day])) {
+                        // @TODO: libkolabxml does not support BYSETPOS, neither we.
+                        // However, we can convert most common cases to BYDAY
+                        if (!$occurence && $freq == 'MONTHLY' && !empty($bysetpos)) {
+                            foreach ($bysetpos as $pos) {
+                                $byday->push(new DayPos(intval($pos), $this->weekday_map[$day]));
+                            }
+                        }
+                        else {
+                            $byday->push(new DayPos($occurrence, $this->weekday_map[$day]));
+                        }
+                    }
                 }
                 $rr->setByday($byday);
             }
