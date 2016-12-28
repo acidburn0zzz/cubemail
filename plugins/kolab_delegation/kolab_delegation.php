@@ -350,15 +350,15 @@ class kolab_delegation extends rcube_plugin
 
         // Delegate delete
         if ($this->rc->action == 'plugin.delegation-delete') {
-            $id      = rcube_utils::get_input_value('id', rcube_utils::INPUT_GPC);
-            $success = $engine->delegate_delete($id, (bool) rcube_utils::get_input_value('acl', rcube_utils::INPUT_GPC));
+            $id    = rcube_utils::get_input_value('id', rcube_utils::INPUT_GPC);
+            $error = $engine->delegate_delete($id, (bool) rcube_utils::get_input_value('acl', rcube_utils::INPUT_GPC));
 
-            if ($success) {
+            if (!$error) {
                 $this->rc->output->show_message($this->gettext('deletesuccess'), 'confirmation');
                 $this->rc->output->command('plugin.delegate_save_complete', array('deleted' => $id));
             }
             else {
-                $this->rc->output->show_message($this->gettext('deleteerror'), 'error');
+                $this->rc->output->show_message($this->gettext($error), 'error');
             }
         }
         // Delegate add/update
@@ -369,23 +369,23 @@ class kolab_delegation extends rcube_plugin
             // update
             if ($id) {
                 $delegate = $engine->delegate_get($id);
-                $success  = $engine->delegate_acl_update($delegate['uid'], $acl);
+                $error    = $engine->delegate_acl_update($delegate['uid'], $acl);
 
-                if ($success) {
+                if (!$error) {
                     $this->rc->output->show_message($this->gettext('updatesuccess'), 'confirmation');
                     $this->rc->output->command('plugin.delegate_save_complete', array('updated' => $id));
                 }
                 else {
-                    $this->rc->output->show_message($this->gettext('updateerror'), 'error');
+                    $this->rc->output->show_message($this->gettext($error), 'error');
                 }
             }
             // new
             else {
                 $login    = rcube_utils::get_input_value('newid', rcube_utils::INPUT_GPC);
                 $delegate = $engine->delegate_get_by_name($login);
-                $success  = $engine->delegate_add($delegate, $acl);
+                $error    = $engine->delegate_add($delegate, $acl);
 
-                if ($success) {
+                if (!$error) {
                     $this->rc->output->show_message($this->gettext('createsuccess'), 'confirmation');
                     $this->rc->output->command('plugin.delegate_save_complete', array(
                         'created' => $delegate['ID'],
@@ -393,7 +393,7 @@ class kolab_delegation extends rcube_plugin
                     ));
                 }
                 else {
-                    $this->rc->output->show_message($this->gettext('createerror'), 'error');
+                    $this->rc->output->show_message($this->gettext($error), 'error');
                 }
             }
         }
