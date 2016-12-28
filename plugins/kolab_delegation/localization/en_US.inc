@@ -35,6 +35,7 @@ $labels['updatesuccess'] = 'The delegate was successfully updated.';
 $labels['updateerror'] = 'Could not update delegate.';
 $labels['createsuccess'] = 'The delegate was successfully added.';
 $labels['createerror'] = 'Could not add delegate.';
+$labels['delegationexisterror'] = 'Specified user already is your delegate.';
 
 $labels['arialabeldelegatedelete'] = 'Delegate deletion dialog';
 $labels['arialabeldelegateform'] = 'Delegate properties form';

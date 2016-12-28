@@ -54,6 +54,8 @@ class kolab_delegation_engine
      *
      * @param string|array $delegate Delegate DN (encoded) or delegate data (result of delegate_get())
      * @param array        $acl      List of folder->right map
+     *
+     * @return string On error returns an error label, on success returns null
      */
     public function delegate_add($delegate, $acl)
     {
@@ -63,18 +65,20 @@ class kolab_delegation_engine
 
         $dn = $delegate['ID'];
         if (empty($delegate) || empty($dn)) {
-            return false;
+            return 'createerror';
         }
 
         $list = $this->list_delegates();
-
-        // add delegate to the list
         $list = array_keys((array)$list);
         $list = array_filter($list);
-        if (!in_array($dn, $list)) {
-            $list[] = $dn;
+
+        if (in_array($dn, $list)) {
+            return 'delegationexisterror';
         }
-        $list = array_map(array('kolab_auth_ldap', 'dn_decode'), $list);
+
+        // add delegate to the list
+        $list[] = $dn;
+        $list   = array_map(array('kolab_auth_ldap', 'dn_decode'), $list);
 
         // update user record
         $result = $this->user_update_delegates($list);
@@ -84,7 +88,7 @@ class kolab_delegation_engine
             $this->delegate_acl_update($delegate['uid'], $acl);
         }
 
-        return $result;
+        return $result ? null : 'createerror';
     }
 
     /**
@@ -93,6 +97,8 @@ class kolab_delegation_engine
      * @param string $uid    Delegate authentication identifier
      * @param array  $acl    List of folder->right map
      * @param bool   $update Update (remove) old rights
+     *
+     * @return string On error returns an error label, on success returns null
      */
     public function delegate_acl_update($uid, $acl, $update = false)
     {
@@ -119,8 +125,6 @@ class kolab_delegation_engine
                 $storage->delete_acl($folder_name, $uid);
             }
         }
-
-        return true;
     }
 
     /**
@@ -128,6 +132,8 @@ class kolab_delegation_engine
      *
      * @param string $dn      Delegate DN (encoded)
      * @param bool   $acl_del Enable ACL deletion on delegator folders
+     *
+     * @return string On error returns an error label, on success returns null
      */
     public function delegate_delete($dn, $acl_del = false)
     {
@@ -136,7 +142,7 @@ class kolab_delegation_engine
         $user     = $this->user();
 
         if (empty($delegate) || !isset($list[$dn])) {
-            return false;
+            return 'deleteerror';
         }
 
         // remove delegate from the list
@@ -153,7 +159,7 @@ class kolab_delegation_engine
             $this->delegate_acl_update($delegate['uid'], array(), true);
         }
 
-        return $result;
+        return $result ? null : 'deleteerror';
     }
 
     /**
