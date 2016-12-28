@@ -1890,9 +1890,9 @@ function rcube_tasklist_ui(settings)
             + (!data.noreply && settings.itip_notify & 1 ? 'checked="checked" ' : '') + '/>';
 
         if (data['delegated-to'])
-            tooltip = rcmail.gettext('delegatedto', 'tasklist') + data['delegated-to'];
+            tooltip = rcmail.gettext('libcalendaring.delegatedto') + ' ' + data['delegated-to'];
         else if (data['delegated-from'])
-            tooltip = rcmail.gettext('delegatedfrom', 'tasklist') + data['delegated-from'];
+            tooltip = rcmail.gettext('libcalendaring.delegatedfrom') + ' ' + data['delegated-from'];
         else if (status)
             tooltip = status_label;
 
