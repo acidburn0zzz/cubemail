@@ -1942,9 +1942,9 @@ function rcube_calendar_ui(settings)
         + (!data.noreply && settings.itip_notify & 1 ? 'checked="checked" ' : '') + '/>';
 
       if (data['delegated-to'])
-        tooltip = rcmail.gettext('delegatedto', 'calendar') + data['delegated-to'];
+        tooltip = rcmail.gettext('libcalendaring.delegatedto') + ' ' + data['delegated-to'];
       else if (data['delegated-from'])
-        tooltip = rcmail.gettext('delegatedfrom', 'calendar') + data['delegated-from'];
+        tooltip = rcmail.gettext('libcalendaring.delegatedfrom') + ' ' + data['delegated-from'];
       else if (status)
         tooltip = status_label;
 

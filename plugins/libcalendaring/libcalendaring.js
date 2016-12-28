@@ -1021,9 +1021,9 @@ rcube_libcalendaring.attendee_html = function(data)
     }
 
     if (data['delegated-to'])
-        tooltip = rcmail.gettext('delegatedto', context) + data['delegated-to'];
+        tooltip = rcmail.gettext('delegatedto', context) + ' ' + data['delegated-to'];
     else if (data['delegated-from'])
-        tooltip = rcmail.gettext('delegatedfrom', context) + data['delegated-from'];
+        tooltip = rcmail.gettext('delegatedfrom', context) + ' ' + data['delegated-from'];
 
     return $('<span>').append(
             $('<span>').attr({'class': 'attendee ' + status, title: tooltip}).append(name.text(dispname))

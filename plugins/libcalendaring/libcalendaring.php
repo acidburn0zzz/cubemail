@@ -117,12 +117,13 @@ class libcalendaring extends rcube_plugin
             $this->include_script('libcalendaring.js');
             $this->include_stylesheet($this->local_skin_path() . '/libcal.css');
 
-            $this->rc->output->add_label(
-                'libcalendaring.itipaccepted', 'libcalendaring.itiptentative', 'libcalendaring.itipdeclined',
-                'libcalendaring.itipdelegated', 'libcalendaring.expandattendeegroup', 'libcalendaring.expandattendeegroupnodata',
-                'libcalendaring.statusorganizer', 'libcalendaring.statusaccepted', 'libcalendaring.statusdeclined',
-                'libcalendaring.statusdelegated', 'libcalendaring.statusunknown', 'libcalendaring.statusneeds-action',
-                'libcalendaring.statustentative', 'libcalendaring.statuscompleted', 'libcalendaring.statusin-process'
+            $this->add_label(
+                'itipaccepted', 'itiptentative', 'itipdeclined',
+                'itipdelegated', 'expandattendeegroup', 'expandattendeegroupnodata',
+                'statusorganizer', 'statusaccepted', 'statusdeclined',
+                'statusdelegated', 'statusunknown', 'statusneeds-action',
+                'statustentative', 'statuscompleted', 'statusin-process',
+                'delegatedto', 'delegatedfrom'
             );
         }
 
