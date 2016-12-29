@@ -269,7 +269,7 @@ rcube_webmail.prototype.calendar_event_init = function(data, type)
   var folder = data.o[type == 'calendar' ? 'calendar' : 'list']
 
   // set identity for delegator context
-  this.env[type + '_settings'].identity = this.calendar_folder_delegator(folder);
+  this.env[type + '_settings'].identity = this.calendar_folder_delegator(folder, type);
 };
 
 // returns delegator's identity data according to selected calendar/tasks folder
