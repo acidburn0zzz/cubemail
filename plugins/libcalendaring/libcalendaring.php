@@ -1492,18 +1492,23 @@ class libcalendaring extends rcube_plugin
      * Return the identifer for the given instance of a recurring event
      *
      * @param array Hash array with event properties
+     * @param bool  All-day flag from the main event
+     *
      * @return mixed Format string or null if identifier cannot be generated
      */
-    public static function recurrence_instance_identifier($event)
+    public static function recurrence_instance_identifier($event, $allday = null)
     {
         $instance_date = $event['recurrence_date'] ?: $event['start'];
 
         if ($instance_date && is_a($instance_date, 'DateTime')) {
-          $recurrence_id_format = $event['allday'] ? 'Ymd' : 'Ymd\THis';
-          return $instance_date->format($recurrence_id_format);
-        }
+            // According to RFC5545 (3.8.4.4) RECURRENCE-ID format should
+            // be date/date-time depending on the main event type, not the exception
+            if ($allday === null) {
+                $allday = $event['allday'];
+            }
 
-        return null;
+            return $instance_date->format($allday ? 'Ymd' : 'Ymd\THis');
+        }
     }
 
 

@@ -291,7 +291,9 @@ class kolab_format_event extends kolab_format_xcal
         }
 
         // preserve this property for date serialization
-        $exception['allday'] = $master['allday'];
+        if (!isset($exception['allday'])) {
+            $exception['allday'] = $master['allday'];
+        }
 
         return $exception;
     }
@@ -304,7 +306,7 @@ class kolab_format_event extends kolab_format_xcal
         // Note: If an exception has no attendees it means there's "no attendees
         // for this occurrence", not "attendees are the same as in the event" (#5300)
 
-        $forbidden    = array('exceptions', 'attendees');
+        $forbidden    = array('exceptions', 'attendees', 'allday');
         $is_recurring = !empty($master['recurrence']);
 
         foreach ($master as $prop => $value) {
