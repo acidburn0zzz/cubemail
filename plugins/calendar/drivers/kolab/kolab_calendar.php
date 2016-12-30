@@ -201,16 +201,18 @@ class kolab_calendar extends kolab_storage_folder_api
         $master = $this->_to_driver_event($record);
       }
 
-      // check for match in top-level exceptions (aka loose single occurrences)
-      if ($master && $master['_formatobj'] && ($instance = $master['_formatobj']->get_instance($instance_id))) {
-        $this->events[$id] = $this->_to_driver_event($instance);
-      }
-      // check for match on the first instance already
-      else if ($master['_instance'] && $master['_instance'] == $instance_id) {
-        $this->events[$id] = $master;
-      }
-      else if ($master && is_array($master['recurrence'])) {
-        $this->get_recurring_events($record, $master['start'], null, $id);
+      if ($master) {
+        // check for match in top-level exceptions (aka loose single occurrences)
+        if ($master['_formatobj'] && ($instance = $master['_formatobj']->get_instance($instance_id))) {
+          $this->events[$id] = $this->_to_driver_event($instance, false, true, $master);
+        }
+        // check for match on the first instance already
+        else if ($master['_instance'] && $master['_instance'] == $instance_id) {
+          $this->events[$id] = $master;
+        }
+        else if (is_array($master['recurrence'])) {
+          $this->get_recurring_events($record, $master['start'], null, $id);
+        }
       }
     }
 
@@ -349,7 +351,7 @@ class kolab_calendar extends kolab_storage_folder_api
       // add top-level exceptions (aka loose single occurrences)
       else if (is_array($record['exceptions'])) {
         foreach ($record['exceptions'] as $ex) {
-          $component = $this->_to_driver_event($ex);
+          $component = $this->_to_driver_event($ex, false, false, $record);
           if ($component['start'] <= $end && $component['end'] >= $start) {
             $events[] = $component;
           }
@@ -622,9 +624,9 @@ class kolab_calendar extends kolab_storage_folder_api
     if (is_array($event['recurrence']['EXCEPTIONS'])) {
       foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
         if (!$exception['_instance'])
-          $exception['_instance'] = libcalendaring::recurrence_instance_identifier($exception);
+          $exception['_instance'] = libcalendaring::recurrence_instance_identifier($exception, $event['allday']);
 
-        $rec_event = $this->_to_driver_event($exception);
+        $rec_event = $this->_to_driver_event($exception, false, false, $event);
         $rec_event['id'] = $event['uid'] . '-' . $exception['_instance'];
         $rec_event['isexception'] = 1;
 
@@ -685,7 +687,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
       // add to output if in range
       if (($event_start <= $end && $event_end >= $start) || ($event_id && $rec_id == $event_id)) {
-        $rec_event = $this->_to_driver_event($next_event);
+        $rec_event = $this->_to_driver_event($next_event, false, false, $event);
         $rec_event['_instance'] = $instance_id;
         $rec_event['_count'] = $i + 1;
 
@@ -717,10 +719,13 @@ class kolab_calendar extends kolab_storage_folder_api
   /**
    * Convert from Kolab_Format to internal representation
    */
-  private function _to_driver_event($record, $noinst = false)
+  private function _to_driver_event($record, $noinst = false, $links = true, $master_event = null)
   {
     $record['calendar'] = $this->id;
-    $record['links'] = $this->get_links($record['uid']);
+
+    if ($links && !array_key_exists('links', $record)) {
+      $record['links'] = $this->get_links($record['uid']);
+    }
 
     if ($this->get_namespace() == 'other') {
       $record['className'] = 'fc-event-ns-other';
@@ -728,7 +733,7 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     // add instance identifier to first occurrence (master event)
-    $recurrence_id_format = libcalendaring::recurrence_id_format($record);
+    $recurrence_id_format = libcalendaring::recurrence_id_format($master_event ? $master_event : $record);
     if (!$noinst && $record['recurrence'] && !$record['recurrence_id'] && !$record['_instance']) {
       $record['_instance'] = $record['start']->format($recurrence_id_format);
     }

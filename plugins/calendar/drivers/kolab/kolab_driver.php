@@ -1349,7 +1349,7 @@ class kolab_driver extends calendar_driver
     }
 
     if (!$event['_instance'] && is_a($event['recurrence_date'], 'DateTime')) {
-      $event['_instance'] = libcalendaring::recurrence_instance_identifier($event);
+      $event['_instance'] = libcalendaring::recurrence_instance_identifier($event, $master['allday']);
     }
 
     if (!is_array($master['exceptions']) && is_array($master['recurrence']['EXCEPTIONS'])) {
