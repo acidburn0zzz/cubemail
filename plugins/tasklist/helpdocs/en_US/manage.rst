@@ -70,7 +70,7 @@ One, or a list of, users can be assigned to the task. The list is managed in thi
 
 * ``Organizer``: The user organizing (creating) the task. This is set to the default identity of the logged in user, but a diferent identity for this user can be selected.
 * ``Add Assignee``: Type three letters of the username, and the search box will show a dropdown list of relevant users. Then clieck the 'Add Assignee' button.
-* ``Invitation/notification comment``: When a user is assigned to a task, an email notificatino is sent out. This field is giving the opportunity to add extra test to this mail notification.
+* ``Invitation/notification comment``: When a user is assigned to a task, an email notification is sent out. This field is giving the opportunity to add extra text to this mail notification.
 
    **Attachments**
 
