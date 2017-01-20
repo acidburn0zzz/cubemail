@@ -528,6 +528,7 @@ abstract class kolab_format
             $created = $object['created'] ?: new DateTime('now');
             $created->setTimezone(new DateTimeZone('UTC')); // must be UTC
             $this->obj->setCreated(self::get_datetime($created));
+            $object['created'] = $created;
         }
 
         $object['changed'] = new DateTime('now', new DateTimeZone('UTC'));
