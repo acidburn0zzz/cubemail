@@ -893,6 +893,12 @@ class kolab_storage_cache
         $object['_size']      = strlen($sql_arr['xml']);
         $object['_formatobj'] = kolab_format::factory($format_type, 3.0, $sql_arr['xml']);
 
+        // Fix old broken objects with missing creation date
+        if (empty($object['created']) && method_exists($object['_formatobj'], 'to_array')) {
+            $new_object        = $object['_formatobj']->to_array();
+            $object['created'] = $new_object['created'];
+        }
+
         return $object;
     }
 
