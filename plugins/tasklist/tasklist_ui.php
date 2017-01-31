@@ -180,6 +180,10 @@ class tasklist_ui
         $jsenv = array();
         $lists = $this->plugin->driver->get_lists(0, $tree);
 
+        if (empty($attrib['id'])) {
+            $attrib['id'] = 'rcmtasklistslist';
+        }
+
         // walk folder tree
         if (is_object($tree)) {
             $html = $this->list_tree_html($tree, $lists, $jsenv, $attrib);
