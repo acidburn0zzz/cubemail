@@ -158,8 +158,6 @@
 var UI = new rcube_mail_ui();
 
 $(document).ready(function(e){
-    UI.init();
-
     rcmail.addEventListener('kolab_notes_editform_load', function(e){
         UI.init_tabs($('#notebookeditform > form').addClass('propform tabbed'));
     })
