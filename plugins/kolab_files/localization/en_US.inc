@@ -143,9 +143,9 @@ $labels['comment'] = 'Comment';
 $labels['open'] = 'Open';
 $labels['request'] = 'Request an invitation';
 $labels['invitationtitle'] = 'Invitation for $file';
-$labels['ivitationaccepting'] = 'Accepting an invitation...';
-$labels['ivitationdeclining'] = 'Declining an invitation...';
-$labels['ivitationrequesting'] = 'Requesting an invitation...';
+$labels['invitationaccepting'] = 'Accepting an invitation...';
+$labels['invitationdeclining'] = 'Declining an invitation...';
+$labels['invitationrequesting'] = 'Requesting an invitation...';
 
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
