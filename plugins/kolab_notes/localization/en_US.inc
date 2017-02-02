@@ -43,6 +43,8 @@ $labels['nrnotebooksfound'] = '$nr notebooks found';
 $labels['nonotebooksfound'] = 'No notebooks found';
 $labels['removelist'] = 'Remove from list';
 $labels['removelink'] = 'Remove email reference';
+$labels['listactions'] = 'List options...';
+$labels['searchterms'] = 'Search terms';
 
 $labels['savingdata'] = 'Saving data...';
 $labels['recordnotfound'] = 'Record not found';
