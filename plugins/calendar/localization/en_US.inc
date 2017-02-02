@@ -82,6 +82,7 @@ $labels['mystatus'] = 'My status';
 $labels['status'] = 'Status';
 $labels['status-confirmed'] = 'Confirmed';
 $labels['status-cancelled'] = 'Cancelled';
+$labels['status-tentative'] = 'Tentative';
 $labels['priority'] = 'Priority';
 $labels['sensitivity'] = 'Privacy';
 $labels['public'] = 'public';

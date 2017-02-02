@@ -411,7 +411,7 @@ class calendar_ui
     $select->add('---', '');
     $select->add($this->cal->gettext('status-confirmed'), 'CONFIRMED');
     $select->add($this->cal->gettext('status-cancelled'), 'CANCELLED');
-    //$select->add($this->cal->gettext('tentative'), 'TENTATIVE');
+    $select->add($this->cal->gettext('status-tentative'), 'TENTATIVE');
     return $select->show(null);
   }
 
