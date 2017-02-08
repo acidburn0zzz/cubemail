@@ -515,13 +515,13 @@ function rcube_calendar_ui(settings)
           return (j - k);
         });
 
-        var data, mystatus = null, rsvp, line, morelink, html = '', overflow = '';
+        var data, mystatus = null, rsvp, line, morelink, html = '', overflow = '',
+          organizer = is_organizer(event);
+
         for (var j=0; j < event.attendees.length; j++) {
           data = event.attendees[j];
           if (data.email) {
-            if (data.role == 'ORGANIZER')
-              organizer = true;
-            else if (settings.identity.emails.indexOf(';'+data.email) >= 0) {
+            if (data.role != 'ORGANIZER' && settings.identity.emails.indexOf(';'+data.email) >= 0) {
               mystatus = data.status.toLowerCase();
               if (data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp)
                 rsvp = mystatus;
@@ -540,7 +540,7 @@ function rcube_calendar_ui(settings)
             morelink = $('<a href="#more" class="morelink"></a>').html(rcmail.gettext('andnmore', 'calendar').replace('$nr', event.attendees.length - j - 1));
           }
         }
-        
+
         if (html && (event.attendees.length > 1 || !organizer)) {
           $('#event-attendees').show()
             .children('.event-text')
@@ -570,7 +570,7 @@ function rcube_calendar_ui(settings)
             .text(rcmail.gettext('status' + mystatus, 'libcalendaring'));
         }
 
-        var show_rsvp = rsvp && !is_organizer(event) && event.status != 'CANCELLED' && has_permission(calendar, 'v');
+        var show_rsvp = rsvp && !organizer && event.status != 'CANCELLED' && has_permission(calendar, 'v');
         $('#event-rsvp')[(show_rsvp ? 'show' : 'hide')]();
         $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
 
@@ -793,7 +793,7 @@ function rcube_calendar_ui(settings)
 
       var load_attendees_tab = function()
       {
-        var j, data, reply_selected = 0;
+        var j, data, organizer_attendee, reply_selected = 0;
         if (event.attendees) {
           for (j=0; j < event.attendees.length; j++) {
             data = event.attendees[j];
@@ -805,6 +805,9 @@ function rcube_calendar_ui(settings)
             add_attendee(data, !allow_invitations);
             if (allow_invitations && data.role != 'ORGANIZER' && !data.noreply)
               reply_selected++;
+
+            if (data.role == 'ORGANIZER')
+              organizer_attendee = data;
           }
         }
 
@@ -820,6 +823,15 @@ function rcube_calendar_ui(settings)
             return false;
           }
         });
+
+        // In case the user is not the (shared) event organizer we'll add the organizer to the selection list
+        if (!identity_id && !organizer && organizer_attendee) {
+          var organizer_name = organizer_attendee.email;
+          if (organizer_attendee.name)
+            organizer_name = '"' + organizer_attendee.name + '" <' + organizer_name + '>';
+          $('#edit-identities-list').append($('<option value="0">').text(organizer_name));
+        }
+
         $('#edit-identities-list').val(identity_id);
         $('#edit-attendees-form')[(allow_invitations?'show':'hide')]();
         $('#edit-attendee-schedule')[(calendar.freebusy?'show':'hide')]();
