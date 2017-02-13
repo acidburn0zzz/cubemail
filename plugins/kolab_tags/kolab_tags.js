@@ -508,11 +508,12 @@ function tag_add_callback(tag)
     if (!tag)
         return;
 
-    var frame_window = rcmail.get_frame_window(rcmail.env.contentframe);
+    var frame_window = rcmail.get_frame_window(rcmail.env.contentframe),
+        list = rcmail.message_list;
 
-    if (rcmail.message_list) {
-        $.each(rcmail.message_list.get_selection(), function (i, uid) {
-            var row = rcmail.message_list.rows[uid];
+    if (list) {
+        $.each(list.get_selection(), function (i, uid) {
+            var row = list.rows[uid];
             if (!row)
                 return;
 
@@ -524,6 +525,8 @@ function tag_add_callback(tag)
 
             subject.prepend(tag_box_element(tag));
         });
+
+        message_list_select(list);
     }
 
     (frame_window && frame_window.message_tags ? frame_window : window).message_tags([tag], true);
@@ -533,7 +536,7 @@ function tag_add_callback(tag)
 function tag_remove(props, obj, event)
 {
     if (!props) {
-        return tag_selector(event, function(props) { rcmail.command('tag-remove', props); });
+        return tag_selector(event, function(props) { rcmail.command('tag-remove', props); }, true);
     }
 
     if (props.name) {
@@ -584,8 +587,13 @@ function search_request(url)
 
 function message_list_select(list)
 {
-    rcmail.enable_command('tag-remove', 'tag-remove-all', rcmail.env.tags.length && list.selection.length);
+    var has_tags_to_remove = (rcmail.env.tags.length
+        && (rcmail.select_all_mode || $('tr.selected span.tagbox', list.list).length));
+
+    rcmail.enable_command('tag-remove', 'tag-remove-all', has_tags_to_remove);
     rcmail.enable_command('tag-add', list.selection.length);
+
+    tag_selector_reset();
 }
 
 // add tags to message subject on message list
@@ -694,9 +702,10 @@ function tag_set_color(obj, tag)
 }
 
 // create tag selector popup, position and display it
-function tag_selector(event, callback)
+function tag_selector(event, callback, remove_mode)
 {
-    var container = tag_selector_element;
+    var container = tag_selector_element,
+        max_items = 10;
 
     if (!container) {
         var rows = [],
@@ -736,6 +745,7 @@ function tag_selector(event, callback)
             // add tag name element
             tmp = span.cloneNode(false);
             $(tmp).text(tag.name);
+            $(a).data('uid', tag.uid);
             a.appendChild(tmp);
 
             row.appendChild(a);
@@ -749,8 +759,8 @@ function tag_selector(event, callback)
             .appendTo(document.body).show();
 
         // set max-height if the list is long
-        if (rows.length > 10)
-            container.css('max-height', $('li', container)[0].offsetHeight * 10 + 9)
+        if (rows.length > max_items)
+            container.css('max-height', $('li', container)[0].offsetHeight * max_items + (max_items-1))
 
         tag_selector_element = container;
     }
@@ -762,6 +772,36 @@ function tag_selector(event, callback)
     // reset list and search input
     $('li', container).show();
     $('input', container).val('').focus();
+
+    // When displaying tags for remove we hide those that are not in a selected messages set
+    if (remove_mode && rcmail.message_list) {
+        var tags = [], selection = rcmail.message_list.get_selection();
+
+        if (selection.length
+            && selection.length <= rcmail.env.messagecount
+            && (!rcmail.select_all_mode || selection.length == rcmail.env.messagecount)
+        ) {
+            $.each(selection, function (i, uid) {
+                var row = rcmail.message_list.rows[uid];
+                if (row) {
+                   $('span.tagbox', row.obj).each(function() { tags.push($(this).data('tag')); });
+                }
+            });
+
+            tags = $.uniqueSort(tags);
+
+            $('a', container).each(function() {
+                if ($.inArray($(this).data('uid'), tags) == -1) {
+                    $(this).parent().hide();
+                }
+            });
+        }
+
+        // we also hide the search input, if there's not many tags left
+        if ($('a:visible', container).length < max_items) {
+            $('input', container).parent().hide();
+        }
+    }
 }
 
 // remove tag selector element (e.g. after adding/removing a tag)
