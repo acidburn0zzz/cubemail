@@ -333,7 +333,10 @@ class tasklist extends rcube_plugin
                 }
                 // update parent task to adjust list of children
                 if (!empty($oldrec['parent_id'])) {
-                    $refresh[] = $this->driver->get_task(array('id' => $oldrec['parent_id'], 'list' => $rec['list']));
+                    $parent = array('id' => $oldrec['parent_id'], 'list' => $rec['list']);
+                    if ($parent = $this->driver->get_task()) {
+                        $refresh[] = $parent;
+                    }
                 }
             }
 
