@@ -516,7 +516,7 @@ function tag_add_callback(tag)
             if (!row)
                 return;
 
-            var subject = $('td.subject > a', row.obj);
+            var subject = $('td.subject a', row.obj);
 
             if ($('span.tagbox', subject).filter(function() { return $(this).data('tag') == tag.uid; }).length) {
                 return;
@@ -604,7 +604,7 @@ function message_list_update_tags(e)
         if (!row)
             return;
 
-        var subject = $('td.subject > a', row.obj),
+        var subject = $('td.subject a', row.obj),
             boxes = [];
 
         $('span.tagbox', subject).remove();
