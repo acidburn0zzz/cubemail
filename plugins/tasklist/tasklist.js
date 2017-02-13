@@ -324,13 +324,14 @@ function rcube_tasklist_ui(settings)
 
         // quick-add a task
         $(rcmail.gui_objects.quickaddform).submit(function(e){
+            if (saving_lock)
+                return false;
+
             var tasktext = this.elements.text.value,
                 rec = { id:-(++idcount), title:tasktext, readonly:true, mask:0, complete:0 };
 
             if (tasktext && tasktext.length) {
                 save_task({ tempid:rec.id, raw:tasktext, list:me.selected_list }, 'new');
-                render_task(rec);
-
                 $('#listmessagebox').hide();
             }
 
@@ -1219,6 +1220,9 @@ function rcube_tasklist_ui(settings)
             oldparent = oldrec ? (oldrec._old_parent_id || oldrec.parent_id) : null,
             list = me.tasklists[rec.list];
 
+        if (!id || !list)
+            return;
+
         if (oldindex >= 0)
             listindex[oldindex] = id;
         else
@@ -1388,6 +1392,7 @@ function rcube_tasklist_ui(settings)
         if (saving_lock) {
             rcmail.set_busy(false, null, saving_lock);
             $('button.ui-button:ui-button').button('option', 'disabled', false);
+            saving_lock = null;
         }
     }
 
