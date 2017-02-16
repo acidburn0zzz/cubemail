@@ -218,22 +218,45 @@ class kolab_storage_cache
                 // determine objects to fetch or to invalidate
                 if (!$imap_index->is_error()) {
                     $imap_index = $imap_index->get();
+                    $old_index  = array();
+                    $del_index  = array();
 
                     // read cache index
                     $sql_result = $this->db->query(
-                        "SELECT `msguid`, `uid` FROM `{$this->cache_table}` WHERE `folder_id` = ?",
-                        $this->folder_id
+                        "SELECT `msguid`, `uid` FROM `{$this->cache_table}` WHERE `folder_id` = ?"
+                            . " ORDER BY `msguid` DESC", $this->folder_id
                     );
 
-                    $old_index = array();
                     while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
-                        $old_index[] = $sql_arr['msguid'];
+                        // Mark all duplicates for removal (note sorting order above)
+                        // Duplicates here should not happen, but they do sometimes
+                        if (isset($old_index[$sql_arr['uid']])) {
+                            $del_index[] = $sql_arr['msguid'];
+                        }
+                        else {
+                            $old_index[$sql_arr['uid']] = $sql_arr['msguid'];
+                        }
                     }
 
                     // fetch new objects from imap
                     $i = 0;
                     foreach (array_diff($imap_index, $old_index) as $msguid) {
                         if ($object = $this->folder->read_object($msguid, '*')) {
+                            // Deduplication: remove older objects with the same UID
+                            // Here we do not resolve conflicts, we just make sure
+                            // the most recent version of the object will be used
+                            if ($old_msguid = $old_index[$object['uid']]) {
+                                if ($old_msguid < $msguid) {
+                                    $del_index[] = $old_msguid;
+                                }
+                                else {
+                                    $del_index[] = $msguid;
+                                    continue;
+                                }
+                            }
+
+                            $old_index[$object['uid']] = $msguid;
+
                             $this->_extended_insert($msguid, $object);
 
                             // check time limit and abort sync if running too long
@@ -245,8 +268,18 @@ class kolab_storage_cache
                     }
                     $this->_extended_insert(0, null);
 
-                    // delete invalid entries from local DB
-                    $del_index = array_diff($old_index, $imap_index);
+                    $del_index = array_unique($del_index);
+
+                    // delete duplicate entries from IMAP
+                    $rem_index = array_intersect($del_index, $imap_index);
+                    if (!empty($rem_index)) {
+                        $this->imap_mode(true);
+                        $this->imap->delete_message($rem_index, $this->folder->name);
+                        $this->imap_mode(false);
+                    }
+
+                    // delete old/invalid entries from the cache
+                    $del_index += array_diff($old_index, $imap_index);
                     if (!empty($del_index)) {
                         $quoted_ids = join(',', array_map(array($this->db, 'quote'), $del_index));
                         $this->db->query(
