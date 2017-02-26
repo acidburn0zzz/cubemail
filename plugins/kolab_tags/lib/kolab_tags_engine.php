@@ -335,7 +335,7 @@ class kolab_tags_engine
         $tags    = array();
 
         foreach ($taglist as $tag) {
-            $tag = $this->parse_tag($tag, true);
+            $tag = $this->parse_tag($tag, true, false);
             if (in_array($uid, (array)$tag['uids'][$folder])) {
                 unset($tag['uids']);
                 $tags[] = $tag;
@@ -434,7 +434,7 @@ class kolab_tags_engine
     /**
      * "Convert" tag object to simple array for use in javascript
      */
-    private function parse_tag($tag, $list = false)
+    private function parse_tag($tag, $list = false, $force = true)
     {
         $result = array(
             'uid'   => $tag['uid'],
@@ -443,7 +443,7 @@ class kolab_tags_engine
         );
 
         if ($list) {
-            $result['uids'] = $this->get_tag_messages($tag);
+            $result['uids'] = $this->get_tag_messages($tag, $force);
         }
 
         return $result;
