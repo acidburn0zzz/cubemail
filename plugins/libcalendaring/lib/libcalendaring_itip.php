@@ -721,10 +721,22 @@ class libcalendaring_itip
         }
 
         // add input field for reply comment
-        $rsvp_additions .= html::a(array('href' => '#toggle', 'class' => 'reply-comment-toggle'), $this->gettext('itipeditresponse'));
-        $rsvp_additions .= html::div('itip-reply-comment',
-            html::tag('textarea', array('id' => 'reply-comment-'.$dom_id, 'name' => '_comment', 'cols' => 40, 'rows' => 6, 'style' => 'display:none', 'placeholder' => $this->gettext('itipcomment')), '')
+        $toggle_attrib = array(
+            'href'    => '#toggle',
+            'class'   => 'reply-comment-toggle',
+            'onclick' => '$(this).hide().parent().find(\'textarea\').show().focus()'
         );
+        $textarea_attrib = array(
+            'id'    => 'reply-comment-' . $dom_id,
+            'name'  => '_comment',
+            'cols'  => 40,
+            'rows'  => 6,
+            'style' => 'display:none',
+            'placeholder' => $this->gettext('itipcomment')
+        );
+
+        $rsvp_additions .= html::a($toggle_attrib, $this->gettext('itipeditresponse'))
+            . html::div('itip-reply-comment', html::tag('textarea', $textarea_attrib, ''));
 
         return $rsvp_additions;
     }
