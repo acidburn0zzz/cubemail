@@ -2695,15 +2695,47 @@ class calendar extends rcube_plugin
             $this->rc->output->command('display_message', $this->gettext('errorsaving'), 'error', -1);
 
           // if user is logged in...
+          // FIXME: we should really consider removing this functionality
+          //        it's confusing that it creates/updates an event only for logged-in user
+          //        what if the logged-in user is not the same as the attendee?
           if ($this->rc->user->ID) {
             $this->load_driver();
+
             $invitation = $itip->get_invitation($token);
+            $existing   = $this->driver->get_event($this->event);
 
             // save the event to his/her default calendar if not yet present
-            if (!$this->driver->get_event($this->event) && ($calendar = $this->get_default_calendar($invitation['event']['sensitivity']))) {
+            if (!$existing && ($calendar = $this->get_default_calendar($invitation['event']['sensitivity']))) {
               $invitation['event']['calendar'] = $calendar['id'];
               if ($this->driver->new_event($invitation['event']))
                 $this->rc->output->command('display_message', $this->gettext(array('name' => 'importedsuccessfully', 'vars' => array('calendar' => $calendar['name']))), 'confirmation');
+              else
+                $this->rc->output->command('display_message', $this->gettext('errorimportingevent'), 'error');
+            }
+            else if ($existing
+              && ($this->event['sequence'] >= $existing['sequence'] || $this->event['changed'] >= $existing['changed'])
+              && ($calendar = $this->driver->get_calendar($existing['calendar']))
+            ) {
+              $this->event       = $invitation['event'];
+              $this->event['id'] = $existing['id'];
+
+              unset($this->event['comment']);
+
+              // merge attendees status
+              // e.g. preserve my participant status for regular updates
+              $this->lib->merge_attendees($this->event, $existing, $status);
+
+              // update attachments list
+              $event['deleted_attachments'] = true;
+
+              // show me as free when declined (#1670)
+              if ($status == 'declined')
+                $this->event['free_busy'] = 'free';
+
+              if ($this->driver->edit_event($this->event))
+                $this->rc->output->command('display_message', $this->gettext(array('name' => 'updatedsuccessfully', 'vars' => array('calendar' => $calendar->get_name()))), 'confirmation');
+              else
+                $this->rc->output->command('display_message', $this->gettext('errorimportingevent'), 'error');
             }
           }
         }
