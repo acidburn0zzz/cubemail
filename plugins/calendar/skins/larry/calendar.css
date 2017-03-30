@@ -2218,6 +2218,11 @@ div.calendar-invitebox td em {
 	font-weight: bold;
 }
 
+div.calendar-invitebox td.date.modified {
+	font-weight: bold;
+	color: red;
+}
+
 #event-rsvp .rsvp-buttons,
 div.calendar-invitebox .itip-buttons div {
 	margin-top: 0.5em;
