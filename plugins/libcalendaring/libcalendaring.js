@@ -1287,9 +1287,13 @@ rcube_libcalendaring.update_itip_object_status = function(p)
     $('#rsvp-'+p.id+' input.button').prop('disabled', false)
       .filter('.'+String(p.status||'unknown').toLowerCase()).prop('disabled', p.latest);
   }
- 
+
   // show rsvp/import buttons (with calendar selector)
   $('#'+p.action+'-'+p.id).show().find('input.button').last().after(p.select);
+
+  // highlight date if date change detected
+  if (p.resheduled)
+    $('.calendar-eventdetails td.date').addClass('modified');
 
   // show itip box appendix after replacing the given placeholders
   if (p.append && p.append.selector) {
