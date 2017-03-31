@@ -189,7 +189,7 @@ class kolab_storage_config
         $status = $folder->save($object, self::FOLDER_TYPE . '.' . $object['type'], $object['uid']);
 
         // on success, update cached tags list
-        if ($status && is_array($this->tags)) {
+        if ($status && $object['category'] == 'tag' && is_array($this->tags)) {
             $found = false;
             unset($object['_formatobj']); // we don't need it anymore
 
@@ -713,13 +713,11 @@ class kolab_storage_config
             }
 
             if ($update) {
-                if ($this->save($relation, 'relation')) {
-                    $this->tags[$idx] = $relation; // update in-memory cache
-                }
+                $this->save($relation, 'relation');
             }
 
             if ($selected) {
-                $tags = array_diff($tags, (array)$relation['name']);
+                $tags = array_diff($tags, array($relation['name']));
             }
         }
 
@@ -732,9 +730,7 @@ class kolab_storage_config
                     'category' => 'tag',
                 );
 
-                if ($this->save($relation, 'relation')) {
-                    $this->tags[] = $relation; // update in-memory cache
-                }
+                $this->save($relation, 'relation');
             }
         }
     }
