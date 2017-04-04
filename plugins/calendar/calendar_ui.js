@@ -2558,7 +2558,15 @@ function rcube_calendar_ui(settings)
       if (_has_attendees) {
         var checked = (settings.itip_notify & 1 ? ' checked="checked"' : '');
 
-        if (_is_organizer) {
+        if (action == 'remove' && cal.group == 'personal' && is_attendee(event)) {
+          decline = true;
+          checked = event.status != 'CANCELLED' ? checked : '';
+          html += '<div class="message">' +
+            '<label><input class="confirm-attendees-decline" type="checkbox"' + checked + ' value="1" name="decline" />&nbsp;' +
+            rcmail.gettext('itipdeclineevent', 'calendar') + 
+            '</label></div>';
+        }
+        else {
           notify = true;
           if (settings.itip_notify & 2) {
             html += '<div class="message">' +
@@ -2569,17 +2577,6 @@ function rcube_calendar_ui(settings)
           else {
             data._notify = settings.itip_notify;
           }
-        }
-        else if (action == 'remove' && is_attendee(event)) {
-          decline = true;
-          checked = event.status != 'CANCELLED' ? checked : '';
-          html += '<div class="message">' +
-            '<label><input class="confirm-attendees-decline" type="checkbox"' + checked + ' value="1" name="decline" />&nbsp;' +
-            rcmail.gettext('itipdeclineevent', 'calendar') + 
-            '</label></div>';
-        }
-        else {
-          html += '<div class="message">' + rcmail.gettext('localchangeswarning', 'calendar') + '</div>';
         }
       }
 
