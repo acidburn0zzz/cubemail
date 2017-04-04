@@ -261,6 +261,21 @@ class libcalendaring_itip
             }
         }
 
+        // Set SENT-BY property if the sender is not the organizer
+        if ($method == 'CANCEL' || $method == 'REQUEST') {
+            foreach ((array)$event['attendees'] as $idx => $attendee) {
+                if ($attendee['role'] == 'ORGANIZER'
+                    && $attendee['email']
+                    && strcasecmp($attendee['email'], $from) != 0
+                    && strcasecmp($attendee['email'], $from_utf) != 0
+                ) {
+                    $attendee['sent-by'] = 'mailto:' . $from_utf;
+                    $event['organizer'] = $event['attendees'][$idx] = $attendee;
+                    break;
+                }
+            }
+        }
+
         // compose multipart message using PEAR:Mail_Mime
         $message = new Mail_mime("\r\n");
         $message->setParam('text_encoding', 'quoted-printable');

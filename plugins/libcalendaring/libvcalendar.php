@@ -45,6 +45,12 @@ class libvcalendar implements Iterator
         'delegated-from'  => 'DELEGATED-FROM',
         'delegated-to'    => 'DELEGATED-TO',
         'schedule-status' => 'SCHEDULE-STATUS',
+        'sent-by'         => 'SENT-BY',
+    );
+    private $organizer_keymap = array(
+        'name'            => 'CN',
+        'schedule-status' => 'SCHEDULE-STATUS',
+        'sent-by'         => 'SENT-BY',
     );
     private $iteratorkey = 0;
     private $charset;
@@ -1173,7 +1179,7 @@ class libvcalendar implements Iterator
 
         if ($event['organizer']) {
             $ve->add('ORGANIZER', 'mailto:' . $event['organizer']['email'],
-                array_filter(self::map_keys($event['organizer'], array('name' => 'CN', 'schedule-status' => 'SCHEDULE-STATUS'))));
+                array_filter(self::map_keys($event['organizer'], $this->organizer_keymap)));
         }
 
         foreach ((array)$event['url'] as $url) {
