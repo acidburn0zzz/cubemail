@@ -440,7 +440,7 @@ abstract class kolab_format_xcal extends kolab_format
                     if (isset($this->weekday_map[$day])) {
                         // @TODO: libkolabxml does not support BYSETPOS, neither we.
                         // However, we can convert most common cases to BYDAY
-                        if (!$occurence && $freq == 'MONTHLY' && !empty($bysetpos)) {
+                        if (!$occurrence && $freq == 'MONTHLY' && !empty($bysetpos)) {
                             foreach ($bysetpos as $pos) {
                                 $byday->push(new DayPos(intval($pos), $this->weekday_map[$day]));
                             }
