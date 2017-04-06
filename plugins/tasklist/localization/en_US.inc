@@ -123,6 +123,10 @@ $labels['aclnorights'] = 'You do not have administrator rights on this task list
 $labels['changetaskconfirm'] = 'Update task';
 $labels['changeconfirmnotifications'] = 'Do you want to notify the attendees about the modification?';
 $labels['partstatupdatenotification'] = 'Do you want to notify the organizer about the status change?';
+$labels['importtasks'] = 'Import tasks';
+$labels['importsuccess'] = 'Successfully imported $nr tasks';
+$labels['importnone'] = 'No tasks found to be imported';
+$labels['importerror'] = 'An error occured while importing';
 
 // (hidden) titles and labels for accessibility annotations
 $labels['quickaddinput'] = 'New task date and title';

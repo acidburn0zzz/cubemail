@@ -288,6 +288,9 @@ function rcube_tasklist_ui(settings)
             setTimeout(fetch_counts, 200);
         });
 
+        rcmail.addEventListener('plugin.import_success', function(p){ rctasks.import_success(p); });
+        rcmail.addEventListener('plugin.import_error', function(p){ rctasks.import_error(p); });
+
         rcmail.addEventListener('plugin.task_render_changelog', task_render_changelog);
         rcmail.addEventListener('plugin.task_show_diff', task_show_diff);
         rcmail.addEventListener('plugin.task_show_revision', function(data){ task_show_dialog(null, data, true); });
@@ -823,6 +826,90 @@ function rcube_tasklist_ui(settings)
         me.tasklists[list_id].active = false;
         loadstate.lists = active_lists();
     }
+
+    // open a dialog to upload an .ics file with tasks to be imported
+    this.import_tasks = function(tasklist)
+    {
+        // close show dialog first
+        var buttons = {},
+            $dialog = $("#tasksimport"),
+            form = rcmail.gui_objects.importform;
+
+        if ($dialog.is(':ui-dialog'))
+            $dialog.dialog('close');
+
+        if (tasklist)
+            $('#task-import-list').val(tasklist);
+
+        buttons[rcmail.gettext('import', 'tasklist')] = function() {
+            if (form && form.elements._data.value) {
+                rcmail.async_upload_form(form, 'import', function(e) {
+                    rcmail.set_busy(false, null, saving_lock);
+                    saving_lock = null;
+                    $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
+
+                    // display error message if no sophisticated response from server arrived (e.g. iframe load error)
+                    if (me.import_succeeded === null)
+                        rcmail.display_message(rcmail.get_label('importerror', 'tasklist'), 'error');
+                });
+
+                // display upload indicator (with extended timeout)
+                var timeout = rcmail.env.request_timeout;
+                rcmail.env.request_timeout = 600;
+                me.import_succeeded = null;
+                saving_lock = rcmail.set_busy(true, 'uploading');
+                $('.ui-dialog-buttonpane button', $dialog.parent()).button('disable');
+
+                // restore settings
+                rcmail.env.request_timeout = timeout;
+            }
+        };
+
+        buttons[rcmail.gettext('cancel', 'tasklist')] = function() {
+            $dialog.dialog("close");
+        };
+
+        // open jquery UI dialog
+        $dialog.dialog({
+            modal: true,
+            resizable: false,
+            closeOnEscape: false,
+            title: rcmail.gettext('importtasks', 'tasklist'),
+            open: function() {
+                $dialog.parent().find('.ui-dialog-buttonset .ui-button').first().addClass('mainaction');
+            },
+            close: function() {
+                $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
+                $dialog.dialog("destroy").hide();
+            },
+            buttons: buttons,
+            width: 520
+        }).show();
+    };
+
+    // callback from server if import succeeded
+    this.import_success = function(p)
+    {
+        this.import_succeeded = true;
+        $("#tasksimport:ui-dialog").dialog('close');
+        rcmail.set_busy(false, null, saving_lock);
+        saving_lock = null;
+        rcmail.gui_objects.importform.reset();
+
+        if (p.refetch) {
+            list_tasks(null, true);
+            setTimeout(fetch_counts, 200);
+        }
+    };
+
+    // callback from server to report errors on import
+    this.import_error = function(p)
+    {
+        this.import_succeeded = false;
+        rcmail.set_busy(false, null, saving_lock);
+        saving_lock = null;
+        rcmail.display_message(p.message || rcmail.get_label('importerror', 'tasklist'), 'error');
+    };
 
     // open a tasks export dialog
     this.export_tasks = function()
@@ -3448,6 +3535,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   // register button commands
   rcmail.register_command('newtask', function(){ rctasks.edit_task(null, 'new', {}); }, true);
   rcmail.register_command('print', function(){ rctasks.print_tasks(); }, true);
+  rcmail.register_command('import', function(){ rctasks.import_tasks(rctasks.selected_list); }, true);
 
   rcmail.register_command('list-create', function(){ rctasks.list_edit_dialog(null); }, true);
   rcmail.register_command('list-edit', function(){ rctasks.list_edit_dialog(rctasks.selected_list); }, false);

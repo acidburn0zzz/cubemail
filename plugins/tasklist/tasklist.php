@@ -119,6 +119,7 @@ class tasklist extends rcube_plugin
             $this->register_action('mail2task', array($this, 'mail_message2task'));
             $this->register_action('get-attachment', array($this, 'attachment_get'));
             $this->register_action('upload', array($this, 'attachment_upload'));
+            $this->register_action('import', array($this, 'import_tasks'));
             $this->register_action('export', array($this, 'export_tasks'));
             $this->register_action('mailimportitip', array($this, 'mail_import_itip'));
             $this->register_action('mailimportattach', array($this, 'mail_import_attachment'));
@@ -1549,6 +1550,126 @@ class tasklist extends rcube_plugin
         }
 
         return $p;
+    }
+
+    /**
+     * Handler for importing .ics files
+     */
+    function import_tasks()
+    {
+        // Upload progress update
+        if (!empty($_GET['_progress'])) {
+            $this->rc->upload_progress();
+        }
+
+        @set_time_limit(0);
+
+        // process uploaded file if there is no error
+        $err = $_FILES['_data']['error'];
+
+        if (!$err && $_FILES['_data']['tmp_name']) {
+            $source = rcube_utils::get_input_value('source', rcube_utils::INPUT_GPC);
+            $lists  = $this->driver->get_lists();
+            $list   = $lists[$source] ?: $this->get_default_tasklist();
+            $source = $list['id'];
+
+            // extract zip file
+            if ($_FILES['_data']['type'] == 'application/zip') {
+                $count = 0;
+                if (class_exists('ZipArchive', false)) {
+                    $zip = new ZipArchive();
+                    if ($zip->open($_FILES['_data']['tmp_name'])) {
+                        $randname = uniqid('zip-' . session_id(), true);
+                        $tmpdir   = slashify($this->rc->config->get('temp_dir', sys_get_temp_dir())) . $randname;
+                        mkdir($tmpdir, 0700);
+
+                        // extract each ical file from the archive and import it
+                        for ($i = 0; $i < $zip->numFiles; $i++) { 
+                            $filename = $zip->getNameIndex($i);
+                            if (preg_match('/\.ics$/i', $filename)) {
+                                $tmpfile = $tmpdir . '/' . basename($filename);
+                                if (copy('zip://' . $_FILES['_data']['tmp_name'] . '#'.$filename, $tmpfile)) {
+                                    $count += $this->import_from_file($tmpfile, $source, $errors);
+                                    unlink($tmpfile);
+                                }
+                            }
+                        }
+
+                        rmdir($tmpdir);
+                        $zip->close();
+                    }
+                    else {
+                        $errors = 1;
+                        $msg = 'Failed to open zip file.';
+                    }
+                }
+                else {
+                    $errors = 1;
+                    $msg = 'Zip files are not supported for import.';
+                }
+            }
+            else {
+                // attempt to import the uploaded file directly
+                $count = $this->import_from_file($_FILES['_data']['tmp_name'], $source, $errors);
+            }
+
+            if ($count) {
+                $this->rc->output->command('display_message', $this->gettext(array('name' => 'importsuccess', 'vars' => array('nr' => $count))), 'confirmation');
+                $this->rc->output->command('plugin.import_success', array('source' => $source, 'refetch' => true));
+            }
+            else if (!$errors) {
+                $this->rc->output->command('display_message', $this->gettext('importnone'), 'notice');
+                $this->rc->output->command('plugin.import_success', array('source' => $source));
+            }
+            else {
+                $this->rc->output->command('plugin.import_error', array('message' => $this->gettext('importerror') . ($msg ? ': ' . $msg : '')));
+            }
+        }
+        else {
+            if ($err == UPLOAD_ERR_INI_SIZE || $err == UPLOAD_ERR_FORM_SIZE) {
+                $msg = $this->rc->gettext(array('name' => 'filesizeerror', 'vars' => array(
+                    'size' => $this->rc->show_bytes(parse_bytes(ini_get('upload_max_filesize'))))));
+            }
+            else {
+                $msg = $this->rc->gettext('fileuploaderror');
+            }
+
+            $this->rc->output->command('plugin.import_error', array('message' => $msg));
+        }
+
+        $this->rc->output->send('iframe');
+    }
+
+    /**
+     * Helper function to parse and import a single .ics file
+     */
+    private function import_from_file($filepath, $source, &$errors)
+    {
+        $user_email = $this->rc->user->get_username();
+        $ical       = $this->get_ical();
+        $errors     = !$ical->fopen($filepath);
+        $count      = $i = 0;
+
+        foreach ($ical as $task) {
+            // keep the browser connection alive on long import jobs
+            if (++$i > 100 && $i % 100 == 0) {
+                echo "<!-- -->";
+                ob_flush();
+            }
+
+            if ($task['_type'] == 'task') {
+                $task['list'] = $source;
+
+                if ($this->driver->create_task($task)) {
+                    $count++;
+                }
+                else {
+                    $errors++;
+                }
+            }
+        }
+
+        return $count;
     }
 
     /**
