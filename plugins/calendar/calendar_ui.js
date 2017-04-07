@@ -3984,6 +3984,13 @@ function rcube_calendar_ui(settings)
           var tab = String(ui.newPanel.selector || ui.newPanel.attr('id'))
               .replace(/^#?event-panel-/, '').replace(/s$/, '');
 
+          var has_real_attendee = function(attendees) {
+              for (var i=0; i < (attendees ? attendees.length : 0); i++) {
+                if (attendees[i].cutype != 'RESOURCE')
+                  return true;
+              }
+            };
+
           if (tab == 'attendee' || tab == 'resource') {
             if (!rcube_event.is_keyboard(event))
               $('#edit-'+tab+'-name').select();
@@ -3991,7 +3998,7 @@ function rcube_calendar_ui(settings)
             if (freebusy_ui.needsupdate && me.selected_event)
               update_freebusy_status(me.selected_event);
             // add current user as organizer if non added yet
-            if (tab == 'attendee' && !event_attendees.length) {
+            if (tab == 'attendee' && !has_real_attendee(event_attendees)) {
               add_attendee($.extend({ role:'ORGANIZER' }, settings.identity));
               $('#edit-attendees-form .attendees-invitebox').show();
             }
