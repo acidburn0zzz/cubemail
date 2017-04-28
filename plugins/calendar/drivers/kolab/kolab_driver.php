@@ -1129,11 +1129,11 @@ class kolab_driver extends calendar_driver
         // use start date from master but try to be smart on time or duration changes
         $old_start_date = $old['start']->format('Y-m-d');
         $old_start_time = $old['allday'] ? '' : $old['start']->format('H:i');
-        $old_duration   = $old['allday'] ? 0 : $old['end']->format('U') - $old['start']->format('U');
+        $old_duration   = self::event_duration($old['start'], $old['end'], $old['allday']);
 
         $new_start_date = $event['start']->format('Y-m-d');
         $new_start_time = $event['allday'] ? '' : $event['start']->format('H:i');
-        $new_duration   = $event['allday'] ? 0 : $event['end']->format('U') - $event['start']->format('U');
+        $new_duration   = self::event_duration($event['start'], $event['end'], $event['allday']);
 
         $diff = $old_start_date != $new_start_date || $old_start_time != $new_start_time || $old_duration != $new_duration;
         $date_shift = $old['start']->diff($event['start']);
@@ -1142,7 +1142,7 @@ class kolab_driver extends calendar_driver
         if ($diff && ($old_start_date == $new_start_date || $old_duration == $new_duration)) {
           $event['start'] = $master['start']->add($date_shift);
           $event['end'] = clone $event['start'];
-          $event['end']->add(new DateInterval('PT'.$new_duration.'S'));
+          $event['end']->add(new DateInterval($new_duration));
 
           // remove fixed weekday, will be re-set to the new weekday in kolab_calendar::update_event()
           if ($old_start_date != $new_start_date) {
@@ -1216,6 +1216,19 @@ class kolab_driver extends calendar_driver
       $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
 
     return $success;
+  }
+
+  /**
+   * Calculate event duration, returns string in DateInterval format
+   */
+  protected static function event_duration($start, $end, $allday = false)
+  {
+    if ($allday) {
+      $diff = $start->diff($end);
+      return 'P' . $diff->days . 'D';
+    }
+
+    return 'PT' . ($end->format('U') - $start->format('U')) . 'S';
   }
 
   /**
