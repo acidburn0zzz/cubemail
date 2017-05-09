@@ -130,7 +130,7 @@ class kolab_calendar extends kolab_storage_folder_api
   /**
    * Return color to display this calendar
    */
-  public function get_color()
+  public function get_color($default = null)
   {
     // color is defined in folder METADATA
     if ($color = $this->storage->get_color()) {
@@ -143,7 +143,7 @@ class kolab_calendar extends kolab_storage_folder_api
     if (!empty($prefs[$this->id]) && !empty($prefs[$this->id]['color']))
       return $prefs[$this->id]['color'];
 
-    return 'cc0000';
+    return $default ?: 'cc0000';
   }
 
   /**

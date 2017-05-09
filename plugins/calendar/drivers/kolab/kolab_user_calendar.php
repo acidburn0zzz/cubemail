@@ -84,9 +84,11 @@ class kolab_user_calendar extends kolab_calendar
   /**
    * Getter for the IMAP folder owner
    *
+   * @param bool Return a fully qualified owner name (unused)
+   *
    * @return string Name of the folder owner
    */
-  public function get_owner()
+  public function get_owner($fully_qualified = false)
   {
     return $this->userdata['mail'];
   }
@@ -195,9 +197,11 @@ class kolab_user_calendar extends kolab_calendar
    * @param  string  Search query (optional)
    * @param  boolean Include virtual events (optional)
    * @param  array   Additional parameters to query storage
+   * @param  array   Additional query to filter events
+   *
    * @return array A list of event records
    */
-  public function list_events($start, $end, $search = null, $virtual = 1, $query = array())
+  public function list_events($start, $end, $search = null, $virtual = 1, $query = array(), $filter_query = null)
   {
     // convert to DateTime for comparisons
     try {
@@ -258,9 +262,10 @@ class kolab_user_calendar extends kolab_calendar
    *
    * @param  integer Date range start (unix timestamp)
    * @param  integer Date range end (unix timestamp)
+   * @param  array   Additional query to filter events
    * @return integer Count
    */
-  public function count_events($start, $end = null)
+  public function count_events($start, $end = null, $filter_query = null)
   {
     // not implemented
     return 0;
