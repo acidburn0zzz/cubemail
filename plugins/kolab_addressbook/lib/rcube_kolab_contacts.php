@@ -290,10 +290,12 @@ class rcube_kolab_contacts extends rcube_addressbook
     /**
      * List all active contact groups of this source
      *
-     * @param string  Optional search string to match group name
+     * @param string Optional search string to match group name
+     * @param int    Search mode. Sum of self::SEARCH_*
+     *
      * @return array  Indexed list of contact groups, each a hash array
      */
-    function list_groups($search = null)
+    function list_groups($search = null, $mode = 0)
     {
         $this->_fetch_groups();
         $groups = array();
@@ -792,14 +794,16 @@ class rcube_kolab_contacts extends rcube_addressbook
 
     /**
      * Remove all records from the database
+     *
+     * @param bool $with_groups Remove also groups
      */
-    public function delete_all()
+    public function delete_all($with_groups = false)
     {
         if ($this->storagefolder->delete_all()) {
-            $this->contacts = array();
+            $this->contacts  = array();
             $this->sortindex = array();
-            $this->dataset = null;
-            $this->result = null;
+            $this->dataset   = null;
+            $this->result    = null;
         }
     }
 
@@ -881,9 +885,11 @@ class rcube_kolab_contacts extends rcube_addressbook
      *
      * @param string Group identifier
      * @param string New name to set for this group
+     * @param string New group identifier (if changed, otherwise don't set)
+     *
      * @return boolean New name on success, false if no data was changed
      */
-    function rename_group($gid, $newname)
+    function rename_group($gid, $newname, &$newid)
     {
         $this->_fetch_groups();
         $list = $this->distlists[$gid];
@@ -1029,10 +1035,11 @@ class rcube_kolab_contacts extends rcube_addressbook
      * If input not valid, the message to display can be fetched using get_error()
      *
      * @param array Associative array with contact data to save
+     * @param bool  Attempt to fix/complete data automatically
      *
      * @return boolean True if input is valid, False if not.
      */
-    public function validate(&$save_data)
+    public function validate(&$save_data, $autofix = false)
     {
         // validate e-mail addresses
         $valid = parent::validate($save_data);
