@@ -124,7 +124,7 @@ class kolab_user_calendar extends kolab_calendar
   /**
    * Return color to display this calendar
    */
-  public function get_color()
+  public function get_color($default = null)
   {
     // calendar color is stored in local user prefs
     $prefs = $this->cal->rc->config->get('kolab_calendars', array());
@@ -132,7 +132,7 @@ class kolab_user_calendar extends kolab_calendar
     if (!empty($prefs[$this->id]) && !empty($prefs[$this->id]['color']))
       return $prefs[$this->id]['color'];
 
-    return 'cc0000';
+    return $default ?: 'cc0000';
   }
 
   /**
