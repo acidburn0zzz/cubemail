@@ -69,15 +69,16 @@ class kolab_files extends rcube_plugin
 
             $this->load_config();
 
-            $url = $this->rc->config->get('kolab_files_url');
+            $client_url = $this->rc->config->get('kolab_files_url');
+            $server_url = $this->rc->config->get('kolab_files_server_url');
 
-            if (!$url) {
+            if (!$client_url) {
                 return $this->engine = false;
             }
 
             require_once $this->home . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'kolab_files_engine.php';
 
-            $this->engine = new kolab_files_engine($this, $url);
+            $this->engine = new kolab_files_engine($this, $client_url, $server_url);
         }
 
         return $this->engine;
