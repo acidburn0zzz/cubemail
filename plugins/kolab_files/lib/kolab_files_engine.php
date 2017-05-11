@@ -26,6 +26,8 @@ class kolab_files_engine
 {
     private $plugin;
     private $rc;
+    private $url;
+    private $url_srv;
     private $timeout = 600;
     private $files_sort_cols    = array('name', 'mtime', 'size');
     private $sessions_sort_cols = array('name');
@@ -36,9 +38,10 @@ class kolab_files_engine
     /**
      * Class constructor
      */
-    public function __construct($plugin, $url)
+    public function __construct($plugin, $client_url, $server_url = null)
     {
-        $this->url     = rcube_utils::resolve_url($url);
+        $this->url     = rcube_utils::resolve_url($client_url);
+        $this->url_srv = $server_url ? rcube_utils::resolve_url($server_url) : $this->url;
         $this->plugin  = $plugin;
         $this->rc      = $plugin->rc;
         $this->timeout = $this->rc->config->get('session_lifetime') * 60;
@@ -901,7 +904,7 @@ class kolab_files_engine
      */
     protected function get_request($get = null, $token = null)
     {
-        $url = $this->url . '/api/';
+        $url = $this->url_srv . '/api/';
 
         if (!$this->request) {
             $config = array(
