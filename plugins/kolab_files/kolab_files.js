@@ -193,8 +193,8 @@ function kolab_files_init()
       file_api.request('folder_info', {folder: file_api.file_path(rcmail.env.file), sessions: 1}, 'folder_info_response');
     }
     else {
-      file_api.env.folder = rcmail.env.folder;
-      file_api.env.collection = rcmail.env.collection;
+      file_api.env.init_folder = rcmail.env.folder;
+      file_api.env.init_collection = rcmail.env.collection;
       file_api.folder_list();
       file_api.browser_capabilities_check();
     }
@@ -1973,7 +1973,7 @@ function kolab_files_ui()
     if (!this.response(response))
       return;
 
-    var first, body, rows = [],
+    var folder, first, body, rows = [],
       list_selector = rcmail.env.folder_list_selector || '#files-folder-list',
       search_selector = rcmail.env.folder_search_selector || '#foldersearch',
       elem = $(list_selector),
@@ -2060,13 +2060,21 @@ function kolab_files_ui()
         file_api.folder_select(node.id);
       });
 
-    // select first folder?
+    // select first/current folder
     if (response.result.auth_errors && response.result.auth_errors.length)
       this.env.folder = this.env.collection = null;
     else if (this.env.folder)
-      rcmail.folder_list.select(this.env.folder);
+      rcmail.folder_list.select(folder);
     else if (this.env.collection)
       rcmail.folder_list.select('folder-collection-' + this.env.collection);
+    else if (folder = this.env.init_folder) {
+      this.env.init_folder = null;
+      rcmail.folder_list.select(folder);
+    }
+    else if (folder = this.env.init_collection) {
+      this.env.init_collection = null;
+      rcmail.folder_list.select('folder-collection-' + folder);
+    }
     else if (first)
       rcmail.folder_list.select(first);
 
