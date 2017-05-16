@@ -1435,26 +1435,27 @@ class kolab_files_engine
                 if (array_key_exists($type, $this->mimetypes)) {
                     $mimetypes = $this->mimetypes[$type];
                 }
+                // fallback to static definition if old Chwala is used
+                else if ($type == 'edit') {
+                    $mimetypes = array(
+                        'text/plain' => 'txt',
+                        'text/html'  => 'html',
+                    );
+                    if (!empty($_SESSION['kolab_files_caps']['MANTICORE'])) {
+                        $mimetypes = array_merge(array('application/vnd.oasis.opendocument.text' => 'odt'), $mimetypes);
+                    }
+
+                    foreach (array_keys($mimetypes) as $type) {
+                        list ($app, $label) = explode('/', $type);
+                        $label = preg_replace('/[^a-z]/', '', $label);
+                        $mimetypes[$type] = array(
+                            'ext'   => $mimetypes[$type],
+                            'label' => $this->plugin->gettext('type.' . $label),
+                        );
+                    }
+                }
                 else {
                     $mimetypes = $this->mimetypes;
-                }
-            }
-
-            // fallback to static definition if old Chwala is used
-            if ($type == 'edit' && empty($mimetypes)) {
-                $mimetypes = array(
-                    'application/vnd.oasis.opendocument.text' => 'odt',
-                    'text/plain' => 'txt',
-                    'text/html'  => 'html',
-                );
-
-                foreach (array_keys($mimetypes) as $type) {
-                    list ($app, $label) = explode('/', $type);
-                    $label = preg_replace('/[^a-z]/', '', $label);
-                    $mimetypes[$type] = array(
-                        'ext'   => $mimetypes[$type],
-                        'label' => $this->plugin->gettext('type.' . $label),
-                    );
                 }
             }
         }
