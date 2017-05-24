@@ -841,7 +841,7 @@ class kolab_files_engine
     /**
      * Get API token for current user session, authenticate if needed
      */
-    public function get_api_token()
+    public function get_api_token($configure = true)
     {
         $token = $_SESSION['kolab_files_token'];
         $time  = $_SESSION['kolab_files_time'];
@@ -890,6 +890,11 @@ class kolab_files_engine
             }
             else {
                 throw new Exception(sprintf("Authenticate error (Status: %d)", $status));
+            }
+
+            // Configure session
+            if ($configure && $token) {
+                $this->configure($token);
             }
         }
         catch (Exception $e) {
@@ -948,6 +953,36 @@ class kolab_files_engine
         $this->request->setHeader('referer', $host);
 
         return $this->request;
+    }
+
+    /**
+     * Configure chwala session
+     */
+    public function configure($token = null, $prefs = array())
+    {
+        if (!$token) {
+            $token = $this->get_api_token(false);
+        }
+
+        try {
+            // Configure session
+            $query = array(
+                'method'      => 'configure',
+                'timezone'    => $prefs['timezone'] ?: $this->rc->config->get('timezone'),
+                'date_format' => $prefs['date_long'] ?: $this->rc->config->get('date_long', 'Y-m-d H:i'),
+            );
+
+            $request  = $this->get_request($query, $token);
+            $response = $request->send();
+            $status   = $response->getStatus();
+
+            if ($status != 200) {
+                throw new Exception(sprintf("Failed to configure chwala session (Status: %d)", $status));
+            }
+        }
+        catch (Exception $e) {
+            rcube::raise_error($e, true, false);
+        }
     }
 
     /**

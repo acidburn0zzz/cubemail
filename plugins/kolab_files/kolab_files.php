@@ -57,6 +57,8 @@ class kolab_files extends rcube_plugin
 
         // Load UI from startup hook
         $this->add_hook('startup', array($this, 'startup'));
+
+        $this->add_hook('preferences_save', array($this, 'preferences_save'));
     }
 
     /**
@@ -145,5 +147,26 @@ class kolab_files extends rcube_plugin
         require_once $this->home . '/lib/kolab_files_autocomplete.php';
 
         new kolab_files_autocomplete($this);
+    }
+
+    /**
+     * Update chwala config on user preferences change
+     */
+    public function preferences_save($props)
+    {
+        if ($props['section'] == 'general') {
+            $dont_override = (array) $this->rc->config->get('dont_override');
+            $prefs         = array();
+
+            foreach (array('timezone', 'date_long') as $idx) {
+                if (isset($props['prefs'][$idx]) && !in_array($idx, $dont_override)) {
+                    $prefs[$idx] = $props['prefs'][$idx];
+                }
+            }
+
+            if (!empty($prefs) && ($engine = $this->engine())) {
+                $engine->configure(false, $prefs);
+            }
+        }
     }
 }
