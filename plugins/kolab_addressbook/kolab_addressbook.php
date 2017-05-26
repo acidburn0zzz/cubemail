@@ -339,13 +339,16 @@ class kolab_addressbook extends rcube_plugin
      */
     public function config_get($args)
     {
-        if ($args['name'] != 'autocomplete_addressbooks') {
+        if ($args['name'] != 'autocomplete_addressbooks' || $this->recurrent) {
             return $args;
         }
 
         $abook_prio = $this->addressbook_prio();
-        // here we cannot use rc->config->get()
-        $sources    = $GLOBALS['CONFIG']['autocomplete_addressbooks'];
+
+        // Get the original setting, use temp flag to prevent from an infinite recursion
+        $this->recurrent = true;
+        $sources = $this->rc->config->get('autocomplete_addressbooks');
+        $this->recurrent = false;
 
         // Disable all global address books
         // Assumes that all non-kolab_addressbook sources are global
