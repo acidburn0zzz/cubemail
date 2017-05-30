@@ -153,7 +153,7 @@ function kolab_files_init()
     sort_col: 'name',
     sort_reverse: false,
     search_threads: rcmail.env.search_threads,
-    resources_dir: rcmail.assets_path('program/resources'),
+    resources_dir: rcmail.env.files_url.replace(/\/api\/?$/, '/resources'),
     caps: rcmail.env.files_caps,
     supported_mimetypes: rcmail.env.file_mimetypes
   });
