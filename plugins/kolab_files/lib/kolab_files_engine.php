@@ -40,8 +40,8 @@ class kolab_files_engine
      */
     public function __construct($plugin, $client_url, $server_url = null)
     {
-        $this->url     = rcube_utils::resolve_url($client_url);
-        $this->url_srv = $server_url ? rcube_utils::resolve_url($server_url) : $this->url;
+        $this->url     = rtrim(rcube_utils::resolve_url($client_url), '/ ');
+        $this->url_srv = $server_url ? rtrim(rcube_utils::resolve_url($server_url), '/ ') : $this->url;
         $this->plugin  = $plugin;
         $this->rc      = $plugin->rc;
         $this->timeout = $this->rc->config->get('session_lifetime') * 60;
