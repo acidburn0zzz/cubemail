@@ -774,7 +774,7 @@ class kolab_files_engine
 
         // editor requires additional arguments via POST
         if (!empty($this->file_data['viewer']['post'])) {
-            $attrib['src'] = $this->rc->output->asset_url('program/resources/blank.gif');
+            $attrib['src'] = 'program/resources/blank.gif';
 
             $form_content = new html_hiddenfield();
             $form_attrib  = array(
