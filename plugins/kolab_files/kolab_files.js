@@ -1992,9 +1992,14 @@ function kolab_files_ui()
     if (elem.data('no-collections') == true)
       collections = [];
 
-    elem.html('');
-
     this.env.folders = this.folder_list_parse(response.result && response.result.list ? response.result.list : response.result);
+
+    rcmail.enable_command('files-create', true);
+
+    if (!elem.length)
+      return;
+
+    elem.html('');
 
     $.each(this.env.folders, function(i, f) {
       var row;
@@ -2078,14 +2083,11 @@ function kolab_files_ui()
     else if (first)
       rcmail.folder_list.select(first);
 
-    rcmail.enable_command('files-create', true);
-
     // add tree icons
 //    this.folder_list_tree(this.env.folders);
 
     // handle authentication errors on external sources
-    if (elem.length)
-      this.folder_list_auth_errors(response.result);
+    this.folder_list_auth_errors(response.result);
   };
 
   this.folder_select = function(folder)
