@@ -836,13 +836,7 @@ class kolab_storage
         $regexp = '/^' . preg_quote($filter, '/') . '(\..+)?$/';
 
         // get folders types for all folders
-        if (!$subscribed || $prefix == '*' || !self::$config->get('kolab_skip_namespace')) {
-            $folderdata = self::folders_typedata($prefix);
-        }
-        else {
-            // fetch folder types for the effective list of (subscribed) folders when post-filtering
-            $folderdata = array();
-        }
+        $folderdata = self::folders_typedata($prefix);
 
         if (!is_array($folderdata)) {
             return array();
@@ -874,11 +868,6 @@ class kolab_storage
 
         // Filter folders list
         foreach ($folders as $idx => $folder) {
-            // lookup folder type
-            if (!array_key_exists($folder, $folderdata)) {
-                $folderdata[$folder] = self::folder_type($folder);
-            }
-
             $type = $folderdata[$folder];
 
             if ($filter == 'mail' && empty($type)) {
