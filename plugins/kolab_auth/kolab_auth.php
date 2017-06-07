@@ -778,6 +778,15 @@ class kolab_auth extends rcube_plugin
         $config = rcube::get_instance()->config;
 
         if ($config->get('log_logins')) {
+            // don't fill the log with complete input, which could
+            // have been prepared by a hacker
+            if (strlen($username) > 256) {
+                $username = substr($username, 0, 256) . '...';
+            }
+            if (strlen($login_as) > 256) {
+                $login_as = substr($login_as, 0, 256) . '...';
+            }
+
             if ($login_as) {
                 $username = sprintf('%s (as user %s)', $username, $login_as);
             }
@@ -786,7 +795,7 @@ class kolab_auth extends rcube_plugin
                 "Failed login for %s from %s in session %s %s",
                 $username,
                 rcube_utils::remote_ip(),
-                session_id(),
+                session_id() ?: 'no-session',
                 $message ? "($message)" : ''
             );
 
