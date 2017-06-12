@@ -7,11 +7,11 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
 $labels['tags'] = 'Étiquettes';
-$labels['unset'] = 'Tout déselectionner';
+$labels['unset'] = 'Tout désélectionner';
 $labels['manage'] = 'Gestion des étiquettes...';
 $labels['tagactions'] = 'Actions étiquette...';
-$labels['tagadd'] = 'Étiquette comme...';
-$labels['tagremove'] = 'Étiqueter comme...';
+$labels['tagadd'] = 'Étiqueter en tant que...';
+$labels['tagremove'] = 'Supprimer l\'étiquette...';
 $labels['untag'] = 'Supprimer l\'étiquette';
 $labels['tagremoveall'] = 'Supprimer toutes les étiquettes';
 $labels['add'] = 'Ajouter';
@@ -29,3 +29,5 @@ $labels['taggingsuccess'] = 'Les étiquettes ont été affectées avec succès.'
 $labels['taggingerror'] = 'Impossible d\'affecter les étiquettes.';
 $labels['untaggingsuccess'] = 'Étiquette(s) supprimée(s) avec succès.';
 $labels['untaggingerror'] = 'Impossible de supprimer les affectations.';
+$labels['newtag'] = 'Nouvelle balise';
+$labels['tagsearchnew'] = 'Entrez votre texte afin de chercher ou créez une nouvelle balise';

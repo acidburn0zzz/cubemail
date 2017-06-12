@@ -50,7 +50,6 @@ $labels['copyfile'] = 'Copy a file';
 $labels['copyandedit'] = 'Copy and Edit';
 $labels['documenttitle'] = 'Title:';
 $labels['close'] = 'Close';
-$labels['docedit'] = 'Document editing';
 
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
@@ -144,9 +143,9 @@ $labels['comment'] = 'Comment';
 $labels['open'] = 'Open';
 $labels['request'] = 'Request an invitation';
 $labels['invitationtitle'] = 'Invitation for $file';
-$labels['invitationaccepting'] = 'Accepting an invitation...';
-$labels['invitationdeclining'] = 'Declining an invitation...';
-$labels['invitationrequesting'] = 'Requesting an invitation...';
+$labels['ivitationaccepting'] = 'Accepting an invitation...';
+$labels['ivitationdeclining'] = 'Declining an invitation...';
+$labels['ivitationrequesting'] = 'Requesting an invitation...';
 
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
@@ -169,9 +168,6 @@ $labels['arialabelfilesavedialog'] = 'File(s) saving dialog';
 $labels['arialabelfileprops'] = 'File properties';
 $labels['arialabelfilecontent'] = 'File content';
 $labels['arialabelfileeditdialog'] = 'File editing dialog';
-$labels['arialabeldoceditorsdialog'] = 'Document session management dialog';
-$labels['arialabelexportoptions'] = 'Document export options';
-$labels['arialabelcollaborators'] = 'List of document editors';
 
 $labels['type.plain'] = 'Plain Text Document';
 $labels['type.vndoasisopendocumenttext'] = 'Text Document (ODF)';

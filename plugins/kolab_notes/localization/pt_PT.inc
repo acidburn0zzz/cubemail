@@ -6,6 +6,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
  */
+$labels['navtitle'] = 'Notas';
+$labels['notes'] = 'Notas';
 $labels['listname'] = 'Nome';
 $labels['tabsharing'] = 'Compartilhamento';
 $labels['foldersubscribe'] = 'Listar permanentemente';

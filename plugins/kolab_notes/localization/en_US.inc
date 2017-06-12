@@ -43,8 +43,6 @@ $labels['nrnotebooksfound'] = '$nr notebooks found';
 $labels['nonotebooksfound'] = 'No notebooks found';
 $labels['removelist'] = 'Remove from list';
 $labels['removelink'] = 'Remove email reference';
-$labels['listactions'] = 'List options...';
-$labels['searchterms'] = 'Search terms';
 
 $labels['savingdata'] = 'Saving data...';
 $labels['recordnotfound'] = 'Record not found';
@@ -67,14 +65,3 @@ $labels['arialabelnotebookform'] = 'Notebook properties';
 $labels['arialabelmessagereferences'] = 'Linked email messages';
 $labels['arialabelfolderearchform'] = 'Notebooks search form';
 $labels['arialabelnoteform'] = 'Note edit form';
-
-// history dialog
-$labels['showhistory'] = 'Show History';
-$labels['objectchangelog'] = 'Change History';
-$labels['objectdiff'] = 'Changes from $rev1 to $rev2';
-$labels['objectnotfound'] = 'Failed to load note data';
-$labels['objectchangelognotavailable'] = 'Change history is not available for this note';
-$labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';
-$labels['revisionrestoreconfirm'] = 'Do you really want to restore revision $rev of this note? This will replace the current note with the old version.';
-$labels['objectrestoresuccess'] = 'Revision $rev successfully restored';
-$labels['objectrestoreerror'] = 'Failed to restore the old revision';

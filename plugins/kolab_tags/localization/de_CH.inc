@@ -7,12 +7,6 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_tags/
  */
 $labels['tags'] = 'Tags';
-$labels['add'] = 'Hinzufügen';
-$labels['edit'] = 'Bearbeiten';
-$labels['delete'] = 'Löschen';
-$labels['tagname'] = 'Name';
-$labels['tagcolor'] = 'Farbe';
-$labels['saving'] = 'Speichere...';
 $labels['unset'] = 'Alle abwählen';
 $labels['manage'] = 'Schlagworte verwalten...';
 $labels['tagactions'] = 'Schlagwort Aktion...';
@@ -20,9 +14,15 @@ $labels['tagadd'] = 'Vergebe Schlagwort...';
 $labels['tagremove'] = 'Entferne Schlagwort..';
 $labels['untag'] = 'Entferne Schlagwort';
 $labels['tagremoveall'] = 'Entferne alle Schlagworte';
+$labels['add'] = 'Hinzufügen';
+$labels['edit'] = 'Bearbeiten';
+$labels['delete'] = 'Löschen';
+$labels['tagname'] = 'Name';
+$labels['tagcolor'] = 'Farbe';
 $labels['nameempty'] = 'Schlagwort kann nicht leer sein!';
 $labels['nameexists'] = 'Das Schlagwort existiert bereits';
 $labels['colorinvalid'] = 'Ungültige Farbangabe';
+$labels['saving'] = 'Speichere...';
 $labels['updatesuccess'] = 'Schlagworte wurden erfolgreich aktualisiert.';
 $labels['updateerror'] = 'Schlagworte konnten nicht aktualisiert werden.';
 $labels['taggingsuccess'] = 'Schlagwort wurde erfolgreich zugewiesen.';

@@ -6,9 +6,9 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
-$labels['showhistory'] = 'Historie anzeigen';
+$labels['showhistory'] = 'Verlauf anzeigen';
 $labels['compare'] = 'Vergleichen';
-$labels['objectchangelog'] = 'Historie';
+$labels['objectchangelog'] = 'Verlauf';
 $labels['objectdiff'] = 'Änderungen aus $rev1 nach $rev2';
 $labels['revision'] = 'Version';
 $labels['user'] = 'Benutzer';
@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'Markierung festgelegt';
 $labels['actionflagclear'] = 'Markierung entfernt';
 $labels['showrevision'] = 'Diese Version anzeigen';
 $labels['restore'] = 'Diese Version wiederherstellen';
-$labels['objectchangelognotavailable'] = 'Änderungshistorie ist nicht verfügbar für diese Nachricht';
+$labels['objectchangelognotavailable'] = 'Änderungsverlauf ist nicht verfügbar für diese Nachricht';

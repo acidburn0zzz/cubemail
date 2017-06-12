@@ -7,5 +7,5 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_auth/
  */
 $labels['loginas'] = 'Se connecter en tant que';
-$labels['loginasnotallowed'] = 'Pas de privilège de se connecter comme $utilisateur';
+$labels['loginasnotallowed'] = 'Pas d\'autorisation de se connecter en tant que $utilisateur';
 ?>
