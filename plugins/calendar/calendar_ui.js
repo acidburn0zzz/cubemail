@@ -2562,7 +2562,7 @@ function rcube_calendar_ui(settings)
       if (_has_attendees) {
         var checked = (settings.itip_notify & 1 ? ' checked="checked"' : '');
 
-        if (action == 'remove' && cal.group != 'shared' && is_attendee(event)) {
+        if (action == 'remove' && cal.group != 'shared' && !_is_organizer && is_attendee(event)) {
           decline = true;
           checked = event.status != 'CANCELLED' ? checked : '';
           html += '<div class="message">' +
