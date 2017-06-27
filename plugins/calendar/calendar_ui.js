@@ -47,8 +47,6 @@ function rcube_calendar_ui(settings)
     var DAY_MS = 86400000;
     var HOUR_MS = 3600000;
     var me = this;
-    var gmt_offset = (new Date().getTimezoneOffset() / -60) - (settings.timezone || 0) - (settings.dst || 0);
-    var client_timezone = new Date().getTimezoneOffset();
     var day_clicked = day_clicked_ts = 0;
     var ignore_click = false;
     var event_defaults = { free_busy:'busy', alarms:'' };
