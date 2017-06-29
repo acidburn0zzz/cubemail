@@ -285,49 +285,6 @@ function rcube_calendar_ui(settings)
       else
         return date.getHours() >= settings['work_start'] && date.getHours() < settings['work_end'];
     };
-    
-    // check if the event has 'real' attendees, excluding the current user
-    var has_attendees = function(event)
-    {
-      return (event.attendees && event.attendees.length && (event.attendees.length > 1 || String(event.attendees[0].email).toLowerCase() != settings.identity.email));
-    };
-    
-    // check if the current user is an attendee of this event
-    var is_attendee = function(event, role, email)
-    {
-      var emails = email ? ';'+email.toLowerCase() : settings.identity.emails;
-      for (var i=0; event.attendees && i < event.attendees.length; i++) {
-        if ((!role || event.attendees[i].role == role) && event.attendees[i].email && emails.indexOf(';'+event.attendees[i].email.toLowerCase()) >= 0)
-          return event.attendees[i];
-      }
-      return false;
-    };
-    
-    // check if the current user is the organizer
-    var is_organizer = function(event, email)
-    {
-      return is_attendee(event, 'ORGANIZER', email) || !event.id;
-    };
-
-    /**
-     * Check permissions on the given calendar object
-     */
-    var has_permission = function(cal, perm)
-    {
-      // multiple chars means "either of"
-      if (String(perm).length > 1) {
-        for (var i=0; i < perm.length; i++) {
-          if (has_permission(cal, perm[i]))
-              return true;
-        }
-      }
-
-      if (cal.rights && String(cal.rights).indexOf(perm) >= 0) {
-        return true;
-      }
-
-      return (perm == 'i' && cal.editable) || (perm == 'v' && cal.editable);
-    }
 
     var load_attachment = function(event, att)
     {
@@ -516,7 +473,7 @@ function rcube_calendar_ui(settings)
         });
 
         var data, mystatus = null, rsvp, line, morelink, html = '', overflow = '',
-          organizer = is_organizer(event);
+          organizer = me.is_organizer(event);
 
         for (var j=0; j < event.attendees.length; j++) {
           data = event.attendees[j];
@@ -570,7 +527,7 @@ function rcube_calendar_ui(settings)
             .text(rcmail.gettext('status' + mystatus, 'libcalendaring'));
         }
 
-        var show_rsvp = rsvp && !organizer && event.status != 'CANCELLED' && has_permission(calendar, 'v');
+        var show_rsvp = rsvp && !organizer && event.status != 'CANCELLED' && me.has_permission(calendar, 'v');
         $('#event-rsvp')[(show_rsvp ? 'show' : 'hide')]();
         $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
 
@@ -598,7 +555,7 @@ function rcube_calendar_ui(settings)
           }
         });
       }
-      if (!temp && has_permission(calendar, 'td') && event.editable !== false) {
+      if (!temp && me.has_permission(calendar, 'td') && event.editable !== false) {
         buttons.push({
           text: rcmail.gettext('delete', 'calendar'),
           'class': 'delete',
@@ -737,7 +694,7 @@ function rcube_calendar_ui(settings)
         calendars.val($('option:first', calendars).attr('value'));
 
       invite.checked = settings.itip_notify & 1 > 0;
-      notify.checked = has_attendees(event) && invite.checked;
+      notify.checked = me.has_attendees(event) && invite.checked;
 
       if (event.allDay) {
         starttime.val("12:00").hide();
@@ -751,7 +708,7 @@ function rcube_calendar_ui(settings)
       // set calendar selection according to permissions
       calendars.find('option').each(function(i, opt) {
         var cal = me.calendars[opt.value] || {};
-        $(opt).prop('disabled', !(cal.editable || (action == 'new' && has_permission(cal, 'i'))))
+        $(opt).prop('disabled', !(cal.editable || (action == 'new' && me.has_permission(cal, 'i'))))
       });
 
       // set alarm(s)
@@ -783,13 +740,13 @@ function rcube_calendar_ui(settings)
         $('#edit-recurring-warning').hide();
 
       // init attendees tab
-      var organizer = !event.attendees || is_organizer(event),
+      var organizer = !event.attendees || me.is_organizer(event),
         allow_invitations = organizer || (calendar.owner && calendar.owner == 'anonymous') || settings.invite_shared;
       event_attendees = [];
       attendees_list = $('#edit-attendees-table > tbody').html('');
       resources_list = $('#edit-resources-table > tbody').html('');
-      $('#edit-attendees-notify')[(allow_invitations && has_attendees(event) && (settings.itip_notify & 2) ? 'show' : 'hide')]();
-      $('#edit-localchanges-warning')[(has_attendees(event) && !(allow_invitations || (calendar.owner && is_organizer(event, calendar.owner))) ? 'show' : 'hide')]();
+      $('#edit-attendees-notify')[(action != 'new' && allow_invitations && me.has_attendees(event) && (settings.itip_notify & 2) ? 'show' : 'hide')]();
+      $('#edit-localchanges-warning')[(action != 'new' && me.has_attendees(event) && !(allow_invitations || (calendar.owner && me.is_organizer(event, calendar.owner))) ? 'show' : 'hide')]();
 
       var load_attendees_tab = function()
       {
@@ -2552,13 +2509,13 @@ function rcube_calendar_ui(settings)
 
       if (!data) data = event;
       var decline = false, notify = false, html = '', cal = me.calendars[event.calendar],
-        _has_attendees = has_attendees(event), _is_organizer = is_organizer(event);
+        _has_attendees = me.has_attendees(event), _is_organizer = me.is_organizer(event);
 
       // event has attendees, ask whether to notify them
       if (_has_attendees) {
         var checked = (settings.itip_notify & 1 ? ' checked="checked"' : '');
 
-        if (action == 'remove' && cal.group != 'shared' && !_is_organizer && is_attendee(event)) {
+        if (action == 'remove' && cal.group != 'shared' && !_is_organizer && me.is_attendee(event)) {
           decline = true;
           checked = event.status != 'CANCELLED' ? checked : '';
           html += '<div class="message">' +
@@ -2586,7 +2543,7 @@ function rcube_calendar_ui(settings)
 
         // disable the 'future' savemode if I'm an attendee
         // reason: no calendaring system supports the thisandfuture range parameter in iTip REPLY
-        if (action == 'remove' && _has_attendees && !_is_organizer && is_attendee(event)) {
+        if (action == 'remove' && _has_attendees && !_is_organizer && me.is_attendee(event)) {
           future_disabled = ' disabled';
         }
 
@@ -3505,14 +3462,6 @@ function rcube_calendar_ui(settings)
         this.fisheye_view(this.fisheye_date);
     };
 
-    // resize and reposition (center) the dialog window
-    this.dialog_resize = function(id, height, width)
-    {
-      var win = $(window), w = win.width(), h = win.height();
-      $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
-        .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
-    };
-
     // adjust calendar view size
     this.view_resize = function()
     {
@@ -3570,7 +3519,7 @@ function rcube_calendar_ui(settings)
 
       // insert to #calendar-select options if writeable
       select = $('#edit-calendar');
-      if (fc && has_permission(cal, 'i') && select.length && !select.find('option[value="'+id+'"]').length) {
+      if (fc && me.has_permission(cal, 'i') && select.length && !select.find('option[value="'+id+'"]').length) {
         $('<option>').attr('value', id).html(cal.name).appendTo(select);
       }
     }

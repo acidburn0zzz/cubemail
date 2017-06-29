@@ -173,9 +173,9 @@ function rcube_tasklist_ui(settings)
         });
         tasklists_widget.addEventListener('select', function(node) {
             var id = $(this).data('id');
-            rcmail.enable_command('list-edit', has_permission(me.tasklists[node.id], 'wa'));
-            rcmail.enable_command('list-delete', has_permission(me.tasklists[node.id], 'xa'));
-            rcmail.enable_command('list-import', has_permission(me.tasklists[node.id], 'i'));
+            rcmail.enable_command('list-edit', me.has_permission(me.tasklists[node.id], 'wa'));
+            rcmail.enable_command('list-delete', me.has_permission(me.tasklists[node.id], 'xa'));
+            rcmail.enable_command('list-import', me.has_permission(me.tasklists[node.id], 'i'));
             rcmail.enable_command('list-remove', me.tasklists[node.id] && me.tasklists[node.id].removable);
             rcmail.enable_command('list-showurl', me.tasklists[node.id] && !!me.tasklists[node.id].caldavurl);
             me.selected_list = node.id;
@@ -737,27 +737,6 @@ function rcube_tasklist_ui(settings)
     }
 
     /**
-     * Check permissions on the given list object
-     */
-    function has_permission(list, perm)
-    {
-        // multiple chars means "either of"
-        if (String(perm).length > 1) {
-            for (var i=0; i < perm.length; i++) {
-                if (has_permission(list, perm[i])) {
-                    return true;
-                }
-            }
-        }
-
-        if (list.rights && String(list.rights).indexOf(perm) >= 0) {
-            return true;
-        }
-
-        return (perm == 'i' && list.editable);
-    }
-
-    /**
      * Request counts from the server
      */
     function fetch_counts()
@@ -1161,7 +1140,7 @@ function rcube_tasklist_ui(settings)
             list = drop_rec && me.tasklists[drop_rec.list] ? me.tasklists[drop_rec.list] : { editable:true };
 
         // target is not editable or already has this tag assigned
-        if (!drop_rec || drop_rec.readonly || !has_permission(list, 'i') || (drop_rec.tags && $.inArray(tag, drop_rec.tags) >= 0)) {
+        if (!drop_rec || drop_rec.readonly || !me.has_permission(list, 'i') || (drop_rec.tags && $.inArray(tag, drop_rec.tags) >= 0)) {
             return false;
         }
 
@@ -1284,7 +1263,7 @@ function rcube_tasklist_ui(settings)
     function save_task(rec, action)
     {
         // show confirmation dialog when status of an assigned task has changed
-        if (rec._status_before !== undefined && is_attendee(rec))
+        if (rec._status_before !== undefined && me.is_attendee(rec))
             return save_task_confirm(rec, action);
 
         if (!rcmail.busy) {
@@ -1307,7 +1286,7 @@ function rcube_tasklist_ui(settings)
           do_confirm = settings.itip_notify & 2;
 
         // task has attendees, ask whether to notify them
-        if (has_attendees(rec) && is_organizer(rec)) {
+        if (me.has_attendees(rec) && me.is_organizer(rec)) {
             notify = true;
             if (do_confirm) {
                 html = rcmail.gettext('changeconfirmnotifications', 'tasklist');
@@ -1317,7 +1296,7 @@ function rcube_tasklist_ui(settings)
             }
         }
         // ask whether to change my partstat and notify organizer
-        else if (data._status_before !== undefined && data.status && data._status_before != data.status && is_attendee(rec)) {
+        else if (data._status_before !== undefined && data.status && data._status_before != data.status && me.is_attendee(rec)) {
           partstat = true;
           if (do_confirm) {
               html = rcmail.gettext('partstatupdatenotification', 'tasklist');
@@ -1799,29 +1778,8 @@ function rcube_tasklist_ui(settings)
             scroll_timer = window.setTimeout(function(){ tasklist_drag_scroll(container, dir); }, scroll_speed);
     }
 
-    // check if the task has 'real' attendees, excluding the current user
-    var has_attendees = function(task)
-    {
-        return !!(task.attendees && task.attendees.length && (task.attendees.length > 1 || String(task.attendees[0].email).toLowerCase() != settings.identity.email));
-    };
-
-    // check if the current user is an attendee of this task
-    var is_attendee = function(task, email, role)
-    {
-        var i, attendee, emails = email ? ';' + email.toLowerCase() : settings.identity.emails;
-
-        for (i=0; task.attendees && i < task.attendees.length; i++) {
-            attendee = task.attendees[i];
-            if ((!role || attendee.role == role) && attendee.email && emails.indexOf(';'+attendee.email.toLowerCase()) >= 0) {
-                return attendee;
-            }
-        }
-
-        return false;
-    };
-
     // check if the current user is the organizer
-    var is_organizer = function(task, email)
+    this.is_organizer = function(task, email)
     {
         if (!email) email = task.organizer ? task.organizer.email : null;
         if (email)
@@ -2054,7 +2012,7 @@ function rcube_tasklist_ui(settings)
             });
 */
             var j, data, rsvp = false, mystatus = null, line, morelink, html = '', overflow = '',
-                organizer = is_organizer(rec);
+                organizer = me.is_organizer(rec);
 
             for (j=0; j < rec.attendees.length; j++) {
                 data = rec.attendees[j];
@@ -2108,7 +2066,7 @@ function rcube_tasklist_ui(settings)
                     .html(rcmail.gettext('status' + mystatus, 'libcalendaring'));
             }
 */
-            var show_rsvp = !temp && rsvp && list.editable && !is_organizer(rec) && rec.status != 'CANCELLED';
+            var show_rsvp = !temp && rsvp && list.editable && !me.is_organizer(rec) && rec.status != 'CANCELLED';
             $('#task-rsvp')[(show_rsvp ? 'show' : 'hide')]();
             $('#task-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
 
@@ -2135,7 +2093,7 @@ function rcube_tasklist_ui(settings)
             });
         }
 
-        if (has_permission(list, 'td') && !rec.readonly) {
+        if (me.has_permission(list, 'td') && !rec.readonly) {
             buttons.push({
                 text: rcmail.gettext('delete','tasklist'),
                 'class': 'delete',
@@ -2370,7 +2328,7 @@ function rcube_tasklist_ui(settings)
             list = rec.list && me.tasklists[rec.list] ? me.tasklists[rec.list] :
                 (me.selected_list ? me.tasklists[me.selected_list] : { editable: action == 'new', rights: action == 'new' ? 'rwitd' : 'r' });
 
-        if (rcmail.busy || !has_permission(list, 'i') || (action == 'edit' && (!rec || rec.readonly)))
+        if (rcmail.busy || !me.has_permission(list, 'i') || (action == 'edit' && (!rec || rec.readonly)))
             return false;
 
         me.selected_task = $.extend({ valarms:[] }, rec);  // clone task object
@@ -2402,12 +2360,12 @@ function rcube_tasklist_ui(settings)
         var comment = $('#edit-attendees-comment');
 
         invite.checked = settings.itip_notify & 1 > 0;
-        notify.checked = has_attendees(rec) && invite.checked;
+        notify.checked = me.has_attendees(rec) && invite.checked;
 
         // set tasklist selection according to permissions
         tasklist.find('option').each(function(i, opt) {
             var l = me.tasklists[opt.value] || {},
-                writable = l.editable || (action == 'new' && has_permission(l, 'i'));
+                writable = l.editable || (action == 'new' && me.has_permission(l, 'i'));
             $(opt).prop('disabled', !writable);
 
             if (!selected_list && writable)
@@ -2450,13 +2408,13 @@ function rcube_tasklist_ui(settings)
         me.set_recurrence_edit(rec);
 
         // init attendees tab
-        var organizer = !rec.attendees || is_organizer(rec),
+        var organizer = !rec.attendees || me.is_organizer(rec),
             allow_invitations = organizer || (rec.owner && rec.owner == 'anonymous') || settings.invite_shared;
 
         task_attendees = [];
         attendees_list = $('#edit-attendees-table > tbody').html('');
-        $('#edit-attendees-notify')[(allow_invitations && has_attendees(rec) && (settings.itip_notify & 2) ? 'show' : 'hide')]();
-        $('#edit-localchanges-warning')[(has_attendees(rec) && !(allow_invitations || (rec.owner && is_organizer(rec, rec.owner))) ? 'show' : 'hide')]();
+        $('#edit-attendees-notify')[(allow_invitations && me.has_attendees(rec) && (settings.itip_notify & 2) ? 'show' : 'hide')]();
+        $('#edit-localchanges-warning')[(me.has_attendees(rec) && !(allow_invitations || (rec.owner && me.is_organizer(rec, rec.owner))) ? 'show' : 'hide')]();
 
         // attendees (aka assignees)
         if (list.attendees) {
@@ -2611,7 +2569,7 @@ function rcube_tasklist_ui(settings)
             }
 
             // tell server to send notifications
-            if ((has_attendees(data) || (rec.id && has_attendees(rec))) && allow_invitations && (notify.checked || invite.checked || need_invitation)) {
+            if ((me.has_attendees(data) || (rec.id && me.has_attendees(rec))) && allow_invitations && (notify.checked || invite.checked || need_invitation)) {
                 data._notify = settings.itip_notify;
                 data._comment = comment.val();
             }
@@ -2849,13 +2807,13 @@ function rcube_tasklist_ui(settings)
             });
         }
 
-        if (is_attendee(rec)) {
+        if (me.is_attendee(rec)) {
             html += '<div class="task-dialog-message">' +
                 '<label><input class="confirm-attendees-decline" type="checkbox" checked="checked" value="1" name="_decline" />&nbsp;' +
                     rcmail.gettext('itipdeclinetask', 'tasklist') + 
                 '</label></div>';
         }
-        else if (has_attendees(rec) && is_organizer(rec)) {
+        else if (me.has_attendees(rec) && me.is_organizer(rec)) {
             html += '<div class="task-dialog-message">' +
                 '<label><input class="confirm-attendees-notify" type="checkbox" checked="checked" value="1" name="_notify" />&nbsp;' +
                     rcmail.gettext('sendcancellation', 'tasklist') + 
@@ -3017,7 +2975,7 @@ function rcube_tasklist_ui(settings)
                 editform = $('#tasklisteditform');
                 me.dialog_resize(rcmail.gui_containers.tasklistform, editform.height(), editform.width());
 
-                name = $('#taskedit-tasklistame').prop('disabled', !has_permission(list, 'a')||list.norename).val(list.editname || list.name);
+                name = $('#taskedit-tasklistame').prop('disabled', !me.has_permission(list, 'a')||list.norename).val(list.editname || list.name);
                 alarms = $('#taskedit-showalarms').prop('checked', list.showalarms).get(0);
                 name.select();
 
@@ -3336,14 +3294,6 @@ function rcube_tasklist_ui(settings)
         }
         return active;
     }
-
-    // resize and reposition (center) the dialog window
-    this.dialog_resize = function(id, height, width)
-    {
-        var win = $(window), w = win.width(), h = win.height();
-            $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
-                .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
-    };
 
     /**
      * Enable/disable focusview mode for the given list
