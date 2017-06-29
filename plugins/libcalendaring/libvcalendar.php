@@ -977,7 +977,7 @@ class libvcalendar implements Iterator
         $ve->add('UID', $event['uid']);
 
         // set DTSTAMP according to RFC 5545, 3.8.7.2.
-        $dtstamp = !empty($event['changed']) && !empty($this->method) ? $event['changed'] : new DateTime();
+        $dtstamp = !empty($event['changed']) && empty($this->method) ? $event['changed'] : new DateTime();
         $ve->add($this->datetime_prop('DTSTAMP', $dtstamp, true));
 
         // all-day events end the next day
