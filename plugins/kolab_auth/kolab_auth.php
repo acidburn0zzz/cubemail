@@ -298,8 +298,8 @@ class kolab_auth extends rcube_plugin
             if (is_writable($user_log_dir)) {
                 $args['dir'] = $user_log_dir;
             }
-            else if ($args['name'] != 'errors') {
-                $args['abort'] = true;  // don't log if unauthenticed
+            else if (!in_array($args['name'], array('errors', 'userlogins', 'sendmail'))) {
+                $args['abort'] = true;  // don't log if unauthenticed or no per-user log dir
             }
         }
 
