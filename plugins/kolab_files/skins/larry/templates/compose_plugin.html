@@ -3,9 +3,9 @@
     <div id="quicksearchbar" class="searchbox" role="search" aria-labelledby="aria-label-searchform">
         <h3 id="aria-label-searchform" class="voice"><roundcube:label name="kolab_files.arialabelsearchform" /></h3>
         <label for="quicksearchbox" class="voice"><roundcube:label name="arialabelquicksearchbox" /></label>
-        <roundcube:button name="filesearchmenulink" id="filesearchmenulink" class="iconbutton searchoptions" onclick="return UI.toggle_popup('filesearchmenu', event)" title="searchmod"  label="options" aria-haspopup="true" aria-expanded="false" aria-owns="filesearchmenu-menu" />
+        <roundcube:button type="link" name="filesearchmenulink" id="filesearchmenulink" class="iconbutton searchoptions" onclick="return UI.toggle_popup('filesearchmenu', event)" title="searchmod"  label="options" aria-haspopup="true" aria-expanded="false" aria-owns="filesearchmenu-menu" />
         <roundcube:object name="file-search-form" id="filesearchbox" />
-        <roundcube:button command="files-search-reset" id="searchreset" class="iconbutton reset" title="resetsearch" content=" " />
+        <roundcube:button type="link" command="files-search-reset" id="searchreset" class="iconbutton reset" title="resetsearch" content=" " />
     </div>
 
     <div id="folderlistbox" class="uibox listbox" role="navigation" aria-labelledby="aria-label-folderlist">
@@ -20,7 +20,7 @@
                 <label for="foldersearch" class="voice"><roundcube:label name="arialabelsearchterms" /></label>
                 <input type="text" name="q" id="foldersearch" placeholder="<roundcube:label name='findfolders' />" />
                 <a class="iconbutton searchicon"></a>
-                <roundcube:button command="reset-foldersearch" id="folderlistsearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+                <roundcube:button type="link" command="reset-foldersearch" id="folderlistsearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
             </div>
         </div>
         <div id="files-folder-list" class="scroller"></div>

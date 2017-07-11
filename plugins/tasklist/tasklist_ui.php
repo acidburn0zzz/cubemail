@@ -51,6 +51,7 @@ class tasklist_ui
             'classsel'   => 'button-tasklist button-selected',
             'innerclass' => 'button-inner',
             'label'      => 'tasklist.navtitle',
+            'type'       => 'link'
         ), 'taskbar');
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tasklist.css');

@@ -86,7 +86,8 @@ class kolab_addressbook_ui
                         'label'    => 'kolab_addressbook.'.str_replace('-', '', $command),
                         'domain'   => $this->ID,
                         'classact' => 'active',
-                        'command'  => $command
+                        'command'  => $command,
+                        'type'     => 'link'
                 )));
                 $this->plugin->api->add_content($content, 'groupoptions');
                 $idx++;

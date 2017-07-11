@@ -29,9 +29,9 @@
 <div id="quicksearchbar" class="quicksearchbox" role="search" aria-labelledby="aria-label-searchform">
     <h2 id="aria-label-searchform" class="voice"><roundcube:label name="kolab_files.arialabelsearchform" /></h2>
     <label for="quicksearchbox" class="voice"><roundcube:label name="arialabelquicksearchbox" /></label>
-    <roundcube:button name="filesearchmenulink" id="filesearchmenulink" class="iconbutton searchoptions" onclick="UI.toggle_popup('filesearchmenu', event); return false" title="searchmod" label="options" aria-haspopup="true" aria-expanded="false" aria-owns="filesearchmenu-menu" />
+    <roundcube:button type="link" name="filesearchmenulink" id="filesearchmenulink" class="iconbutton searchoptions" onclick="UI.toggle_popup('filesearchmenu', event); return false" title="searchmod" label="options" aria-haspopup="true" aria-expanded="false" aria-owns="filesearchmenu-menu" />
     <roundcube:object name="file-search-form" id="quicksearchbox" />
-    <roundcube:button command="files-search-reset" id="searchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+    <roundcube:button type="link" command="files-search-reset" id="searchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
 </div>
 
 <div id="folderlistbox" class="uibox listbox" role="navigation" aria-labelledby="aria-label-folderlist">
@@ -46,7 +46,7 @@
             <label for="foldersearch" class="voice"><roundcube:label name="arialabelsearchterms" /></label>
             <input type="text" name="q" id="foldersearch" placeholder="<roundcube:label name='findfolders' />" />
             <a class="iconbutton searchicon"></a>
-            <roundcube:button command="reset-foldersearch" id="folderlistsearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+            <roundcube:button type="link" command="reset-foldersearch" id="folderlistsearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
         </div>
     </div>
     <div id="files-folder-list" class="scroller withfooter"></div>
@@ -75,12 +75,12 @@
 <div id="folderoptions" class="popupmenu" data-editable="true" aria-hidden="true">
     <h3 id="aria-label-folderoptions" class="voice"><roundcube:label name="kolab_files.folderoptions" /></h3>
     <ul id="folderoptionsmenu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-folderoptions">
-        <li role="menuitem"><roundcube:button command="folder-rename" label="rename" classAct="active" /></li>
-        <li role="menuitem"><roundcube:button command="files-folder-delete" label="delete" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button type="link" command="folder-rename" label="rename" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button type="link" command="files-folder-delete" label="delete" classAct="active" /></li>
         <roundcube:if condition="!empty(env:external_sources)" />
-        <li role="menuitem"><roundcube:button command="folder-mount" label="kolab_files.foldermount" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button type="link" command="folder-mount" label="kolab_files.foldermount" classAct="active" /></li>
         <roundcube:endif />
-        <li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button type="link" command="folders" task="settings" label="managefolders" classAct="active" /></li>
         <roundcube:container name="filesfolderoptions" id="folderoptionsmenu" />
     </ul>
 </div>
@@ -203,8 +203,8 @@
 
 <div id="dragfilemenu" class="popupmenu" aria-hidden="true">
     <ul class="toolbarmenu" role="menu">
-        <li role="menuitem"><roundcube:button command="files-move" onclick="return kolab_files_drag_menu_action('files-move')" label="move" classAct="active" /></li>
-        <li role="menuitem"><roundcube:button command="files-copy" onclick="return kolab_files_drag_menu_action('files-copy')" label="copy" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button type="link" command="files-move" onclick="return kolab_files_drag_menu_action('files-move')" label="move" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button type="link" command="files-copy" onclick="return kolab_files_drag_menu_action('files-copy')" label="copy" classAct="active" /></li>
     </ul>
 </div>
 

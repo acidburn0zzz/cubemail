@@ -22,11 +22,12 @@ class kolab_notes_ui
 
         // add taskbar button
         $this->plugin->add_button(array(
-            'command' => 'notes',
-            'class'   => 'button-notes',
-            'classsel' => 'button-notes button-selected',
+            'command'    => 'notes',
+            'class'      => 'button-notes',
+            'classsel'   => 'button-notes button-selected',
             'innerclass' => 'button-inner',
-            'label'   => 'kolab_notes.navtitle',
+            'label'      => 'kolab_notes.navtitle',
+            'type'       => 'link'
         ), 'taskbar');
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/notes.css');

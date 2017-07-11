@@ -24,7 +24,7 @@
         <label for="quicksearchbox" class="voice"><roundcube:label name="kolab_notes.arialabelnotesquicksearchbox" /></label>
         <a id="searchmenulink" class="iconbutton searchoptions" > </a>
         <roundcube:object name="plugin.searchform" id="quicksearchbox" />
-        <roundcube:button command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" content=" " />
+        <roundcube:button type="link" command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" content=" " />
     </div>
 
     <div id="mainscreencontent">
@@ -47,7 +47,7 @@
                     <label for="notebooksearch" class="voice"><roundcube:label name="kolab_notes.searchterms" /></label>
                     <input type="text" name="q" id="notebooksearch" placeholder="<roundcube:label name='kolab_notes.findnotebooks' />" />
                     <a class="iconbutton searchicon"></a>
-                    <roundcube:button command="reset-listsearch" id="notebooksearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
+                    <roundcube:button type="link" command="reset-listsearch" id="notebooksearch-reset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
                 </div>
             </div>
             <div class="scroller withfooter">
@@ -61,10 +61,10 @@
         <div id="notesoptionsmenu" class="popupmenu" aria-hidden="true">
             <h3 id="aria-label-optionsmenu" class="voice"><roundcube:label name="kolab_notes.arialabelnotesoptionsmenu" /></h3>
             <ul class="toolbarmenu" id="notesoptionsmenu-menu" role="menu" aria-labelledby="aria-label-optionsmenu">
-                <li role="menuitem"><roundcube:button command="list-edit" label="edit" classAct="active" /></li>
-                <li role="menuitem"><roundcube:button command="list-delete" label="delete" classAct="active" /></li>
-                <li role="menuitem"><roundcube:button command="list-remove" label="kolab_notes.removelist" classAct="active" /></li>
-                <li role="menuitem"><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+                <li role="menuitem"><roundcube:button type="link" command="list-edit" label="edit" classAct="active" /></li>
+                <li role="menuitem"><roundcube:button type="link" command="list-delete" label="delete" classAct="active" /></li>
+                <li role="menuitem"><roundcube:button type="link" command="list-remove" label="kolab_notes.removelist" classAct="active" /></li>
+                <li role="menuitem"><roundcube:button type="link" command="folders" task="settings" label="managefolders" classAct="active" /></li>
             </ul>
         </div>
     </div>

@@ -127,6 +127,7 @@ class kolab_files_engine
                 'classsel'   => 'button-files button-selected',
                 'innerclass' => 'button-inner',
                 'label'      => 'kolab_files.files',
+                'type'       => 'link'
                 ), 'taskbar');
         }
 
