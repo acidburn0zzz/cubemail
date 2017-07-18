@@ -86,24 +86,23 @@
 	<div class="event-section" id="event-location">Location</div>
 	<div class="event-section" id="event-date">From-To</div>
 	<div class="event-section" id="event-description">
-		<h5 class="label"><roundcube:label name="calendar.description" /></h5>
-		<div class="event-text"></div>
-	</div>
-	<div class="event-section" id="event-url">
-		<h5 class="label"><roundcube:label name="calendar.url" /></h5>
-		<div class="event-text"></div>
-	</div>
-	<div class="event-section" id="event-repeat">
-		<h5 class="label"><roundcube:label name="calendar.repeat" /></h5>
-		<div class="event-text"></div>
-	</div>
-	<div class="event-section" id="event-alarm">
-		<h5 class="label"><roundcube:label name="calendar.alarms" /></h5>
 		<div class="event-text"></div>
 	</div>
 	<div class="event-section event-attendees" id="event-attendees">
-		<h5 class="label"><roundcube:label name="calendar.tabattendees" /></h5>
 		<div class="event-text"></div>
+	</div>
+	<div class="spacer">&nbsp;</div>
+	<div class="event-line" id="event-url">
+		<label><roundcube:label name="calendar.url" /></label>
+		<span class="event-text"></span>
+	</div>
+	<div class="event-line" id="event-repeat">
+		<label><roundcube:label name="calendar.repeat" /></label>
+		<span class="event-text"></span>
+	</div>
+	<div class="event-line" id="event-alarm">
+		<label><roundcube:label name="calendar.alarms" /></label>
+		<span class="event-text"></span>
 	</div>
 	<div class="event-line" id="event-partstat">
 		<label><roundcube:label name="calendar.mystatus" /></label>
@@ -132,19 +131,12 @@
 		<label><roundcube:label name="calendar.priority" /></label>
 		<span class="event-text"></span>
 	</div>
+	<!--
 	<div class="event-line" id="event-sensitivity">
 		<label><roundcube:label name="calendar.sensitivity" /></label>
 		<span class="event-text"></span>
 	</div>
-	<div class="event-section" id="event-links">
-		<label><roundcube:label name="calendar.links" /></label>
-		<span class="event-text"></span>
-		<br style="clear:left">
-	</div>
-	<div class="event-section" id="event-attachments">
-		<label><roundcube:label name="attachments" /></label>
-		<div class="event-text"></div>
-	</div>
+	-->
 	<div class="event-line" id="event-created-changed">
 		<label><roundcube:label name="calendar.created" /></label>
 		<span class="event-text event-created"></span>
@@ -154,6 +146,13 @@
 	<div class="event-line" id="event-rsvp-comment">
 		<label><roundcube:label name="calendar.rsvpcomment" /></label>
 		<span class="event-text"></span>
+	</div>
+	<div class="event-section" id="event-links">
+		<label><roundcube:label name="calendar.links" /></label>
+		<span class="event-text"></span>
+	</div>
+	<div class="event-section" id="event-attachments">
+		<div class="event-text"></div>
 	</div>
 
 	<roundcube:object name="plugin.event_rsvp_buttons" id="event-rsvp" class="event-dialog-message" style="display:none" />

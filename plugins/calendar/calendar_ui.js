@@ -411,7 +411,7 @@ function rcube_calendar_ui(settings)
         $('#event-repeat').show().children('.event-text').html(Q(event.recurrence_text));
       
       if (event.valarms && event.alarms_text)
-        $('#event-alarm').show().children('.event-text').html(Q(event.alarms_text));
+        $('#event-alarm').show().children('.event-text').html(Q(event.alarms_text).replace(',', ',<br>'));
       
       if (calendar.name)
         $('#event-calendar').show().children('.event-text').html(Q(calendar.name)).attr('class', 'event-text cal-'+calendar.id).css('color', calendar.textColor || calendar.color || '');
@@ -486,9 +486,9 @@ function rcube_calendar_ui(settings)
           line = rcube_libcalendaring.attendee_html(data);
 
           if (morelink)
-            overflow += line;
+            overflow += ' ' + line;
           else
-            html += line;
+            html += ' ' + line;
 
           // stop listing attendees
           if (j == 7 && event.attendees.length >= 7) {

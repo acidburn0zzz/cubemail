@@ -796,6 +796,9 @@ a.miniColors-trigger {
 .calendarmain .eventdialog div.event-line {
 	margin-top: 0.1em;
 	margin-bottom: 0.3em;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
 }
 
 .calendarmain .eventdialog div.event-line a.iconbutton {
@@ -805,6 +808,15 @@ a.miniColors-trigger {
 
 .calendarmain .eventdialog div.event-line span.event-text + label {
 	margin-left: 2em;
+}
+
+#event-description .event-text,
+#event-attendees .event-text {
+	padding-top: 0.4em;
+}
+
+.eventdialog .spacer {
+	font-size: 4px;
 }
 
 .eventdialog .event-text-old,
@@ -959,16 +971,6 @@ div.form-section,
 	display: inline-block;
 	min-width: 7em;
 	padding-right: 0.5em;
-}
-
-.calendarmain .eventdialog #event-url .event-text {
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}
-
-#event-links .attachmentslist {
-	display: inline-block;
 }
 
 #event-links label,
