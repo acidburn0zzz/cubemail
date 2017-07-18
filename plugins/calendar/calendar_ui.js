@@ -2509,13 +2509,15 @@ function rcube_calendar_ui(settings)
 
       if (!data) data = event;
       var decline = false, notify = false, html = '', cal = me.calendars[event.calendar],
-        _has_attendees = me.has_attendees(event), _is_organizer = me.is_organizer(event);
+        _has_attendees = me.has_attendees(event),
+        _is_attendee = _has_attendees && me.is_attendee(event),
+        _is_organizer = me.is_organizer(event);
 
       // event has attendees, ask whether to notify them
       if (_has_attendees) {
         var checked = (settings.itip_notify & 1 ? ' checked="checked"' : '');
 
-        if (action == 'remove' && cal.group != 'shared' && !_is_organizer && me.is_attendee(event)) {
+        if (action == 'remove' && cal.group != 'shared' && !_is_organizer && _is_attendee) {
           decline = true;
           checked = event.status != 'CANCELLED' ? checked : '';
           html += '<div class="message">' +
@@ -2523,12 +2525,12 @@ function rcube_calendar_ui(settings)
             rcmail.gettext('itipdeclineevent', 'calendar') + 
             '</label></div>';
         }
-        else {
+        else if (_is_organizer) {
           notify = true;
           if (settings.itip_notify & 2) {
             html += '<div class="message">' +
               '<label><input class="confirm-attendees-donotify" type="checkbox"' + checked + ' value="1" name="notify" />&nbsp;' +
-                rcmail.gettext((action == 'remove' ? 'sendcancellation' : 'sendnotifications'), 'calendar') + 
+                rcmail.gettext((action == 'remove' ? 'sendcancellation' : 'sendnotifications'), 'calendar') +
               '</label></div>';
           }
           else {
@@ -2543,7 +2545,7 @@ function rcube_calendar_ui(settings)
 
         // disable the 'future' savemode if I'm an attendee
         // reason: no calendaring system supports the thisandfuture range parameter in iTip REPLY
-        if (action == 'remove' && _has_attendees && !_is_organizer && me.is_attendee(event)) {
+        if (action == 'remove' && !_is_organizer && _is_attendee) {
           future_disabled = ' disabled';
         }
 
