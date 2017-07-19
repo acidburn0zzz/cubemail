@@ -1,7 +1,7 @@
 /**
  * libkolab database schema
  *
- * @version 1.1
+ * @version 1.2
  * @author Aleksander Machniak
  * @licence GNU AGPL
  **/
@@ -33,7 +33,7 @@ CREATE TABLE "kolab_cache_contact" (
     "folder_id" number NOT NULL
         REFERENCES "kolab_folders" ("folder_id") ON DELETE CASCADE,
     "msguid" number NOT NULL,
-    "uid" varchar(128) NOT NULL,
+    "uid" varchar(512) NOT NULL,
     "created" timestamp DEFAULT NULL,
     "changed" timestamp DEFAULT NULL,
     "data" clob NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE "kolab_cache_event" (
     "folder_id" number NOT NULL
         REFERENCES "kolab_folders" ("folder_id") ON DELETE CASCADE,
     "msguid" number NOT NULL,
-    "uid" varchar(128) NOT NULL,
+    "uid" varchar(512) NOT NULL,
     "created" timestamp DEFAULT NULL,
     "changed" timestamp DEFAULT NULL,
     "data" clob NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE "kolab_cache_task" (
     "folder_id" number NOT NULL
         REFERENCES "kolab_folders" ("folder_id") ON DELETE CASCADE,
     "msguid" number NOT NULL,
-    "uid" varchar(128) NOT NULL,
+    "uid" varchar(512) NOT NULL,
     "created" timestamp DEFAULT NULL,
     "changed" timestamp DEFAULT NULL,
     "data" clob NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE "kolab_cache_journal" (
     "folder_id" number NOT NULL
         REFERENCES "kolab_folders" ("folder_id") ON DELETE CASCADE,
     "msguid" number NOT NULL,
-    "uid" varchar(128) NOT NULL,
+    "uid" varchar(512) NOT NULL,
     "created" timestamp DEFAULT NULL,
     "changed" timestamp DEFAULT NULL,
     "data" clob NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE "kolab_cache_note" (
     "folder_id" number NOT NULL
         REFERENCES "kolab_folders" ("folder_id") ON DELETE CASCADE,
     "msguid" number NOT NULL,
-    "uid" varchar(128) NOT NULL,
+    "uid" varchar(512) NOT NULL,
     "created" timestamp DEFAULT NULL,
     "changed" timestamp DEFAULT NULL,
     "data" clob NOT NULL,
@@ -130,7 +130,7 @@ CREATE TABLE "kolab_cache_file" (
     "folder_id" number NOT NULL
         REFERENCES "kolab_folders" ("folder_id") ON DELETE CASCADE,
     "msguid" number NOT NULL,
-    "uid" varchar(128) NOT NULL,
+    "uid" varchar(512) NOT NULL,
     "created" timestamp DEFAULT NULL,
     "changed" timestamp DEFAULT NULL,
     "data" clob NOT NULL,
@@ -149,7 +149,7 @@ CREATE TABLE "kolab_cache_configuration" (
     "folder_id" number NOT NULL
         REFERENCES "kolab_folders" ("folder_id") ON DELETE CASCADE,
     "msguid" number NOT NULL,
-    "uid" varchar(128) NOT NULL,
+    "uid" varchar(512) NOT NULL,
     "created" timestamp DEFAULT NULL,
     "changed" timestamp DEFAULT NULL,
     "data" clob NOT NULL,
@@ -168,7 +168,7 @@ CREATE TABLE "kolab_cache_freebusy" (
     "folder_id" number NOT NULL
         REFERENCES "kolab_folders" ("folder_id") ON DELETE CASCADE,
     "msguid" number NOT NULL,
-    "uid" varchar(128) NOT NULL,
+    "uid" varchar(512) NOT NULL,
     "created" timestamp DEFAULT NULL,
     "changed" timestamp DEFAULT NULL,
     "data" clob NOT NULL,
@@ -183,4 +183,4 @@ CREATE TABLE "kolab_cache_freebusy" (
 CREATE INDEX "kolab_cache_fb_uid2msguid" ON "kolab_cache_freebusy" ("folder_id", "uid", "msguid");
 
 
-INSERT INTO "system" ("name", "value") VALUES ('libkolab-version', '2015020600');
+INSERT INTO "system" ("name", "value") VALUES ('libkolab-version', '2017071900');
