@@ -795,7 +795,7 @@ class libcalendaring_itip
             $table->add('label', $this->gettext('location'));
             $table->add('location', rcube::Q($event['location']));
         }
-        if ($event['sensitivity'] && $event['sensitivity'] != 'public') {
+        if ($event['sensitivity'] && !preg_match('/^(x-|public$)/i', $event['sensitivity'])) {
             $table->add('label', $this->gettext('sensitivity'));
             $table->add('sensitivity', ucfirst($this->gettext($event['sensitivity'])) . '!');
         }
