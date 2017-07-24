@@ -992,7 +992,7 @@ class kolab_files_engine
     protected function action_index()
     {
         $this->plugin->add_label(
-            'uploading', 'attaching', 'searching', 'uploadsizeerror',
+            'uploading', 'attaching', 'uploadsizeerror',
             'filedeleting', 'filedeletenotice', 'filedeleteconfirm',
             'filemoving', 'filemovenotice', 'filemoveconfirm', 'filecopying', 'filecopynotice',
             'fileskip', 'fileskipall', 'fileoverwrite', 'fileoverwriteall'
