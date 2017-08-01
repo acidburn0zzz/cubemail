@@ -169,6 +169,6 @@ $config['kolab_invitation_calendars'] = false;
 // Enables displaying of free-busy URL with token-based authentication
 // Set it to the prefix URL, e.g. 'https://hostname/freebusy' or just '/freebusy'.
 // See freebusy_session_auth in configuration of kolab_auth plugin.
-$calendar['calendar_freebusy_session_auth_url'] = null;
+$config['calendar_freebusy_session_auth_url'] = null;
 
 ?>
