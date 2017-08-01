@@ -60,6 +60,17 @@ window.rcmail && rcmail.addEventListener('init', function() {
         rcmail.register_command('tag-remove', function(props, obj, event) { tag_remove(props, obj, event); });
         rcmail.register_command('tag-remove-all', function() { tag_remove('*'); });
 
+        // Disable tag functionality in contextmenu in Roundcube < 1.4
+        if (!rcmail.env.rcversion) {
+            rcmail.addEventListener('menu-open', function(e) {
+                if (e.name == 'rcm_markmessagemenu') {
+                    $.each(['add', 'remove', 'remove-all'], function() {
+                        $('a.cmd_tag-' + this).parent().hide();
+                    });
+                }
+            });
+        }
+
         // ajax response handler
         rcmail.addEventListener('plugin.kolab_tags', update_tags);
 
