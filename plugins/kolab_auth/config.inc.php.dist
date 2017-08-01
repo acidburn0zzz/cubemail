@@ -88,4 +88,10 @@ $config['kolab_auth_role_settings'] = Array(
 // Note: special name '*' for all LDAP addressbooks
 $config['kolab_auth_ldap_addressbooks'] = array('*');
 
+// Enables storing/updating session tokens for free-busy token authentication
+// See httpauth.allow_token option in Free-Busy service config.
+// The option can be set to a number of seconds after which the token-session
+// expires or to true (to get the configured Roundcube session time)
+$config['freebusy_session_auth'] = null;
+
 ?>

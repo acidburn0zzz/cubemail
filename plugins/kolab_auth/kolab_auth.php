@@ -42,6 +42,7 @@ class kolab_auth extends rcube_plugin
 
         $this->add_hook('authenticate', array($this, 'authenticate'));
         $this->add_hook('startup', array($this, 'startup'));
+        $this->add_hook('ready', array($this, 'ready'));
         $this->add_hook('user_create', array($this, 'user_create'));
 
         // Hook for password change
@@ -78,6 +79,69 @@ class kolab_auth extends rcube_plugin
             // the object is already initialized/configured
             if ($db = $rcmail->get_dbh()) {
                 $db->set_debug(true);
+            }
+        }
+    }
+
+    /**
+     * Ready hook handler
+     */
+    public function ready($args)
+    {
+        $rcmail = rcube::get_instance();
+
+        // Store user unique identifier for freebusy_session_auth feature
+        if (!($uniqueid = $rcmail->config->get('kolab_uniqueid'))) {
+            $uniqueid = $_SESSION['kolab_auth_uniqueid'];
+
+            if (!$uniqueid) {
+                // Find user record in LDAP
+                if (($ldap = self::ldap()) && $ldap->ready) {
+                    if ($record = $ldap->get_user_record($rcmail->get_user_name())) {
+                        $uniqueid = $record['uniqueid'];
+                    }
+                }
+            }
+
+            if ($uniqueid) {
+                $uniqueid = md5($uniqueid);
+                $rcmail->user->save_prefs(array('kolab_uniqueid' => $uniqueid));
+            }
+        }
+
+        // Set/update freebusy_session_auth entry
+        if ($uniqueid && empty($_SESSION['kolab_auth_admin'])
+            && ($ttl = $rcmail->config->get('freebusy_session_auth'))
+        ) {
+            if ($ttl === true) {
+                $ttl = $rcmail->config->get('session_lifetime', 0) * 60;
+
+                if (!$ttl) {
+                    $ttl = 10 * 60;
+                }
+            }
+
+            $rcmail->config->set('freebusy_auth_cache', 'db');
+            $rcmail->config->set('freebusy_auth_cache_ttl', $ttl);
+
+            if ($cache = $rcmail->get_cache_shared('freebusy_auth', false)) {
+                $key      = md5($uniqueid . ':' . rcube_utils::remote_addr() . ':' . $rcmail->get_user_name());
+                $value    = $cache->get($key);
+                $deadline = new DateTime('now', new DateTimeZone('UTC'));
+
+                // We don't want to do the cache update on every request
+                // do it once in a 1/10 of the ttl
+                if ($value) {
+                    $value = new DateTime($value);
+                    $value->sub(new DateInterval('PT' . intval($ttl * 9/10) . 'S'));
+                    if ($value > $deadline) {
+                        return;
+                    }
+                }
+
+                $deadline->add(new DateInterval('PT' . $ttl . 'S'));
+
+                $cache->set($key, $deadline->format(DateTime::ISO8601));
             }
         }
     }
@@ -554,6 +618,9 @@ class kolab_auth extends rcube_plugin
         // we don't like to use LDAP (connection + bind + search)
         $_SESSION['kolab_auth_vars'] = $ldap->get_parse_vars();
 
+        // Store user unique identifier for freebusy_session_auth feature
+        $_SESSION['kolab_auth_uniqueid'] = is_array($record['uniqueid']) ? $record['uniqueid'][0] : $record['uniqueid'];
+
         // Set user login
         if ($login_attr) {
             $this->data['user_login'] = is_array($record[$login_attr]) ? $record[$login_attr][0] : $record[$login_attr];
@@ -730,6 +797,8 @@ class kolab_auth extends rcube_plugin
         if (empty($addressbook)) {
             return null;
         }
+
+        $addressbook['fieldmap']['uniqueid'] = 'nsuniqueid';
 
         require_once __DIR__ . '/kolab_auth_ldap.php';
 
