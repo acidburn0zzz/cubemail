@@ -3200,6 +3200,27 @@ function rcube_calendar_ui(settings)
       }
     };
 
+    // show free-busy URL in a dialog box
+    this.showfburl = function()
+    {
+      var $dialog = $('#fburlbox');
+
+      if ($dialog.is(':ui-dialog'))
+        $dialog.dialog('close');
+
+      $dialog.dialog({
+        resizable: true,
+        closeOnEscape: true,
+        title: rcmail.gettext('showfburl', 'calendar'),
+        close: function() {
+          $dialog.dialog("destroy").hide();
+        },
+        width: 520
+      }).show();
+
+      $('#fburl').val(settings.freebusy_url).select();
+    };
+
     // refresh the calendar view after saving event data
     this.refresh = function(p)
     {
@@ -3601,7 +3622,7 @@ function rcube_calendar_ui(settings)
     calendars_list.addEventListener('select', function(node) {
       if (node && node.id && me.calendars[node.id]) {
         me.select_calendar(node.id, true);
-        rcmail.enable_command('calendar-edit', 'calendar-showurl', true);
+        rcmail.enable_command('calendar-edit', 'calendar-showurl', 'calendar-showfburl', true);
         rcmail.enable_command('calendar-delete', me.calendars[node.id].editable);
         rcmail.enable_command('calendar-remove', me.calendars[node.id] && me.calendars[node.id].removable);
       }
@@ -4162,6 +4183,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.register_command('calendar-delete', function(){ cal.calendar_delete(cal.calendars[cal.selected_calendar]); }, false);
   rcmail.register_command('events-import', function(){ cal.import_events(cal.calendars[cal.selected_calendar]); }, true);
   rcmail.register_command('calendar-showurl', function(){ cal.showurl(cal.calendars[cal.selected_calendar]); }, false);
+  rcmail.register_command('calendar-showfburl', function(){ cal.showfburl(); }, false);
   rcmail.register_command('event-download', function(){ cal.event_download(cal.selected_event); }, true);
   rcmail.register_command('event-sendbymail', function(p, obj, e){ cal.event_sendbymail(cal.selected_event, e); }, true);
   rcmail.register_command('event-copy', function(){ cal.event_copy(cal.selected_event); }, true);

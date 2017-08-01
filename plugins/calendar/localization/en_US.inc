@@ -112,6 +112,8 @@ $labels['nmonthsback'] = '$nr months back';
 $labels['showurl'] = 'Show calendar URL';
 $labels['showurldescription'] = 'Use the following address to access (read only) your calendar from other applications. You can copy and paste this into any calendar software that supports the iCal format.';
 $labels['caldavurldescription'] = 'Copy this address to a <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> client application (e.g. Evolution or Mozilla Thunderbird) to fully synchronize this specific calendar with your computer or mobile device.';
+$labels['showfburl'] = 'Show free-busy URL';
+$labels['fburldescription'] = 'Use the following address to access Free-Busy information from other applications. You can copy and paste this into any calendar software that supports free-busy information in iCal format. No authentication is required for this URL.';
 $labels['findcalendars'] = 'Find calendars...';
 $labels['searchterms'] = 'Search terms';
 $labels['calsearchresults'] = 'Available Calendars';

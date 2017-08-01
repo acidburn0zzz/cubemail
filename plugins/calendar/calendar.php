@@ -1732,6 +1732,18 @@ class calendar extends rcube_plugin
       $settings['identity'] = array('name' => $identity['name'], 'email' => strtolower($identity['email']), 'emails' => ';' . strtolower(join(';', $identity['emails'])));
     }
 
+    // freebusy token authentication URL
+    if (($url = $this->rc->config->get('calendar_freebusy_session_auth_url'))
+      && ($uniqueid = $this->rc->config->get('kolab_uniqueid'))
+    ) {
+      if ($url === true) $url = '/freebusy';
+      $url = rtrim(rcube_utils::resolve_url($url), '/ ');
+      $url .= '/' . urlencode($this->rc->get_user_name());
+      $url .= '/' . urlencode($uniqueid);
+
+      $settings['freebusy_url'] = $url;
+    }
+
     return $settings;
   }
 
