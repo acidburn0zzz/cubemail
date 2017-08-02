@@ -1295,37 +1295,7 @@ class kolab_files_engine
             $attachment = $this->rc->plugins->exec_hook('attachment_save', $attachment);
 
             if ($attachment['status'] && !$attachment['abort']) {
-                $id = $attachment['id'];
-
-                // store new attachment in session
-                unset($attachment['data'], $attachment['status'], $attachment['abort']);
-                $COMPOSE['attachments'][$id] = $attachment;
-
-                if (($icon = $COMPOSE['deleteicon']) && is_file($icon)) {
-                    $button = html::img(array(
-                        'src' => $icon,
-                        'alt' => $this->rc->gettext('delete')
-                    ));
-                }
-                else {
-                    $button = rcube::Q($this->rc->gettext('delete'));
-                }
-
-                $content = html::a(array(
-                    'href' => "#delete",
-                    'onclick' => sprintf("return %s.command('remove-attachment','rcmfile%s', this)", rcmail_output::JS_OBJECT_NAME, $id),
-                    'title' => $this->rc->gettext('delete'),
-                    'class' => 'delete',
-                ), $button);
-
-                $content .= rcube::Q($attachment['name']);
-
-                $this->rc->output->command('add2attachment_list', "rcmfile$id", array(
-                    'html'      => $content,
-                    'name'      => $attachment['name'],
-                    'mimetype'  => $attachment['mimetype'],
-                    'classname' => rcube_utils::file2class($attachment['mimetype'], $attachment['name']),
-                    'complete'  => true), $uploadid);
+                $this->compose_attach_success($attachment, $COMPOSE, $COMPOSE_ID, $uploadid);
             }
             else if ($attachment['error']) {
                 $errors[] = $attachment['error'];
@@ -1367,6 +1337,66 @@ class kolab_files_engine
         // send html page with JS calls as response
         $this->rc->output->command('auto_save_start', false);
         $this->rc->output->send();
+    }
+
+    protected function compose_attach_success($attachment, $COMPOSE, $COMPOSE_ID, $uploadid)
+    {
+        $id = $attachment['id'];
+
+        // store new attachment in session
+        unset($attachment['data'], $attachment['status'], $attachment['abort']);
+        $this->rc->session->append('compose_data_' . $COMPOSE_ID . '.attachments', $id, $attachment);
+
+        if (($icon = $COMPOSE['deleteicon']) && is_file($icon)) {
+            $button = html::img(array(
+                'src' => $icon,
+                'alt' => $this->rc->gettext('delete')
+            ));
+        }
+        else if ($COMPOSE['textbuttons']) {
+            $button = rcube::Q($this->rc->gettext('delete'));
+        }
+        else {
+            $button = '';
+        }
+
+        if (version_compare(version_parse(RCMAIL_VERSION), '1.3.0', '>=')) {
+            $link_content = sprintf('%s <span class="attachment-size"> (%s)</span>',
+                rcube::Q($attachment['name']), $this->rc->show_bytes($attachment['size']));
+
+            $content_link = html::a(array(
+                    'href'    => "#load",
+                    'class'   => 'filename',
+                    'onclick' => sprintf("return %s.command('load-attachment','rcmfile%s', this, event)", rcmail_output::JS_OBJECT_NAME, $id),
+                ), $link_content);
+
+            $delete_link = html::a(array(
+                    'href'    => "#delete",
+                    'onclick' => sprintf("return %s.command('remove-attachment','rcmfile%s', this, event)", rcmail_output::JS_OBJECT_NAME, $id),
+                    'title'   => $this->rc->gettext('delete'),
+                    'class'   => 'delete',
+                    'aria-label' => $this->rc->gettext('delete') . ' ' . $attachment['name'],
+                ), $button);
+
+            $content = $COMPOSE['icon_pos'] == 'left' ? $delete_link.$content_link : $content_link.$delete_link;
+        }
+        else {
+            $content = html::a(array(
+                    'href'    => "#delete",
+                    'onclick' => sprintf("return %s.command('remove-attachment','rcmfile%s', this)", rcmail_output::JS_OBJECT_NAME, $id),
+                    'title'   => $this->rc->gettext('delete'),
+                    'class'   => 'delete',
+            ), $button);
+
+            $content .= rcube::Q($attachment['name']);
+        }
+
+        $this->rc->output->command('add2attachment_list', "rcmfile$id", array(
+            'html'      => $content,
+            'name'      => $attachment['name'],
+            'mimetype'  => $attachment['mimetype'],
+            'classname' => rcube_utils::file2class($attachment['mimetype'], $attachment['name']),
+            'complete'  => true), $uploadid);
     }
 
     /**
