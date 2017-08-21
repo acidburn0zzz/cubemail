@@ -2239,6 +2239,7 @@ div.calendar-invitebox .rsvp-status.delegated {
 	background-position: 2px -180px;
 }
 
+#event-partstat .changersvp.unknown,
 #event-partstat .changersvp.needs-action,
 div.calendar-invitebox .rsvp-status.needs-action {
 	background-position: 2px 0;

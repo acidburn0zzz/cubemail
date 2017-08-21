@@ -477,7 +477,7 @@ function rcube_calendar_ui(settings)
           data = event.attendees[j];
           if (data.email) {
             if (data.role != 'ORGANIZER' && settings.identity.emails.indexOf(';'+data.email) >= 0) {
-              mystatus = data.status.toLowerCase();
+              mystatus = (data.status || 'UNKNOWN').toLowerCase();
               if (data.status == 'NEEDS-ACTION' || data.status == 'TENTATIVE' || data.rsvp)
                 rsvp = mystatus;
             }
@@ -519,7 +519,7 @@ function rcube_calendar_ui(settings)
 
         if (mystatus && !rsvp) {
           $('#event-partstat').show().children('.changersvp')
-            .removeClass('accepted tentative declined delegated needs-action')
+            .removeClass('accepted tentative declined delegated needs-action unknown')
             .addClass(mystatus)
             .children('.event-text')
             .text(rcmail.gettext('status' + mystatus, 'libcalendaring'));
@@ -527,7 +527,7 @@ function rcube_calendar_ui(settings)
 
         var show_rsvp = rsvp && !organizer && event.status != 'CANCELLED' && me.has_permission(calendar, 'v');
         $('#event-rsvp')[(show_rsvp ? 'show' : 'hide')]();
-        $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel='+mystatus+']').prop('disabled', true);
+        $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel="'+(mystatus || '')+'"]').prop('disabled', true);
 
         if (show_rsvp && event.comment)
           $('#event-rsvp-comment').show().children('.event-text').html(Q(event.comment));
