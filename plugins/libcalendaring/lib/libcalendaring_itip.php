@@ -791,7 +791,7 @@ class libcalendaring_itip
             $table->add('label', $this->gettext('recurring'));
             $table->add('recurrence', $this->lib->recurrence_text($event['recurrence']));
         }
-        if ($event['location']) {
+        if ($event['location'] && trim($event['location'])) {
             $table->add('label', $this->gettext('location'));
             $table->add('location', rcube::Q($event['location']));
         }
@@ -803,7 +803,7 @@ class libcalendaring_itip
             $table->add('label', $this->gettext('status'));
             $table->add('status', $this->gettext('status-' . strtolower($event['status'])));
         }
-        if ($event['comment']) {
+        if ($event['comment'] && trim($event['comment'])) {
             $table->add('label', $this->gettext('comment'));
             $table->add('location', rcube::Q($event['comment']));
         }
