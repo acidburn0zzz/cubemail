@@ -795,8 +795,7 @@ a.miniColors-trigger {
 }
 
 .calendarmain .eventdialog div.event-line {
-	margin-top: 0.1em;
-	margin-bottom: 0.3em;
+	margin-bottom: 0.4em;
 	white-space: nowrap;
 	overflow-x: hidden;
 	text-overflow: ellipsis;
