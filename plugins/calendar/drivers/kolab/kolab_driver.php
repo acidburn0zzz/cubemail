@@ -1157,7 +1157,7 @@ class kolab_driver extends calendar_driver
           $event['end']->add(new DateInterval($new_duration));
 
           // remove fixed weekday, will be re-set to the new weekday in kolab_calendar::update_event()
-          if ($old_start_date != $new_start_date) {
+          if ($old_start_date != $new_start_date && $event['recurrence']) {
             if (strlen($event['recurrence']['BYDAY']) == 2)
               unset($event['recurrence']['BYDAY']);
             if ($old['recurrence']['BYMONTH'] == $old['start']->format('n'))
