@@ -1945,6 +1945,10 @@ a.dropdown-link:after {
 	font-weight: bold;
 }
 
+.cal-event-status-cancelled {
+	opacity: 0.6;
+}
+
 .cal-event-status-cancelled .fc-event-title {
 	text-decoration: line-through;
 }
