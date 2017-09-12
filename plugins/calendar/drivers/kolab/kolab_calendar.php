@@ -659,14 +659,7 @@ class kolab_calendar extends kolab_storage_folder_api
     }
 
     // use libkolab to compute recurring events
-    if (class_exists('kolabcalendaring')) {
-        $recurrence = new kolab_date_recurrence($object);
-    }
-    else {
-      // fallback to local recurrence implementation
-      require_once($this->cal->home . '/lib/calendar_recurrence.php');
-      $recurrence = new calendar_recurrence($this->cal, $event);
-    }
+    $recurrence = new kolab_date_recurrence($object);
 
     $i = 0;
     while ($next_event = $recurrence->next_instance()) {
@@ -717,7 +710,7 @@ class kolab_calendar extends kolab_storage_folder_api
       if (++$i > 100000)
           break;
     }
-    
+
     return $events;
   }
 

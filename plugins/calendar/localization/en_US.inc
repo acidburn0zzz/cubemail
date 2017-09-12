@@ -125,6 +125,7 @@ $labels['invitationspending'] = 'Pending invitations';
 $labels['invitationsdeclined'] = 'Declined invitations';
 $labels['changepartstat'] = 'Change participant status';
 $labels['rsvpcomment'] = 'Invitation text';
+$labels['eventstartsync'] = 'Move the event start date to the first occurrence';
 
 // agenda view
 $labels['listrange'] = 'Range to display:';
@@ -267,6 +268,7 @@ $labels['currentevent'] = 'Current';
 $labels['futurevents'] = 'Future';
 $labels['allevents'] = 'All';
 $labels['saveasnew'] = 'Save as new';
+$labels['recurrenceerror'] = 'Unable to resolve recurrence rule for specified start date.';
 
 // birthdays calendar
 $labels['birthdays'] = 'Birthdays';

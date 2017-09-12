@@ -138,4 +138,89 @@ class kolab_date_recurrence
 
         return false;
     }
+
+    /**
+     * Find date/time of the first occurrence (excluding start date)
+     */
+    public function first_occurrence()
+    {
+        $event      = $this->object->to_array();
+        $start      = clone $this->start;
+        $orig_start = clone $this->start;
+        $interval   = intval($event['recurrence']['INTERVAL'] ?: 1);
+
+        switch ($event['recurrence']['FREQ']) {
+        case 'WEEKLY':
+            if (empty($event['recurrence']['BYDAY'])) {
+                return $orig_start;
+            }
+
+            $start->sub(new DateInterval("P{$interval}W"));
+            break;
+
+        case 'MONTHLY':
+            if (empty($event['recurrence']['BYDAY']) && empty($event['recurrence']['BYMONTHDAY'])) {
+                return $orig_start;
+            }
+
+            $start->sub(new DateInterval("P{$interval}M"));
+            break;
+
+        case 'YEARLY':
+            if (empty($event['recurrence']['BYDAY']) && empty($event['recurrence']['BYMONTH'])) {
+                return $orig_start;
+            }
+
+            $start->sub(new DateInterval("P{$interval}Y"));
+            break;
+
+        case 'DAILY':
+            if (!empty($event['recurrence']['BYMONTH'])) {
+                break;
+            }
+
+        default:
+            return $orig_start;
+        }
+
+        $event['start'] = $start;
+        $event['recurrence']['INTERVAL'] = $interval;
+        if ($event['recurrence']['COUNT']) {
+            // Increase count so we do not stop the loop to early
+            $event['recurrence']['COUNT'] += 100;
+        }
+
+        // Create recurrence that starts in the past
+        $object_type = $this->object instanceof kolab_format_task ? 'task' : 'event';
+        $object      = kolab_format::factory($object_type, 3.0);
+        $object->set($event);
+        $recurrence = new self($object);
+
+        // find the first occurrence
+        $found = false;
+        while ($next = $recurrence->next_start()) {
+            $start = $next;
+            if ($next >= $orig_start) {
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            rcube::raise_error(array(
+                'file' => __FILE__,
+                'line' => __LINE__,
+                'message' => sprintf("Failed to find a first occurrence. Start: %s, Recurrence: %s",
+                    $orig_start->format(DateTime::ISO8601), json_encode($event['recurrence'])),
+            ), true);
+
+            return null;
+        }
+
+        if ($orig_start->_dateonly) {
+            $start->_dateonly = true;
+        }
+
+        return $start;
+    }
 }

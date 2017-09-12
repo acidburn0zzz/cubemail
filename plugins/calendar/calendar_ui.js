@@ -678,7 +678,7 @@ function rcube_calendar_ui(settings)
       var freebusy = $('#edit-free-busy').val(event.free_busy);
       var priority = $('#edit-priority').val(event.priority);
       var sensitivity = $('#edit-sensitivity').val(event.sensitivity);
-      
+      var syncstart = $('#edit-recurrence-syncstart input');
       var duration = Math.round((event.end.getTime() - event.start.getTime()) / 1000);
       var startdate = $('#edit-startdate').val($.fullCalendar.formatDate(event.start, settings['date_format'])).data('duration', duration);
       var starttime = $('#edit-starttime').val($.fullCalendar.formatDate(event.start, settings['time_format'])).show();
@@ -897,6 +897,9 @@ function rcube_calendar_ui(settings)
           if (data.calendar && data.calendar != event.calendar)
             data._fromcalendar = event.calendar;
         }
+
+        if (data.recurrence && syncstart.is(':checked'))
+          data.syncstart = 1;
 
         update_event(action, data);
         $dialog.dialog("close");
@@ -3974,8 +3977,15 @@ function rcube_calendar_ui(settings)
               $('#edit-attendees-form .attendees-invitebox').show();
             }
           }
+
           // reset autocompletion on tab change (#3389)
           rcmail.ksearch_blur();
+
+          // display recurrence warning in recurrence tab only
+          if (tab == 'recurrence')
+            $('#edit-recurrence-frequency').change();
+          else
+            $('#edit-recurrence-syncstart').hide();
         }
       });
       $('#edit-enddate').datepicker(datepicker_settings);
