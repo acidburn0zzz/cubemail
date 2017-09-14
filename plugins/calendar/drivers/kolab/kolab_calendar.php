@@ -725,9 +725,18 @@ class kolab_calendar extends kolab_storage_folder_api
       $record['links'] = $this->get_links($record['uid']);
     }
 
-    if ($this->get_namespace() == 'other') {
+    $ns = $this->get_namespace();
+
+    if ($ns == 'other') {
       $record['className'] = 'fc-event-ns-other';
-      $record = kolab_driver::add_partstat_class($record, array('NEEDS-ACTION','DECLINED'), $this->get_owner());
+    }
+
+    if ($ns == 'other' || !$this->cal->rc->config->get('kolab_invitation_calendars')) {
+      $record = kolab_driver::add_partstat_class($record, array('NEEDS-ACTION', 'DECLINED'), $this->get_owner());
+
+      // Modify invitation status class name, when invitation calendars are disabled
+      // we'll use opacity only for declined/needs-action events
+      $record['className'] = str_replace('-invitation', '', $record['className']);
     }
 
     // add instance identifier to first occurrence (master event)

@@ -1945,6 +1945,8 @@ a.dropdown-link:after {
 	font-weight: bold;
 }
 
+.fc-needs-action,
+.fc-declined,
 .cal-event-status-cancelled {
 	opacity: 0.6;
 }
