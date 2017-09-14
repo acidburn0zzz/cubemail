@@ -1321,6 +1321,8 @@ rcube_libcalendaring.decline_attendee_reply = function(mime_id, task)
  */
 rcube_libcalendaring.fetch_itip_object_status = function(p)
 {
+  p.mbox = rcmail.env.mailbox;
+  p.message_uid = rcmail.env.uid;
   rcmail.http_post(p.task + '/itip-status', { data: p });
 };
 
@@ -1352,7 +1354,7 @@ rcube_libcalendaring.update_itip_object_status = function(p)
   $('#'+p.action+'-'+p.id).show().find('input.button').last().after(p.select);
 
   // highlight date if date change detected
-  if (p.resheduled)
+  if (p.rescheduled)
     $('.calendar-eventdetails td.date').addClass('modified');
 
   // show itip box appendix after replacing the given placeholders
