@@ -221,7 +221,7 @@ class kolab_auth extends rcube_plugin
      * Modifies list of plugins and settings according to
      * specified LDAP roles
      */
-    public function load_user_role_plugins_and_settings()
+    public function load_user_role_plugins_and_settings($startup = false)
     {
         if (empty($_SESSION['user_roledns'])) {
             return;
@@ -326,7 +326,16 @@ class kolab_auth extends rcube_plugin
 
             if (!empty($role_plugins[$role_dn])) {
                 foreach ((array)$role_plugins[$role_dn] as $plugin) {
-                    $this->api->load_plugin($plugin);
+                    $loaded = $this->api->load_plugin($plugin);
+
+                    // Some plugins e.g. kolab_2fa use 'startup' hook to
+                    // register other hooks, but when called on 'authenticate' hook
+                    // we're already after 'startup', so we'll call it directly
+                    if ($loaded && $startup && ($plugin = $this->api->get_plugin($plugin))
+                        && method_exists($plugin, 'startup')
+                    ) {
+                        $plugin->startup(array('task' => $rcmail->task, 'action' => $rcmail->action));
+                    }
                 }
             }
         }
@@ -660,7 +669,7 @@ class kolab_auth extends rcube_plugin
         }
 
         // load per-user settings/plugins
-        $this->load_user_role_plugins_and_settings();
+        $this->load_user_role_plugins_and_settings(true);
 
         return $args;
     }
