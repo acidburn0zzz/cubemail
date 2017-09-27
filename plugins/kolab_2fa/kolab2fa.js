@@ -29,7 +29,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     var highsec_call_stack = [];
     var highsec_dialog;
     var factor_dialog;
-    
+
+    if (!rcmail.env.kolab_2fa_factors) {
+        rcmail.env.kolab_2fa_factors = {};
+    }
+
     /**
      * Equivalend of PHP time()
      */
