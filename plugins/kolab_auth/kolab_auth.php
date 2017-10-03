@@ -331,8 +331,8 @@ class kolab_auth extends rcube_plugin
                     // Some plugins e.g. kolab_2fa use 'startup' hook to
                     // register other hooks, but when called on 'authenticate' hook
                     // we're already after 'startup', so we'll call it directly
-                    if ($loaded && $startup && ($plugin = $this->api->get_plugin($plugin))
-                        && method_exists($plugin, 'startup')
+                    if ($loaded && $startup && $plugin == 'kolab_2fa'
+                        && ($plugin = $this->api->get_plugin($plugin))
                     ) {
                         $plugin->startup(array('task' => $rcmail->task, 'action' => $rcmail->action));
                     }
