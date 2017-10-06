@@ -235,7 +235,7 @@ abstract class kolab_format
                 $result->setTime($datetime->format('G'), $datetime->format('i'), $datetime->format('s'));
 
             // libkolabxml throws errors on some deprecated timezone names
-            $utc_aliases = array('UTC', 'GMT', '+00:00', 'Z', 'Etc/GMT');
+            $utc_aliases = array('UTC', 'GMT', '+00:00', 'Z', 'Etc/GMT', 'Etc/UTC');
 
             if ($tz && in_array($tz->getName(), $utc_aliases)) {
                 $result->setUTC(true);
