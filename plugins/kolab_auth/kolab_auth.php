@@ -97,7 +97,7 @@ class kolab_auth extends rcube_plugin
             if (!$uniqueid) {
                 // Find user record in LDAP
                 if (($ldap = self::ldap()) && $ldap->ready) {
-                    if ($record = $ldap->get_user_record($rcmail->get_user_name())) {
+                    if ($record = $ldap->get_user_record($rcmail->get_user_name(), $_SESSION['kolab_host'])) {
                         $uniqueid = $record['uniqueid'];
                     }
                 }
@@ -629,6 +629,9 @@ class kolab_auth extends rcube_plugin
 
         // Store user unique identifier for freebusy_session_auth feature
         $_SESSION['kolab_auth_uniqueid'] = is_array($record['uniqueid']) ? $record['uniqueid'][0] : $record['uniqueid'];
+
+        // Store also host as we need it for get_user_reacod() in 'ready' hook handler
+        $_SESSION['kolab_host'] = $host;
 
         // Set user login
         if ($login_attr) {
