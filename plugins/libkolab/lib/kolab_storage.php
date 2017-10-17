@@ -576,10 +576,22 @@ class kolab_storage
      */
     public static function custom_displayname($folder)
     {
+        static $_metadata;
+
         // find custom display name in folder METADATA
         if (self::$config->get('kolab_custom_display_names', true) && self::setup()) {
-            // For performance reasons ask for all folders, it will be cached as one cache entry
-            $metadata = self::$imap->get_metadata("*", array(self::NAME_KEY_PRIVATE, self::NAME_KEY_SHARED));
+            if ($_metadata !== null) {
+                $metadata = $_metadata;
+            }
+            else {
+                // For performance reasons ask for all folders, it will be cached as one cache entry
+                $metadata = self::$imap->get_metadata("*", array(self::NAME_KEY_PRIVATE, self::NAME_KEY_SHARED));
+
+                // If cache is disabled store result in memory
+                if (!self::$config->get('imap_cache')) {
+                    $_metadata = $metadata;
+                }
+            }
 
             if ($data = $metadata[$folder]) {
                 if (($name = $data[self::NAME_KEY_PRIVATE]) || ($name = $data[self::NAME_KEY_SHARED])) {
