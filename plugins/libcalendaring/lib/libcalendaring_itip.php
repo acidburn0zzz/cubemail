@@ -95,8 +95,9 @@ class libcalendaring_itip
      */
     public function send_itip_message($event, $method, $recipient, $subject, $bodytext, $message = null, $rsvp = true)
     {
-        if (!$this->sender['name'])
+        if (!$this->sender['name']) {
             $this->sender['name'] = $this->sender['email'];
+        }
 
         if (!$message) {
             libcalendaring::identify_recurrence_instance($event);
@@ -111,7 +112,7 @@ class libcalendaring_itip
             'name' => $subject,
             'vars' => array(
                 'title' => $event['title'],
-                'name' => $this->sender['name']
+                'name' => $this->sender['name'],
             )
         ));
 
@@ -134,13 +135,17 @@ class libcalendaring_itip
         $mailbody = $this->gettext(array(
             'name' => $bodytext,
             'vars' => array(
-                'title' => $event['title'],
-                'date' => $this->lib->event_date_text($event, true) . $recurrence_info,
-                'attendees' => join(",\n ", $attendees_list),
-                'sender' => $this->sender['name'],
-                'organizer' => $this->sender['name'],
+                'title'       => $event['title'],
+                'date'        => $this->lib->event_date_text($event, true) . $recurrence_info,
+                'attendees'   => join(",\n ", $attendees_list),
+                'sender'      => $this->sender['name'],
+                'organizer'   => $this->sender['name'],
+                'description' => $event['description'],
             )
         ));
+
+        // remove redundant empty lines (e.g. when an event description is empty)
+        $mailbody = preg_replace('/\n{3,}/', "\n\n", $mailbody);
 
         // if (!empty($event['comment'])) {
         //     $mailbody .= "\n\n" . $this->gettext('itipsendercomment') . $event['comment'];
