@@ -233,7 +233,7 @@ function kolab_files_token()
 {
   // consider the token from parent window more reliable (fresher) than in framed window
   // it's because keep-alive is not requested in frames
-  return window.parent && parent.rcmail && parent.rcmail.env.files_token ? parent.rcmail.env.files_token : rcmail.env.files_token;
+  return rcmail.is_framed() && parent.rcmail.env.files_token ? parent.rcmail.env.files_token : rcmail.env.files_token;
 };
 
 function kolab_files_from_cloud_widget(elem)
@@ -1983,7 +1983,7 @@ function kolab_files_ui()
 
     // try parent window if the list element does not exist
     // i.e. called from dialog in parent window
-    if (!elem.length && window.parent && parent.rcmail) {
+    if (!elem.length && rcmail.is_framed()) {
       body = window.parent.document.body;
       elem = $(list_selector, body);
       searchbox = $(search_selector, body);
@@ -3742,7 +3742,7 @@ function kolab_files_ui()
       parent = $('#' + id);
 
     // try parent window if the folder element does not exist
-    if (!parent.length && window.parent && window.parent.rcmail) {
+    if (!parent.length && rcmail.is_framed()) {
       parent = $('#' + id, window.parent.document.body);
     }
 
