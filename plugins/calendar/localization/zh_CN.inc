@@ -59,6 +59,7 @@ $labels['mystatus'] = '我的状态';
 $labels['status'] = '状态';
 $labels['status-confirmed'] = '已确认';
 $labels['status-cancelled'] = '已取消';
+$labels['status-tentative'] = '临时';
 $labels['priority'] = '优先级';
 $labels['sensitivity'] = '隐私';
 $labels['public'] = '公开';

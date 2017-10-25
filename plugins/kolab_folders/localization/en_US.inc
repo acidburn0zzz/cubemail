@@ -31,9 +31,6 @@ $labels['junkemail'] = 'Junk';
 $labels['confidential'] = 'Confidential';
 $labels['private'] = 'Private';
 
-$labels['folderexpire'] = 'Delete messages older than';
-$labels['xdays'] = '$x days';
-
 $messages['defaultfolderexists'] = 'There is already default folder of specified type';
 
 ?>

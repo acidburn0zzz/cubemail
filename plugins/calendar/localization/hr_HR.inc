@@ -20,4 +20,5 @@ $labels['calendar'] = 'Kalendar';
 $labels['calendars'] = 'Kalendari';
 $labels['category'] = 'Kategorija';
 $labels['categories'] = 'Kategorije';
+$labels['status-tentative'] = 'Tentative';
 ?>

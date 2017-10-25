@@ -50,6 +50,4 @@ $labels['taskhistory'] = 'Історія';
 $labels['objectchangelog'] = 'Історія змін';
 $labels['itipcomment'] = 'Коментар до запрошення/повідомлення';
 $labels['andnmore'] = '$nr більше...';
-$labels['delegatedto'] = 'Доручено:';
-$labels['delegatedfrom'] = 'Доручено від:';
 $labels['comment'] = 'Коментарій';
