@@ -262,7 +262,7 @@ class kolab_folders extends rcube_plugin
         $this->include_script('kolab_folders.js');
 
         // build type SELECT fields
-        $type_select = new html_select(array('name' => '_ctype', 'id' => '_ctype',
+        $type_select = new html_select(array('name' => '_ctype', 'id' => '_folderctype',
             'onchange' => "\$('[name=\"_expire\"]').attr('disabled', \$(this).val() != 'mail')"
         ));
         $sub_select  = new html_select(array('name' => '_subtype', 'id' => '_subtype'));
@@ -286,10 +286,12 @@ class kolab_folders extends rcube_plugin
             }
         }
 
-        $args['form']['props']['fieldsets']['settings']['content']['foldertype'] = array(
+        $args['form']['props']['fieldsets']['settings']['content']['folderctype'] = array(
             'label' => $this->gettext('folderctype'),
-            'value' => $type_select->show(isset($new_ctype) ? $new_ctype : $ctype)
-                . $sub_select->show(isset($new_subtype) ? $new_subtype : $subtype),
+            'value' => html::div('input-group',
+                $type_select->show(isset($new_ctype) ? $new_ctype : $ctype)
+                . $sub_select->show(isset($new_subtype) ? $new_subtype : $subtype)
+            ),
         );
 
         $this->rc->output->set_env('kolab_folder_subtypes', $sub_types);
@@ -750,15 +752,30 @@ class kolab_folders extends rcube_plugin
         if (($expire = $this->get_expire_annotation($folder)) !== false) {
             $post    = trim(rcube_utils::get_input_value('_expire', rcube_utils::INPUT_POST));
             $is_mail = empty($type) || preg_match('/^mail/i', $type);
-            $input   = new html_inputfield(array('name' => '_expire', 'size' => 3, 'disabled' => !$is_mail));
+            $label   = $this->gettext('xdays');
+            $input   = new html_inputfield(array(
+                    'id'       => '_kolabexpire',
+                    'name'     => '_expire',
+                    'size'     => 3,
+                    'disabled' => !$is_mail
+            ));
 
             if ($post && $is_mail) {
                 $expire = (int) $post;
             }
 
+            if (strpos($label, '$') === 0) {
+                $label = str_replace('$x', '', $label);
+                $html  = $input->show($expire ?: '') . html::span('input-group-addon', rcube::Q($label));
+            }
+            else {
+                $label = str_replace('$x', '', $label);
+                $html  = html::span('input-group-addon', rcube::Q($label)) . $input->show($expire ?: '');
+            }
+
             $form['props']['fieldsets']['settings']['content']['kolabexpire'] = array(
                 'label' => $this->gettext('folderexpire'),
-                'value' => str_replace('$x', $input->show($expire ?: ''), $this->gettext('xdays')),
+                'value' => html::div('input-group', $html),
             );
         }
     }
