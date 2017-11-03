@@ -44,7 +44,6 @@ class libcalendaring_itip
             array('identity' => $this->rc->user->list_emails(true)));
         $this->sender = $hook['identity'];
 
-        $this->plugin->add_hook('message_before_send', array($this, 'before_send_hook'));
         $this->plugin->add_hook('smtp_connect', array($this, 'smtp_connect_hook'));
     }
 
@@ -147,7 +146,10 @@ class libcalendaring_itip
         // }
 
         // append links for direct invitation replies
-        if ($method == 'REQUEST' && $rsvp && ($token = $this->store_invitation($event, $recipient['email']))) {
+        if ($method == 'REQUEST' && $rsvp
+            && $this->rc->config->get('calendar_itip_smtp_server')
+            && ($token = $this->store_invitation($event, $recipient['email']))
+        ) {
             $mailbody .= "\n\n" . $this->gettext(array(
                 'name' => 'invitationattendlinks',
                 'vars' => array('url' => $this->plugin->get_url(array('action' => 'attend', 't' => $token))),
@@ -170,20 +172,6 @@ class libcalendaring_itip
         $this->itip_send = false;
 
         return $sent;
-    }
-
-    /**
-     * Plugin hook triggered by rcube::deliver_message() before delivering a message.
-     * Here we can set the 'smtp_server' config option to '' in order to use
-     * PHP's mail() function for unauthenticated email sending.
-     */
-    public function before_send_hook($p)
-    {
-        if ($this->itip_send && !$this->rc->user->ID && $this->rc->config->get('calendar_itip_smtp_server', null) === '') {
-            $this->rc->config->set('smtp_server', '');
-        }
-
-        return $p;
     }
 
     /**

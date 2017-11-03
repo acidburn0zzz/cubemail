@@ -138,8 +138,9 @@ $config['calendar_freebusy_trigger'] = false;
 $config['calendar_include_freebusy_data'] = 1;
 
 // SMTP server host used to send (anonymous) itip messages.
-// Set to '' in order to use PHP's mail() function for email delivery.
 // To override the SMTP port or connection method, provide a full URL like 'tls://somehost:587'
+// This will add a link to invitation messages to allow users from outside
+// to reply when their mail clients do not support iTip format.
 $config['calendar_itip_smtp_server'] = null;
 
 // SMTP username used to send (anonymous) itip messages
