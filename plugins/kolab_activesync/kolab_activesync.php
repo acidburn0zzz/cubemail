@@ -109,7 +109,7 @@ class kolab_activesync extends rcube_plugin
 
         if ($content = $this->ui->folder_options_table($mbox_imap, $devices, $type)) {
             $args['form']['activesync'] = array(
-                'name'    => rcube::Q($this->gettext('tabtitle')),
+                'name'    => $this->gettext('tabtitle'),
                 'content' => $content,
             );
         }

@@ -78,7 +78,7 @@ class kolab_delegation extends rcube_plugin
                 }
 
                 $this->skin_path = $this->local_skin_path();
-                $this->include_stylesheet($this->skin_path . '/style.css');
+                $this->include_stylesheet($this->skin_path . '/style.css', true);
             }
         }
         // Calendar/Tasklist plugin UI bindings
@@ -487,6 +487,7 @@ class kolab_delegation extends rcube_plugin
         }
 
         $folder_data   = $engine->list_folders($delegate['uid']);
+        $use_fieldsets = rcube_utils::get_boolean($attrib['use-fieldsets']);
         $rights        = array();
         $folder_groups = array();
 
@@ -500,10 +501,17 @@ class kolab_delegation extends rcube_plugin
             if (empty($group)) {
                 continue;
             }
+
             $attrib['type'] = $type;
-            $html .= html::div('foldersblock',
-                html::tag('h3', $type, $this->gettext($type)) .
-                    $this->delegate_folders_block($group, $attrib, $rights));
+            $table = $this->delegate_folders_block($group, $attrib, $rights);
+            $label = $this->gettext($type);
+
+            if ($use_fieldsets) {
+                $html .= html::tag('fieldset', 'foldersblock', html::tag('legend', $type, $label) . $table);
+            }
+            else {
+                $html .= html::div('foldersblock', html::tag('h3', $type, $label) . $table);
+            }
         }
 
         $this->rc->output->add_gui_object('folderslist', $attrib['id']);
@@ -521,8 +529,8 @@ class kolab_delegation extends rcube_plugin
         $write_ico = $attrib['writeicon'] ? html::img(array('src' => $path . $attrib['writeicon'], 'title' => $this->gettext('write'))) : '';
 
         $table = new html_table(array('cellspacing' => 0));
-        $table->add_header(array('class' => 'read', 'title' => $this->gettext('read'), 'tabindex' => 0), $read_ico);
-        $table->add_header(array('class' => 'write', 'title' => $this->gettext('write'), 'tabindex' => 0), $write_ico);
+        $table->add_header(array('class' => 'read checkbox-cell', 'title' => $this->gettext('read'), 'tabindex' => 0), $read_ico);
+        $table->add_header(array('class' => 'write checkbox-cell', 'title' => $this->gettext('write'), 'tabindex' => 0), $write_ico);
         $table->add_header('foldername', $this->rc->gettext('folder'));
 
         $checkbox_read  = new html_checkbox(array('name' => 'read[]', 'class' => 'read'));
@@ -553,10 +561,10 @@ class kolab_delegation extends rcube_plugin
             }
 
             $table->add_row();
-            $table->add('read', $checkbox_read->show(
+            $table->add('read checkbox-cell', $checkbox_read->show(
                 $rights[$folder] >= kolab_delegation_engine::ACL_READ ? $folder : null,
                 array('value' => $folder)));
-            $table->add('write', $checkbox_write->show(
+            $table->add('write checkbox-cell', $checkbox_write->show(
                 $rights[$folder] >= kolab_delegation_engine::ACL_WRITE ? $folder : null,
                 array('value' => $folder, 'id' => $folder_id)));
 
