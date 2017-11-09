@@ -552,13 +552,21 @@ function kolab_files_folder_mount_dialog()
     rcmail.drivers_list_initialized = true;
 
     $('td.source', dialog).each(function() {
-      $(this).click(function() {
+      var td = $(this),
+        id = td.attr('id').replace('source-', ''),
+        meta = rcmail.env.external_sources[id];
+
+      $.each(meta.form_values || [], function(i, v) {
+        td.find('#source-' + id + '-' + i).val(v);
+      });
+
+      td.click(function() {
         $('td.selected', dialog).removeClass('selected');
         dialog.find('.driverform').hide();
         $(this).addClass('selected').find('.driverform').show();
         $('input[type="radio"]', this).prop('checked', true);
-     });
-   });
+      });
+    });
   }
 
   args.button_classes = ['mainaction'];
