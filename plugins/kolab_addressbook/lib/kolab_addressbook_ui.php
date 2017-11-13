@@ -52,7 +52,7 @@ class kolab_addressbook_ui
 
         if (empty($this->rc->action)) {
             // Include stylesheet (for directorylist)
-            $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css');
+            $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css', true);
 
             // include kolab folderlist widget if available
             if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {
@@ -85,7 +85,8 @@ class kolab_addressbook_ui
                     $this->plugin->api->output->button(array(
                         'label'    => 'kolab_addressbook.'.str_replace('-', '', $command),
                         'domain'   => $this->ID,
-                        'classact' => 'active',
+                        'class'    => str_replace('-', ' ', $command) . ' disabled',
+                        'classact' => str_replace('-', ' ', $command) . ' active',
                         'command'  => $command,
                         'type'     => 'link'
                 )));
@@ -98,7 +99,8 @@ class kolab_addressbook_ui
                 $this->plugin->api->output->button(array(
                     'label'    => 'managefolders',
                     'type'     => 'link',
-                    'classact' => 'active',
+                    'class'    => 'folders disabled',
+                    'classact' => 'folders active',
                     'command'  => 'folders',
                     'task'     => 'settings',
             )));
@@ -117,8 +119,8 @@ class kolab_addressbook_ui
                 'kolab_addressbook.nraddressbooksfound',
                 'kolab_addressbook.noaddressbooksfound',
                 'kolab_addressbook.foldersubscribe',
-                'resetsearch');
-
+                'resetsearch'
+            );
 
             if ($this->plugin->bonnie_api) {
                 $this->rc->output->set_env('kolab_audit_trail', true);
@@ -139,7 +141,7 @@ class kolab_addressbook_ui
         }
         // include stylesheet for audit trail
         else if ($this->rc->action == 'show' && $this->plugin->bonnie_api) {
-            $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css');
+            $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css', true);
             $this->rc->output->add_label('kolab_addressbook.showhistory');
         }
         // book create/edit form
@@ -206,7 +208,7 @@ class kolab_addressbook_ui
             $options = $storage->folder_info($folder);
         }
 
-        $form   = array();
+        $form = array();
 
         // General tab
         $form['props'] = array(
@@ -236,9 +238,10 @@ class kolab_addressbook_ui
             $hidden_fields[] = array('name' => '_parent', 'value' => $path_imap);
         }
         else {
-            $select = kolab_storage::folder_selector('contact', array('name' => '_parent'), $folder);
+            $prop   = array('name' => '_parent', 'id' => '_parent');
+            $select = kolab_storage::folder_selector('contact', $prop, $folder);
 
-            $form['props']['fieldsets']['location']['content']['path'] = array(
+            $form['props']['fieldsets']['location']['content']['parent'] = array(
                 'label' => $this->plugin->gettext('parentbook'),
                 'value' => $select->show(strlen($folder) ? $path_imap : ''),
             );
@@ -259,7 +262,7 @@ class kolab_addressbook_ui
         $out = "$form_start\n";
 
         // Create form output
-        foreach ($form as $tab) {
+        foreach ($form as $idx => $tab) {
             if (!empty($tab['fieldsets']) && is_array($tab['fieldsets'])) {
                 $content = '';
                 foreach ($tab['fieldsets'] as $fieldset) {
@@ -274,7 +277,12 @@ class kolab_addressbook_ui
             }
 
             if ($content) {
-                $out .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
+                if ($idx != 'props') {
+                    $out .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
+                }
+                else {
+                    $out .= $content ."\n";
+                }
             }
         }
 

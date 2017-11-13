@@ -218,21 +218,11 @@ rcube_webmail.prototype.book_showurl = function()
     }
 
     if (url) {
-        $('div.showurldialog:ui-dialog').dialog('close');
-
         var txt = rcmail.gettext('carddavurldescription', 'kolab_addressbook'),
-            $dialog = $('<div>').addClass('showurldialog').append('<p>' + txt + '</p>'),
-            textbox = $('<textarea>').addClass('urlbox').css('width', '100%').attr('rows', 2).appendTo($dialog);
+            dialog = $('<div>').addClass('showurldialog').append('<p>' + txt + '</p>'),
+            textbox = $('<textarea>').addClass('urlbox').css('width', '100%').attr('rows', 3).appendTo(dialog);
 
-        $dialog.dialog({
-            resizable: true,
-            closeOnEscape: true,
-            title: rcmail.gettext('bookshowurl', 'kolab_addressbook'),
-            close: function() {
-                $dialog.dialog("destroy").remove();
-            },
-            width: 520
-        }).show();
+        this.simple_dialog(dialog, rcmail.gettext('bookshowurl', 'kolab_addressbook'), null, {width: 520});
 
         textbox.val(url).select();
     }
