@@ -1,0 +1,185 @@
+/**
+ * Kolab core library
+ *
+ * This file contains style of various Kolab plugins for Elastic skin.
+ *
+ * @author Thomas Bruederli <bruederli@kolabsys.com>
+ *
+ * Copyright (C) 2012-2017, Kolab Systems AG <contact@kolabsys.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@import (reference) "../../../../skins/elastic/styles/colors";
+@import (reference) "../../../../skins/elastic/styles/fontawesome";
+@import (reference) "../../../../skins/elastic/styles/variables";
+@import (reference) "../../../../skins/elastic/styles/mixins";
+
+
+/*** Folders list extensions ***/
+
+.listing {
+    // Fix focus indicator, because we add div element in the list record
+    @media screen and (min-width: @screen-width-large) {
+        li > div a {
+            border-left: 2px solid transparent;
+        }
+        li > div a:focus {
+            border-left: 2px solid @color-list-focus-indicator;
+            outline: 0;
+        }
+    }
+
+    li {
+        & > div {
+            display: flex;
+
+            & > a:first-child {
+                .overflow-ellipsis;
+                position: relative;
+                flex-grow: 1;
+
+                &:after {
+                    color: #ccc;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    height: @listing-line-height !important;
+                    font-size: 1.1em !important;
+                }
+            }
+
+            &.tasklist .listname:before {
+                // TODO: tasklist icon
+            }
+
+            &.calendar .calname:before {
+                // TODO: clendar icon
+            }
+
+            &.folder .listname:before {
+                // TODO: notes folder icon, maybe need to use #notebooks parent
+            }
+
+            span.handle {
+                // TODO calendar/tasklist color indicator
+            }
+
+            span.actions {
+                a {
+                    &:extend(.font-icon-class);
+                }
+
+                a.quickview:before {
+                    content: @fa-var-eye; // TODO: disabled button state
+                }
+
+                a.subscribed:before {
+                    content: @fa-var-bookmark-o; // TODO: better icon
+                }
+            }
+
+            &.focusview {
+                span.actions {
+                    a.quickview:before {
+                        content: @fa-var-eye;
+                    }
+                }
+            }
+
+            .subscribed {
+                cursor: pointer;
+                // reset listing's link style
+                padding: 0;
+                border-left: 0;
+                width: auto;
+
+                &:before {
+                    &:extend(.font-icon-class);
+                    content: @fa-var-bookmark-o; // TODO: better icon
+                    height: auto;
+                    color: @color-link;
+                }
+            }
+
+            &.subscribed {
+                .subscribed:before {
+                    content: @fa-var-bookmark; // TODO: better icon
+                }
+            }
+        }
+
+        &.selected > div {
+            color: @color-list-selected;
+            background-color: @color-list-selected-background;
+        }
+
+        &.shared > div a:first-child {
+            padding-right: 1.6em;
+
+            &:after {
+                &:extend(.font-icon-class);
+                content: @fa-var-share-alt;
+            }
+        }
+
+        &.user > div a:first-child {
+            padding-right: 1.6em;
+
+            &:after {
+                &:extend(.font-icon-class);
+                content: @fa-var-user;
+            }
+        }
+
+        &.readonly > div a:first-child {
+            padding-right: 1.6em;
+
+            &:after {
+                &:extend(.font-icon-class);
+                content: @fa-var-lock;
+            }
+        }
+
+        &.other.user > div {
+            span.calname {
+                // TODO @fa-var-user;
+            }
+        }
+
+        &.shared > div {
+            span.calname {
+                // TODO @fa-var-share-alt;
+            }
+        }
+
+        & > div.readonly {
+            span.calname {
+                // TODO: @fa-var-lock;
+            }
+        }
+    }
+}
+
+html.touch .listing {
+    li {
+        & > div {
+            a:after {
+                height: @listing-touch-line-height !important;
+            }
+        }
+    }
+}
+
+// TODO .quickview-active in Calendar and Tasklist
