@@ -1144,6 +1144,7 @@ function kolab_files_drag_end(e)
       }
 
       rcmail.command('files-move', rcmail.env.drag_target);
+      rcmail.env.drag_target = null;
     }
   }
 };
@@ -3026,7 +3027,7 @@ function kolab_files_ui()
     params.token = this.env.token;
     params.file = file;
 
-    rcmail.redirect(this.env.url + this.url('file_get', params));
+    rcmail.redirect(this.env.url + this.url('file_get', params), false);
   };
 
   // file(s) delete request
