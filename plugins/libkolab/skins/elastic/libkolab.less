@@ -182,4 +182,19 @@ html.touch .listing {
     }
 }
 
+#calendarcategories {
+    .input-group:not(:last-child) {
+        margin-bottom: .25rem;
+    }
+}
+
+fieldset.categories .input-group a.button.create {
+    &:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-plus;
+        line-height: 1;
+    }
+}
+
 // TODO .quickview-active in Calendar and Tasklist
+

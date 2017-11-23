@@ -97,6 +97,7 @@ class calendar extends rcube_plugin
   protected function setup()
   {
     $this->require_plugin('libcalendaring');
+    $this->require_plugin('libkolab');
 
     $this->lib             = libcalendaring::get_instance();
     $this->timezone        = $this->lib->timezone;
@@ -446,11 +447,16 @@ class calendar extends rcube_plugin
         return $p;
       }
 
-      $field_id = 'rcmfd_workstart';
+      $field_id   = 'rcmfd_workstart';
+      $work_start = $this->rc->config->get('calendar_work_start', $this->defaults['calendar_work_start']);
+      $work_end   = $this->rc->config->get('calendar_work_end', $this->defaults['calendar_work_end']);
       $p['blocks']['view']['options']['workinghours'] = array(
-        'title' => html::label($field_id, rcube::Q($this->gettext('workinghours'))),
-        'content' => $select_hours->show($this->rc->config->get('calendar_work_start', $this->defaults['calendar_work_start']), array('name' => '_work_start', 'id' => $field_id)) .
-        ' &mdash; ' . $select_hours->show($this->rc->config->get('calendar_work_end', $this->defaults['calendar_work_end']), array('name' => '_work_end', 'id' => $field_id)),
+        'title'   => html::label($field_id, rcube::Q($this->gettext('workinghours'))),
+        'content' => html::div('input-group',
+          $select_hours->show($work_start, array('name' => '_work_start', 'id' => $field_id))
+          . html::span('input-group-addon', ' &mdash; ')
+          . $select_hours->show($work_end, array('name' => '_work_end', 'id' => $field_id))
+        )
       );
     }
 
@@ -468,7 +474,7 @@ class calendar extends rcube_plugin
       $select_colors->add($this->gettext('coloringmode3'), 3);
 
       $p['blocks']['view']['options']['eventcolors'] = array(
-        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('eventcoloring'))),
+        'title'   => html::label($field_id, rcube::Q($this->gettext('eventcoloring'))),
         'content' => $select_colors->show($this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring'])),
       );
     }
@@ -499,7 +505,7 @@ class calendar extends rcube_plugin
       if (!isset($no_override['calendar_default_alarm_offset'])) {
         $field_id      = 'rcmfd_alarm';
         $input_value   = new html_inputfield(array('name' => '_alarm_value', 'id' => $field_id . 'value', 'size' => 3));
-        $select_offset = new html_select(array('name' => '_alarm_offset', 'id' => $field_id . 'offset'));
+        $select_offset = new html_select(array('name' => '_alarm_offset', 'id' => $field_id . 'offset', 'class' => 'input-group-addon'));
 
         foreach (array('-M','-H','-D','+M','+H','+D') as $trigger) {
           $select_offset->add($this->rc->gettext('trigger' . $trigger, 'libcalendaring'), $trigger);
@@ -511,7 +517,7 @@ class calendar extends rcube_plugin
 
       $p['blocks']['view']['options']['alarmtype'] = array(
         'title' => html::label($field_id, rcube::Q($this->gettext('defaultalarmtype'))),
-        'content' => $alarm_type . ' ' . $alarm_offset,
+        'content' => html::div('input-group', $alarm_type . ' ' . $alarm_offset),
       );
     }
 
@@ -529,7 +535,7 @@ class calendar extends rcube_plugin
           $default_calendar = $id;
       }
       $p['blocks']['view']['options']['defaultcalendar'] = array(
-        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('defaultcalendar'))),
+        'title' => html::label($field_id, rcube::Q($this->gettext('defaultcalendar'))),
         'content' => $select_cal->show($this->rc->config->get('calendar_default_calendar', $default_calendar)),
       );
     }
@@ -570,7 +576,7 @@ class calendar extends rcube_plugin
 
       $p['blocks']['itip']['options']['after_action'] = array(
         'title'   => html::label($field_id, rcube::Q($this->gettext('afteraction'))),
-        'content' => $select->show($val) . $folders->show($folder),
+        'content' => html::div('input-group', $select->show($val) . $folders->show($folder)),
       );
     }
 
@@ -588,11 +594,17 @@ class calendar extends rcube_plugin
         foreach ($categories as $name => $color) {
           $key = md5($name);
           $field_class = 'rcmfd_category_' . str_replace(' ', '_', $name);
-          $category_remove = new html_inputfield(array('type' => 'button', 'value' => 'X', 'class' => 'button', 'onclick' => '$(this).parent().remove()', 'title' => $this->gettext('remove_category')));
+          $category_remove = html::a(array(
+              'class'   => 'button icon delete input-group-addon',
+              'onclick' => '$(this).parent().remove()',
+              'title'   => $this->gettext('remove_category'),
+              'href'    => '#rcmfd_new_category',
+            ), html::span('inner', $this->gettext('delete'))
+          );
           $category_name  = new html_inputfield(array('name' => "_categories[$key]", 'class' => $field_class, 'size' => 30, 'disabled' => $this->driver->categoriesimmutable));
           $category_color = new html_inputfield(array('name' => "_colors[$key]", 'class' => "$field_class colors", 'size' => 6));
           $hidden = $this->driver->categoriesimmutable ? html::tag('input', array('type' => 'hidden', 'name' => "_categories[$key]", 'value' => $name)) : '';
-          $categories_list .= html::div(null, $hidden . $category_name->show($name) . '&nbsp;' . $category_color->show($color) . '&nbsp;' . $category_remove->show());
+          $categories_list .= $hidden . html::div('input-group', $category_name->show($name) . $category_color->show($color) . $category_remove);
         }
 
         $p['blocks']['categories']['options']['category_' . $name] = array(
@@ -601,24 +613,36 @@ class calendar extends rcube_plugin
 
         $field_id = 'rcmfd_new_category';
         $new_category = new html_inputfield(array('name' => '_new_category', 'id' => $field_id, 'size' => 30));
-        $add_category = new html_inputfield(array('type' => 'button', 'class' => 'button', 'value' => $this->gettext('add_category'),  'onclick' => "rcube_calendar_add_category()"));
+        $add_category = html::a(array(
+            'type'    => 'button',
+            'class'   => 'button input-group-addon create',
+            'title'   => $this->gettext('add_category'),
+            'onclick' => 'rcube_calendar_add_category()',
+            'href'    => '#rcmfd_new_category',
+          ), html::span('inner', $this->gettext('add_category'))
+        );
         $p['blocks']['categories']['options']['categories'] = array(
-          'content' => $new_category->show('') . '&nbsp;' . $add_category->show(),
+          'content' => html::div('input-group', $new_category->show('') . $add_category),
         );
 
-        $this->rc->output->add_script('function rcube_calendar_add_category(){
+        $this->rc->output->add_label('delete', 'calendar.remove_category');
+        $this->rc->output->add_script('function rcube_calendar_add_category() {
           var name = $("#rcmfd_new_category").val();
           if (name.length) {
-            var input = $("<input>").attr("type", "text").attr("name", "_categories[]").attr("size", 30).val(name);
-            var color = $("<input>").attr("type", "text").attr("name", "_colors[]").attr("size", 6).addClass("colors").val("000000");
-            var button = $("<input>").attr("type", "button").attr("value", "X").addClass("button").click(function(){ $(this).parent().remove() });
-            $("<div>").append(input).append("&nbsp;").append(color).append("&nbsp;").append(button).appendTo("#calendarcategories");
-            color.miniColors({ colorValues:(rcmail.env.mscolors || []) });
+            var button_label = rcmail.gettext("calendar.remove_category");
+            var input = $("<input>").attr({type: "text", name: "_categories[]", size: 30, "class": "form-control"}).val(name);
+            var color = $("<input>").attr({type: "text", name: "_colors[]", size: 6, "class": "colors form-control"}).val("000000");
+            var button = $("<a>").attr({"class": "button icon delete input-group-addon", title: button_label, href: "#rcmfd_new_category"})
+              .click(function() { $(this).parent().remove(); })
+              .append($("<span>").addClass("inner").text(rcmail.gettext("delete")));
+
+            $("<div>").addClass("input-group").append(input).append(color).append(button).appendTo("#calendarcategories");
+            color.minicolors(rcmail.env.minicolors_config || {});
             $("#rcmfd_new_category").val("");
           }
-        }');
+        }', 'foot');
 
-        $this->rc->output->add_script('$("#rcmfd_new_category").keypress(function(event){
+        $this->rc->output->add_script('$("#rcmfd_new_category").keypress(function(event) {
           if (event.which == 13) {
             rcube_calendar_add_category();
             event.preventDefault();
@@ -656,12 +680,12 @@ class calendar extends rcube_plugin
       $checkbox = new html_checkbox(array('name' => '_birthday_adressbooks[]') + $input_attrib);
       foreach ($this->rc->get_address_sources(false, true) as $source) {
         $active = in_array($source['id'], (array)$this->rc->config->get('calendar_birthday_adressbooks', array())) ? $source['id'] : '';
-        $sources[] = html::label(null, $checkbox->show($active, array('value' => $source['id'])) . '&nbsp;' . rcube::Q($source['realname'] ?: $source['name']));
+        $sources[] = html::tag('li', null, html::label(null, $checkbox->show($active, array('value' => $source['id'])) . rcube::Q($source['realname'] ?: $source['name'])));
       }
 
       $p['blocks']['birthdays']['options']['birthday_adressbooks'] = array(
         'title'   => rcube::Q($this->gettext('birthdayscalendarsources')),
-        'content' => join(html::br(), $sources),
+        'content' => html::tag('ul', 'proplist', implode("\n", $sources)),
       );
 
       $field_id = 'rcmfd_birthdays_alarm';
@@ -672,14 +696,17 @@ class calendar extends rcube_plugin
       }
 
       $input_value = new html_inputfield(array('name' => '_birthdays_alarm_value', 'id' => $field_id . 'value', 'size' => 3) + $input_attrib);
+      $input_attrib['class'] .= ' input-group-addon';
       $select_offset = new html_select(array('name' => '_birthdays_alarm_offset', 'id' => $field_id . 'offset') + $input_attrib);
       foreach (array('-M','-H','-D') as $trigger)
         $select_offset->add($this->rc->gettext('trigger' . $trigger, 'libcalendaring'), $trigger);
 
-      $preset = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_birthdays_alarm_offset', '-1D'));
+      $preset      = libcalendaring::parse_alarm_value($this->rc->config->get('calendar_birthdays_alarm_offset', '-1D'));
+      $preset_type = $this->rc->config->get('calendar_birthdays_alarm_type', '');
+
       $p['blocks']['birthdays']['options']['birthdays_alarmoffset'] = array(
-        'title' => html::label($field_id . 'value', rcube::Q($this->gettext('showalarms'))),
-        'content' => $select_type->show($this->rc->config->get('calendar_birthdays_alarm_type', '')) . ' ' . $input_value->show($preset[0]) . '&nbsp;' . $select_offset->show($preset[1]),
+        'title'   => html::label($field_id, rcube::Q($this->gettext('showalarms'))),
+        'content' => html::div('input-group', $select_type->show($preset_type) . $input_value->show($preset[0]) . ' ' . $select_offset->show($preset[1])),
       );
     }
 

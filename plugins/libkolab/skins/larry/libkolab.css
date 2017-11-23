@@ -65,3 +65,23 @@ ul.toolbarmenu li a.history span.history {
 #mailmessagehistory .changelog-table .operation {
 	width: 25%;
 }
+
+fieldset.birthdays .proplist li {
+	padding: 0;
+	border: 0;
+}
+
+fieldset.categories input {
+	height: auto !important;
+	line-height: 16px !important;
+}
+
+#calendarcategories .minicolors-swatch {
+	height: 14px;
+	width: 14px;
+}
+
+a.button.input-group-addon {
+	line-height: 19px;
+	vertical-align: middle;
+}
