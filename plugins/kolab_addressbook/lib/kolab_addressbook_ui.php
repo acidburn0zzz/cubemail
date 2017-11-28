@@ -59,6 +59,8 @@ class kolab_addressbook_ui
                 $this->plugin->api->include_script('libkolab/js/folderlist.js');
             }
 
+            $this->rc->output->add_footer($this->rc->output->parse('kolab_addressbook.search_addon', false, false));
+
             // Add actions on address books
             $options = array('book-create', 'book-edit', 'book-delete', 'book-remove');
             $idx     = 0;

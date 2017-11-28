@@ -46,7 +46,8 @@ function kolab_folderlist(node, p)
         if (results.length) {
           // create treelist widget to present the search results
           if (!search_results_widget) {
-              var list_id = (me.container.attr('id') || p.id_prefix || '0')
+              var list_id = (me.container.attr('id') || p.id_prefix || '0');
+
               search_results_container = $('<div class="searchresults"></div>')
                   .html(p.search_title ? '<h2 class="boxtitle" id="st:' + list_id + '">' + p.search_title + '</h2>' : '')
                   .insertAfter(me.container);
@@ -57,6 +58,7 @@ function kolab_folderlist(node, p)
                   id_decode: p.id_decode,
                   selectable: false
               });
+
               // copy classes from main list
               search_results_widget.container.addClass(me.container.attr('class')).attr('aria-labelledby', 'st:' + list_id);
 
@@ -66,6 +68,7 @@ function kolab_folderlist(node, p)
                   .on('click', 'input[type=checkbox], a.subscribed, span.subscribed', function(e) {
                       var node, has_children, li = $(this).closest('li'),
                           id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '');
+
                       if (p.id_decode)
                           id = p.id_decode(id);
                       node = search_results_widget.get_node(id);
@@ -109,7 +112,7 @@ function kolab_folderlist(node, p)
 
                       // set focus to cloned checkbox
                       if (rcube_event.is_keyboard(e)) {
-                        $(me.get_item(id, true)).find('input[type=checkbox]').first().focus();
+                          $(me.get_item(id, true)).find('input[type=checkbox]').first().focus();
                       }
                   })
                   .on('click', function(e) {
@@ -149,6 +152,9 @@ function kolab_folderlist(node, p)
                   item.find('input[type=checkbox]').first().prop('disabled', true).prop('checked', true);
                   item.find('a.subscribed, span.subscribed').hide();
               }
+
+              prop.li = item.parent().get(0);
+              me.triggerEvent('add-item', prop);
           }
 
           search_results_container.show();

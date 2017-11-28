@@ -38,46 +38,6 @@ if (window.rcmail) {
 
         // append search form for address books
         if (rcmail.gui_objects.folderlist) {
-            var container = $(rcmail.gui_objects.folderlist);
-            $('<div class="listsearchbox" style="display:none">' +
-                '<div class="searchbox" role="search" aria-labelledby="aria-labelfoldersearchform" aria-controls="' + rcmail.gui_objects.folderlist.id + '">' +
-                    '<h3 id="aria-label-labelfoldersearchform" class="voice">' + rcmail.gettext('foldersearchform', 'kolab_addressbook') + '" /></h3>' +
-                    '<label for="addressbooksearch" class="voice">' + rcmail.gettext('searchterms', 'kolab_addressbook') + '</label>' +
-                    '<input type="text" name="q" id="addressbooksearch" placeholder="' + rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '" />' +
-                    '<a class="iconbutton searchicon"></a>' +
-                    '<a href="#reset" onclick="return rcmail.command(\'reset-listsearch\',null,this,event)" id="directorylistsearch-reset" class="iconbutton reset" title="' + rcmail.gettext('resetsearch') + '">' +
-                        rcmail.gettext('resetsearch') + '</a>' +
-                '</div>' +
-            '</div>')
-            .insertBefore(container.parent());
-
-            $('<a href="#search" class="iconbutton search" title="' + rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '" tabindex="0">' +
-                rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '</a>')
-                .appendTo('#directorylistbox h2.boxtitle')
-                .click(function(e){
-                    var title = $('#directorylistbox .boxtitle'),
-                        box = $('#directorylistbox .listsearchbox'),
-                        dir = box.is(':visible') ? -1 : 1;
-
-                    box.slideToggle({
-                        duration: 160,
-                        progress: function(animation, progress) {
-                            if (dir < 0) progress = 1 - progress;
-                            $('#directorylistbox .scroller').css('top', (title.outerHeight() + 34 * progress) + 'px');
-                        },
-                        complete: function() {
-                            box.toggleClass('expanded');
-                            if (box.is(':visible')) {
-                                box.find('input[type=text]').focus();
-                            }
-                            else {
-                                $('#directorylistsearch-reset').click();
-                            }
-                        }
-                    });
-                });
-
-
             // remove event handlers set by the regular treelist widget
             rcmail.treelist.container.off('click mousedown focusin focusout');
 

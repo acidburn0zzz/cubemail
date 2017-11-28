@@ -169,6 +169,21 @@
                 // TODO: @fa-var-lock;
             }
         }
+
+        &.virtual > div > a {
+            opacity: .5;
+        }
+    }
+
+    input.flex-checkbox {
+        position: relative !important;
+        margin: 0 0 0 .25em !important;
+
+        & + label {
+            position: relative !important;
+            margin: 0 .3em 0 -1em !important;
+            right: 0 !important;
+        }
     }
 }
 
@@ -179,6 +194,19 @@ html.touch .listing {
                 height: @listing-touch-line-height !important;
             }
         }
+    }
+}
+
+.searchresults {
+    .boxtitle {
+        line-height: 2rem !important;
+        font-size: 80%;
+        padding: 0 .5rem;
+        margin: 0;
+        color: @color-popover-separator;
+        background-color: @color-popover-separator-background;
+        text-align: center;
+        border-bottom: 1px solid @color-layout-border;
     }
 }
 
