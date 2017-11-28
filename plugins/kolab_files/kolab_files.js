@@ -552,13 +552,21 @@ function kolab_files_folder_mount_dialog()
     rcmail.drivers_list_initialized = true;
 
     $('td.source', dialog).each(function() {
-      $(this).click(function() {
+      var td = $(this),
+        id = td.attr('id').replace('source-', ''),
+        meta = rcmail.env.external_sources[id];
+
+      $.each(meta.form_values || [], function(i, v) {
+        td.find('#source-' + id + '-' + i).val(v);
+      });
+
+      td.click(function() {
         $('td.selected', dialog).removeClass('selected');
         dialog.find('.driverform').hide();
         $(this).addClass('selected').find('.driverform').show();
         $('input[type="radio"]', this).prop('checked', true);
-     });
-   });
+      });
+    });
   }
 
   args.button_classes = ['mainaction'];
@@ -882,9 +890,9 @@ function kolab_dialog_submit_handler()
 };
 
 // Hides dialog
-function kolab_dialog_close(dialog)
+function kolab_dialog_close(dialog, destroy)
 {
-  (rcmail.is_framed() ? window.parent : window).$(dialog).dialog('close');
+  (rcmail.is_framed() ? window.parent : window).$(dialog).dialog(destroy ? 'destroy' : 'close');
 };
 
 // smart upload button
@@ -1136,6 +1144,7 @@ function kolab_files_drag_end(e)
       }
 
       rcmail.command('files-move', rcmail.env.drag_target);
+      rcmail.env.drag_target = null;
     }
   }
 };
@@ -3018,7 +3027,7 @@ function kolab_files_ui()
     params.token = this.env.token;
     params.file = file;
 
-    rcmail.redirect(this.env.url + this.url('file_get', params));
+    rcmail.redirect(this.env.url + this.url('file_get', params), false);
   };
 
   // file(s) delete request
@@ -3139,7 +3148,7 @@ function kolab_files_ui()
   this.file_move_ask_user = function(list, move)
   {
     var file = list[0], buttons = {},
-      text = rcmail.gettext('kolab_files.filemoveconfirm').replace('$file', file.dst)
+      text = rcmail.gettext('kolab_files.filemoveconfirm').replace('$file', file.dst),
       dialog = $('<div></div>');
 
     buttons[rcmail.gettext('kolab_files.fileoverwrite')] = function() {
@@ -3149,7 +3158,8 @@ function kolab_files_ui()
       f[file.src] = file.dst;
       file_api.file_move_ask_list = list;
       file_api.file_move_ask_mode = move;
-      dialog.dialog('destroy').remove();
+      kolab_dialog_close(this, true);
+
       file_api.req = file_api.set_busy(true, move ? 'kolab_files.filemoving' : 'kolab_files.filecopying');
       file_api.request(action, {file: f, overwrite: 1}, 'file_move_ask_user_response');
     };
@@ -3159,14 +3169,15 @@ function kolab_files_ui()
         var f = {}, action = move ? 'file_move' : 'file_copy';
 
         $.each(list, function() { f[this.src] = this.dst; });
-        dialog.dialog('destroy').remove();
+        kolab_dialog_close(this, true);
+
         file_api.req = file_api.set_busy(true, move ? 'kolab_files.filemoving' : 'kolab_files.filecopying');
         file_api.request(action, {file: f, overwrite: 1}, action + '_response');
       };
 
     var skip_func = function() {
       list.shift();
-      dialog.dialog('destroy').remove();
+      kolab_dialog_close(this, true);
 
       if (list.length)
         file_api.file_move_ask_user(list, move);
@@ -3178,7 +3189,7 @@ function kolab_files_ui()
 
     if (list.length > 1)
       buttons[rcmail.gettext('kolab_files.fileskipall')] = function() {
-      dialog.dialog('destroy').remove();
+      kolab_dialog_close(this, true);
         if (move)
           file_api.file_list();
       };
@@ -3187,6 +3198,7 @@ function kolab_files_ui()
     kolab_dialog_show(dialog.html(text), {
       close: skip_func,
       buttons: buttons,
+      height: 50,
       minWidth: 400,
       width: 400
     });
