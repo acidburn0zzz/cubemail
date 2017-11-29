@@ -210,6 +210,108 @@ html.touch .listing {
     }
 }
 
+.toolbarmenu.listing li {
+    a.tags:before {
+        content: @fa-var-tags;
+    }
+
+    a.tag:before,
+    a.tag.remove:before,
+    a.tag.remove.all:before {
+        content: @fa-var-tag;
+    }
+
+    &.search {
+        padding: .25rem .5rem;
+        .input-group {
+
+            i.icon {
+                font-size: 80%;
+                padding: .5rem;
+            }
+
+            input {
+                font-size: 100%;
+            }
+        }
+    }
+}
+
+#taglist {
+    li {
+        padding: 0 .5rem;
+        &:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-tag;
+        }
+    }
+}
+
+#taglist li:before,
+#tag-selector li a:before {
+    color: darken(@color-main, 15%); // default tag color
+}
+
+#tag-selector li:hover a:before {
+    color: #fff;
+}
+
+#tagsform {
+    min-height: 15rem;
+
+    select {
+        padding: 0;
+        margin-bottom: .5rem;
+
+        &:focus {
+            box-shadow: none !important;
+            border: 1px solid @color-layout-border;
+        }
+    }
+
+    option {
+        color: @color-font; // fix Firefox issue caused by text-shadow below
+        text-shadow: none;
+        padding: .5rem;
+        outline: 0;
+        border: 0;
+
+        &:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-tag;
+            line-height: 1;
+        }
+    }
+
+    .buttons {
+        text-align: center;
+
+        button {
+            margin: 0 .25rem;
+        }
+    }
+}
+
+.tagbox {
+    color: #fff;
+    background-color: @color-main;
+    border-radius: .25rem;
+    max-width: 4em;
+    padding: .1rem .4rem;
+    margin-right: .2rem;
+    font-weight: bold;
+
+    a {
+        color: inherit;
+        padding-left: .5rem;
+        text-decoration: none;
+    }
+
+    h2 > & {
+        font-size: 1.2rem;
+    }
+}
+
 #calendarcategories {
     .input-group:not(:last-child) {
         margin-bottom: .25rem;

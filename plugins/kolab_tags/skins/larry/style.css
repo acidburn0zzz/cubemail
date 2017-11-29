@@ -87,14 +87,19 @@ ul.toolbarmenu li span.icon.tagremoveall {
 	margin-left: 10px;
 }
 
-#tagsform div.buttons input {
+#tagsform div.buttons button {
 	display: block;
 	width: 80px;
+	margin-bottom: 5px;
 }
 
 #tagsform select {
 	width: 300px;
 	float: left;
+}
+
+#tageditform div.col-sm-10 {
+	display: inline-block;
 }
 
 #tageditform input {

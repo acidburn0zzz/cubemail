@@ -109,18 +109,19 @@ function load_tags()
         }
     });
 
+    rcmail.triggerEvent('kolab-tags-update', {});
     rcmail.enable_command('reset-tags', tagsfilter.length && clickable);
 }
 
 function add_tag_element(list, tag, clickable)
 {
     // @todo: .append('<span class="count"></span>')
-    var element = $('<li>').text(tag.name).data('tag', tag.uid).appendTo(list);
+    var element = $('<li>').attr('class', tag_class_name(tag))
+        .text(tag.name).data('tag', tag.uid).appendTo(list);
 
     if (clickable) {
         element.click(function(e) {
-            var item = $(this),
-                tagid = item.data('tag');
+            var tagid = element.data('tag');
 
             if (!tagid)
                 return false;
@@ -140,12 +141,12 @@ function add_tag_element(list, tag, clickable)
 
             // add tag to the filter
             if (index < 0) {
-                item.addClass('selected');
-                tag_set_color(item, t);
+                element.addClass('selected');
+                tag_set_color(element, t);
                 tagsfilter.push(tagid);
             }
             else if (shift) {
-                item.removeClass('selected').css(reset_css);
+                element.removeClass('selected').css(reset_css);
                 tagsfilter.splice(index, 1);
             }
 
@@ -167,20 +168,22 @@ function manage_tags()
 {
     // display it as popup
     rcmail.tags_popup = rcmail.show_popup_dialog(
-        '<div id="tagsform"><select size="8" multiple="multiple"></select><div class="buttons"></div></div>',
+        '<div id="tagsform"><select size="6" multiple="multiple"></select><div class="buttons"></div></div>',
         rcmail.gettext('kolab_tags.tags'),
         [{
             text: rcmail.gettext('save'),
-            'class': 'mainaction',
+            'class': 'mainaction save',
             click: function() { if (tag_form_save()) $(this).dialog('close'); }
         },
         {
             text: rcmail.gettext('cancel'),
+            'class': 'cancel',
             click: function() { $(this).dialog('close'); }
         }],
         {
             width: 400,
             modal: true,
+            classes: {'ui-dialog-content': 'formcontent'},
             closeOnEscape: true,
             close: function(e, ui) {
                 $(this).remove();
@@ -194,12 +197,15 @@ function manage_tags()
     var form = $('#tagsform'),
         select = $('select', form),
         buttons = [
-            $('<input type="button" />').val(rcmail.gettext('kolab_tags.add'))
+            $('<button class="btn btn-secondary create">')
+                .text(rcmail.gettext('kolab_tags.add'))
                 .click(function() { tag_form_dialog(); }),
-            $('<input type="button" />').val(rcmail.gettext('kolab_tags.edit'))
+            $('<button class="btn btn-secondary edit">')
+                .text(rcmail.gettext('kolab_tags.edit'))
                 .attr('disabled', true)
                 .click(function() { tag_form_dialog((select.val())[0]); }),
-            $('<input type="button" />').val(rcmail.gettext('kolab_tags.delete'))
+            $('<button class="btn btn-danger remove">')
+                .text(rcmail.gettext('kolab_tags.delete'))
                 .attr('disabled', true)
                 .click(function() {
                     $.each(select.val() || [], function(i, v) {
@@ -221,6 +227,7 @@ function manage_tags()
 
     $.each(rcmail.env.tags, function(i, v) {
         $('<option>').val(v.uid).text(v.name)
+            .attr('class', tag_class_name(v))
             .on('dblclick', function() { tag_form_dialog(v.uid); })
             .appendTo(select);
     });
@@ -231,11 +238,15 @@ function manage_tags()
 function tag_form_dialog(id)
 {
     var tag, form = $('#tagsform'),
-        content = $('<div id="tageditform"></div>'),
-        name_input = $('<input type="text" size="25" id="tag-form-name" />'),
-        color_input = $('<input type="text" size="6" class="colors" id="tag-form-color" />'),
-        name_label = $('<label for="tag-form-name">').text(rcmail.gettext('kolab_tags.tagname')),
-        color_label = $('<label for="tag-form-color">').text(rcmail.gettext('kolab_tags.tagcolor'));
+        content = $('<div id="tageditform">'),
+        row1 = $('<div class="form-group row">'),
+        row2 = $('<div class="form-group row">'),
+        name_input = $('<input type="text" size="25" id="tag-form-name" class="form-control">'),
+        color_input = $('<input type="text" size="6" id="tag-form-color" class="colors form-control">'),
+        name_label = $('<label for="tag-form-name" class="col-form-label col-sm-2">')
+            .text(rcmail.gettext('kolab_tags.tagname')),
+        color_label = $('<label for="tag-form-color" class="col-form-label col-sm-2">')
+            .text(rcmail.gettext('kolab_tags.tagcolor'));
 
     tag_form_save_func = function() {
         var i, tag, name = $.trim(name_input.val()), color = $.trim(color_input.val());
@@ -313,9 +324,11 @@ function tag_form_dialog(id)
     // display form
     form.children().hide();
     form.append(content);
-    content.append([name_label, name_input, '<br>', color_label, color_input]).show();
+    content.append(row1.append(name_label).append($('<div class="col-sm-10">').append(name_input)))
+        .append(row2.append(color_label).append($('<div class="col-sm-10">').append(color_input)))
+        .show();
     name_input.focus();
-    color_input.miniColors({colorValues: rcmail.env.mscolors});
+    color_input.minicolors(rcmail.env.minicolors_config || {});
 }
 
 // save tags form (create/update/delete tags)
@@ -407,6 +420,7 @@ function update_tags(response)
         rcmail.env.tags[i] = tag;
     });
 
+    rcmail.triggerEvent('kolab-tags-update', {});
     rcmail.enable_command('reset-tags', tagsfilter.length && list);
 
     // update Mark menu in case some messages are already selected
@@ -645,7 +659,7 @@ function message_list_update_tags(e)
 // add tags to message subject in message preview
 function message_tags(tags, merge)
 {
-    var boxes = [], subject_tag = $('#messageheader .subject');
+    var boxes = [], subject_tag = $('#messageheader .subject,#message-header h2.subject'); // Larry and Elastic
 
     $.each(tags || [], function (i, tag) {
         if (merge) {
@@ -697,6 +711,10 @@ function tag_box_element(tag, del_btn)
 function tag_set_color(obj, tag)
 {
     if (obj && tag.color) {
+        if (rcmail.triggerEvent('kolab-tag-color', {obj: obj, tag: tag}) === false) {
+            return;
+        }
+
         var style = 'background-color: ' + tag.color + ' !important';
 
         // choose black text color when background is bright, white otherwise
@@ -726,7 +744,6 @@ function tag_selector(event, callback, remove_mode)
             span = document.createElement('span');
 
         link.href = '#';
-        link.className = 'active';
         container = $('<div id="tag-selector" class="popupmenu"></div>')
             .keydown(function(e) {
                 var focused = $('*:focus', container).parent();
@@ -756,7 +773,7 @@ function tag_selector(event, callback, remove_mode)
             // add tag name element
             tmp = span.cloneNode(false);
             $(tmp).text(tag.name);
-            $(a).data('uid', tag.uid);
+            $(a).data('uid', tag.uid).attr('class', 'tag active ' + tag_class_name(tag));
             a.appendChild(tmp);
 
             row.appendChild(a);
@@ -810,7 +827,7 @@ function tag_selector(event, callback, remove_mode)
 
         // we also hide the search input, if there's not many tags left
         if ($('a:visible', container).length < max_items) {
-            $('input', container).parent().hide();
+            $('input', container).parents('li')[0].hide();
         }
     }
 }
@@ -825,35 +842,40 @@ function tag_selector_reset()
 function tag_selector_search_element(container)
 {
     var title = rcmail.gettext('kolab_tags.tagsearchnew'),
-        placeholder = rcmail.gettext('kolab_tags.newtag');
-
-    var input = $('<input>').attr({'type': 'text', title: title, placeholder: placeholder})
-        .keyup(function(e) {
-            if (this.value) {
-                // execute action on Enter
-                if (e.which == 13) {
-                    container.data('callback')({name: this.value});
-                    rcmail.hide_menu('tag-selector', e);
-                    if ($('#markmessagemenu').is(':visible')) {
-                        rcmail.hide_menu('markmessagemenu', e);
+        placeholder = rcmail.gettext('kolab_tags.newtag'),
+        form = $('<span class="input-group"><i class="input-group-addon icon search"></i></span>'),
+        input = $('<input>').attr({'type': 'text', title: title, placeholder: placeholder, 'class': 'form-control'})
+            .keyup(function(e) {
+                if (this.value) {
+                    // execute action on Enter
+                    if (e.which == 13) {
+                        container.data('callback')({name: this.value});
+                        rcmail.hide_menu('tag-selector', e);
+                        if ($('#markmessagemenu').is(':visible')) {
+                            rcmail.hide_menu('markmessagemenu', e);
+                        }
+                    }
+                    // search tags
+                    else {
+                        var search = this.value.toUpperCase();
+                        $('li:not(.search)', container).each(function() {
+                            var tag_name = $(this).text().toUpperCase();
+                            $(this)[tag_name.indexOf(search) >= 0 ? 'show' : 'hide']();
+                        });
                     }
                 }
-                // search tags
                 else {
-                    var search = this.value.toUpperCase();
-                    $('li:not(.search)', container).each(function() {
-                        var tag_name = $(this).text().toUpperCase();
-                        $(this)[tag_name.indexOf(search) >= 0 ? 'show' : 'hide']();
-                    });
+                    // reset search
+                    $('li', container).show();
                 }
-            }
-            else {
-                // reset search
-                $('li', container).show();
-            }
-        });
+            });
 
-    return $('<li class="search">').append(input)
+    return $('<li class="search">').append(form.append(input))
         // prevents from closing the menu on click in the input/row
-        .mouseup(function(e) { return false; });
+        .on('mouseup click', function(e) { e.stopPropagation(); return false; });
+}
+
+function tag_class_name(tag)
+{
+    return 'kolab-tag-' + tag.uid.replace(/[^a-z0-9]/ig, '');
 }
