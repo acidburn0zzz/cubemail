@@ -617,8 +617,6 @@ function message_list_select(list)
 
     rcmail.enable_command('tag-remove', 'tag-remove-all', has_tags_to_remove);
     rcmail.enable_command('tag-add', list.selection.length);
-
-    tag_selector_reset();
 }
 
 // add tags to message subject on message list
@@ -763,15 +761,9 @@ function tag_selector(event, callback, remove_mode)
 
         // loop over tags list
         $.each(rcmail.env.tags, function(i, tag) {
-            var a = link.cloneNode(false), row = li.cloneNode(false);
-
-            a.onclick = function(e) {
-                container.data('callback')(tag.uid);
-                return rcmail.hide_menu('tag-selector', e);
-            };
+            var a = link.cloneNode(false), row = li.cloneNode(false), tmp = span.cloneNode(false);
 
             // add tag name element
-            tmp = span.cloneNode(false);
             $(tmp).text(tag.name);
             $(a).data('uid', tag.uid).attr('class', 'tag active ' + tag_class_name(tag));
             a.appendChild(tmp);
@@ -784,7 +776,11 @@ function tag_selector(event, callback, remove_mode)
 
         // temporarily show element to calculate its size
         container.css({left: '-1000px', top: '-1000px'})
-            .appendTo(document.body).show();
+            .appendTo(document.body).show()
+            .on('click', 'a.tag', function() {
+                container.data('callback')($(this).data('uid'));
+                return rcmail.hide_menu('tag-selector', e);
+            });
 
         // set max-height if the list is long
         if (rows.length > max_items)
@@ -827,7 +823,7 @@ function tag_selector(event, callback, remove_mode)
 
         // we also hide the search input, if there's not many tags left
         if ($('a:visible', container).length < max_items) {
-            $('input', container).parents('li')[0].hide();
+            $('input', container).parents('li').hide();
         }
     }
 }
@@ -837,6 +833,12 @@ function tag_selector_reset()
 {
     $(tag_selector_element).remove();
     tag_selector_element = null;
+
+    // Elastic requires to destroy the menu, otherwise we end up with
+    // content element duplicates that are not connected with the menu
+    if (window.UI && window.UI.menu_destroy) {
+        window.UI.menu_destroy('tag-selector');
+    }
 }
 
 function tag_selector_search_element(container)
