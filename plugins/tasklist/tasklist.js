@@ -733,7 +733,7 @@ function rcube_tasklist_ui(settings)
       });
 
         // configure drop-down menu on time input fields based on jquery UI autocomplete
-        $('#taskedit-starttime, #taskedit-time, #taskedit input.edit-alarm-time').each(function() {
+        $('#taskedit-starttime, #taskedit-time').each(function() {
             me.init_time_autocomplete(this, {container: '#taskedit'});
         });
     }
