@@ -498,13 +498,21 @@ abstract class kolab_format_xcal extends kolab_format
             $this->obj->setRecurrenceDates($rdates);
         }
 
-        // save alarm
+        // save alarm(s)
         $valarms = new vectoralarm;
+        $valarm_hashes = array();
         if ($object['valarms']) {
             foreach ($object['valarms'] as $valarm) {
                 if (!array_key_exists($valarm['action'], $this->alarm_type_map)) {
                     continue;  // skip unknown alarm types
                 }
+
+                // Get rid of duplicates, some CalDAV clients can set them
+                $hash = serialize($valarm);
+                if (in_array($hash, $valarm_hashes)) {
+                    continue;
+                }
+                $valarm_hashes[] = $hash;
 
                 if ($valarm['action'] == 'EMAIL') {
                     $recipients = new vectorcontactref;
@@ -530,7 +538,15 @@ abstract class kolab_format_xcal extends kolab_format
                 if (is_object($valarm['trigger']) && $valarm['trigger'] instanceof DateTime) {
                     $alarm->setStart(self::get_datetime($valarm['trigger'], new DateTimeZone('UTC')));
                 }
+                else if (preg_match('/^@([0-9]+)$/', $valarm['trigger'], $m)) {
+                    $alarm->setStart(self::get_datetime($m[1], new DateTimeZone('UTC')));
+                }
                 else {
+                    // Support also interval in format without PT, e.g. -10M
+                    if (preg_match('/^([-+]*)([0-9]+[DHMS])$/', strtoupper($valarm['trigger']), $m)) {
+                        $valarm['trigger'] = $m[1] . ($m[2][strlen($m[2])-1] == 'D' ? 'P' : 'PT') . $m[2];
+                    }
+
                     try {
                         $period   = new DateInterval(preg_replace('/[^0-9PTWDHMS]/', '', $valarm['trigger']));
                         $duration = new Duration($period->d, $period->h, $period->i, $period->s, $valarm['trigger'][0] == '-');
