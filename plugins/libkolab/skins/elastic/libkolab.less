@@ -21,8 +21,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import (reference) "../../../../skins/elastic/styles/colors";
-@import (reference) "../../../../skins/elastic/styles/fontawesome";
 @import (reference) "../../../../skins/elastic/styles/variables";
 @import (reference) "../../../../skins/elastic/styles/mixins";
 
@@ -86,7 +84,7 @@
                 }
 
                 a.subscribed:before {
-                    content: @fa-var-bookmark-o; // TODO: better icon
+                    .font-icon-regular(@fa-var-bookmark); // TODO: better icon
                 }
             }
 
@@ -107,7 +105,7 @@
 
                 &:before {
                     &:extend(.font-icon-class);
-                    content: @fa-var-bookmark-o; // TODO: better icon
+                    .font-icon-regular(@fa-var-bookmark); // TODO: better icon
                     height: auto;
                     color: @color-link;
                 }
@@ -115,7 +113,7 @@
 
             &.subscribed {
                 .subscribed:before {
-                    content: @fa-var-bookmark; // TODO: better icon
+                    .font-icon-solid(@fa-var-bookmark); // TODO: better icon
                 }
             }
         }
@@ -143,7 +141,7 @@
             }
         }
 
-        &.readonly > div a:first-child {
+        &.readonly:not(.virtual) > div a:first-child {
             padding-right: 1.6em;
 
             &:after {
@@ -243,6 +241,7 @@ html.touch .listing {
         &:before {
             &:extend(.font-icon-class);
             content: @fa-var-tag;
+            margin: 0 .5rem 0 .2rem;
         }
     }
 }
