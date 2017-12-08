@@ -3994,7 +3994,7 @@ function rcube_calendar_ui(settings)
       $('#edit-allday').click(function(){ $('#edit-starttime, #edit-endtime')[(this.checked?'hide':'show')](); event_times_changed(); });
 
       // configure drop-down menu on time input fields based on jquery UI autocomplete
-      $('#edit-starttime, #edit-endtime, #eventedit input.edit-alarm-time').each(function() {
+      $('#edit-starttime, #edit-endtime').each(function() {
         me.init_time_autocomplete(this, {
           container: '#eventedit',
           change: event_times_changed

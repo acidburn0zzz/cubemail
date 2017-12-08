@@ -391,12 +391,13 @@ function rcube_libcalendaring(settings)
         });
         $(prefix+' select.edit-alarm-offset').change(function(){
             var val = $(this).val(), parent = $(this).parent();
-            parent.find('.edit-alarm-date, .edit-alarm-time')[val == '@' ? 'show' : 'hide']();
+            parent.find('.edit-alarm-date, .edit-alarm-time')[val === '@' ? 'show' : 'hide']();
             parent.find('.edit-alarm-value').prop('disabled', val === '@' || val === '0');
-            parent.find('.edit-alarm-related')[val == '@' ? 'hide' : 'show']();
+            parent.find('.edit-alarm-related')[val === '@' ? 'hide' : 'show']();
         });
 
         $(prefix+' .edit-alarm-date').removeClass('hasDatepicker').removeAttr('id').datepicker(datepicker_settings);
+        this.init_time_autocomplete($(prefix+' .edit-alarm-time')[0], {});
 
         $(prefix).on('click', 'a.delete-alarm', function(e){
             if ($(this).closest('.edit-alarm-item').siblings().length > 0) {
@@ -434,12 +435,11 @@ function rcube_libcalendaring(settings)
           if (!alarm.action)
               alarm.action = 'DISPLAY';
 
-          if (i == 0) {
-              domnode = $(prefix + ' .edit-alarm-item').eq(0);
-          }
-          else {
-              domnode = $(prefix + ' .edit-alarm-item').eq(0).clone(false).removeClass('first').appendTo(prefix);
-              this.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
+          domnode = $(prefix + ' .edit-alarm-item').eq(0);
+
+          if (i > 0) {
+            domnode = domnode.clone(false).removeClass('first').appendTo(prefix);
+            this.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
           }
 
           $('select.edit-alarm-type', domnode).val(alarm.action);
@@ -588,7 +588,7 @@ function rcube_libcalendaring(settings)
         var default_props = {
                 delay: 100,
                 minLength: 1,
-                appendTo: props.container,
+                appendTo: props.container || $(elem).parents('form'),
                 source: time_autocomplete_list,
                 open: time_autocomplete_open,
                 // change: time_autocomplete_change,
