@@ -547,9 +547,29 @@ function kolab_addressbook_contextmenu()
         rcmail.addEventListener('contextmenu_init', function(menu) {
             if (menu.menu_name == 'abooklist') {
                 menu.addEventListener('activate', function(p) {
-                    // deactivate kolab addressbook actions
-                    if (p.command.match(/^book-/)) {
-                        return p.command == 'book-create';
+                    var source = !rcmail.env.group ? rcmail.env.source : null,
+                        sources = rcmail.env.address_sources,
+                        props = source && sources[source] && sources[source].kolab ?
+                            sources[source] : { readonly: true, removable: false, rights: '' };
+
+                    if (p.command == 'book-create') {
+                        return true;
+                    }
+
+                    if (p.command == 'book-edit') {
+                        return props.rights.indexOf('a') >= 0;
+                    }
+
+                    if (p.command == 'book-delete') {
+                        return props.rights.indexOf('a') >= 0 || props.rights.indexOf('x') >= 0;
+                    }
+
+                    if (p.command == 'book-remove') {
+                        return props.removable;
+                    }
+
+                    if (p.command == 'book-showurl') {
+                        return !!(props.carddavurl);
                     }
                 });
             }
@@ -570,78 +590,4 @@ function kolab_addressbook_contextmenu()
             }
         });
     }
-
-    rcmail.env.kolab_addressbook_contextmenu = true;
-
-    // add menu on kolab addressbooks
-    var menu = rcm_callbackmenu_init({
-            menu_name: 'kolab_abooklist',
-            mouseover_timeout: -1, // no submenus here
-            menu_source: ['#directorylist-footer', '#groupoptionsmenu']
-        }, {
-            'activate': function(p) {
-                var source = !rcmail.env.group ? rcmail.env.source : null,
-                    sources = rcmail.env.address_sources,
-                    props = source && sources[source] && sources[source].kolab ?
-                        sources[source] : { readonly: true, removable: false, rights: '' };
-
-                if (p.command == 'book-create') {
-                    return true;
-                }
-
-                if (p.command == 'book-edit') {
-                    return props.rights.indexOf('a') >= 0;
-                }
-
-                if (p.command == 'book-delete') {
-                    return props.rights.indexOf('a') >= 0 || props.rights.indexOf('x') >= 0;
-                }
-
-                if (p.command == 'group-create') {
-                    return !props.readonly;
-                }
-
-                if (p.command == 'book-remove') {
-                    return props.removable;
-                }
-
-                if (p.command == 'book-showurl') {
-                    return !!(props.carddavurl);
-                }
-
-                if (p.command == 'group-rename' || p.command == 'group-delete') {
-                    return !!(rcmail.env.group && sources[rcmail.env.source] && !sources[rcmail.env.source].readonly);
-                }
-
-                return false;
-            },
-            'beforeactivate': function(p) {
-                // remove dummy items
-                $('li.submenu', p.ref.container).remove();
-
-                rcmail.env.kolab_old_source = rcmail.env.source;
-                rcmail.env.kolab_old_group = rcmail.env.group;
-
-                var elem = $(p.source), onclick = elem.attr('onclick');
-                if (onclick && onclick.match(rcmail.context_menu_command_pattern)) {
-                    rcmail.env.source = RegExp.$2;
-                    rcmail.env.group = null;
-                }
-                else if (elem.parent().hasClass('contactgroup')) {
-                    var grp = String(elem.attr('rel')).split(':');
-                    rcmail.env.source = grp[0];
-                    rcmail.env.group = grp[1];
-                }
-            },
-            'aftercommand': function(p) {
-                rcmail.env.source = rcmail.env.kolab_old_source;
-                rcmail.env.group = rcmail.env.kolab_old_group;
-            }
-        }
-    );
-
-    $('#directorylist').off('contextmenu').on('contextmenu', 'div > a, li.contactgroup > a', function(e) {
-        $(this).blur();
-        rcm_show_menu(e, this, $(this).attr('rel'), menu);
-    });
 };
