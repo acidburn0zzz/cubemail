@@ -93,7 +93,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
       });
 
       var fn = function(elem) {
-        var classname = elem.className,
+        var classname = elem.className.split(' ')[0],
           list = $(elem).closest('table').find('input.' + classname),
           check = list.not(':checked').length > 0;
 
