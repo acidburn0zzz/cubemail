@@ -64,6 +64,7 @@ libkolab_audittrail.object_history_dialog = function(p)
             {
                 text: rcmail.gettext('close'),
                 click: function() { $dialog.dialog('close'); },
+                'class': 'cancel',
                 autofocus: true
             }
         ],

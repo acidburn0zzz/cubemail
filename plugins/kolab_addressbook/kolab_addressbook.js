@@ -89,7 +89,8 @@ if (window.rcmail) {
 
         // append button to show contact audit trail
         if (rcmail.env.action == 'show' && rcmail.env.kolab_audit_trail && rcmail.env.cid) {
-            $('<a href="#history" class="btn-contact-history active" role="button" tabindex="0">' + rcmail.get_label('kolab_addressbook.showhistory') + '</a>')
+            $('<a>').attr({href: '#history', 'class': 'btn btn-secondary btn-contact-history', role: 'button', tabindex: 0})
+                .append($('<span class="inner">').text(rcmail.get_label('kolab_addressbook.showhistory')))
                 .click(function(e) {
                     var rc = rcmail.is_framed() && parent.rcmail.contact_history_dialog ? parent.rcmail : rcmail;
                     rc.contact_history_dialog();
