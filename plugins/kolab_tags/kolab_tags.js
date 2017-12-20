@@ -70,6 +70,21 @@ window.rcmail && rcmail.addEventListener('init', function() {
                 }
             });
         }
+        // Set activation state for contextmenu entries related with tags management
+        else {
+            rcmail.addEventListener('contextmenu_init', function(menu) {
+                if (menu.menu_name == 'folderlist') {
+                    menu.addEventListener('activate', function(p) {
+                        if (p.command == 'manage-tags') {
+                            return true;
+                        }
+                        if (p.command == 'reset-tags') {
+                            return !!(tagsfilter.length && rcmail.message_list);
+                        }
+                    });
+                }
+            });
+        }
 
         // ajax response handler
         rcmail.addEventListener('plugin.kolab_tags', update_tags);
