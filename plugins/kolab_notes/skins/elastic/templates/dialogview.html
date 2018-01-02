@@ -1,0 +1,29 @@
+<roundcube:include file="includes/layout.html" />
+
+<div id="notedetailsbox" class="formcontent">
+	<roundcube:object name="plugin.notetitle" id="notedetailstitle" class="notetitle" />
+	<div class="notebookselect row form-group" style="display:none">
+		<label for="kolab-notebook" class="col-sm-2 col-form-label"><roundcube:label name="kolab_notes.savein" /></label>
+		<div class="col-sm-10">
+			<roundcube:object name="plugin.notebooks" id="kolab-notebook" type="select" class="form-control" />
+		</div>
+	</div>
+	<roundcube:object name="plugin.editform" id="noteform" class="noteform" />
+	<roundcube:object name="plugin.detailview" id="notedetails" class="notedetails" />
+	<div id="notereferences">
+		<roundcube:object name="plugin.attachments_list" id="attachment-list" class="attachmentslist" />
+	</div>
+</div>
+
+<script type="text/javascript">
+
+// UI startup
+$(document).ready(function(e) {
+    rcmail.addEventListener('kolab_notes_render', function(p) {
+        $('#notesdialogheader .notebookselect')[p.readonly ? 'hide' : 'show']();
+    });
+});
+
+</script>
+
+<roundcube:include file="includes/footer.html" />

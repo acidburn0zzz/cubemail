@@ -68,6 +68,8 @@
 
             &.folder .listname:before {
                 // TODO: notes folder icon, maybe need to use #notebooks parent
+                &:extend(.font-icon-class);
+                content: @fa-var-sticky-note;
             }
 
             span.handle {
@@ -75,17 +77,13 @@
             }
 
             span.actions {
-                a {
-                    &:extend(.font-icon-class);
+                a.remove {
+                    display: none;
                 }
+            }
 
-                a.quickview:before {
-                    content: @fa-var-eye; // TODO: disabled button state
-                }
-
-                a.subscribed:before {
-                    .font-icon-regular(@fa-var-bookmark); // TODO: better icon
-                }
+            a.quickview:before {
+                content: @fa-var-eye; // TODO: disabled button state
             }
 
             &.focusview {
@@ -104,11 +102,17 @@
                 width: auto;
 
                 &:before {
-                    &:extend(.font-icon-class);
                     .font-icon-regular(@fa-var-bookmark); // TODO: better icon
                     height: auto;
                     color: @color-link;
+                    margin-right: .25rem;
                 }
+            }
+
+            // span.subscribed is used on addressbooks list, a.subscribed in other places
+            span.subscribed:before {
+                &:extend(.font-icon-class);
+                .font-icon-regular(@fa-var-bookmark); // TODO: better icon
             }
 
             &.subscribed {
@@ -233,6 +237,22 @@ html.touch .listing {
             }
         }
     }
+
+    a.history:before {
+        content: @fa-var-history;
+    }
+
+    a.calendarlink:before {
+        .font-icon-regular(@fa-var-calendar);
+    }
+
+    a.appendnote:before {
+        .font-icon-regular(@fa-var-sticky-note);
+    }
+
+    a.taskaddlink:before {
+        content: @fa-var-tasks;
+    }
 }
 
 #taglist {
@@ -333,9 +353,59 @@ fieldset.categories .input-group a.button.create {
     display: inline;
 }
 
-a.btn-contact-history:before {
-    &:extend(.font-icon-class);
-    content: @fa-var-history;
-    display: inline;
-    float: none;
+a.history {
+    &.disabled {
+        display: none;
+    }
+
+    &:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-history;
+        display: inline;
+        float: none;
+    }
+}
+
+// Notes preview frame
+.watermark {
+    & > * {
+        display: none;
+    }
+
+    &.formcontainer {
+        background: transparent !important;
+
+        &  > * {
+            display: initial;
+        }
+    }
+}
+
+// Fixes TinyMCE editor height=0 issue
+#noteform iframe {
+    min-height: 10rem;
+}
+
+#notereferences {
+    margin-top: .5rem;
+
+    .attachmentslist a.delete {
+        margin-left: .5rem;
+    }
+}
+
+.kolabmessagenotes {
+    &:before {
+        &:extend(.font-icon-class);
+        color: @color-message-information;
+        .font-icon-regular(@fa-var-sticky-note);
+        margin-right: .6rem;
+        width: 1em;
+        font-size: 1.5em !important;
+        line-height: 1;
+    }
+
+    a {
+        text-decoration: none;
+    }
 }

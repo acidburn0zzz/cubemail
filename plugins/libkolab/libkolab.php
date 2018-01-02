@@ -279,6 +279,7 @@ class libkolab extends rcube_plugin
             'libkolab.actionflagset',
             'libkolab.actionflagclear',
             'libkolab.objectchangelog',
+            'libkolab.objectchangelognotavailable',
             'close'
         );
 

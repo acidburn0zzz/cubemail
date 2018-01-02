@@ -106,6 +106,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	outline: none;
+	border: 0;
 }
 
 .notesview #kolabnoteslist .date {
@@ -347,6 +348,22 @@
 	   -moz-box-sizing: border-box;
 	    -ms-box-sizing: border-box;
 	        box-sizing: border-box;
+}
+
+.notetitle .col-form-label {
+	display: none;
+}
+
+.notetitle .dates div.row {
+	display: inline;
+}
+
+.notetitle .dates .col-form-label {
+	display: inline;
+}
+
+.notebookselect {
+	clear: both;
 }
 
 /* Firefox 3.6 */

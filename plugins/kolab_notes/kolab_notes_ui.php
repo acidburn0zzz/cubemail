@@ -33,7 +33,6 @@ class kolab_notes_ui
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/notes.css');
 
         $this->plugin->register_action('print', array($this, 'print_template'));
-        $this->plugin->register_action('folder-acl', array($this, 'folder_acl'));
 
         $this->ready = true;
   }
@@ -79,33 +78,10 @@ class kolab_notes_ui
             $settings['selected_uid'] = $uid;
         }
 
-        $lang_codes = array($_SESSION['language']);
-        $assets_dir = $this->rc->config->get('assets_dir') ?: INSTALL_PATH;
-
-        if ($pos = strpos($_SESSION['language'], '_')) {
-            $lang_codes[] = substr($_SESSION['language'], 0, $pos);
-        }
-
-        foreach ($lang_codes as $code) {
-            if (file_exists("$assets_dir/program/js/tinymce/langs/$code.js")) {
-                $lang = $code;
-                break;
-            }
-        }
-
-        if (empty($lang)) {
-            $lang = 'en';
-        }
-
-        $settings['editor'] = array(
-            'lang'       => $lang,
-            'spellcheck' => intval($this->rc->config->get('enable_spellcheck')),
-            'spelldict'  => intval($this->rc->config->get('spellcheck_dictionary'))
-        );
+        $this->rc->html_editor();
 
         $this->rc->output->set_env('kolab_notes_settings', $settings);
-
-        $this->rc->output->add_label('save','cancel','delete','close');
+        $this->rc->output->add_label('save','cancel','delete','close','listoptionstitle');
     }
 
     public function folders($attrib)
@@ -240,7 +216,7 @@ class kolab_notes_ui
     {
         $attrib += array('id' => 'rcmkolabnoteslist');
         $this->rc->output->add_gui_object('noteslist', $attrib['id']);
-        return html::tag('ul', $attrib, '', html::$common_attrib);
+        return html::tag('table', $attrib, '<tbody></tbody>', html::$common_attrib);
     }
 
     public function tagslist($attrib)
@@ -254,10 +230,17 @@ class kolab_notes_ui
     {
         $attrib += array('action' => '#', 'id' => 'rcmkolabnoteseditform');
 
-        $this->rc->output->add_gui_object('noteseditform', $attrib['id']);
-        $this->rc->output->include_script('tinymce/tinymce.min.js');
+        $textarea = new html_textarea(array(
+                'name'     => 'content',
+                'id'       => 'notecontent',
+                'cols'     => 60,
+                'rows'     => 20,
+                'tabindex' => 0,
+                'class'    => 'mce_editor form-control',
+        ));
 
-        $textarea = new html_textarea(array('name' => 'content', 'id' => 'notecontent', 'cols' => 60, 'rows' => 20, 'tabindex' => 0));
+        $this->rc->output->add_gui_object('noteseditform', $attrib['id']);
+
         return html::tag('form', $attrib, $textarea->show(), array_merge(html::$common_attrib, array('action')));
     }
 
@@ -273,16 +256,32 @@ class kolab_notes_ui
         $attrib += array('id' => 'rcmkolabnotestitle');
         $this->rc->output->add_gui_object('noteviewtitle', $attrib['id']);
 
-        $summary = new html_inputfield(array('name' => 'summary', 'class' => 'notetitle inline-edit', 'size' => 60, 'tabindex' => 0));
+        $summary = new html_inputfield(array(
+                'name'     => 'summary',
+                'class'    => 'notetitle inline-edit form-control',
+                'size'     => 60,
+                'id'       => 'notetitleinput',
+                'tabindex' => 0
+        ));
 
-        $html = $summary->show();
-        $html .= html::div(array('class' => 'tagline tagedit', 'style' => 'display:none'), '&nbsp;');
-        $html .= html::div(array('class' => 'dates', 'style' => 'display:none'),
-            html::label(array(), $this->plugin->gettext('created')) .
-            html::span('notecreated', '') .
-            html::label(array(), $this->plugin->gettext('changed')) .
-            html::span('notechanged', '')
-        );
+        $html = html::div('form-group row',
+                html::label(array('class' => 'col-sm-2 col-form-label', 'for' => 'notetitleinput'), $this->plugin->gettext('kolab_notes.title'))
+                    . html::span('col-sm-10', $summary->show())
+            )
+            . html::div('form-group row',
+                html::label(array('class' => 'col-sm-2 col-form-label'), $this->plugin->gettext('kolab_notes.tags'))
+                    . html::div(array('class' => 'tagline tagedit col-sm-10', 'style' => 'display:none'), '&nbsp;')
+            )
+            . html::div(array('class' => 'dates', 'style' => 'display:none'),
+                html::div('form-group row',
+                    html::label(array('class' => 'col-sm-2 col-form-label'), $this->plugin->gettext('created'))
+                    . html::span('col-sm-10', html::span('notecreated form-control-plaintext', ''))
+                )
+                . html::div('form-group row',
+                    html::label(array('class' => 'col-sm-2 col-form-label'), $this->plugin->gettext('changed'))
+                    . html::span('col-sm-10', html::span('notechanged form-control-plaintext', ''))
+                )
+            );
 
         return html::div($attrib, $html);
     }
@@ -295,12 +294,24 @@ class kolab_notes_ui
     }
 
     /**
-     * Render edit for notes lists (folders)
+     * Render create/edit form for notes lists (folders)
      */
     public function list_editform($action, $list, $folder)
     {
-        if (is_object($folder)) {
-            $folder_name = $folder->name; // UTF7
+        $this->action = $action;
+        $this->list   = $list;
+        $this->folder = $folder;
+        $this->rc->output->add_handler('notebookform', array($this, 'notebookform'));
+        $this->rc->output->send('kolab_notes.listform');
+    }
+
+    /**
+     * Render create/edit form for notes lists (folders)
+     */
+    public function notebookform($attrib)
+    {
+        if (is_object($this->folder)) {
+            $folder_name = $this->folder->name; // UTF7
         }
         else {
             $folder_name = '';
@@ -321,12 +332,12 @@ class kolab_notes_ui
         }
         else {
             $path_imap = '';
-            $options = array();
+            $options   = array();
         }
 
         // General tab
         $form['properties'] = array(
-            'name' => $this->rc->gettext('properties'),
+            'name'   => $this->rc->gettext('properties'),
             'fields' => array(),
         );
 
@@ -334,8 +345,8 @@ class kolab_notes_ui
         $input_name = new html_inputfield(array('name' => 'name', 'id' => 'noteslist-name', 'size' => 20));
         $form['properties']['fields']['name'] = array(
             'label' => $this->plugin->gettext('listname'),
-            'value' => $input_name->show($list['editname'], array('disabled' => ($options['norename'] || $options['protected']))),
-            'id' => 'noteslist-name',
+            'value' => $input_name->show($this->list['editname'], array('disabled' => ($options['norename'] || $options['protected']))),
+            'id'    => 'noteslist-name',
         );
 
         // prevent user from moving folder
@@ -347,21 +358,15 @@ class kolab_notes_ui
             $form['properties']['fields']['path'] = array(
                 'label' => $this->plugin->gettext('parentfolder'),
                 'value' => $select->show(strlen($folder_name) ? $path_imap : ''),
-                'id' => 'parent-folder',
+                'id'    => 'parent-folder',
             );
         }
 
         // add folder ACL tab
-        if ($action != 'form-new') {
+        if ($this->action != 'form-new') {
             $form['sharing'] = array(
                 'name'    => rcube::Q($this->plugin->gettext('tabsharing')),
-                'content' => html::tag('iframe', array(
-                    'src' => $this->rc->url(array('_action' => 'folder-acl', '_folder' => $folder_name, 'framed' => 1)),
-                    'width' => '100%',
-                    'height' => 280,
-                    'border' => 0,
-                    'style' => 'border:0'),
-                '')
+                'content' => $this->folder_acl_form()
             );
         }
 
@@ -376,7 +381,7 @@ class kolab_notes_ui
         // create form output
         foreach ($form as $tab) {
             if (is_array($tab['fields']) && empty($tab['content'])) {
-                $table = new html_table(array('cols' => 2));
+                $table = new html_table(array('cols' => 2, 'class' => 'propform'));
                 foreach ($tab['fields'] as $col => $colprop) {
                     $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
 
@@ -394,33 +399,22 @@ class kolab_notes_ui
             }
         }
 
-        return html::tag('form', array('action' => "#", 'method' => "post", 'id' => "noteslistpropform"), $form_html);
+        return html::tag('form', $attrib + array('action' => '#', 'method' => 'post', 'id' => 'noteslistpropform'), $form_html);
     }
 
     /**
-     * Handler to render ACL form for a notes folder
-     */
-    public function folder_acl()
-    {
-        $this->plugin->require_plugin('acl');
-        $this->rc->output->add_handler('folderacl', array($this, 'folder_acl_form'));
-        $this->rc->output->send('kolab_notes.kolabacl');
-    }
-
-    /**
-     * Handler for ACL form template object
+     * Returns ACL form
      */
     public function folder_acl_form()
     {
-        $folder = rcube_utils::get_input_value('_folder', rcube_utils::INPUT_GPC);
-
-        if (strlen($folder)) {
+        if (strlen($this->folder)) {
+            $this->plugin->require_plugin('acl');
             $storage = $this->rc->get_storage();
-            $options = $storage->folder_info($folder);
+            $options = $storage->folder_info($this->folder);
 
             // get sharing UI from acl plugin
             $acl = $this->rc->plugins->exec_hook('folder_form',
-                array('form' => array(), 'options' => $options, 'name' => $folder));
+                array('form' => array(), 'options' => $options, 'name' => $this->folder));
         }
 
         return $acl['form']['sharing']['content'] ?: html::div('hint', $this->plugin->gettext('aclnorights'));
@@ -436,6 +430,4 @@ class kolab_notes_ui
         echo $this->rc->output->parse('kolab_notes.print', false, false);
         exit;
     }
-
 }
-

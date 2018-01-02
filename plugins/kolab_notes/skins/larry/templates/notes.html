@@ -97,7 +97,7 @@
                 <roundcube:button command="save" type="input" class="button mainaction" label="save" id="btn-save-note" />
                 <div class="footerright">
                 <roundcube:if condition="config:kolab_bonnie_api" />
-                    <roundcube:button command="history" type="link" label="kolab_notes.showhistory" class="btn-note-history" classAct="btn-note-history active" />
+                    <roundcube:button command="history" type="link" label="libkolab.showhistory" class="btn-note-history" classAct="btn-note-history active" />
                 <roundcube:endif />
                 </div>
             </div>
@@ -144,12 +144,6 @@
         <li role="menuitem"><roundcube:button command="list-sort" prop="changed" type="link" label="kolab_notes.changed" class="icon active by-changed" innerclass="icon" /></li>
         <li role="menuitem"><roundcube:button command="list-sort" prop="title" type="link" label="kolab_notes.title" class="icon active by-title" innerclass="icon" /></li>
     </ul>
-</div>
-
-<div id="notebookeditform" class="uidialog" aria-labelledby="aria-label-editform" aria-hidden="true" role="dialog">
-    <h3 id="aria-label-editform" class="voice"><roundcube:label name="kolab_notes.arialabelnotebookform" /></h3>
-    <roundcube:container name="notebookeditform" id="notebookeditform" />
-    <roundcube:label name="loading" />
 </div>
 
 <script type="text/javascript">
