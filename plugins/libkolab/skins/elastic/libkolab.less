@@ -394,18 +394,40 @@ a.history {
     }
 }
 
-.kolabmessagenotes {
-    &:before {
-        &:extend(.font-icon-class);
-        color: @color-message-information;
-        .font-icon-regular(@fa-var-sticky-note);
-        margin-right: .6rem;
-        width: 1em;
-        font-size: 1.5em !important;
-        line-height: 1;
+#kolabnoteslist {
+    tr {
+        display: flex;
     }
 
-    a {
+    td.title {
+        .overflow-ellipsis;
+        flex: 1;
+    }
+
+    td.date {
+        overflow: unset;
+        color: @color-list-secondary;
+        font-style: italic;
+    }
+}
+
+.kolabmessagenotes {
+    display: block !important;
+
+    & > a {
+        .overflow-ellipsis;
+        white-space: nowrap;
+        display: block;
         text-decoration: none;
+
+        &:before {
+            &:extend(.font-icon-class);
+            color: @color-message-information;
+            .font-icon-regular(@fa-var-sticky-note);
+            margin-right: .6rem;
+            width: 1em;
+            font-size: 1.5em !important;
+            line-height: 1;
+        }
     }
 }
