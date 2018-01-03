@@ -455,7 +455,6 @@ function rcube_kolab_notes_ui(settings)
                 changed: rcmail.gettext('now', 'kolab_notes')
             }
             render_note(me.selected_note);
-            rcmail.enable_command('print', true);
         }
         else {
             ui_loading = rcmail.set_busy(true, 'loading');
@@ -1135,28 +1134,11 @@ function rcube_kolab_notes_ui(settings)
      */
     function print_note()
     {
-        var printwin, data, list;
-        if (me.selected_note && (printwin = rcmail.open_window(settings.print_template))) {
-            list = me.notebooks[me.selected_note.list] || me.notebooks[me.selected_list] || {};
-            data = get_save_data();
+        var list = me.notebooks[me.selected_list],
+            uid = me.selected_note ? me.selected_note.uid : 0;
 
-            // for read-only notes, get_save_data() won't return the content
-            if (me.selected_note.readonly || !list.editable) {
-                data.description = me.selected_note.html || me.selected_note.description;
-                if (!me.selected_note.html || !data.description.match(/<(html|body)/)) {
-                    data.description = text2html(data.description);
-                }
-            }
-
-            $(printwin).on('load', function() {
-                printwin.document.title = data.title;
-                $('#notetitle', printwin.document).text(data.title);
-                $('#notebody',  printwin.document).html(data.description);
-                $('#notetags',  printwin.document).html('<span class="tag">' + data.tags.join('</span><span class="tag">') + '</span>');
-                $('#notecreated', printwin.document).text(me.selected_note.created);
-                $('#notechanged', printwin.document).text(me.selected_note.changed);
-                printwin.print();
-            });
+        if (list && uid) {
+            rcmail.open_window(rcmail.url('print', {_uid: uid, _list: list.id}), true, true);
         }
     }
 
@@ -1691,6 +1673,11 @@ function kolab_notes_options_menu()
 /* Notes plugin UI initialization */
 var kolabnotes;
 window.rcmail && rcmail.addEventListener('init', function(evt) {
+    if (rcmail.task == 'notes' && rcmail.env.action == 'print') {
+        rcmail.print_dialog();
+        return;
+    }
+
     kolabnotes = new rcube_kolab_notes_ui(rcmail.env.kolab_notes_settings);
 
     if (rcmail.env.action == 'dialog-ui')

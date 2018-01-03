@@ -46,11 +46,6 @@ class kolab_notes extends rcube_plugin
 
         $this->rc = rcube::get_instance();
 
-        $this->register_task('notes');
-
-        // load plugin configuration
-        $this->load_config();
-
         // proceed initialization in startup hook
         $this->add_hook('startup', array($this, 'startup'));
     }
@@ -64,6 +59,11 @@ class kolab_notes extends rcube_plugin
         if ($this->rc->config->get('kolab_notes_disabled', false) || !$this->rc->config->get('kolab_notes_enabled', true)) {
             return;
         }
+
+        $this->register_task('notes');
+
+        // load plugin configuration
+        $this->load_config();
 
         // load localizations
         $this->add_texts('localization/', $args['task'] == 'notes' && (!$args['action'] || $args['action'] == 'dialog-ui'));
@@ -79,6 +79,7 @@ class kolab_notes extends rcube_plugin
             $this->register_action('action', array($this, 'note_action'));
             $this->register_action('list',  array($this, 'list_action'));
             $this->register_action('dialog-ui', array($this, 'dialog_view'));
+            $this->register_action('print', array($this, 'print_note'));
 
             if (!$this->rc->output->ajax_call && in_array($args['action'], array('dialog-ui', 'list'))) {
                 $this->load_ui();
@@ -518,7 +519,7 @@ class kolab_notes extends rcube_plugin
 
         // encode for client use
         if (is_array($data)) {
-            $this->_client_encode($data, true);
+            $this->_client_encode($data);
         }
 
         $this->rc->output->command('plugin.render_note', $data);
@@ -828,6 +829,52 @@ class kolab_notes extends rcube_plugin
         }
 
         return $status;
+    }
+
+    /**
+     * Render the template for printing with placeholders
+     */
+    public function print_note()
+    {
+        $uid  = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+        $list = rcube_utils::get_input_value('_list', rcube_utils::INPUT_GET);
+
+        $this->note = $this->get_note(array('uid' => $uid, 'list' => $list));
+
+        // encode for client use
+        if (is_array($this->note)) {
+            $this->_client_encode($this->note);
+        }
+
+        $this->rc->output->set_pagetitle($this->note['title']);
+        $this->rc->output->add_handlers(array(
+                'noteheader' => array($this, 'print_note_header'),
+                'notebody'   => array($this, 'print_note_body'),
+        ));
+
+        $this->include_script('notes.js');
+
+        $this->rc->output->send('kolab_notes.print');
+    }
+
+    public function print_note_header()
+    {
+        $tags = array_map(array('rcube', 'Q'), (array) $this->note['tags']);
+        $tags = implode(' ', $tags);
+
+        return html::tag('h1', array('id' => 'notetitle'), rcube::Q($this->note['title']))
+            . html::div(array('id' => 'notetags', 'class' => 'tagline'), $tags)
+            . html::div('dates',
+                html::label(null, rcube::Q($this->gettext('created')))
+                . html::span(array('id' => 'notecreated'), rcube::Q($this->note['created']))
+                . html::label(null, rcube::Q($this->gettext('changed')))
+                . html::span(array('id' => 'notechanged'), rcube::Q($this->note['changed']))
+            );
+    }
+
+    public function print_note_body()
+    {
+        return isset($this->note['html']) ? $this->note['html'] : rcube::Q($this->note['description']);
     }
 
     /**
@@ -1431,4 +1478,3 @@ class kolab_notes extends rcube_plugin
     }
 
 }
-
