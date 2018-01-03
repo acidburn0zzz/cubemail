@@ -487,8 +487,10 @@ function rcube_kolab_notes_ui(settings)
 
                 // do some input validation
                 if (!name.val() || name.val().length < 2) {
-                    alert(rcmail.gettext('invalidlistproperties', 'kolab_notes'));
-                    name.select();
+                    rcmail.alert_dialog(rcmail.gettext('invalidlistproperties', 'kolab_notes'), function() {
+                        name.select();
+                    });
+
                     return false;
                 }
 
@@ -550,9 +552,11 @@ function rcube_kolab_notes_ui(settings)
     function list_delete(id)
     {
         var list = me.notebooks[id];
-        if (list && confirm(rcmail.gettext('deletenotebookconfirm', 'kolab_notes'))) {
-            saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
-            rcmail.http_post('list', { _do: 'delete', _list: { id: list.id } });
+        if (list) {
+            rcmail.confirm_dialog(rcmail.gettext('kolab_notes.deletenotebookconfirm'), 'delete', function() {
+                saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
+                rcmail.http_post('list', { _do: 'delete', _list: { id: list.id } });
+            });
         }
     }
 
@@ -1335,8 +1339,10 @@ function rcube_kolab_notes_ui(settings)
 
         // do some input validation
         if (savedata.title == '') {
-            alert(rcmail.gettext('entertitle', 'kolab_notes'));
-            $('.notetitle', rcmail.gui_objects.noteviewtitle).focus();
+            rcmail.alert_dialog(rcmail.gettext('entertitle', 'kolab_notes'), function() {;
+                $('.notetitle', rcmail.gui_objects.noteviewtitle).focus();
+            });
+
             return false;
         }
 
@@ -1486,7 +1492,7 @@ function rcube_kolab_notes_ui(settings)
             return false;
         }
 
-        if (confirm(rcmail.gettext('deletenotesconfirm','kolab_notes'))) {
+        rcmail.confirm_dialog(rcmail.gettext('kolab_notes.deletenotesconfirm'), 'delete', function() {
             var i, rec, id, uids = [];
             for (i=0; i < noteslist.selection.length; i++) {
                 id = noteslist.selection[i];
@@ -1504,7 +1510,7 @@ function rcube_kolab_notes_ui(settings)
             reset_view();
             update_tagcloud();
             noteslist.clear_selection();
-        }
+        });
     }
 
     /**
