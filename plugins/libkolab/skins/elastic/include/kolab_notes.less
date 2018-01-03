@@ -1,0 +1,79 @@
+/**
+ * Kolab core library
+ *
+ * This file contains Elastic skin styles for kolab_notes plugin.
+ *
+ * @author Aleksander Machniak <machniak@kolabsys.com>
+ *
+ * Copyright (C) 2012-2018, Kolab Systems AG <contact@kolabsys.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+.toolbarmenu.listing li {
+    a.appendnote:before {
+        .font-icon-regular(@fa-var-sticky-note);
+    }
+}
+
+// Fixes TinyMCE editor height=0 issue
+#noteform iframe {
+    min-height: 10rem;
+}
+
+#notereferences {
+    margin-top: .5rem;
+
+    .attachmentslist a.delete {
+        margin-left: .5rem;
+    }
+}
+
+#kolabnoteslist {
+    tr {
+        display: flex;
+    }
+
+    td.title {
+        .overflow-ellipsis;
+        flex: 1;
+    }
+
+    td.date {
+        overflow: unset;
+        color: @color-list-secondary;
+        font-style: italic;
+    }
+}
+
+.kolabmessagenotes {
+    display: block !important;
+
+    & > a {
+        .overflow-ellipsis;
+        white-space: nowrap;
+        display: block;
+        text-decoration: none;
+
+        &:before {
+            &:extend(.font-icon-class);
+            color: @color-message-information;
+            .font-icon-regular(@fa-var-sticky-note);
+            margin-right: .6rem;
+            width: 1em;
+            font-size: 1.5em !important;
+            line-height: 1;
+        }
+    }
+}

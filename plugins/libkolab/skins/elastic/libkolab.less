@@ -1,11 +1,11 @@
 /**
  * Kolab core library
  *
- * This file contains style of various Kolab plugins for Elastic skin.
+ * This file contains Elastic skin styles for various Kolab plugins.
  *
- * @author Thomas Bruederli <bruederli@kolabsys.com>
+ * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2012-2017, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2012-2018, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,7 +25,7 @@
 @import (reference) "../../../../skins/elastic/styles/mixins";
 
 
-/*** Folders list extensions ***/
+/*** Common folders list extensions ***/
 
 .listing {
     // Fix focus indicator, because we add div element in the list record
@@ -213,16 +213,6 @@ html.touch .listing {
 }
 
 .toolbarmenu.listing li {
-    a.tags:before {
-        content: @fa-var-tags;
-    }
-
-    a.tag:before,
-    a.tag.remove:before,
-    a.tag.remove.all:before {
-        content: @fa-var-tag;
-    }
-
     &.search {
         padding: .25rem .5rem;
         .input-group {
@@ -241,113 +231,7 @@ html.touch .listing {
     a.history:before {
         content: @fa-var-history;
     }
-
-    a.calendarlink:before {
-        .font-icon-regular(@fa-var-calendar);
-    }
-
-    a.appendnote:before {
-        .font-icon-regular(@fa-var-sticky-note);
-    }
-
-    a.taskaddlink:before {
-        content: @fa-var-tasks;
-    }
 }
-
-#taglist {
-    li {
-        padding: 0 .5rem;
-        &:before {
-            &:extend(.font-icon-class);
-            content: @fa-var-tag;
-            margin: 0 .5rem 0 .2rem;
-        }
-    }
-}
-
-#tagsform option:before,
-#taglist li:before,
-#tag-selector li a:before {
-    color: darken(@color-main, 15%); // default tag color
-}
-
-#tagsform option:checked:before,
-#tag-selector li:hover a:before {
-    color: #fff;
-}
-
-#tagsform {
-    min-height: 15rem;
-
-    select {
-        padding: 0;
-        margin-bottom: .5rem;
-
-        &:focus {
-            box-shadow: none !important;
-            border: 1px solid @color-layout-border;
-        }
-    }
-
-    option {
-        color: @color-font; // fix Firefox issue caused by text-shadow below
-        text-shadow: none;
-        padding: .5rem;
-        outline: 0;
-        border: 0;
-
-        &:before {
-            &:extend(.font-icon-class);
-            content: @fa-var-tag;
-            line-height: 1;
-        }
-    }
-
-    .buttons {
-        text-align: center;
-
-        button {
-            margin: 0 .25rem;
-        }
-    }
-}
-
-.tagbox {
-    color: #fff;
-    background-color: @color-main;
-    border-radius: .25rem;
-    max-width: 4em;
-    padding: .1rem .4rem;
-    margin-right: .2rem;
-    font-weight: bold;
-
-    a {
-        color: inherit;
-        padding-left: .5rem;
-        text-decoration: none;
-    }
-
-    h2 > & {
-        font-size: 1.2rem;
-    }
-}
-
-#calendarcategories {
-    .input-group:not(:last-child) {
-        margin-bottom: .25rem;
-    }
-}
-
-fieldset.categories .input-group a.button.create {
-    &:before {
-        &:extend(.font-icon-class);
-        content: @fa-var-plus;
-        line-height: 1;
-    }
-}
-
-// TODO .quickview-active in Calendar and Tasklist
 
 .formbuttons-secondary-kolab {
     display: inline;
@@ -366,7 +250,7 @@ a.history {
     }
 }
 
-// Notes preview frame
+// E.g. notes preview frame
 .watermark {
     & > * {
         display: none;
@@ -381,53 +265,7 @@ a.history {
     }
 }
 
-// Fixes TinyMCE editor height=0 issue
-#noteform iframe {
-    min-height: 10rem;
-}
-
-#notereferences {
-    margin-top: .5rem;
-
-    .attachmentslist a.delete {
-        margin-left: .5rem;
-    }
-}
-
-#kolabnoteslist {
-    tr {
-        display: flex;
-    }
-
-    td.title {
-        .overflow-ellipsis;
-        flex: 1;
-    }
-
-    td.date {
-        overflow: unset;
-        color: @color-list-secondary;
-        font-style: italic;
-    }
-}
-
-.kolabmessagenotes {
-    display: block !important;
-
-    & > a {
-        .overflow-ellipsis;
-        white-space: nowrap;
-        display: block;
-        text-decoration: none;
-
-        &:before {
-            &:extend(.font-icon-class);
-            color: @color-message-information;
-            .font-icon-regular(@fa-var-sticky-note);
-            margin-right: .6rem;
-            width: 1em;
-            font-size: 1.5em !important;
-            line-height: 1;
-        }
-    }
-}
+@import "include/calendar";
+@import "include/kolab_notes";
+@import "include/kolab_tags";
+@import "include/tasklist";
