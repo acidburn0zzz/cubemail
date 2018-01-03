@@ -396,7 +396,8 @@ function rcube_kolab_notes_ui(settings)
         }
 
         // initialize HTML editor
-        rcmail.editor_init(rcmail.env.editor_config, 'notecontent');
+        var config = $.extend(rcmail.env.editor_config, {disabled_plugins: ['image', 'media']});
+        rcmail.editor_init(config, 'notecontent');
 
         // register click handler for message links
         $(rcmail.gui_objects.notesattachmentslist).on('click', 'li a.messagelink', function() {
