@@ -32,4 +32,22 @@
         &:extend(.font-icon-class);
         content: @fa-var-rss-square; // TODO: mobile icon is not free
     }
+
+    td {
+        display: flex;
+
+        span {
+            .overflow-ellipsis;
+        }
+    }
+
+    .devicealias {
+        flex: 1;
+    }
+
+    .devicetype {
+        max-width: 40%;
+        font-style: italic;
+        padding-left: .5em;
+    }
 }
