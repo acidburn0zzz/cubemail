@@ -69,6 +69,11 @@
     td.title {
         .overflow-ellipsis;
         flex: 1;
+
+        &:before {
+            &:extend(.font-icon-class);
+            .font-icon-regular(@fa-var-sticky-note);
+        }
     }
 
     td.date {
