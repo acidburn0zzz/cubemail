@@ -355,7 +355,7 @@ class rcube_kolab_contacts extends rcube_addressbook
 
             // get members by UID
             if (!empty($uids)) {
-                $this->_fetch_contacts($query = array(array('uid', '=', $uids)), !$fetch_all);
+                $this->_fetch_contacts($query = array(array('uid', '=', $uids)), $fetch_all ? false : count($uids));
                 $this->sortindex = array_merge($this->sortindex, $local_sortindex);
             }
         }
@@ -363,7 +363,7 @@ class rcube_kolab_contacts extends rcube_addressbook
             $ids = $this->filter['ids'];
             if (count($ids)) {
                 $uids = array_map(array($this, 'id2uid'), $this->filter['ids']);
-                $this->_fetch_contacts($query = array(array('uid', '=', $uids)), true);
+                $this->_fetch_contacts($query = array(array('uid', '=', $uids)), count($ids));
             }
         }
         else {
@@ -1066,10 +1066,13 @@ class rcube_kolab_contacts extends rcube_addressbook
     {
         if (!isset($this->dataset) || !empty($query)) {
             if ($limit) {
-                $this->storagefolder->set_order_and_limit($this->_sort_columns(), $this->page_size, ($this->list_page-1) * $this->page_size);
+                $size = is_int($limit) && $limit < $this->page_size ? $limit : $this->page_size;
+                $this->storagefolder->set_order_and_limit($this->_sort_columns(), $size, ($this->list_page-1) * $this->page_size);
             }
+
             $this->sortindex = array();
-            $this->dataset = $this->storagefolder->select($query);
+            $this->dataset   = $this->storagefolder->select($query);
+
             foreach ($this->dataset as $idx => $record) {
                 $contact = $this->_to_rcube_contact($record);
                 $this->sortindex[$idx] = $this->_sort_string($contact);
