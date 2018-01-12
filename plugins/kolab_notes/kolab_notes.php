@@ -1118,7 +1118,7 @@ class kolab_notes extends rcube_plugin
                     $path_imap        = explode($delim, $newfolder);
                     $list['name']     = kolab_storage::object_name($newfolder);
                     $list['editname'] = rcube_charset::convert(array_pop($path_imap), 'UTF7-IMAP');
-                    $list['listname'] = (!empty($path_imap) ? str_repeat('&nbsp;&nbsp;&nbsp;', count($path_imap)) . '&raquo; ' : '') . $list['editname'];
+                    $list['listname'] = $list['editname'];
                 }
                 break;
 

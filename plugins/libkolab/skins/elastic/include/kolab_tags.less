@@ -42,6 +42,26 @@
             margin: 0 .5rem 0 .2rem;
         }
     }
+
+    .count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 2em;
+        line-height: 1.4rem;
+        margin: (@listing-line-height - 1.4rem)/2;
+        padding: 0 .3em;
+        border-radius: .4em;
+        background: @color-list-secondary;
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+
+        html.touch & {
+            line-height: 2rem;
+            margin: (@listing-touch-line-height - 2rem)/2;
+        }
+    }
 }
 
 #tagsform option:before,
@@ -93,14 +113,15 @@
 
 .tagbox {
     color: #fff;
-    background-color: @color-main;
+    background-color: @color-main !important;
+    border: 0 !important;
     border-radius: .25rem;
     max-width: 4em;
     padding: .1rem .4rem;
     margin-right: .2rem;
     font-weight: bold;
 
-    a {
+    &:not(.tagedit-listelement) a {
         color: inherit;
         padding-left: .5rem;
         text-decoration: none;
@@ -108,5 +129,14 @@
 
     h2 > & {
         font-size: 1.2rem;
+    }
+}
+
+.tag-droppable.formcontainer {
+    &.ui-droppable-active {
+        background-color: @color-black-shade-bg !important;
+    }
+    &.ui-droppable-hover {
+        background-color: @color-list-droptarget-background !important;
     }
 }

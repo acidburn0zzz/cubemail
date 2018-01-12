@@ -36,11 +36,9 @@ function rcube_kolab_notes_ui(settings)
     var notebookslist;
     var noteslist;
     var notesdata = {};
-    var tagsfilter = [];
-    var tags = [];
+    var taglist;
     var search_request;
     var search_query;
-    var tag_draghelper;
     var render_no_focus;
     var me = this;
 
@@ -273,62 +271,38 @@ function rcube_kolab_notes_ui(settings)
             $('#notessortmenu a.by-' + settings.sort_col).addClass('selected');
         }
 
-        // click-handler on tags list
-        $(rcmail.gui_objects.notestagslist).on('click', 'li', function(e){
-            var item = e.target.nodeName == 'LI' ? $(e.target) : $(e.target).closest('li'),
-                tag = item.data('value');
-
-            if (!tag)
-                return false;
-
-            // reset selection on regular clicks
-            var index = $.inArray(tag, tagsfilter);
-            var shift = e.shiftKey || e.ctrlKey || e.metaKey;
-
-            if (!shift) {
-                if (tagsfilter.length > 1)
-                    index = -1;
-
-                $('li', rcmail.gui_objects.notestagslist).removeClass('selected').attr('aria-checked', 'false');
-                tagsfilter = [];
-            }
-
-            // add tag to filter
-            if (index < 0) {
-                item.addClass('selected').attr('aria-checked', 'true');
-                tagsfilter.push(tag);
-            }
-            else if (shift) {
-                item.removeClass('selected').attr('aria-checked', 'false');
-                var a = tagsfilter.slice(0,index);
-                tagsfilter = a.concat(tagsfilter.slice(index+1));
-            }
-
-            filter_notes();
-
-            // clear text selection in IE after shift+click
-            if (shift && document.selection)
-              document.selection.empty();
-
-            e.preventDefault();
-            return false;
-        })
-        .on('keypress', 'li', function(e) {
-            if (e.keyCode == 13) {
-                $(this).trigger('click', { pointerType:'keyboard' });
-            }
-        })
-        .mousedown(function(e){
-            // disable content selection with the mouse
-            e.preventDefault();
-            return false;
-        });
-
         init_editor();
 
         if (settings.selected_list) {
             notebookslist.select(settings.selected_list)
         }
+
+        rcmail.addEventListener('kolab-tags-search', filter_notes)
+            .addEventListener('kolab-tags-drop-data', function(e) { return notesdata[e.id]; })
+            .addEventListener('kolab-tags-drop', function(e) {
+                if ($(e.list).is('#kolabnoteslist')) {
+                    return;
+                }
+
+                var rec = notesdata[e.id];
+
+                if (rec && rec.id && e.tag) {
+                    savedata = me.selected_note && rec.uid == me.selected_note.uid ? get_save_data() : $.extend({}, rec);
+
+                    if (savedata.id)   delete savedata.id;
+                    if (savedata.html) delete savedata.html;
+
+                    if (!savedata.tags)
+                        savedata.tags = [];
+                    savedata.tags.push(e.tag);
+
+                    rcmail.lock_form(rcmail.gui_objects.noteseditform, true);
+                    saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
+                    rcmail.http_post('action', { _data: savedata, _do: 'edit' }, true);
+                }
+            });
+
+        rcmail.triggerEvent('kolab-notes-init');
     }
     this.init = init;
 
@@ -387,7 +361,7 @@ function rcube_kolab_notes_ui(settings)
     this.init_dialog = init_dialog;
 
     /**
-     * initialize tinyMCE editor
+     * Initialize TinyMCE editor
      */
     function init_editor(callback)
     {
@@ -682,24 +656,25 @@ function rcube_kolab_notes_ui(settings)
         reset_view();
         noteslist.clear(true);
         notesdata = {};
-        tagsfilter = [];
         update_state();
     }
 
-    function filter_notes()
+    /**
+     * Filter notes by tag
+     */
+    function filter_notes(tags)
     {
-        // tagsfilter
         var id, note, tr, match;
         for (id in noteslist.rows) {
             tr = noteslist.rows[id].obj;
             note = notesdata[id];
             match = note.tags && note.tags.length;
-            for (var i=0; match && note && i < tagsfilter.length; i++) {
-                if ($.inArray(tagsfilter[i], note.tags) < 0)
+            for (var i=0; match && note && i < tags.length; i++) {
+                if ($.inArray(tags[i], note.tags) < 0)
                     match = false;
             }
 
-            if (match || !tagsfilter.length) {
+            if (match || !tags.length) {
                 $(tr).show();
             }
             else {
@@ -711,9 +686,7 @@ function rcube_kolab_notes_ui(settings)
                     me.selected_note = null;
                     noteslist.clear_selection();
                 }, function(){
-                    tagsfilter = [];
-                    filter_notes();
-                    update_tagcloud();
+                    filter_notes(tags);
                 });
             }
         }
@@ -748,7 +721,7 @@ function rcube_kolab_notes_ui(settings)
             notesdata[rec.id] = rec;
         }
 
-        render_tagslist(data.tags || [], !data.search)
+        update_taglist();
         rcmail.set_busy(false, 'loading', ui_loading);
 
         rcmail.triggerEvent('listupdate', {list: noteslist, rowcount:noteslist.rowcount});
@@ -796,40 +769,18 @@ function rcube_kolab_notes_ui(settings)
             titlecontainer = rcmail.gui_objects.noteviewtitle || container,
             is_html = false;
 
+        // tag-edit line
+        if (window.kolab_tags_input) {
+            $('.tagline', titlecontainer).parent('.form-group').show();
+            taglist = kolab_tags_input($('.tagline', titlecontainer), data.tags, readonly);
+        }
+
         $('.notetitle', titlecontainer).val(data.title).prop('disabled', readonly).show();
         $('.dates .notecreated', titlecontainer).text(data.created || '');
         $('.dates .notechanged', titlecontainer).text(data.changed || '');
         if (data.created || data.changed) {
             $('.dates', titlecontainer).show();
         }
-
-        // tag-edit line
-        var tagline = $('.tagline', titlecontainer).empty()[readonly?'addClass':'removeClass']('disabled').show();
-        $.each(typeof data.tags == 'object' && data.tags.length ? data.tags : [''], function(i,val) {
-            $('<input>')
-                .attr('name', 'tags[]')
-                .attr('tabindex', '0')
-                .addClass('tag')
-                .val(val)
-                .appendTo(tagline);
-        });
-
-        if (!data.tags || !data.tags.length) {
-            $('<span>').addClass('placeholder')
-              .html(rcmail.gettext('notags', 'kolab_notes'))
-              .appendTo(tagline)
-              .click(function(e) { $(this).parent().find('.tagedit-list').trigger('click'); });
-        }
-
-        $('.tagline input.tag', titlecontainer).tagedit({
-            animSpeed: 100,
-            allowEdit: false,
-            allowAdd: !readonly,
-            allowDelete: !readonly,
-            checkNewEntriesCaseSensitive: false,
-            autocompleteOptions: { source: tags, minLength: 0, noCheck: true },
-            texts: { removeLinkTitle: rcmail.gettext('removetag', 'kolab_notes') }
-        });
 
         if (data.links) {
             $.each(data.links, function(i, link) {
@@ -856,11 +807,6 @@ function rcube_kolab_notes_ui(settings)
                         .appendTo(li);
                 }
             });
-        }
-
-        if (!readonly) {
-            $('.tagedit-list', titlecontainer)
-                .on('click', function(){ $('.tagline .placeholder').hide(); });
         }
 
         if (!data.list)
@@ -891,9 +837,6 @@ function rcube_kolab_notes_ui(settings)
             // read possibly re-formatted content back from editor for later comparison
             me.selected_note.description = rcmail.editor.get_content().replace(/^\s*(<p><\/p>\n*)?/, '');
             is_html = true;
-
-            if (!me.selected_note.uid)
-                $('.notetitle', titlecontainer).focus().select();
         }
         else {
             gui_object('noteseditform', container).hide();
@@ -911,6 +854,9 @@ function rcube_kolab_notes_ui(settings)
         // Elastic
         $(container).parents('.watermark').addClass('formcontainer');
         $('#notedetailsbox').parent().trigger('loaded');
+
+        if (!readonly)
+            $('.notetitle', titlecontainer).focus().select();
     }
 
     /**
@@ -1161,88 +1107,26 @@ function rcube_kolab_notes_ui(settings)
     }
 
     /**
-     *
+     * Display the given counts to each tag
      */
-    function render_tagslist(newtags, replace)
+    function update_taglist(tags)
     {
-        if (replace) {
-            tags = newtags;
-        }
-        else {
-            var i, append = [];
-            for (i=0; i < newtags.length; i++) {
-                if ($.inArray(newtags[i], tags) < 0)
-                    append.push(newtags[i]);
+        // compute counts first by iterating over all notes
+        var counts = {};
+        $.each(notesdata, function(id, rec) {
+            for (var t, j=0; rec && rec.tags && j < rec.tags.length; j++) {
+                t = rec.tags[j];
+                if (typeof counts[t] == 'undefined')
+                    counts[t] = 0;
+                counts[t]++;
             }
-            if (!append.length) {
-                update_tagcloud();
-                return;  // nothing to be added
-            }
-            tags = tags.concat(append);
-        }
-
-        // sort tags first
-        tags.sort(function(a,b){
-            return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
-        })
-
-        var widget = $(rcmail.gui_objects.notestagslist).html('');
-
-        // append tags to tag cloud
-        $.each(tags, function(i, tag){
-            li = $('<li role="checkbox" aria-checked="false" tabindex="0"></li>')
-                .attr('rel', tag)
-                .data('value', tag)
-                .html(Q(tag) + '<span class="count"></span>')
-                .appendTo(widget)
-                .draggable({
-                    addClasses: false,
-                    revert: 'invalid',
-                    revertDuration: 300,
-                    helper: tag_draggable_helper,
-                    start: tag_draggable_start,
-                    appendTo: 'body',
-                    cursor: 'pointer'
-                });
         });
 
-        update_tagcloud();
-    }
+        rcmail.triggerEvent('kolab-tags-counts', {counter: counts});
 
-    /**
-     * Display the given counts to each tag and set those inactive which don't
-     * have any matching records in the current view.
-     */
-    function update_tagcloud(counts)
-    {
-        // compute counts first by iterating over all visible task items
-        if (typeof counts == 'undefined') {
-            counts = {};
-            $.each(notesdata, function(id, rec){
-                for (var t, j=0; rec && rec.tags && j < rec.tags.length; j++) {
-                    t = rec.tags[j];
-                    if (typeof counts[t] == 'undefined')
-                        counts[t] = 0;
-                    counts[t]++;
-                }
-            });
+        if (tags && tags.length) {
+            rcmail.triggerEvent('kolab-tags-refresh', {tags: tags});
         }
-
-        $(rcmail.gui_objects.notestagslist).children('li').each(function(i,li){
-            var elem = $(li), tag = elem.attr('rel'),
-                count = counts[tag] || 0;
-
-            elem.children('.count').html(count+'');
-            if (count == 0) elem.addClass('inactive');
-            else            elem.removeClass('inactive');
-
-            if (tagsfilter && tagsfilter.length && $.inArray(tag, tagsfilter)) {
-                elem.addClass('selected').attr('aria-checked', 'true');
-            }
-            else {
-                elem.removeClass('selected').attr('aria-checked', 'false');
-            }
-        });
     }
 
     /**
@@ -1257,10 +1141,10 @@ function rcube_kolab_notes_ui(settings)
 
         if (is_new || me.selected_note && data.id == me.selected_note.id) {
             render_note(data);
-            render_tagslist(data.tags || []);
+            update_taglist(data.tags || []);
         }
         else if (data.tags) {
-            render_tagslist(data.tags);
+            update_taglist(data.tags);
         }
 
         // add list item on top
@@ -1291,7 +1175,8 @@ function rcube_kolab_notes_ui(settings)
         close_history_dialog();
         me.selected_note = null;
         $('.notetitle', rcmail.gui_objects.noteviewtitle).val('').hide();
-        $('.tagline, .dates', rcmail.gui_objects.noteviewtitle).hide();
+        $('.dates', rcmail.gui_objects.noteviewtitle).hide();
+        $('.tagline', rcmail.gui_objects.noteviewtitle).parent('.form-group').hide();
         $(rcmail.gui_objects.noteseditform).hide().parents('.watermark').removeClass('formcontainer');
         $(rcmail.gui_objects.notesdetailview).hide();
         $(rcmail.gui_objects.notesattachmentslist).html('');
@@ -1350,23 +1235,12 @@ function rcube_kolab_notes_ui(settings)
                 description: rcmail.editor.get_content().replace(/^\s*(<p><\/p>\n*)?/, ''),
                 list: listselect.length ? listselect.val() : me.selected_note.list || me.selected_list,
                 uid: me.selected_note.uid,
-                tags: []
+                tags: taglist ? kolab_tags_input_value(taglist) : []
             };
 
         // copy links
         if ($.isArray(me.selected_note.links)) {
             savedata.links = me.selected_note.links;
-        }
-
-        // collect tags
-        $('.tagedit-list input[type="hidden"]', rcmail.gui_objects.noteviewtitle).each(function(i, elem){
-            if (elem.value)
-                savedata.tags.push(elem.value);
-        });
-        // including the "pending" one in the text box
-        var newtag = $('#tagedit-input').val();
-        if (newtag != '') {
-            savedata.tags.push(newtag);
         }
 
         return savedata;
@@ -1491,7 +1365,7 @@ function rcube_kolab_notes_ui(settings)
             rcmail.http_post('action', { _data: { uid: uids.join(','), list: me.selected_list }, _do: 'delete' }, true);
 
             reset_view();
-            update_tagcloud();
+            update_taglist();
             noteslist.clear_selection();
         });
     }
@@ -1533,81 +1407,6 @@ function rcube_kolab_notes_ui(settings)
             window.history.replaceState({}, document.title, rcmail.url('', query));
         }
     }
-
-
-    /*  Helper functions for drag & drop functionality of tags  */
-
-    function tag_draggable_helper()
-    {
-        if (!tag_draghelper)
-            tag_draghelper = $('<div class="tag-draghelper"></div>');
-        else
-            tag_draghelper.html('');
-
-        $(this).clone().addClass('tag').appendTo(tag_draghelper);
-        return tag_draghelper;
-    }
-
-    function tag_draggable_start(event, ui)
-    {
-        // register notes list to receive drop events
-        $('li', rcmail.gui_objects.noteslist).droppable({
-            hoverClass: 'droptarget',
-            accept: tag_droppable_accept,
-            drop: tag_draggable_dropped,
-            addClasses: false
-        });
-
-        // allow to drop tags onto edit form title
-        $(rcmail.gui_objects.noteviewtitle).droppable({
-            drop: function(event, ui){
-                $('#tagedit-input').val(ui.draggable.data('value')).trigger('transformToTag');
-                $('.tagline .placeholder', rcmail.gui_objects.noteviewtitle).hide();
-            },
-            addClasses: false
-        })
-    }
-
-    function tag_droppable_accept(draggable)
-    {
-        if (rcmail.busy)
-            return false;
-
-        var tag = draggable.data('value'),
-            drop_id = $(this).attr('id').replace(/^rcmrow/, ''),
-            drop_rec = notesdata[drop_id];
-
-        // target already has this tag assigned
-        if (!drop_rec || (drop_rec.tags && $.inArray(tag, drop_rec.tags) >= 0)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    function tag_draggable_dropped(event, ui)
-    {
-        var drop_id = $(this).attr('id').replace(/^rcmrow/, ''),
-            tag = ui.draggable.data('value'),
-            rec = notesdata[drop_id],
-            savedata;
-
-        if (rec && rec.id) {
-            savedata = me.selected_note && rec.uid == me.selected_note.uid ? get_save_data() : $.extend({}, rec);
-
-            if (savedata.id)   delete savedata.id;
-            if (savedata.html) delete savedata.html;
-
-            if (!savedata.tags)
-                savedata.tags = [];
-            savedata.tags.push(tag);
-
-            rcmail.lock_form(rcmail.gui_objects.noteseditform, true);
-            saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
-            rcmail.http_post('action', { _data: savedata, _do: 'edit' }, true);
-        }
-    }
-
 }
 
 

@@ -6,7 +6,7 @@
 <!-- notebooks list -->
 <div class="sidebar listbox" role="navigation" aria-labelledby="arial-label-notebooks">
 	<div class="header">
-		<a class="button icon menu-button" href="#menu"><span class="inner"><roundcube:label name="menu" /></span></a>
+		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-notebooks" class="header-title"><roundcube:label name="kolab_notes.lists" /></span>
 		<div id="notebook-search" class="searchbar toolbar" role="search" aria-labelledby="aria-label-notebooksearchform">
 			<h2 id="aria-label-label-notebooksearchform" class="voice"><roundcube:label name="kolab_notes.arialabelfoldersearchform" /></h2>
@@ -21,16 +21,8 @@
 			</a>
 		</div>
 	</div>
-	<div class="scroller">
+	<div id="notebooks-content" class="scroller">
 		<roundcube:object name="plugin.notebooks" id="notebooks" class="listing treelist iconized" />
-<!--
-        <div id="tagsbox" class="uibox listbox">
-            <h2 class="boxtitle" id="aria-label-tagsbox"><roundcube:label name="kolab_notes.tags" id="taglist" /></h2>
-            <div class="scroller">
-                <roundcube:object name="plugin.tagslist" id="tagslist" class="tagcloud" role="region" aria-labelledby="aria-label-tagsbox" aria-controls="kolabnoteslist" />
-            </div>
-        </div>
--->
 	</div>
 	<div class="footer toolbar" role="toolbar">
 		<roundcube:button command="list-create" type="link" title="kolab_notes.newnotebook"
@@ -45,13 +37,12 @@
 <div class="list listbox selected" aria-labelledby="aria-label-noteslist">
 	<div class="header">
 		<a class="button icon menu-button" href="#menu"><span class="inner"><roundcube:label name="menu" /></span></a>
-		<a class="button icon back-sidebar-button" href="#sidebar"><span class="inner"><roundcube:label name="kolab_notes.notebooks" /></span></a>
+		<a class="button icon back-sidebar-button folders" href="#sidebar"><span class="inner"><roundcube:label name="kolab_notes.notebooks" /></span></a>
 		<span id="aria-label-noteslist" class="header-title"><roundcube:label name="kolab_notes.notes" /></span>
 		<roundcube:object name="plugin.searchform" id="searchform" wrapper="searchbar toolbar"
 			label="notesearchform" label-domain="kolab_notes" buttontitle="kolab_notes.findnotes" ariatag="h2" />
 		<a class="button icon toolbar-menu-button" href="#list-menu"><span class="inner"><roundcube:label name="menu" /></span></a>
 	</div>
-	<div class="pagenav toolbar" role="toolbar"></div>
 	<div class="scroller">
 		<h2 id="aria-label-noteslist" class="voice"><roundcube:label name="kolab_notes.notes" /></h2>
 		<roundcube:object name="plugin.listing" id="kolabnoteslist" class="listing" summary="kolab_notes.arialabelnoteslist"
@@ -65,7 +56,7 @@
 	</div>
 </div>
 
-<!-- contact details frame -->
+<!-- note details frame -->
 <div class="content" role="main">
 	<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
 	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">

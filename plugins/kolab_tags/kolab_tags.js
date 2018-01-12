@@ -26,7 +26,7 @@
  */
 
 window.rcmail && rcmail.addEventListener('init', function() {
-    if (rcmail.task == 'mail') {
+    if (rcmail.task == 'mail' || rcmail.task == 'notes') {
         var msg_view = rcmail.env.action == 'show' || rcmail.env.action == 'preview';
 
         if (!msg_view && rcmail.env.action) {
@@ -35,7 +35,13 @@ window.rcmail && rcmail.addEventListener('init', function() {
 
         // load tags cloud
         if (rcmail.gui_objects.taglist) {
-            load_tags();
+            // Tags for kolab_notes plugin have to be initialized via an event
+            if (rcmail.task == 'notes' && !window.kolabnotes) {
+                rcmail.addEventListener('kolab-notes-init', load_tags);
+            }
+            else {
+                load_tags();
+            }
         }
 
         // display tags in message subject (message window)
@@ -79,7 +85,7 @@ window.rcmail && rcmail.addEventListener('init', function() {
                             return true;
                         }
                         if (p.command == 'reset-tags') {
-                            return !!(tagsfilter.length && rcmail.message_list);
+                            return !!(tagsfilter.length && main_list_widget());
                         }
                     });
                 }
@@ -99,16 +105,31 @@ window.rcmail && rcmail.addEventListener('init', function() {
                     $('a.menuselector span', $(this).parent()).text(title);
                 });
         }
+
+        // Allow other plugins to update tags list
+        rcmail.addEventListener('kolab-tags-counts', update_counts)
+            .addEventListener('kolab-tags-refresh', refresh_tags);
     }
 });
 
-var tagsfilter = [], tag_selector_element, tag_form_data, tag_form_save_func,
+var tag_selector_element, tag_form_data, tag_form_save_func,
+    tagsfilter = [], 
+    tagscounts = [],
     reset_css = {color: '', backgroundColor: ''};
+
+function main_list_widget()
+{
+    if (rcmail.task == 'mail' && rcmail.message_list)
+        return rcmail.message_list;
+
+    if (rcmail.task == 'notes' && rcmail.noteslist)
+        return rcmail.noteslist;
+}
 
 // fills tag cloud with tags list
 function load_tags()
 {
-    var ul = $('#taglist'), clickable = rcmail.message_list;
+    var ul = $('#taglist'), clickable = !!main_list_widget();
 
     $.each(rcmail.env.tags, function(i, tag) {
         var li = add_tag_element(ul, tag, clickable);
@@ -130,9 +151,10 @@ function load_tags()
 
 function add_tag_element(list, tag, clickable)
 {
-    // @todo: .append('<span class="count"></span>')
     var element = $('<li>').attr('class', tag_class_name(tag))
-        .text(tag.name).data('tag', tag.uid).appendTo(list);
+        .text(tag.name).data('tag', tag.uid)
+        .append('<span class="count">')
+        .appendTo(list);
 
     if (clickable) {
         element.click(function(e) {
@@ -173,10 +195,36 @@ function add_tag_element(list, tag, clickable)
 
             e.preventDefault();
             return false;
-        })
+        });
+
+        if (!$('html.touch').length) {
+            element.draggable({
+                addClasses: false,
+                cursor: 'default',
+                cursorAt: {left: -10},
+                revert: 'invalid',
+                revertDuration: 300,
+                helper: tag_draggable_helper,
+                start: tag_draggable_start,
+                appendTo: 'body'
+            });
+        }
     }
 
     return element;
+}
+
+function update_counts(p)
+{
+    $('#taglist > li').each(function(i,li) {
+        var elem = $(li), tagid = elem.data('tag'),
+            tag = tag_find(tagid);
+            count = tag && p.counter ? p.counter[tag.name] : '';
+
+            elem.children('.count').text(count ? count : '');
+    });
+
+    tagscounts = p.counter;
 }
 
 function manage_tags()
@@ -388,6 +436,29 @@ function update_tags(response)
     // reset tag selector popup
     tag_selector_reset();
 
+    if (response.refresh) {
+        var list = $('#taglist');
+
+        tagsfilter = $.map(list.children('.selected'), function(li) {
+            return $(li).data('tag');
+        });
+
+        list.html('');
+        load_tags();
+        update_counts({counter: tagscounts});
+
+        if (tagsfilter.length) {
+            list.children('li').each(function() {
+                if ($.inArray($(this).data('tag'), tagsfilter) > -1) {
+                    $(this).addClass('selected');
+                }
+            });
+            apply_tags_filter();
+        }
+
+        return;
+    }
+
     // remove deleted tags
     remove_tags(response['delete'], response.mark);
 
@@ -405,9 +476,9 @@ function update_tags(response)
         var i, old, tag = this, id = tag.uid,
             filter = function() { return $(this).data('tag') == id; },
             tagbox = $('#taglist li').filter(filter),
-            elements = $('span.tagbox').filter(filter),
+            elements = $('.tagbox').filter(filter),
             win = rcmail.get_frame_window(rcmail.env.contentframe),
-            framed = win && win.jQuery ? win.jQuery('span.tagbox').filter(function() { return win.jQuery(this).data('tag') == id; }) : [];
+            framed = win && win.jQuery ? win.jQuery('.tagbox').filter(function() { return win.jQuery(this).data('tag') == id; }) : [];
             selected = $.inArray(String(id), tagsfilter);
 
         for (i in rcmail.env.tags)
@@ -454,7 +525,8 @@ function remove_tags(tags, selection)
     }
 
     var taglist = $('#taglist li'),
-        tagboxes = $((selection && rcmail.message_list ? 'tr.selected ' : '') + 'span.tagbox'),
+        list = main_list_widget(),
+        tagboxes = $((selection && list ? 'tr.selected ' : '') + 'span.tagbox'),
         win = rcmail.get_frame_window(rcmail.env.contentframe),
         frame_tagboxes = win && win.jQuery ? win.jQuery('span.tagbox') : [],
         update_filter = false;
@@ -492,9 +564,26 @@ function remove_tags(tags, selection)
         }
     });
 
-    if (update_filter && rcmail.message_list) {
+    if (update_filter && list) {
         apply_tags_filter();
     }
+}
+
+// kolab-tags-refresh event handler, allowing plugins to refresh
+// the tags list e.g. when a new tag is created
+function refresh_tags(e)
+{
+    // find a new tag
+    $.each(e.tags || [], function() {
+        for (var i in rcmail.env.tags) {
+            if (rcmail.env.tags[i].name == this) {
+                return;
+            }
+        }
+
+        rcmail.http_post('plugin.kolab_tags', {_act: 'refresh'}, rcmail.display_message(rcmail.get_label('loading'), 'loading'));
+        return false;
+    });
 }
 
 // unselect all selected tags in the tag cloud
@@ -602,8 +691,21 @@ function tag_remove(props, obj, event)
 // executes messages search according to selected messages
 function apply_tags_filter()
 {
-    rcmail.enable_command('reset-tags', tagsfilter.length && rcmail.message_list);
-    rcmail.qsearch();
+    rcmail.enable_command('reset-tags', tagsfilter.length && main_list_widget());
+
+    if (rcmail.task == 'mail')
+        rcmail.qsearch();
+    else {
+        // Convert tag id to tag label
+        var tags = [];
+        $.each(rcmail.env.tags, function() {
+            if ($.inArray(this.uid, tagsfilter) > -1) {
+                tags.push(this.name);
+            }
+        });
+
+        rcmail.triggerEvent('kolab-tags-search', tags);
+    }
 }
 
 // adds _tags argument to http search request
@@ -895,4 +997,163 @@ function tag_selector_search_element(container)
 function tag_class_name(tag)
 {
     return 'kolab-tag-' + tag.uid.replace(/[^a-z0-9]/ig, '');
+}
+
+function kolab_tags_input(element, tags, readonly)
+{
+    var list,
+        tagline = $(element)[readonly ? 'addClass' : 'removeClass']('disabled').empty().show(),
+        source_callback = function(request, response) {
+            request = request.term.toUpperCase();
+            response($.map(rcmail.env.tags || [], function(v) {
+                if (request.length && v.name.toUpperCase().indexOf(request) > -1)
+                    return v.name;
+            }));
+        };
+
+    $.each(tags && tags.length ? tags : [''], function(i,val) {
+        $('<input>').attr({name: 'tags[]', tabindex: '0', 'class': 'tag'})
+            .val(val)
+            .appendTo(tagline);
+    });
+
+    if (!tags || !tags.length) {
+        $('<span>').addClass('placeholder')
+            .text(rcmail.gettext('kolab_tags.notags'))
+            .appendTo(tagline)
+            .click(function(e) { list.trigger('click'); });
+    }
+
+    $('input.tag', element).tagedit({
+        animSpeed: 100,
+        allowEdit: false,
+        allowAdd: !readonly,
+        allowDelete: !readonly,
+        checkNewEntriesCaseSensitive: false,
+        autocompleteOptions: { source: source_callback, minLength: 0, noCheck: true },
+        texts: { removeLinkTitle: rcmail.gettext('kolab_tags.untag') }
+    });
+
+    list = element.find('.tagedit-list');
+
+    list.addClass('form-control'); // Elastic
+
+    if (!readonly) {
+        list.on('click', function() { $('.placeholder', element).hide(); });
+    }
+
+    // Track changes on the list to style tag elements
+    if (window.MutationObserver) {
+        var observer = new MutationObserver(kolab_tags_input_update);
+        observer.observe(list[0], {childList: true});
+    }
+    else {
+        list.on('click keyup', kolab_tags_input_update);
+    }
+
+    kolab_tags_input_update({target: list});
+
+    return list;
+}
+
+function kolab_tags_input_update(e)
+{
+    var tags = {},
+        target = e.length && e[0].target ? e[0].target : e.target;
+
+    // first generate tags list indexed by name
+    $.each(rcmail.env.tags, function(i, tag) {
+        tags[tag.name] = tag;
+    });
+
+    $(target).find('li.tagedit-listelement-old:not([class*="tagbox"])').each(function() {
+        var text = $('span', this).text();
+
+        $(this).addClass('tagbox');
+
+        if (tags[text]) {
+            $(this).data('tag', tags[text].uid);
+            tag_set_color(this, tags[text]);
+        }
+    });
+}
+
+function kolab_tags_input_value(element)
+{
+    var tags = [];
+
+    $(element || '.tagedit-list').find('input').each(function(i, elem) {
+        if (elem.value)
+            tags.push(elem.value);
+    });
+
+    return tags;
+}
+
+function tag_draggable_helper()
+{
+    var draghelper = $('.tag-draghelper'),
+        tagid = $(this).data('tag'),
+        node = $(this).clone(),
+        tagbox = $('<span class="tagbox">');
+
+    if (!draghelper.length) {
+        draghelper = $('<div class="tag-draghelper"></div>');
+    }
+
+    $('span.count', node).remove();
+    tagbox.text(node.text()).appendTo(draghelper.html(''));
+    tag_set_color(tagbox, tag_find(tagid));
+
+    return draghelper[0];
+}
+
+function tag_draggable_start(event, ui)
+{
+    // register notes list to receive drop events
+    if (rcmail.gui_objects.noteslist) {
+        $('tr', rcmail.gui_objects.noteslist).droppable({
+            addClasses: false,
+            hoverClass: 'droptarget',
+            accept: tag_droppable_accept,
+            drop: tag_draggable_dropped
+        });
+    }
+
+    // allow to drop tags onto edit form title
+    $('body.task-notes .content.formcontainer,#notedetailstitle.boxtitle').droppable({
+        addClasses: false,
+        accept: function() { return $(this).is('.formcontainer,.boxtitle'); },
+        drop: function(event, ui) {
+            var tag = tag_find(ui.draggable.data('tag'));
+            $('#tagedit-input').val(tag.name).trigger('transformToTag');
+            $('.tagline .placeholder', rcmail.gui_objects.noteviewtitle).hide();
+        }
+    }).addClass('tag-droppable');
+}
+
+function tag_draggable_dropped(event, ui)
+{
+    var drop_id = $(this).attr('id').replace(/^rcmrow/, ''),
+        tag = tag_find(ui.draggable.data('tag'));
+
+    rcmail.triggerEvent('kolab-tags-drop', {id: drop_id, tag: tag.name, list: $(this).parent()});
+}
+
+function tag_droppable_accept(draggable)
+{
+    if (rcmail.busy) {
+        return false;
+    }
+
+    var tag = tag_find(draggable.data('tag')),
+        drop_id = $(this).attr('id').replace(/^rcmrow/, ''),
+        data = rcmail.triggerEvent('kolab-tags-drop-data', {id: drop_id});
+
+    // target already has this tag assigned
+    if (!data || (data.tags && $.inArray(tag.name, data.tags) >= 0)) {
+        return false;
+    }
+
+    return true;
 }

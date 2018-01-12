@@ -30,13 +30,6 @@
     <div id="mainscreencontent">
 
     <div id="sidebar">
-        <div id="tagsbox" class="uibox listbox">
-            <h2 class="boxtitle" id="aria-label-tagsbox"><roundcube:label name="kolab_notes.tags" id="taglist" /></h2>
-            <div class="scroller">
-                <roundcube:object name="plugin.tagslist" id="tagslist" class="tagcloud" role="region" aria-labelledby="aria-label-tagsbox" aria-controls="kolabnoteslist" />
-            </div>
-        </div>
-
         <div id="notebooksbox" class="uibox listbox" role="navigation" aria-labelledby="aria-label-notebooks">
             <h2 class="boxtitle" id="aria-label-notebooks"><roundcube:label name="kolab_notes.lists" />
                 <a href="#notebooks" class="iconbutton search" title="<roundcube:label name='kolab_notes.findnotebooks' />" tabindex="0"><roundcube:label name="kolab_notes.findnotebooks" /></a>
@@ -160,8 +153,6 @@ $(document).ready(function(e){
         orientation:'v', relative:true, start:240, min:180, size:12, render:layout_view }).init();
     new rcube_splitter({ id:'noteslistsplitter2', p1:'#noteslistbox', p2:'#notedetailsbox',
         orientation:'v', relative:true, start:242, min:180, size:12, render:layout_view }).init();
-    new rcube_splitter({ id:'notesviewsplitterv', p1:'#tagsbox', p2:'#notebooksbox',
-        orientation:'h', relative:true, start:242, min:120, size:12, offset:4 }).init();
 
     function layout_view()
     {
@@ -217,7 +208,6 @@ $(document).ready(function(e){
 
         return false;
     });
-    
 });
 
 </script>

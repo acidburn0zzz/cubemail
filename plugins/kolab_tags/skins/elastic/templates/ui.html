@@ -28,7 +28,7 @@
 $(document).ready(function(e) {
     // put tags cloud under folders list
     var tagcloud = $('#tagcloud').detach();
-    $('#folderlist-content > ul:last').after(tagcloud.show());
+    $('#folderlist-content,#notebooks-content').children('ul:first').after(tagcloud.show());
 
     // add tag message menu positions to Mark menu
     var menu = $('#tagmessagemenu li').detach();
@@ -36,7 +36,7 @@ $(document).ready(function(e) {
 
     // add tags management menu positions to folder actions menu
     menu = $('#tagsmenu li').detach();
-    $('#mailboxoptions-menu ul').append(menu);
+    $('#mailboxoptions-menu,#notebookactions-menu').find('ul').append(menu);
 
     // Apply tags colors in Elastic-way
     rcmail.addEventListener('kolab-tags-update', function() {
@@ -58,7 +58,7 @@ $(document).ready(function(e) {
 
     // Ignore tags coloring on lists, handled above, use default method for tagboxes only
     rcmail.addEventListener('kolab-tag-color', function(prop) {
-        if ($(prop.obj).is('li')) {
+        if ($(prop.obj).is('li:not(.tagedit-listelement)')) {
             return false;
         }
     });

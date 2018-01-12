@@ -40,7 +40,6 @@ class kolab_notes_ui
     */
     public function init_templates()
     {
-        $this->plugin->register_handler('plugin.tagslist', array($this, 'tagslist'));
         $this->plugin->register_handler('plugin.notebooks', array($this, 'folders'));
         #$this->plugin->register_handler('plugin.folders_select', array($this, 'folders_select'));
         $this->plugin->register_handler('plugin.searchform', array($this->rc->output, 'search_form'));
@@ -54,8 +53,6 @@ class kolab_notes_ui
         $this->rc->output->include_script('list.js');
         $this->rc->output->include_script('treelist.js');
         $this->plugin->include_script('notes.js');
-
-        jqueryui::tagedit();
 
         // include kolab folderlist widget if available
         if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {
@@ -216,13 +213,6 @@ class kolab_notes_ui
         return html::tag('table', $attrib, '<tbody></tbody>', html::$common_attrib);
     }
 
-    public function tagslist($attrib)
-    {
-        $attrib += array('id' => 'rcmkolabnotestagslist');
-        $this->rc->output->add_gui_object('notestagslist', $attrib['id']);
-        return html::tag('ul', $attrib, '', html::$common_attrib);
-    }
-
     public function editform($attrib)
     {
         $attrib += array('action' => '#', 'id' => 'rcmkolabnoteseditform');
@@ -267,9 +257,9 @@ class kolab_notes_ui
             )
             . html::div('form-group row',
                 html::label(array('class' => 'col-sm-2 col-form-label'), $this->plugin->gettext('kolab_notes.tags'))
-                    . html::div(array('class' => 'tagline tagedit col-sm-10', 'style' => 'display:none'), '&nbsp;')
+                    . html::div(array('class' => 'tagline tagedit col-sm-10'), '&nbsp;')
             )
-            . html::div(array('class' => 'dates', 'style' => 'display:none'),
+            . html::div(array('class' => 'dates text-only', 'style' => 'display:none'),
                 html::div('form-group row',
                     html::label(array('class' => 'col-sm-2 col-form-label'), $this->plugin->gettext('created'))
                     . html::span('col-sm-10', html::span('notecreated form-control-plaintext', ''))

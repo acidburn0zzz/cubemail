@@ -46,12 +46,7 @@ class kolab_tags_engine
      */
     public function ui()
     {
-        // set templates of Files UI and widgets
-        if ($this->rc->task != 'mail') {
-            return;
-        }
-
-        if ($this->rc->action && !in_array($this->rc->action, array('show', 'preview'))) {
+        if ($this->rc->action && !in_array($this->rc->action, array('show', 'preview', 'dialog-ui'))) {
             return;
         }
 
@@ -62,7 +57,7 @@ class kolab_tags_engine
         $this->rc->output->add_label('cancel', 'save');
         $this->plugin->add_label('tags', 'add', 'edit', 'delete', 'saving',
             'nameempty', 'nameexists', 'colorinvalid', 'untag', 'tagname',
-            'tagcolor', 'tagsearchnew', 'newtag');
+            'tagcolor', 'tagsearchnew', 'newtag', 'notags');
 
         $this->rc->output->add_handlers(array(
             'plugin.taglist' => array($this, 'taglist'),
@@ -71,11 +66,12 @@ class kolab_tags_engine
         $ui = $this->rc->output->parse('kolab_tags.ui', false, false);
         $this->rc->output->add_footer($ui);
 
-        // load miniColors
+        // load miniColors and tagedit
         jqueryui::miniColors();
+        jqueryui::tagedit();
 
         // Modify search filter (and set selected tags)
-        if ($this->rc->action == 'show' || !$this->rc->action) {
+        if ($this->rc->task == 'mail' && ($this->rc->action == 'show' || !$this->rc->action)) {
             $this->search_filter_mods();
         }
     }
@@ -281,6 +277,18 @@ class kolab_tags_engine
                 $this->rc->output->command('plugin.kolab_tags', array('mark' => 1, 'add' => array($this->parse_tag($object))));
             }
         }
+    }
+
+    /**
+     * Refresh tags list
+     */
+    public function action_refresh()
+    {
+        $taglist = $this->backend->list_tags();
+        $taglist = array_map(array($this, 'parse_tag'), $taglist);
+
+        $this->rc->output->set_env('tags', $taglist);
+        $this->rc->output->command('plugin.kolab_tags', array('refresh' => 1));
     }
 
     /**
