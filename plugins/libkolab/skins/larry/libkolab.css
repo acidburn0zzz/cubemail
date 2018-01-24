@@ -81,7 +81,7 @@ fieldset.categories input {
 	width: 14px;
 }
 
-a.button.input-group-addon {
+a.button.input-group-text {
 	line-height: 19px;
 	vertical-align: middle;
 }

@@ -766,11 +766,13 @@ class kolab_folders extends rcube_plugin
 
             if (strpos($label, '$') === 0) {
                 $label = str_replace('$x', '', $label);
-                $html  = $input->show($expire ?: '') . html::span('input-group-addon', rcube::Q($label));
+                $html  = $input->show($expire ?: '')
+                    . html::span('input-group-append', html::span('input-group-text', rcube::Q($label)));
             }
             else {
                 $label = str_replace('$x', '', $label);
-                $html  = html::span('input-group-addon', rcube::Q($label)) . $input->show($expire ?: '');
+                $html  = html::span('input-group-prepend', html::span('input-group-text', rcube::Q($label)))
+                    . $input->show($expire ?: '');
             }
 
             $form['props']['fieldsets']['settings']['content']['kolabexpire'] = array(

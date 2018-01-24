@@ -33,10 +33,20 @@
     }
 }
 
-fieldset.categories .input-group a.button.create {
-    &:before {
-        &:extend(.font-icon-class);
-        content: @fa-var-plus;
-        line-height: 1;
+fieldset.categories .input-group {
+    .minicolors-input {
+        border-radius: 0;
+    }
+
+    .minicolors + .input-group-append {
+        margin-left: 0;
+    }
+
+    a.button.create {
+        &:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-plus;
+            line-height: 1;
+        }
     }
 }

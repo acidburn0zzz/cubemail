@@ -962,7 +962,7 @@ function tag_selector_search_element(container)
 {
     var title = rcmail.gettext('kolab_tags.tagsearchnew'),
         placeholder = rcmail.gettext('kolab_tags.newtag'),
-        form = $('<span class="input-group"><i class="input-group-addon icon search"></i></span>'),
+        form = $('<span class="input-group"><span class="input-group-prepend"><i class="input-group-text icon search"></i></span></span>'),
         input = $('<input>').attr({'type': 'text', title: title, placeholder: placeholder, 'class': 'form-control'})
             .keyup(function(e) {
                 if (this.value) {
