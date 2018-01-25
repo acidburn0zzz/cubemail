@@ -161,9 +161,11 @@ rcube_webmail.prototype.book_remove = function(id)
 
 rcube_webmail.prototype.book_delete = function()
 {
-    if (this.env.source != '' && confirm(this.get_label('kolab_addressbook.bookdeleteconfirm'))) {
-        var lock = this.set_busy(true, 'kolab_addressbook.bookdeleting');
-        this.http_request('plugin.book', '_act=delete&_source='+urlencode(this.book_realname()), lock);
+    if (this.env.source != '') {
+        this.confirm_dialog(this.get_label('kolab_addressbook.bookdeleteconfirm'), 'delete', function() {
+            var lock = rcmail.set_busy(true, 'kolab_addressbook.bookdeleting');
+            rcmail.http_request('plugin.book', '_act=delete&_source='+urlencode(this.book_realname()), lock);
+        });
     }
 };
 
