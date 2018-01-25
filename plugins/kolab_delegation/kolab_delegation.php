@@ -78,7 +78,7 @@ class kolab_delegation extends rcube_plugin
                 }
 
                 $this->skin_path = $this->local_skin_path();
-                $this->include_stylesheet($this->skin_path . '/style.css', true);
+                $this->include_stylesheet($this->skin_path . '/style.css');
             }
         }
         // Calendar/Tasklist plugin UI bindings

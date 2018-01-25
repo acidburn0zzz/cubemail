@@ -52,7 +52,7 @@ class kolab_addressbook_ui
 
         if (empty($this->rc->action)) {
             // Include stylesheet (for directorylist)
-            $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css', true);
+            $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css');
 
             // include kolab folderlist widget if available
             if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {

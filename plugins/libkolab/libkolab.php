@@ -58,7 +58,7 @@ class libkolab extends rcube_plugin
         $this->add_texts('localization/', false);
 
         if ($rcmail->output->type == 'html') {
-            $this->include_stylesheet($this->local_skin_path() . '/libkolab.css', true);
+            $this->include_stylesheet($this->local_skin_path() . '/libkolab.css');
         }
 
         // embed scripts and templates for email message audit trail

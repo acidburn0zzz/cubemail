@@ -404,7 +404,7 @@ class kolab_2fa extends rcube_plugin
         $this->register_handler('plugin.highsecuritydialog', array($this, 'settings_highsecuritydialog'));
 
         $this->include_script('kolab2fa.js');
-        $this->include_stylesheet($this->local_skin_path() . '/kolab2fa.css', true);
+        $this->include_stylesheet($this->local_skin_path() . '/kolab2fa.css');
 
         if ($this->check_secure_mode()) {
             $this->api->output->set_env('session_secured', $_SESSION['kolab_2fa_secure_mode']);

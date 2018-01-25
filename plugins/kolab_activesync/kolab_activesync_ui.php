@@ -39,7 +39,7 @@ class kolab_activesync_ui
         $skin_path       = $this->plugin->local_skin_path() . '/';
         $this->skin_path = 'plugins/kolab_activesync/' . $skin_path;
 
-        $this->plugin->include_stylesheet($skin_path . 'config.css', true);
+        $this->plugin->include_stylesheet($skin_path . 'config.css');
     }
 
     public function device_list($attrib = array())
