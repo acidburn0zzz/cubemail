@@ -214,7 +214,7 @@ function rcube_kolab_notes_ui(settings)
                         edit_note(note.uid, 'edit');
                     }
                     else {
-                        reset_view();
+                        reset_view(true);
                     }
                 },
                 function(){
@@ -1170,7 +1170,7 @@ function rcube_kolab_notes_ui(settings)
     /**
      * 
      */
-    function reset_view()
+    function reset_view(list)
     {
         close_history_dialog();
         me.selected_note = null;
@@ -1181,7 +1181,10 @@ function rcube_kolab_notes_ui(settings)
         $(rcmail.gui_objects.notesdetailview).hide();
         $(rcmail.gui_objects.notesattachmentslist).html('');
         rcmail.enable_command('save', false);
-        rcmail.triggerEvent('show-list');
+
+        if (!list) {
+            rcmail.triggerEvent('show-list');
+        }
     }
 
     /**
