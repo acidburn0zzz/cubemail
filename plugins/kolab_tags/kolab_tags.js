@@ -267,7 +267,7 @@ function manage_tags()
                 .text(rcmail.gettext('kolab_tags.edit'))
                 .attr('disabled', true)
                 .click(function() { tag_form_dialog((select.val())[0]); }),
-            $('<button class="btn btn-danger remove">')
+            $('<button class="btn btn-danger delete">')
                 .text(rcmail.gettext('kolab_tags.delete'))
                 .attr('disabled', true)
                 .click(function() {
