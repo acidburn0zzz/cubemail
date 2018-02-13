@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS `kolab_cache_contact`;
 CREATE TABLE `kolab_cache_contact` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
-  `uid` VARCHAR(512) CHARACTER SET ascii NOT NULL,
+  `uid` VARCHAR(512) NOT NULL,
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
@@ -53,7 +53,7 @@ DROP TABLE IF EXISTS `kolab_cache_event`;
 CREATE TABLE `kolab_cache_event` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
-  `uid` VARCHAR(512) CHARACTER SET ascii NOT NULL,
+  `uid` VARCHAR(512) NOT NULL,
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
@@ -73,7 +73,7 @@ DROP TABLE IF EXISTS `kolab_cache_task`;
 CREATE TABLE `kolab_cache_task` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
-  `uid` VARCHAR(512) CHARACTER SET ascii NOT NULL,
+  `uid` VARCHAR(512) NOT NULL,
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
@@ -93,7 +93,7 @@ DROP TABLE IF EXISTS `kolab_cache_journal`;
 CREATE TABLE `kolab_cache_journal` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
-  `uid` VARCHAR(512) CHARACTER SET ascii NOT NULL,
+  `uid` VARCHAR(512) NOT NULL,
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
@@ -113,7 +113,7 @@ DROP TABLE IF EXISTS `kolab_cache_note`;
 CREATE TABLE `kolab_cache_note` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
-  `uid` VARCHAR(512) CHARACTER SET ascii NOT NULL,
+  `uid` VARCHAR(512) NOT NULL,
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
@@ -131,7 +131,7 @@ DROP TABLE IF EXISTS `kolab_cache_file`;
 CREATE TABLE `kolab_cache_file` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
-  `uid` VARCHAR(512) CHARACTER SET ascii NOT NULL,
+  `uid` VARCHAR(512) NOT NULL,
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
@@ -151,7 +151,7 @@ DROP TABLE IF EXISTS `kolab_cache_configuration`;
 CREATE TABLE `kolab_cache_configuration` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
-  `uid` VARCHAR(512) CHARACTER SET ascii NOT NULL,
+  `uid` VARCHAR(512) NOT NULL,
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
@@ -171,7 +171,7 @@ DROP TABLE IF EXISTS `kolab_cache_freebusy`;
 CREATE TABLE `kolab_cache_freebusy` (
   `folder_id` BIGINT UNSIGNED NOT NULL,
   `msguid` BIGINT UNSIGNED NOT NULL,
-  `uid` VARCHAR(512) CHARACTER SET ascii NOT NULL,
+  `uid` VARCHAR(512) NOT NULL,
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
@@ -188,4 +188,4 @@ CREATE TABLE `kolab_cache_freebusy` (
 
 /*!40014  SET FOREIGN_KEY_CHECKS=1 */;
 
-REPLACE INTO `system` (`name`, `value`) VALUES ('libkolab-version', '2017071900');
+REPLACE INTO `system` (`name`, `value`) VALUES ('libkolab-version', '2018021300');
