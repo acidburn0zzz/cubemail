@@ -1,7 +1,7 @@
 /**
  * Kolab core library
  *
- * This file contains Elastic skin styles for tasklist plugin.
+ * This file contains Elastic skin styles for kolab_files plugin.
  *
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
@@ -21,9 +21,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-.toolbarmenu.listing li {
-    a.tasklistlink:before,
-    a.taskaddlink:before {
-        content: @fa-var-tasks;
-    }
+a.btn.fromcloud:before,
+li > a.icon.saveas:before,
+a.button.filesaveall:before {
+    &:extend(.font-icon-class);
+    content: @fa-var-folder;
 }
