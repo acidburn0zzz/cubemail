@@ -441,6 +441,24 @@ class libcalendaring_itip
       else if ($event['method'] == 'REPLY') {
         // check whether the sender already is an attendee
         if ($existing) {
+          // Relax checking if that is a reply to the latest version of the event
+          // We accept versions with older SEQUENCE but no significant changes (Bifrost#T78144)
+          if (!$latest) {
+            $num = $got = 0;
+            foreach (array('start', 'end', 'due', 'allday', 'recurrence', 'location') as $key) {
+              if (isset($existing[$key])) {
+                if ($key == 'allday') {
+                  $event[$key] = $event[$key] == 'true';
+                }
+                $value = $existing[$key] instanceof DateTime ? $existing[$key]->format('c') : $existing[$key];
+                $num++;
+                $got += intval($value == $event[$key]);
+              }
+            }
+
+            $latest = $num === $got;
+          }
+
           $action = $this->rc->config->get('calendar_allow_itip_uninvited', true) ? 'accept' : '';
           $listed = false;
           foreach ($existing['attendees'] as $attendee) {
@@ -640,6 +658,13 @@ class libcalendaring_itip
 
             $buttons[] = html::div(array('id' => 'update-'.$dom_id, 'style' => 'display:none'), $update_button);
             $buttons[] = html::div(array('id' => 'accept-'.$dom_id, 'style' => 'display:none'), $accept_buttons);
+
+            // For replies we need more metadata
+            foreach (array('start', 'end', 'due', 'allday', 'recurrence', 'location') as $key) {
+                if (isset($event[$key])) {
+                    $metadata[$key] = $event[$key] instanceof DateTime ? $event[$key]->format('c') : $event[$key];
+                }
+            }
         }
         // when receiving iTip REQUEST messages:
         else if ($method == 'REQUEST') {
