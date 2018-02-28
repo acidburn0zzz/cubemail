@@ -2638,7 +2638,7 @@ class calendar extends rcube_plugin
       && ($response['action'] == 'rsvp' || $response['action'] == 'import')
     ) {
       $calendars = $this->driver->list_calendars($mode);
-      $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'itip-saveto', 'is_escaped' => true));
+      $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'itip-saveto', 'is_escaped' => true, 'class' => 'form-control'));
       $calendar_select->add('--', '');
       $numcals = 0;
       foreach ($calendars as $calendar) {
@@ -2912,7 +2912,7 @@ class calendar extends rcube_plugin
             ) . '%before%' . $this->mail_agenda_event_row($event, 'current') . '%after%');
         }
 
-        $html .= html::div('calendar-invitebox',
+        $html .= html::div('calendar-invitebox invitebox boxinformation',
           $this->itip->mail_itip_inline_ui(
             $event,
             $ical_objects->method,

@@ -1,0 +1,146 @@
+/**
+ * Kolab core library
+ *
+ * This file contains Elastic skin styles for libcalendaring plugin.
+ *
+ * @author Aleksander Machniak <machniak@kolabsys.com>
+ *
+ * Copyright (C) 2012-2018, Kolab Systems AG <contact@kolabsys.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+.invitebox {
+    & > i.icon {
+        position: absolute;
+        top: 0;
+        padding-top: .5em;
+    }
+
+    & > span {
+        padding-left: 2.5em;
+    }
+
+    td {
+        padding: 2px;
+
+        &.ititle {
+            font-weight: bold;
+            padding-right: 0.5em;
+        }
+
+        &.label {
+            color: #666;
+            padding-right: 1em;
+        }
+
+        &.sensitivity {
+            font-weight: bold;
+        }
+
+        &.recurrence-id {
+            text-transform: uppercase;
+            font-style: italic;
+        }
+
+        &.date.modified {
+            font-weight: bold;
+            color: @color-error;
+        }
+
+        em {
+            font-weight: bold;
+        }
+    }
+
+    .itip-buttons {
+        display: flex;
+        flex-wrap: wrap;
+
+        input.button {
+            margin: 0 .25rem .25rem 0;
+        }
+    }
+
+    .rsvp-buttons {
+        width: 100%;
+    }
+
+    .itip-reply-controls {
+        margin-top: .25rem;
+
+        a {
+            margin-left: 1em;
+        }
+    }
+
+    .rsvp-status {
+        margin: .5rem 0;
+
+        &.hint {
+            color: #666;
+            font-style: italic;
+        }
+
+        &:before {
+            line-height: 1.1;
+            color: lighten(@color-black, 25%);
+        }
+
+        &.loading:before {
+            &:extend(.font-icon-class);
+            .animated-icon-class;
+            content: @fa-var-circle-notch;
+            line-height: 1;
+        }
+
+        &.declined:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-ban;
+            color: @color-error;
+        }
+
+        &.tentative:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-check-circle;
+            color: @color-warning;
+        }
+
+        &.accepted:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-check-circle;
+            color: @color-success;
+        }
+
+        &.delegated:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-share;
+        }
+
+        &.needs-action:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-question-circle;
+        }
+    }
+
+    .folder-select {
+        white-space: nowrap;
+
+        select {
+            display: initial;
+            width: auto;
+        }
+    }
+}
+

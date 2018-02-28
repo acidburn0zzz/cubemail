@@ -50,3 +50,41 @@ fieldset.categories .input-group {
         }
     }
 }
+
+.calendar-invitebox {
+    & > i.icon:before {
+        content: @fa-var-calendar !important;
+    }
+}
+
+.calendar-agenda-preview {
+    display: none;
+    margin-top: .5rem;
+    border-top: 1px solid #ddd;
+
+    h3 {
+        margin-top: .5rem;
+    }
+
+    .event-row {
+        white-space: nowrap;
+        .overflow-ellipsis;
+
+        &.current {
+            color: #333;
+            font-weight: bold;
+        }
+
+        &.no-event {
+            color: @color-black-shade-text;
+            font-style: italic;
+        }
+    }
+
+    .event-title {
+        padding-left: .5rem;
+    }
+
+    .event-date {
+    }
+}

@@ -1884,7 +1884,7 @@ class tasklist extends rcube_plugin
 
             // get prepared inline UI for this event object
             if ($ical_objects->method) {
-                $html .= html::div('tasklist-invitebox',
+                $html .= html::div('tasklist-invitebox invitebox boxinformation',
                     $this->itip->mail_itip_inline_ui(
                         $task,
                         $ical_objects->method,
@@ -2394,7 +2394,7 @@ class tasklist extends rcube_plugin
         // get a list of writeable lists to save new tasks to
         if ((!$existing || $is_shared) && $response['action'] == 'rsvp' || $response['action'] == 'import') {
             $lists  = $this->driver->get_lists($mode);
-            $select = new html_select(array('name' => 'tasklist', 'id' => 'itip-saveto', 'is_escaped' => true));
+            $select = new html_select(array('name' => 'tasklist', 'id' => 'itip-saveto', 'is_escaped' => true, 'class' => 'form-control'));
             $select->add('--', '');
 
             foreach ($lists as $list) {
