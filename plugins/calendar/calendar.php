@@ -1973,6 +1973,10 @@ class calendar extends rcube_plugin
    */
   private function write_preprocess(&$event, $action)
   {
+    // Remove double timezone specification (T2313)
+    $event['start'] = preg_replace('/\s*\(.*\)/', '', $event['start']);
+    $event['end']   = preg_replace('/\s*\(.*\)/', '', $event['end']);
+
     // convert dates into DateTime objects in user's current timezone
     $event['start']  = new DateTime($event['start'], $this->timezone);
     $event['end']    = new DateTime($event['end'], $this->timezone);
