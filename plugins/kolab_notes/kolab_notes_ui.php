@@ -287,7 +287,8 @@ class kolab_notes_ui
     {
         $this->action = $action;
         $this->list   = $list;
-        $this->folder = $folder;
+        $this->folder = is_object($folder) ? $folder->name : ''; // UTF7;
+
         $this->rc->output->add_handler('notebookform', array($this, 'notebookform'));
         $this->rc->output->send('kolab_notes.listform');
     }
@@ -297,13 +298,7 @@ class kolab_notes_ui
      */
     public function notebookform($attrib)
     {
-        if (is_object($this->folder)) {
-            $folder_name = $this->folder->name; // UTF7
-        }
-        else {
-            $folder_name = '';
-        }
-
+        $folder_name     = $this->folder;
         $hidden_fields[] = array('name' => 'oldname', 'value' => $folder_name);
 
         $storage = $this->rc->get_storage();
