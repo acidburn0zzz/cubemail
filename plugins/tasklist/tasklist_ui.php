@@ -57,8 +57,6 @@ class tasklist_ui
         $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tasklist.css');
 
         if ($this->rc->task == 'mail' || $this->rc->task == 'tasks') {
-            jqueryui::tagedit();
-
             $this->plugin->include_script('tasklist_base.js');
 
             // copy config to client
@@ -145,7 +143,6 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.searchform', array($this->rc->output, 'search_form'));
         $this->plugin->register_handler('plugin.quickaddform', array($this, 'quickadd_form'));
         $this->plugin->register_handler('plugin.tasks', array($this, 'tasks_resultview'));
-        $this->plugin->register_handler('plugin.tagslist', array($this, 'tagslist'));
         $this->plugin->register_handler('plugin.tags_editline', array($this, 'tags_editline'));
         $this->plugin->register_handler('plugin.alarm_select', array($this, 'alarm_select'));
         $this->plugin->register_handler('plugin.recurrence_form', array($this->plugin->lib, 'recurrence_form'));
@@ -160,8 +157,6 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.object_changelog_table', array('libkolab', 'object_changelog_table'));
         $this->plugin->register_handler('plugin.tasks_export_form', array($this, 'tasks_export_form'));
         $this->plugin->register_handler('plugin.tasks_import_form', array($this, 'tasks_import_form'));
-
-        jqueryui::tagedit();
 
         $this->plugin->include_script('tasklist.js');
         $this->rc->output->include_script('treelist.js');
@@ -278,7 +273,7 @@ class tasklist_ui
         if (!$activeonly || $prop['active']) {
             $label_id = 'tl:' . $id;
             return html::div(join(' ', $classes),
-                html::span(array('class' => 'listname', 'title' => $title, 'id' => $label_id), $prop['listname'] ?: $prop['name']) .
+                html::a(array('class' => 'listname', 'title' => $title, 'href' => '#', 'id' => $label_id), $prop['listname'] ?: $prop['name']) .
                   ($prop['virtual'] ? '' :
                       html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id)) .
                       html::span('actions', 
@@ -337,31 +332,38 @@ class tasklist_ui
         return $select->show($default);
     }
 
-
     function tasklist_editform($action, $list = array())
+    {
+        $this->action = $action;
+        $this->list   = $list;
+        $this->rc->output->add_handler('tasklistform', array($this, 'tasklistform'));
+        $this->rc->output->send('tasklist.listform');
+    }
+
+    function tasklistform($attrib)
     {
         $fields = array(
             'name' => array(
-                'id' => 'taskedit-tasklistame',
+                'id'    => 'taskedit-tasklistname',
                 'label' => $this->plugin->gettext('listname'),
-                'value' => html::tag('input', array('id' => 'taskedit-tasklistame', 'name' => 'name', 'type' => 'text', 'class' => 'text', 'size' => 40)),
+                'value' => html::tag('input', array('id' => 'taskedit-tasklistname', 'name' => 'name', 'type' => 'text', 'class' => 'text', 'size' => 40)),
             ),
 /*
             'color' => array(
-                'id' => 'taskedit-color',
+                'id'    => 'taskedit-color',
                 'label' => $this->plugin->gettext('color'),
                 'value' => html::tag('input', array('id' => 'taskedit-color', 'name' => 'color', 'type' => 'text', 'class' => 'text colorpicker', 'size' => 6)),
             ),
 */
             'showalarms' => array(
-                'id' => 'taskedit-showalarms',
+                'id'    => 'taskedit-showalarms',
                 'label' => $this->plugin->gettext('showalarms'),
                 'value' => html::tag('input', array('id' => 'taskedit-showalarms', 'name' => 'color', 'type' => 'checkbox')),
             ),
         );
 
-        return html::tag('form', array('action' => "#", 'method' => "post", 'id' => 'tasklisteditform'),
-            $this->plugin->driver->tasklist_edit_form($action, $list, $fields)
+        return html::tag('form', $attrib + array('action' => "#", 'method' => "post", 'id' => 'tasklisteditform'),
+            $this->plugin->driver->tasklist_edit_form($this->action, $this->list, $fields)
         );
     }
 
@@ -403,18 +405,6 @@ class tasklist_ui
     }
 
     /**
-     * Container for a tags cloud
-     */
-    function tagslist($attrib)
-    {
-        $attrib += array('id' => 'rcmtasktagslist');
-        unset($attrib['name']);
-
-        $this->register_gui_object('tagslist', $attrib['id']);
-        return html::tag('ul', $attrib, '');
-    }
-
-    /**
      * Interactive UI element to add/remove tags
      */
     function tags_editline($attrib)
@@ -432,8 +422,9 @@ class tasklist_ui
      */
     function attachments_list($attrib = array())
     {
-        if (!$attrib['id'])
+        if (!$attrib['id']) {
             $attrib['id'] = 'rcmtaskattachmentlist';
+        }
 
         $this->register_gui_object('attachmentlist', $attrib['id']);
 
@@ -446,26 +437,11 @@ class tasklist_ui
     function attachments_form($attrib = array())
     {
         // add ID if not given
-        if (!$attrib['id'])
+        if (!$attrib['id']) {
             $attrib['id'] = 'rcmtaskuploadform';
+        }
 
-        // Get max filesize, enable upload progress bar
-        $max_filesize = $this->rc->upload_init();
-
-        $button = new html_inputfield(array('type' => 'button'));
-        $input = new html_inputfield(array(
-            'type' => 'file',
-            'name' => '_attachments[]',
-            'multiple' => 'multiple',
-            'size' => $attrib['attachmentfieldsize'],
-        ));
-
-        return html::div($attrib,
-            html::div(null, $input->show()) .
-            html::div('buttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
-                'onclick' => rcmail_output::JS_OBJECT_NAME . ".upload_file(this.form)"))) .
-            html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
-        );
+        return $this->rc->upload_form($attrib, 'uploadform', 'upload-file', array('multiple' => true));
     }
 
     /**
@@ -547,8 +523,7 @@ class tasklist_ui
 
         // Get max filesize, enable upload progress bar
         $max_filesize = $this->rc->upload_init();
-
-        $accept = '.ics, text/calendar, text/x-vcalendar, application/ics';
+        $accept       = '.ics, text/calendar, text/x-vcalendar, application/ics';
         if (class_exists('ZipArchive', false)) {
             $accept .= ', .zip, application/zip';
         }
@@ -560,24 +535,26 @@ class tasklist_ui
                 'accept' => $accept
         ));
 
-        $html = html::div('form-section',
-            html::div(null, $input->show())
-            . html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
+        $html = html::div('form-section form-group row',
+            html::label(array('class' => 'col-sm-4 col-form-label', 'for' => 'importfile'), rcube::Q($this->rc->gettext('importfromfile')))
+            . html::div('col-sm-8', $input->show()
+                . html::div('hint', $this->rc->gettext(array('id' => 'importfile', 'name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize)))))
         );
 
-        $html .= html::div('form-section',
-            html::label('task-import-list', $this->plugin->gettext('list'))
-            . $this->tasklist_select(array('name' => 'source', 'id' => 'task-import-list', 'editable' => true))
+        $html .= html::div('form-section form-group row',
+            html::label(array('for' => 'task-import-list', 'class' => 'col-sm-4 col-form-label'), $this->plugin->gettext('list'))
+            . html::div('col-sm-8', $this->tasklist_select(array('name' => 'source', 'id' => 'task-import-list', 'editable' => true)))
         );
 
         $this->rc->output->add_gui_object('importform', $attrib['id']);
         $this->rc->output->add_label('import', 'importerror');
 
-        return html::tag('form', array(
+        return html::tag('p', null, $this->plugin->gettext('importtext'))
+            .html::tag('form', array(
                 'action'  => $this->rc->url(array('task' => 'tasklist', 'action' => 'import')),
                 'method'  => 'post',
                 'enctype' => 'multipart/form-data',
-                'id'      => $attrib['id']
+                'id'      => $attrib['id'],
             ),
             $html
         );
@@ -592,25 +569,27 @@ class tasklist_ui
             $attrib['id'] = 'rcmTaskExportForm';
         }
 
-        $html .= html::div('form-section',
-            html::label('task-export-list', $this->plugin->gettext('list')) .
-                $this->tasklist_select(array(
+        $html .= html::div('form-section form-group row',
+            html::label(array('for' => 'task-export-list', 'class' => 'col-sm-4 col-form-label'), $this->plugin->gettext('list'))
+            . html::div('col-sm-8', $this->tasklist_select(array(
                         'name'  => 'source',
                         'id'    => 'task-export-list',
                         'extra' => array('' => '- ' . $this->plugin->gettext('currentview') . ' -'),
-                ))
+                )))
         );
 
-        $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'task-export-attachments', 'value' => 1));
-        $html .= html::div('form-section',
-            html::label('task-export-attachments', $this->plugin->gettext('exportattachments')) .
-                $checkbox->show(1)
+        $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'task-export-attachments', 'value' => 1, 'class' => 'form-check-input'));
+        $html .= html::div('form-section form-group row form-check',
+            html::label(array('for' => 'task-export-attachments', 'class' => 'col-sm-4 col-form-label'), $this->plugin->gettext('exportattachments'))
+            . html::div('col-sm-8', $checkbox->show(1))
         );
 
         $this->register_gui_object('exportform', $attrib['id']);
 
-        return html::tag('form', array('action' => $this->rc->url(array('task' => 'tasklist', 'action' => 'export')),
-            'method' => "post", 'id' => $attrib['id']),
+        return html::tag('form', array(
+                'action' => $this->rc->url(array('task' => 'tasklist', 'action' => 'export')),
+                'method' => 'post', 'id' => $attrib['id']
+            ),
             $html
         );
     }

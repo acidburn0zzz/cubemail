@@ -26,7 +26,7 @@
  */
 
 window.rcmail && rcmail.addEventListener('init', function() {
-    if (rcmail.task == 'mail' || rcmail.task == 'notes') {
+    if (/^(mail|notes|tasks)$/.test(rcmail.task)) {
         var msg_view = rcmail.env.action == 'show' || rcmail.env.action == 'preview';
 
         if (!msg_view && rcmail.env.action) {
@@ -124,6 +124,9 @@ function main_list_widget()
 
     if (rcmail.task == 'notes' && rcmail.noteslist)
         return rcmail.noteslist;
+
+    if (rcmail.task == 'tasks' && rcmail.gui_objects.resultlist)
+        return rcmail.gui_objects.resultlist;
 }
 
 // fills tag cloud with tags list
@@ -1157,3 +1160,22 @@ function tag_droppable_accept(draggable)
 
     return true;
 }
+
+// Convert list of tag names into "blocks" and add to the specified element
+function kolab_tags_text_block(tags, element, del_btn)
+{
+    if (tags && tags.length) {
+        var items = [];
+
+        tags.sort();
+
+        $.each(tags, function(i,val) {
+            var tag = tag_find(val, 'name');
+            if (tag) {
+                items.push(tag_box_element(tag, del_btn));
+            }
+        });
+
+        $(element).append(items);
+    }
+};

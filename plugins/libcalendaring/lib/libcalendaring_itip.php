@@ -815,6 +815,7 @@ class libcalendaring_itip
             'name'  => '_comment',
             'cols'  => 40,
             'rows'  => 6,
+            'class' => 'form-control',
             'style' => 'display:none',
             'placeholder' => $this->gettext('itipcomment')
         );

@@ -30,10 +30,10 @@
 .listing {
     // Fix focus indicator, because we add div element in the list record
     @media screen and (min-width: @screen-width-large) {
-        li > div a {
+        li > div > a {
             border-left: 2px solid transparent;
         }
-        li > div a:focus {
+        li > div > a:focus {
             border-left: 2px solid @color-list-focus-indicator;
             outline: 0;
         }
@@ -56,14 +56,19 @@
                     height: @listing-line-height !important;
                     font-size: 1.1em !important;
                 }
+
+                & + input {
+                    position: initial;
+                }
             }
 
             &.tasklist .listname:before {
-                // TODO: tasklist icon
+                &:extend(.font-icon-class);
+                content: @fa-var-tasks;
             }
 
             &.calendar .calname:before {
-                // TODO: clendar icon
+                .font-icon-regular(@fa-var-calendar);
             }
 
             &.folder .listname:before {
@@ -77,20 +82,38 @@
             }
 
             span.actions {
-                a.remove {
-                    display: none;
+                display: flex;
+
+                input + & {
+                    padding-right: 2em;
+                }
+
+                a {
+                    padding: 0;
+                    margin: 0;
+                    margin-right: .2rem;
+                    cursor: pointer;
+
+                    &:before {
+                        margin: 0;
+                    }
+
+                    &.remove {
+                        display: none;
+                    }
                 }
             }
 
             a.quickview:before {
-                content: @fa-var-eye; // TODO: disabled button state
+                content: @fa-var-eye;
+                opacity: .2;
+                color: @color-link;
             }
 
             &.focusview {
-                span.actions {
-                    a.quickview:before {
-                        content: @fa-var-eye;
-                    }
+                a.quickview:before {
+                    content: @fa-var-eye;
+                    opacity: 1;
                 }
             }
 
@@ -145,12 +168,24 @@
             }
         }
 
+        & > div.readonly a:first-child,
         &.readonly:not(.virtual) > div a:first-child {
             padding-right: 1.6em;
 
             &:after {
                 &:extend(.font-icon-class);
                 content: @fa-var-lock;
+            }
+        }
+
+        & > div.virtual.user > .listname,
+        &.virtual.user > div a:first-child {
+            &:before {
+                .font-icon-solid(@fa-var-user);
+            }
+
+            &:after {
+                content: "";
             }
         }
 
@@ -163,12 +198,6 @@
         &.shared > div {
             span.calname {
                 // TODO @fa-var-share-alt;
-            }
-        }
-
-        & > div.readonly {
-            span.calname {
-                // TODO: @fa-var-lock;
             }
         }
 
@@ -197,6 +226,26 @@
 
     li.droptarget > div {
         background-color: @color-list-droptarget-background;
+    }
+
+    li .count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 2em;
+        line-height: 1.4rem;
+        margin: (@listing-line-height - 1.4rem)/2;
+        padding: 0 .3em;
+        border-radius: .4em;
+        background: @color-list-secondary;
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+
+        html.touch & {
+            line-height: 2rem;
+            margin: (@listing-touch-line-height - 2rem)/2;
+        }
     }
 }
 
@@ -274,6 +323,31 @@ a.history {
             display: initial;
         }
     }
+}
+
+.form-group > .datetime {
+    display: flex;
+    white-space: nowrap;
+
+    input {
+        width: 10em;
+    }
+
+    input:first-child {
+        margin-right: .5rem;
+        width: 15em;
+    }
+
+    a {
+        margin-left: 1em;
+        text-align: right;
+        flex: 1;
+        line-height: 2.4;
+    }
+}
+
+button.btn.save.notify:before {
+    content: @fa-var-envelope;
 }
 
 @import "include/calendar";

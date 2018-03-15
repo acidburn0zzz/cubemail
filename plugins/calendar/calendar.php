@@ -1991,6 +1991,8 @@ class calendar extends rcube_plugin
         $this->lib->attachment = $attachment;
         $this->register_handler('plugin.attachmentframe', array($this->lib, 'attachment_frame'));
         $this->register_handler('plugin.attachmentcontrols', array($this->lib, 'attachment_header'));
+        $this->rc->output->set_env('filename', $attachment['name']);
+        $this->rc->output->set_env('mimetype', $attachment['mimetype']);
         $this->rc->output->send('calendar.attachment');
     }
     // deliver attachment content

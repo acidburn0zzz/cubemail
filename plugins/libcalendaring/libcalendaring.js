@@ -1451,9 +1451,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     .addEventListener('plugin.fetch_itip_object_status', rcube_libcalendaring.fetch_itip_object_status)
     .addEventListener('plugin.itip_message_processed', rcube_libcalendaring.itip_message_processed);
 
-  if (rcmail.env.action == 'get-attachment' && rcmail.gui_objects['attachmentframe']) {
+  if (rcmail.env.action == 'get-attachment' && rcmail.gui_objects.attachmentframe) {
+    rcmail.gui_objects.messagepartframe = rcmail.gui_objects.attachmentframe;
+    rcmail.enable_command('image-scale', 'image-rotate', !!/^image\//.test(rcmail.env.mimetype));
     rcmail.register_command('print-attachment', function() {
-      var frame = rcmail.get_frame_window(rcmail.gui_objects['attachmentframe'].id);
+      var frame = rcmail.get_frame_window(rcmail.gui_objects.attachmentframe.id);
       if (frame) frame.print();
     }, true);
   }

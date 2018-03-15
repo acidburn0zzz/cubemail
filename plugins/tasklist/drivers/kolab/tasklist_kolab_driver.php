@@ -1693,7 +1693,7 @@ class tasklist_kolab_driver extends tasklist_driver
         $hidden_fields[] = array('name' => 'oldname', 'value' => $folder_name);
 
         // folder name (default field)
-        $input_name = new html_inputfield(array('name' => 'name', 'id' => 'taskedit-tasklistame', 'size' => 20));
+        $input_name = new html_inputfield(array('name' => 'name', 'id' => 'taskedit-tasklistname', 'size' => 20));
         $fieldprop['name']['value'] = $input_name->show($list['editname'], array('disabled' => ($options['norename'] || $options['protected'])));
 
         // prevent user from moving folder
@@ -1723,13 +1723,7 @@ class tasklist_kolab_driver extends tasklist_driver
         if ($action != 'form-new') {
             $form['sharing'] = array(
                 'name'    => rcube::Q($this->plugin->gettext('tabsharing')),
-                'content' => html::tag('iframe', array(
-                    'src' => $this->rc->url(array('_action' => 'folder-acl', '_folder' => $folder_name, 'framed' => 1)),
-                    'width' => '100%',
-                    'height' => 280,
-                    'border' => 0,
-                    'style' => 'border:0'),
-                '')
+                'content' => $this->folder_acl_form($folder_name)
             );
         }
 
@@ -1744,7 +1738,7 @@ class tasklist_kolab_driver extends tasklist_driver
         // create form output
         foreach ($form as $tab) {
             if (is_array($tab['fields']) && empty($tab['content'])) {
-                $table = new html_table(array('cols' => 2));
+                $table = new html_table(array('cols' => 2, 'class' => 'propform'));
                 foreach ($tab['fields'] as $col => $colprop) {
                     $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
 
@@ -1766,23 +1760,12 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
-     * Handler to render ACL form for a notes folder
-     */
-    public function folder_acl()
-    {
-        $this->plugin->require_plugin('acl');
-        $this->rc->output->add_handler('folderacl', array($this, 'folder_acl_form'));
-        $this->rc->output->send('tasklist.kolabacl');
-    }
-
-    /**
      * Handler for ACL form template object
      */
-    public function folder_acl_form()
+    public function folder_acl_form($folder)
     {
-        $folder = rcube_utils::get_input_value('_folder', rcube_utils::INPUT_GPC);
-
         if (strlen($folder)) {
+            $this->plugin->require_plugin('acl');
             $storage = $this->rc->get_storage();
             $options = $storage->folder_info($folder);
 

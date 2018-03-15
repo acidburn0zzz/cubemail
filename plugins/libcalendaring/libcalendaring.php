@@ -348,12 +348,12 @@ class libcalendaring extends rcube_plugin
     {
         unset($attrib['name']);
 
-        $input_value = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value', 'size' => 3));
-        $input_date  = new html_inputfield(array('name' => 'alarmdate[]', 'class' => 'edit-alarm-date', 'size' => 10));
-        $input_time  = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time', 'size' => 6));
-        $select_type    = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type', 'id' => $attrib['id']));
-        $select_offset  = new html_select(array('name' => 'alarmoffset[]', 'class' => 'edit-alarm-offset'));
-        $select_related = new html_select(array('name' => 'alarmrelated[]', 'class' => 'edit-alarm-related'));
+        $input_value = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value form-control', 'size' => 3));
+        $input_date  = new html_inputfield(array('name' => 'alarmdate[]', 'class' => 'edit-alarm-date form-control', 'size' => 10));
+        $input_time  = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time form-control', 'size' => 6));
+        $select_type    = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type form-control', 'id' => $attrib['id']));
+        $select_offset  = new html_select(array('name' => 'alarmoffset[]', 'class' => 'edit-alarm-offset form-control'));
+        $select_related = new html_select(array('name' => 'alarmrelated[]', 'class' => 'edit-alarm-related form-control'));
         $object_type    = $attrib['_type'] ?: 'event';
 
         $select_type->add($this->gettext('none'), '');
@@ -859,30 +859,35 @@ class libcalendaring extends rcube_plugin
         switch ($attrib['part']) {
             // frequency selector
             case 'frequency':
-                $select = new html_select(array('name' => 'frequency', 'id' => 'edit-recurrence-frequency'));
+                $select = new html_select(array('name' => 'frequency', 'id' => 'edit-recurrence-frequency', 'class' => 'form-control'));
                 $select->add($this->gettext('never'),   '');
                 $select->add($this->gettext('daily'),   'DAILY');
                 $select->add($this->gettext('weekly'),  'WEEKLY');
                 $select->add($this->gettext('monthly'), 'MONTHLY');
                 $select->add($this->gettext('yearly'),  'YEARLY');
                 $select->add($this->gettext('rdate'),   'RDATE');
-                $html = html::label('edit-recurrence-frequency', $this->gettext('frequency')) . $select->show('');
+                $html = html::label(array('for' => 'edit-recurrence-frequency', 'class' => 'col-form-label col-sm-2'), $this->gettext('frequency'))
+                    . html::div('col-sm-10', $select->show(''));
                 break;
 
             // daily recurrence
             case 'daily':
-                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-daily'));
-                $html = html::div($attrib, html::label('edit-recurrence-interval-daily', $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('days')));
+                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval form-control', 'id' => 'edit-recurrence-interval-daily'));
+                $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-daily', 'class' => 'col-form-label col-sm-2'),
+                    $this->gettext('every')) . html::div('col-sm-10', $select->show(1) . html::span('label-after', $this->gettext('days'))));
                 break;
 
             // weekly recurrence form
             case 'weekly':
-                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-weekly'));
-                $html = html::div($attrib, html::label('edit-recurrence-interval-weekly', $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('weeks')));
+                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval form-control', 'id' => 'edit-recurrence-interval-weekly'));
+                $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-weekly', 'class' => 'col-form-label col-sm-2'),
+                    $this->gettext('every')) . html::div('col-sm-10', $select->show(1) . html::span('label-after', $this->gettext('weeks'))));
+
                 // weekday selection
-                $daymap = array('sun','mon','tue','wed','thu','fri','sat');
+                $daymap   = array('sun','mon','tue','wed','thu','fri','sat');
                 $checkbox = new html_checkbox(array('name' => 'byday', 'class' => 'edit-recurrence-weekly-byday'));
-                $first = $this->rc->config->get('calendar_first_day', 1);
+                $first    = $this->rc->config->get('calendar_first_day', 1);
+
                 for ($weekdays = '', $j = $first; $j <= $first+6; $j++) {
                     $d = $j % 7;
                     $weekdays .= html::label(array('class' => 'weekday'),
@@ -890,13 +895,16 @@ class libcalendaring extends rcube_plugin
                         $this->gettext($daymap[$d])
                     ) . ' ';
                 }
-                $html .= html::div($attrib, html::label(null, $this->gettext('bydays')) . $weekdays);
+
+                $html .= html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2'), $this->gettext('bydays'))
+                    . html::div('col-sm-10', $weekdays));
                 break;
 
             // monthly recurrence form
             case 'monthly':
-                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-monthly'));
-                $html = html::div($attrib, html::label('edit-recurrence-interval-monthly', $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('months')));
+                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval form-control', 'id' => 'edit-recurrence-interval-monthly'));
+                $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-monthly', 'class' => 'col-form-label col-sm-2'), $this->gettext('every'))
+                    . html::div('col-sm-10', $select->show(1) . html::span('label-after', $this->gettext('months'))));
 
                 $checkbox = new html_checkbox(array('name' => 'bymonthday', 'class' => 'edit-recurrence-monthly-bymonthday'));
                 for ($monthdays = '', $d = 1; $d <= 31; $d++) {
@@ -917,26 +925,31 @@ class libcalendaring extends rcube_plugin
 
             // annually recurrence form
             case 'yearly':
-                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-yearly'));
-                $html = html::div($attrib, html::label('edit-recurrence-interval-yearly', $this->gettext('every')) . $select->show(1) . html::span('label-after', $this->gettext('years')));
+                $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval form-control', 'id' => 'edit-recurrence-interval-yearly'));
+                $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-yearly', 'class' => 'col-form-label col-sm-2'), $this->gettext('every'))
+                    . html::div('col-sm-10', $select->show(1) . html::span('label-after', $this->gettext('years'))));
+
                 // month selector
                 $monthmap = array('','jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec');
                 $checkbox = new html_checkbox(array('name' => 'bymonth', 'class' => 'edit-recurrence-yearly-bymonth'));
+
                 for ($months = '', $m = 1; $m <= 12; $m++) {
                     $months .= html::label(array('class' => 'month'), $checkbox->show(null, array('value' => $m)) . $this->gettext($monthmap[$m]));
                     $months .= $m % 4 ? ' ' : html::br();
                 }
+
                 $html .= html::div($attrib + array('id' => 'edit-recurrence-yearly-bymonthblock'), $months);
 
                 // day rule selection
-                $html .= html::div($attrib, html::label(null, $this->gettext('onevery')) . $this->rrule_selectors($attrib['part'], '---'));
+                $html .= html::div($attrib, html::label(array('col-form-label col-sm-2'), $this->gettext('onevery'))
+                    . html::div('col-sm-10', $this->rrule_selectors($attrib['part'], '---')));
                 break;
 
             // end of recurrence form
             case 'until':
-                $radio = new html_radiobutton(array('name' => 'repeat', 'class' => 'edit-recurrence-until'));
-                $select = $this->interval_selector(array('name' => 'times', 'id' => 'edit-recurrence-repeat-times'));
-                $input = new html_inputfield(array('name' => 'untildate', 'id' => 'edit-recurrence-enddate', 'size' => "10"));
+                $radio  = new html_radiobutton(array('name' => 'repeat', 'class' => 'edit-recurrence-until'));
+                $select = $this->interval_selector(array('name' => 'times', 'id' => 'edit-recurrence-repeat-times', 'class' => 'form-control'));
+                $input  = new html_inputfield(array('name' => 'untildate', 'id' => 'edit-recurrence-enddate', 'size' => "10", 'class' => 'form-control'));
 
                 $html = html::div('line first',
                     html::label(null, $radio->show('', array('value' => '', 'id' => 'edit-recurrence-repeat-forever')) . ' ' .
@@ -957,12 +970,12 @@ class libcalendaring extends rcube_plugin
                         $this->gettext('untildate') . ' ' . $input->show('', array('aria-label' => $this->gettext('untilenddate')))
                 );
 
-                $html = html::div($attrib, html::label(null, ucfirst($this->gettext('recurrencend'))) . $html);
+                $html = html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2'), ucfirst($this->gettext('recurrencend'))) . $html);
                 break;
 
             case 'rdate':
-                $ul = html::tag('ul', array('id' => 'edit-recurrence-rdates'), '');
-                $input = new html_inputfield(array('name' => 'rdate', 'id' => 'edit-recurrence-rdate-input', 'size' => "10"));
+                $ul     = html::tag('ul', array('id' => 'edit-recurrence-rdates'), '');
+                $input  = new html_inputfield(array('name' => 'rdate', 'id' => 'edit-recurrence-rdate-input', 'size' => "10", 'class' => 'form-control'));
                 $button = new html_inputfield(array('type' => 'button', 'class' => 'button add', 'value' => $this->gettext('addrdate')));
                 $html .= html::div($attrib, $ul . html::div('inputform', $input->show() . $button->show()));
                 break;
@@ -987,7 +1000,7 @@ class libcalendaring extends rcube_plugin
     private function rrule_selectors($part, $noselect = null)
     {
         // rule selectors
-        $select_prefix = new html_select(array('name' => 'bydayprefix', 'id' => "edit-recurrence-$part-prefix"));
+        $select_prefix = new html_select(array('name' => 'bydayprefix', 'id' => "edit-recurrence-$part-prefix", 'class' => 'form-control'));
         if ($noselect) $select_prefix->add($noselect, '');
         $select_prefix->add(array(
                 $this->gettext('first'),
@@ -998,7 +1011,7 @@ class libcalendaring extends rcube_plugin
             ),
             array(1, 2, 3, 4, -1));
 
-        $select_wday = new html_select(array('name' => 'byday', 'id' => "edit-recurrence-$part-byday"));
+        $select_wday = new html_select(array('name' => 'byday', 'id' => "edit-recurrence-$part-byday", 'class' => 'form-control'));
         if ($noselect) $select_wday->add($noselect, '');
 
         $daymap = array('sunday','monday','tuesday','wednesday','thursday','friday','saturday');
@@ -1016,8 +1029,9 @@ class libcalendaring extends rcube_plugin
      */
     public function to_client_recurrence($recurrence, $allday = false)
     {
-        if ($recurrence['UNTIL'])
+        if ($recurrence['UNTIL']) {
             $recurrence['UNTIL'] = $this->adjust_timezone($recurrence['UNTIL'], $allday)->format('c');
+        }
 
         // format RDATE values
         if (is_array($recurrence['RDATE'])) {
@@ -1072,7 +1086,7 @@ class libcalendaring extends rcube_plugin
             $this->rc->upload_progress();
         }
 
-        $recid = $id_prefix . rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
+        $recid    = $id_prefix . rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
         $uploadid = rcube_utils::get_input_value('_uploadid', rcube_utils::INPUT_GPC);
 
         if (!is_array($_SESSION[$session_key]) || $_SESSION[$session_key]['id'] != $recid) {
@@ -1086,69 +1100,83 @@ class libcalendaring extends rcube_plugin
 
         if (is_array($_FILES['_attachments']['tmp_name'])) {
             foreach ($_FILES['_attachments']['tmp_name'] as $i => $filepath) {
-              // Process uploaded attachment if there is no error
-              $err = $_FILES['_attachments']['error'][$i];
+                // Process uploaded attachment if there is no error
+                $err = $_FILES['_attachments']['error'][$i];
 
-              if (!$err) {
-                $attachment = array(
-                    'path' => $filepath,
-                    'size' => $_FILES['_attachments']['size'][$i],
-                    'name' => $_FILES['_attachments']['name'][$i],
-                    'mimetype' => rcube_mime::file_content_type($filepath, $_FILES['_attachments']['name'][$i], $_FILES['_attachments']['type'][$i]),
-                    'group' => $recid,
-                );
+                if (!$err) {
+                    $filename   = $_FILES['_attachments']['name'][$i];
+                    $attachment = array(
+                        'path'     => $filepath,
+                        'size'     => $_FILES['_attachments']['size'][$i],
+                        'name'     => $filename,
+                        'mimetype' => rcube_mime::file_content_type($filepath, $filename, $_FILES['_attachments']['type'][$i]),
+                        'group'    => $recid,
+                    );
 
-                $attachment = $this->rc->plugins->exec_hook('attachment_upload', $attachment);
-              }
+                    $attachment = $this->rc->plugins->exec_hook('attachment_upload', $attachment);
+                }
 
-              if (!$err && $attachment['status'] && !$attachment['abort']) {
-                  $id = $attachment['id'];
+                if (!$err && $attachment['status'] && !$attachment['abort']) {
+                    $id = $attachment['id'];
 
-                  // store new attachment in session
-                  unset($attachment['status'], $attachment['abort']);
-                  $_SESSION[$session_key]['attachments'][$id] = $attachment;
+                    // store new attachment in session
+                    unset($attachment['status'], $attachment['abort']);
+                    $this->rc->session->append($session_key . '.attachments', $id, $attachment);
 
-                  if (($icon = $_SESSION[$session_key . '_deleteicon']) && is_file($icon)) {
-                      $button = html::img(array(
-                          'src' => $icon,
-                          'alt' => $this->rc->gettext('delete')
-                      ));
-                  }
-                  else {
-                      $button = rcube::Q($this->rc->gettext('delete'));
-                  }
+                    if (($icon = $_SESSION[$session_key . '_deleteicon']) && is_file($icon)) {
+                        $button = html::img(array(
+                            'src' => $icon,
+                            'alt' => $this->rc->gettext('delete')
+                        ));
+                    }
+                    else if ($_SESSION[$session_key . '_textbuttons']) {
+                        $button = rcube::Q($this->rc->gettext('delete'));
+                    }
+                    else {
+                        $button = '';
+                    }
 
-                  $content = html::a(array(
-                      'href' => "#delete",
-                      'class' => 'delete',
-                      'onclick' => sprintf("return %s.remove_from_attachment_list('rcmfile%s')", rcmail_output::JS_OBJECT_NAME, $id),
-                      'title' => $this->rc->gettext('delete'),
-                      'aria-label' => $this->rc->gettext('delete') . ' ' . $attachment['name'],
-                  ), $button);
+                    $link_content = sprintf('<span class="attachment-name">%s</span><span class="attachment-size">(%s)</span>',
+                        rcube::Q($attachment['name']), $this->rc->show_bytes($attachment['size']));
 
-                  $content .= rcube::Q($attachment['name']);
+                    $delete_link = html::a(array(
+                            'href'       => "#delete",
+                            'class'      => 'delete',
+                            'onclick'    => sprintf("return %s.remove_from_attachment_list('rcmfile%s')", rcmail_output::JS_OBJECT_NAME, $id),
+                            'title'      => $this->rc->gettext('delete'),
+                            'aria-label' => $this->rc->gettext('delete') . ' ' . $attachment['name'],
+                        ), $button);
 
-                  $this->rc->output->command('add2attachment_list', "rcmfile$id", array(
-                      'html' => $content,
-                      'name' => $attachment['name'],
-                      'mimetype' => $attachment['mimetype'],
-                      'classname' => rcube_utils::file2class($attachment['mimetype'], $attachment['name']),
-                      'complete' => true), $uploadid);
-              }
-              else {  // upload failed
-                  if ($err == UPLOAD_ERR_INI_SIZE || $err == UPLOAD_ERR_FORM_SIZE) {
-                    $msg = $this->rc->gettext(array('name' => 'filesizeerror', 'vars' => array(
-                        'size' => $this->rc->show_bytes(parse_bytes(ini_get('upload_max_filesize'))))));
-                  }
-                  else if ($attachment['error']) {
-                      $msg = $attachment['error'];
-                  }
-                  else {
-                      $msg = $this->rc->gettext('fileuploaderror');
-                  }
+                    $content_link = html::a(array(
+                            'href'    => "#load",
+                            'class'   => 'filename',
+                            'onclick' => 'return false', // sprintf("return %s.command('load-attachment','rcmfile%s', this, event)", rcmail_output::JS_OBJECT_NAME, $id),
+                         ), $link_content);
 
-                  $this->rc->output->command('display_message', $msg, 'error');
-                  $this->rc->output->command('remove_from_attachment_list', $uploadid);
+                    $content .= $_SESSION[$session_key . '_icon_pos'] == 'left' ? $delete_link.$content_link : $content_link.$delete_link;
+
+                    $this->rc->output->command('add2attachment_list', "rcmfile$id", array(
+                            'html'      => $content,
+                            'name'      => $attachment['name'],
+                            'mimetype'  => $attachment['mimetype'],
+                            'classname' => 'no-menu ' . rcube_utils::file2class($attachment['mimetype'], $attachment['name']),
+                            'complete'  => true
+                        ), $uploadid);
+                }
+                else {  // upload failed
+                    if ($err == UPLOAD_ERR_INI_SIZE || $err == UPLOAD_ERR_FORM_SIZE) {
+                        $msg = $this->rc->gettext(array('name' => 'filesizeerror', 'vars' => array(
+                            'size' => $this->rc->show_bytes(parse_bytes(ini_get('upload_max_filesize'))))));
+                    }
+                    else if ($attachment['error']) {
+                        $msg = $attachment['error'];
+                    }
+                    else {
+                        $msg = $this->rc->gettext('fileuploaderror');
+                    }
+
+                    $this->rc->output->command('display_message', $msg, 'error');
+                    $this->rc->output->command('remove_from_attachment_list', $uploadid);
                 }
             }
         }

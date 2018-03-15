@@ -100,12 +100,14 @@
 			<div id="taskedit-attachments">
 				<roundcube:object name="plugin.attachments_list" id="taskedit-attachment-list" class="attachmentslist" />
 			</div>
-			<div id="taskedit-attachments-form" role="region" aria-labelledby="aria-label-attachmentuploadform">
+			<div id="taskedit-attachments-form" role="region" aria-labelledby="aria-label-attachmentuploadform" style="text-align:center">
 				<h3 id="aria-label-attachmentuploadform" class="voice"><roundcube:label name="arialabelattachmentuploadform" /></h3>
-				<roundcube:object name="plugin.attachments_form" id="taskedit-attachment-form" attachmentFieldSize="30" />
+				<roundcube:object name="plugin.attachments_form" id="taskedit-attachment-form" mode="hint" />
+				<a class="button" tabindex="1" href="#" onclick="rcmail.upload_input('taskedit-attachment-form')"><roundcube:label name="addattachment" /></a>
 			</div>
 			<roundcube:object name="plugin.filedroparea" id="taskedit-panel-attachments" />
 		</div>
 	</form>
 	<roundcube:object name="plugin.edit_attendees_notify" id="edit-attendees-notify" class="task-dialog-message" style="display:none" />
+	<roundcube:object name="plugin.attachments_form" id="taskedit-attachment-form" mode="smart" />
 </div>

@@ -74,6 +74,7 @@ class tasklist extends rcube_plugin
     function init()
     {
         $this->require_plugin('libcalendaring');
+        $this->require_plugin('libkolab');
         $this->require_plugin('jqueryui');
 
         $this->rc  = rcube::get_instance();
@@ -182,8 +183,9 @@ class tasklist extends rcube_plugin
      */
     private function load_driver()
     {
-        if (is_object($this->driver))
+        if (is_object($this->driver)) {
             return;
+        }
 
         $driver_name  = $this->rc->config->get('tasklist_driver', 'database');
         $driver_class = 'tasklist_' . $driver_name . '_driver';
@@ -191,17 +193,10 @@ class tasklist extends rcube_plugin
         require_once($this->home . '/drivers/tasklist_driver.php');
         require_once($this->home . '/drivers/' . $driver_name . '/' . $driver_class . '.php');
 
-        switch ($driver_name) {
-        case "kolab":
-            $this->require_plugin('libkolab');
-        default:
-            $this->driver = new $driver_class($this);
-            break;
-        }
+        $this->driver = new $driver_class($this);
 
         $this->rc->output->set_env('tasklist_driver', $driver_name);
     }
-
 
     /**
      * Dispatcher for task-related actions initiated by the client
@@ -996,6 +991,7 @@ class tasklist extends rcube_plugin
         switch ($action) {
         case 'form-new':
         case 'form-edit':
+            $this->load_ui();
             echo $this->ui->tasklist_editform($action, $list);
             exit;
 
@@ -1779,6 +1775,8 @@ class tasklist extends rcube_plugin
             $this->lib->attachment = $attachment;
             $this->register_handler('plugin.attachmentframe', array($this->lib, 'attachment_frame'));
             $this->register_handler('plugin.attachmentcontrols', array($this->lib, 'attachment_header'));
+            $this->rc->output->set_env('filename', $attachment['name']);
+            $this->rc->output->set_env('mimetype', $attachment['mimetype']);
             $this->rc->output->send('tasklist.attachment');
         }
         // deliver attachment content
