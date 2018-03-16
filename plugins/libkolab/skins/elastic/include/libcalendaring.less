@@ -144,3 +144,73 @@
     }
 }
 
+.attendee {
+    &:after {
+        &:extend(.font-icon-class);
+        content: @fa-var-question-circle;
+        display: inline;
+        float: none;
+        font-size: 1em;
+        margin-left: .2rem;
+    }
+
+    &.req-participant:after {
+        content: @fa-var-user;
+    }
+
+    &.opt-participant:after {
+        .font-icon-regular(@fa-var-user);
+    }
+
+    &.non-participant:after {
+        content: @fa-var-user;
+        color: #999;
+    }
+
+    &.chair:after {
+        content: @fa-var-user; // todo
+        color: @color-warning;
+    }
+
+    &.accepted:after {
+        content: @fa-var-check-circle;
+        color: @color-success;
+    }
+
+    &.declined:after {
+        content: @fa-var-ban;
+        color: @color-error;
+    }
+
+    &.tentative:after {
+        content: @fa-var-check-circle;
+        color: @color-warning;
+    }
+
+    &.delegated:after {
+        content: @fa-var-share;
+    }
+
+    &.organizer:after {
+        content: @fa-var-briefcase; // TODO: better icon
+    }
+}
+
+.form-searchbar {
+    display: flex;
+    margin-bottom: .5rem;
+
+    input[type=button] {
+        margin-left: .5em;
+    }
+}
+
+.attendees-comentbox {
+    label {
+        display: inline;
+    }
+}
+
+#edit-attendees-legend {
+    margin-top: 1rem;
+}

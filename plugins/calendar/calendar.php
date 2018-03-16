@@ -320,7 +320,11 @@ class calendar extends rcube_plugin
     $this->rc->output->set_env('timezone', $this->timezone->getName());
     $this->rc->output->set_env('calendar_driver', $this->rc->config->get('calendar_driver'), false);
     $this->rc->output->set_env('calendar_resources', (bool)$this->rc->config->get('calendar_resources_driver'));
-    $this->rc->output->set_env('identities-selector', $this->ui->identity_select(array('id' => 'edit-identities-list', 'aria-label' => $this->gettext('roleorganizer'))));
+    $this->rc->output->set_env('identities-selector', $this->ui->identity_select(array(
+        'id'         => 'edit-identities-list',
+        'aria-label' => $this->gettext('roleorganizer'),
+        'class'      => 'form-control',
+    )));
 
     $view = rcube_utils::get_input_value('view', rcube_utils::INPUT_GPC);
     if (in_array($view, array('agendaWeek', 'agendaDay', 'month', 'table')))
@@ -2665,8 +2669,8 @@ class calendar extends rcube_plugin
     // render small agenda view for the respective day
     if ($data['method'] == 'REQUEST' && !empty($data['date']) && $response['action'] == 'rsvp') {
       $event_start = rcube_utils::anytodatetime($data['date']);
-      $day_start = new Datetime(gmdate('Y-m-d 00:00', $data['date']), $this->lib->timezone);
-      $day_end = new Datetime(gmdate('Y-m-d 23:59', $data['date']), $this->lib->timezone);
+      $day_start   = new Datetime(gmdate('Y-m-d 00:00', $data['date']), $this->lib->timezone);
+      $day_end     = new Datetime(gmdate('Y-m-d 23:59', $data['date']), $this->lib->timezone);
 
       // get events on that day from the user's personal calendars
       $calendars = $this->driver->list_calendars(calendar_driver::FILTER_PERSONAL);
@@ -2675,6 +2679,7 @@ class calendar extends rcube_plugin
 
       $before = $after = array();
       foreach ($events as $event) {
+
         // TODO: skip events with free_busy == 'free' ?
         if ($event['uid'] == $data['uid'] || $event['end'] < $day_start || $event['start'] > $day_end)
           continue;

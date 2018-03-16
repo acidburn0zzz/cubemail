@@ -311,8 +311,8 @@ class calendar_ui
     if (!$activeonly || $prop['active']) {
       $label_id = 'cl:' . $id;
       $content = html::div(join(' ', $classes),
-        html::span(array('class' => 'calname', 'id' => $label_id, 'title' => $title), $prop['editname'] ? rcube::Q($prop['editname']) : $prop['listname']) .
-        ($prop['virtual'] ? '' :
+        html::a(array('class' => 'calname', 'id' => $label_id, 'title' => $title, 'href' => '#'), rcube::Q($prop['editname'] ?: $prop['listname']))
+        . ($prop['virtual'] ? '' :
           html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
           html::span('actions', 
             ($prop['removable'] ? html::a(array('href' => '#', 'class' => 'remove', 'title' => $this->cal->gettext('removelist')), ' ') : '') .
@@ -335,7 +335,7 @@ class calendar_ui
     $attrib += array('id' => 'agendaoptions');
     $attrib['style'] .= 'display:none';
     
-    $select_range = new html_select(array('name' => 'listrange', 'id' => 'agenda-listrange'));
+    $select_range = new html_select(array('name' => 'listrange', 'id' => 'agenda-listrange', 'class' => 'form-control'));
     $select_range->add(1 . ' ' . preg_replace('/\(.+\)/', '', $this->cal->lib->gettext('days')), $days);
     foreach (array(2,5,7,14,30,60,90,180,365) as $days)
       $select_range->add($days . ' ' . preg_replace('/\(|\)/', '', $this->cal->lib->gettext('days')), $days);
@@ -343,7 +343,7 @@ class calendar_ui
     $html .= html::label('agenda-listrange', $this->cal->gettext('listrange'));
     $html .= $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']));
     
-    $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections'));
+    $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections', 'class' => 'form-control'));
     $select_sections->add('---', '');
     foreach (array('day' => 'libcalendaring.days', 'week' => 'libcalendaring.weeks', 'month' => 'libcalendaring.months', 'smart' => 'calendar.smartsections') as $val => $label)
       $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
@@ -570,12 +570,11 @@ class calendar_ui
     if (!$attrib['id'])
       $attrib['id'] = 'rcmExportForm';
 
-    $html .= html::div('form-section',
-      html::label('event-export-calendar', $this->cal->gettext('calendar')) .
-      $this->calendar_select(array('name' => 'calendar', 'id' => 'event-export-calendar'))
-    );
+    $html = html::div('form-section form-group row',
+      html::label(array('for' => 'event-export-calendar', 'class' => 'col-sm-4 col-form-label'), $this->cal->gettext('calendar'))
+        . html::div('col-sm-8', $this->calendar_select(array('name' => 'calendar', 'id' => 'event-export-calendar', 'class' => 'form-control'))));
 
-    $select = new html_select(array('name' => 'range', 'id' => 'event-export-range'));
+    $select = new html_select(array('name' => 'range', 'id' => 'event-export-range', 'class' => 'form-control'));
     $select->add(array(
         $this->cal->gettext('all'),
         $this->cal->gettext('onemonthback'),
@@ -589,22 +588,22 @@ class calendar_ui
 
     $startdate = new html_inputfield(array('name' => 'start', 'size' => 11, 'id' => 'event-export-startdate'));
 
-    $html .= html::div('form-section',
-      html::label('event-export-range', $this->cal->gettext('exportrange')) .
-      $select->show(0) .
-      html::span(array('style'=>'display:none'), $startdate->show())
-    );
+    $html .= html::div('form-section form-group row',
+      html::label(array('for' => 'event-export-range', 'class' => 'col-sm-4 col-form-label'), $this->cal->gettext('exportrange'))
+        . html::div('col-sm-8', $select->show(0) . html::span(array('style'=>'display:none'), $startdate->show())));
 
     $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'event-export-attachments', 'value' => 1));
-    $html .= html::div('form-section',
-      html::label('event-export-attachments', $this->cal->gettext('exportattachments')) .
-      $checkbox->show(1)
-    );
+    $html .= html::div('form-section form-group row',
+      html::label(array('for' => 'event-export-attachments', 'class' => 'col-sm-4 col-form-label'), $this->cal->gettext('exportattachments'))
+        . html::div('col-sm-8', $checkbox->show(1)));
 
     $this->rc->output->add_gui_object('exportform', $attrib['id']);
 
-    return html::tag('form', array('action' => $this->rc->url(array('task' => 'calendar', 'action' => 'export_events')),
-      'method' => "post", 'id' => $attrib['id']),
+    return html::tag('form', $attrib + array(
+        'action' => $this->rc->url(array('task' => 'calendar', 'action' => 'export_events')),
+        'method' => "post",
+        'id' => $attrib['id']
+      ),
       $html
     );
   }
@@ -675,20 +674,36 @@ class calendar_ui
    */
   function calendar_editform($action, $calendar = array())
   {
+    $this->action   = $action;
+    $this->calendar = $calendar;
+
+    // load miniColors js/css files
+    jqueryui::miniColors();
+
+    $this->rc->output->add_handler('calendarform', array($this, 'calendarform'));
+    $this->rc->output->send('calendar.folderform');
+  }
+
+  /**
+   * Handler for calendar form template.
+   * The form content could be overriden by the driver
+   */
+  function calendarform($attrib)
+  {
     // compose default calendar form fields
-    $input_name = new html_inputfield(array('name' => 'name', 'id' => 'calendar-name', 'size' => 20));
-    $input_color = new html_inputfield(array('name' => 'color', 'id' => 'calendar-color', 'size' => 6));
+    $input_name  = new html_inputfield(array('name' => 'name', 'id' => 'calendar-name', 'size' => 20));
+    $input_color = new html_inputfield(array('name' => 'color', 'id' => 'calendar-color', 'size' => 7, 'class' => 'colors'));
 
     $formfields = array(
       'name' => array(
         'label' => $this->cal->gettext('name'),
         'value' => $input_name->show($calendar['name']),
-        'id' => 'calendar-name',
+        'id'    => 'calendar-name',
       ),
       'color' => array(
         'label' => $this->cal->gettext('color'),
         'value' => $input_color->show($calendar['color']),
-        'id' => 'calendar-color',
+        'id'    => 'calendar-color',
       ),
     );
 
@@ -696,14 +711,14 @@ class calendar_ui
       $checkbox = new html_checkbox(array('name' => 'showalarms', 'id' => 'calendar-showalarms', 'value' => 1));
       $formfields['showalarms'] = array(
         'label' => $this->cal->gettext('showalarms'),
-        'value' => $checkbox->show($calendar['showalarms']?1:0),
-        'id' => 'calendar-showalarms',
+        'value' => $checkbox->show($this->calendar['showalarms'] ? 1 :0),
+        'id'    => 'calendar-showalarms',
       );
     }
 
     // allow driver to extend or replace the form content
-    return html::tag('form', array('action' => "#", 'method' => "get", 'id' => 'calendarpropform'),
-      $this->cal->driver->calendar_form($action, $calendar, $formfields)
+    return html::tag('form', $attrib + array('action' => "#", 'method' => "get", 'id' => 'calendarpropform'),
+      $this->cal->driver->calendar_form($this->action, $this->calendar, $formfields)
     );
   }
 
@@ -743,12 +758,12 @@ class calendar_ui
    */
   function attendees_form($attrib = array())
   {
-    $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => 30));
-    $textarea = new html_textarea(array('name' => 'comment', 'id' => 'edit-attendees-comment',
+    $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'class' => 'form-control'));
+    $textarea = new html_textarea(array('name' => 'comment', 'id' => 'edit-attendees-comment', 'class' => 'form-control',
         'rows' => 4, 'cols' => 55, 'title' => $this->cal->gettext('itipcommenttitle')));
 
     return html::div($attrib,
-      html::div(null, $input->show() . " " .
+      html::div('form-searchbar', $input->show() . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-add', 'value' => $this->cal->gettext('addattendee'))) . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-schedule', 'value' => $this->cal->gettext('scheduletime').'...'))) .
       html::p('attendees-commentbox', html::label(null, $this->cal->gettext('itipcomment') . $textarea->show()))
@@ -760,10 +775,10 @@ class calendar_ui
    */
   function resources_form($attrib = array())
   {
-    $input = new html_inputfield(array('name' => 'resource', 'id' => 'edit-resource-name', 'size' => 30));
+    $input = new html_inputfield(array('name' => 'resource', 'id' => 'edit-resource-name', 'class' => 'form-control'));
 
     return html::div($attrib,
-      html::div(null, $input->show() . " " .
+      html::div('form-searchbar', $input->show() . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-resource-add', 'value' => $this->cal->gettext('addresource'))) . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-resource-find', 'value' => $this->cal->gettext('findresources').'...')))
       );

@@ -50,7 +50,7 @@ libkolab_audittrail.object_history_dialog = function(p)
 
     // open jquery UI dialog
     $dialog.dialog({
-        modal: false,
+        modal: true,
         resizable: true,
         closeOnEscape: true,
         title: p.title,

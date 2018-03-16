@@ -34,6 +34,17 @@
     }
 }
 
+.listing {
+    li {
+        & > div {
+            &.tasklist .listname:before {
+                &:extend(.font-icon-class);
+                content: @fa-var-tasks;
+            }
+        }
+    }
+}
+
 @tasklist-record-height: 3.8rem;
 
 #tasklist {

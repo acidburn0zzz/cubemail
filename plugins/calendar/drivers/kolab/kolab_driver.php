@@ -2358,7 +2358,8 @@ class kolab_driver extends calendar_driver
 
     // General tab
     $form['props'] = array(
-      'name' => $this->rc->gettext('properties'),
+      'name'    => $this->rc->gettext('properties'),
+      'content' => array(),
     );
 
     // Disable folder name input
@@ -2369,12 +2370,7 @@ class kolab_driver extends calendar_driver
     }
 
     // calendar name (default field)
-    $form['props']['fieldsets']['location'] = array(
-      'name'  => $this->rc->gettext('location'),
-      'content' => array(
-        'name' => $formfields['name']
-      ),
-    );
+    $form['props']['content']['location'] = $formfields['name'];
 
     if (!empty($options) && ($options['norename'] || $options['protected'])) {
       // prevent user from moving folder
@@ -2382,7 +2378,7 @@ class kolab_driver extends calendar_driver
     }
     else {
       $select = kolab_storage::folder_selector('event', array('name' => 'parent', 'id' => 'calendar-parent'), $folder);
-      $form['props']['fieldsets']['location']['content']['path'] = array(
+      $form['props']['content']['path'] = array(
         'id' => 'calendar-parent',
         'label' => $this->cal->gettext('parentcalendar'),
         'value' => $select->show(strlen($folder) ? $path_imap : ''),
@@ -2390,25 +2386,13 @@ class kolab_driver extends calendar_driver
     }
 
     // calendar color (default field)
-    $form['props']['fieldsets']['settings'] = array(
-      'name'  => $this->rc->gettext('settings'),
-      'content' => array(
-        'color' => $formfields['color'],
-        'showalarms' => $formfields['showalarms'],
-      ),
-    );
-    
-    
+    $form['props']['content']['color']  = $formfields['color'];
+    $form['props']['content']['alarms'] = $formfields['showalarms'];
+
     if ($action != 'form-new') {
       $form['sharing'] = array(
-          'name'    => rcube::Q($this->cal->gettext('tabsharing')),
-          'content' => html::tag('iframe', array(
-            'src' => $this->cal->rc->url(array('_action' => 'calendar-acl', 'id' => $calendar['id'], 'framed' => 1)),
-            'width' => '100%',
-            'height' => 350,
-            'border' => 0,
-            'style' => 'border:0'),
-        ''),
+        'name'    => rcube::Q($this->cal->gettext('tabsharing')),
+        'content' => $this->folder_acl_form($folder)
       );
     }
 
@@ -2422,35 +2406,30 @@ class kolab_driver extends calendar_driver
 
     // Create form output
     foreach ($form as $tab) {
-      if (!empty($tab['fieldsets']) && is_array($tab['fieldsets'])) {
-        $content = '';
-        foreach ($tab['fieldsets'] as $fieldset) {
-          $subcontent = $this->get_form_part($fieldset);
-          if ($subcontent) {
-            $content .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($fieldset['name'])) . $subcontent) ."\n";
-          }
-        }
-      }
-      else {
-        $content = $this->get_form_part($tab);
-      }
-
-      if ($content) {
+      if ($content = $this->get_form_part($tab)) {
         $this->form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
       }
     }
 
-    // Parse form template for skin-dependent stuff
-    $this->rc->output->add_handler('calendarform', array($this, 'calendar_form_html'));
-    return $this->rc->output->parse('calendar.kolabform', false, false);
+    return $this->form_html;
   }
 
   /**
-   * Handler for template object
+   * Returns ACL form
    */
-  public function calendar_form_html()
+  public function folder_acl_form($folder)
   {
-    return $this->form_html;
+    if (strlen($folder)) {
+      $this->cal->require_plugin('acl');
+      $storage = $this->rc->get_storage();
+      $options = $storage->folder_info($folder);
+
+      // get sharing UI from acl plugin
+      $acl = $this->rc->plugins->exec_hook('folder_form',
+         array('form' => array(), 'options' => $options, 'name' => $folder));
+    }
+
+    return $acl['form']['sharing']['content'] ?: html::div('hint', $this->cal->gettext('aclnorights'));
   }
 
   /**
@@ -2461,7 +2440,7 @@ class kolab_driver extends calendar_driver
     $content = '';
 
     if (is_array($form['content']) && !empty($form['content'])) {
-      $table = new html_table(array('cols' => 2));
+      $table = new html_table(array('cols' => 2, 'class' => 'propform'));
       foreach ($form['content'] as $col => $colprop) {
         $label = !empty($colprop['label']) ? $colprop['label'] : $this->cal->gettext($col);
 

@@ -62,23 +62,10 @@
                 }
             }
 
-            &.tasklist .listname:before {
-                &:extend(.font-icon-class);
-                content: @fa-var-tasks;
-            }
-
-            &.calendar .calname:before {
-                .font-icon-regular(@fa-var-calendar);
-            }
-
             &.folder .listname:before {
                 &:extend(.font-icon-class);
                 content: @fa-var-sticky-note;
                 margin-right: .5rem;
-            }
-
-            span.handle {
-                // TODO calendar/tasklist color indicator
             }
 
             span.actions {
@@ -108,6 +95,10 @@
                 content: @fa-var-eye;
                 opacity: .2;
                 color: @color-link;
+            }
+
+            a.quickview:after {
+                display: none !important;
             }
 
             &.focusview {
@@ -149,7 +140,7 @@
             color: @color-list-selected;
             background-color: @color-list-selected-background;
         }
-
+/*
         &.shared > div a:first-child {
             padding-right: 1.6em;
 
@@ -167,7 +158,7 @@
                 content: @fa-var-user;
             }
         }
-
+*/
         & > div.readonly a:first-child,
         &.readonly:not(.virtual) > div a:first-child {
             padding-right: 1.6em;
@@ -185,19 +176,18 @@
             }
 
             &:after {
-                content: "";
+                display: none;
             }
         }
 
-        &.other.user > div {
-            span.calname {
-                // TODO @fa-var-user;
+        & > div.virtual.shared > .listname,
+        &.virtual.shared > div a:first-child {
+            &:before {
+                .font-icon-solid(@fa-var-share-alt);
             }
-        }
 
-        &.shared > div {
-            span.calname {
-                // TODO @fa-var-share-alt;
+            &:after {
+                display: none;
             }
         }
 

@@ -196,7 +196,7 @@ pre {
 	height: 22px;
 }
 
-#calendars .treelist li span.calname {
+#calendars .treelist li a.calname {
 	display: block;
 	padding: 0px 18px 2px 2px;
 	position: absolute;
@@ -221,18 +221,18 @@ pre {
 	background-image: none;
 }
 
-#calendars .treelist li div.virtual > span.calname {
+#calendars .treelist li div.virtual > a.calname {
 	color: #aaa;
 	top: 4px;
 	left: 20px;
 }
 
-#calendars .treelist li.x-birthdays span.calname,
-#calendars .treelist li.x-invitations span.calname {
+#calendars .treelist li.x-birthdays a.calname,
+#calendars .treelist li.x-invitations a.calname {
 	font-style: italic;
 }
 
-#calendars .treelist.flat li span.calname {
+#calendars .treelist.flat li a.calname {
 	left: 24px;
 	right: 42px;
 }
@@ -376,27 +376,27 @@ pre {
 	background-color: #c7e3ef;
 }
 
-#calendars .treelist li.selected > span.calname {
+#calendars .treelist li.selected > a.calname {
 	font-weight: bold;
 }
 
-#calendars .treelist div.readonly span.calname {
+#calendars .treelist div.readonly a.calname {
 	background-position: right -20px;
 }
 
-#calendars .treelist li.user > div > span.calname {
+#calendars .treelist li.user > div > a.calname {
 	background-position: right -38px;
 }
 /*
-#calendars .treelist div.user.readonly span.calname {
+#calendars .treelist div.user.readonly a.calname {
 	background-position: right -56px;
 }
 
-#calendars .treelist div.shared span.calname {
+#calendars .treelist div.shared a.calname {
 	background-position: right -74px;
 }
 
-#calendars .treelist div.shared.readonly span.calname {
+#calendars .treelist div.shared.readonly a.calname {
 	background-position: right -92px;
 }
 */

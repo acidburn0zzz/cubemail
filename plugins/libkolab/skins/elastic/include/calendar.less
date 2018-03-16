@@ -25,6 +25,56 @@
     a.calendarlink:before {
         .font-icon-regular(@fa-var-calendar);
     }
+
+    a.send:before {
+        content: @fa-var-paper-plane;
+    }
+}
+
+// Icon for resources in autocompletion list
+.listing.iconized li.resource > i:before {
+    content: @fa-var-cube;
+}
+
+.listing {
+    li {
+        & > div {
+            &.calendar .calname:before {
+                &:extend(.font-icon-class);
+                content: @fa-var-calendar-alt;
+            }
+
+            &.calendar.cal---invitation--pending .calname:before,
+            &.calendar.cal---invitation--declined .calname:before {
+                .font-icon-regular(@fa-var-calendar-alt);
+            }
+
+            &.calendar.cal-__bdays__ .calname:before {
+                content: @fa-var-birthday-cake;
+            }
+
+            &.calendar.cal---invitation--pending,
+            &.calendar.cal---invitation--declined,
+            &.calendar.cal-__bdays__ {
+                a.quickview {
+                    padding-right: .25rem;
+                }
+
+                a.calname {
+                    padding-right: 4em;
+                }
+
+                .count {
+                    right: 5.5em;
+                }
+            }
+        }
+
+        // Calednars list element (color indicator) used in Larry
+        span.handle {
+            display: none;
+        }
+    }
 }
 
 #calendarcategories {
@@ -86,5 +136,752 @@ fieldset.categories .input-group {
     }
 
     .event-date {
+    }
+}
+
+.calendar-datepicker {
+    // overwrite jQuery-UI datepicker styles
+    .ui-datepicker {
+        top: initial !important;
+        left: initial !important;
+        position: relative !important;
+        transform: unset;
+        box-shadow: none;
+        border: 0;
+        border-radius: 0;
+        width: auto;
+        min-width: auto !important;
+        font-size: .9rem;
+        background-color: @color-black-shade-bg;
+
+        td a {
+            font-size: .9rem !important;
+        }
+    }
+
+    .ui-datepicker-header {
+        background-color: @color-black-shade-bg;
+        border-top: 1px solid @color-layout-border;
+    }
+}
+
+// Fullcalendar styles
+.fc {
+    flex: auto !important;
+
+    .fc-header {
+    }
+
+    .fc-header-left {
+    }
+
+    .fc-header-right {
+    }
+
+    .fc-header-title {
+        h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    }
+
+    .fc-content {
+    }
+
+    .fc-view {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    // Cell Styles
+
+    .fc-widget-header,    // <th>, usually
+    .fc-widget-content {  // <td>, usually
+        border: 1px solid #ddd;
+    }
+
+    .fc-cell-overlay { // semi-transparent rectangle while dragging
+        background: #bce8f1;
+        opacity: .3;
+        filter: alpha(opacity=30); /* for IE */
+    }
+
+    // Buttons
+
+    .fc-button {
+        position: relative;
+        display: inline-block;
+        padding: 0 .6em;
+        overflow: hidden;
+        height: 1.9em;
+        line-height: 1.9em;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+
+    // Our default prev/next buttons use HTML entities like &lsaquo; &rsaquo; &laquo; &raquo;
+    // and we'll try to make them look good cross-browser.
+
+    .fc-text-arrow {
+        margin: 0 .1em;
+        font-size: 2em;
+    }
+
+    .fc-button-prev .fc-text-arrow,
+    .fc-button-next .fc-text-arrow { // for &lsaquo; &rsaquo;
+        font-weight: bold;
+    }
+
+    // icon (for jquery ui)
+
+    .fc-button {
+        .fc-icon-wrap {
+            position: relative;
+            float: left;
+            top: 50%;
+        }
+
+        .ui-icon {
+            position: relative;
+            float: left;
+            margin-top: -50%;
+        }
+    }
+
+    // Button states
+    // borrowed from twitter bootstrap (http://twitter.github.com/bootstrap/)
+
+    .fc-state-highlight { // <td> today cell, TODO: add .fc-today to <th>
+        background: #fcf8e3;
+    }
+
+    .fc-state-default {
+        border: 1px solid;
+        background-color: #f5f5f5;
+
+        &.fc-corner-left { // non-theme
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        &.fc-corner-right { // non-theme
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+    }
+
+    .fc-state-hover,
+    .fc-state-down,
+    .fc-state-active,
+    .fc-state-disabled {
+        color: #333333;
+        background-color: #e6e6e6;
+    }
+
+    .fc-state-hover {
+        color: #333333;
+        text-decoration: none;
+    }
+
+    .fc-state-down,
+    .fc-state-active {
+        background-color: #cccccc;
+        outline: 0;
+    }
+
+    .fc-state-disabled {
+        cursor: default;
+        background-image: none;
+        opacity: 0.65;
+    }
+
+    // Global Event Styles
+
+    .fc-event-container {
+        & > * {
+            z-index: 8;
+        }
+
+        & > .ui-draggable-dragging,
+        & > .ui-resizable-resizing {
+            z-index: 9;
+        }
+    }
+
+    .fc-event {
+        border: 1px solid #3a87ad; // default BORDER color
+        background-color: #3a87ad; // default BACKGROUND color
+        color: #fff;               // default TEXT color
+        font-size: .85em;
+        cursor: default;
+
+        &:focus {
+            outline: 2px solid ActiveBorder;
+        }
+
+        .fc-rtl & {
+            text-align: right;
+        }
+    }
+
+    a.fc-event {
+        text-decoration: none;
+    }
+
+    a.fc-event,
+    .fc-event-draggable {
+        cursor: pointer;
+    }
+
+    .fc-event-inner {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .fc-event-time,
+    .fc-event-title {
+        padding: 0 1px;
+    }
+
+    .ui-resizable-handle {
+        display: block;
+        position: absolute;
+        z-index: 99999;
+        font-size: 300%;
+        line-height: 50%;
+    }
+
+    // Horizontal Events
+
+    .fc-event-hori {
+        border-width: 1px 0;
+        margin-bottom: 1px;
+    }
+
+    .fc-ltr .fc-event-hori.fc-event-start,
+    .fc-rtl .fc-event-hori.fc-event-end {
+        border-left-width: 1px;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+    }
+
+    .fc-ltr .fc-event-hori.fc-event-end,
+    .fc-rtl .fc-event-hori.fc-event-start {
+        border-right-width: 1px;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+    }
+
+    // resizable
+
+    .fc-event-hori .ui-resizable-e {
+        top: 0           !important; // importants override pre jquery ui 1.7 styles
+        right: -3px      !important;
+        width: 7px       !important;
+        height: 100%     !important;
+        cursor: e-resize;
+    }
+
+    .fc-event-hori .ui-resizable-w {
+        top: 0           !important;
+        left: -3px       !important;
+        width: 7px       !important;
+        height: 100%     !important;
+        cursor: w-resize;
+    }
+
+    // Reusable Separate-border Table
+
+    .fc-border-separate {
+        border-collapse: separate;
+
+
+        th,
+        td {
+            border-width: 1px 0 0 1px;
+
+            &.fc-last {
+                border-right-width: 1px;
+            }
+        }
+
+        tr.fc-last th,
+        tr.fc-last td {
+            border-bottom-width: 1px;
+        }
+
+        tbody tr.fc-first td,
+        tbody tr.fc-first th {
+            border-top-width: 0;
+        }
+    }
+
+    // Month View, Basic Week View, Basic Day View
+
+    .fc-week-number {
+        width: 22px;
+        text-align: center;
+
+        div {
+            padding: 0 2px;
+        }
+    }
+
+    .fc-grid {
+        th {
+            text-align: center;
+        }
+
+        .fc-day-number {
+            float: right;
+            padding: 0 2px;
+        }
+
+        .fc-other-month .fc-day-number {
+            opacity: 0.3;
+        }
+
+        .fc-day-content {
+            clear: both;
+            padding: 2px 2px 1px; // distance between events and day edges
+        }
+
+        // event styles
+        .fc-event-time {
+            font-weight: bold;
+        }
+
+        // right-to-left
+        .fc-rtl & .fc-day-number {
+            float: left;
+        }
+
+        .fc-rtl & .fc-event-time {
+            float: right;
+        }
+    }
+
+    .fc-more-link {
+        font-size: 0.85em;
+        white-space: nowrap;
+        text-decoration: none;
+        cursor: pointer;
+        padding: 1px;
+    }
+
+    // Agenda Week View, Agenda Day View
+
+    .fc-agenda-days th {
+        text-align: center;
+    }
+
+    .fc-agenda {
+        table {
+            border-collapse: separate;
+        }
+
+        .fc-agenda-axis {
+            width: 50px;
+            padding: 0 4px;
+            vertical-align: middle;
+            text-align: right;
+            white-space: nowrap;
+            font-weight: normal;
+        }
+
+        .fc-week-number {
+            font-weight: bold;
+        }
+
+        .fc-agenda .fc-day-content {
+            padding: 2px 2px 1px;
+        }
+    }
+
+    // make axis border take precedence
+
+    .fc-agenda-days .fc-agenda-axis {
+        border-right-width: 1px;
+    }
+
+    .fc-agenda-days .fc-col0 {
+        border-left-width: 0;
+    }
+
+    // all-day area
+
+    .fc-agenda-allday {
+        th {
+            border-width: 0 1px;
+        }
+
+        .fc-day-content {
+            min-height: 34px;
+        }
+    }
+
+    // divider (between all-day and slots)
+
+    .fc-agenda-divider-inner {
+        height: 2px;
+        overflow: hidden;
+
+        .fc-widget-header & {
+            background: #eee;
+        }
+    }
+
+    // slot rows
+
+    .fc-agenda-slots {
+        th {
+            border-width: 1px 1px 0;
+        }
+
+        td {
+            border-width: 1px 0 0;
+            background: none;
+        }
+
+        td div {
+            height: 20px;
+        }
+
+        tr.fc-slot0 th,
+        tr.fc-slot0 td {
+            border-top-width: 0;
+        }
+
+        tr.fc-minor th,
+        tr.fc-minor td {
+            border-top-style: dotted;
+        }
+    }
+
+    // Vertical Events
+
+    .fc-event-vert {
+        border-width: 0 1px;
+
+        .fc-event-head,
+        .fc-event-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        &.fc-event-start {
+            border-top-width: 1px;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+        }
+
+        &.fc-event-end {
+            border-bottom-width: 1px;
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+
+        .fc-event-time {
+            white-space: nowrap;
+            font-size: 10px;
+        }
+
+        .fc-event-inner {
+            position: relative;
+            z-index: 2;
+        }
+
+        .fc-event-bg { // makes the event lighter w/ a semi-transparent overlay
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            opacity: .25;
+        }
+    }
+
+    // resizable
+
+    .fc-event-vert .ui-resizable-s {
+        bottom: 0        !important; // importants override pre jquery ui 1.7 styles
+        width: 100%      !important;
+        height: 8px      !important;
+        overflow: hidden !important;
+        line-height: 8px !important;
+        font-size: 11px  !important;
+        font-family: monospace;
+        text-align: center;
+        cursor: s-resize;
+    }
+
+    .fc-timeline {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-top: 2px solid #3ec400;
+        z-index: 999;
+    }
+
+    // List view  (by bruederli@kolabsys.com)
+
+    .fc-view-list,
+    .fc-view-table {
+        border: 1px solid #ccc;
+        width: auto;
+
+        .fc-list-header,
+        td.fc-list-header {
+            border-width: 0;
+            border-bottom-width: 1px;
+            padding: 3px 5px;
+        }
+    }
+
+    .fc-list-section {
+        padding: 4px 2px;
+        border-width: 0;
+        border-bottom-width: 1px;
+    }
+
+    .fc-view-list .fc-last {
+        border-bottom-width: 0;
+    }
+
+    .fc-list-section .fc-event {
+        position: relative;
+        margin: 1px 2px 3px 2px;
+    }
+
+    .fc-view-table {
+        tr.fc-event {
+            background: inherit;
+            color: inherit;
+
+            td {
+                padding: 2px;
+                border-bottom: 1px solid #ccc;
+            }
+
+            td.fc-event-handle {
+                padding: 3px 8px 3px 3px;
+            }
+        }
+
+        .fc-first td.fc-list-header {
+            border-top-width: 0;
+        }
+
+        .fc-event-handle {
+            .fc-event-skin {
+                border-radius: 2px;
+            }
+
+            .fc-event-inner {
+                display: block;
+                width: 8px;
+                height: 10px;
+                border-radius: 2px;
+            }
+        }
+
+        table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .fc-event-inner {
+            border-color: inherit;
+            background-color: inherit;
+        }
+
+        col.fc-event-handle {
+            width: 18px;
+        }
+
+        col.fc-event-date {
+            width: 7em;
+            white-space: nowrap;
+            padding-right: 1em;
+
+            .fc-list-day & {
+                width: 1px;
+            }
+        }
+
+        col.fc-event-time {
+            width: 9em;
+            white-space: nowrap;
+            padding-right: 1em;
+        }
+    }
+
+    .fc-icon-alarms,
+    .fc-icon-sensitive,
+    .fc-icon-recurring {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        margin-left: .25rem;
+
+        &:before {
+            &:extend(.font-icon-class);
+            font-size: 1em;
+            line-height: 1;
+        }
+    }
+
+    .fc-icon-recurring:before {
+        .font-icon-regular(@fa-var-clone);
+    }
+
+    .fc-icon-alarms:before {
+        content: @fa-var-bell;
+    }
+
+    .fc-icon-sensitive:before {
+        content: @fa-var-lock;
+    }
+}
+
+#timezone-display {
+
+}
+
+#event-status-badge {
+    width: 7rem;
+    height: 7rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    overflow: hidden;
+
+    span {
+        display: none;
+        text-transform: uppercase;
+        line-height: 20px;
+        position: absolute;
+        left: -2.4rem;
+        top: 2.4rem;
+        width: 13.2rem;
+        text-align: center;
+        font-weight: bold;
+        font-size: .85rem;
+        color: #fff;
+        -webkit-transform: rotate(45deg);
+        transform: rotate(45deg);
+
+        &:before {
+            &:extend(.font-icon-class);
+            display: inline;
+            float: none;
+        }
+
+        .status-cancelled & {
+            background-color: darken(@color-error, 10%);
+            display: block;
+
+            &:before {
+                content: @fa-var-times-circle;
+            }
+        }
+
+        .sensitivity-private & {
+            background-color: darken(@color-warning, 10%);
+            display: block;
+
+            &:before {
+                content: @fa-var-lock;
+            }
+        }
+
+        .sensitivity-confidential & {
+            background-color: darken(@color-error, 10%);
+            display: block;
+
+            &:before {
+                content: @fa-var-user-secret;
+            }
+        }
+    }
+}
+
+@color-availability-unknown: #ddd;
+@color-availability-free: #abd640;
+@color-availability-busy: #e26569;
+@color-availability-tentative: #8383fc;
+@color-availability-out-of-office: #fbaa68;
+
+.availability {
+    span {
+        margin-right: .5rem;
+        color: @color-black-shade-text;
+
+        &:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-square;
+            display: inline;
+            float: none;
+        }
+
+        &.legend:before {
+            font-size: 1em;
+        }
+
+        &.loading:before {
+            .animated-icon-class;
+            content: @fa-var-circle-notch;
+            display: block;
+            line-height: 1;
+        }
+
+        &.unknown:before {
+            color: @color-availability-unknown;
+        }
+
+        &.free:before {
+            color: @color-availability-free;
+        }
+
+        &.busy:before {
+            color: @color-availability-busy;
+        }
+
+        &.tentative:before {
+            color: @color-availability-tentative;
+        }
+
+        &.out-of-office:before {
+            color: @color-availability-out-of-office;
+        }
+    }
+}
+
+.calendar-scheduler {
+    .schedule-nav {
+    
+    }
+
+    .schedule-range {
+    
+    }
+
+    .slot-nav {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .schedule-legend {
+        margin-top: 1rem;
     }
 }
