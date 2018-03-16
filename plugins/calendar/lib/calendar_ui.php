@@ -166,7 +166,7 @@ class calendar_ui
     foreach ((array)$calendars as $id => $prop) {
       if (!$prop['color'])
         continue;
-      $css .= $this->calendar_css_classes($id, $prop, $mode);
+      $css .= $this->calendar_css_classes($id, $prop, $mode, $attrib);
     }
     
     return html::tag('style', array('type' => 'text/css'), $css);
@@ -175,11 +175,18 @@ class calendar_ui
   /**
    *
    */
-  public function calendar_css_classes($id, $prop, $mode)
+  public function calendar_css_classes($id, $prop, $mode, $attrib)
   {
-    $color = $prop['color'];
+    $color = $folder_color = $prop['color'];
+
+    // replace white with skin-defined color
+    if (!empty($attrib['folder-fallback-color']) && preg_match('/^f+$/i', $folder_color)) {
+        $folder_color = $attrib['folder-fallback-color'];
+    }
+
     $class = 'cal-' . asciiwords($id, true);
-    $css .= "li .$class, #eventshow .$class { color: #$color; }\n";
+    $css   = str_replace('$class', $class, $attrib['folder-class']) ?: "li .$class";
+    $css  .= ", #eventshow .$class { color: #$folder_color; }\n";
 
     if ($mode != 1) {
       if ($mode == 3) {
