@@ -393,59 +393,59 @@ function rcube_calendar_ui(settings)
       // allow other plugins to do actions when event form is opened
       rcmail.triggerEvent('calendar-event-init', {o: event});
 
-      $dialog.find('div.event-section, div.event-line').hide();
+      $dialog.find('div.event-section, div.event-line, .form-group').hide();
       $('#event-title').html(Q(event.title)).show();
       
       if (event.location)
         $('#event-location').html('@ ' + text2html(event.location)).show();
       if (event.description)
-        $('#event-description').show().children('.event-text').html(text2html(event.description, 300, 6));
+        $('#event-description').show().find('.event-text').html(text2html(event.description, 300, 6));
       if (event.vurl)
-        $('#event-url').show().children('.event-text').html(render_link(event.vurl));
+        $('#event-url').show().find('.event-text').html(render_link(event.vurl));
       
       // render from-to in a nice human-readable way
       // -> now shown in dialog title
       // $('#event-date').html(Q(me.event_date_text(event))).show();
       
       if (event.recurrence && event.recurrence_text)
-        $('#event-repeat').show().children('.event-text').html(Q(event.recurrence_text));
+        $('#event-repeat').show().find('.event-text').html(Q(event.recurrence_text));
       
       if (event.valarms && event.alarms_text)
-        $('#event-alarm').show().children('.event-text').html(Q(event.alarms_text).replace(',', ',<br>'));
+        $('#event-alarm').show().find('.event-text').html(Q(event.alarms_text).replace(',', ',<br>'));
       
       if (calendar.name)
-        $('#event-calendar').show().children('.event-text').html(Q(calendar.name)).attr('class', 'event-text cal-'+calendar.id).css('color', calendar.textColor || calendar.color || '');
+        $('#event-calendar').show().find('.event-text').html(Q(calendar.name)).addClass('cal-'+calendar.id).css('color', calendar.textColor || calendar.color || '');
       if (event.categories)
-        $('#event-category').show().children('.event-text').html(Q(event.categories)).attr('class', 'event-text cat-'+String(event.categories).toLowerCase().replace(rcmail.identifier_expr, ''));
+        $('#event-category').show().find('.event-text').html(Q(event.categories)).addClass('cat-'+String(event.categories).toLowerCase().replace(rcmail.identifier_expr, ''));
       if (event.free_busy)
-        $('#event-free-busy').show().children('.event-text').html(Q(rcmail.gettext(event.free_busy, 'calendar')));
+        $('#event-free-busy').show().find('.event-text').text(rcmail.gettext(event.free_busy, 'calendar'));
       if (event.priority > 0) {
         var priolabels = [ '', rcmail.gettext('highest'), rcmail.gettext('high'), '', '', rcmail.gettext('normal'), '', '', rcmail.gettext('low'), rcmail.gettext('lowest') ];
-        $('#event-priority').show().children('.event-text').html(Q(event.priority+' '+priolabels[event.priority]));
+        $('#event-priority').show().find('.event-text').html(Q(event.priority+' '+priolabels[event.priority]));
       }
 
       if (event.status) {
         var status_lc = String(event.status).toLowerCase();
-        $('#event-status').show().children('.event-text').text(rcmail.gettext('status-'+status_lc,'calendar'));
+        $('#event-status').show().find('.event-text').text(rcmail.gettext('status-'+status_lc,'calendar'));
         $('#event-status-badge > span').text(rcmail.gettext('status-'+status_lc,'calendar'));
         $dialog.addClass('status-'+status_lc);
       }
       if (event.sensitivity && event.sensitivity != 'public') {
-        $('#event-sensitivity').show().children('.event-text').text(sensitivitylabels[event.sensitivity]);
+        $('#event-sensitivity').show().find('.event-text').text(sensitivitylabels[event.sensitivity]);
         $('#event-status-badge > span').text(sensitivitylabels[event.sensitivity]);
         $dialog.addClass('sensitivity-'+event.sensitivity);
       }
       if (event.created || event.changed) {
         var created = parseISO8601(event.created),
-          changed = parseISO8601(event.changed)
-        $('#event-created-changed .event-created').html(Q(created ? format_datetime(created) : rcmail.gettext('unknown','calendar')))
-        $('#event-created-changed .event-changed').html(Q(changed ? format_datetime(changed) : rcmail.gettext('unknown','calendar')))
+          changed = parseISO8601(event.changed);
+        $('.event-created', $dialog).text(created ? format_datetime(created) : rcmail.gettext('unknown','calendar'));
+        $('.event-changed', $dialog).text(changed ? format_datetime(changed) : rcmail.gettext('unknown','calendar'));
         $('#event-created-changed').show()
       }
 
       // create attachments list
       if ($.isArray(event.attachments)) {
-        event_show_attachments(event.attachments, $('#event-attachments').children('.event-text'), event);
+        event_show_attachments(event.attachments, $('#event-attachments').find('.event-text'), event);
         if (event.attachments.length > 0) {
           $('#event-attachments').show();
         }
@@ -457,7 +457,7 @@ function rcube_calendar_ui(settings)
       // build attachments list
       $('#event-links').hide();
       if ($.isArray(event.links) && event.links.length) {
-          render_message_links(event.links || [], $('#event-links').children('.event-text'), false, 'calendar');
+          render_message_links(event.links || [], $('#event-links').find('.event-text'), false, 'calendar');
           $('#event-links').show();
       }
 
@@ -498,7 +498,7 @@ function rcube_calendar_ui(settings)
 
         if (html && (event.attendees.length > 1 || !organizer)) {
           $('#event-attendees').show()
-            .children('.event-text')
+            .find('.event-text')
             .html(html)
             .find('a.mailtolink').click(event_attendee_click);
 
@@ -518,10 +518,10 @@ function rcube_calendar_ui(settings)
         }
 
         if (mystatus && !rsvp) {
-          $('#event-partstat').show().children('.changersvp')
+          $('#event-partstat').show().find('.changersvp')
             .removeClass('accepted tentative declined delegated needs-action unknown')
             .addClass(mystatus)
-            .children('.event-text')
+            .find('.event-text')
             .text(rcmail.gettext('status' + mystatus, 'libcalendaring'));
         }
 
@@ -530,7 +530,7 @@ function rcube_calendar_ui(settings)
         $('#event-rsvp .rsvp-buttons input').prop('disabled', false).filter('input[rel="'+(mystatus || '')+'"]').prop('disabled', true);
 
         if (show_rsvp && event.comment)
-          $('#event-rsvp-comment').show().children('.event-text').html(Q(event.comment));
+          $('#event-rsvp-comment').show().find('.event-text').html(Q(event.comment));
 
         $('#event-rsvp a.reply-comment-toggle').show();
         $('#event-rsvp .itip-reply-comment textarea').hide().val('');
