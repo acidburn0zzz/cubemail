@@ -3104,7 +3104,7 @@ function rcube_calendar_ui(settings)
               else if (range > 0)
                 start = 'today -' + range + ' months';
 
-              rcmail.goto_url('export_events', { source:source, start:start, attachments:attachmt?1:0 });
+              rcmail.goto_url('export_events', { source:source, start:start, attachments:attachmt?1:0 }, false);
             }
             $dialog.dialog("close");
           }
@@ -3135,7 +3135,7 @@ function rcube_calendar_ui(settings)
     this.event_download = function(event)
     {
       if (event && event.id) {
-        rcmail.goto_url('export_events', { source:event.calendar, id:event.id, attachments:1 });
+        rcmail.goto_url('export_events', { source:event.calendar, id:event.id, attachments:1 }, false);
       }
     };
 

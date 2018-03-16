@@ -183,4 +183,4 @@ CREATE TABLE "kolab_cache_freebusy" (
 CREATE INDEX "kolab_cache_fb_uid2msguid" ON "kolab_cache_freebusy" ("folder_id", "uid", "msguid");
 
 
-INSERT INTO "system" ("name", "value") VALUES ('libkolab-version', '2017071900');
+INSERT INTO "system" ("name", "value") VALUES ('libkolab-version', '2018021300');
