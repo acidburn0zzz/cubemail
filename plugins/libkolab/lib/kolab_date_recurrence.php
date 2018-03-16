@@ -140,7 +140,7 @@ class kolab_date_recurrence
     }
 
     /**
-     * Find date/time of the first occurrence (excluding start date)
+     * Find date/time of the first occurrence
      */
     public function first_occurrence()
     {
@@ -196,11 +196,17 @@ class kolab_date_recurrence
         $object->set($event);
         $recurrence = new self($object);
 
+        $orig_date = $orig_start->format('Y-m-d');
+        $found     = false;
+
         // find the first occurrence
-        $found = false;
         while ($next = $recurrence->next_start()) {
             $start = $next;
-            if ($next >= $orig_start) {
+            if ($next->format('Y-m-d') >= $orig_date) {
+                if ($event['allday']) {
+                    $next->setTime($orig_start->format('G'), $orig_start->format('i'), $orig_start->format('s'));
+                }
+
                 $found = true;
                 break;
             }
@@ -217,7 +223,7 @@ class kolab_date_recurrence
             return null;
         }
 
-        if ($orig_start->_dateonly) {
+        if ($event['allday']) {
             $start->_dateonly = true;
         }
 
