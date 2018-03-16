@@ -663,7 +663,7 @@ function rcube_calendar_ui(settings)
       freebusy_ui.needsupdate = false;
 
       // reset dialog first
-      $('#eventtabs').get(0).reset();
+      $('#eventedit form').trigger('reset');
       $('#event-panel-recurrence input, #event-panel-recurrence select, #event-panel-attachments input').prop('disabled', false);
       $('#event-panel-recurrence, #event-panel-attachments').removeClass('disabled');
 
@@ -800,7 +800,7 @@ function rcube_calendar_ui(settings)
       // attachments
       var load_attachments_tab = function()
       {
-        rcmail.enable_command('remove-attachment', calendar.editable && !event.recurrence_id);
+        rcmail.enable_command('remove-attachment', 'upload-file', calendar.editable && !event.recurrence_id);
         rcmail.env.deleted_attachments = [];
         // we're sharing some code for uploads handling with app.js
         rcmail.env.attachments = [];
@@ -928,13 +928,18 @@ function rcube_calendar_ui(settings)
         }
       });
 
-      // show/hide tabs according to calendar's feature support
+      // show/hide tabs according to calendar's feature support and activate first tab (Larry)
       $('#edit-tab-attendees')[(calendar.attendees?'show':'hide')]();
       $('#edit-tab-resources')[(rcmail.env.calendar_resources?'show':'hide')]();
       $('#edit-tab-attachments')[(calendar.attachments?'show':'hide')]();
+      $('#eventedit:not([data-notabs]) > form').tabs('option', 'active', 0); // Larry
 
-      // activate the first tab
-      $('#eventtabs').tabs('option', 'active', 0);
+      // show/hide tabs according to calendar's feature support and activate first tab (Ellastic)
+      $('li > a[href="#event-panel-attendees"]').parent()[(calendar.attendees?'show':'hide')]();
+      $('li > a[href="#event-panel-resources"]').parent()[(rcmail.env.calendar_resources?'show':'hide')]();
+      $('li > a[href="#event-panel-attachments"]').parent()[(calendar.attachments?'show':'hide')]();
+      if ($('#eventedit').data('notabs'))
+        $('#eventedit li.nav-item:first-child a').tab('show');
 
       // hack: set task to 'calendar' to make all dialog actions work correctly
       var comm_path_before = rcmail.env.comm_path;
@@ -3940,12 +3945,10 @@ function rcube_calendar_ui(settings)
       }
 
       // init event dialog
-      $('#eventtabs').tabs({
-        activate: function(event, ui) {
-          // newPanel.selector for jQuery-UI 1.10, newPanel.attr('id') for jQuery-UI 1.12
-          var tab = String(ui.newPanel.selector || ui.newPanel.attr('id'))
-              .replace(/^#?event-panel-/, '').replace(/s$/, '');
-
+      var tab_change = function(event, ui) {
+          // newPanel.selector for jQuery-UI 1.10, newPanel.attr('id') for jQuery-UI 1.12, href for Bootstrap tabs
+          var tab = (ui ? String(ui.newPanel.selector || ui.newPanel.attr('id')) : $(event.target).attr('href'))
+            .replace(/^#?event-panel-/, '').replace(/s$/, '');
           var has_real_attendee = function(attendees) {
               for (var i=0; i < (attendees ? attendees.length : 0); i++) {
                 if (attendees[i].cutype != 'RESOURCE')
@@ -3974,8 +3977,11 @@ function rcube_calendar_ui(settings)
             $('#edit-recurrence-frequency').change();
           else
             $('#edit-recurrence-syncstart').hide();
-        }
-      });
+      };
+
+      $('#eventtabs').tabs({activate: tab_change});             // Larry
+      $('#eventedit a.nav-link').on('show.bs.tab', tab_change); // Elastic
+
       $('#edit-enddate').datepicker(datepicker_settings);
       $('#edit-startdate').datepicker(datepicker_settings).datepicker('option', 'onSelect', shift_enddate).change(function(){ shift_enddate(this.value); });
       $('#edit-enddate').datepicker('option', 'onSelect', event_times_changed).change(event_times_changed);

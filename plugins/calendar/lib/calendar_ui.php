@@ -621,23 +621,11 @@ class calendar_ui
   function attachments_form($attrib = array())
   {
     // add ID if not given
-    if (!$attrib['id'])
+    if (!$attrib['id']) {
       $attrib['id'] = 'rcmUploadForm';
+    }
 
-    // Get max filesize, enable upload progress bar
-    $max_filesize = $this->rc->upload_init();
-
-    $button = new html_inputfield(array('type' => 'button'));
-    $input = new html_inputfield(array(
-      'type' => 'file', 'name' => '_attachments[]',
-      'multiple' => 'multiple', 'size' => $attrib['attachmentfieldsize']));
-
-    return html::div($attrib,
-      html::div(null, $input->show()) .
-      html::div('buttons', $button->show($this->rc->gettext('upload'), array('class' => 'button mainaction',
-        'onclick' => rcmail_output::JS_OBJECT_NAME . ".upload_file(this.form)"))) .
-      html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
-    );
+    return $this->rc->upload_form($attrib, 'uploadform', 'upload-file', array('multiple' => true));
   }
 
   /**
