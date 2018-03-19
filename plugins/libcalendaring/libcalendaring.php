@@ -250,10 +250,6 @@ class libcalendaring extends rcube_plugin
         );
         $settings['today'] = $this->rc->gettext('today');
 
-        // define list of file types which can be displayed inline
-        // same as in program/steps/mail/show.inc
-        $settings['mimetypes'] = (array)$this->rc->config->get('client_mimetypes');
-
         return $settings;
     }
 

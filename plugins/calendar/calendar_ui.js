@@ -284,86 +284,32 @@ function rcube_calendar_ui(settings)
         return date.getHours() >= settings['work_start'] && date.getHours() < settings['work_end'];
     };
 
-    var load_attachment = function(event, att)
+    var load_attachment = function(data)
     {
-      var query = { _id: att.id, _event: event.recurrence_id || event.id, _cal:event.calendar, _frame: 1 };
+      var event = data.record,
+        query = {_id: data.attachment.id, _event: event.recurrence_id || event.id, _cal: event.calendar};
+
       if (event.rev)
         query._rev = event.rev;
 
       if (event.calendar == "--invitation--itip")
         $.extend(query, {_uid: event._uid, _part: event._part, _mbox: event._mbox});
 
-      // open attachment in frame if it's of a supported mimetype
-      if (id && att.mimetype && $.inArray(att.mimetype, settings.mimetypes)>=0) {
-        if (rcmail.open_window(rcmail.url('get-attachment', query), true, true)) {
-          return;
-        }
-      }
-
-      query._frame = null;
-      query._download = 1;
-      rcmail.goto_url('get-attachment', query, false);
+      libkolab.load_attachment(query, data.attachment);
     };
 
     // build event attachments list
     var event_show_attachments = function(list, container, event, edit)
     {
-      var i, id, len, img, content, li, elem,
-        ul = document.createElement('UL');
-      ul.className = 'attachmentslist';
-
-      for (i=0, len=list.length; i<len; i++) {
-        elem = list[i];
-        li = document.createElement('LI');
-        li.className = elem.classname;
-
-        if (edit) {
-          rcmail.env.attachments[elem.id] = elem;
-          // delete icon
-          content = $('<a href="#delete" />')
-            .attr('title', rcmail.gettext('delete'))
-            .attr('aria-label', rcmail.gettext('delete') + ' ' + Q(elem.name))
-            .addClass('delete')
-            .click({id: elem.id}, function(e) { remove_attachment(this, e.data.id); return false; });
-
-          if (!rcmail.env.deleteicon)
-            content.html(rcmail.gettext('delete'));
-          else {
-            img = document.createElement('IMG');
-            img.src = rcmail.env.deleteicon;
-            img.alt = rcmail.gettext('delete');
-            content.append(img);
-          }
-
-          content.appendTo(li);
-        }
-
-        // name/link
-        content = $('<a href="#load" />')
-          .html(Q(elem.name))
-          .addClass('file')
-          .click({event: event, att: elem}, function(e) {
-            load_attachment(e.data.event, e.data.att);
-            return false;
-          })
-          .appendTo(li);
-
-        ul.appendChild(li);
-      }
-
-      if (edit && rcmail.gui_objects.attachmentlist) {
-        ul.id = rcmail.gui_objects.attachmentlist.id;
-        rcmail.gui_objects.attachmentlist = ul;
-      }
-
-      container.empty().append(ul);
+      libkolab.list_attachments(list, container, edit, event,
+        function(id) { remove_attachment(id); },
+        function(data) { load_attachment(data); }
+      );
     };
 
-    var remove_attachment = function(elem, id)
+    var remove_attachment = function(id)
     {
-      $(elem.parentNode).hide();
       rcmail.env.deleted_attachments.push(id);
-      delete rcmail.env.attachments[id];
     };
 
     // event details dialog (show only)

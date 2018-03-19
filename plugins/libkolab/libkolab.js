@@ -25,7 +25,7 @@
  * for the JavaScript code in this file.
  */
 
-var libkolab_audittrail = {}
+var libkolab_audittrail = {}, libkolab = {};
 
 libkolab_audittrail.quote_html = function(str)
 {
@@ -220,6 +220,73 @@ libkolab_audittrail.dialog_resize = function(id, height, width)
     var win = $(window), w = win.width(), h = win.height();
     $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) });
 };
+
+/**
+ * Open an attachment either in a browser window for inline view or download it
+ */
+libkolab.load_attachment = function(query, attachment)
+{
+    query._frame = 1;
+
+    // open attachment in frame if it's of a supported mimetype similar as in app.js
+    if (attachment.id && attachment.mimetype && $.inArray(attachment.mimetype, rcmail.env.mimetypes) >= 0) {
+        if (rcmail.open_window(rcmail.url('get-attachment', query), true, true)) {
+            return;
+        }
+    }
+
+    query._frame = null;
+    query._download = 1;
+    rcmail.goto_url('get-attachment', query, false);
+};
+
+/**
+ * Build attachments list element
+ */
+libkolab.list_attachments = function(list, container, edit, data, ondelete, onload)
+{
+    var ul = $('<ul>').addClass('attachmentslist');
+
+    $.each(list || [], function(i, elem) {
+        var li = $('<li>').addClass(elem.classname);
+
+        // name/link
+        $('<a>').attr({href: '#load', 'class': 'filename'})
+            .append($('<span class="attachment-name">').text(elem.name))
+            .click({record: data, attachment: elem}, function(e) {
+                if (onload) {
+                    onload(e.data);
+                }
+                return false;
+            })
+            .appendTo(li);
+
+        if (edit) {
+            rcmail.env.attachments[elem.id] = elem;
+            // delete link
+            $('<a>').attr({href: '#delete', title: rcmail.gettext('delete'), 'class': 'delete'})
+                .click({id: elem.id}, function(e) {
+                    $(this.parentNode).hide();
+                    delete rcmail.env.attachments[e.data.id];
+                    if (ondelete) {
+                        ondelete(e.data.id);
+                    }
+                    return false;
+                })
+                .appendTo(li);
+        }
+
+        ul.append(li);
+    });
+
+    if (edit && rcmail.gui_objects.attachmentlist) {
+        ul.id = rcmail.gui_objects.attachmentlist.id;
+        rcmail.gui_objects.attachmentlist = ul.get(0);
+    }
+
+    container.empty().append(ul);
+};
+
 
 function kolab_folderlist(node, p)
 {
@@ -533,26 +600,28 @@ function kolab_folderlist(node, p)
     });
 
     this.container.on('click', 'a.remove', function(e) {
-      var li = $(this).closest('li'),
-          id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '');
+        var li = $(this).closest('li'),
+            id = li.attr('id').replace(new RegExp('^'+p.id_prefix), '');
 
-      if (me.is_search()) {
-          id = id.replace(/--xsR$/, '');
-          li = $(me.get_item(id, true));
-      }
+        if (me.is_search()) {
+            id = id.replace(/--xsR$/, '');
+            li = $(me.get_item(id, true));
+        }
 
-      if (p.id_decode)
-          id = p.id_decode(id);
+        if (p.id_decode)
+            id = p.id_decode(id);
 
-      me.triggerEvent('remove', { id: id, item: li });
+        me.triggerEvent('remove', { id: id, item: li });
 
-      e.stopPropagation();
-      return false;
+        e.stopPropagation();
+        return false;
     });
 }
 
 // link prototype from base class
-kolab_folderlist.prototype = rcube_treelist_widget.prototype;
+if (window.rcube_treelist_widget) {
+    kolab_folderlist.prototype = rcube_treelist_widget.prototype;
+}
 
 
 window.rcmail && rcmail.addEventListener('init', function(e) {
@@ -599,7 +668,7 @@ window.rcmail && rcmail.addEventListener('init', function(e) {
     }
 
     if (rcmail.env.action == 'get-attachment') {
-        if (rcmail.rcmail.gui_objects.attachmentframe) {
+        if (rcmail.gui_objects.attachmentframe) {
             rcmail.gui_objects.messagepartframe = rcmail.gui_objects.attachmentframe;
             rcmail.enable_command('image-scale', 'image-rotate', !!/^image\//.test(rcmail.env.mimetype));
             rcmail.register_command('print-attachment', function() {

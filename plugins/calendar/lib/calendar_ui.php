@@ -80,9 +80,6 @@ class calendar_ui
     $this->cal->register_handler('plugin.sensitivity_select', array($this, 'sensitivity_select'));
     $this->cal->register_handler('plugin.alarm_select', array($this, 'alarm_select'));
     $this->cal->register_handler('plugin.recurrence_form', array($this->cal->lib, 'recurrence_form'));
-    $this->cal->register_handler('plugin.attachments_form', array($this, 'attachments_form'));
-    $this->cal->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
-    $this->cal->register_handler('plugin.filedroparea', array($this, 'file_drop_area'));
     $this->cal->register_handler('plugin.attendees_list', array($this, 'attendees_list'));
     $this->cal->register_handler('plugin.attendees_form', array($this, 'attendees_form'));
     $this->cal->register_handler('plugin.resources_form', array($this, 'resources_form'));
@@ -100,6 +97,8 @@ class calendar_ui
     $this->cal->register_handler('plugin.events_export_form', array($this, 'events_export_form'));
     $this->cal->register_handler('plugin.object_changelog_table', array('libkolab', 'object_changelog_table'));
     $this->cal->register_handler('plugin.searchform', array($this->rc->output, 'search_form'));  // use generic method from rcube_template
+
+    kolab_attachments_handler::ui();
   }
 
   /**
@@ -608,54 +607,6 @@ class calendar_ui
       ),
       $html
     );
-  }
-
-  /**
-   * Generate the form for event attachments upload
-   */
-  function attachments_form($attrib = array())
-  {
-    // add ID if not given
-    if (!$attrib['id']) {
-      $attrib['id'] = 'rcmUploadForm';
-    }
-
-    return $this->rc->upload_form($attrib, 'uploadform', 'upload-file', array('multiple' => true));
-  }
-
-  /**
-   * Register UI object for HTML5 drag & drop file upload
-   */
-  function file_drop_area($attrib = array())
-  {
-      if ($attrib['id']) {
-          $this->rc->output->add_gui_object('filedrop', $attrib['id']);
-          $this->rc->output->set_env('filedrop', array('action' => 'upload', 'fieldname' => '_attachments'));
-      }
-  }
-
-  /**
-   * Generate HTML element for attachments list
-   */
-  function attachments_list($attrib = array())
-  {
-    if (!$attrib['id'])
-      $attrib['id'] = 'rcmAttachmentList';
-
-    $skin_path = $this->cal->local_skin_path();
-    if ($attrib['deleteicon']) {
-      $_SESSION[calendar::SESSION_KEY . '_deleteicon'] = $skin_path . $attrib['deleteicon'];
-      $this->rc->output->set_env('deleteicon', $skin_path . $attrib['deleteicon']);
-    }
-    if ($attrib['cancelicon'])
-      $this->rc->output->set_env('cancelicon', $skin_path . $attrib['cancelicon']);
-    if ($attrib['loadingicon'])
-      $this->rc->output->set_env('loadingicon', $skin_path . $attrib['loadingicon']);
-
-    $this->rc->output->add_gui_object('attachmentlist', $attrib['id']);
-    $this->attachmentlist_id = $attrib['id'];
-
-    return html::tag('ul', $attrib, '', html::$common_attrib);
   }
 
   /**

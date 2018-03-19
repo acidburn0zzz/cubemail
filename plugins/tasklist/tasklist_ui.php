@@ -146,9 +146,6 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.tags_editline', array($this, 'tags_editline'));
         $this->plugin->register_handler('plugin.alarm_select', array($this, 'alarm_select'));
         $this->plugin->register_handler('plugin.recurrence_form', array($this->plugin->lib, 'recurrence_form'));
-        $this->plugin->register_handler('plugin.attachments_form', array($this, 'attachments_form'));
-        $this->plugin->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
-        $this->plugin->register_handler('plugin.filedroparea', array($this, 'file_drop_area'));
         $this->plugin->register_handler('plugin.attendees_list', array($this, 'attendees_list'));
         $this->plugin->register_handler('plugin.attendees_form', array($this, 'attendees_form'));
         $this->plugin->register_handler('plugin.identity_select', array($this, 'identity_select'));
@@ -157,6 +154,8 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.object_changelog_table', array('libkolab', 'object_changelog_table'));
         $this->plugin->register_handler('plugin.tasks_export_form', array($this, 'tasks_export_form'));
         $this->plugin->register_handler('plugin.tasks_import_form', array($this, 'tasks_import_form'));
+
+        kolab_attachments_handler::ui();
 
         $this->plugin->include_script('tasklist.js');
         $this->rc->output->include_script('treelist.js');
@@ -410,44 +409,6 @@ class tasklist_ui
         $input = new html_inputfield(array('name' => 'tags[]', 'class' => 'tag', 'size' => $attrib['size'], 'tabindex' => $attrib['tabindex']));
         unset($attrib['tabindex']);
         return html::div($attrib, $input->show(''));
-    }
-
-    /**
-     * Generate HTML element for attachments list
-     */
-    function attachments_list($attrib = array())
-    {
-        if (!$attrib['id']) {
-            $attrib['id'] = 'rcmtaskattachmentlist';
-        }
-
-        $this->register_gui_object('attachmentlist', $attrib['id']);
-
-        return html::tag('ul', $attrib, '', html::$common_attrib);
-    }
-
-    /**
-     * Generate the form for event attachments upload
-     */
-    function attachments_form($attrib = array())
-    {
-        // add ID if not given
-        if (!$attrib['id']) {
-            $attrib['id'] = 'rcmtaskuploadform';
-        }
-
-        return $this->rc->upload_form($attrib, 'uploadform', 'upload-file', array('multiple' => true));
-    }
-
-    /**
-     * Register UI object for HTML5 drag & drop file upload
-     */
-    function file_drop_area($attrib = array())
-    {
-        if ($attrib['id']) {
-            $this->register_gui_object('filedrop', $attrib['id']);
-            $this->rc->output->set_env('filedrop', array('action' => 'upload', 'fieldname' => '_attachments'));
-        }
     }
 
     /**

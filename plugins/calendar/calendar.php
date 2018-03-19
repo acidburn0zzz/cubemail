@@ -1957,7 +1957,8 @@ class calendar extends rcube_plugin
    */
   public function attachment_upload()
   {
-    $this->lib->attachment_upload(self::SESSION_KEY, 'cal-');
+    $handler = new kolab_attachments_handler();
+    $handler->attachment_upload(self::SESSION_KEY, 'cal-');
   }
 
   /**
@@ -1965,9 +1966,11 @@ class calendar extends rcube_plugin
    */
   public function attachment_get()
   {
+    $handler = new kolab_attachments_handler();
+
     // show loading page
     if (!empty($_GET['_preload'])) {
-        return $this->lib->attachment_loading_page();
+        return $handler->attachment_loading_page();
     }
 
     $event_id = rcube_utils::get_input_value('_event', rcube_utils::INPUT_GPC);
@@ -1992,12 +1995,7 @@ class calendar extends rcube_plugin
 
     // show part page
     if (!empty($_GET['_frame'])) {
-        $this->lib->attachment = $attachment;
-        $this->register_handler('plugin.attachmentframe', array($this->lib, 'attachment_frame'));
-        $this->register_handler('plugin.attachmentcontrols', array($this->lib, 'attachment_header'));
-        $this->rc->output->set_env('filename', $attachment['name']);
-        $this->rc->output->set_env('mimetype', $attachment['mimetype']);
-        $this->rc->output->send('calendar.attachment');
+        $handler->attachment_page($attachment);
     }
     // deliver attachment content
     else if ($attachment) {
@@ -2005,7 +2003,7 @@ class calendar extends rcube_plugin
             $attachment['body'] = $this->driver->get_attachment_body($id, $event);
         }
 
-        $this->lib->attachment_get($attachment);
+        $handler->attachment_get($attachment);
     }
 
     // if we arrive here, the requested part was not found

@@ -33,12 +33,69 @@ class kolab_attachments_handler
         $this->rc = rcmail::get_instance();
     }
 
+    public static function ui()
+    {
+        $rcmail = rcmail::get_instance();
+        $self   = new self;
+
+        $rcmail->output->add_handler('plugin.attachments_form', array($self, 'files_form'));
+        $rcmail->output->add_handler('plugin.attachments_list', array($self, 'files_list'));
+        $rcmail->output->add_handler('plugin.filedroparea', array($self, 'files_drop_area'));
+    }
+
+    /**
+     * Generate HTML element for attachments list
+     */
+    public function files_list($attrib = array())
+    {
+        if (!$attrib['id']) {
+            $attrib['id'] = 'kolabattachmentlist';
+        }
+
+        // define list of file types which can be displayed inline
+        // same as in program/steps/mail/show.inc
+        $this->rc->output->set_env('mimetypes', (array)$this->rc->config->get('client_mimetypes'));
+
+        $this->rc->output->add_gui_object('attachmentlist', $attrib['id']);
+
+        return html::tag('ul', $attrib, '', html::$common_attrib);
+    }
+
+    /**
+     * Generate the form for event attachments upload
+     */
+    public function files_form($attrib = array())
+    {
+        // add ID if not given
+        if (!$attrib['id']) {
+            $attrib['id'] = 'kolabuploadform';
+        }
+
+        return $this->rc->upload_form($attrib, 'uploadform', 'upload-file', array('multiple' => true));
+    }
+
+    /**
+     * Register UI object for HTML5 drag & drop file upload
+     */
+    public function files_drop_area($attrib = array())
+    {
+        // add ID if not given
+        if (!$attrib['id']) {
+            $attrib['id'] = 'kolabfiledroparea';
+        }
+
+        $this->rc->output->add_gui_object('filedrop', $attrib['id']);
+        $this->rc->output->set_env('filedrop', array('action' => 'upload', 'fieldname' => '_attachments'));
+    }
+
     /**
      * Displays attachment preview page
      */
     public function attachment_page($attachment)
     {
         $this->attachment = $attachment;
+
+        $this->rc->plugins->include_script('libkolab/libkolab.js');
 
         $this->rc->output->add_handler('plugin.attachmentframe', array($this, 'attachment_frame'));
         $this->rc->output->add_handler('plugin.attachmentcontrols', array($this, 'attachment_header'));
