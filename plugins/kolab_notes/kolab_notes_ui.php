@@ -53,12 +53,7 @@ class kolab_notes_ui
         $this->rc->output->include_script('list.js');
         $this->rc->output->include_script('treelist.js');
         $this->plugin->include_script('notes.js');
-
-        // include kolab folderlist widget if available
-        if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {
-            $this->plugin->api->include_script('libkolab/js/folderlist.js');
-            $this->plugin->api->include_script('libkolab/js/audittrail.js');
-        }
+        $this->plugin->api->include_script('libkolab/libkolab.js');
 
         // load config options and user prefs relevant for the UI
         $settings = array(

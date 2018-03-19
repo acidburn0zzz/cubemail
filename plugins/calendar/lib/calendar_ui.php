@@ -119,12 +119,7 @@ class calendar_ui
     $this->cal->include_script('calendar_ui.js');
     $this->cal->include_script('lib/js/fullcalendar.js');
     $this->rc->output->include_script('treelist.js');
-
-    // include kolab folderlist widget if available
-    if (in_array('libkolab', $this->cal->api->loaded_plugins())) {
-        $this->cal->api->include_script('libkolab/js/folderlist.js');
-        $this->cal->api->include_script('libkolab/js/audittrail.js');
-    }
+    $this->cal->api->include_script('libkolab/libkolab.js');
 
     jqueryui::miniColors();
   }

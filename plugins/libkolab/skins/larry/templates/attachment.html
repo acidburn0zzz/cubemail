@@ -59,23 +59,6 @@ $(document).ready(function() {
     }
 });
 
-window.rcmail && rcmail.addEventListener('init', function(evt) {
-    if (rcmail.gui_objects.attachmentframe) {
-        rcmail.gui_objects.messagepartframe = rcmail.gui_objects.attachmentframe;
-        rcmail.enable_command('image-scale', 'image-rotate', !!/^image\//.test(rcmail.env.mimetype));
-        rcmail.register_command('print-attachment', function() {
-            var frame = rcmail.get_frame_window(rcmail.gui_objects.attachmentframe.id);
-            if (frame) frame.print();
-        }, true);
-    }
-
-    if (rcmail.env.attachment_download_url) {
-        rcmail.register_command('download-attachment', function() {
-            rcmail.location_href(rcmail.env.attachment_download_url, window);
-        }, true);
-    }
-});
-
 </script>
 
 </body>

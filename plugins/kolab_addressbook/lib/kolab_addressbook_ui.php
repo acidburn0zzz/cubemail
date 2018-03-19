@@ -126,7 +126,7 @@ class kolab_addressbook_ui
 
             if ($this->plugin->bonnie_api) {
                 $this->rc->output->set_env('kolab_audit_trail', true);
-                $this->plugin->api->include_script('libkolab/js/audittrail.js');
+                $this->plugin->api->include_script('libkolab/libkolab.js');
 
                 $this->rc->output->add_label(
                     'kolab_addressbook.showhistory',
