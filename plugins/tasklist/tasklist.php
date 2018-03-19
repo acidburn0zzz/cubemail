@@ -1749,7 +1749,8 @@ class tasklist extends rcube_plugin
     */
     public function attachment_upload()
     {
-        $this->lib->attachment_upload(self::SESSION_KEY);
+        $handler = new kolab_attachments_handler();
+        $handler->attachment_upload(self::SESSION_KEY);
     }
 
     /**
@@ -1757,9 +1758,11 @@ class tasklist extends rcube_plugin
      */
     public function attachment_get()
     {
+        $handler = new kolab_attachments_handler();
+
         // show loading page
         if (!empty($_GET['_preload'])) {
-            return $this->lib->attachment_loading_page();
+            return $handler->attachment_loading_page();
         }
 
         $task = rcube_utils::get_input_value('_t', rcube_utils::INPUT_GPC);
@@ -1767,22 +1770,17 @@ class tasklist extends rcube_plugin
         $id   = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
         $rev  = rcube_utils::get_input_value('_rev', rcube_utils::INPUT_GPC);
 
-        $task = array('id' => $task, 'list' => $list, 'rev' => $rev);
+        $task       = array('id' => $task, 'list' => $list, 'rev' => $rev);
         $attachment = $this->driver->get_attachment($id, $task);
 
         // show part page
         if (!empty($_GET['_frame'])) {
-            $this->lib->attachment = $attachment;
-            $this->register_handler('plugin.attachmentframe', array($this->lib, 'attachment_frame'));
-            $this->register_handler('plugin.attachmentcontrols', array($this->lib, 'attachment_header'));
-            $this->rc->output->set_env('filename', $attachment['name']);
-            $this->rc->output->set_env('mimetype', $attachment['mimetype']);
-            $this->rc->output->send('tasklist.attachment');
+            $handler->attachment_page($attachment);
         }
         // deliver attachment content
         else if ($attachment) {
             $attachment['body'] = $this->driver->get_attachment_body($id, $task);
-            $this->lib->attachment_get($attachment);
+            $handler->attachment_get($attachment);
         }
 
         // if we arrive here, the requested part was not found

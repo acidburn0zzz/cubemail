@@ -1325,11 +1325,13 @@ class kolab_files_engine
 
             switch ($this->rc->task) {
             case 'tasks':
-                libcalendaring::get_instance()->attachment_upload(tasklist::SESSION_KEY);
+                $handler = new kolab_attachments_handler();
+                $handler->attachment_upload(tasklist::SESSION_KEY);
                 break;
 
             case 'calendar':
-                libcalendaring::get_instance()->attachment_upload(calendar::SESSION_KEY, 'cal-');
+                $handler = new kolab_attachments_handler();
+                $handler->attachment_upload(calendar::SESSION_KEY, 'cal-');
                 break;
             }
         }
