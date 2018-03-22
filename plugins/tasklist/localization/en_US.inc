@@ -204,6 +204,7 @@ $labels['importtext'] = 'You can upload tasks in <a href="https://wikipedia.org/
 $labels['andnmore'] = '$nr more...';
 $labels['savetotasklist'] = 'Save to tasks';
 $labels['comment'] = 'Comment';
+$labels['rsvpcomment'] = 'Comment';
 $labels['errorimportingtask'] = 'Failed to import task(s)';
 $labels['importwarningexists'] = 'A copy of this task already exists in your tasklist.';
 $labels['importsuccess'] = 'Successfully imported $nr tasks';

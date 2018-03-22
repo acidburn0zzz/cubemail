@@ -164,3 +164,11 @@ label.noreply-toggle + a.reply-comment-toggle {
 	margin-left: 0;
 	margin-right: 10px;
 }
+
+.edit-attendees-table td.options a.button {
+	border: 0;
+}
+
+.ui-widget-content a.button {
+	color: #52525;
+}

@@ -65,6 +65,10 @@
             &.selected {
                 background-color: @color-list-selected-background;
             }
+
+            &.droptarget {
+                background-color: @color-list-droptarget-background;
+            }
         }
 
         & > div,
@@ -133,6 +137,16 @@
         &.collapsed:before {
             content: @fa-var-angle-right;
         }
+
+        &.complete {
+            span.title {
+                text-decoration: line-through;
+            }
+
+            .progressbar {
+                display: none;
+            }
+        }
     }
 
     span.title {
@@ -160,6 +174,10 @@
         line-height: 1.8em;
         color: @color-list-secondary;
         padding-left: .2em;
+
+        input {
+            // TODO
+        }
     }
 
     span.flagged {
@@ -189,10 +207,6 @@
         .progressvalue {
             border-top: 2px solid @color-warning;
         }
-    }
-
-    .taskhead.complete .progressbar {
-        display: none;
     }
 
     input + label,
@@ -246,6 +260,29 @@
     .task-description {
         margin: 1rem 0;
     }
+
+    &.status-completed h2 {
+        text-decoration: line-through;
+    }
+
+    &.status-flagged h2:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-flag;
+        color: @color-error;
+        font-size: .9em;
+    }
+
+    &.status-cancelled {
+        // TODO
+    }
+
+    .attachmentslist li {
+        margin-right: 1em;
+    }
+
+    .itip-buttons {
+        // TODO
+    }
 }
 
 #taskedit-attachment-form {
@@ -266,5 +303,43 @@
 
     input {
         height: auto !important;
+    }
+}
+
+.taskitem-draghelper {
+    .overflow-ellipsis;
+}
+
+.quickview-active {
+    // TODO
+}
+
+#rootdroppable {
+    // TODO ?
+}
+
+#print-layout {
+    #tasklist {
+        padding: 0;
+
+        li {
+            list-style-type: none;
+        }
+
+        .description {
+            display: block;
+            white-space: pre;
+        }
+
+        .title {
+            position: relative;
+            font-weight: bold;
+            padding: 0;
+            margin: 0;
+        }
+
+        .taskhead {
+            height: auto;
+        }
     }
 }

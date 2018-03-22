@@ -1632,10 +1632,14 @@ function rcube_tasklist_ui(settings)
 
     /*  Helper functions for drag & drop functionality  */
 
-    function task_draggable_helper()
+    function task_draggable_helper(e)
     {
         if (!task_draghelper)
-            task_draghelper = $('<div class="taskitem-draghelper">&#x2714;</div>');
+            task_draghelper = $('<div id="rcmdraglayer" class="taskitem-draghelper">');
+
+        var title = $(e.target).parents('li').first().find('.title').text();
+
+        task_draghelper.html(Q(title) || '&#x2714');
 
         return task_draghelper;
     }
@@ -1646,6 +1650,7 @@ function rcube_tasklist_ui(settings)
             hoverClass: 'droptarget',
             accept: task_droppable_accept,
             drop: task_draggable_dropped,
+            tolerance: 'pointer',
             addClasses: false
         };
 
@@ -1924,7 +1929,7 @@ function rcube_tasklist_ui(settings)
             $dialog.filter(':ui-dialog').dialog('close');
         }
 
-        rcmail.enable_command('edit-task', 'delete-task', 'save-task', false);
+        rcmail.enable_command('edit-task', 'delete-task', 'save-task', 'task-history', false);
 
         // remove status-* classes
         $dialog.removeClass(function(i, oldclass) {
@@ -2104,6 +2109,8 @@ function rcube_tasklist_ui(settings)
                 disabled: rcmail.busy
             });
         }
+
+        rcmail.enable_command('task-history', !!list.history);
 
         if (!elastic) {
             // open jquery UI dialog
@@ -2336,7 +2343,7 @@ function rcube_tasklist_ui(settings)
             infodialog.filter(':ui-dialog').dialog('close');
         }
 
-        rcmail.enable_command('edit-task', 'delete-task', 'add-child-task', 'save-task', false);
+        rcmail.enable_command('edit-task', 'delete-task', 'add-child-task', 'save-task', 'task-history', false);
 
         var selected_list, rec = listdata[id] || presets,
             $dialog = $('<div>'),
@@ -3338,6 +3345,7 @@ function tasklist_options_menu(p)
 
 /* tasklist plugin UI initialization */
 var rctasks;
+
 window.rcmail && rcmail.addEventListener('init', function(evt) {
     rctasks = new rcube_tasklist_ui($.extend(rcmail.env.tasklist_settings, rcmail.env.libcal_settings));
 

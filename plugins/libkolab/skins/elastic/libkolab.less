@@ -340,6 +340,38 @@ button.btn.save.notify:before {
     content: @fa-var-envelope;
 }
 
+button.btn.print:before {
+    content: @fa-var-print;
+}
+
+.print-config {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10000;
+    padding: .5em 1em;
+    background-color: @color-black-shade-bg;
+
+    .prop {
+        margin-left: .5rem;
+    }
+
+    @media print {
+        display: none;
+    }
+
+    & + .print-content {
+        position: relative;
+        top: 0;
+        left: 0;
+        height: auto;
+        margin: 5em auto 0 auto;
+        overflow: visible;
+    }
+}
+
+
 @import "include/calendar";
 @import "include/kolab_activesync";
 @import "include/kolab_delegation";

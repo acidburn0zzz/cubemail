@@ -602,7 +602,6 @@ ul.toolbarmenu li span.icon.taskadd,
 	text-align: right;
 }
 
-.tag-draghelper .tag,
 .taskhead .tags .tag {
 	font-size: 85%;
 	background: #d9ecf4;
@@ -610,11 +609,6 @@ ul.toolbarmenu li span.icon.taskadd,
 	border-radius: 4px;
 	padding: 1px 7px;
 	margin-right: 3px;
-}
-
-.tag-draghelper li.tag {
-	list-style: none;
-	font-size: 100%;
 }
 
 .taskhead .date {
@@ -730,10 +724,6 @@ ul.toolbarmenu .sortcol.by-auto a {
 }
 
 .taskitem-draghelper {
-/*
-	width: 32px;
-	height: 26px;
-*/
 	background: #444;
 	border: 1px solid #555;
 	border-radius: 4px;

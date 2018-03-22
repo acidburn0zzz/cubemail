@@ -195,6 +195,11 @@
     &.organizer:after {
         content: @fa-var-briefcase; // TODO: better icon
     }
+
+    &.completed:after,
+    &.in-process:after {
+        // TODO ?
+    }
 }
 
 
@@ -276,6 +281,8 @@
     .inner {
         display: none;
     }
+
+    // TODO: a.expandlink
 }
 
 .form-searchbar {
@@ -300,6 +307,10 @@
     a.delete .inner {
         display: none;
     }
+}
+
+.messagelist tbody .attachment span.ical {
+    // TODO
 }
 
 .alarms-input {

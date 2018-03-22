@@ -177,7 +177,7 @@
 				<label class="col-sm-2 col-form-label"><roundcube:label name="tasklist.rsvpcomment" /></label>
 				<span class="task-text col-sm-10 form-control-plaintext"></span>
 			</div>
-			<roundcube:object name="plugin.task_rsvp_buttons" id="task-rsvp" style="display:none" />
+			<roundcube:object name="plugin.task_rsvp_buttons" id="task-rsvp" class="itip-buttons" style="display:none" />
 		</div>
 		<div class="formbuttons">
 			<roundcube:button command="save-task" label="save"
@@ -187,7 +187,7 @@
 			<roundcube:button command="add-child-task" label="tasklist.addsubtask"
 				class="create btn btn-secondary disabled" classAct="create btn btn-secondary" innerclass="inner" />
 			<roundcube:if condition="config:kolab_bonnie_api" />
-				<roundcube:button command="history" type="link" label="libkolab.showhistory"
+				<roundcube:button command="task-history" type="link" label="libkolab.showhistory"
 					class="btn btn-secondary history task-history disabled" classAct="btn btn-secondary history task-history" />
 			<roundcube:endif />
 		</div>
