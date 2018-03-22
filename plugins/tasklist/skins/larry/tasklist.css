@@ -778,6 +778,17 @@ ul.toolbarmenu .sortcol.by-auto a {
 	display: none;
 }
 
+body.taskdialog {
+	margin: 0;
+	overflow-y: auto;
+}
+
+body.taskdialog #taskedit {
+	display: block;
+	top: 0;
+	padding: 1em;
+}
+
 #taskedit {
 	position: relative;
 	top: -1.5em;
@@ -1108,8 +1119,11 @@ label.block {
 }
 
 #taskedit-links .task-text {
-	margin-left: 8em;
 	min-height: 22px;
+}
+
+#taskedit-links .attachmentslist li {
+	padding-right: 2em;
 }
 
 #taskedit-links .attachmentslist li a.delete {

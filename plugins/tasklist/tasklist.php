@@ -116,8 +116,7 @@ class tasklist extends rcube_plugin
             $this->register_action('counts', array($this, 'fetch_counts'));
             $this->register_action('fetch', array($this, 'fetch_tasks'));
             $this->register_action('print', array($this, 'print_tasks'));
-            $this->register_action('inlineui', array($this, 'get_inline_ui'));
-            $this->register_action('mail2task', array($this, 'mail_message2task'));
+            $this->register_action('dialog-ui', array($this, 'mail_message2task'));
             $this->register_action('get-attachment', array($this, 'attachment_get'));
             $this->register_action('upload', array($this, 'attachment_upload'));
             $this->register_action('import', array($this, 'import_tasks'));
@@ -141,7 +140,7 @@ class tasklist extends rcube_plugin
             }
 
             // add 'Create event' item to message menu
-            if ($this->api->output->type == 'html') {
+            if ($this->api->output->type == 'html' && $_GET['_rel'] != 'task') {
                 $this->api->add_content(html::tag('li', null, 
                     $this->api->output->button(array(
                         'command'  => 'tasklist-create-from-mail',
@@ -555,7 +554,7 @@ class tasklist extends rcube_plugin
         }
 
         // unlock client
-        $this->rc->output->command('plugin.unlock_saving');
+        $this->rc->output->command('plugin.unlock_saving', $success);
 
         if ($refresh) {
             if ($refresh['id']) {
@@ -1447,42 +1446,6 @@ class tasklist extends rcube_plugin
         $this->rc->output->send('tasklist.mainview');
     }
 
-
-    /**
-     *
-     */
-    public function get_inline_ui()
-    {
-        foreach (array('save','cancel','savingdata') as $label)
-            $texts['tasklist.'.$label] = $this->gettext($label);
-
-        $texts['tasklist.newtask'] = $this->gettext('createfrommail');
-
-
-        $this->ui->init_templates();
-        $this->ui->tasklists();
-
-        // collect env variables
-        $env = array(
-            'tasklists' => $this->rc->output->get_env('tasklists'),
-            'tasklist_settings' => $this->ui->load_settings(),
-        );
-
-        echo $this->api->output->parse('tasklist.taskedit', false, false);
-
-        $script_add = '';
-        foreach ($this->ui->get_gui_objects() as $obj => $id) {
-            $script_add .= rcmail_output::JS_OBJECT_NAME . ".gui_object('$obj', '$id');\n";
-        }
-
-        echo html::tag('script', array('type' => 'text/javascript'),
-            rcmail_output::JS_OBJECT_NAME . ".set_env(" . json_encode($env) . ");\n".
-            rcmail_output::JS_OBJECT_NAME . ".add_label(" . json_encode($texts) . ");\n".
-            $script_add
-        );
-        exit;
-    }
-
     /**
      * Handler for keep-alive requests
      * This will check for updated data in active lists and sync them to the client
@@ -1793,19 +1756,22 @@ class tasklist extends rcube_plugin
 
     public function mail_message2task()
     {
-        $uid  = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
-        $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
+        $this->load_ui();
+        $this->ui->init();
+        $this->ui->init_templates();
+        $this->ui->tasklists();
+
+        $uid  = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+        $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GET);
         $task = array();
 
-        // establish imap connection
-        $imap = $this->rc->get_storage();
-        $imap->set_folder($mbox);
-        $message = new rcube_message($uid);
+        $imap    = $this->rc->get_storage();
+        $message = new rcube_message($uid, $mbox);
 
         if ($message->headers) {
-            $task['title'] = trim($message->subject);
+            $task['title']       = trim($message->subject);
             $task['description'] = trim($message->first_text_part());
-            $task['id'] = -$uid;
+            $task['id']          = -$uid;
 
             $this->load_driver();
 
@@ -1816,18 +1782,19 @@ class tasklist extends rcube_plugin
             // copy mail attachments to task
             else if ($message->attachments && $this->driver->attachments) {
                 if (!is_array($_SESSION[self::SESSION_KEY]) || $_SESSION[self::SESSION_KEY]['id'] != $task['id']) {
-                    $_SESSION[self::SESSION_KEY] = array();
-                    $_SESSION[self::SESSION_KEY]['id'] = $task['id'];
-                    $_SESSION[self::SESSION_KEY]['attachments'] = array();
+                    $_SESSION[self::SESSION_KEY] = array(
+                        'id'          => $task['id'],
+                        'attachments' => array(),
+                    );
                 }
 
                 foreach ((array)$message->attachments as $part) {
                     $attachment = array(
-                        'data' => $imap->get_message_part($uid, $part->mime_id, $part),
-                        'size' => $part->size,
-                        'name' => $part->filename,
+                        'data'     => $imap->get_message_part($uid, $part->mime_id, $part),
+                        'size'     => $part->size,
+                        'name'     => $part->filename,
                         'mimetype' => $part->mimetype,
-                        'group' => $task['id'],
+                        'group'    => $task['id'],
                     );
 
                     $attachment = $this->rc->plugins->exec_hook('attachment_save', $attachment);
@@ -1846,13 +1813,13 @@ class tasklist extends rcube_plugin
                 }
             }
 
-            $this->rc->output->command('plugin.mail2taskdialog', $task);
+            $this->rc->output->set_env('task_prop', $task);
         }
         else {
             $this->rc->output->command('display_message', $this->gettext('messageopenerror'), 'error');
         }
 
-        $this->rc->output->send();
+        $this->rc->output->send('tasklist.dialog');
     }
 
     /**
@@ -1922,7 +1889,7 @@ class tasklist extends rcube_plugin
             );
         }
         if (count($links)) {
-            $html .= html::div('messagetasklinks', html::tag('ul', 'tasklist', join("\n", $links)));
+            $html .= html::div('messagetasklinks boxinformation', html::tag('ul', 'tasklist', join("\n", $links)));
         }
 
         // prepend iTip/relation boxes to message body

@@ -1860,8 +1860,8 @@ function rcube_calendar_ui(settings)
       select += '</select>';
 
       // delete icon
-      var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : rcmail.gettext('delete');
-      var dellink = '<a href="#delete" class="iconlink delete deletelink" title="' + Q(rcmail.gettext('delete')) + '">' + icon + '</a>';
+      var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : '<span class="inner">' + Q(rcmail.gettext('delete')) + '</span>';
+      var dellink = '<a href="#delete" class="iconlink icon button delete deletelink" title="' + Q(rcmail.gettext('delete')) + '">' + icon + '</a>';
       var tooltip = '', status = (data.status || '').toLowerCase(),
         status_label = rcmail.gettext('status' + status, 'libcalendaring');
 

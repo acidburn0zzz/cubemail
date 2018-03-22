@@ -9,7 +9,7 @@
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-tasklists" class="header-title"><roundcube:label name="tasklist.lists" /></span>
 		<div id="tasklist-search" class="searchbar toolbar" role="search" aria-labelledby="aria-label-tasklistsearchform">
-			<h2 id="aria-label-label-tasklistsearchform" class="voice"><roundcube:label name="kolab_notes.arialabelfoldersearchform" /></h2>
+			<h2 id="aria-label-label-tasklistsearchform" class="voice"><roundcube:label name="tasklist.arialabelfoldersearchform" /></h2>
 			<form name="foldersearchform" onsubmit="return false">
 				<input id="tasklistsearch" type="text" name="q" placeholder="<roundcube:label name="searchplaceholder" />" />
 				<a class="button reset" href="#" onclick="return rcmail.command(\'reset-listsearch\',null,this,event)" title="<roundcube:label name="resetsearch" />" tabindex="0">
@@ -110,7 +110,7 @@
 		</div>
 	</div>
 	<!-- task content frame -->
-	<h2 id="aria-label-taskform" class="voice"><roundcube:label name="kolab_notes.arialabeltaskform" /></h2>
+	<h2 id="aria-label-taskform" class="voice"><roundcube:label name="tasklist.arialabeltaskform" /></h2>
 	<div class="content scroller watermark" role="main" aria-labelledby="aria-label-taskform">
 		<roundcube:include file="/templates/taskedit.html" />
 		<div id="taskshow" class="hidden formcontent propform text-only" data-nodialog="true">
@@ -159,7 +159,7 @@
 			</div>
 			<div id="task-links" class="form-group row">
 				<label class="col-sm-2 col-form-label"><roundcube:label name="tasklist.links" /></label>
-				<span class="task-text col-sm-10 form-control-plaintext"></span>
+				<span class="task-text col-sm-10"></span>
 			</div>
 			<div id="task-attachments" class="form-group row">
 				<label class="col-sm-2 col-form-label"><roundcube:label name="attachments" /></label>

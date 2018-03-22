@@ -134,6 +134,8 @@ $labels['arialabelquicksearchbox'] = 'Task search input';
 $labels['arialabellistsearchform'] = 'Tasklists search form';
 $labels['arialabeltaskselector'] = 'List mode';
 $labels['arialabeltasklisting'] = 'Tasks listing';
+$labels['arialabelsortmenu'] = 'Tasks sorting options';
+$labels['arialabeltasklistform'] = 'Tasks list form';
 
 // attendees
 $labels['attendee'] = 'Assignee';
@@ -217,5 +219,3 @@ $labels['itipinvalidrequest'] = 'This invitation is no longer valid';
 $labels['sentresponseto'] = 'Successfully sent assignment response to $mailto';
 $labels['successremoval'] = 'The task has been deleted successfully.';
 $labels['invalidlistproperties'] = 'Invalid list properties! Please set a valid name.';
-$labels['arialabelsortmenu'] = 'Tasks sorting options';
-$labels['arialabeltasklistform'] = 'Tasks list form';

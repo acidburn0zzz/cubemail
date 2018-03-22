@@ -189,7 +189,7 @@ class calendar extends rcube_plugin
       }
 
       // add 'Create event' item to message menu
-      if ($this->api->output->type == 'html') {
+      if ($this->api->output->type == 'html' && $_GET['_rel'] != 'event') {
         $this->api->add_content(html::tag('li', null, 
           $this->api->output->button(array(
             'command'  => 'calendar-create-from-mail',

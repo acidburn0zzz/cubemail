@@ -399,13 +399,6 @@ function rcube_libcalendaring(settings)
         $(prefix+' .edit-alarm-date').removeClass('hasDatepicker').removeAttr('id').datepicker(datepicker_settings);
         this.init_time_autocomplete($(prefix+' .edit-alarm-time')[0], {});
 
-        $(prefix).on('click', 'a.delete-alarm', function(e){
-            if ($(this).closest('.edit-alarm-item').siblings().length > 0) {
-                $(this).closest('.edit-alarm-item').remove();
-            }
-            return false;
-        });
-
         // set a unique id attribute and set label reference accordingly
         if ((index || 0) > 0 && dom_id) {
             dom_id += ':' + (new Date().getTime());
@@ -413,16 +406,27 @@ function rcube_libcalendaring(settings)
             $(prefix+' label:first').attr('for', dom_id);
         }
 
-        $(prefix).on('click', 'a.add-alarm', function(e){
-            var i = $(this).closest('.edit-alarm-item').siblings().length + 1;
-            var item = $(this).closest('.edit-alarm-item').clone(false)
-              .removeClass('first')
-              .appendTo(prefix);
+        if (index)
+            return;
 
-              me.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
-              $('select.edit-alarm-type, select.edit-alarm-offset', item).change();
-              return false;
-        });
+        $(prefix)
+            .on('click', 'a.delete-alarm', function(e){
+                if ($(this).closest('.edit-alarm-item').siblings().length > 0) {
+                    $(this).closest('.edit-alarm-item').remove();
+                }
+                return false;
+            })
+            .on('click', 'a.add-alarm', function(e) {
+                var orig = $(this).closest('.edit-alarm-item'),
+                    i = orig.siblings().length + 1,
+                    item = orig.clone(false)
+                      .removeClass('first')
+                      .appendTo(orig.parent());
+
+                  me.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
+                  $('select.edit-alarm-type, select.edit-alarm-offset', item).change();
+                  return false;
+            });
     }
 
     this.set_alarms_edit = function(prefix, valarms)
@@ -942,10 +946,8 @@ function rcube_libcalendaring(settings)
             .html('<span>' + Q(this.format_datetime(date, 1)) + '</span>')
             .appendTo('#edit-recurrence-rdates');
 
-        $('<a>').attr('href', '#del')
-            .addClass('iconbutton delete')
-            .html(rcmail.get_label('delete', 'libcalendaring'))
-            .attr('title', rcmail.get_label('delete', 'libcalendaring'))
+        $('<a>').attr({href: '#del', 'class': 'iconbutton delete icon button', title: rcmail.get_label('delete', 'libcalendaring')})
+            .append($('<span class="inner">').text(rcmail.get_label('delete', 'libcalendaring')))
             .appendTo(li);
     };
 
@@ -1033,8 +1035,7 @@ function rcube_libcalendaring(settings)
             var li = $('<li>').addClass('link')
                 .addClass('message eml')
                 .append($('<a>')
-                    .attr('href', link.mailurl)
-                    .addClass('messagelink')
+                    .attr({href: link.mailurl, 'class': 'messagelink'})
                     .text(link.subject || link.uri)
                 )
                 .appendTo(ul);
@@ -1042,11 +1043,8 @@ function rcube_libcalendaring(settings)
             // add icon to remove the link
             if (edit) {
                 $('<a>')
-                    .attr('href', '#delete')
-                    .attr('title', rcmail.gettext('removelink', plugin))
-                    .attr('data-uri', link.uri)
-                    .addClass('delete')
-                    .text(rcmail.gettext('delete'))
+                    .attr({href: '#delete', title: rcmail.gettext('removelink', plugin), 'data-uri': link.uri, 'class': 'delete'})
+                    .append($('<span class="inner">').text(rcmail.gettext('delete')))
                     .appendTo(li);
             }
         });

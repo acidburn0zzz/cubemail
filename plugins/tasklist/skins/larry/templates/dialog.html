@@ -1,0 +1,26 @@
+<roundcube:object name="doctype" value="html5" />
+<html>
+<head>
+<title><roundcube:object name="pagetitle" /></title>
+<roundcube:include file="/includes/links.html" />
+</head>
+<body class="iframe taskdialog noscroll">
+
+<roundcube:include file="/templates/taskedit.html" />
+
+<script type="text/javascript">
+
+// UI startup
+var UI = new rcube_mail_ui();
+
+$(document).ready(function(e) {
+	rcmail.addEventListener('tasklist_editform_load', function(e){
+		if (rcmail.env.tasklist_driver == 'kolab')
+			UI.init_tabs($('#tasklistform > form').addClass('propform tabbed'));
+	});
+});
+
+</script>
+
+</body>
+</html>

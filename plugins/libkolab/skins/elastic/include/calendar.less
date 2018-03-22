@@ -907,3 +907,21 @@ fieldset.categories .input-group {
         margin-bottom: 1rem;
     }
 }
+
+// fixes additional checkbox in Elastic's .datetime widget
+.datetime {
+    label {
+        margin-left: 1em;
+        line-height: 2.2;
+        text-align: right;
+        flex: 1;
+    }
+
+    input {
+        width: 10em !important;
+    }
+
+    input[type=checkbox] {
+        width: auto !important;
+    }
+}

@@ -144,6 +144,27 @@ function rcube_tasklist_ui(settings)
             return;
         }
 
+        if (rcmail.env.action == 'dialog-ui') {
+            task_edit_dialog(null, 'new', rcmail.env.task_prop);
+
+            rcmail.addEventListener('plugin.unlock_saving', function(status) {
+                unlock_saving();
+
+                if (status) {
+                    var rc = window.parent.rcmail,
+                        win = rc.env.contentframe ? rc.get_frame_window(rc.env.contentframe) : window.parent;
+
+                   if (win) {
+                        win.location.reload();
+                    }
+
+                    window.parent.kolab_task_dialog_element.dialog('destroy');
+                }
+            });
+
+            return;
+        }
+
         // initialize task list selectors
         for (var id in me.tasklists) {
             if (settings.selected_list && me.tasklists[settings.selected_list] && !me.tasklists[settings.selected_list].active) {
@@ -1800,7 +1821,7 @@ function rcube_tasklist_ui(settings)
                 success = true;
             }
             else {
-                alert(rcmail.gettext('noemailwarning'));
+                rcmail.alert_dialog(rcmail.gettext('noemailwarning'));
             }
         }
 
@@ -1824,8 +1845,8 @@ function rcube_tasklist_ui(settings)
             dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
 
         // delete icon
-        var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : rcmail.gettext('delete');
-        var dellink = '<a href="#delete" class="iconlink delete deletelink" title="' + Q(rcmail.gettext('delete')) + '">' + icon + '</a>';
+        var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : '<span class="inner">' + Q(rcmail.gettext('delete')) + '</span>';
+        var dellink = '<a href="#delete" class="iconlink icon button delete deletelink" title="' + Q(rcmail.gettext('delete')) + '">' + icon + '</a>';
         var tooltip, status = (data.status || '').toLowerCase(),
             status_label = rcmail.gettext('status' + status, 'libcalendaring');
 
@@ -1846,8 +1867,9 @@ function rcube_tasklist_ui(settings)
                 rcmail.gettext('expandattendeegroup','libcalendaring') + '</a>';
         }
 
+        var elastic = $(attendees_list).parents('.no-img').length > 0;
         var html = '<td class="name"><span class="attendee-name">' + dispname + '</span></td>' +
-            '<td class="confirmstate"><span class="' + status + '" title="' + Q(tooltip) + '">' + Q(status ? status_label : '') + '</span></td>' +
+            '<td class="confirmstate"><span class="attendee ' + status + '" title="' + Q(tooltip) + '">' + Q(status && !elastic ? status_label : '') + '</span></td>' +
             (data.cutype != 'RESOURCE' ? '<td class="invite">' + (readonly || !invbox ? '' : invbox) + '</td>' : '') +
             '<td class="options">' + (readonly ? '' : dellink) + '</td>';
 
@@ -2305,7 +2327,8 @@ function rcube_tasklist_ui(settings)
     function task_edit_dialog(id, action, presets)
     {
         var elastic = false, infodialog = $('#taskshow');
-        if (infodialog.data('nodialog')) {
+        if (infodialog.data('nodialog') || $('#taskedit').data('nodialog')) {
+
             elastic = true;
             infodialog.addClass('hidden').parent().addClass('watermark'); // Elastic
         }
@@ -2424,13 +2447,15 @@ function rcube_tasklist_ui(settings)
                 }
             });
 
-            $('#edit-tab-attendees').show();
+            $('#edit-tab-attendees').show(); // Larry
+            $('a[href="#taskedit-panel-attendees"]').parent().show(); // Elastic
             $('#edit-attendees-form')[(allow_invitations?'show':'hide')]();
             $('#edit-identities-list').val(identity_id);
             $('#taskedit-organizer')[(organizer ? 'show' : 'hide')]();
         }
         else {
-            $('#edit-tab-attendees').hide();
+            $('#edit-tab-attendees').hide(); // Larry
+            $('a[href="#taskedit-panel-attendees"]').parent().hide(); // Elastic
         }
 
         // attachments
@@ -2448,11 +2473,12 @@ function rcube_tasklist_ui(settings)
         }
 
         // show/hide tabs according to calendar's feature support
-        $('#taskedit-tab-attachments')[(list.attachments||rec.attachments?'show':'hide')]();
+        $('#taskedit-tab-attachments')[(list.attachments||rec.attachments?'show':'hide')](); // Larry
+        $('a[href="#taskedit-panel-attachments"]').parent()[(list.attachments||rec.attachments?'show':'hide')](); // Elastic
 
         // activate the first tab
         $('#taskedit:not([data-notabs])').tabs('option', 'active', 0); // Larry
-        if (elastic)
+        if (elastic && $.tab)
             $('#taskedit li.nav-item:first-child a').tab('show'); // Elastic
 
         // define dialog buttons
@@ -2481,16 +2507,16 @@ function rcube_tasklist_ui(settings)
                 var startdate = $.datepicker.parseDate(datepicker_settings.dateFormat, data.startdate, datepicker_settings);
                 var duedate = $.datepicker.parseDate(datepicker_settings.dateFormat, data.date, datepicker_settings);
                 if (startdate > duedate) {
-                    alert(rcmail.gettext('invalidstartduedates', 'tasklist'));
+                    rcmail.alert_dialog(rcmail.gettext('invalidstartduedates', 'tasklist'));
                     return false;
                 }
                 else if ((data.time == '') != (data.starttime == '')) {
-                    alert(rcmail.gettext('invalidstartduetimes', 'tasklist'));
+                    rcmail.alert_dialog(rcmail.gettext('invalidstartduetimes', 'tasklist'));
                     return false;
                 }
             }
             else if (data.recurrence && !data.startdate && !data.date) {
-                alert(rcmail.gettext('recurrencerequiresdate', 'tasklist'));
+                rcmail.alert_dialog(rcmail.gettext('recurrencerequiresdate', 'tasklist'));
                 return false;
             }
 
@@ -2547,7 +2573,7 @@ function rcube_tasklist_ui(settings)
                 delete data._notify;
             }
 
-            if (save_task(data, action))
+            if (save_task(data, action) && !elastic)
                 $dialog.dialog('close');
         };
 
@@ -3313,29 +3339,28 @@ function tasklist_options_menu(p)
 /* tasklist plugin UI initialization */
 var rctasks;
 window.rcmail && rcmail.addEventListener('init', function(evt) {
+    rctasks = new rcube_tasklist_ui($.extend(rcmail.env.tasklist_settings, rcmail.env.libcal_settings));
 
-  rctasks = new rcube_tasklist_ui($.extend(rcmail.env.tasklist_settings, rcmail.env.libcal_settings));
+    // register button commands
+    rcmail.register_command('newtask', function(){ rctasks.edit_task(null, 'new', {}); }, true);
+    rcmail.register_command('print', function(){ rctasks.print_tasks(); }, true);
+    rcmail.register_command('import', function(){ rctasks.import_tasks(rctasks.selected_list); }, true);
+    rcmail.register_command('edit-task', function(){ rctasks.edit_task(rctasks.selected_task.id, 'edit'); });
+    rcmail.register_command('delete-task', function(){ rctasks.delete_task(rctasks.selected_task.id); });
+    rcmail.register_command('add-child-task', function(){ rctasks.add_childtask(rctasks.selected_task.id); });
+    rcmail.register_command('save-task', function(){ rcmail.env.task_save_func(); });
 
-  // register button commands
-  rcmail.register_command('newtask', function(){ rctasks.edit_task(null, 'new', {}); }, true);
-  rcmail.register_command('print', function(){ rctasks.print_tasks(); }, true);
-  rcmail.register_command('import', function(){ rctasks.import_tasks(rctasks.selected_list); }, true);
-  rcmail.register_command('edit-task', function(){ rctasks.edit_task(rctasks.selected_task.id, 'edit'); });
-  rcmail.register_command('delete-task', function(){ rctasks.delete_task(rctasks.selected_task.id); });
-  rcmail.register_command('add-child-task', function(){ rctasks.add_childtask(rctasks.selected_task.id); });
-  rcmail.register_command('save-task', function(){ rcmail.env.task_save_func(); });
+    rcmail.register_command('list-create', function(){ rctasks.list_edit_dialog(null); }, true);
+    rcmail.register_command('list-edit', function(){ rctasks.list_edit_dialog(rctasks.selected_list); }, false);
+    rcmail.register_command('list-delete', function(){ rctasks.list_delete(rctasks.selected_list); }, false);
+    rcmail.register_command('list-remove', function(){ rctasks.list_remove(rctasks.selected_list); }, false);
+    rcmail.register_command('list-showurl', function(){ rctasks.list_showurl(rctasks.selected_list); }, false);
 
-  rcmail.register_command('list-create', function(){ rctasks.list_edit_dialog(null); }, true);
-  rcmail.register_command('list-edit', function(){ rctasks.list_edit_dialog(rctasks.selected_list); }, false);
-  rcmail.register_command('list-delete', function(){ rctasks.list_delete(rctasks.selected_list); }, false);
-  rcmail.register_command('list-remove', function(){ rctasks.list_remove(rctasks.selected_list); }, false);
-  rcmail.register_command('list-showurl', function(){ rctasks.list_showurl(rctasks.selected_list); }, false);
+    rcmail.register_command('export', function(){ rctasks.export_tasks(); }, true);
+    rcmail.register_command('search', function(){ rctasks.quicksearch(); }, true);
+    rcmail.register_command('reset-search', function(){ rctasks.reset_search(); }, true);
+    rcmail.register_command('expand-all', function(){ rctasks.expand_collapse(true); }, true);
+    rcmail.register_command('collapse-all', function(){ rctasks.expand_collapse(false); }, true);
 
-  rcmail.register_command('export', function(){ rctasks.export_tasks(); }, true);
-  rcmail.register_command('search', function(){ rctasks.quicksearch(); }, true);
-  rcmail.register_command('reset-search', function(){ rctasks.reset_search(); }, true);
-  rcmail.register_command('expand-all', function(){ rctasks.expand_collapse(true); }, true);
-  rcmail.register_command('collapse-all', function(){ rctasks.expand_collapse(false); }, true);
-
-  rctasks.init();
+    rctasks.init();
 });

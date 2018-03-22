@@ -344,9 +344,9 @@ class libcalendaring extends rcube_plugin
     {
         unset($attrib['name']);
 
-        $input_value = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value form-control', 'size' => 3));
-        $input_date  = new html_inputfield(array('name' => 'alarmdate[]', 'class' => 'edit-alarm-date form-control', 'size' => 10));
-        $input_time  = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time form-control', 'size' => 6));
+        $input_value    = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value form-control input-group-prepend', 'size' => 3));
+        $input_date     = new html_inputfield(array('name' => 'alarmdate[]', 'class' => 'edit-alarm-date form-control', 'size' => 10));
+        $input_time     = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time form-control', 'size' => 6));
         $select_type    = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type form-control', 'id' => $attrib['id']));
         $select_offset  = new html_select(array('name' => 'alarmoffset[]', 'class' => 'edit-alarm-offset form-control'));
         $select_related = new html_select(array('name' => 'alarmrelated[]', 'class' => 'edit-alarm-related form-control'));
@@ -369,9 +369,10 @@ class libcalendaring extends rcube_plugin
         // pre-set with default values from user settings
         $preset = self::parse_alarm_value($this->rc->config->get('calendar_default_alarm_offset', '-15M'));
         $hidden = array('style' => 'display:none');
-        $html = html::span('edit-alarm-set',
+
+        return html::span('edit-alarm-set',
             $select_type->show($this->rc->config->get('calendar_default_alarm_type', '')) . ' ' .
-            html::span(array('class' => 'edit-alarm-values', 'style' => 'display:none'),
+            html::span(array('class' => 'edit-alarm-values input-group', 'style' => 'display:none'),
                 $input_value->show($preset[0]) . ' ' .
                 $select_offset->show($preset[1]) . ' ' .
                 $select_related->show() . ' ' .
@@ -379,12 +380,6 @@ class libcalendaring extends rcube_plugin
                 $input_time->show('', $hidden)
             )
         );
-
-        // TODO: support adding more alarms
-        #$html .= html::a(array('href' => '#', 'id' => 'edit-alam-add', 'title' => $this->gettext('addalarm')),
-        #  $attrib['addicon'] ? html::img(array('src' => $attrib['addicon'], 'alt' => 'add')) : '(+)');
-
-        return $html;
     }
 
     /**
@@ -869,15 +864,15 @@ class libcalendaring extends rcube_plugin
             // daily recurrence
             case 'daily':
                 $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval form-control', 'id' => 'edit-recurrence-interval-daily'));
-                $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-daily', 'class' => 'col-form-label col-sm-2'),
-                    $this->gettext('every')) . html::div('col-sm-10', $select->show(1) . html::span('label-after', $this->gettext('days'))));
+                $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-daily', 'class' => 'col-form-label col-sm-2'), $this->gettext('every'))
+                    . html::div('col-sm-10 input-group', $select->show(1) . html::span('label-after input-group-append', html::span('input-group-text', $this->gettext('days')))));
                 break;
 
             // weekly recurrence form
             case 'weekly':
                 $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval form-control', 'id' => 'edit-recurrence-interval-weekly'));
-                $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-weekly', 'class' => 'col-form-label col-sm-2'),
-                    $this->gettext('every')) . html::div('col-sm-10', $select->show(1) . html::span('label-after', $this->gettext('weeks'))));
+                $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-weekly', 'class' => 'col-form-label col-sm-2'), $this->gettext('every'))
+                    . html::div('col-sm-10 input-group', $select->show(1) . html::span('label-after input-group-append', html::span('input-group-text', $this->gettext('weeks')))));
 
                 // weekday selection
                 $daymap   = array('sun','mon','tue','wed','thu','fri','sat');
@@ -893,14 +888,14 @@ class libcalendaring extends rcube_plugin
                 }
 
                 $html .= html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2'), $this->gettext('bydays'))
-                    . html::div('col-sm-10', $weekdays));
+                    . html::div('col-sm-10 form-control-plaintext', $weekdays));
                 break;
 
             // monthly recurrence form
             case 'monthly':
                 $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval form-control', 'id' => 'edit-recurrence-interval-monthly'));
                 $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-monthly', 'class' => 'col-form-label col-sm-2'), $this->gettext('every'))
-                    . html::div('col-sm-10', $select->show(1) . html::span('label-after', $this->gettext('months'))));
+                    . html::div('col-sm-10 input-group', $select->show(1) . html::span('label-after input-group-append', html::span('input-group-text', $this->gettext('months')))));
 
                 $checkbox = new html_checkbox(array('name' => 'bymonthday', 'class' => 'edit-recurrence-monthly-bymonthday'));
                 for ($monthdays = '', $d = 1; $d <= 31; $d++) {
@@ -913,17 +908,18 @@ class libcalendaring extends rcube_plugin
                 $table = new html_table(array('cols' => 2, 'border' => 0, 'cellpadding' => 0, 'class' => 'formtable'));
                 $table->add('label', html::label(null, $radio->show('BYMONTHDAY', array('value' => 'BYMONTHDAY')) . ' ' . $this->gettext('each')));
                 $table->add(null, $monthdays);
-                $table->add('label', html::label(null, $radio->show('', array('value' => 'BYDAY')) . ' ' . $this->gettext('onevery')));
-                $table->add(null, $this->rrule_selectors($attrib['part']));
+                $table->add('label', html::label(null, $radio->show('', array('value' => 'BYDAY')) . ' ' . $this->gettext('every')));
+                $table->add('recurrence-onevery', $this->rrule_selectors($attrib['part']));
 
-                $html .= html::div($attrib, $table->show());
+                $html .= html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2'), $this->gettext('bydays'))
+                    . html::div('col-sm-10 form-control-plaintext', $table->show()));
                 break;
 
             // annually recurrence form
             case 'yearly':
                 $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval form-control', 'id' => 'edit-recurrence-interval-yearly'));
                 $html = html::div($attrib, html::label(array('for' => 'edit-recurrence-interval-yearly', 'class' => 'col-form-label col-sm-2'), $this->gettext('every'))
-                    . html::div('col-sm-10', $select->show(1) . html::span('label-after', $this->gettext('years'))));
+                    . html::div('col-sm-10 input-group', $select->show(1) . html::span('label-after input-group-append', html::span('input-group-text', $this->gettext('years')))));
 
                 // month selector
                 $monthmap = array('','jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec');
@@ -934,11 +930,11 @@ class libcalendaring extends rcube_plugin
                     $months .= $m % 4 ? ' ' : html::br();
                 }
 
-                $html .= html::div($attrib + array('id' => 'edit-recurrence-yearly-bymonthblock'), $months);
-
-                // day rule selection
-                $html .= html::div($attrib, html::label(array('col-form-label col-sm-2'), $this->gettext('onevery'))
-                    . html::div('col-sm-10', $this->rrule_selectors($attrib['part'], '---')));
+                $html .= html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2'), $this->gettext('bymonths'))
+                    . html::div('col-sm-10 form-control-plaintext',
+                        html::div(array('id' => 'edit-recurrence-yearly-bymonthblock'), $months)
+                        . html::div('recurrence-onevery', $this->rrule_selectors($attrib['part'], '---'))
+                    ));
                 break;
 
             // end of recurrence form
@@ -948,32 +944,45 @@ class libcalendaring extends rcube_plugin
                 $input  = new html_inputfield(array('name' => 'untildate', 'id' => 'edit-recurrence-enddate', 'size' => "10", 'class' => 'form-control'));
 
                 $html = html::div('line first',
-                    html::label(null, $radio->show('', array('value' => '', 'id' => 'edit-recurrence-repeat-forever')) . ' ' .
-                        $this->gettext('forever'))
+                    $radio->show('', array('value' => '', 'id' => 'edit-recurrence-repeat-forever'))
+                        . ' ' . html::label('edit-recurrence-repeat-forever', $this->gettext('forever'))
                 );
 
-                $forntimes = $this->gettext(array(
-                    'name' => 'forntimes',
-                    'vars' => array('nr' => '%s'))
-                );
+                $label = $this->gettext('ntimes');
+                if (strpos($label, '$') === 0) {
+                    $label = str_replace('$n', '', $label);
+                    $group  = $select->show(1)
+                        . html::span('input-group-append', html::span('input-group-text', rcube::Q($label)));
+                }
+                else {
+                    $label = str_replace('$n', '', $label);
+                    $group  = html::span('input-group-prepend', html::span('input-group-text', rcube::Q($label)))
+                        . $select->show(1);
+                }
+
                 $html .= html::div('line',
-                    $radio->show('', array('value' => 'count', 'id' => 'edit-recurrence-repeat-count', 'aria-label' => sprintf($forntimes, 'N'))) . ' ' .
-                        sprintf($forntimes, $select->show(1))
+                    $radio->show('', array('value' => 'count', 'id' => 'edit-recurrence-repeat-count'))
+                        . ' ' . html::label('edit-recurrence-repeat-count', $this->gettext('for'))
+                        . ' ' . html::span('input-group', $group)
                 );
 
                 $html .= html::div('line',
-                    $radio->show('', array('value' => 'until', 'id' => 'edit-recurrence-repeat-until', 'aria-label' => $this->gettext('untilenddate'))) . ' ' .
-                        $this->gettext('untildate') . ' ' . $input->show('', array('aria-label' => $this->gettext('untilenddate')))
+                    $radio->show('', array('value' => 'until', 'id' => 'edit-recurrence-repeat-until', 'aria-label' => $this->gettext('untilenddate')))
+                        . ' ' . html::label('edit-recurrence-repeat-until', $this->gettext('untildate'))
+                        . ' ' . $input->show('', array('aria-label' => $this->gettext('untilenddate')))
                 );
 
-                $html = html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2'), ucfirst($this->gettext('recurrencend'))) . $html);
+                $html = html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2'), ucfirst($this->gettext('recurrencend')))
+                    . html::div('col-sm-10', $html));
                 break;
 
             case 'rdate':
-                $ul     = html::tag('ul', array('id' => 'edit-recurrence-rdates'), '');
+                $ul     = html::tag('ul', array('id' => 'edit-recurrence-rdates', 'class' => 'recurrence-rdates'), '');
                 $input  = new html_inputfield(array('name' => 'rdate', 'id' => 'edit-recurrence-rdate-input', 'size' => "10", 'class' => 'form-control'));
                 $button = new html_inputfield(array('type' => 'button', 'class' => 'button add', 'value' => $this->gettext('addrdate')));
-                $html .= html::div($attrib, $ul . html::div('inputform', $input->show() . $button->show()));
+
+                $html = html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2', 'for' => 'edit-recurrence-rdate-input'), $this->gettext('bydates'))
+                    . html::div('col-sm-10', $ul . html::div('inputform', $input->show() . $button->show())));
                 break;
         }
 

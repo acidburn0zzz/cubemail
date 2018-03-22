@@ -84,22 +84,14 @@
 }
 
 .kolabmessagenotes {
-    display: block !important;
+    & > i.icon:before {
+        .font-icon-regular(@fa-var-sticky-note) !important;
+    }
 
     & > a {
         .overflow-ellipsis;
         white-space: nowrap;
         display: block;
         text-decoration: none;
-
-        &:before {
-            &:extend(.font-icon-class);
-            color: @color-message-information;
-            .font-icon-regular(@fa-var-sticky-note);
-            margin-right: .6rem;
-            width: 1em;
-            font-size: 1.5em !important;
-            line-height: 1;
-        }
     }
 }

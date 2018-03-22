@@ -252,3 +252,19 @@
     // fixes redundant scrolling and height issue on task edit form
     position: absolute;
 }
+
+.messagetasklinks {
+    & > i.icon:before {
+        content: @fa-var-tasks !important;
+    }
+
+    .tasklist {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    input {
+        height: auto !important;
+    }
+}

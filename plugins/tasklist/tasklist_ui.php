@@ -158,7 +158,6 @@ class tasklist_ui
         kolab_attachments_handler::ui();
 
         $this->plugin->include_script('tasklist.js');
-        $this->rc->output->include_script('treelist.js');
         $this->plugin->api->include_script('libkolab/libkolab.js');
     }
 
@@ -196,6 +195,8 @@ class tasklist_ui
                 );
             }
         }
+
+        $this->rc->output->include_script('treelist.js');
 
         $this->rc->output->set_env('source', rcube_utils::get_input_value('source', rcube_utils::INPUT_GET));
         $this->rc->output->set_env('tasklists', $jsenv);
@@ -379,7 +380,12 @@ class tasklist_ui
 
         $label = html::label(array('for' => 'quickaddinput', 'class' => 'voice'), $this->plugin->gettext('quickaddinput'));
         $input = new html_inputfield(array('name' => 'text', 'id' => 'quickaddinput'));
-        $button = html::tag('input', array('type' => 'submit', 'value' => '+', 'title' => $this->plugin->gettext('createtask'), 'class' => 'button mainaction'));
+        $button = html::tag('input', array(
+                'type'  => 'submit',
+                'value' => '+',
+                'title' => $this->plugin->gettext('createtask'),
+                'class' => 'button mainaction'
+        ));
 
         $this->register_gui_object('quickaddform', $attrib['id']);
         return html::tag('form', $attrib, $label . $input->show() . $button);
@@ -427,7 +433,7 @@ class tasklist_ui
         $table->add_header('confirmstate', $this->plugin->gettext('confirmstate'));
         if ($invitations) {
             $table->add_header(array('class' => 'invite', 'title' => $this->plugin->gettext('sendinvitations')),
-                $invite->show(1) . html::label('edit-attendees-invite', $this->plugin->gettext('sendinvitations')));
+                $invite->show(1) . html::label('edit-attendees-invite', html::span('inner', $this->plugin->gettext('sendinvitations'))));
         }
         $table->add_header('options', '');
 
@@ -446,16 +452,16 @@ class tasklist_ui
      */
     function attendees_form($attrib = array())
     {
-        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => 30));
+        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => 30, 'class' => 'form-control'));
         $textarea = new html_textarea(array('name' => 'comment', 'id' => 'edit-attendees-comment',
-            'rows' => 4, 'cols' => 55, 'title' => $this->plugin->gettext('itipcommenttitle')));
+            'rows' => 4, 'cols' => 55, 'title' => $this->plugin->gettext('itipcommenttitle'), 'class' => 'form-control'));
 
         return html::div($attrib,
-            html::div(null, $input->show() . " " .
+            html::div('form-searchbar', $input->show() . " " .
                 html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-add', 'value' => $this->plugin->gettext('addattendee')))
                 // . " " . html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-schedule', 'value' => $this->plugin->gettext('scheduletime').'...'))
                 ) .
-            html::p('attendees-commentbox', html::label(null, $this->plugin->gettext('itipcomment') . $textarea->show()))
+            html::p('attendees-commentbox', html::label('edit-attendees-comment', $this->plugin->gettext('itipcomment')) . $textarea->show())
         );
     }
 

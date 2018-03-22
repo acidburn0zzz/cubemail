@@ -87,6 +87,7 @@
 
     .rsvp-status {
         margin: .5rem 0;
+        width: 100%;
 
         &.hint {
             color: #666;
@@ -196,14 +197,6 @@
     }
 }
 
-.form-searchbar {
-    display: flex;
-    margin-bottom: .5rem;
-
-    input[type=button] {
-        margin-left: .5em;
-    }
-}
 
 .attendees-comentbox {
     label {
@@ -213,4 +206,242 @@
 
 #edit-attendees-legend {
     margin-top: 1rem;
+}
+
+.edit-attendees-table {
+    th, td {
+        width: 1%;
+        text-align: center;
+    }
+
+    td {
+        border: 0;
+        padding-bottom: 0;
+    }
+
+    th {
+        border-bottom: 1px solid #eee !important;
+    }
+
+    th.name, td.name, th.role, td.role {
+        width: auto;
+        text-align: left;
+    }
+
+    th.invite {
+        label:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-envelope;
+            display: inline;
+            float: none;
+            margin-left: .25rem;
+        }
+
+    }
+
+    td.name {
+        span {
+            line-height: 2.5;
+        }
+    }
+
+    td.availability,
+    td.confirmstate {
+        span {
+            margin: 0;
+        }
+
+        span:after,
+        span:before {
+            line-height: 2;
+            margin: 0;
+            font-size: 1.2em;
+            height: 2em;
+            width: 2em;
+        }
+    }
+
+    td.options {
+        a {
+            display: inline-block;
+            height: 2em;
+
+            &:before {
+                line-height: 2;
+                height: 2em;
+            }
+        }
+    }
+
+    .inner {
+        display: none;
+    }
+}
+
+.form-searchbar {
+    display: flex;
+    margin-bottom: .5rem;
+
+    input[type=button] {
+        margin-left: .5em;
+    }
+}
+
+.attachmentslist li.link {
+    &.message.eml:before {
+        content: @fa-var-envelope;
+    }
+
+    a.messagelink {
+        .overflow-ellipsis;
+        margin-right: .25rem;
+    }
+
+    a.delete .inner {
+        display: none;
+    }
+}
+
+.alarms-input {
+    .edit-alarm-item {
+        display: flex;
+
+        & + .edit-alarm-item {
+            margin-top: .25rem;
+        }
+    }
+
+    .edit-alarm-buttons {
+        width: 5em;
+
+        a {
+            line-height: 1.2;
+            display: block;
+            padding: .375em .25em;
+            float: left;
+            margin: 0 .25rem;
+
+            &:before {
+                margin: 0;
+                width: 1em;
+            }
+        }
+
+        .inner {
+            display: none;
+        }
+    }
+
+    .edit-alarm-item.first .delete-alarm {
+        display: none;
+    }
+
+    .edit-alarm-type {
+        flex: 1;
+    }
+
+    .edit-alarm-set {
+        display: flex;
+        flex: 1;
+    }
+
+    .edit-alarm-values {
+        margin-left: .25rem;
+        flex: 5;
+    }
+
+    .edit-alarm-offset {
+        flex: 5;
+    }
+
+    .edit-alarm-date,
+    .edit-alarm-time,
+    .edit-alarm-related {
+        flex: 3;
+    }
+}
+
+.recurrence-form {
+    .recurrence-rdates {
+        width: 100%;
+        padding: 0;
+        list-style-type: none;
+
+        &:empty {
+            margin: 0;
+        }
+
+        a.delete {
+            margin-left: 2em;
+            &:before {
+                display: inline-block;
+                float: none;
+            }
+        }
+
+        .inner {
+            display: none;
+        }
+    }
+
+    .recurrence-onevery {
+        select {
+            width: 35%;
+            display: inline;
+        }
+    }
+
+    .inputform {
+        display: flex;
+
+        input.button {
+            margin-left: .25rem;
+        }
+    }
+
+    div.line {
+        width: 100%;
+        display: flex;
+        margin-bottom: .25rem;
+
+        label {
+            margin-left: .5em;
+            min-width: 4em;
+            line-height: 2.5;
+        }
+    }
+
+    .month,
+    .monthday,
+    .weekday {
+        display: inline-block;
+        width: 3.5em;
+        margin-right: .5rem;
+
+        input {
+            margin-right: .25rem;
+        }
+    }
+
+    .monthday {
+        width: 2.75em;
+    }
+
+    .table td {
+        border: 0;
+        padding: 0;
+
+        &:first-child label {
+            line-height: 2.5;
+        }
+
+        & label.monthday:first-child {
+            margin-top: .5rem;
+        }
+    }
+
+    .input-group-append,
+    .input-group-prepend {
+        display: initial; // fixes buggy height of the element
+    }
 }

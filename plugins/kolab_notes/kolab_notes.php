@@ -1253,7 +1253,7 @@ class kolab_notes extends rcube_plugin
         // prepend note links to message body
         if ($html) {
             $this->load_ui();
-            $args['content'] = html::div('kolabmessagenotes boxinformation noicon', $html) . $args['content'];
+            $args['content'] = html::div('kolabmessagenotes boxinformation', $html) . $args['content'];
         }
 
         return $args;

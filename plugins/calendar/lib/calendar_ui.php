@@ -680,7 +680,7 @@ class calendar_ui
     $table->add_header('confirmstate', $this->cal->gettext('confirmstate'));
     if ($invitations) {
       $table->add_header(array('class' => 'invite', 'title' => $this->cal->gettext('sendinvitations')),
-        $invite->show(1) . html::label('edit-attendees-invite', $this->cal->gettext('sendinvitations')));
+        $invite->show(1) . html::label('edit-attendees-invite', html::span('inner', $this->cal->gettext('sendinvitations'))));
     }
     $table->add_header('options', '');
 
@@ -707,7 +707,7 @@ class calendar_ui
       html::div('form-searchbar', $input->show() . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-add', 'value' => $this->cal->gettext('addattendee'))) . " " .
         html::tag('input', array('type' => 'button', 'class' => 'button', 'id' => 'edit-attendee-schedule', 'value' => $this->cal->gettext('scheduletime').'...'))) .
-      html::p('attendees-commentbox', html::label(null, $this->cal->gettext('itipcomment') . $textarea->show()))
+      html::p('attendees-commentbox', html::label('edit-attendees-comment', $this->cal->gettext('itipcomment')) . $textarea->show())
     );
   }
 
