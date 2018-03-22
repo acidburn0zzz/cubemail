@@ -397,7 +397,9 @@ function rcube_libcalendaring(settings)
         });
 
         $(prefix+' .edit-alarm-date').removeClass('hasDatepicker').removeAttr('id').datepicker(datepicker_settings);
-        this.init_time_autocomplete($(prefix+' .edit-alarm-time')[0], {});
+
+        if (rcmail.env.action != 'print')
+            this.init_time_autocomplete($(prefix+' .edit-alarm-time')[0], {});
 
         $(prefix).on('click', 'a.delete-alarm', function(e){
             if ($(this).closest('.edit-alarm-item').siblings().length > 0) {
