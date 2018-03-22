@@ -157,13 +157,13 @@ class kolab_date_recurrence_test extends PHPUnit_Framework_TestCase
             // yearly
             array(
                 array('FREQ' => 'YEARLY', 'INTERVAL' => '1'),
-                '2017-08-16 11:00:00',
-                '2017-08-16 11:00:00',
+                '2017-08-16 12:00:00',
+                '2017-08-16 12:00:00',
             ),
             array(
                 array('FREQ' => 'YEARLY', 'INTERVAL' => '1', 'BYMONTH' => '8'),
-                '2017-08-16 11:00:00',
-                '2017-08-16 11:00:00',
+                '2017-08-16 12:00:00',
+                '2017-08-16 12:00:00',
             ),
             array(
                 array('FREQ' => 'YEARLY', 'INTERVAL' => '1', 'BYDAY' => '-1MO'),
@@ -209,5 +209,26 @@ class kolab_date_recurrence_test extends PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * kolab_date_recurrence::first_occurrence() for all-day events
+     *
+     * @dataProvider data_first_occurrence
+     */
+    function test_first_occurrence_allday($recurrence_data, $start, $expected)
+    {
+        $start = new DateTime($start);
+        if (!empty($recurrence_data['UNTIL'])) {
+            $recurrence_data['UNTIL'] = new DateTime($recurrence_data['UNTIL']);
+        }
+
+        $event  = array('start' => $start, 'recurrence' => $recurrence_data, 'allday' => true);
+        $object = kolab_format::factory('event', 3.0);
+        $object->set($event);
+
+        $recurrence = new kolab_date_recurrence($object);
+        $first      = $recurrence->first_occurrence();
+
+        $this->assertEquals($expected, $first ? $first->format('Y-m-d H:i:s') : '');
+    }
 }
 
