@@ -146,7 +146,7 @@
 	<div id="event-attachments" class="form-group row">
 		<div class="event-text"></div>
 	</div>
-	<roundcube:object name="plugin.event_rsvp_buttons" id="event-rsvp" class="event-dialog-message" style="display:none" />
+	<roundcube:object name="plugin.event_rsvp_buttons" id="event-rsvp" class="calendar-invitebox invitebox boxinformation" style="display:none" />
 </div>
 
 <roundcube:include file="/templates/eventedit.html" />
@@ -283,7 +283,7 @@
 <roundcube:if condition="config:kolab_bonnie_api" />
 
 <div id="eventhistory" class="popupmenu" aria-hidden="true">
-    <roundcube:object name="plugin.object_changelog_table" id="event-changelog-table" class="records-table changelog-table" />
+    <roundcube:object name="plugin.object_changelog_table" id="event-changelog-table" class="changelog-table" />
     <div class="compare-button"><input type="button" class="button" value="↳ <roundcube:label name='libkolab.compare' />" /></div>
 </div>
 

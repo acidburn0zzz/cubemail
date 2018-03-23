@@ -811,10 +811,6 @@ body.taskdialog #taskedit {
 	color: #999;
 }
 
-.taskshow.status-cancelled {
-	background: url(images/badge_cancelled.png) top right no-repeat;
-}
-
 .task-parent-title {
 	position: relative;
 	top: -0.6em;

@@ -728,7 +728,7 @@ function rcube_tasklist_ui(settings)
         rcmail.addEventListener('autocomplete_insert', function(e) {
             var cutype, success = false;
             if (e.field.name == 'participant') {
-                cutype = e.data && e.data.type == 'group' ? 'GROUP' : 'INDIVIDUAL';
+                cutype = e.data && e.data.type == 'group' && e.result_type == 'person' ? 'GROUP' : 'INDIVIDUAL';
                 success = add_attendees(e.insert, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype: cutype });
             }
             if (e.field && success) {
@@ -1848,6 +1848,8 @@ function rcube_tasklist_ui(settings)
         var dispname = Q(data.name || data.email);
         if (data.email)
             dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
+        else
+            dispname = '<span>' + dispname + '</span>';
 
         // delete icon
         var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : '<span class="inner">' + Q(rcmail.gettext('delete')) + '</span>';
@@ -1868,8 +1870,9 @@ function rcube_tasklist_ui(settings)
 
         // add expand button for groups
         if (data.cutype == 'GROUP') {
-            dispname += ' <a href="#expand" data-email="' + Q(data.email) + '" class="iconbutton add expandlink" title="' + rcmail.gettext('expandattendeegroup','libcalendaring') + '">' +
-                rcmail.gettext('expandattendeegroup','libcalendaring') + '</a>';
+            dispname += ' <a href="#expand" data-email="' + Q(data.email)
+                + '" class="iconbutton add icon button expandlink" title="' + rcmail.gettext('expandattendeegroup','libcalendaring') + '">'
+                + '<span class="inner">' + rcmail.gettext('expandattendeegroup','libcalendaring') + '</span></a>';
         }
 
         var elastic = $(attendees_list).parents('.no-img').length > 0;
@@ -1894,6 +1897,10 @@ function rcube_tasklist_ui(settings)
             var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
             $('#taskeditform .attendees-commentbox')[enabled ? 'show' : 'hide']();
         });
+
+        // Make Elastic checkboxes pretty
+        if (window.UI && UI.pretty_checkbox)
+            $(tr).find('input[type=checkbox]').each(function() { UI.pretty_checkbox(this); });
 
         task_attendees.push(data);
         return true;
@@ -1943,6 +1950,8 @@ function rcube_tasklist_ui(settings)
         me.selected_task = rec;
         list = rec.list && me.tasklists[rec.list] ? me.tasklists[rec.list] : {};
 
+        var status = rcmail.gettext('status-' + String(rec.status).toLowerCase(),'tasklist');
+
         // fill dialog data
         $('#task-parent-title').html(Q(rec.parent_title || '')+' &raquo;').css('display', rec.parent_title ? 'block' : 'none');
         $('#task-title').html(text2html(Q(rec.title || '')));
@@ -1953,9 +1962,11 @@ function rcube_tasklist_ui(settings)
         $('#task-starttime').text(rec.starttime || '');
         $('#task-alarm')[(rec.alarms_text ? 'show' : 'hide')]().children('.task-text').html(Q(rec.alarms_text));
         $('#task-completeness .task-text').html(((rec.complete || 0) * 100) + '%');
-        $('#task-status')[(rec.status ? 'show' : 'hide')]().children('.task-text').html(rcmail.gettext('status-'+String(rec.status).toLowerCase(),'tasklist'));
+        $('#task-status')[(rec.status ? 'show' : 'hide')]().children('.task-text').text(status);
         $('#task-list .task-text').html(Q(me.tasklists[rec.list] ? me.tasklists[rec.list].name : ''));
         $('#task-attendees, #task-organizer, #task-created-changed, #task-created, #task-changed, #task-rsvp, #task-rsvp-comment').hide();
+
+        $('#event-status-badge > span').text(status);
 
         // tags
         var taglist = $('#task-tags').hide().children('.task-text').empty();

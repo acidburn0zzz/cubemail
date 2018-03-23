@@ -1830,13 +1830,15 @@ function rcube_calendar_ui(settings)
       $.each(event_attendees, function(i, v){ exists |= (v.email == data.email); });
       if (exists)
         return false;
-      
+
       var calendar = me.selected_event && me.calendars[me.selected_event.calendar] ? me.calendars[me.selected_event.calendar] : me.calendars[me.selected_calendar];
 
       var dispname = Q(data.name || data.email);
       if (data.email)
         dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
-      
+      else
+        dispname = '<span>' + dispname + '</span>';
+
       // role selection
       var organizer = data.role == 'ORGANIZER';
       var opts = {};
@@ -1916,12 +1918,16 @@ function rcube_calendar_ui(settings)
       // select organizer identity
       if (data.identity_id)
         $('#edit-identities-list').val(data.identity_id);
-      
+
       // check free-busy status
       if (avail == 'loading') {
         check_freebusy_status(tr.find('.availability > *:first'), data.email, me.selected_event);
       }
-      
+
+      // Make Elastic checkboxes pretty
+      if (window.UI && UI.pretty_checkbox)
+        $(tr).find('input[type=checkbox]').each(function() { UI.pretty_checkbox(this); });
+
       event_attendees.push(data);
       return true;
     };
@@ -3979,9 +3985,10 @@ function rcube_calendar_ui(settings)
       }
       rcmail.init_address_input_events($('#edit-attendee-name'), ac_props);
       rcmail.addEventListener('autocomplete_insert', function(e) {
-        var success = false;
+        var cutype, success = false;
         if (e.field.name == 'participant') {
-          success = add_attendees(e.insert, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:(e.data && e.data.type == 'group' ? 'GROUP' : 'INDIVIDUAL') });
+          cutype = e.data && e.data.type == 'group' && e.result_type == 'person' ? 'GROUP' : 'INDIVIDUAL';
+          success = add_attendees(e.insert, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:cutype });
         }
         else if (e.field.name == 'resource' && e.data && e.data.email) {
           success = add_attendee($.extend(e.data, { role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:'RESOURCE' }));

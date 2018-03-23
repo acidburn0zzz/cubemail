@@ -79,9 +79,15 @@
 
     .itip-reply-controls {
         margin-top: .25rem;
+        width: 100%;
+
+        & > label {
+            display: inline;
+        }
 
         a {
             margin-left: 1em;
+            white-space: nowrap;
         }
     }
 
@@ -173,6 +179,7 @@
         color: @color-warning;
     }
 
+    &.completed:after,
     &.accepted:after {
         content: @fa-var-check-circle;
         color: @color-success;
@@ -196,9 +203,8 @@
         content: @fa-var-briefcase; // TODO: better icon
     }
 
-    &.completed:after,
     &.in-process:after {
-        // TODO ?
+        content: @fa-var-cog;
     }
 }
 
@@ -214,6 +220,8 @@
 }
 
 .edit-attendees-table {
+    width: 100%;
+
     th, td {
         width: 1%;
         text-align: center;
@@ -221,7 +229,7 @@
 
     td {
         border: 0;
-        padding-bottom: 0;
+        padding: 0 .3rem;
     }
 
     th {
@@ -234,6 +242,14 @@
     }
 
     th.invite {
+        input {
+            display: none;
+        }
+
+        label {
+            cursor: pointer;
+        }
+
         label:before {
             &:extend(.font-icon-class);
             content: @fa-var-envelope;
@@ -244,9 +260,25 @@
 
     }
 
+    td.invite {
+        label:before {
+            line-height: 1.6;
+            height: 1.5em;
+        }
+    }
+
     td.name {
         span {
             line-height: 2.5;
+            display: flex;
+
+            & > :first-child {
+                .overflow-ellipsis;
+                // width and flex is required to make overflow working
+                flex: 1;
+                width: 1px;
+                white-space: nowrap;
+            }
         }
     }
 
@@ -278,11 +310,16 @@
         }
     }
 
+    a.expandlink {
+        &:before {
+            content: @fa-var-plus-square;
+            line-height: 2;
+        }
+    }
+
     .inner {
         display: none;
     }
-
-    // TODO: a.expandlink
 }
 
 .form-searchbar {
@@ -309,8 +346,10 @@
     }
 }
 
-.messagelist tbody .attachment span.ical {
-    // TODO
+.attachmentslist li.ics:before,
+.attachmentslist li.text.calendar:before,
+.messagelist tbody .attachment span.ical:before {
+    .font-icon-regular(@fa-var-calendar-alt);
 }
 
 .alarms-input {
@@ -454,5 +493,63 @@
     .input-group-append,
     .input-group-prepend {
         display: initial; // fixes buggy height of the element
+    }
+}
+
+#event-status-badge {
+    width: 7rem;
+    height: 7rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    overflow: hidden;
+
+    span {
+        display: none;
+        text-transform: uppercase;
+        line-height: 20px;
+        position: absolute;
+        left: -2.4rem;
+        top: 2.4rem;
+        width: 13.2rem;
+        text-align: center;
+        font-weight: bold;
+        font-size: .85rem;
+        color: #fff;
+        -webkit-transform: rotate(45deg);
+        transform: rotate(45deg);
+
+        &:before {
+            &:extend(.font-icon-class);
+            display: inline;
+            float: none;
+        }
+
+        .status-cancelled & {
+            background-color: darken(@color-error, 10%);
+            display: block;
+
+            &:before {
+                content: @fa-var-times-circle;
+            }
+        }
+
+        .sensitivity-private & {
+            background-color: darken(@color-warning, 10%);
+            display: block;
+
+            &:before {
+                content: @fa-var-lock;
+            }
+        }
+
+        .sensitivity-confidential & {
+            background-color: darken(@color-error, 10%);
+            display: block;
+
+            &:before {
+                content: @fa-var-user-secret;
+            }
+        }
     }
 }

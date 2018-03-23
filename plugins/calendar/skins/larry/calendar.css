@@ -742,52 +742,6 @@ a.miniColors-trigger {
 	margin: 0 -0.2em;
 }
 
-#event-status-badge {
-	width: 100px;
-	height: 100px;
-	position: absolute;
-	top: 0;
-	right: 0;
-	overflow: hidden;
-}
-
-#event-status-badge span {
-	display: none;
-	text-transform: uppercase;
-	width: 150px;
-	height: 20px;
-	line-height: 20px;
-	position: absolute;
-	left: -20px;
-	top: 35px;
-	padding-left: 10px;
-	text-align: center;
-	font-weight: bold;
-	font-size: 12px;
-	color: #fff;
-	box-shadow: 1px 1px 2px #ccc, -1px -1px 2px #ccc;
-	-webkit-transform: rotate(45deg);
-	-moz-transform: rotate(45deg);
-	-ms-transform: rotate(45deg);
-	-o-transform: rotate(45deg);
-	transform: rotate(45deg);
-}
-
-.eventdialog.status-cancelled #event-status-badge span {
-	background: url(images/badge.png) 26px -24px no-repeat #cc0000;
-	display: block;
-}
-
-.eventdialog.sensitivity-private #event-status-badge span {
-	background: url(images/badge.png) 40px -52px no-repeat #0066ff;
-	display: block;
-}
-
-.eventdialog.sensitivity-confidential #event-status-badge span {
-	background: url(images/badge.png) 20px 2px no-repeat #cc0000;
-	display: block;
-}
-
 .calendarmain .status-cancelled #event-title,
 .calendarmain .sensitivity-private #event-title,
 .calendarmain .sensitivity-confidential #event-title {

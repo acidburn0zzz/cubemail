@@ -2873,7 +2873,6 @@ class calendar extends rcube_plugin
         }
         else if (in_array($header->ctype, array('multipart/alternative', 'multipart/mixed'))) {
           // TODO: fetch bodystructure and search for ical parts. Maybe too expensive?
-
           if (!empty($header->structure) && is_array($header->structure->parts)) {
             foreach ($header->structure->parts as $part) {
               if (libcalendaring::part_is_vcalendar($part) && !empty($part->ctype_parameters['method'])) {

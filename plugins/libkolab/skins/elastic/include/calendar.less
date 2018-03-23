@@ -757,63 +757,6 @@ fieldset.categories .input-group {
 
 }
 
-#event-status-badge {
-    width: 7rem;
-    height: 7rem;
-    position: absolute;
-    top: 0;
-    right: 0;
-    overflow: hidden;
-
-    span {
-        display: none;
-        text-transform: uppercase;
-        line-height: 20px;
-        position: absolute;
-        left: -2.4rem;
-        top: 2.4rem;
-        width: 13.2rem;
-        text-align: center;
-        font-weight: bold;
-        font-size: .85rem;
-        color: #fff;
-        -webkit-transform: rotate(45deg);
-        transform: rotate(45deg);
-
-        &:before {
-            &:extend(.font-icon-class);
-            display: inline;
-            float: none;
-        }
-
-        .status-cancelled & {
-            background-color: darken(@color-error, 10%);
-            display: block;
-
-            &:before {
-                content: @fa-var-times-circle;
-            }
-        }
-
-        .sensitivity-private & {
-            background-color: darken(@color-warning, 10%);
-            display: block;
-
-            &:before {
-                content: @fa-var-lock;
-            }
-        }
-
-        .sensitivity-confidential & {
-            background-color: darken(@color-error, 10%);
-            display: block;
-
-            &:before {
-                content: @fa-var-user-secret;
-            }
-        }
-    }
-}
 
 @color-availability-unknown: #ddd;
 @color-availability-free: #abd640;
