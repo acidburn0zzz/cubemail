@@ -335,6 +335,12 @@
 rcmail.addEventListener('tasks-insertrow', function(o) {
     UI.pretty_checkbox($(o.div).find('input'));
 });
+
+$('#taskselector a').on('click', function() {
+    var node = $(this).clone();
+    node.find('span').remove();
+    $('#taskselector-name').text(node.text());
+});
 </script>
 
 <roundcube:include file="includes/footer.html" />
