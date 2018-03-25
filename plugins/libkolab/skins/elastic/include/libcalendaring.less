@@ -75,6 +75,7 @@
 
     .rsvp-buttons {
         width: 100%;
+        padding-top: .25rem;
     }
 
     .itip-reply-controls {
@@ -83,6 +84,11 @@
 
         & > label {
             display: inline;
+
+            label {
+                line-height: 1;
+                margin-right: .25rem;
+            }
         }
 
         a {
@@ -304,8 +310,8 @@
             height: 2em;
 
             &:before {
-                line-height: 2;
-                height: 2em;
+                line-height: 1.8;
+                margin: 0;
             }
         }
     }
@@ -554,7 +560,6 @@
     }
 }
 
-
 #alarm-display {
     h3 {
         font-size: 1.2rem;
@@ -606,4 +611,24 @@
 
 #alarm-snooze-dropdown a:before {
     .font-icon-regular(@fa-var-clock);
+}
+
+.dialog-message {
+    margin: 0;
+    opacity: .95;
+    width: 100%;
+    padding: .75em;
+    margin-top: .25em;
+    color: @color-message;
+    background-color: @color-message-warning-background;
+
+    & > label {
+        margin: 0;
+        display: block;
+
+        label:before {
+            line-height: 1.25;
+            margin-right: .25rem;
+        }
+    }
 }

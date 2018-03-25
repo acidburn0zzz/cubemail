@@ -1094,7 +1094,10 @@ function rcube_tasklist_ui(settings)
             cache = {},
             activetags = {},
             msgbox = $('#listmessagebox').hide(),
-            list = $(rcmail.gui_objects.resultlist).html('');
+            list = $(rcmail.gui_objects.resultlist);
+            selected = $('.taskhead.selected', list).parent().attr('rel');
+
+        list.html('');
 
         for (var i=0; i < listindex.length; i++) {
             id = listindex[i];
@@ -1127,6 +1130,10 @@ function rcube_tasklist_ui(settings)
         if (!count) {
             msgbox.html(rcmail.gettext('notasksfound','tasklist')).show();
             rcmail.display_message(rcmail.gettext('notasksfound','tasklist'), 'voice');
+        }
+        else if (selected) {
+            // mark back the selected task
+            $('li[rel="' + selected + '"] > .taskhead').addClass('selected');
         }
     }
 
@@ -1402,6 +1409,12 @@ function rcube_tasklist_ui(settings)
             rcmail.set_busy(false, null, saving_lock);
             $('button.ui-button:ui-button').button('option', 'disabled', false);
             saving_lock = null;
+
+            // Elastic
+            if (!$('.selected', rcmail.gui_objects.resultlist).length) {
+                $('#taskedit').parents('.watermark').removeClass('formcontainer');
+                rcmail.triggerEvent('show-list');
+            }
         }
     }
 
@@ -2254,7 +2267,7 @@ function rcube_tasklist_ui(settings)
 
         if (data === false || !data.length || !rec) {
           // display 'unavailable' message
-          $('<div class="notfound-message task-dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','tasklist') + '</div>')
+          $('<div class="notfound-message dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','tasklist') + '</div>')
             .insertBefore($dialog.find('.changelog-table').hide());
           return;
         }
@@ -2853,14 +2866,14 @@ function rcube_tasklist_ui(settings)
         }
 
         if (me.is_attendee(rec)) {
-            html += '<div class="task-dialog-message">' +
-                '<label><input class="confirm-attendees-decline" type="checkbox" checked="checked" value="1" name="_decline" />&nbsp;' +
+            html += '<div class="dialog-message">' +
+                '<label><input class="confirm-attendees-decline pretty-checkbox" type="checkbox" checked="checked" value="1" name="_decline" />&nbsp;' +
                     rcmail.gettext('itipdeclinetask', 'tasklist') + 
                 '</label></div>';
         }
         else if (me.has_attendees(rec) && me.is_organizer(rec)) {
-            html += '<div class="task-dialog-message">' +
-                '<label><input class="confirm-attendees-notify" type="checkbox" checked="checked" value="1" name="_notify" />&nbsp;' +
+            html += '<div class="dialog-message">' +
+                '<label><input class="confirm-attendees-notify pretty-checkbox" type="checkbox" checked="checked" value="1" name="_notify" />&nbsp;' +
                     rcmail.gettext('sendcancellation', 'tasklist') + 
                 '</label></div>';
         }

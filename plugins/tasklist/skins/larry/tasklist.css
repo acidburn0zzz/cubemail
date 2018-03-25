@@ -1189,14 +1189,14 @@ label.block {
 	width: 20em;
 }
 
-.task-dialog-message {
+.dialog-message {
 	margin-top: 0.5em;
 	padding: 0.8em;
 	border: 1px solid #ffdf0e;
 	background-color: #fef893;
 }
 
-.task-dialog-message .message,
+.dialog-message .message,
 .task-update-confirm .message {
 	margin-bottom: 0.5em;
 }

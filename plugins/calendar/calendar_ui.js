@@ -971,7 +971,7 @@ function rcube_calendar_ui(settings)
 
       if (data === false || !data.length || !event) {
         // display 'unavailable' message
-        $('<div class="notfound-message event-dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','calendar') + '</div>')
+        $('<div class="notfound-message dialog-message warning">' + rcmail.gettext('objectchangelognotavailable','calendar') + '</div>')
           .insertBefore($dialog.find('.changelog-table').hide());
         return;
       }
