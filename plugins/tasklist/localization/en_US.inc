@@ -75,7 +75,7 @@ $labels['removetag'] = 'Remove';
 $labels['removelink'] = 'Remove email reference';
 $labels['auto'] = 'Auto';
 
-$labels['taskdetails'] = 'Details';
+$labels['taskdetails'] = 'Task details';
 $labels['newtask'] = 'New Task';
 $labels['edittask'] = 'Edit Task';
 $labels['save'] = 'Save';

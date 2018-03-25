@@ -641,32 +641,67 @@ function rcube_tasklist_ui(settings)
         }, datepicker_settings);
 
         rcmail.addEventListener('kolab-tags-search', filter_tasks)
-/*
-        // TODO
-            .addEventListener('kolab-tags-drop-data', function(e) { return notesdata[e.id]; })
+            .addEventListener('kolab-tags-drop-data', function(e) { return listdata[e.id]; })
             .addEventListener('kolab-tags-drop', function(e) {
-                if ($(e.list).is('#kolabnoteslist')) {
-                    return;
-                }
-
-                var rec = notesdata[e.id];
-
+                var rec = listdata[e.id];
                 if (rec && rec.id && e.tag) {
-                    savedata = me.selected_note && rec.uid == me.selected_note.uid ? get_save_data() : $.extend({}, rec);
-
-                    if (savedata.id)   delete savedata.id;
-                    if (savedata.html) delete savedata.html;
-
-                    if (!savedata.tags)
-                        savedata.tags = [];
-                    savedata.tags.push(e.tag);
-
-                    rcmail.lock_form(rcmail.gui_objects.noteseditform, true);
-                    saving_lock = rcmail.set_busy(true, 'kolab_notes.savingdata');
-                    rcmail.http_post('action', { _data: savedata, _do: 'edit' }, true);
+                    if (!rec.tags)
+                        rec.tags = [];
+                    rec.tags.push(e.tag);
+                    save_task(rec, 'edit');
                 }
             });
-*/
+
+        // Create simple list widget replacement for Elastic skin,
+        // as we do not use list nor treelist widget for tasks list
+        rcmail.tasklist = {
+            _find_sibling: function(dir) {
+                if (me.selected_task && me.selected_task.id) {
+                    var n = false,
+                        target = $('li[rel="' + me.selected_task.id + '"] > .taskhead', rcmail.gui_objects.resultlist)[0],
+                        items = $(rcmail.gui_objects.resultlist).find('.taskhead');
+
+                    items.each(function(i, item) {
+                        if (item === target) {
+                            n = i;
+                            return false;
+                        }
+                    });
+
+                    if (n !== false) {
+                        return items[n + dir];
+                    }
+                }
+            },
+            get_single_selection: function() {
+                if (me.selected_task) {
+                    return me.selected_task.id;
+                }
+            },
+            get_node: function(uid) {
+                if (me.selected_task && me.selected_task.id) {
+                    return {collapsed: true};
+                }
+            },
+            expand: function() {
+                if (me.selected_task && me.selected_task.id) {
+                    var parent = $('li[rel="' + me.selected_task.id + '"]', rcmail.gui_objects.resultlist).parent('.childtasks')[0];
+                    if (parent) {
+                        $(parent).parent().children('.childtoggle.collapsed').click();
+                    }
+                }
+            },
+            get_next: function() {
+                return rcmail.tasklist._find_sibling(1);
+            },
+            get_prev: function() {
+                return rcmail.tasklist._find_sibling(-1);
+            },
+            select: function(node) {
+                $(node).click();
+            }
+        };
+
         rcmail.triggerEvent('tasklist-init');
     }
 
@@ -1087,7 +1122,7 @@ function rcube_tasklist_ui(settings)
             return;
 
         fix_tree_toggles();
-        update_taglist();//activetags);
+        update_taglist();
 
         if (!count) {
             msgbox.html(rcmail.gettext('notasksfound','tasklist')).show();
@@ -1950,6 +1985,17 @@ function rcube_tasklist_ui(settings)
         me.selected_task = rec;
         list = rec.list && me.tasklists[rec.list] ? me.tasklists[rec.list] : {};
 
+        // hide nav buttons on mobile (elastic)
+        $('.content-frame-navigation > .buttons > .disabled').hide();
+
+        // for Elastic
+        rcmail.triggerEvent('show-content', {
+            mode: 'info',
+            title: rcmail.gettext('taskdetails', 'tasklist'),
+            obj: $('#taskshow').parent(),
+            scrollElement: $('#taskshow')
+        });
+
         var status = rcmail.gettext('status-' + String(rec.status).toLowerCase(),'tasklist');
 
         // fill dialog data
@@ -2154,7 +2200,10 @@ function rcube_tasklist_ui(settings)
 
         // Elastic
         $dialog.removeClass('hidden').parents('.watermark').addClass('formcontainer');
-        //$('#notedetailsbox').parent().trigger('loaded');
+        $('#taskshow').parent().trigger('loaded');
+
+        // hide nav buttons on mobile (elastic)
+        $('.content-frame-navigation > .buttons > :not(.disabled)').show();
     }
 
     /**
@@ -2365,6 +2414,21 @@ function rcube_tasklist_ui(settings)
 
         if (rcmail.busy || !me.has_permission(list, 'i') || (action == 'edit' && (!rec || rec.readonly)))
             return false;
+
+        // hide nav buttons on mobile (elastic)
+        $('.content-frame-navigation > .buttons > .disabled').hide();
+
+        if (action == 'new') {
+            $(rcmail.gui_objects.resultlist).find('.selected').removeClass('selected');
+        }
+
+        // for Elastic
+        rcmail.triggerEvent('show-content', {
+            mode: rec.uid ? 'edit' : 'add',
+            title: rcmail.gettext(rec.uid ? 'edittask' : 'newtask', 'tasklist'),
+            obj: $('#taskedit').parent(),
+            scrollElement: $('#taskedit')
+        });
 
         me.selected_task = $.extend({ valarms:[] }, rec);  // clone task object
         rec = me.selected_task;
@@ -2649,7 +2713,10 @@ function rcube_tasklist_ui(settings)
 
         // Elastic
         editform.removeClass('hidden').parents('.watermark').addClass('formcontainer');
-        //$('#notedetailsbox').parent().trigger('loaded');
+        $('#taskedit').parent().trigger('loaded');
+
+        // show nav buttons on mobile (elastic)
+        $('.content-frame-navigation > .buttons > :not(.disabled)').show();
     }
 
     /**
@@ -3114,7 +3181,7 @@ function rcube_tasklist_ui(settings)
         if (list && list.caldavurl) {
             var dialog = $('<div>').addClass('showurldialog').append('<p>'+rcmail.gettext('caldavurldescription', 'tasklist')+'</p>'),
                 textbox = $('<textarea>').addClass('urlbox form-control').css('width', '100%')
-                    .attr({rows: 2, readonly: true}).appendTo(dialog);
+                    .attr({rows: 3, readonly: true}).appendTo(dialog);
 
             rcmail.simple_dialog(dialog, 'tasklist.showcaldavurl', null, {
                 open: function() { textbox.val(list.caldavurl).select(); },

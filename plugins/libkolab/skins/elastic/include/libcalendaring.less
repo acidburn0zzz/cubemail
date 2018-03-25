@@ -158,7 +158,8 @@
         display: inline;
         float: none;
         font-size: 1em;
-        margin-left: .2rem;
+        margin-left: .3rem;
+        color: @color-black-shade-text;
     }
 
     &.req-participant:after {
@@ -362,13 +363,9 @@
     }
 
     .edit-alarm-buttons {
-        width: 5em;
-
         a {
-            line-height: 1.2;
-            display: block;
+            line-height: 1;
             padding: .375em .25em;
-            float: left;
             margin: 0 .25rem;
 
             &:before {
@@ -383,6 +380,10 @@
     }
 
     .edit-alarm-item.first .delete-alarm {
+        display: none;
+    }
+
+    .edit-alarm-item:not(.first) .add-alarm {
         display: none;
     }
 

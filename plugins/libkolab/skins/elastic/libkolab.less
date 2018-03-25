@@ -91,14 +91,16 @@
                 }
             }
 
-            a.quickview:before {
-                content: @fa-var-eye;
-                opacity: .2;
-                color: @color-link;
-            }
+            a.quickview {
+                &:before {
+                    content: @fa-var-eye;
+                    opacity: .2;
+                    color: @color-link;
+                }
 
-            a.quickview:after {
-                display: none !important;
+                &:after {
+                    display: none !important;
+                }
             }
 
             &.focusview {
@@ -211,6 +213,7 @@
             position: relative !important;
             margin: 0 .3em 0 -1em !important;
             right: 0 !important;
+            font-size: 1.15em;
         }
     }
 
@@ -244,6 +247,13 @@ html.touch .listing {
         & > div {
             a:after {
                 height: @listing-touch-line-height !important;
+            }
+        }
+
+        .actions {
+            margin-left: .2rem;
+            a {
+                margin-right: .5rem;
             }
         }
     }

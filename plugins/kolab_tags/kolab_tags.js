@@ -1113,34 +1113,55 @@ function tag_draggable_helper()
 
 function tag_draggable_start(event, ui)
 {
-    // register notes list to receive drop events
     if (rcmail.gui_objects.noteslist) {
+        // register notes list to receive drop events
         $('tr', rcmail.gui_objects.noteslist).droppable({
             addClasses: false,
             hoverClass: 'droptarget',
             accept: tag_droppable_accept,
             drop: tag_draggable_dropped
         });
-    }
 
-    // allow to drop tags onto edit form title
-    $('body.task-notes .content.formcontainer,#notedetailstitle.boxtitle').droppable({
-        addClasses: false,
-        accept: function() { return $(this).is('.formcontainer,.boxtitle'); },
-        drop: function(event, ui) {
-            var tag = tag_find(ui.draggable.data('tag'));
-            $('#tagedit-input').val(tag.name).trigger('transformToTag');
-            $('.tagline .placeholder', rcmail.gui_objects.noteviewtitle).hide();
-        }
-    }).addClass('tag-droppable');
+        // allow to drop tags onto note edit form
+        $('body.task-notes .content.formcontainer,#notedetailstitle.boxtitle').droppable({
+            addClasses: false,
+            accept: function() { return $(this).is('.formcontainer,.boxtitle'); },
+            drop: function(event, ui) {
+                var tag = tag_find(ui.draggable.data('tag'));
+                $('#tagedit-input').val(tag.name).trigger('transformToTag');
+                $('.tagline .placeholder', rcmail.gui_objects.noteviewtitle).hide();
+            }
+        }).addClass('tag-droppable');
+    }
+    else if (rcmail.task == 'tasks' && rcmail.gui_objects.resultlist) {
+
+        $('div.taskhead', rcmail.gui_objects.resultlist).droppable({
+            addClasses: false,
+            hoverClass: 'droptarget',
+            accept: tag_droppable_accept,
+            drop: tag_draggable_dropped
+        });
+
+
+        // allow to drop tags onto task edit form
+        $('body.task-tasks .content.formcontainer').droppable({
+            addClasses: false,
+            accept: function() { return $(this).is('.formcontainer') && $('#taskedit').is(':visible'); },
+            drop: function(event, ui) {
+                var tag = tag_find(ui.draggable.data('tag'));
+                $('#tagedit-input').val(tag.name).trigger('transformToTag');
+            }
+        }).addClass('tag-droppable');
+    }
 }
 
 function tag_draggable_dropped(event, ui)
 {
-    var drop_id = $(this).attr('id').replace(/^rcmrow/, ''),
-        tag = tag_find(ui.draggable.data('tag'));
+    var drop_id = tag_draggable_target_id(this),
+        tag = tag_find(ui.draggable.data('tag')),
+        list = $(this).parent();
 
-    rcmail.triggerEvent('kolab-tags-drop', {id: drop_id, tag: tag.name, list: $(this).parent()});
+    rcmail.triggerEvent('kolab-tags-drop', {id: drop_id, tag: tag.name, list: list});
 }
 
 function tag_droppable_accept(draggable)
@@ -1149,16 +1170,30 @@ function tag_droppable_accept(draggable)
         return false;
     }
 
-    var tag = tag_find(draggable.data('tag')),
-        drop_id = $(this).attr('id').replace(/^rcmrow/, ''),
+    var drop_id = tag_draggable_target_id(this),
+        tag = tag_find(draggable.data('tag')),
         data = rcmail.triggerEvent('kolab-tags-drop-data', {id: drop_id});
 
     // target already has this tag assigned
-    if (!data || (data.tags && $.inArray(tag.name, data.tags) >= 0)) {
+    if (!data || !tag || (data.tags && $.inArray(tag.name, data.tags) >= 0)) {
         return false;
     }
 
     return true;
+}
+
+function tag_draggable_target_id(elem)
+{
+    var id = $(elem).attr('id');
+
+    if (id) {
+        id = id.replace(/^rcmrow/, ''); // Notes
+    }
+    else {
+        id = $(elem).parent().attr('rel'); // Tasks
+    }
+
+    return id;
 }
 
 // Convert list of tag names into "blocks" and add to the specified element

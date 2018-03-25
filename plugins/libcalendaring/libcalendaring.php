@@ -941,7 +941,7 @@ class libcalendaring extends rcube_plugin
             case 'until':
                 $radio  = new html_radiobutton(array('name' => 'repeat', 'class' => 'edit-recurrence-until'));
                 $select = $this->interval_selector(array('name' => 'times', 'id' => 'edit-recurrence-repeat-times', 'class' => 'form-control'));
-                $input  = new html_inputfield(array('name' => 'untildate', 'id' => 'edit-recurrence-enddate', 'size' => "10", 'class' => 'form-control'));
+                $input  = new html_inputfield(array('name' => 'untildate', 'id' => 'edit-recurrence-enddate', 'size' => '10', 'class' => 'form-control datepicker'));
 
                 $html = html::div('line first',
                     $radio->show('', array('value' => '', 'id' => 'edit-recurrence-repeat-forever'))
@@ -978,7 +978,7 @@ class libcalendaring extends rcube_plugin
 
             case 'rdate':
                 $ul     = html::tag('ul', array('id' => 'edit-recurrence-rdates', 'class' => 'recurrence-rdates'), '');
-                $input  = new html_inputfield(array('name' => 'rdate', 'id' => 'edit-recurrence-rdate-input', 'size' => "10", 'class' => 'form-control'));
+                $input  = new html_inputfield(array('name' => 'rdate', 'id' => 'edit-recurrence-rdate-input', 'size' => "10", 'class' => 'form-control datepicker'));
                 $button = new html_inputfield(array('type' => 'button', 'class' => 'button add', 'value' => $this->gettext('addrdate')));
 
                 $html = html::div($attrib, html::label(array('class' => 'col-form-label col-sm-2', 'for' => 'edit-recurrence-rdate-input'), $this->gettext('bydates'))
