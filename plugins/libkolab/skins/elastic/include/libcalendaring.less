@@ -328,12 +328,28 @@
     }
 }
 
+html.touch {
+    .edit-attendees-table {
+        td.invite {
+            label:before {
+                line-height: 1.2;
+                height: 1.2em;
+            }
+        }
+    }
+}
+
 .form-searchbar {
     display: flex;
     margin-bottom: .5rem;
 
+    input[type=text] {
+        flex: 1;
+    }
+
     input[type=button] {
         margin-left: .5em;
+        .overflow-ellipsis;
     }
 }
 

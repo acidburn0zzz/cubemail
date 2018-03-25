@@ -452,7 +452,7 @@ class tasklist_ui
      */
     function attendees_form($attrib = array())
     {
-        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => 30, 'class' => 'form-control'));
+        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'edit-attendee-name', 'size' => $attrib['size'], 'class' => 'form-control'));
         $textarea = new html_textarea(array('name' => 'comment', 'id' => 'edit-attendees-comment',
             'rows' => 4, 'cols' => 55, 'title' => $this->plugin->gettext('itipcommenttitle'), 'class' => 'form-control'));
 
