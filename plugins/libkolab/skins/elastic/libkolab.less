@@ -272,6 +272,33 @@ html.touch .listing {
     }
 }
 
+.folderlist li.mailbox {
+    &.type-event > a:before {
+        .font-icon-solid(@fa-var-calendar);
+    }
+    &.type-task > a:before {
+        .font-icon-solid(@fa-var-calendar-check);
+    }
+    &.type-journal > a:before {
+        .font-icon-regular(@fa-var-calendar);
+    }
+    &.type-contact > a:before {
+        .font-icon-regular(@fa-var-address-book);
+    }
+    &.type-note > a:before {
+        .font-icon-regular(@fa-var-sticky-note);
+    }
+    &.type-configuration > a:before {
+        .font-icon-solid(@fa-var-cog);
+    }
+    &.type-freebusy > a:before {
+        .font-icon-regular(@fa-var-calendar);
+    }
+    &.type-file > a:before {
+        .font-icon-solid(@fa-var-folder);
+    }
+}
+
 .toolbarmenu.listing li {
     &.search {
         padding: .25rem .5rem;

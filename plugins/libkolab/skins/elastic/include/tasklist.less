@@ -21,16 +21,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#taskmenu a.tasklist:before {
+    content: @fa-var-calendar-check;
+}
+
 .toolbarmenu.listing li {
     a.tasklistlink:before,
     a.taskaddlink:before {
         .font-icon-regular(@fa-var-calendar-check);
     }
-}
-
-.folderlist li.type-task > a::before,
-#taskmenu a.tasklist:before {
-    content: @fa-var-calendar-check;
 }
 
 .tasklist-invitebox {
