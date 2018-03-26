@@ -24,13 +24,18 @@
 .toolbarmenu.listing li {
     a.tasklistlink:before,
     a.taskaddlink:before {
-        content: @fa-var-tasks;
+        .font-icon-regular(@fa-var-calendar-check);
     }
+}
+
+.folderlist li.type-task > a::before,
+#taskmenu a.tasklist:before {
+    content: @fa-var-calendar-check;
 }
 
 .tasklist-invitebox {
     & > i.icon:before {
-        content: @fa-var-tasks !important;
+        content: @fa-var-calendar-check !important;
     }
 }
 
@@ -39,7 +44,7 @@
         & > div {
             &.tasklist .listname:before {
                 &:extend(.font-icon-class);
-                content: @fa-var-tasks;
+                content: @fa-var-calendar-check;
             }
         }
     }
@@ -308,7 +313,7 @@ html.touch #tasklist {
 
 .messagetasklinks {
     & > i.icon:before {
-        content: @fa-var-tasks !important;
+        content: @fa-var-calendar-check !important;
     }
 
     .tasklist {
