@@ -209,7 +209,6 @@
     }
 }
 
-
 .attendees-comentbox {
     label {
         display: inline;
@@ -553,4 +552,58 @@
             }
         }
     }
+}
+
+
+#alarm-display {
+    h3 {
+        font-size: 1.2rem;
+        margin-bottom: .25rem;
+
+        &:before {
+            &:extend(.font-icon-class);
+            .font-icon-regular(@fa-var-calendar-alt);
+            font-size: 1em;
+        }
+
+        &.type-task:before {
+            .font-icon-regular(@fa-var-calendar-check);
+        }
+    }
+
+    .event-section {
+        font-size: .9rem;
+        color: @color-black-shade-text;
+        white-space: nowrap;
+        .overflow-ellipsis;
+    }
+
+    .alarm-actions {
+        text-align: right;
+        margin-bottom: .25rem;
+
+        a {
+            &:first-child {
+                margin-right: 1em;
+            }
+
+            &:before {
+                &:extend(.font-icon-class);
+                display: inline;
+                float: none;
+            }
+        }
+    }
+
+    a.alarm-action-snooze:before {
+        content: @fa-var-bell-slash;
+    }
+
+    a.alarm-action-dismiss:before {
+        content: @fa-var-trash-alt;
+    }
+}
+
+#alarm-snooze-dropdown a:before {
+    .font-icon-regular(@fa-var-clock);
 }
