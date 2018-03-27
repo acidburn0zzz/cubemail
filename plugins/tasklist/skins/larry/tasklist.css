@@ -1384,3 +1384,11 @@ div.messagetasklinks .messagetaskref input.complete {
 .form-section label + div {
 	display: inline-block;
 }
+
+.col-form-label {
+	line-height: 2;
+}
+
+.col-sm-4 {
+	min-width: 8em !important;
+}

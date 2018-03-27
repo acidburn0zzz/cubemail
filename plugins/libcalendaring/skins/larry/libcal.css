@@ -131,6 +131,10 @@ label.noreply-toggle + a.reply-comment-toggle {
 	overflow: auto;
 }
 
+#edit-recurrence-rdates:empty {
+	margin: 0;
+}
+
 #edit-recurrence-rdates li {
 	display: block;
 	position: relative;
@@ -140,20 +144,12 @@ label.noreply-toggle + a.reply-comment-toggle {
 
 #edit-recurrence-rdates li a.delete {
 	position: absolute;
-	top: 2px;
+	top: 5px;
 	right: 0;
-	width: 20px;
-	height: 18px;
+	width: 8px;
+	height: 16px;
 	background-position: -7px -337px;
-}
-
-#recurrence-form-until div.line {
-	margin-left: 7.5em;
-	margin-bottom: 0.3em;
-}
-
-#recurrence-form-until div.line.first {
-	margin-top: -1.4em;
+	border: 0;
 }
 
 .itip-dialog-form input.text {
@@ -217,4 +213,8 @@ label.noreply-toggle + a.reply-comment-toggle {
 .sensitivity-confidential #event-status-badge span {
 	background: url(images/badge.png) 20px 2px no-repeat #cc0000;
 	display: block;
+}
+
+#edit-attendees-comment {
+	margin-top: .5em;
 }
