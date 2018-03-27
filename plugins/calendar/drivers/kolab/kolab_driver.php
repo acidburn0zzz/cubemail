@@ -2325,7 +2325,23 @@ class kolab_driver extends calendar_driver
     if (in_array($calendar['id'], array(self::BIRTHDAY_CALENDAR_ID, self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED))) {
       if ($calendar['id'] != self::BIRTHDAY_CALENDAR_ID)
         unset($formfields['showalarms']);
-      return parent::calendar_form($action, $calendar, $formfields);
+
+      // General tab
+      $form['props'] = array(
+        'name'    => $this->rc->gettext('properties'),
+        'content' => $formfields,
+      );
+
+      $form_html = '';
+
+      // Create form output
+      foreach ($form as $tab) {
+        if ($content = $this->get_form_part($tab)) {
+          $form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
+        }
+      }
+
+      return $form_html;
     }
 
     $this->_read_calendars();
@@ -2396,22 +2412,23 @@ class kolab_driver extends calendar_driver
       );
     }
 
-    $this->form_html = '';
+    $form_html = '';
+
     if (is_array($hidden_fields)) {
         foreach ($hidden_fields as $field) {
             $hiddenfield = new html_hiddenfield($field);
-            $this->form_html .= $hiddenfield->show() . "\n";
+            $form_html .= $hiddenfield->show() . "\n";
         }
     }
 
     // Create form output
     foreach ($form as $tab) {
       if ($content = $this->get_form_part($tab)) {
-        $this->form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
+        $form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
       }
     }
 
-    return $this->form_html;
+    return $form_html;
   }
 
   /**
