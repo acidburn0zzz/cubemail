@@ -253,8 +253,8 @@ class tasklist_ui
         }
 
         $classes = array('tasklist');
-        $title = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
-          html_entity_decode($prop['name'], ENT_COMPAT, RCUBE_CHARSET) : '');
+        $title   = $prop['title'] ?: ($prop['name'] != $prop['listname'] || strlen($prop['name']) > 25 ?
+            html_entity_decode($prop['name'], ENT_COMPAT, RCUBE_CHARSET) : '');
 
         if ($prop['virtual'])
             $classes[] = 'virtual';
@@ -267,15 +267,22 @@ class tasklist_ui
 
         if (!$activeonly || $prop['active']) {
             $label_id = 'tl:' . $id;
+            $chbox = html::tag('input', array(
+                    'type'    => 'checkbox',
+                    'name'    => '_list[]',
+                    'value'   => $id,
+                    'checked' => $prop['active'],
+                    'title'   => $this->plugin->gettext('activate'),
+                    'aria-labelledby' => $label_id
+            ));
+
             return html::div(join(' ', $classes),
                 html::a(array('class' => 'listname', 'title' => $title, 'href' => '#', 'id' => $label_id), $prop['listname'] ?: $prop['name']) .
-                  ($prop['virtual'] ? '' :
-                      html::tag('input', array('type' => 'checkbox', 'name' => '_list[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id)) .
-                      html::span('actions', 
-                          ($prop['removable'] ? html::a(array('href' => '#', 'class' => 'remove', 'title' => $this->plugin->gettext('removelist')), ' ') : '') .
-                          html::a(array('href' => '#', 'class' => 'quickview', 'title' => $this->plugin->gettext('focusview'), 'role' => 'checkbox', 'aria-checked' => 'false'), ' ') .
-                          (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('tasklistsubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') : '')
-                      )
+                    ($prop['virtual'] ? '' : $chbox . html::span('actions',
+                          ($prop['removable'] ? html::a(array('href' => '#', 'class' => 'remove', 'title' => $this->plugin->gettext('removelist')), ' ') : '')
+                          . html::a(array('href' => '#', 'class' => 'quickview', 'title' => $this->plugin->gettext('focusview'), 'role' => 'checkbox', 'aria-checked' => 'false'), ' ')
+                          . (isset($prop['subscribed']) ? html::a(array('href' => '#', 'class' => 'subscribed', 'title' => $this->plugin->gettext('tasklistsubscribe'), 'role' => 'checkbox', 'aria-checked' => $prop['subscribed'] ? 'true' : 'false'), ' ') : '')
+                    )
                 )
             );
         }

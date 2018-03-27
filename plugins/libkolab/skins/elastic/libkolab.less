@@ -390,8 +390,23 @@ button.btn.print:before {
     padding: .5em 1em;
     background-color: @color-black-shade-bg;
 
+    button {
+        margin-right: 1rem;
+    }
+
     .prop {
         margin-left: .5rem;
+        display: inline-block;
+        vertical-align: middle;
+
+        label {
+            margin: 0;
+        }
+
+        label:before {
+            line-height: 1.25;
+            margin-right: .25rem;
+        }
     }
 
     @media print {

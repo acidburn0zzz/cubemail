@@ -1685,7 +1685,7 @@ function rcube_tasklist_ui(settings)
         if (!task_draghelper)
             task_draghelper = $('<div id="rcmdraglayer" class="taskitem-draghelper">');
 
-        var title = $(e.target).parents('li').first().find('.title').text();
+        var title = $(e.target).parents('li').first().find('.title:first').text();
 
         task_draghelper.html(Q(title) || '&#x2714');
 
@@ -2573,7 +2573,7 @@ function rcube_tasklist_ui(settings)
 
         // activate the first tab
         $('#taskedit:not([data-notabs])').tabs('option', 'active', 0); // Larry
-        if (elastic && $.tab)
+        if ($('#taskedit').data('notabs'))
             $('#taskedit li.nav-item:first-child a').tab('show'); // Elastic
 
         // define dialog buttons
@@ -2722,11 +2722,11 @@ function rcube_tasklist_ui(settings)
             me.dialog_resize($dialog.get(0), $dialog.height(), 580);
         }
 
-        title.select();
-
         // Elastic
         editform.removeClass('hidden').parents('.watermark').addClass('formcontainer');
         $('#taskedit').parent().trigger('loaded');
+
+        title.select();
 
         // show nav buttons on mobile (elastic)
         $('.content-frame-navigation > .buttons > :not(.disabled)').show();

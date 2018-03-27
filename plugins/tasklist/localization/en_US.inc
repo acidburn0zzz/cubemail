@@ -102,6 +102,7 @@ $labels['import'] = 'Import';
 $labels['importtasks'] = 'Import Tasks';
 $labels['viewactions'] = 'View actions';
 $labels['focusview'] = 'View only this list';
+$labels['activate'] = 'Activate';
 
 // date words
 $labels['on'] = 'on';
