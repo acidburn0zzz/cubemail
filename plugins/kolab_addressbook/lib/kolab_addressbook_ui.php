@@ -121,6 +121,10 @@ class kolab_addressbook_ui
                 'kolab_addressbook.nraddressbooksfound',
                 'kolab_addressbook.noaddressbooksfound',
                 'kolab_addressbook.foldersubscribe',
+                'kolab_addressbook.bookedit',
+                'kolab_addressbook.bookcreate',
+                'kolab_addressbook.nobooknamewarning',
+                'kolab_addressbook.booksaving',
                 'resetsearch'
             );
 
@@ -146,23 +150,17 @@ class kolab_addressbook_ui
             $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/kolab_addressbook.css', true);
             $this->rc->output->add_label('kolab_addressbook.showhistory');
         }
-        // book create/edit form
-        else {
-            $this->rc->output->add_label('kolab_addressbook.nobooknamewarning',
-                'kolab_addressbook.booksaving');
-        }
     }
-
 
     /**
      * Handler for address book create/edit action
      */
     public function book_edit()
     {
-        $this->rc->output->add_handler('bookdetails', array($this, 'book_form'));
-        $this->rc->output->send('kolab_addressbook.bookedit');
+        $this->rc->output->set_env('pagetitle', $this->plugin->gettext('bookproperties'));
+        $this->rc->output->add_handler('folderform', array($this, 'book_form'));
+        $this->rc->output->send('libkolab.folderform');
     }
-
 
     /**
      * Handler for 'bookdetails' object returning form content for book create/edit
@@ -182,17 +180,7 @@ class kolab_addressbook_ui
         $storage = $this->rc->get_storage();
         $delim   = $storage->get_hierarchy_delimiter();
 
-        if ($this->rc->action == 'plugin.book-save') {
-            // save error
-            $name      = trim(rcube_utils::get_input_value('_name', rcube_utils::INPUT_GPC, true)); // UTF8
-            $old       = trim(rcube_utils::get_input_value('_oldname', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
-            $path_imap = trim(rcube_utils::get_input_value('_parent', rcube_utils::INPUT_GPC, true)); // UTF7-IMAP
-
-            $hidden_fields[] = array('name' => '_oldname', 'value' => $old);
-
-            $folder = $old;
-        }
-        else if ($action == 'edit') {
+        if ($action == 'edit') {
             $path_imap = explode($delim, $folder);
             $name      = rcube_charset::convert(array_pop($path_imap), 'UTF7-IMAP');
             $path_imap = implode($path_imap, $delim);
@@ -213,8 +201,9 @@ class kolab_addressbook_ui
         $form = array();
 
         // General tab
-        $form['props'] = array(
-            'name' => $this->rc->gettext('properties'),
+        $form['properties'] = array(
+            'name'   => $this->rc->gettext('properties'),
+            'fields' => array(),
         );
 
         if (!empty($options) && ($options['norename'] || $options['protected'])) {
@@ -225,14 +214,10 @@ class kolab_addressbook_ui
             $foldername = $foldername->show($name);
         }
 
-        $form['props']['fieldsets']['location'] = array(
-            'name'  => $this->rc->gettext('location'),
-            'content' => array(
-                'name' => array(
-                    'label' => $this->plugin->gettext('bookname'),
-                    'value' => $foldername,
-                ),
-            ),
+        $form['properties']['fields']['name'] = array(
+            'label' => $this->plugin->gettext('bookname'),
+            'value' => $foldername,
+            'id'    => '_name',
         );
 
         if (!empty($options) && ($options['norename'] || $options['protected'])) {
@@ -243,9 +228,10 @@ class kolab_addressbook_ui
             $prop   = array('name' => '_parent', 'id' => '_parent');
             $select = kolab_storage::folder_selector('contact', $prop, $folder);
 
-            $form['props']['fieldsets']['location']['content']['parent'] = array(
+            $form['properties']['fields']['parent'] = array(
                 'label' => $this->plugin->gettext('parentbook'),
                 'value' => $select->show(strlen($folder) ? $path_imap : ''),
+                'id'    => '_parent',
             );
         }
 
@@ -253,44 +239,38 @@ class kolab_addressbook_ui
         $plugin = $this->rc->plugins->exec_hook('addressbook_form',
             array('form' => $form, 'options' => $options, 'name' => $folder));
 
-        $form = $plugin['form'];
+        $form      = $plugin['form'];
+        $form_html = '';
 
-        // Set form tags and hidden fields
-        list($form_start, $form_end) = $this->get_form_tags($attrib, 'plugin.book-save', null, $hidden_fields);
-
-        unset($attrib['form']);
-
-        // return the complete edit form as table
-        $out = "$form_start\n";
-
-        // Create form output
-        foreach ($form as $idx => $tab) {
-            if (!empty($tab['fieldsets']) && is_array($tab['fieldsets'])) {
-                $content = '';
-                foreach ($tab['fieldsets'] as $fieldset) {
-                    $subcontent = $this->get_form_part($fieldset);
-                    if ($subcontent) {
-                        $content .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($fieldset['name'])) . $subcontent) ."\n";
-                    }
-                }
-            }
-            else {
-                $content = $this->get_form_part($tab);
-            }
-
-            if ($content) {
-                if ($idx != 'props') {
-                    $out .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
-                }
-                else {
-                    $out .= $content ."\n";
-                }
+        if (is_array($hidden_fields)) {
+            foreach ($hidden_fields as $field) {
+                $hiddenfield = new html_hiddenfield($field);
+                $form_html .= $hiddenfield->show() . "\n";
             }
         }
 
-        $out .= "\n$form_end";
+        // create form output
+        foreach ($form as $tab) {
+            if (is_array($tab['fields']) && empty($tab['content'])) {
+                $table = new html_table(array('cols' => 2, 'class' => 'propform'));
+                foreach ($tab['fields'] as $col => $colprop) {
+                    $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
 
-        return $out;
+                    $table->add('title', html::label($colprop['id'], rcube::Q($label)));
+                    $table->add(null, $colprop['value']);
+                }
+                $content = $table->show();
+            }
+            else {
+                $content = $tab['content'];
+            }
+
+            if (!empty($content)) {
+                $form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) . "\n";
+            }
+        }
+
+        return html::tag('form', $attrib + array('action' => 'plugin.book-save', 'method' => 'post', 'id' => 'bookpropform'), $form_html);
     }
 
     /**

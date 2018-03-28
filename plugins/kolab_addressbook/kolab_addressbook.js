@@ -29,9 +29,6 @@
 if (window.rcmail) {
     rcmail.addEventListener('init', function() {
         rcmail.set_book_actions();
-        if (rcmail.gui_objects.editform && rcmail.env.action.match(/^plugin\.book/)) {
-            rcmail.enable_command('book-save', true);
-        }
 
         // contextmenu
         kolab_addressbook_contextmenu();
@@ -142,12 +139,48 @@ rcube_webmail.prototype.set_book_actions = function()
 
 rcube_webmail.prototype.book_create = function()
 {
-    this.book_show_contentframe('create');
+    this.book_dialog('create');
 };
 
 rcube_webmail.prototype.book_edit = function()
 {
-    this.book_show_contentframe('edit');
+    this.book_dialog('edit');
+};
+
+// displays page with book edit/create form
+rcube_webmail.prototype.book_dialog = function(action)
+{
+    var title = rcmail.gettext('kolab_addressbook.book' + action),
+        params = {_act: action, _source: this.book_realname(), _framed: 1},
+        dialog = $('<iframe>').attr('src', rcmail.url('plugin.book', params)),
+        save_func = function() {
+            var data,
+                form = dialog.contents().find('form'),
+                input = form.find("input[name='_name']");
+
+            // form is not loaded
+            if (!form || !form.length)
+                return false;
+
+            if (input.length && input.val() == '') {
+                rcmail.alert_dialog(rcmail.get_label('kolab_addressbook.nobooknamewarning'), function() {
+                    input.focus();
+                });
+
+                return;
+            }
+
+            // post data to server
+            data = form.serializeJSON();
+
+            rcmail.http_post('plugin.book-save', data, rcmail.set_busy(true, 'kolab_addressbook.booksaving'));
+            return true;
+        };
+
+    rcmail.simple_dialog(dialog, title, save_func, {
+        width: 600,
+        height: 400
+    });
 };
 
 rcube_webmail.prototype.book_remove = function(id)
@@ -189,51 +222,6 @@ rcube_webmail.prototype.book_showurl = function()
 
         textbox.val(url).select();
     }
-};
-
-// displays page with book edit/create form
-rcube_webmail.prototype.book_show_contentframe = function(action, framed)
-{
-    var add_url = '', target = window;
-
-    // unselect contact
-    this.contact_list.clear_selection();
-    this.enable_command('edit', 'delete', 'compose', false);
-
-    if (this.env.contentframe && window.frames && window.frames[this.env.contentframe]) {
-        add_url = '&_framed=1';
-        target = window.frames[this.env.contentframe];
-        this.show_contentframe(true);
-    }
-    else if (framed)
-        return false;
-
-    if (action) {
-        this.lock_frame();
-        this.location_href(this.env.comm_path+'&_action=plugin.book&_act='+action
-            +'&_source='+urlencode(this.book_realname())
-            +add_url, target);
-    }
-
-    return true;
-};
-
-// submits book create/update form
-rcube_webmail.prototype.book_save = function()
-{
-    var form = this.gui_objects.editform,
-        input = $("input[name='_name']", form)
-
-    if (input.length && input.val() == '') {
-        alert(this.get_label('kolab_addressbook.nobooknamewarning'));
-        input.focus();
-        return;
-    }
-
-    input = this.display_message(this.get_label('kolab_addressbook.booksaving'), 'loading');
-    $('<input type="hidden" name="_unlock" />').val(input).appendTo(form);
-
-    form.submit();
 };
 
 // action executed after book delete
@@ -284,8 +272,6 @@ rcube_webmail.prototype.book_update = function(data, old)
                 title: this.gettext('kolab_addressbook.foldersubscribe')
             })
         );
-
-    this.show_contentframe(false);
 
     // set row attributes
     if (data.readonly)
