@@ -297,6 +297,7 @@ $labels['arialabelsearchform'] = 'Event search form';
 $labels['arialabelquicksearchbox'] = 'Event search input';
 $labels['arialabelcalsearchform'] = 'Calendars search form';
 $labels['calendaractions'] = 'Calendar actions';
+$labels['calendarprops'] = 'Calendar properties';
 $labels['arialabeleventattendees'] = 'Event participants list';
 $labels['arialabeleventresources'] = 'Event resources list';
 $labels['arialabelresourcesearchform'] = 'Resources search form';

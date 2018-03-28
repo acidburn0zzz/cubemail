@@ -621,8 +621,9 @@ class calendar_ui
     // load miniColors js/css files
     jqueryui::miniColors();
 
-    $this->rc->output->add_handler('calendarform', array($this, 'calendarform'));
-    $this->rc->output->send('calendar.folderform');
+    $this->rc->output->set_env('pagetitle', $this->cal->gettext('calendarprops'));
+    $this->rc->output->add_handler('folderform', array($this, 'calendarform'));
+    $this->rc->output->send('libkolab.folderform');
   }
 
   /**

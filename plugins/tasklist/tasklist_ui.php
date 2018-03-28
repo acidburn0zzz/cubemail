@@ -338,8 +338,10 @@ class tasklist_ui
     {
         $this->action = $action;
         $this->list   = $list;
-        $this->rc->output->add_handler('tasklistform', array($this, 'tasklistform'));
-        $this->rc->output->send('tasklist.listform');
+
+        $this->rc->output->set_env('pagetitle', $this->plugin->gettext('arialabeltasklistform'));
+        $this->rc->output->add_handler('folderform', array($this, 'tasklistform'));
+        $this->rc->output->send('libkolab.folderform');
     }
 
     function tasklistform($attrib)

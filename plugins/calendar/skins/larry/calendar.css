@@ -1501,20 +1501,6 @@ a.dropdown-link:after {
 	padding-right: 0.5em;
 }
 
-#calendar-kolabform {
-	position: relative;
-	margin: 0 -8px;
-	min-width: 660px;
-	min-height: 400px;
-}
-
-#calendar-kolabform table td.title {
-	font-weight: bold;
-	white-space: nowrap;
-	color: #666;
-	padding-right: 10px;
-}
-
 #resource-selection {
 	position: absolute;
 	top: 0;

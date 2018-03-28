@@ -284,8 +284,9 @@ class kolab_notes_ui
         $this->list   = $list;
         $this->folder = is_object($folder) ? $folder->name : ''; // UTF7;
 
-        $this->rc->output->add_handler('notebookform', array($this, 'notebookform'));
-        $this->rc->output->send('kolab_notes.listform');
+        $this->rc->output->set_env('pagetitle', $this->plugin->gettext('arialabelnotebookform'));
+        $this->rc->output->add_handler('folderform', array($this, 'notebookform'));
+        $this->rc->output->send('libkolab.folderform');
     }
 
     /**
