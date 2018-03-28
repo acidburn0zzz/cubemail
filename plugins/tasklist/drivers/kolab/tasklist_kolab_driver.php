@@ -1719,61 +1719,6 @@ class tasklist_kolab_driver extends tasklist_driver
             $form['properties']['fields'][$f] = $fieldprop[$f];
         }
 
-        // add folder ACL tab
-        if ($action != 'form-new') {
-            $form['sharing'] = array(
-                'name'    => rcube::Q($this->plugin->gettext('tabsharing')),
-                'content' => $this->folder_acl_form($folder_name)
-            );
-        }
-
-        $form_html = '';
-        if (is_array($hidden_fields)) {
-            foreach ($hidden_fields as $field) {
-                $hiddenfield = new html_hiddenfield($field);
-                $form_html .= $hiddenfield->show() . "\n";
-            }
-        }
-
-        // create form output
-        foreach ($form as $tab) {
-            if (is_array($tab['fields']) && empty($tab['content'])) {
-                $table = new html_table(array('cols' => 2, 'class' => 'propform'));
-                foreach ($tab['fields'] as $col => $colprop) {
-                    $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
-
-                    $table->add('title', html::label($colprop['id'], rcube::Q($label)));
-                    $table->add(null, $colprop['value']);
-                }
-                $content = $table->show();
-            }
-            else {
-                $content = $tab['content'];
-            }
-
-            if (!empty($content)) {
-                $form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) . "\n";
-            }
-        }
-
-        return $form_html;
-    }
-
-    /**
-     * Handler for ACL form template object
-     */
-    public function folder_acl_form($folder)
-    {
-        if (strlen($folder)) {
-            $this->plugin->require_plugin('acl');
-            $storage = $this->rc->get_storage();
-            $options = $storage->folder_info($folder);
-
-            // get sharing UI from acl plugin
-            $acl = $this->rc->plugins->exec_hook('folder_form',
-                array('form' => array(), 'options' => $options, 'name' => $folder));
-        }
-
-        return $acl['form']['sharing']['content'] ?: html::div('hint', $this->plugin->gettext('aclnorights'));
+        return kolab_utils::folder_form($form, $folder_name, 'tasklist', $hidden_fields);
     }
 }

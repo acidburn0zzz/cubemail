@@ -235,40 +235,7 @@ class kolab_addressbook_ui
             );
         }
 
-        // Allow plugins to modify address book form content (e.g. with ACL form)
-        $plugin = $this->rc->plugins->exec_hook('addressbook_form',
-            array('form' => $form, 'options' => $options, 'name' => $folder));
-
-        $form      = $plugin['form'];
-        $form_html = '';
-
-        if (is_array($hidden_fields)) {
-            foreach ($hidden_fields as $field) {
-                $hiddenfield = new html_hiddenfield($field);
-                $form_html .= $hiddenfield->show() . "\n";
-            }
-        }
-
-        // create form output
-        foreach ($form as $tab) {
-            if (is_array($tab['fields']) && empty($tab['content'])) {
-                $table = new html_table(array('cols' => 2, 'class' => 'propform'));
-                foreach ($tab['fields'] as $col => $colprop) {
-                    $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
-
-                    $table->add('title', html::label($colprop['id'], rcube::Q($label)));
-                    $table->add(null, $colprop['value']);
-                }
-                $content = $table->show();
-            }
-            else {
-                $content = $tab['content'];
-            }
-
-            if (!empty($content)) {
-                $form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) . "\n";
-            }
-        }
+        $form_html = kolab_utils::folder_form($form, $folder, 'calendar', $hidden_fields);
 
         return html::tag('form', $attrib + array('action' => 'plugin.book-save', 'method' => 'post', 'id' => 'bookpropform'), $form_html);
     }
@@ -286,58 +253,4 @@ class kolab_addressbook_ui
 
         return $p;
     }
-
-
-    private function get_form_part($form)
-    {
-        $content = '';
-
-        if (is_array($form['content']) && !empty($form['content'])) {
-            $table = new html_table(array('cols' => 2, 'class' => 'propform'));
-            foreach ($form['content'] as $col => $colprop) {
-                $colprop['id'] = '_'.$col;
-                $label = !empty($colprop['label']) ? $colprop['label'] : $this->rc->gettext($col);
-
-                $table->add('title', sprintf('<label for="%s">%s</label>', $colprop['id'], rcube::Q($label)));
-                $table->add(null, $colprop['value']);
-            }
-            $content = $table->show();
-        }
-        else {
-            $content = $form['content'];
-        }
-
-        return $content;
-    }
-
-
-    private function get_form_tags($attrib, $action, $id = null, $hidden = null)
-    {
-        $form_start = $form_end = '';
-
-        $request_key = $action . (isset($id) ? '.'.$id : '');
-        $form_start = $this->rc->output->request_form(array(
-            'name'    => 'form',
-            'method'  => 'post',
-            'task'    => $this->rc->task,
-            'action'  => $action,
-            'request' => $request_key,
-            'noclose' => true,
-        ) + $attrib);
-
-        if (is_array($hidden)) {
-            foreach ($hidden as $field) {
-                $hiddenfield = new html_hiddenfield($field);
-                $form_start .= $hiddenfield->show();
-            }
-        }
-
-        $form_end = !strlen($attrib['form']) ? '</form>' : '';
-
-        $EDIT_FORM = !empty($attrib['form']) ? $attrib['form'] : 'form';
-        $this->rc->output->add_gui_object('editform', $EDIT_FORM);
-
-        return array($form_start, $form_end);
-    }
-
 }

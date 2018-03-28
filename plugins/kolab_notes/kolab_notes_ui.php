@@ -340,61 +340,8 @@ class kolab_notes_ui
             );
         }
 
-        // add folder ACL tab
-        if ($this->action != 'form-new') {
-            $form['sharing'] = array(
-                'name'    => rcube::Q($this->plugin->gettext('tabsharing')),
-                'content' => $this->folder_acl_form()
-            );
-        }
-
-        $form_html = '';
-        if (is_array($hidden_fields)) {
-            foreach ($hidden_fields as $field) {
-                $hiddenfield = new html_hiddenfield($field);
-                $form_html .= $hiddenfield->show() . "\n";
-            }
-        }
-
-        // create form output
-        foreach ($form as $tab) {
-            if (is_array($tab['fields']) && empty($tab['content'])) {
-                $table = new html_table(array('cols' => 2, 'class' => 'propform'));
-                foreach ($tab['fields'] as $col => $colprop) {
-                    $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
-
-                    $table->add('title', html::label($colprop['id'], rcube::Q($label)));
-                    $table->add(null, $colprop['value']);
-                }
-                $content = $table->show();
-            }
-            else {
-                $content = $tab['content'];
-            }
-
-            if (!empty($content)) {
-                $form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) . "\n";
-            }
-        }
+        $form_html = kolab_utils::folder_form($form, $folder_name, 'kolab_notes', $hidden_fields);
 
         return html::tag('form', $attrib + array('action' => '#', 'method' => 'post', 'id' => 'noteslistpropform'), $form_html);
-    }
-
-    /**
-     * Returns ACL form
-     */
-    public function folder_acl_form()
-    {
-        if (strlen($this->folder)) {
-            $this->plugin->require_plugin('acl');
-            $storage = $this->rc->get_storage();
-            $options = $storage->folder_info($this->folder);
-
-            // get sharing UI from acl plugin
-            $acl = $this->rc->plugins->exec_hook('folder_form',
-                array('form' => array(), 'options' => $options, 'name' => $this->folder));
-        }
-
-        return $acl['form']['sharing']['content'] ?: html::div('hint', $this->plugin->gettext('aclnorights'));
     }
 }
