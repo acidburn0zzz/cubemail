@@ -158,59 +158,58 @@
 }
 
 .attendee {
-    &:after {
+    &:before {
         &:extend(.font-icon-class);
         content: @fa-var-question-circle;
         display: inline;
         float: none;
         font-size: 1em;
-        margin-left: .3rem;
         color: @color-black-shade-text;
     }
 
-    &.req-participant:after {
+    &.req-participant:before {
         content: @fa-var-user;
     }
 
-    &.opt-participant:after {
+    &.opt-participant:before {
         .font-icon-regular(@fa-var-user);
     }
 
-    &.non-participant:after {
+    &.non-participant:before {
         content: @fa-var-user;
-        color: #999;
+        color: #ccc;
     }
 
-    &.chair:after {
+    &.chair:before {
         content: @fa-var-user; // todo
         color: @color-warning;
     }
 
-    &.completed:after,
-    &.accepted:after {
+    &.completed:before,
+    &.accepted:before {
         content: @fa-var-check-circle;
         color: @color-success;
     }
 
-    &.declined:after {
+    &.declined:before {
         content: @fa-var-ban;
         color: @color-error;
     }
 
-    &.tentative:after {
+    &.tentative:before {
         content: @fa-var-check-circle;
         color: @color-warning;
     }
 
-    &.delegated:after {
+    &.delegated:before {
         content: @fa-var-share;
     }
 
-    &.organizer:after {
+    &.organizer:before {
         content: @fa-var-briefcase; // TODO: better icon
     }
 
-    &.in-process:after {
+    &.in-process:before {
         content: @fa-var-cog;
     }
 }
@@ -219,10 +218,6 @@
     label {
         display: inline;
     }
-}
-
-#edit-attendees-legend {
-    margin-top: 1rem;
 }
 
 .edit-attendees-table {

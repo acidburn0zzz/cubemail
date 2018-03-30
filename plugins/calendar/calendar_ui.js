@@ -1221,7 +1221,9 @@ function rcube_calendar_ui(settings)
         });
       
       // enable/disable buttons
-      $('#schedule-find-prev').button('option', 'disabled', (fb_start.getTime() < now.getTime()));
+      // FIXME: .button() does nothing in Elastic skin
+      var disabled = fb_start.getTime() < now.getTime();
+      $('#schedule-find-prev').button('option', 'disabled', disabled).prop('disabled', disabled);
       
       // dialog buttons
       var buttons = [
@@ -1338,12 +1340,12 @@ function rcube_calendar_ui(settings)
       for (var i=0; i < event_attendees.length; i++) {
         data = event_attendees[i];
         domid = String(data.email).replace(rcmail.identifier_expr, '');
-        times_html += '<tr id="fbrow' + domid + '">' + slots_row + '</tr>';
+        times_html += '<tr id="fbrow' + domid + '" class="fbcontent">' + slots_row + '</tr>';
       }
       
       // add line for all/required attendees
       times_html += '<tr class="spacer"><td colspan="' + (dayslots * freebusy_ui.numdays) + '"></td>';
-      times_html += '<tr id="fbrowall">' + slots_row + '</tr>';
+      times_html += '<tr id="fbrowall" class="fbcontent">' + slots_row + '</tr>';
       
       var table = $('#schedule-freebusy-times');
       table.children('thead').html(dates_row + times_row);
@@ -1405,7 +1407,14 @@ function rcube_calendar_ui(settings)
           slotnum = freebusy_ui.interval > 60 ? 1 : (60 / freebusy_ui.interval),
           cells = table.children('thead').find('td'),
           cell_width = cells.first().get(0).offsetWidth,
+          h_margin = table.parents('table').data('h-margin'),
+          v_margin = table.parents('table').data('v-margin'),
           slotend;
+
+        if (h_margin === undefined)
+          h_margin = 4;
+        if (v_margin === undefined)
+          v_margin = 4;
 
         // iterate through slots to determine position and size of the overlay
         for (i=0; i < cells.length; i++) {
@@ -1428,8 +1437,13 @@ function rcube_calendar_ui(settings)
 
         // overlay is visible
         if (width > 0) {
-          overlay.css({ width: (width-4)+'px', height:(table.children('tbody').height() - 4)+'px', left:pos.left+'px', top:pos.top+'px' }).show();
-          
+          overlay.css({
+            width: (width - h_margin) + 'px',
+            height: (table.children('tbody').height() - v_margin) + 'px',
+            left: pos.left + 'px',
+            top: pos.top + 'px'
+          }).show();
+
           // configure draggable
           if (!overlay.data('isdraggable')) {
             overlay.draggable({
@@ -1612,7 +1626,7 @@ function rcube_calendar_ui(settings)
 
             // also update total row if all data was loaded
             if (!freebusy_ui.loading && freebusy_data.all[ts] && all_cell) {
-              var all_status = freebusy_data.all[ts][2] ? 'busy' : 'unknown',
+              var w, all_status = freebusy_data.all[ts][2] ? 'busy' : 'unknown',
                 req_status = freebusy_data.required[ts][2] ? 'busy' : 'free';
 
               for (j=1; j < status_classes.length; j++) {
@@ -1625,10 +1639,12 @@ function rcube_calendar_ui(settings)
               attr['class'] = req_status + ' all-' + all_status;
 
               // these elements use some specific styling, so we want to minimize their number
-              if (last && last.attr('class') == attr['class'])
-                last.css('width', (percent + parseFloat(last.css('width').replace('%', ''))).toFixed(2) + '%');
+              if (last && last.attr('class').startsWith(attr['class'])) {
+                w = percent + parseFloat(last.css('width').replace('%', ''));
+                last.css('width', w.toFixed(2) + '%').attr('class', attr['class'] + ' w' + w.toFixed(0));
+              }
               else {
-                last = $('<div>').attr(attr);
+                last = $('<div>').attr(attr).addClass('w' + percent.toFixed(0)).append('<span>');
                 all_slots.push(last);
               }
             }
@@ -1757,10 +1773,11 @@ function rcube_calendar_ui(settings)
           render_freebusy_grid(Math.min(-1, offset));
         else
           render_freebusy_overlay();
-        
-        var now = new Date();
-        $('#schedule-find-prev').button('option', 'disabled', (event.start.getTime() < now.getTime()));
-        
+
+        var now = new Date(), disabled = event.start.getTime() < now.getTime();
+        // FIXME: .button() does nothing in Elastic skin
+        $('#schedule-find-prev').button('option', 'disabled', disabled).prop('disabled', disabled);
+
         // speak new selection
         rcmail.display_message(rcmail.gettext('suggestedslot', 'calendar') + ': ' + me.event_date_text(event, true), 'voice');
       }
@@ -1989,7 +2006,7 @@ function rcube_calendar_ui(settings)
       var buttons = [
         {
           text: rcmail.gettext('addresource', 'calendar'),
-          'class': 'mainaction create',
+          'class': 'mainaction save',
           click: function() { rcmail.command('add-resource'); }
         },
         {
@@ -2021,8 +2038,7 @@ function rcube_calendar_ui(settings)
         height: 500
       }).show();
 
-      // define add-button as main action
-      $('.ui-dialog-buttonset .ui-button', $dialog.parent()).first().addClass('mainaction').attr('id', 'rcmbtncalresadd');
+      $('.ui-dialog-buttonset .ui-button', $dialog.parent()).first().attr('id', 'rcmbtncalresadd');
 
       me.dialog_resize($dialog.get(0), 540, Math.min(1000, $(window).width() - 50));
 
@@ -4039,7 +4055,7 @@ function rcube_calendar_ui(settings)
       });
 
       $('#schedule-freebusy-prev').html('&#9668;').button().click(function(){ render_freebusy_grid(-1); });
-      $('#schedule-freebusy-next').html('&#9658;').button().click(function(){ render_freebusy_grid(1); }).parent();//FIXME .buttonset();
+      $('#schedule-freebusy-next').html('&#9658;').button().click(function(){ render_freebusy_grid(1); }); // FIXME .parent().buttonset();
 
       $('#schedule-find-prev').button().click(function(){ freebusy_find_slot(-1); });
       $('#schedule-find-next').button().click(function(){ freebusy_find_slot(1); });

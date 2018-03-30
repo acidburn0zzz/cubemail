@@ -56,6 +56,8 @@
             &.calendar.cal---invitation--pending,
             &.calendar.cal---invitation--declined,
             &.calendar.cal-__bdays__ {
+                font-style: italic;
+
                 a.quickview {
                     padding-right: .25rem;
                 }
@@ -471,6 +473,11 @@ fieldset.categories .input-group {
         padding: 1px;
     }
 
+    .fc-first .fc-day-header,
+    .fc-week .fc-first {
+        border-left: 0;
+    }
+
     // Agenda Week View, Agenda Day View
 
     .fc-agenda-days th {
@@ -489,6 +496,7 @@ fieldset.categories .input-group {
             text-align: right;
             white-space: nowrap;
             font-weight: normal;
+            border-left: 0;
         }
 
         .fc-week-number {
@@ -636,7 +644,9 @@ fieldset.categories .input-group {
 
     .fc-view-list,
     .fc-view-table {
-        border: 1px solid #ccc;
+        border: 1px solid #ccc; // TODO: border
+        border-left: 0;
+        border-bottom: 0;
         width: auto;
 
         .fc-list-header,
@@ -757,12 +767,33 @@ fieldset.categories .input-group {
 
 }
 
+#eventshow {
+    margin: 0;
 
-@color-availability-unknown: #ddd;
-@color-availability-free: #abd640;
-@color-availability-busy: #e26569;
-@color-availability-tentative: #8383fc;
-@color-availability-out-of-office: #fbaa68;
+    .event-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .event-location {
+        .overflow-ellipsis;
+        white-space: nowrap;
+    }
+
+    .event-description {
+        margin: 1rem 0;
+    }
+
+    .event-attendees {
+        margin-bottom: 1rem;
+    }
+}
+
+@color-availability-unknown:        #bbb;           // Larry: #ddd;
+@color-availability-free:           @color-success; // Larry: #abd640;
+@color-availability-busy:           @color-error;   // Larry: #e26569;
+@color-availability-tentative:      #8383fc;
+@color-availability-out-of-office:  #fbaa68;
 
 .availability {
     span {
@@ -809,48 +840,6 @@ fieldset.categories .input-group {
     }
 }
 
-.calendar-scheduler {
-    .schedule-nav {
-    
-    }
-
-    .schedule-range {
-    
-    }
-
-    .slot-nav {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-    }
-
-    .schedule-legend {
-        margin-top: 1rem;
-    }
-}
-
-#eventshow {
-    margin: 0;
-
-    .event-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-
-    .event-location {
-        .overflow-ellipsis;
-        white-space: nowrap;
-    }
-
-    .event-description {
-        margin: 1rem 0;
-    }
-
-    .event-attendees {
-        margin-bottom: 1rem;
-    }
-}
-
 // fixes additional checkbox in Elastic's .datetime widget
 .datetime {
     label {
@@ -866,5 +855,319 @@ fieldset.categories .input-group {
 
     input[type=checkbox] {
         width: auto !important;
+    }
+}
+
+.calendar-scheduler {
+    .schedule-nav {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+
+        button {
+            padding: 0 1rem;
+        }
+    }
+
+    .schedule-range {
+        width: 50%;
+        margin-top: 2rem;
+    }
+
+    .schedule-legend {
+        .attendee {
+            margin-right: .5rem;
+        }
+    }
+
+    .schedule-find-buttons {
+        margin-right: 1rem;
+        float: left;
+
+        button:first-child {
+            margin-right: .5rem;
+        }
+
+        .prev-slot:before {
+            content: @fa-var-chevron-left;
+        }
+
+        .next-slot:after {
+            &:extend(.font-icon-class);
+            content: @fa-var-chevron-right;
+            display: inline-block;
+            float: none;
+            margin-right: 0;
+        }
+    }
+
+    .schedule-options {
+        line-height: 2.8;
+
+        label {
+            vertical-align: middle;
+        }
+    }
+
+    .attendees-list {
+        position: relative;
+
+        a.attendee-role-toggle {
+            position: absolute;
+            left: 0;
+            display: inline-block;
+            width: 1em;
+            cursor: pointer;
+        }
+
+        div.attendee {
+            border-top: 1px solid @color-list-border;
+            line-height: 1.7rem;
+            height: 1.8rem;
+        }
+
+        .attendee {
+            white-space: nowrap;
+
+            &.spacer {
+                height: 10px;
+            }
+
+            &.loading:before {
+                .animated-icon-class;
+                .font-icon-solid(@fa-var-circle-notch);
+            }
+
+            &.total {
+                font-weight: bold;
+            }
+
+            &.total,
+            &.spacer {
+                &:before {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    .schedule-table {
+        table-layout: fixed;
+
+        th {
+            border-top: 0;
+        }
+
+        td.attendees {
+            width: 25%;
+            overflow: hidden;
+            border-top: 0;
+
+            .attendees-list {
+                border-bottom: 1px solid @color-table-border;
+            }
+        }
+
+        td.times {
+            width: auto;
+            border-top: 0;
+
+            table {
+                margin: 0;
+            }
+
+            td {
+                height: 1.8rem;
+                border-top: 1px solid @color-list-border;
+            }
+        }
+
+        div.scroll {
+            position: relative;
+            overflow: auto;
+        }
+
+        .timesheader {
+            height: 1.4rem;
+            border-top: 1px solid @color-table-border;
+        }
+
+        .boxtitle {
+            margin: 0;
+            padding: 0;
+            font-size: 1rem;
+            font-weight: bold;
+            padding-top: .5rem;
+            line-height: 2;
+        }
+
+        td {
+            padding: 4px;
+        }
+
+        tbody td {
+            padding: 0;
+
+            div {
+                height: 100%;
+            }
+        }
+
+        tr.spacer td {
+            padding: 0;
+            height: 10px;
+        }
+
+        tr.times td {
+            cursor: pointer;
+            min-width: 30px;
+            font-size: .7rem;
+            text-align: center;
+            color: @color-link;
+            height: 1.4rem;
+            padding: 0 .25rem;
+            vertical-align: middle;
+            border-top: 1px solid @color-table-border;
+            border-left: 1px solid @color-list-border;
+        }
+
+        .fbcontent {
+            td {
+                border-left: 1px solid @color-list-border;
+            }
+
+            &:last-child td {
+                border-bottom: 1px solid @color-table-border;
+            }
+        }
+
+        div.unknown {
+            background-color: @color-availability-unknown;
+        }
+
+        div.free {
+            background-color: @color-availability-free;
+        }
+
+        div.busy {
+            background-color: @color-availability-busy;
+        }
+
+        div.tentative {
+            background-color: @color-availability-tentative;
+        }
+
+        div.out-of-office {
+            background-color: @color-availability-out-of-office;
+        }
+
+        div.all-busy,
+        div.all-tentative,
+        div.all-out-of-office {
+            overflow: hidden;
+
+            // This span imitates a slanting line across the parent element
+            span {
+                display: block;
+                width: 200%;
+                height: 200%;
+                border: 1px solid #fff;
+                background: darken(@color-availability-busy, 10%);
+                transform: rotate(33deg) translate(10%);
+            }
+
+            &.w10 span {
+                display: none;
+            }
+
+            &.w20 span,
+            &.w25 span {
+                transform: rotate(10deg) translate(10%);
+            }
+
+            &.w30 span {
+                transform: rotate(15deg) translate(10%);
+            }
+
+            &.w40 span {
+                transform: rotate(20deg) translate(10%);
+            }
+
+            &.w70 span,
+            &.w75 span {
+                transform: rotate(42deg) translate(13%);
+            }
+
+            &.w80 span {
+                transform: rotate(48deg) translate(15%);
+            }
+
+            &.w90 span {
+                transform: rotate(52deg) translate(18%);
+            }
+
+            &.w100 span {
+                transform: rotate(55deg) translate(20%, 15%);
+            }
+        }
+
+        div.all-tentative span {
+            background: darken(@color-availability-tentative, 10%);
+        }
+
+        div.all-out-of-office span {
+            background: darken(@color-availability-out-of-office, 10%);
+        }
+    }
+}
+
+#schedule-event-time {
+    position: absolute;
+    opacity: .75;
+    border-radius: .3rem;
+    cursor: move;
+    border: 2px solid @color-black-shade-text;
+    background-color: @color-black-shade-bg;
+}
+
+.resources-dialog {
+    display: flex;
+    height: 100%;
+
+    .resource-selection {
+        flex: 4;
+        border: 1px solid @color-layout-border;
+        min-width: 300px;
+                                                                                                                                                justify-content: center;
+        .header {
+            border-bottom: 1px solid @color-layout-border;
+            display: flex;
+            background-color: @color-layout-header-background;
+            font-size: @layout-header-font-size;
+            font-weight: bold;
+            line-height: @layout-header-height;
+            height: @layout-header-height;
+            min-height: @layout-header-height;
+            padding: 0 .25em;
+            position: relative; // for absolute positioning of searchbar
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    }
+
+    .resource-content {
+        flex: 10;
+        display: flex;
+        flex-direction: column;
+        margin-left: 1em;
+    }
+
+    .listing li.resource > a {
+        color: @color-font;
+
+        &:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-cube;
+        }
     }
 }
