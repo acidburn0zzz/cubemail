@@ -166,11 +166,38 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
          }, 20);
     }
   });
-  
+
   // activate settings form
   $('#propdescription').change(function(){
     showdesc = this.checked;
     fc.fullCalendar('render');
   });
 
+  var selector = $('#calendar').data('view-selector');
+  if (selector) {
+    selector = $('#' + selector);
+
+    $('.fc-header-right > span').each(function() {
+      var cl = 'btn btn-secondary', btn = $(this);
+
+      if (btn.is('.fc-state-active')) {
+        cl += ' active';
+      }
+
+      $('<button>').attr({'class': cl})
+        .text(btn.text())
+        .appendTo(selector)
+          .on('click', function() {
+            selector.children('.active').removeClass('active');
+            $(this).addClass('active');
+            btn.click();
+        });
+    });
+  };
+
+  // Update layout after initialization
+  // In devel mode we have to wait until all styles are applied by less
+  if (rcmail.env.devel_mode && window.less) {
+    less.pageLoadFinished.then(function() { $(window).resize(); });
+  }
 });

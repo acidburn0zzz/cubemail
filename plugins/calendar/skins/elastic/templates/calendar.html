@@ -37,7 +37,7 @@
 </div>
 
 <!-- calendar -->
-<div class="content selected" role="main">
+<div class="content selected no-navbar" role="main">
 	<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
 	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
 		<a class="button icon back-sidebar-button folders" href="#sidebar" data-hidden="big"><span class="inner"><roundcube:label name="calendar.calendars" /></span></a>
@@ -47,7 +47,7 @@
 			<roundcube:button command="addevent" type="link"
 				class="button create disabled" classAct="button create"
 				label="create" title="calendar.new_event" innerClass="inner" />
-			<roundcube:button command="print" type="link"
+			<roundcube:button command="print" type="link" data-hidden="small"
 				class="button print disabled" classAct="button print"
 				label="calendar.print" title="calendar.printtitle" innerClass="inner" />
 			<span class="spacer"></span>
@@ -70,8 +70,13 @@
 -->
 	</div>
 	<h2 id="aria-label-calendarview" class="voice"><roundcube:label name="calendar.arialabelcalendarview" /></h2>
-	<div id="calendar" class="content" role="main" aria-labelledby="aria-label-calendarview">
-		<roundcube:object name="plugin.angenda_options" id="agendaoptions" />
+	<div id="calendar" class="content" role="main" aria-labelledby="aria-label-calendarview" data-elastic-mode="true">
+		<roundcube:object name="plugin.agenda_options" id="agendaoptions" />
+	</div>
+	<div class="footer toolbar" role="toolbar" data-hidden="big">
+		<a href="#" class="button prev" onclick="$('.fc-button-prev').click()"><span class="inner"><roundcube:label name="previous" /></span></a>
+		<a href="#" class="button today" onclick="$('.fc-button-today').click()"><span class="inner"><roundcube:label name="today" /></span></a>
+		<a href="#" class="button next" onclick="$('.fc-button-next').click()"><span class="inner"><roundcube:label name="next" /></span></a>
 	</div>
 </div>
 
@@ -100,11 +105,11 @@
 		<label class="col-sm-4 col-form-label"><roundcube:label name="calendar.alarms" /></label>
 		<span class="event-text col-sm-8 form-control-plaintext"></span>
 	</div>
-	<div id="event-partstat" class="form-group row">
+	<div id="event-partstat" class="form-group row event-partstat">
 		<label class="col-sm-4 col-form-label"><roundcube:label name="calendar.mystatus" /></label>
-		<span class="event-text col-sm-8"></span>
-			<span class="changersvp" role="button" tabindex="0" title="<roundcube:label name='calendar.changepartstat' />">
-			<a class="iconbutton edit"><roundcube:label name='calendar.changepartstat' /></a>
+		<span class="col-sm-8 form-control-plaintext">
+			<span class="event-text rsvp-status"></span>
+			<a class="changersvp button edit" href="#" title="<roundcube:label name='calendar.changepartstat' />"><span class="inner"><roundcube:label name='calendar.changepartstat' /></span></a>
 		</span>
 	</div>
 	<div id="event-calendar" class="form-group row">
@@ -127,11 +132,11 @@
 		<label class="col-sm-4 col-form-label"><roundcube:label name="calendar.priority" /></label>
 		<span class="event-text col-sm-8 form-control-plaintext"></span>
 	</div>
-	<div id="event-created" class="form-group row">
+	<div id="event-created" class="form-group row faded">
 		<label class="col-sm-4 col-form-label"><roundcube:label name="calendar.created" /></label>
 		<span class="event-text event-created col-sm-8 form-control-plaintext"></span>
 	</div>
-	<div id="event-changed" class="form-group row">
+	<div id="event-changed" class="form-group row faded">
 		<label class="col-sm-4 col-form-label"><roundcube:label name="calendar.changed" /></label>
 		<span class="event-text event-changed col-sm-8 form-control-plaintext"></span>
 	</div>
@@ -288,8 +293,8 @@
 <roundcube:if condition="config:kolab_bonnie_api" />
 
 <div id="eventhistory" class="popupmenu" aria-hidden="true">
-    <roundcube:object name="plugin.object_changelog_table" id="event-changelog-table" class="changelog-table" />
-    <div class="compare-button"><input type="button" class="button" value="↳ <roundcube:label name='libkolab.compare' />" /></div>
+	<roundcube:object name="plugin.object_changelog_table" id="event-changelog-table" class="changelog-table" />
+	<div class="compare-button"><input type="button" class="button" value="<roundcube:label name='libkolab.compare' />" /></div>
 </div>
 
 <div id="eventdiff" class="popupmenu formcontent text-only">
@@ -377,17 +382,5 @@
 <roundcube:endif />
 
 <roundcube:object name="plugin.calendar_css" folder-class="div.$class a.calname:before" folder-fallback-color="#161b1d" />
-
-<script type="text/javascript">
-$(document).ready(function() {
-    // TODO: $('#timezone-display').appendTo($('.fc-header-title')).removeClass('hidden');
-});
-
-// Update layout after initialization
-// In devel mode we have to wait until all styles are applied by less
-if (rcmail.env.devel_mode && window.less) {
-    less.pageLoadFinished.then(function() { $(window).resize(); });
-}
-</script>
 
 <roundcube:include file="includes/footer.html" />

@@ -36,7 +36,7 @@ class calendar_ui
     $this->rc = $cal->rc;
     $this->screen = $this->rc->task == 'calendar' ? ($this->rc->action ? $this->rc->action: 'calendar') : 'other';
   }
-    
+
   /**
    * Calendar UI initialization and requests handlers
    */
@@ -44,7 +44,7 @@ class calendar_ui
   {
     if ($this->ready)  // already done
       return;
-      
+
     // add taskbar button
     $this->cal->add_button(array(
       'command'    => 'calendar',
@@ -56,8 +56,10 @@ class calendar_ui
       ), 'taskbar');
     
     // load basic client script
-    $this->cal->include_script('calendar_base.js');
-    
+    if ($this->rc->action != 'print') {
+      $this->cal->include_script('calendar_base.js');
+    }
+
     $skin_path = $this->cal->local_skin_path();
     $this->cal->include_stylesheet($skin_path . '/calendar.css');
     
@@ -92,7 +94,7 @@ class calendar_ui
     $this->cal->register_handler('plugin.edit_recurrence_sync', array($this, 'edit_recurrence_sync'));
     $this->cal->register_handler('plugin.edit_recurring_warning', array($this, 'recurring_event_warning'));
     $this->cal->register_handler('plugin.event_rsvp_buttons', array($this, 'event_rsvp_buttons'));
-    $this->cal->register_handler('plugin.angenda_options', array($this, 'angenda_options'));
+    $this->cal->register_handler('plugin.agenda_options', array($this, 'agenda_options'));
     $this->cal->register_handler('plugin.events_import_form', array($this, 'events_import_form'));
     $this->cal->register_handler('plugin.events_export_form', array($this, 'events_export_form'));
     $this->cal->register_handler('plugin.object_changelog_table', array('libkolab', 'object_changelog_table'));
@@ -329,30 +331,35 @@ class calendar_ui
   }
 
   /**
-   *
+   * Render a HTML for agenda options form
    */
-  function angenda_options($attrib = array())
+  function agenda_options($attrib = array())
   {
     $attrib += array('id' => 'agendaoptions');
     $attrib['style'] .= 'display:none';
-    
+
     $select_range = new html_select(array('name' => 'listrange', 'id' => 'agenda-listrange', 'class' => 'form-control'));
     $select_range->add(1 . ' ' . preg_replace('/\(.+\)/', '', $this->cal->lib->gettext('days')), $days);
     foreach (array(2,5,7,14,30,60,90,180,365) as $days)
       $select_range->add($days . ' ' . preg_replace('/\(|\)/', '', $this->cal->lib->gettext('days')), $days);
-    
-    $html .= html::label('agenda-listrange', $this->cal->gettext('listrange'));
-    $html .= $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']));
-    
+
+    $html = html::span('input-group',
+        html::label(array('for' => 'agenda-listrange', 'class' => 'input-group-prepend'),
+            html::span('input-group-text', $this->cal->gettext('listrange')))
+        . $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']))
+    );
+
     $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections', 'class' => 'form-control'));
     $select_sections->add('---', '');
     foreach (array('day' => 'libcalendaring.days', 'week' => 'libcalendaring.weeks', 'month' => 'libcalendaring.months', 'smart' => 'calendar.smartsections') as $val => $label)
       $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
-    
-    $html .= html::span('spacer', '&nbsp;');
-    $html .= html::label('agenda-listsections', $this->cal->gettext('listsections'));
-    $html .= $select_sections->show($this->rc->config->get('calendar_agenda_sections', $this->cal->defaults['calendar_agenda_sections']));
-    
+
+    $html .= html::span('input-group',
+        html::label(array('for' => 'agenda-listsections', 'class' => 'input-group-prepend'),
+            html::span('input-group-text', $this->cal->gettext('listsections')))
+        . $select_sections->show($this->rc->config->get('calendar_agenda_sections', $this->cal->defaults['calendar_agenda_sections']))
+    );
+
     return html::div($attrib, $html);
   }
 
@@ -479,7 +486,7 @@ class calendar_ui
    */
   function edit_attendees_notify($attrib = array())
   {
-    $checkbox = new html_checkbox(array('name' => '_notify', 'id' => 'edit-attendees-donotify', 'value' => 1));
+    $checkbox = new html_checkbox(array('name' => '_notify', 'id' => 'edit-attendees-donotify', 'value' => 1, 'class' => 'pretty-checkbox'));
     return html::div($attrib, html::label(null, $checkbox->show(1) . ' ' . $this->cal->gettext('sendnotifications')));
   }
 
@@ -488,7 +495,7 @@ class calendar_ui
    */
   function edit_recurrence_sync($attrib = array())
   {
-    $checkbox = new html_checkbox(array('name' => '_start_sync', 'value' => 1));
+    $checkbox = new html_checkbox(array('name' => '_start_sync', 'value' => 1, 'class' => 'pretty-checkbox'));
     return html::div($attrib, html::label(null, $checkbox->show(1) . ' ' . $this->cal->gettext('eventstartsync')));
   }
 
@@ -498,14 +505,14 @@ class calendar_ui
   function recurring_event_warning($attrib = array())
   {
     $attrib['id'] = 'edit-recurring-warning';
-    
+
     $radio = new html_radiobutton(array('name' => '_savemode', 'class' => 'edit-recurring-savemode'));
     $form = html::label(null, $radio->show('', array('value' => 'current')) . $this->cal->gettext('currentevent')) . ' ' .
        html::label(null, $radio->show('', array('value' => 'future')) . $this->cal->gettext('futurevents')) . ' ' .
        html::label(null, $radio->show('all', array('value' => 'all')) . $this->cal->gettext('allevents')) . ' ' .
        html::label(null, $radio->show('', array('value' => 'new')) . $this->cal->gettext('saveasnew'));
-       
-    return html::div($attrib, html::div('message', html::span('ui-icon ui-icon-alert', '') . $this->cal->gettext('changerecurringeventwarning')) . html::div('savemode', $form));
+
+    return html::div($attrib, html::div('message', $this->cal->gettext('changerecurringeventwarning')) . html::div('savemode', $form));
   }
 
   /**
@@ -525,8 +532,11 @@ class calendar_ui
     }
 
     $input = new html_inputfield(array(
-      'type' => 'file', 'name' => '_data', 'size' => $attrib['uploadfieldsize'],
-      'accept' => $accept));
+        'type'   => 'file',
+        'name'   => '_data',
+        'size'   => $attrib['uploadfieldsize'],
+        'accept' => $accept
+    ));
 
     $select = new html_select(array('name' => '_range', 'id' => 'event-import-range'));
     $select->add(array(
@@ -539,28 +549,32 @@ class calendar_ui
       ),
       array('1','2','3','6','12',0));
 
-    $html .= html::div('form-section',
-      html::div(null, $input->show()) .
-      html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
+    $html = html::div('form-section form-group row',
+      html::label(array('class' => 'col-sm-4 col-form-label', 'for' => 'importfile'), rcube::Q($this->rc->gettext('importfromfile')))
+      . html::div('col-sm-8', $input->show()
+        . html::div('hint', $this->rc->gettext(array('id' => 'importfile', 'name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize)))))
     );
 
-    $html .= html::div('form-section',
-      html::label('event-import-calendar', $this->cal->gettext('calendar')) .
-      $this->calendar_select(array('name' => 'calendar', 'id' => 'event-import-calendar'))
+    $html .= html::div('form-section form-group row',
+      html::label(array('for' => 'event-import-calendar', 'class' => 'col-form-label col-sm-4'), $this->cal->gettext('calendar'))
+      . html::div('col-sm-8', $this->calendar_select(array('name' => 'calendar', 'id' => 'event-import-calendar')))
     );
 
-    $html .= html::div('form-section',
-      html::label('event-import-range', $this->cal->gettext('importrange')) .
-      $select->show(1)
+    $html .= html::div('form-section form-group row',
+      html::label(array('for' => 'event-import-range', 'class' => 'col-form-label col-sm-4'), $this->cal->gettext('importrange'))
+      . html::div('col-sm-8', $select->show(1))
     );
 
     $this->rc->output->add_gui_object('importform', $attrib['id']);
     $this->rc->output->add_label('import');
 
-    return html::tag('form', array('action' => $this->rc->url(array('task' => 'calendar', 'action' => 'import_events')),
-      'method' => "post", 'enctype' => 'multipart/form-data', 'id' => $attrib['id']),
-      $html
-    );
+    return html::tag('p', null, $this->cal->gettext('importtext'))
+      . html::tag('form', array(
+          'action'  => $this->rc->url(array('task' => 'calendar', 'action' => 'import_events')),
+          'method'  => 'post',
+          'enctype' => 'multipart/form-data',
+          'id'      => $attrib['id']
+        ), $html);
   }
 
   /**
@@ -593,8 +607,8 @@ class calendar_ui
       html::label(array('for' => 'event-export-range', 'class' => 'col-sm-4 col-form-label'), $this->cal->gettext('exportrange'))
         . html::div('col-sm-8', $select->show(0) . html::span(array('style'=>'display:none'), $startdate->show())));
 
-    $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'event-export-attachments', 'value' => 1));
-    $html .= html::div('form-section form-group row',
+    $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'event-export-attachments', 'value' => 1, 'class' => 'form-check-input pretty-checkbox'));
+    $html .= html::div('form-section form-check row',
       html::label(array('for' => 'event-export-attachments', 'class' => 'col-sm-4 col-form-label'), $this->cal->gettext('exportattachments'))
         . html::div('col-sm-8', $checkbox->show(1)));
 

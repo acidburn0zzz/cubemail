@@ -36,6 +36,10 @@
     content: @fa-var-cube;
 }
 
+a.button.today:before {
+    .font-icon-regular(@fa-var-calendar);
+}
+
 .listing {
     li {
         & > div {
@@ -141,6 +145,11 @@ fieldset.categories .input-group {
     }
 }
 
+#calendar.content {
+    overflow: hidden !important; // fullcalendar widget implements scrolling on its own
+    position: relative;
+}
+
 .calendar-datepicker {
     // overwrite jQuery-UI datepicker styles
     .ui-datepicker {
@@ -168,16 +177,47 @@ fieldset.categories .input-group {
 }
 
 // Fullcalendar styles
+@color-calendar-border: @color-layout-border;
+
 .fc {
     flex: auto !important;
 
     .fc-header {
+        tr {
+            background-color: @color-black-shade-bg;
+        }
     }
 
     .fc-header-left {
+        width: 25%;
+
+        span {
+            display: none;
+        }
+
+    }
+
+    .fc-header-center {
+        text-align: center;
+
+        h2 {
+            margin: 0;
+            color: @color-black-shade-text;
+            white-space: nowrap;
+        }
     }
 
     .fc-header-right {
+        width: 25%;
+        text-align: right;
+
+        span {
+            display: none;
+        }
+    }
+
+    .btn-group {
+        padding: .5rem;
     }
 
     .fc-header-title {
@@ -185,9 +225,6 @@ fieldset.categories .input-group {
             font-size: 1.5rem;
             font-weight: bold;
         }
-    }
-
-    .fc-content {
     }
 
     .fc-view {
@@ -199,13 +236,12 @@ fieldset.categories .input-group {
 
     .fc-widget-header,    // <th>, usually
     .fc-widget-content {  // <td>, usually
-        border: 1px solid #ddd;
+        border: 1px solid @color-calendar-border;
     }
 
     .fc-cell-overlay { // semi-transparent rectangle while dragging
         background: #bce8f1;
         opacity: .3;
-        filter: alpha(opacity=30); /* for IE */
     }
 
     // Buttons
@@ -222,55 +258,16 @@ fieldset.categories .input-group {
     }
 
 
-    // Our default prev/next buttons use HTML entities like &lsaquo; &rsaquo; &laquo; &raquo;
-    // and we'll try to make them look good cross-browser.
-
-    .fc-text-arrow {
-        margin: 0 .1em;
-        font-size: 2em;
-    }
-
-    .fc-button-prev .fc-text-arrow,
-    .fc-button-next .fc-text-arrow { // for &lsaquo; &rsaquo;
-        font-weight: bold;
-    }
-
-    // icon (for jquery ui)
-
-    .fc-button {
-        .fc-icon-wrap {
-            position: relative;
-            float: left;
-            top: 50%;
-        }
-
-        .ui-icon {
-            position: relative;
-            float: left;
-            margin-top: -50%;
-        }
-    }
-
     // Button states
     // borrowed from twitter bootstrap (http://twitter.github.com/bootstrap/)
 
     .fc-state-highlight { // <td> today cell, TODO: add .fc-today to <th>
-        background: #fcf8e3;
+        background: tint(@color-main, 90%);
     }
-
+/*
     .fc-state-default {
         border: 1px solid;
         background-color: #f5f5f5;
-
-        &.fc-corner-left { // non-theme
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
-        }
-
-        &.fc-corner-right { // non-theme
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
-        }
     }
 
     .fc-state-hover,
@@ -297,6 +294,7 @@ fieldset.categories .input-group {
         background-image: none;
         opacity: 0.65;
     }
+*/
 
     // Global Event Styles
 
@@ -348,11 +346,7 @@ fieldset.categories .input-group {
     }
 
     .ui-resizable-handle {
-        display: block;
-        position: absolute;
         z-index: 99999;
-        font-size: 300%;
-        line-height: 50%;
     }
 
     // Horizontal Events
@@ -365,40 +359,29 @@ fieldset.categories .input-group {
     .fc-ltr .fc-event-hori.fc-event-start,
     .fc-rtl .fc-event-hori.fc-event-end {
         border-left-width: 1px;
-        border-top-left-radius: 3px;
-        border-bottom-left-radius: 3px;
     }
 
     .fc-ltr .fc-event-hori.fc-event-end,
     .fc-rtl .fc-event-hori.fc-event-start {
         border-right-width: 1px;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
     }
 
     // resizable
 
-    .fc-event-hori .ui-resizable-e {
-        top: 0           !important; // importants override pre jquery ui 1.7 styles
-        right: -3px      !important;
-        width: 7px       !important;
-        height: 100%     !important;
-        cursor: e-resize;
-    }
+    .fc-event-hori {
+        .ui-resizable-e {
+            cursor: e-resize;
+        }
 
-    .fc-event-hori .ui-resizable-w {
-        top: 0           !important;
-        left: -3px       !important;
-        width: 7px       !important;
-        height: 100%     !important;
-        cursor: w-resize;
+        .ui-resizable-w {
+            cursor: w-resize;
+        }
     }
 
     // Reusable Separate-border Table
 
     .fc-border-separate {
         border-collapse: separate;
-
 
         th,
         td {
@@ -420,6 +403,11 @@ fieldset.categories .input-group {
         }
     }
 
+    .fc-event-date,
+    .fc-event-time {
+        white-space: nowrap;
+    }
+
     // Month View, Basic Week View, Basic Day View
 
     .fc-week-number {
@@ -429,6 +417,10 @@ fieldset.categories .input-group {
         div {
             padding: 0 2px;
         }
+    }
+
+    .fc-day {
+        vertical-align: top;
     }
 
     .fc-grid {
@@ -453,6 +445,7 @@ fieldset.categories .input-group {
         // event styles
         .fc-event-time {
             font-weight: bold;
+            white-space: nowrap;
         }
 
         // right-to-left
@@ -471,11 +464,7 @@ fieldset.categories .input-group {
         text-decoration: none;
         cursor: pointer;
         padding: 1px;
-    }
-
-    .fc-first .fc-day-header,
-    .fc-week .fc-first {
-        border-left: 0;
+        color: @color-link !important;
     }
 
     // Agenda Week View, Agenda Day View
@@ -496,6 +485,7 @@ fieldset.categories .input-group {
             text-align: right;
             white-space: nowrap;
             font-weight: normal;
+            font-size: .9rem;
             border-left: 0;
         }
 
@@ -503,7 +493,7 @@ fieldset.categories .input-group {
             font-weight: bold;
         }
 
-        .fc-agenda .fc-day-content {
+        .fc-day-content {
             padding: 2px 2px 1px;
         }
     }
@@ -533,12 +523,8 @@ fieldset.categories .input-group {
     // divider (between all-day and slots)
 
     .fc-agenda-divider-inner {
-        height: 2px;
+        height: 1px;
         overflow: hidden;
-
-        .fc-widget-header & {
-            background: #eee;
-        }
     }
 
     // slot rows
@@ -583,19 +569,16 @@ fieldset.categories .input-group {
 
         &.fc-event-start {
             border-top-width: 1px;
-            border-top-left-radius: 3px;
-            border-top-right-radius: 3px;
         }
 
         &.fc-event-end {
             border-bottom-width: 1px;
-            border-bottom-left-radius: 3px;
-            border-bottom-right-radius: 3px;
         }
 
         .fc-event-time {
             white-space: nowrap;
             font-size: 10px;
+            font-weight: bold;
         }
 
         .fc-event-inner {
@@ -636,7 +619,7 @@ fieldset.categories .input-group {
         margin: 0;
         padding: 0;
         border: none;
-        border-top: 2px solid #3ec400;
+        border-top: 2px solid @color-success;
         z-index: 999;
     }
 
@@ -644,9 +627,9 @@ fieldset.categories .input-group {
 
     .fc-view-list,
     .fc-view-table {
-        border: 1px solid #ccc; // TODO: border
         border-left: 0;
         border-bottom: 0;
+        border-top: 1px solid @color-layout-border;
         width: auto;
 
         .fc-list-header,
@@ -654,6 +637,11 @@ fieldset.categories .input-group {
             border-width: 0;
             border-bottom-width: 1px;
             padding: 3px 5px;
+            font-weight: bold;
+        }
+
+        .fc-event {
+            font-size: 1rem;
         }
     }
 
@@ -664,7 +652,7 @@ fieldset.categories .input-group {
     }
 
     .fc-view-list .fc-last {
-        border-bottom-width: 0;
+        border-bottom: 0;
     }
 
     .fc-list-section .fc-event {
@@ -679,7 +667,7 @@ fieldset.categories .input-group {
 
             td {
                 padding: 2px;
-                border-bottom: 1px solid #ccc;
+                border-bottom: 1px solid @color-calendar-border;
             }
 
             td.fc-event-handle {
@@ -692,15 +680,10 @@ fieldset.categories .input-group {
         }
 
         .fc-event-handle {
-            .fc-event-skin {
-                border-radius: 2px;
-            }
-
             .fc-event-inner {
                 display: block;
                 width: 8px;
                 height: 10px;
-                border-radius: 2px;
             }
         }
 
@@ -761,10 +744,239 @@ fieldset.categories .input-group {
     .fc-icon-sensitive:before {
         content: @fa-var-lock;
     }
+
+    // remove redundant borders
+    .fc-first tbody .fc-day-header,
+    .fc-first .fc-day-header.fc-first,
+    .fc-week .fc-first {
+        border-left: 0;
+    }
+
+    .fc-agenda-days tbody .fc-last > *,
+    .fc-agenda-slots tr:last-child td,
+    .fc-week.fc-last .fc-day {
+        border-bottom: 0;
+    }
+}
+
+// fullcalendar style overrides for printing
+.print-content {
+    .fc-header {
+        tr {
+            background-color: #fff;
+        }
+    }
+
+    .fc-header-center {
+        width: 100%;
+        h2 {
+            color: #000;
+            padding-bottom: .75rem;
+            font-size: 1.5rem !important;
+        }
+    }
+
+    .fc-agenda-gutter,
+    .fc-header-left,
+    .fc-header-right {
+        display: none !important;
+    }
+
+    .fc-view {
+        overflow: visible;
+    }
+
+    .fc-event-skin,
+    .fc-event-inner .fc-event-skin {
+        color: black;
+        background-color: #fff !important;
+    }
+
+    .fc-event-title {
+        font-weight: bold;
+    }
+
+    .fc-event-hori {
+        .fc-event-title {
+            font-weight: normal;
+            white-space: nowrap;
+        }
+
+        .fc-event-time {
+            white-space: nowrap;
+            font-weight: normal !important;
+            font-size: 10px;
+            padding-right: 0.6em;
+        }
+    }
+
+    .fc-grid .fc-event-time {
+        font-weight: normal !important;
+        padding-right: 0.3em;
+    }
+
+    .fc-event-cateories {
+        font-style: italic;
+    }
+
+    .fc-event-location {
+        font-size: 90%;
+    }
+
+    .fc-agenda-slots td div {
+        height: 1.4em;
+    }
+
+    .fc-widget-header,
+    .fc-mon, .fc-tue, .fc-wed, .fc-thu, .fc-fri {
+        background-color: #fff;
+    }
+
+    .fc-widget-header, .fc-widget-content {
+        border-color: @color-calendar-border;
+    }
+
+    .fc-view-list, .fc-view-table {
+        border: 0;
+    }
+
+    .fc-view-list div.fc-list-header,
+    .fc-view-table td.fc-list-header {
+        padding: 0.3em;
+        background: #fff;
+        font-weight: bold;
+        font-size: 1.2em;
+        color: #333;
+        border-color: @color-calendar-border;
+        border-style: solid;
+        border-width: 1px 0;
+    }
+
+    .fc-list-section .fc-event {
+        cursor: auto;
+    }
+
+    .fc-view-table {
+        tr.fc-event td,
+        tr.fc-event td.fc-event-handle {
+            border-color: @color-calendar-border;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+
+        tr.fc-last td {
+            border: 0;
+        }
+
+        tr.fc-event .fc-event-description {
+            padding-left: 2em;
+            padding-top: 0em;
+        }
+
+        col.fc-event-location {
+            width: 20%;
+        }
+    }
+
+    .fc-event-vert .fc-event-description {
+        font-size: 90%;
+        font-style: italic;
+    }
+
+    .fc-view-month .fc-event-hori .fc-event-inner {
+        background: #fff !important;
+    }
+
+    // add back borders removed in non-print view
+    .fc-agenda .fc-agenda-axis,
+    .fc-first .fc-day-header,
+    .fc-week .fc-first {
+        border-left: 1px solid @color-calendar-border;
+    }
+
+    .fc-agenda-days th:nth-last-child(2),
+    .fc-agenda-allday td,
+    .fc-agenda-slots td.fc-widget-content {
+        border-right: 1px solid @color-calendar-border;
+    }
+
+    .fc-agenda-days tr.fc-last > *,
+    .fc-week.fc-last .fc-day {
+        border-bottom: 1px solid @color-calendar-border;
+    }
+}
+
+body.task-calendar {
+    #print-layout {
+        #calendar-view-selector {
+            float: right;
+            padding-top: .25rem;
+        }
+    }
+
+    @media screen and (min-width: (@screen-width-small + 1px)) {
+        & > #layout > div.sidebar {
+            flex: 2 !important;
+            max-width: 400px;
+        }
+    }
+
+    // improve datepicker
+    .ui-datepicker {
+        td {
+            width: 12.5%;
+        }
+
+        .ui-datepicker-week-col {
+            color: @color-black-shade-border;
+            text-align: center;
+        }
+    }
+
+    .ui-datepicker-inline {
+        .ui-datepicker-week-col {
+            color: @color-link;
+            cursor: pointer;
+        }
+
+        .ui-datepicker-activerange {
+            background-color: @color-list-selected-background;
+        }
+    }
 }
 
 #timezone-display {
+    font-size: .9rem;
+    color: @color-black-shade-text;
+}
 
+#agendaoptions {
+    padding: 0 .5rem .5rem .5rem;
+    display: flex;
+    background-color: @color-black-shade-bg;
+
+    .input-group {
+        padding-right: .5rem;
+        flex-wrap: nowrap;
+        width: 50%;
+
+        &:last-child {
+            padding-right: 0;
+        }
+    }
+
+    select {
+        min-width: 7em;
+    }
+
+    .input-group-prepend {
+        overflow: hidden;
+
+        span {
+            display: block;
+            .overflow-ellipsis;
+        }
+    }
 }
 
 #eventshow {
@@ -786,6 +998,78 @@ fieldset.categories .input-group {
 
     .event-attendees {
         margin-bottom: 1rem;
+
+        .attendee {
+            margin-right: .25rem;
+        }
+    }
+
+    .event-partstat {
+        & > span {
+            display: flex;
+        }
+
+        .rsvp-status {
+            &:before {
+                display: inline;
+                float: none;
+            }
+        }
+
+        .changersvp {
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 1em;
+
+            &:before {
+                &:extend(.font-icon-class);
+                content: @fa-var-pen-square;
+                float: none;
+                display: inline;
+                line-height: 1;
+            }
+        }
+
+        .inner {
+            display: none;
+        }
+    }
+
+    .faded {
+        color: @color-black-shade-text;
+    }
+}
+
+#eventedit {
+    .edit-attendees-table td {
+        padding-top: .15rem;
+
+        &.role {
+            padding-left: 0;
+            width: 9em;
+        }
+    }
+}
+
+#fish-eye-view {
+    padding: 0;
+    border-bottom: 1px solid @color-calendar-border;
+
+    .fc-header {
+        display: none;
+    }
+
+    .fc-view {
+        position: initial !important;
+    }
+
+    .fc-agenda-days tr.fc-first th {
+        border-top: 0;
+    }
+
+    .fc-agenda-divider + div {
+        height: 100% !important;
+        overflow: initial !important;
     }
 }
 
@@ -1138,7 +1422,8 @@ fieldset.categories .input-group {
         flex: 4;
         border: 1px solid @color-layout-border;
         min-width: 300px;
-                                                                                                                                                justify-content: center;
+        justify-content: center;
+
         .header {
             border-bottom: 1px solid @color-layout-border;
             display: flex;
@@ -1182,5 +1467,88 @@ fieldset.categories .input-group {
 
     .invitebox {
         border: 1px solid @color-layout-border !important;
+    }
+}
+
+@media screen and (max-width: @screen-width-small) {
+    .fc {
+        .fc-header-left {
+            display: block;
+            width: 100%;
+            padding: 0;
+
+            button {
+                flex: 1 1 auto;
+                border-radius: 0;
+            }
+
+            .btn-group {
+                padding: 0;
+                display: flex;
+            }
+        }
+
+        .fc-header-center,
+        .fc-header-right {
+            display: none;
+        }
+    }
+
+    #agendaoptions {
+        padding-top: .5rem;
+    }
+
+    .calendar-scheduler {
+        .schedule-range {
+            width: 100%;
+        }
+    }
+}
+
+@media screen and (min-width: (@screen-width-small + 1px)) and (max-width: 920px) {
+    .fc {
+        .fc-header {
+            display: block;
+
+            tr {
+                display: flex;
+            }
+        }
+
+        .fc-header-center {
+            .overflow-ellipsis;
+            flex: 1;
+
+            h2 {
+                font-size: 1rem;
+                line-height: 1;
+                padding-top: .75rem;
+            }
+        }
+
+        .fc-header-left,
+        .fc-header-right {
+            width: auto;
+
+            .btn {
+                padding-left: .5rem;
+                padding-right: .5rem;
+            }
+        }
+    }
+}
+
+.header-title {
+    position: relative;
+
+    .tz {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        line-height: 2;
+        font-size: .8rem;
+        font-weight: normal;
+        color: @color-black-shade-text;
     }
 }

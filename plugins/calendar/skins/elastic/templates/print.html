@@ -1,28 +1,18 @@
-<roundcube:object name="doctype" value="html5" />
-<html>
-<head>
-<title><roundcube:object name="pagetitle" /></title>
-</head>
-<body class="calendarprint">
+<roundcube:include file="includes/layout.html" />
 
-<div id="printconfig" class="noprint">
-	<div class="calwidth">
-		<a href="#close" onclick="window.close()" class="rightalign"><roundcube:label name="close" /></a>
-		<span class="prop"><input type="button" id="printme" value="<roundcube:label name='print' />" onclick="window.print()"></span>
-		<span class="prop"><label><input type="checkbox" id="propdescription" checked="checked" /> <roundcube:label name="calendar.printdescriptions" /></label></span>
-	</div>
+<div class="print-config">
+	<button class="btn btn-primary print" onclick="window.print()"><roundcube:label name='print' /></button>
+	<span class="prop">
+		<input type="checkbox" id="propdescription" checked="checked" class="pretty-checkbox" />
+		<label for="propdescription"><roundcube:label name="calendar.printdescriptions" /></label>
+	</span>
+	<div id="calendar-view-selector" class="btn-group btn-group-toggle" role="group"></div>
 </div>
 
-<roundcube:object name="message" id="message" class="noprint" />
-
-<div id="calendar" class="calwidth"></div>
-
-<div class="calwidth">
-	<roundcube:object name="plugin.calendar_list" activeonly="true" id="calendarlist" />
-	<br style="clear:both">
+<div class="print-content">
+	<div id="calendar" data-view-selector="calendar-view-selector"></div>
 </div>
 
 <roundcube:object name="plugin.calendar_css" printmode="true" />
 
-</body>
-</html>
+<roundcube:include file="includes/footer.html" />

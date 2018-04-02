@@ -260,6 +260,7 @@ $labels['importsuccess'] = 'Successfully imported $nr events';
 $labels['importnone'] = 'No events found to be imported';
 $labels['importerror'] = 'An error occured while importing';
 $labels['aclnorights'] = 'You do not have administrator rights on this calendar.';
+$labels['importtext'] = 'You can upload events in <a href="https://wikipedia.org/wiki/ICalendar">iCalendar</a> format (.ics).';
 
 $labels['changeeventconfirm'] = 'Change event';
 $labels['removeeventconfirm'] = 'Delete event';
@@ -289,7 +290,6 @@ $labels['objectdiffnotavailable'] = 'No comparison possible for the selected rev
 $labels['revisionrestoreconfirm'] = 'Do you really want to restore revision $rev of this event? This will replace the current event with the old version.';
 $labels['objectrestoresuccess'] = 'Revision $rev successfully restored';
 $labels['objectrestoreerror'] = 'Failed to restore the old revision';
-
 
 // (hidden) titles and labels for accessibility annotations
 $labels['arialabelminical'] = 'Calendar date selection';

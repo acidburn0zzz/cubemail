@@ -73,11 +73,11 @@ function rcube_calendar_ui(settings)
     // general datepicker settings
     var datepicker_settings = {
       // translate from fullcalendar format to datepicker format
-      dateFormat: settings['date_format'].replace(/M/g, 'm').replace(/mmmmm/, 'MM').replace(/mmm/, 'M').replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/yy/g, 'y'),
-      firstDay : settings['first_day'],
-      dayNamesMin: settings['days_short'],
-      monthNames: settings['months'],
-      monthNamesShort: settings['months'],
+      dateFormat: settings.date_format.replace(/M/g, 'm').replace(/mmmmm/, 'MM').replace(/mmm/, 'M').replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/yy/g, 'y'),
+      firstDay: settings.first_day,
+    //  dayNamesMin: settings.days_short,
+      monthNames: settings.months,
+      monthNamesShort: settings.months,
       changeMonth: false,
       showOtherMonths: true,
       selectOtherMonths: true
@@ -110,7 +110,7 @@ function rcube_calendar_ui(settings)
       titleFormat: {
         month: 'MMMM yyyy',
         week: settings.dates_long,
-        day: 'dddd ' + settings['date_long'],
+        day: 'dddd ' + settings.date_long,
         table: settings.dates_long
       },
       listPage: 7,  // advance one week in agenda view
@@ -386,7 +386,7 @@ function rcube_calendar_ui(settings)
           changed = parseISO8601(event.changed);
         $('.event-created', $dialog).text(created ? format_datetime(created) : rcmail.gettext('unknown','calendar'));
         $('.event-changed', $dialog).text(changed ? format_datetime(changed) : rcmail.gettext('unknown','calendar'));
-        $('#event-created-changed').show()
+        $('#event-created,#event-changed,#event-created-changed').show()
       }
 
       // create attachments list
@@ -452,22 +452,22 @@ function rcube_calendar_ui(settings)
           if (morelink) {
             $('#event-attendees .event-text').append(morelink);
             morelink.click(function(e){
-              rcmail.show_popup_dialog(
+              rcmail.simple_dialog(
                 '<div id="all-event-attendees" class="event-attendees">' + html + overflow + '</div>',
                 rcmail.gettext('tabattendees','calendar'),
                 null,
-                { width:450, modal:false });
+                {width: 450, cancel_button: 'close'});
               $('#all-event-attendees a.mailtolink').click(event_attendee_click);
               return false;
-            })
+            });
           }
         }
 
         if (mystatus && !rsvp) {
-          $('#event-partstat').show().find('.changersvp')
+          $('#event-partstat').show().find('.changersvp, .event-text')
             .removeClass('accepted tentative declined delegated needs-action unknown')
-            .addClass(mystatus)
-            .find('.event-text')
+            .addClass(mystatus);
+          $('#event-partstat').find('.event-text')
             .text(rcmail.gettext('status' + mystatus, 'libcalendaring'));
         }
 
@@ -511,15 +511,13 @@ function rcube_calendar_ui(settings)
         });
       }
 
-      if (!buttons.length) {
-        buttons.push({
-          text: rcmail.gettext('close', 'calendar'),
-          'class': 'cancel',
-          click: function() {
-            $dialog.dialog('close');
-          }
-        });
-      }
+      buttons.push({
+        text: rcmail.gettext('close', 'calendar'),
+        'class': 'cancel',
+        click: function() {
+          $dialog.dialog('close');
+        }
+      });
 
       // open jquery UI dialog
       $dialog.dialog({
@@ -2509,7 +2507,7 @@ function rcube_calendar_ui(settings)
         if (action == 'remove' && cal.group != 'shared' && !_is_organizer && _is_attendee) {
           decline = true;
           checked = event.status != 'CANCELLED' ? checked : '';
-          html += '<div class="message">' +
+          html += '<div class="message dialog-message ui alert boxwarning">' +
             '<label><input class="confirm-attendees-decline" type="checkbox"' + checked + ' value="1" name="decline" />&nbsp;' +
             rcmail.gettext('itipdeclineevent', 'calendar') + 
             '</label></div>';
@@ -2517,7 +2515,7 @@ function rcube_calendar_ui(settings)
         else if (_is_organizer) {
           notify = true;
           if (settings.itip_notify & 2) {
-            html += '<div class="message">' +
+            html += '<div class="message dialog-message ui alert boxwarning">' +
               '<label><input class="confirm-attendees-donotify" type="checkbox"' + checked + ' value="1" name="notify" />&nbsp;' +
                 rcmail.gettext((action == 'remove' ? 'sendcancellation' : 'sendnotifications'), 'calendar') +
               '</label></div>';
@@ -2538,13 +2536,12 @@ function rcube_calendar_ui(settings)
           future_disabled = ' disabled';
         }
 
-        html += '<div class="message"><span class="ui-icon ui-icon-alert"></span>' +
-          rcmail.gettext(message_label, 'calendar') + '</div>' +
+        html += '<div class="message dialog-message ui alert boxwarning">' + rcmail.gettext(message_label, 'calendar') + '</div>' +
           '<div class="savemode">' +
-            '<a href="#current" class="button">' + rcmail.gettext('currentevent', 'calendar') + '</a>' +
-            '<a href="#future" class="button' + future_disabled + '">' + rcmail.gettext('futurevents', 'calendar') + '</a>' +
-            '<a href="#all" class="button">' + rcmail.gettext('allevents', 'calendar') + '</a>' +
-            (action != 'remove' ? '<a href="#new" class="button">' + rcmail.gettext('saveasnew', 'calendar') + '</a>' : '') +
+            '<a href="#current" class="button btn btn-secondary">' + rcmail.gettext('currentevent', 'calendar') + '</a>' +
+            '<a href="#future" class="button btn btn-secondary' + future_disabled + '">' + rcmail.gettext('futurevents', 'calendar') + '</a>' +
+            '<a href="#all" class="button btn btn-secondary">' + rcmail.gettext('allevents', 'calendar') + '</a>' +
+            (action != 'remove' ? '<a href="#new" class="button btn btn-secondary">' + rcmail.gettext('saveasnew', 'calendar') + '</a>' : '') +
           '</div>';
       }
       
@@ -4132,6 +4129,12 @@ function rcube_calendar_ui(settings)
 } // end rcube_calendar class
 
 
+// Update layout after initialization
+// In devel mode we have to wait until all styles are applied by less
+if (rcmail.env.devel_mode && window.less) {
+  less.pageLoadFinished.then(function() { $(window).resize(); });
+}
+
 /* calendar plugin initialization */
 window.rcmail && rcmail.addEventListener('init', function(evt) {
   // configure toolbar buttons
@@ -4197,4 +4200,54 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   // show toolbar
   $('#toolbar').show();
 
+  // Elastic mods
+  if ($('#calendar').data('elastic-mode')) {
+    var selector = $('<div class="btn-group btn-group-toggle" role="group">').appendTo('.fc-header-left'),
+        nav = $('<div class="btn-group btn-group-toggle" role="group">').appendTo('.fc-header-right');
+
+    $('.fc-header-left > span').each(function() {
+      var cl = 'btn btn-secondary', btn = $(this);
+
+      if (btn.is('.fc-state-active')) {
+        cl += ' active';
+      }
+
+      $('<button>').attr({'class': cl}).text(btn.text())
+        .appendTo(selector)
+        .on('click', function() {
+          selector.children('.active').removeClass('active');
+          $(this).addClass('active');
+          btn.click();
+        });
+    });
+
+    $.each(['prev', 'today', 'next'], function() {
+      var btn = $('.fc-header-right').find('.fc-button-' + this);
+      $('<button>').attr({'class': 'btn btn-secondary'})
+        .text(btn.text()).appendTo(nav).on('click', function() { btn.click(); });
+    });
+
+    $('#timezone-display').appendTo($('.fc-header-center')).removeClass('hidden');
+    $('#agendaoptions').detach().insertAfter('table.fc-header');
+
+    // Mobile header title
+    if (window.MutationObserver) {
+      var observer,
+        title = $('.fc-header-title'),
+        mobile_header = $('#layout > .content > .header > .header-title'),
+        callback = function() {
+          var text = title.text();
+          mobile_header.html('').append([
+            $('<span class="title">').text(text),
+            $('<span class="tz">').text($('#timezone-display').text())
+          ]);
+        };
+
+      // update the header when something changes on the calendar title
+      observer = new MutationObserver(callback);
+      observer.observe(title[0], {childList: true, subtree: true});
+      // initialize the header
+      callback();
+    }
+  }
 });

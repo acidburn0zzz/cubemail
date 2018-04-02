@@ -106,46 +106,6 @@
             color: #666;
             font-style: italic;
         }
-
-        &:before {
-            line-height: 1.1;
-            color: lighten(@color-black, 25%);
-        }
-
-        &.loading:before {
-            &:extend(.font-icon-class);
-            .animated-icon-class;
-            content: @fa-var-circle-notch;
-            line-height: 1;
-        }
-
-        &.declined:before {
-            &:extend(.font-icon-class);
-            content: @fa-var-ban;
-            color: @color-error;
-        }
-
-        &.tentative:before {
-            &:extend(.font-icon-class);
-            content: @fa-var-check-circle;
-            color: @color-warning;
-        }
-
-        &.accepted:before {
-            &:extend(.font-icon-class);
-            content: @fa-var-check-circle;
-            color: @color-success;
-        }
-
-        &.delegated:before {
-            &:extend(.font-icon-class);
-            content: @fa-var-share;
-        }
-
-        &.needs-action:before {
-            &:extend(.font-icon-class);
-            content: @fa-var-question-circle;
-        }
     }
 
     .folder-select {
@@ -155,6 +115,50 @@
             display: initial;
             width: auto;
         }
+    }
+}
+
+.rsvp-status {
+    &:before {
+        line-height: 1.1;
+        color: lighten(@color-black, 25%);
+        float: none;
+        display: inline;
+    }
+
+    &.loading:before {
+        &:extend(.font-icon-class);
+        .animated-icon-class;
+        content: @fa-var-circle-notch;
+        line-height: 1;
+    }
+
+    &.declined:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-ban;
+        color: @color-error;
+    }
+
+    &.tentative:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-check-circle;
+        color: @color-warning;
+    }
+
+    &.accepted:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-check-circle;
+        color: @color-success;
+    }
+
+    &.delegated:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-share;
+    }
+
+    &.needs-action:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-question-circle;
     }
 }
 
@@ -640,6 +644,30 @@ html.touch {
 
         label:before {
             line-height: 1.25;
+            margin-right: .25rem;
+        }
+    }
+
+    .message {
+        display: flex;
+    }
+
+    & + .savemode {
+        margin-top: 1rem;
+
+        a.btn {
+            margin-right: .5rem;
+        }
+    }
+
+    & > .savemode {
+        margin-top: .5rem;
+
+        label {
+            margin-right: 1rem;
+        }
+
+        input {
             margin-right: .25rem;
         }
     }

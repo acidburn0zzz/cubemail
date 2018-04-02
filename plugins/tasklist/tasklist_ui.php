@@ -549,7 +549,7 @@ class tasklist_ui
                 )))
         );
 
-        $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'task-export-attachments', 'value' => 1, 'class' => 'form-check-input'));
+        $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'task-export-attachments', 'value' => 1, 'class' => 'form-check-input pretty-checkbox'));
         $html .= html::div('form-section form-group row form-check',
             html::label(array('for' => 'task-export-attachments', 'class' => 'col-sm-4 col-form-label'), $this->plugin->gettext('exportattachments'))
             . html::div('col-sm-8', $checkbox->show(1))
