@@ -399,7 +399,6 @@ body.quickview-active .fc-content {
         tr.fc-last th,
         tr.fc-last td {
             border-bottom-width: 1px;
-            color: @color-black-shade-text;
         }
 
         tbody tr.fc-first td,
@@ -426,6 +425,10 @@ body.quickview-active .fc-content {
 
     .fc-day {
         vertical-align: top;
+    }
+
+    .fc-day-header {
+        color: @color-black-shade-text;
     }
 
     .fc-grid {
@@ -475,8 +478,14 @@ body.quickview-active .fc-content {
 
     // Agenda Week View, Agenda Day View
 
-    .fc-agenda-days th {
-        text-align: center;
+    .fc-agenda-days {
+        th {
+            text-align: center;
+        }
+
+        .fc-widget-header {
+            color: @color-black-shade-text;
+        }
     }
 
     .fc-agenda {
@@ -656,15 +665,27 @@ body.quickview-active .fc-content {
         padding: 4px 2px;
         border-width: 0;
         border-bottom-width: 1px;
+
+        .fc-event {
+            position: relative;
+            margin: 1px 2px 3px 2px;
+
+            td:not(.fc-event-handle) {
+                vertical-align: top;
+            }
+        }
+
+        .fc-event-time {
+            .overflow-ellipsis;
+        }
+
+        .fc-event-title {
+            font-weight: bold;
+        }
     }
 
     .fc-view-list .fc-last {
         border-bottom: 0;
-    }
-
-    .fc-list-section .fc-event {
-        position: relative;
-        margin: 1px 2px 3px 2px;
     }
 
     .fc-view-table {
@@ -678,7 +699,7 @@ body.quickview-active .fc-content {
             }
 
             td.fc-event-handle {
-                padding: 3px 8px 3px 3px;
+                padding: 3px 8px 3px 5px;
             }
         }
 
@@ -907,16 +928,11 @@ body.quickview-active .fc-content {
     }
 
     .fc-event-location {
-        font-size: 90%;
+        font-size: 100%;
     }
 
     .fc-agenda-slots td div {
         height: 1.4em;
-    }
-
-    .fc-widget-header,
-    .fc-mon, .fc-tue, .fc-wed, .fc-thu, .fc-fri {
-        background-color: #fff;
     }
 
     .fc-widget-header, .fc-widget-content {
@@ -1063,6 +1079,7 @@ body.task-calendar {
 
     .input-group-prepend {
         overflow: hidden;
+        margin-bottom: 0;
 
         span {
             display: block;

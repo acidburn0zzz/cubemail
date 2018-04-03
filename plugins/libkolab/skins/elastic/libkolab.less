@@ -142,25 +142,7 @@
             color: @color-list-selected;
             background-color: @color-list-selected-background;
         }
-/*
-        &.shared > div a:first-child {
-            padding-right: 1.6em;
 
-            &:after {
-                &:extend(.font-icon-class);
-                content: @fa-var-share-alt;
-            }
-        }
-
-        &.user > div a:first-child {
-            padding-right: 1.6em;
-
-            &:after {
-                &:extend(.font-icon-class);
-                content: @fa-var-user;
-            }
-        }
-*/
         & > div.readonly a:first-child,
         &.readonly:not(.virtual) > div a:first-child {
             padding-right: 1.6em;
@@ -171,12 +153,15 @@
             }
         }
 
-        & > div.virtual.user > .listname,
-        &.virtual.user > div a:first-child {
+        & > div.other.user > .listname,
+        &.other.user > div a:first-child {
             &:before {
                 .font-icon-solid(@fa-var-user);
             }
+        }
 
+        & > div.virtual.user > .listname,
+        &.virtual.user > div a:first-child {
             &:after {
                 display: none;
             }
