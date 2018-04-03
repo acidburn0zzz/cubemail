@@ -6,7 +6,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2018, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -34,11 +34,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   {
     return String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   };
-  
+
   var rc_loading;
   var showdesc = true;
   var settings = $.extend(rcmail.env.calendar_settings, rcmail.env.libcal_settings);
-  
+
   // create list of event sources AKA calendars
   var src, event_sources = [];
   var add_url = (rcmail.env.search ? '&q='+escape(rcmail.env.search) : '');
@@ -52,9 +52,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
       id: id
     }, rcmail.env.calendars[id]);
 
+    source.color = '#' + source.color.replace(/^#/, '');
+
     event_sources.push(source);
   }
-  
+
   var viewdate = new Date();
   if (rcmail.env.date)
     viewdate.setTime(rcmail.env.date * 1000);

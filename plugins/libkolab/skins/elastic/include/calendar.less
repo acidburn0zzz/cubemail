@@ -72,6 +72,7 @@ a.button.today:before {
 
                 .count {
                     right: 5.5em;
+                    font-style: normal;
                 }
             }
         }
@@ -165,6 +166,10 @@ fieldset.categories .input-group {
         font-size: .9rem;
         background-color: @color-black-shade-bg;
 
+        table {
+            margin: 0;
+        }
+
         td a {
             font-size: .9rem !important;
         }
@@ -174,6 +179,11 @@ fieldset.categories .input-group {
         background-color: @color-black-shade-bg;
         border-top: 1px solid @color-layout-border;
     }
+}
+
+body.quickview-active .fc-content {
+    background: url('images/eye.svg') center no-repeat;
+    background-size: 50%;
 }
 
 // Fullcalendar styles
@@ -222,7 +232,7 @@ fieldset.categories .input-group {
 
     .fc-header-title {
         h2 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: bold;
         }
     }
@@ -262,12 +272,13 @@ fieldset.categories .input-group {
     // borrowed from twitter bootstrap (http://twitter.github.com/bootstrap/)
 
     .fc-state-highlight { // <td> today cell, TODO: add .fc-today to <th>
-        background: tint(@color-main, 90%);
+        background: fadeout(@color-main, 92%);
     }
+
 /*
     .fc-state-default {
         border: 1px solid;
-        background-color: #f5f5f5;
+        background-color: #f4f4f4;
     }
 
     .fc-state-hover,
@@ -277,7 +288,6 @@ fieldset.categories .input-group {
         color: #333333;
         background-color: #e6e6e6;
     }
-
     .fc-state-hover {
         color: #333333;
         text-decoration: none;
@@ -288,13 +298,11 @@ fieldset.categories .input-group {
         background-color: #cccccc;
         outline: 0;
     }
-
+*/
     .fc-state-disabled {
         cursor: default;
-        background-image: none;
         opacity: 0.65;
     }
-*/
 
     // Global Event Styles
 
@@ -315,10 +323,6 @@ fieldset.categories .input-group {
         color: #fff;               // default TEXT color
         font-size: .85em;
         cursor: default;
-
-        &:focus {
-            outline: 2px solid ActiveBorder;
-        }
 
         .fc-rtl & {
             text-align: right;
@@ -395,6 +399,7 @@ fieldset.categories .input-group {
         tr.fc-last th,
         tr.fc-last td {
             border-bottom-width: 1px;
+            color: @color-black-shade-text;
         }
 
         tbody tr.fc-first td,
@@ -431,6 +436,7 @@ fieldset.categories .input-group {
         .fc-day-number {
             float: right;
             padding: 0 2px;
+            font-size: .9rem;
         }
 
         .fc-other-month .fc-day-number {
@@ -487,6 +493,7 @@ fieldset.categories .input-group {
             font-weight: normal;
             font-size: .9rem;
             border-left: 0;
+            color: @color-black-shade-text;
         }
 
         .fc-week-number {
@@ -718,6 +725,74 @@ fieldset.categories .input-group {
         }
     }
 
+    .fc-event-hori.fc-type-freebusy,
+    .fc-event-vert.fc-type-freebusy {
+        opacity: 0.6;
+
+        .fc-event-title {
+            position: absolute;
+            top: -5000px;
+        }
+    }
+
+    .fc-event-row.fc-type-freebusy td {
+        color: #999;
+    }
+
+    .fc-event-vert.fc-invitation-needs-action,
+    .fc-event-hori.fc-invitation-needs-action {
+        border: 1px dashed #5757c7 !important;
+    }
+
+    .fc-event-vert.fc-invitation-tentative,
+    .fc-event-hori.fc-invitation-tentative {
+        border: 1px dashed #eb8900 !important;
+    }
+
+    .fc-event-vert.fc-invitation-declined,
+    .fc-event-hori.fc-invitation-declined {
+        border: 1px dashed #c00 !important;
+    }
+
+    .fc-event-vert.fc-event-ns-other.fc-invitation-declined,
+    .fc-event-hori.fc-event-ns-other.fc-invitation-declined {
+        opacity: 0.7;
+    }
+
+    .fc-event-ns-other.fc-invitation-declined .fc-event-title {
+        text-decoration: line-through;
+    }
+
+    .fc-event-vert.fc-invitation-tentative .fc-event-bg {
+        background: url(data:image/gif;base64,R0lGODlhCAAIAPABAOuJAP///yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+    }
+
+    .fc-event-vert.fc-invitation-needs-action .fc-event-bg {
+        background: url(data:image/gif;base64,R0lGODlhCAAIAPABAFdXx////yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+    }
+
+    .fc-event-vert.fc-invitation-declined .fc-event-bg {
+        background: url(data:image/gif;base64,R0lGODlhCAAIAPABAMwAAP///yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+    }
+
+    .fc-view-table tr.fc-invitation-tentative td,
+    .fc-view-table tr.fc-invitation-declined td,
+    .fc-view-table tr.fc-invitation-needs-action td {
+        color: #888;
+    }
+
+    .fc-view-table tr.fc-invitation-tentative td.fc-event-title,
+    .fc-view-table tr.fc-invitation-declined td.fc-event-title,
+    .fc-view-table tr.fc-invitation-needs-action td.fc-event-title {
+        font-weight: normal;
+    }
+
+    .fc-needs-action,
+    .fc-declined,
+    .cal-event-status-cancelled {
+        opacity: 0.6;
+    }
+
     .fc-icon-alarms,
     .fc-icon-sensitive,
     .fc-icon-recurring {
@@ -743,6 +818,14 @@ fieldset.categories .input-group {
 
     .fc-icon-sensitive:before {
         content: @fa-var-lock;
+    }
+
+    .fc-event-temp {
+        opacity: 0.4;
+    }
+
+    .fc-sat, .fc-sun {
+        background-color: fadeout(@color-black-shade-text, 97%);
     }
 
     // remove redundant borders
@@ -776,6 +859,7 @@ fieldset.categories .input-group {
         }
     }
 
+    .ui-resizable-handle,
     .fc-agenda-gutter,
     .fc-header-left,
     .fc-header-right {
@@ -786,9 +870,12 @@ fieldset.categories .input-group {
         overflow: visible;
     }
 
-    .fc-event-skin,
-    .fc-event-inner .fc-event-skin {
-        color: black;
+    .fc-list-section td,
+    .fc-event {
+        color: black !important;
+    }
+
+    .fc-event:not(.fc-event-row) .fc-event-skin {
         background-color: #fff !important;
     }
 
@@ -883,11 +970,16 @@ fieldset.categories .input-group {
         font-style: italic;
     }
 
+    .fc-day {
+        font-size: 90%;
+    }
+
     .fc-view-month .fc-event-hori .fc-event-inner {
         background: #fff !important;
     }
 
     // add back borders removed in non-print view
+    .fc-first .fc-day-header.fc-first,
     .fc-agenda .fc-agenda-axis,
     .fc-first .fc-day-header,
     .fc-week .fc-first {
