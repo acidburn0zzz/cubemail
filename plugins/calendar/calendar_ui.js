@@ -3607,7 +3607,7 @@ function rcube_calendar_ui(settings)
       if (data.length)
         rcmail.display_message(rcmail.gettext('nrcalendarsfound','calendar').replace('$nr', data.length), 'voice');
       else
-        rcmail.display_message(rcmail.gettext('nocalendarsfound','calendar'), 'info');
+        rcmail.display_message(rcmail.gettext('nocalendarsfound','calendar'), 'notice');
     });
     calendars_list.addEventListener('click-item', function(event) {
       // handle clicks on quickview icon: temprarily add this source and open in quickview

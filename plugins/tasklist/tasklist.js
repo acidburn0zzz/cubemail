@@ -229,7 +229,7 @@ function rcube_tasklist_ui(settings)
             if (data.length)
                 rcmail.display_message(rcmail.gettext('nrtasklistsfound','tasklist').replace('$nr', data.length), 'voice');
             else
-                rcmail.display_message(rcmail.gettext('notasklistsfound','tasklist'), 'info');
+                rcmail.display_message(rcmail.gettext('notasklistsfound','tasklist'), 'notice');
         });
 
         // Make Elastic checkboxes pretty

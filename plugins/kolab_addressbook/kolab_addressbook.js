@@ -80,7 +80,7 @@ if (window.rcmail) {
                     if (data.length)
                         rcmail.display_message(rcmail.gettext('nraddressbooksfound','kolab_addressbook').replace('$nr', data.length), 'voice');
                     else
-                        rcmail.display_message(rcmail.gettext('noaddressbooksfound','kolab_addressbook'), 'info');
+                        rcmail.display_message(rcmail.gettext('noaddressbooksfound','kolab_addressbook'), 'notice');
                 });
         }
 

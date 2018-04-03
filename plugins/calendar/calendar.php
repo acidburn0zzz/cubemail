@@ -870,7 +870,7 @@ class calendar extends rcube_plugin
         }
         // report more results available
         if ($this->driver->search_more_results)
-          $this->rc->output->show_message('autocompletemore', 'info');
+          $this->rc->output->show_message('autocompletemore', 'notice');
 
         $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC));
         return;
