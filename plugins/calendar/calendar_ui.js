@@ -2407,7 +2407,7 @@ function rcube_calendar_ui(settings)
         }
         else {
           me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
-          rcmail.http_post('event', { action:'rsvp', e:submit_data, status:response, attendees:attendees, noreply:noreply });
+          rcmail.http_post('calendar/event', { action:'rsvp', e:submit_data, status:response, attendees:attendees, noreply:noreply });
         }
 
         event_show_dialog(me.selected_event);
