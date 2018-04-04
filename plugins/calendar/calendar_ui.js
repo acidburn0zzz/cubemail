@@ -3423,12 +3423,13 @@ function rcube_calendar_ui(settings)
           this._search_message = rcmail.display_message(rcmail.gettext('searchnoresults', 'calendar'), 'notice');
           append = '<div class="message">' + rcmail.gettext('searchnoresults', 'calendar') + '</div>';
         }
-        append += '<div class="fc-bottomlinks formlinks"></div>';
+        append += '<div class="fc-bottomlinks formlinks toolbar"></div>';
         addlinks = true;
       }
       
       if (fc.fullCalendar('getView').name == 'table') {
-        var container = fc.find('.fc-list-content > .fc-listappend');
+        var elastic = $('#calendar').data('elastic-mode');
+        var container = elastic ? $('#searchcontrols') : fc.find('.fc-list-content > .fc-listappend');
         if (append) {
           if (!container.length)
             container = $('<div class="fc-listappend"></div>').appendTo(fc.find('.fc-list-content'));
@@ -3436,23 +3437,41 @@ function rcube_calendar_ui(settings)
         }
         else if (container.length)
           container.hide();
-        
+
         // add links to adjust search date range
         if (addlinks) {
           var lc = container.find('.fc-bottomlinks');
-          $('<a>').attr('href', '#').html(rcmail.gettext('searchearlierdates', 'calendar')).appendTo(lc).click(function(){
-            fc.fullCalendar('incrementDate', 0, -1, 0);
-          });
+
+          if (elastic) {
+            $('<a>').attr({href: '#', 'class': 'button icon tools'})
+              .append($('<span class="inner">').text(rcmail.gettext('showtools')))
+              .prependTo('#searchcontrols')
+              .click(function() {
+                $(this).attr('title', rcmail.gettext($('#searchcontrols').toggleClass('open').is('.open') ? 'hidetools' : 'showtools'));
+              });
+          }
+
+          $('<a>').attr({href: '#', 'class': 'button prev'})
+            .append($('<span class="inner">').text(rcmail.gettext(elastic ? 'earlierevents' : 'searchearlierdates', 'calendar')))
+            .appendTo(lc)
+            .click(function() {
+              fc.fullCalendar('incrementDate', 0, -1, 0);
+            });
+
           lc.append(" ");
-          $('<a>').attr('href', '#').html(rcmail.gettext('searchlaterdates', 'calendar')).appendTo(lc).click(function(){
-            var range = fc.fullCalendar('option', 'listRange');
-            if (range < 90) {
-              fc.fullCalendar('option', 'listRange', fc.fullCalendar('option', 'listRange') + 30).fullCalendar('render');
-              update_agenda_toolbar();
-            }
-            else
-              fc.fullCalendar('incrementDate', 0, 1, 0);
-          });
+
+          $('<a>').attr({href: '#', 'class': 'button next'})
+            .append($('<span class="inner">').text(rcmail.gettext(elastic ? 'laterevents' : 'searchlaterdates', 'calendar')))
+            .appendTo(lc)
+            .click(function() {
+              var range = fc.fullCalendar('option', 'listRange');
+              if (range < 90) {
+                fc.fullCalendar('option', 'listRange', fc.fullCalendar('option', 'listRange') + 30).fullCalendar('render');
+                update_agenda_toolbar();
+              }
+              else
+                fc.fullCalendar('incrementDate', 0, 1, 0);
+            });
         }
       }
       

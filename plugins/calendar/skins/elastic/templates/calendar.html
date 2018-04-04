@@ -40,6 +40,7 @@
 <div class="content selected no-navbar" role="main">
 	<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
 	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
+		<a class="button icon menu-button" href="#menu"><span class="inner"><roundcube:label name="menu" /></span></a>
 		<a class="button icon back-sidebar-button folders" href="#sidebar" data-hidden="big"><span class="inner"><roundcube:label name="calendar.calendars" /></span></a>
 		<span class="header-title"></span>
 		<!-- toolbar -->
@@ -59,19 +60,13 @@
 				label="calendar.export" title="calendar.exporttitle" innerClass="inner" />
 			<roundcube:container name="toolbar" id="calendartoolbar" />
 		</div>
-<!--
-	<div id="quicksearchbar" class="searchbox" role="search" aria-labelledby="aria-label-searchform">
-		<h2 id="aria-label-searchform" class="voice"><roundcube:label name="calendar.arialabelsearchform" /></h2>
-		<label for="quicksearchbox" class="voice"><roundcube:label name="calendar.arialabelquicksearchbox" /></label>
-		<roundcube:object name="plugin.searchform" id="quicksearchbox" />
-		<a id="searchmenulink" class="iconbutton searchoptions" tabindex="-1"> </a>
-		<roundcube:button type="link" command="reset-search" id="searchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
-	</div>
--->
+		<roundcube:object name="plugin.searchform" id="searchform" wrapper="searchbar toolbar"
+			label="searchform" buttontitle="calendar.findevents" label-domain="calendar" ariatag="h2" />
 	</div>
 	<h2 id="aria-label-calendarview" class="voice"><roundcube:label name="calendar.arialabelcalendarview" /></h2>
 	<div id="calendar" class="content" role="main" aria-labelledby="aria-label-calendarview" data-elastic-mode="true">
 		<roundcube:object name="plugin.agenda_options" id="agendaoptions" />
+		<div id="searchcontrols" class="search-controls"></div>
 	</div>
 	<div class="footer toolbar" role="toolbar" data-hidden="big">
 		<a href="#" class="button prev" onclick="$('.fc-button-prev').click()"><span class="inner"><roundcube:label name="previous" /></span></a>
@@ -188,9 +183,9 @@
 
 <div id="eventresourcesdialog" class="popupmenu">
 	<div class="resources-dialog">
-		<h3 class="voice" id="aria-label-resourceselection"><roundcube:label name="calendar.arialabelresourceselection" /></h2>
+		<h3 class="voice" id="aria-label-resourceselection"><roundcube:label name="calendar.arialabelresourceselection" /></h3>
 		<div class="resource-selection uibox listbox" role="navigation" aria-labelledby="aria-label-resourceselection">
-			<span class="header-title"><roundcube:label name="calendar.resources" /></span>
+			<span class="header-title"><roundcube:label name="calendar.tabresources" /></span>
 			<div id="resourcequicksearch" class="header">
 				<div class="searchbox" role="search" aria-labelledby="aria-label-resourcesearchform" aria-controls="resources-list">
 					<h3 id="aria-label-resourcesearchform" class="voice"><roundcube:label name="calendar.arialabelresourcesearchform" /></h3>

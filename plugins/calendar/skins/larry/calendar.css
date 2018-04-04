@@ -2051,6 +2051,7 @@ div.fc-event-location {
 .fc-listappend .formlinks a {
 	font-size: 12px;
 	padding: 0 0.3em;
+	max-width: initial;
 }
 
 .fc-event-temp {
