@@ -44,29 +44,29 @@ function rcube_calendar(settings)
         buttons = {},
         button_classes = ['mainaction save', 'cancel'],
         title = rcmail.gettext('calendar.createfrommail'),
-            dialog = $('<iframe>').attr({
-                id: 'kolabcalendarinlinegui',
-                name: 'kolabcalendardialog',
-                src: rcmail.url('calendar/dialog-ui', url)
-            });
+        dialog = $('<iframe>').attr({
+            id: 'kolabcalendarinlinegui',
+            name: 'kolabcalendardialog',
+            src: rcmail.url('calendar/dialog-ui', url)
+          });
 
-        // dialog buttons
-        buttons[rcmail.gettext('save')] = function() {
-            var frame = rcmail.get_frame_window('kolabcalendarinlinegui');
-            frame.rcmail.command('event-save');
-        };
+      // dialog buttons
+      buttons[rcmail.gettext('save')] = function() {
+        var frame = rcmail.get_frame_window('kolabcalendarinlinegui');
+        frame.rcmail.command('event-save');
+      };
 
-        buttons[rcmail.gettext('cancel')] = function() {
-            dialog.dialog('destroy');
-        };
+      buttons[rcmail.gettext('cancel')] = function() {
+        dialog.dialog('destroy');
+      };
 
-        // open jquery UI dialog
-        window.kolab_event_dialog_element = dialog = rcmail.show_popup_dialog(dialog, title, buttons, {
-            button_classes: button_classes,
-            minWidth: 500,
-            width: 600,
-            height: 600
-        });
+      // open jquery UI dialog
+      window.kolab_event_dialog_element = dialog = rcmail.show_popup_dialog(dialog, title, buttons, {
+          button_classes: button_classes,
+          minWidth: 500,
+          width: 600,
+          height: 600
+      });
     };
 
     // handler for attachment-save-calendar commands
@@ -81,7 +81,7 @@ function rcube_calendar(settings)
             // _calendar: $('#calendar-attachment-saveto').val(),
           }, rcmail.set_busy(true, 'itip.savingdata'));
       }
-    }
+    };
 }
 
 
