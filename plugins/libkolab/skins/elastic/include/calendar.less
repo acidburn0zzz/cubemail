@@ -1300,9 +1300,16 @@ body.task-calendar {
 .datetime {
     label {
         margin-left: 1em;
-        line-height: 2.2;
-        text-align: right;
         flex: 1;
+
+        label {
+            line-height: 1.8;
+
+            &:before {
+                margin-right: .25rem;
+                line-height: 1.5;
+            }
+        }
     }
 
     input {

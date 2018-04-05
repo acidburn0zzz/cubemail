@@ -137,6 +137,7 @@ $labels['arialabeltaskselector'] = 'List mode';
 $labels['arialabeltasklisting'] = 'Tasks listing';
 $labels['arialabelsortmenu'] = 'Tasks sorting options';
 $labels['arialabeltasklistform'] = 'Tasks list properties';
+$labels['arialabeltaskform'] = 'Task editing form';
 
 // attendees
 $labels['attendee'] = 'Assignee';

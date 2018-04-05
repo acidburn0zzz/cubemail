@@ -118,8 +118,9 @@ label.noreply-toggle + a.reply-comment-toggle {
 	min-width: 5em;
 }
 
-#edit-recurrence-yearly-bymonthblock {
-	margin-left: 7.5em;
+.recurrence-form .event-section label + div,
+.recurrence-form .form-section label + div {
+	display: inline-block;
 }
 
 #edit-recurrence-rdates {

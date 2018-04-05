@@ -777,6 +777,7 @@ body.taskdialog #taskedit {
 	display: block;
 	top: 0;
 	padding: 1em;
+	border: 0;
 }
 
 #taskedit {

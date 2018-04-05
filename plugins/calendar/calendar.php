@@ -153,8 +153,7 @@ class calendar extends rcube_plugin
       $this->register_action('print', array($this,'print_view'));
       $this->register_action('mailimportitip', array($this, 'mail_import_itip'));
       $this->register_action('mailimportattach', array($this, 'mail_import_attachment'));
-      $this->register_action('mailtoevent', array($this, 'mail_message2event'));
-      $this->register_action('inlineui', array($this, 'get_inline_ui'));
+      $this->register_action('dialog-ui', array($this, 'mail_message2event'));
       $this->register_action('check-recent', array($this, 'check_recent'));
       $this->register_action('itip-status', array($this, 'event_itip_status'));
       $this->register_action('itip-remove', array($this, 'event_itip_remove'));
@@ -875,7 +874,7 @@ class calendar extends rcube_plugin
         $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC));
         return;
     }
-    
+
     if ($success)
       $this->rc->output->show_message('successfullysaved', 'confirmation');
     else {
@@ -1221,10 +1220,10 @@ class calendar extends rcube_plugin
     }
 
     // unlock client
-    $this->rc->output->command('plugin.unlock_saving');
+    $this->rc->output->command('plugin.unlock_saving', $success);
 
     // update event object on the client or trigger a complete refresh if too complicated
-    if ($reload) {
+    if ($reload && empty($_REQUEST['_framed'])) {
       $args = array('source' => $event['calendar']);
       if ($reload > 1)
         $args['refetch'] = true;
@@ -2422,30 +2421,6 @@ class calendar extends rcube_plugin
   }
 
   /**
-   *
-   */
-  public function get_inline_ui()
-  {
-    foreach (array('save','cancel','savingdata') as $label)
-      $texts['calendar.'.$label] = $this->gettext($label);
-    
-    $texts['calendar.new_event'] = $this->gettext('createfrommail');
-    
-    $this->ui->init_templates();
-    $this->ui->calendar_list();  # set env['calendars']
-    echo $this->api->output->parse('calendar.eventedit', false, false);
-    echo html::tag('script', array('type' => 'text/javascript'),
-      "rcmail.set_env('calendars', " . rcube_output::json_serialize($this->api->output->env['calendars']) . ");\n".
-      "rcmail.set_env('deleteicon', '" . $this->api->output->env['deleteicon'] . "');\n".
-      "rcmail.set_env('cancelicon', '" . $this->api->output->env['cancelicon'] . "');\n".
-      "rcmail.set_env('loadingicon', '" . $this->api->output->env['loadingicon'] . "');\n".
-      "rcmail.gui_object('attachmentlist', '"  . $this->ui->attachmentlist_id . "');\n".
-      "rcmail.add_label(" . rcube_output::json_serialize($texts) . ");\n"
-    );
-    exit;
-  }
-
-  /**
    * Compare two event objects and return differing properties
    *
    * @param array Event A
@@ -3375,17 +3350,21 @@ class calendar extends rcube_plugin
    */
   public function mail_message2event()
   {
-    $uid   = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
-    $mbox  = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
+    $this->ui->init();
+    $this->ui->addJS();
+    $this->ui->init_templates();
+    $this->ui->calendar_list(); // set env['calendars']
+
+    $uid   = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+    $mbox  = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GET);
     $event = array();
 
     // establish imap connection
-    $imap = $this->rc->get_storage();
-    $imap->set_folder($mbox);
-    $message = new rcube_message($uid);
+    $imap    = $this->rc->get_storage();
+    $message = new rcube_message($uid, $mbox);
 
     if ($message->headers) {
-      $event['title'] = trim($message->subject);
+      $event['title']       = trim($message->subject);
       $event['description'] = trim($message->first_text_part());
 
       $this->load_driver();
@@ -3427,14 +3406,14 @@ class calendar extends rcube_plugin
           }
         }
       }
-      
-      $this->rc->output->command('plugin.mail2event_dialog', $event);
+
+      $this->rc->output->set_env('event_prop', $event);
     }
     else {
       $this->rc->output->command('display_message', $this->gettext('messageopenerror'), 'error');
     }
-    
-    $this->rc->output->send();
+
+    $this->rc->output->send('calendar.dialog');
   }
 
   /**

@@ -887,6 +887,18 @@ a.miniColors-trigger {
 	visibility: visible;
 }
 
+body.eventdialog {
+	margin: 0;
+	overflow-y: auto;
+}
+
+body.eventdialog #eventedit {
+	display: block;
+	top: 0;
+	padding: 1em;
+	border-bottom: 0;
+}
+
 #eventedit {
 	position: relative;
 	top: -1.5em;
@@ -917,6 +929,10 @@ div.form-section,
 	padding-bottom: 0.8em;
 	margin-bottom: 0.8em;
 	border-bottom: 2px solid #fafafa;
+}
+
+div.event-section > .col-form-label {
+	float: left;
 }
 
 .calendarmain .eventdialog label,
@@ -1375,6 +1391,7 @@ td.topalign {
 
 #schedule-freebusy-times tr.times td {
 	cursor: pointer;
+	white-space: nowrap;
 }
 
 #schedule-freebusy-times #fbrowall td {

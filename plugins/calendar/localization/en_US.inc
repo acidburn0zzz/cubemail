@@ -306,5 +306,6 @@ $labels['arialabeleventattendees'] = 'Event participants list';
 $labels['arialabeleventresources'] = 'Event resources list';
 $labels['arialabelresourcesearchform'] = 'Resources search form';
 $labels['arialabelresourceselection'] = 'Available resources';
+$labels['arialabeleventform'] = 'Event editing form';
 
 ?>
