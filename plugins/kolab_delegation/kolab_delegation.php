@@ -59,6 +59,9 @@ class kolab_delegation extends rcube_plugin
         // delegation support in kolab_auth plugin
         $this->add_hook('kolab_auth_emails', array($this, 'kolab_auth_emails'));
 
+        // delegation support in Enigma plugin
+        $this->add_hook('enigma_user_identities', array($this, 'user_identities'));
+
         if ($this->rc->task == 'settings') {
             // delegation management interface
             $this->register_action('plugin.delegation',              array($this, 'controller_ui'));
@@ -309,6 +312,28 @@ class kolab_delegation extends rcube_plugin
 
             $args['emails'] = array_unique($args['emails']);
             sort($args['emails']);
+        }
+
+        return $args;
+    }
+
+    /**
+     * Delegation support in Enigma plugin
+     */
+    public function user_identities($args)
+    {
+        // Remove delegators' identities from the key generation form
+
+        if (!empty($_SESSION['delegators'])) {
+            $args['identities'] = array_filter($args['identities'], function($ident) {
+                foreach ($_SESSION['delegators'] as $emails) {
+                    if (in_array($ident['email'], $emails)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
         }
 
         return $args;
