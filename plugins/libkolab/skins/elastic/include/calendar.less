@@ -1343,6 +1343,11 @@ body.task-calendar {
         }
     }
 
+    .slot-nav {
+        display: flex;
+        align-items: center;
+    }
+
     .schedule-find-buttons {
         margin-right: 1rem;
         float: left;
@@ -1365,10 +1370,14 @@ body.task-calendar {
     }
 
     .schedule-options {
-        line-height: 2.8;
-
         label {
             vertical-align: middle;
+        }
+
+        input.icon-checkbox + label:before {
+            margin-right:.25rem;
+            display: inline;
+            float: none;
         }
     }
 
@@ -1442,6 +1451,7 @@ body.task-calendar {
             td {
                 height: 1.8rem;
                 border-top: 1px solid @color-list-border;
+                white-space: nowrap;
             }
         }
 

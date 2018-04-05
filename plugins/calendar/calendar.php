@@ -3353,7 +3353,7 @@ class calendar extends rcube_plugin
     $this->ui->init();
     $this->ui->addJS();
     $this->ui->init_templates();
-    $this->ui->calendar_list(); // set env['calendars']
+    $this->ui->calendar_list(array(), true); // set env['calendars']
 
     $uid   = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
     $mbox  = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GET);

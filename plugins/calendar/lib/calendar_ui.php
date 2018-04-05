@@ -207,11 +207,11 @@ class calendar_ui
   /**
    *
    */
-  function calendar_list($attrib = array())
+  function calendar_list($attrib = array(), $js_only = false)
   {
-    $html = '';
-    $jsenv = array();
-    $tree = true;
+    $html      = '';
+    $jsenv     = array();
+    $tree      = true;
     $calendars = $this->cal->driver->list_calendars(0, $tree);
 
     // walk folder tree
@@ -240,9 +240,14 @@ class calendar_ui
       );
     }
 
-    $this->rc->output->set_env('source', rcube_utils::get_input_value('source', rcube_utils::INPUT_GET));
     $this->rc->output->set_env('calendars', $jsenv);
-    $this->rc->output->add_gui_object('calendarslist', $attrib['id']);
+
+    if ($js_only) {
+      return;
+    }
+
+    $this->rc->output->set_env('source', rcube_utils::get_input_value('source', rcube_utils::INPUT_GET));
+    $this->rc->output->add_gui_object('calendarslist', $attrib['id'] ?: 'unknown');
 
     return html::tag('ul', $attrib, $html, html::$common_attrib);
   }
