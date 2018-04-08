@@ -265,7 +265,6 @@
         }
 
     }
-
     td.invite {
         label:before {
             line-height: 1.6;
@@ -326,6 +325,22 @@
     .inner {
         display: none;
     }
+
+    html.layout-phone & {
+        th.availability,
+        th.confirmstate {
+            text-indent: -5000px;
+        }
+
+        td.role {
+            max-width: 7em;
+        }
+
+        select {
+            padding: 0 .5rem;
+        }
+
+    }
 }
 
 html.touch {
@@ -345,6 +360,10 @@ html.touch {
 
     input[type=text] {
         flex: 1;
+
+        html.layout-phone & {
+            max-width: 50%;
+        }
     }
 
     input[type=button] {
@@ -458,7 +477,7 @@ html.touch {
 
     .recurrence-onevery {
         select {
-            width: 35%;
+            width: 40%;
             display: inline;
         }
     }
@@ -502,6 +521,10 @@ html.touch {
     .table td {
         border: 0;
         padding: 0;
+
+        &.label {
+            white-space: nowrap;
+        }
 
         &:first-child label {
             line-height: 2.5;

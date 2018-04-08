@@ -861,17 +861,6 @@ function rcube_calendar_ui(settings)
         click: save_func
       });
 
-      if (event.id) {
-        buttons.push({
-          text: rcmail.gettext('delete', 'calendar'),
-          'class': 'delete',
-          click: function() {
-            me.delete_event(event);
-            $dialog.dialog('close');
-          }
-        });
-      }
-
       buttons.push({
         text: rcmail.gettext('cancel', 'calendar'),
         'class': 'cancel',
@@ -3895,11 +3884,14 @@ function rcube_calendar_ui(settings)
           ignore_click = true;
           var d = minical.datepicker('getDate'); //parse_datetime('0:0', dateText);
           fc.fullCalendar('gotoDate', d).fullCalendar('select', d, d, true);
+          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
         },
         onChangeMonthYear: function(year, month, inst) {
           minical.data('year', year).data('month', month);
+          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
         },
         beforeShowDay: function(date) {
+          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
           var view = fc.fullCalendar('getView');
           var active = view.visStart && date.getTime() >= view.visStart.getTime() && date.getTime() < view.visEnd.getTime();
           return [ true, (active ? 'ui-datepicker-activerange ui-datepicker-active-' + view.name : ''), ''];
@@ -3927,6 +3919,7 @@ function rcube_calendar_ui(settings)
               date = new Date(base_date.getTime() - day_off * DAY_MS + wdiff * 7 * DAY_MS);
             fc.fullCalendar('gotoDate', date).fullCalendar('setDate', date).fullCalendar('changeView', 'agendaWeek');
             minical.datepicker('setDate', date);
+            setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
           }
         });
 
@@ -4265,19 +4258,27 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         nav = $('<div class="btn-group btn-group-toggle" role="group">').appendTo('.fc-header-right');
 
     $('.fc-header-left > span').each(function() {
-      var cl = 'btn btn-secondary', btn = $(this);
+      var new_btn, cl = 'btn btn-secondary', btn = $(this),
+        activate = function(button) {
+          selector.children('.active').removeClass('active');
+          $(button).addClass('active');
+        };
 
       if (btn.is('.fc-state-active')) {
         cl += ' active';
       }
 
-      $('<button>').attr({'class': cl}).text(btn.text())
+      new_btn = $('<button>').attr({'class': cl}).text(btn.text())
         .appendTo(selector)
         .on('click', function() {
-          selector.children('.active').removeClass('active');
-          $(this).addClass('active');
+          activate(this);
           btn.click();
         });
+
+      if (window.MutationObserver) {
+        // handle button active state changes
+        new MutationObserver(function() { if (btn.is('.fc-state-active')) activate(new_btn); }).observe(this, {attributes: true});
+      }
     });
 
     $.each(['prev', 'today', 'next'], function() {
@@ -4291,8 +4292,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
     // Mobile header title
     if (window.MutationObserver) {
-      var observer,
-        title = $('.fc-header-title'),
+      var title = $('.fc-header-title'),
         mobile_header = $('#layout > .content > .header > .header-title'),
         callback = function() {
           var text = title.text();
@@ -4303,10 +4303,23 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         };
 
       // update the header when something changes on the calendar title
-      observer = new MutationObserver(callback);
-      observer.observe(title[0], {childList: true, subtree: true});
+      new MutationObserver(callback).observe(title[0], {childList: true, subtree: true});
       // initialize the header
       callback();
+    }
+
+    window.calendar_datepicker = function() {
+      $('#datepicker').dialog({
+        modal: true,
+        title: rcmail.gettext('calendar.selectdate'),
+        buttons: [{
+          text: rcmail.gettext('close', 'calendar'),
+          'class': 'cancel',
+          click: function() { $(this).dialog('close'); }
+        }],
+        width: 400,
+        height: 520
+      });
     }
   }
 });
