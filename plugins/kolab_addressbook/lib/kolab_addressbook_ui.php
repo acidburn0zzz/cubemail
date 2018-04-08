@@ -56,7 +56,7 @@ class kolab_addressbook_ui
 
             // include kolab folderlist widget if available
             if (in_array('libkolab', $this->plugin->api->loaded_plugins())) {
-                $this->plugin->api->include_script('libkolab/js/folderlist.js');
+                $this->plugin->api->include_script('libkolab/libkolab.js');
             }
 
             $this->rc->output->add_footer($this->rc->output->parse('kolab_addressbook.search_addon', false, false));
