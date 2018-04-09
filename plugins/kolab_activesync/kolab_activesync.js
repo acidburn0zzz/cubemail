@@ -56,7 +56,7 @@ function kolab_activesync_config()
     });
 
     var fn = function(elem) {
-      var classname = elem.className,
+      var classname = elem.className.split(' ')[0],
         list = $(elem).closest('table').find('input.' + classname),
         check = list.not(':checked').length > 0;
 

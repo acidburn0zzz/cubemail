@@ -23,7 +23,7 @@
 
 class kolab_tags extends rcube_plugin
 {
-    public $task = 'mail';
+    public $task = 'mail|notes|tasks';
     public $rc;
     public $home;
 

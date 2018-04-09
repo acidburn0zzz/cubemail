@@ -934,15 +934,16 @@ class kolab_addressbook extends rcube_plugin
 
             $this->rc->output->show_message('kolab_addressbook.book'.$type.'d', 'confirmation');
             $this->rc->output->command('book_update', $props, kolab_storage::folder_id($prop['oldname'], true));
-            $this->rc->output->send('iframe');
+        }
+        else {
+            if (!$error) {
+                $error = $plugin['message'] ? $plugin['message'] : 'kolab_addressbook.book'.$type.'error';
+            }
+
+            $this->rc->output->show_message($error, 'error');
         }
 
-        if (!$error)
-            $error = $plugin['message'] ? $plugin['message'] : 'kolab_addressbook.book'.$type.'error';
-
-        $this->rc->output->show_message($error, 'error');
-        // display the form again
-        $this->ui->book_edit();
+        $this->rc->output->send('iframe');
     }
 
     /**
@@ -1027,7 +1028,7 @@ class kolab_addressbook extends rcube_plugin
 
         // report more results available
         if ($search_more_results) {
-            $this->rc->output->show_message('autocompletemore', 'info');
+            $this->rc->output->show_message('autocompletemore', 'notice');
         }
 
         $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC));

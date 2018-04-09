@@ -30,13 +30,6 @@
     <div id="mainscreencontent">
 
     <div id="sidebar">
-        <div id="tagsbox" class="uibox listbox">
-            <h2 class="boxtitle" id="aria-label-tagsbox"><roundcube:label name="kolab_notes.tags" id="taglist" /></h2>
-            <div class="scroller">
-                <roundcube:object name="plugin.tagslist" id="tagslist" class="tagcloud" role="region" aria-labelledby="aria-label-tagsbox" aria-controls="kolabnoteslist" />
-            </div>
-        </div>
-
         <div id="notebooksbox" class="uibox listbox" role="navigation" aria-labelledby="aria-label-notebooks">
             <h2 class="boxtitle" id="aria-label-notebooks"><roundcube:label name="kolab_notes.lists" />
                 <a href="#notebooks" class="iconbutton search" title="<roundcube:label name='kolab_notes.findnotebooks' />" tabindex="0"><roundcube:label name="kolab_notes.findnotebooks" /></a>
@@ -97,7 +90,7 @@
                 <roundcube:button command="save" type="input" class="button mainaction" label="save" id="btn-save-note" />
                 <div class="footerright">
                 <roundcube:if condition="config:kolab_bonnie_api" />
-                    <roundcube:button command="history" type="link" label="kolab_notes.showhistory" class="btn-note-history" classAct="btn-note-history active" />
+                    <roundcube:button command="history" type="link" label="libkolab.showhistory" class="btn-note-history" classAct="btn-note-history active" />
                 <roundcube:endif />
                 </div>
             </div>
@@ -146,12 +139,6 @@
     </ul>
 </div>
 
-<div id="notebookeditform" class="uidialog" aria-labelledby="aria-label-editform" aria-hidden="true" role="dialog">
-    <h3 id="aria-label-editform" class="voice"><roundcube:label name="kolab_notes.arialabelnotebookform" /></h3>
-    <roundcube:container name="notebookeditform" id="notebookeditform" />
-    <roundcube:label name="loading" />
-</div>
-
 <script type="text/javascript">
 
 // UI startup
@@ -166,8 +153,6 @@ $(document).ready(function(e){
         orientation:'v', relative:true, start:240, min:180, size:12, render:layout_view }).init();
     new rcube_splitter({ id:'noteslistsplitter2', p1:'#noteslistbox', p2:'#notedetailsbox',
         orientation:'v', relative:true, start:242, min:180, size:12, render:layout_view }).init();
-    new rcube_splitter({ id:'notesviewsplitterv', p1:'#tagsbox', p2:'#notebooksbox',
-        orientation:'h', relative:true, start:242, min:120, size:12, offset:4 }).init();
 
     function layout_view()
     {
@@ -223,7 +208,6 @@ $(document).ready(function(e){
 
         return false;
     });
-    
 });
 
 </script>

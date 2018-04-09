@@ -65,3 +65,74 @@ ul.toolbarmenu li a.history span.history {
 #mailmessagehistory .changelog-table .operation {
 	width: 25%;
 }
+
+fieldset.birthdays .proplist li {
+	padding: 0;
+	border: 0;
+}
+
+fieldset.categories input {
+	height: auto !important;
+	line-height: 16px !important;
+}
+
+#calendarcategories .minicolors-swatch {
+	height: 14px;
+	width: 14px;
+}
+
+a.button.input-group-text {
+	line-height: 19px;
+	vertical-align: middle;
+}
+
+.libkolab.attachmentwin #attachmenttoolbar {
+	position: relative;
+	top: -6px;
+	height: 40px;
+}
+
+.libkolab.attachmentwin #attachmentcontainer {
+	position: absolute;
+	top: 0;
+	left: 232px;
+	right: 0;
+	bottom: 0;
+}
+
+.libkolab.attachmentwin #attachmentframe {
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background-color: #fff;
+	border-radius: 4px;
+}
+
+.libkolab.attachmentwin #partheader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 220px;
+	bottom: 0;
+}
+
+.libkolab.attachmentwin #partheader table {
+	table-layout: fixed;
+	overflow: hidden;
+}
+
+.libkolab.attachmentwin #partheader table td {
+	color: #666;
+	padding: 4px 6px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.libkolab.attachmentwin #partheader table td.header {
+	font-weight: bold;
+}
+
+.libkolab.attachmentwin #partheader table td.title {
+	width: 60px;
+	padding-right: 0;
+}

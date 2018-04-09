@@ -74,6 +74,7 @@ class tasklist extends rcube_plugin
     function init()
     {
         $this->require_plugin('libcalendaring');
+        $this->require_plugin('libkolab');
         $this->require_plugin('jqueryui');
 
         $this->rc  = rcube::get_instance();
@@ -115,8 +116,7 @@ class tasklist extends rcube_plugin
             $this->register_action('counts', array($this, 'fetch_counts'));
             $this->register_action('fetch', array($this, 'fetch_tasks'));
             $this->register_action('print', array($this, 'print_tasks'));
-            $this->register_action('inlineui', array($this, 'get_inline_ui'));
-            $this->register_action('mail2task', array($this, 'mail_message2task'));
+            $this->register_action('dialog-ui', array($this, 'mail_message2task'));
             $this->register_action('get-attachment', array($this, 'attachment_get'));
             $this->register_action('upload', array($this, 'attachment_upload'));
             $this->register_action('import', array($this, 'import_tasks'));
@@ -140,7 +140,7 @@ class tasklist extends rcube_plugin
             }
 
             // add 'Create event' item to message menu
-            if ($this->api->output->type == 'html') {
+            if ($this->api->output->type == 'html' && $_GET['_rel'] != 'task') {
                 $this->api->add_content(html::tag('li', null, 
                     $this->api->output->button(array(
                         'command'  => 'tasklist-create-from-mail',
@@ -182,8 +182,9 @@ class tasklist extends rcube_plugin
      */
     private function load_driver()
     {
-        if (is_object($this->driver))
+        if (is_object($this->driver)) {
             return;
+        }
 
         $driver_name  = $this->rc->config->get('tasklist_driver', 'database');
         $driver_class = 'tasklist_' . $driver_name . '_driver';
@@ -191,17 +192,10 @@ class tasklist extends rcube_plugin
         require_once($this->home . '/drivers/tasklist_driver.php');
         require_once($this->home . '/drivers/' . $driver_name . '/' . $driver_class . '.php');
 
-        switch ($driver_name) {
-        case "kolab":
-            $this->require_plugin('libkolab');
-        default:
-            $this->driver = new $driver_class($this);
-            break;
-        }
+        $this->driver = new $driver_class($this);
 
         $this->rc->output->set_env('tasklist_driver', $driver_name);
     }
-
 
     /**
      * Dispatcher for task-related actions initiated by the client
@@ -560,7 +554,7 @@ class tasklist extends rcube_plugin
         }
 
         // unlock client
-        $this->rc->output->command('plugin.unlock_saving');
+        $this->rc->output->command('plugin.unlock_saving', $success);
 
         if ($refresh) {
             if ($refresh['id']) {
@@ -996,6 +990,7 @@ class tasklist extends rcube_plugin
         switch ($action) {
         case 'form-new':
         case 'form-edit':
+            $this->load_ui();
             echo $this->ui->tasklist_editform($action, $list);
             exit;
 
@@ -1052,7 +1047,7 @@ class tasklist extends rcube_plugin
             }
             // report more results available
             if ($this->driver->search_more_results) {
-                $this->rc->output->show_message('autocompletemore', 'info');
+                $this->rc->output->show_message('autocompletemore', 'notice');
             }
 
             $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC));
@@ -1451,42 +1446,6 @@ class tasklist extends rcube_plugin
         $this->rc->output->send('tasklist.mainview');
     }
 
-
-    /**
-     *
-     */
-    public function get_inline_ui()
-    {
-        foreach (array('save','cancel','savingdata') as $label)
-            $texts['tasklist.'.$label] = $this->gettext($label);
-
-        $texts['tasklist.newtask'] = $this->gettext('createfrommail');
-
-
-        $this->ui->init_templates();
-        $this->ui->tasklists();
-
-        // collect env variables
-        $env = array(
-            'tasklists' => $this->rc->output->get_env('tasklists'),
-            'tasklist_settings' => $this->ui->load_settings(),
-        );
-
-        echo $this->api->output->parse('tasklist.taskedit', false, false);
-
-        $script_add = '';
-        foreach ($this->ui->get_gui_objects() as $obj => $id) {
-            $script_add .= rcmail_output::JS_OBJECT_NAME . ".gui_object('$obj', '$id');\n";
-        }
-
-        echo html::tag('script', array('type' => 'text/javascript'),
-            rcmail_output::JS_OBJECT_NAME . ".set_env(" . json_encode($env) . ");\n".
-            rcmail_output::JS_OBJECT_NAME . ".add_label(" . json_encode($texts) . ");\n".
-            $script_add
-        );
-        exit;
-    }
-
     /**
      * Handler for keep-alive requests
      * This will check for updated data in active lists and sync them to the client
@@ -1753,7 +1712,8 @@ class tasklist extends rcube_plugin
     */
     public function attachment_upload()
     {
-        $this->lib->attachment_upload(self::SESSION_KEY);
+        $handler = new kolab_attachments_handler();
+        $handler->attachment_upload(self::SESSION_KEY);
     }
 
     /**
@@ -1761,9 +1721,11 @@ class tasklist extends rcube_plugin
      */
     public function attachment_get()
     {
+        $handler = new kolab_attachments_handler();
+
         // show loading page
         if (!empty($_GET['_preload'])) {
-            return $this->lib->attachment_loading_page();
+            return $handler->attachment_loading_page();
         }
 
         $task = rcube_utils::get_input_value('_t', rcube_utils::INPUT_GPC);
@@ -1771,20 +1733,17 @@ class tasklist extends rcube_plugin
         $id   = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
         $rev  = rcube_utils::get_input_value('_rev', rcube_utils::INPUT_GPC);
 
-        $task = array('id' => $task, 'list' => $list, 'rev' => $rev);
+        $task       = array('id' => $task, 'list' => $list, 'rev' => $rev);
         $attachment = $this->driver->get_attachment($id, $task);
 
         // show part page
         if (!empty($_GET['_frame'])) {
-            $this->lib->attachment = $attachment;
-            $this->register_handler('plugin.attachmentframe', array($this->lib, 'attachment_frame'));
-            $this->register_handler('plugin.attachmentcontrols', array($this->lib, 'attachment_header'));
-            $this->rc->output->send('tasklist.attachment');
+            $handler->attachment_page($attachment);
         }
         // deliver attachment content
         else if ($attachment) {
             $attachment['body'] = $this->driver->get_attachment_body($id, $task);
-            $this->lib->attachment_get($attachment);
+            $handler->attachment_get($attachment);
         }
 
         // if we arrive here, the requested part was not found
@@ -1797,19 +1756,22 @@ class tasklist extends rcube_plugin
 
     public function mail_message2task()
     {
-        $uid  = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
-        $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
+        $this->load_ui();
+        $this->ui->init();
+        $this->ui->init_templates();
+        $this->ui->tasklists();
+
+        $uid  = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+        $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GET);
         $task = array();
 
-        // establish imap connection
-        $imap = $this->rc->get_storage();
-        $imap->set_folder($mbox);
-        $message = new rcube_message($uid);
+        $imap    = $this->rc->get_storage();
+        $message = new rcube_message($uid, $mbox);
 
         if ($message->headers) {
-            $task['title'] = trim($message->subject);
+            $task['title']       = trim($message->subject);
             $task['description'] = trim($message->first_text_part());
-            $task['id'] = -$uid;
+            $task['id']          = -$uid;
 
             $this->load_driver();
 
@@ -1820,18 +1782,19 @@ class tasklist extends rcube_plugin
             // copy mail attachments to task
             else if ($message->attachments && $this->driver->attachments) {
                 if (!is_array($_SESSION[self::SESSION_KEY]) || $_SESSION[self::SESSION_KEY]['id'] != $task['id']) {
-                    $_SESSION[self::SESSION_KEY] = array();
-                    $_SESSION[self::SESSION_KEY]['id'] = $task['id'];
-                    $_SESSION[self::SESSION_KEY]['attachments'] = array();
+                    $_SESSION[self::SESSION_KEY] = array(
+                        'id'          => $task['id'],
+                        'attachments' => array(),
+                    );
                 }
 
                 foreach ((array)$message->attachments as $part) {
                     $attachment = array(
-                        'data' => $imap->get_message_part($uid, $part->mime_id, $part),
-                        'size' => $part->size,
-                        'name' => $part->filename,
+                        'data'     => $imap->get_message_part($uid, $part->mime_id, $part),
+                        'size'     => $part->size,
+                        'name'     => $part->filename,
                         'mimetype' => $part->mimetype,
-                        'group' => $task['id'],
+                        'group'    => $task['id'],
                     );
 
                     $attachment = $this->rc->plugins->exec_hook('attachment_save', $attachment);
@@ -1850,13 +1813,13 @@ class tasklist extends rcube_plugin
                 }
             }
 
-            $this->rc->output->command('plugin.mail2taskdialog', $task);
+            $this->rc->output->set_env('task_prop', $task);
         }
         else {
             $this->rc->output->command('display_message', $this->gettext('messageopenerror'), 'error');
         }
 
-        $this->rc->output->send();
+        $this->rc->output->send('tasklist.dialog');
     }
 
     /**
@@ -1884,7 +1847,7 @@ class tasklist extends rcube_plugin
 
             // get prepared inline UI for this event object
             if ($ical_objects->method) {
-                $html .= html::div('tasklist-invitebox',
+                $html .= html::div('tasklist-invitebox invitebox boxinformation',
                     $this->itip->mail_itip_inline_ui(
                         $task,
                         $ical_objects->method,
@@ -1926,7 +1889,7 @@ class tasklist extends rcube_plugin
             );
         }
         if (count($links)) {
-            $html .= html::div('messagetasklinks', html::tag('ul', 'tasklist', join("\n", $links)));
+            $html .= html::div('messagetasklinks boxinformation', html::tag('ul', 'tasklist', join("\n", $links)));
         }
 
         // prepend iTip/relation boxes to message body
@@ -2394,7 +2357,7 @@ class tasklist extends rcube_plugin
         // get a list of writeable lists to save new tasks to
         if ((!$existing || $is_shared) && $response['action'] == 'rsvp' || $response['action'] == 'import') {
             $lists  = $this->driver->get_lists($mode);
-            $select = new html_select(array('name' => 'tasklist', 'id' => 'itip-saveto', 'is_escaped' => true));
+            $select = new html_select(array('name' => 'tasklist', 'id' => 'itip-saveto', 'is_escaped' => true, 'class' => 'form-control'));
             $select->add('--', '');
 
             foreach ($lists as $list) {

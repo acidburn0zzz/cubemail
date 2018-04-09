@@ -57,13 +57,15 @@ class libkolab extends rcube_plugin
 
         $this->add_texts('localization/', false);
 
+        if ($rcmail->output->type == 'html') {
+            $this->include_stylesheet($this->local_skin_path() . '/libkolab.css');
+        }
+
         // embed scripts and templates for email message audit trail
         if ($rcmail->task == 'mail' && self::get_bonnie_api()) {
             if ($rcmail->output->type == 'html') {
                 $this->add_hook('render_page', array($this, 'bonnie_render_page'));
-
-                $this->include_script('js/audittrail.js');
-                $this->include_stylesheet($this->local_skin_path() . '/libkolab.css');
+                $this->include_script('libkolab.js');
 
                 // add 'Show history' item to message menu
                 $this->api->add_content(html::tag('li', null,
@@ -277,6 +279,7 @@ class libkolab extends rcube_plugin
             'libkolab.actionflagset',
             'libkolab.actionflagclear',
             'libkolab.objectchangelog',
+            'libkolab.objectchangelognotavailable',
             'close'
         );
 

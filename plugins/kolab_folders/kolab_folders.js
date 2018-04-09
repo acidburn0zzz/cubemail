@@ -51,7 +51,7 @@ window.rcmail && rcmail.env.action == 'folders' && rcmail.addEventListener('init
 
 window.rcmail && rcmail.env.action != 'folders' && $(document).ready(function() {
     // Add onchange handler for folder type SELECT, and call it on form init
-    $('#_ctype').change(function() {
+    $('#_folderctype').change(function() {
         var type = $(this).val(),
             sub = $('#_subtype'),
             subtypes = rcmail.env.kolab_folder_subtypes[type] || {};

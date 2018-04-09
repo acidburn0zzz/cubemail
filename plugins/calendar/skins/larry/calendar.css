@@ -196,7 +196,7 @@ pre {
 	height: 22px;
 }
 
-#calendars .treelist li span.calname {
+#calendars .treelist li a.calname {
 	display: block;
 	padding: 0px 18px 2px 2px;
 	position: absolute;
@@ -221,18 +221,18 @@ pre {
 	background-image: none;
 }
 
-#calendars .treelist li div.virtual > span.calname {
+#calendars .treelist li div.virtual > a.calname {
 	color: #aaa;
 	top: 4px;
 	left: 20px;
 }
 
-#calendars .treelist li.x-birthdays span.calname,
-#calendars .treelist li.x-invitations span.calname {
+#calendars .treelist li.x-birthdays a.calname,
+#calendars .treelist li.x-invitations a.calname {
 	font-style: italic;
 }
 
-#calendars .treelist.flat li span.calname {
+#calendars .treelist.flat li a.calname {
 	left: 24px;
 	right: 42px;
 }
@@ -376,27 +376,27 @@ pre {
 	background-color: #c7e3ef;
 }
 
-#calendars .treelist li.selected > span.calname {
+#calendars .treelist li.selected > a.calname {
 	font-weight: bold;
 }
 
-#calendars .treelist div.readonly span.calname {
+#calendars .treelist div.readonly a.calname {
 	background-position: right -20px;
 }
 
-#calendars .treelist li.user > div > span.calname {
+#calendars .treelist li.user > div > a.calname {
 	background-position: right -38px;
 }
 /*
-#calendars .treelist div.user.readonly span.calname {
+#calendars .treelist div.user.readonly a.calname {
 	background-position: right -56px;
 }
 
-#calendars .treelist div.shared span.calname {
+#calendars .treelist div.shared a.calname {
 	background-position: right -74px;
 }
 
-#calendars .treelist div.shared.readonly span.calname {
+#calendars .treelist div.shared.readonly a.calname {
 	background-position: right -92px;
 }
 */
@@ -608,7 +608,7 @@ a.miniColors-trigger {
 	line-height: 20px;
 }
 
-#edit-attachments ul li a.file {
+#edit-attachments ul li a.filename {
 	padding: 0;
 }
 
@@ -740,52 +740,6 @@ a.miniColors-trigger {
 
 .calendarmain .eventdialog {
 	margin: 0 -0.2em;
-}
-
-#event-status-badge {
-	width: 100px;
-	height: 100px;
-	position: absolute;
-	top: 0;
-	right: 0;
-	overflow: hidden;
-}
-
-#event-status-badge span {
-	display: none;
-	text-transform: uppercase;
-	width: 150px;
-	height: 20px;
-	line-height: 20px;
-	position: absolute;
-	left: -20px;
-	top: 35px;
-	padding-left: 10px;
-	text-align: center;
-	font-weight: bold;
-	font-size: 12px;
-	color: #fff;
-	box-shadow: 1px 1px 2px #ccc, -1px -1px 2px #ccc;
-	-webkit-transform: rotate(45deg);
-	-moz-transform: rotate(45deg);
-	-ms-transform: rotate(45deg);
-	-o-transform: rotate(45deg);
-	transform: rotate(45deg);
-}
-
-.eventdialog.status-cancelled #event-status-badge span {
-	background: url(images/badge.png) 26px -24px no-repeat #cc0000;
-	display: block;
-}
-
-.eventdialog.sensitivity-private #event-status-badge span {
-	background: url(images/badge.png) 40px -52px no-repeat #0066ff;
-	display: block;
-}
-
-.eventdialog.sensitivity-confidential #event-status-badge span {
-	background: url(images/badge.png) 20px 2px no-repeat #cc0000;
-	display: block;
 }
 
 .calendarmain .status-cancelled #event-title,
@@ -933,6 +887,18 @@ a.miniColors-trigger {
 	visibility: visible;
 }
 
+body.eventdialog {
+	margin: 0;
+	overflow-y: auto;
+}
+
+body.eventdialog #eventedit {
+	display: block;
+	top: 0;
+	padding: 1em;
+	border-bottom: 0;
+}
+
 #eventedit {
 	position: relative;
 	top: -1.5em;
@@ -963,6 +929,10 @@ div.form-section,
 	padding-bottom: 0.8em;
 	margin-bottom: 0.8em;
 	border-bottom: 2px solid #fafafa;
+}
+
+div.event-section > .col-form-label {
+	float: left;
 }
 
 .calendarmain .eventdialog label,
@@ -1025,7 +995,7 @@ td.topalign {
 	padding: 0 0.5em 0.5em 0.5em;
 }
 
-.event-dialog-message,
+.dialog-message,
 .event-update-confirm .message {
 	margin-top: 0.5em;
 	padding: 0.8em;
@@ -1033,7 +1003,7 @@ td.topalign {
 	background-color: #fef893;
 }
 
-.event-dialog-message .message,
+.dialog-message .message,
 .event-update-confirm .message {
 	margin-bottom: 0.5em;
 }
@@ -1046,13 +1016,13 @@ td.topalign {
 	padding-left: 30px;
 }
 
-.event-dialog-message span.ui-icon,
+.dialog-message span.ui-icon,
 .event-update-confirm span.ui-icon {
 	float: left;
 	margin: 0 7px 20px 0;
 }
 
-.event-dialog-message label,
+.dialog-message label,
 .event-update-confirm label {
 	min-width: 3em;
 	padding-right: 1em;
@@ -1421,6 +1391,7 @@ td.topalign {
 
 #schedule-freebusy-times tr.times td {
 	cursor: pointer;
+	white-space: nowrap;
 }
 
 #schedule-freebusy-times #fbrowall td {
@@ -1545,20 +1516,6 @@ a.dropdown-link:after {
 #agendaoptions label {
 	text-shadow: 1px 1px #fff;
 	padding-right: 0.5em;
-}
-
-#calendar-kolabform {
-	position: relative;
-	margin: 0 -8px;
-	min-width: 660px;
-	min-height: 400px;
-}
-
-#calendar-kolabform table td.title {
-	font-weight: bold;
-	white-space: nowrap;
-	color: #666;
-	padding-right: 10px;
 }
 
 #resource-selection {
@@ -2111,6 +2068,7 @@ div.fc-event-location {
 .fc-listappend .formlinks a {
 	font-size: 12px;
 	padding: 0 0.3em;
+	max-width: initial;
 }
 
 .fc-event-temp {

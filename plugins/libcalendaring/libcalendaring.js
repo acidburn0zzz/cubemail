@@ -401,13 +401,6 @@ function rcube_libcalendaring(settings)
         if (rcmail.env.action != 'print')
             this.init_time_autocomplete($(prefix+' .edit-alarm-time')[0], {});
 
-        $(prefix).on('click', 'a.delete-alarm', function(e){
-            if ($(this).closest('.edit-alarm-item').siblings().length > 0) {
-                $(this).closest('.edit-alarm-item').remove();
-            }
-            return false;
-        });
-
         // set a unique id attribute and set label reference accordingly
         if ((index || 0) > 0 && dom_id) {
             dom_id += ':' + (new Date().getTime());
@@ -415,16 +408,27 @@ function rcube_libcalendaring(settings)
             $(prefix+' label:first').attr('for', dom_id);
         }
 
-        $(prefix).on('click', 'a.add-alarm', function(e){
-            var i = $(this).closest('.edit-alarm-item').siblings().length + 1;
-            var item = $(this).closest('.edit-alarm-item').clone(false)
-              .removeClass('first')
-              .appendTo(prefix);
+        if (index)
+            return;
 
-              me.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
-              $('select.edit-alarm-type, select.edit-alarm-offset', item).change();
-              return false;
-        });
+        $(prefix)
+            .on('click', 'a.delete-alarm', function(e){
+                if ($(this).closest('.edit-alarm-item').siblings().length > 0) {
+                    $(this).closest('.edit-alarm-item').remove();
+                }
+                return false;
+            })
+            .on('click', 'a.add-alarm', function(e) {
+                var orig = $(this).closest('.edit-alarm-item'),
+                    i = orig.siblings().length + 1,
+                    item = orig.clone(false)
+                      .removeClass('first')
+                      .appendTo(orig.parent());
+
+                  me.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
+                  $('select.edit-alarm-type, select.edit-alarm-offset', item).change();
+                  return false;
+            });
     }
 
     this.set_alarms_edit = function(prefix, valarms)
@@ -625,8 +629,8 @@ function rcube_libcalendaring(settings)
         if (this.alarm_dialog)
             this.alarm_dialog.dialog('destroy').remove();
 
-        var i, actions, adismiss, asnooze, alarm, html,
-            audio_alarms = [], records = [], event_ids = [], buttons = {};
+        var i, actions, adismiss, asnooze, alarm, html, type,
+            audio_alarms = [], records = [], event_ids = [], buttons = [];
 
         for (i=0; i < alarms.length; i++) {
             alarm = alarms[i];
@@ -640,21 +644,27 @@ function rcube_libcalendaring(settings)
 
             event_ids.push(alarm.id);
 
-            html = '<h3 class="event-title">' + Q(alarm.title) + '</h3>';
+            type = alarm.id.match(/^task/) ? 'type-task' : 'type-event';
+
+            html = '<h3 class="event-title ' + type + '">' + Q(alarm.title) + '</h3>';
             html += '<div class="event-section">' + Q(alarm.location || '') + '</div>';
             html += '<div class="event-section">' + Q(this.event_date_text(alarm)) + '</div>';
 
-            adismiss = $('<a href="#" class="alarm-action-dismiss"></a>').html(rcmail.gettext('dismiss','libcalendaring')).click(function(e){
-                me.dismiss_link = $(this);
-                me.dismiss_alarm(me.dismiss_link.data('id'), 0, e);
-            });
-            asnooze = $('<a href="#" class="alarm-action-snooze"></a>').html(rcmail.gettext('snooze','libcalendaring')).click(function(e){
-                me.snooze_dropdown($(this), e);
-                e.stopPropagation();
-                return false;
-            });
-            actions = $('<div>').addClass('alarm-actions').append(adismiss.data('id', alarm.id)).append(asnooze.data('id', alarm.id));
+            adismiss = $('<a href="#" class="alarm-action-dismiss"></a>')
+                .text(rcmail.gettext('dismiss','libcalendaring'))
+                .click(function(e) {
+                    me.dismiss_link = $(this);
+                    me.dismiss_alarm(me.dismiss_link.data('id'), 0, e);
+                });
+            asnooze = $('<a href="#" class="alarm-action-snooze"></a>')
+                .text(rcmail.gettext('snooze','libcalendaring'))
+                .click(function(e) {
+                    me.snooze_dropdown($(this), e);
+                    e.stopPropagation();
+                    return false;
+                });
 
+            actions = $('<div>').addClass('alarm-actions').append(adismiss.data('id', alarm.id)).append(asnooze.data('id', alarm.id));
             records.push($('<div>').addClass('alarm-item').html(html).append(actions));
         }
 
@@ -666,18 +676,26 @@ function rcube_libcalendaring(settings)
 
         this.alarm_dialog = $('<div>').attr('id', 'alarm-display').append(records);
 
-        buttons[rcmail.gettext('close')] = function() {
-            $(this).dialog('close');
-        };
+        buttons.push({
+            text: rcmail.gettext('close'),
+            click: function() {
+                $(this).dialog('close');
+            },
+            'class': 'cancel'
+        });
 
-        buttons[rcmail.gettext('dismissall','libcalendaring')] = function(e) {
-            // submit dismissed event_ids to server
-            me.dismiss_alarm(me.alarm_ids.join(','), 0, e);
-            $(this).dialog('close');
-        };
+        buttons.push({
+            text: rcmail.gettext('dismissall','libcalendaring'),
+            click: function(e) {
+                // submit dismissed event_ids to server
+                me.dismiss_alarm(me.alarm_ids.join(','), 0, e);
+                $(this).dialog('close');
+            },
+            'class': 'delete'
+        });
 
         this.alarm_dialog.appendTo(document.body).dialog({
-            modal: false,
+            modal: true,
             resizable: true,
             closeOnEscape: false,
             dialogClass: 'alarms',
@@ -721,6 +739,7 @@ function rcube_libcalendaring(settings)
         // Internet Explorer does not support wav files,
         // support in other browsers depends on enabled plugins,
         // so we use wav as a fallback
+
         src += bw.ie || (plugin && plugin.enabledPlugin) ? '.mp3' : '.wav';
 
         // HTML5
@@ -944,10 +963,8 @@ function rcube_libcalendaring(settings)
             .html('<span>' + Q(this.format_datetime(date, 1)) + '</span>')
             .appendTo('#edit-recurrence-rdates');
 
-        $('<a>').attr('href', '#del')
-            .addClass('iconbutton delete')
-            .html(rcmail.get_label('delete', 'libcalendaring'))
-            .attr('title', rcmail.get_label('delete', 'libcalendaring'))
+        $('<a>').attr({href: '#del', 'class': 'iconbutton delete icon button', title: rcmail.get_label('delete', 'libcalendaring')})
+            .append($('<span class="inner">').text(rcmail.get_label('delete', 'libcalendaring')))
             .appendTo(li);
     };
 
@@ -1035,8 +1052,7 @@ function rcube_libcalendaring(settings)
             var li = $('<li>').addClass('link')
                 .addClass('message eml')
                 .append($('<a>')
-                    .attr('href', link.mailurl)
-                    .addClass('messagelink')
+                    .attr({href: link.mailurl, 'class': 'messagelink'})
                     .text(link.subject || link.uri)
                 )
                 .appendTo(ul);
@@ -1044,11 +1060,8 @@ function rcube_libcalendaring(settings)
             // add icon to remove the link
             if (edit) {
                 $('<a>')
-                    .attr('href', '#delete')
-                    .attr('title', rcmail.gettext('removelink', plugin))
-                    .attr('data-uri', link.uri)
-                    .addClass('delete')
-                    .text(rcmail.gettext('delete'))
+                    .attr({href: '#delete', title: rcmail.gettext('removelink', plugin), 'data-uri': link.uri, 'class': 'delete'})
+                    .append($('<span class="inner">').text(rcmail.gettext('delete')))
                     .appendTo(li);
             }
         });
@@ -1194,7 +1207,7 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
                 setTimeout(function() { dialog.dialog("close"); }, 500);
             }
             else {
-                alert(rcmail.gettext('itip.delegateinvalidaddress'));
+                rcmail.alert_dialog(rcmail.gettext('itip.delegateinvalidaddress'));
                 $('#itip-delegate-to', doc).focus();
             }
         }
@@ -1273,12 +1286,9 @@ rcube_libcalendaring.itip_rsvp_recurring = function(btn, callback)
  */
 rcube_libcalendaring.remove_from_itip = function(event, task, title)
 {
-    if (confirm(rcmail.gettext('itip.deleteobjectconfirm').replace('$title', title))) {
-        rcmail.http_post(task + '/itip-remove',
-            event,
-            rcmail.set_busy(true, 'itip.savingdata')
-        );
-    }
+    rcmail.confirm_dialog(rcmail.gettext('itip.deleteobjectconfirm').replace('$title', title), 'delete', function() {
+        rcmail.http_post(task + '/itip-remove', event, rcmail.set_busy(true, 'itip.savingdata'));
+    });
 };
 
 /**
@@ -1452,17 +1462,4 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.addEventListener('plugin.update_itip_object_status', rcube_libcalendaring.update_itip_object_status)
     .addEventListener('plugin.fetch_itip_object_status', rcube_libcalendaring.fetch_itip_object_status)
     .addEventListener('plugin.itip_message_processed', rcube_libcalendaring.itip_message_processed);
-
-  if (rcmail.env.action == 'get-attachment' && rcmail.gui_objects['attachmentframe']) {
-    rcmail.register_command('print-attachment', function() {
-      var frame = rcmail.get_frame_window(rcmail.gui_objects['attachmentframe'].id);
-      if (frame) frame.print();
-    }, true);
-  }
-
-  if (rcmail.env.action == 'get-attachment' && rcmail.env.attachment_download_url) {
-    rcmail.register_command('download-attachment', function() {
-      rcmail.location_href(rcmail.env.attachment_download_url, window);
-    }, true);
-  }
 });

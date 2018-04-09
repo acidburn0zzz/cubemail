@@ -42,7 +42,7 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
         var link = $('<a href="#" class="button filesaveall">')
           .text(rcmail.gettext('kolab_files.saveall'))
           .click(function() { kolab_directory_selector_dialog(); })
-          .insertAfter(attachment_list);
+          .insertAfter($('.header-content > .header-links').length ? $('.header-links > a:last') : attachment_list);
       }
 
       rcmail.addEventListener('menu-open', kolab_files_attach_menu_open);
@@ -56,7 +56,7 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
     if (!rcmail.env.action || rcmail.env.action == 'show' || rcmail.env.action == 'preview') {
       // add "attach from cloud" button for event/task dialog in mail
       rcmail.addEventListener('plugin.mail2event_dialog', function() {
-        if (!$('#calendar-attachment-form input.fromcloud').length)
+        if (!$('#calendar-attachment-form a.fromcloud').length)
           kolab_files_from_cloud_widget($('#calendar-attachment-form > div.buttons'));
       });
     }
@@ -64,12 +64,12 @@ window.rcmail && window.files_api && rcmail.addEventListener('init', function() 
   else if (rcmail.task == 'calendar') {
     // add "attach from cloud" button for event dialog
     if (!rcmail.env.action)
-      kolab_files_from_cloud_widget($('#calendar-attachment-form > div.buttons'));
+      kolab_files_from_cloud_widget($('#calendar-attachment-form > div.buttons, #edit-attachments-form'));
   }
   else if (rcmail.task == 'tasks') {
     // add "attach from cloud" button for task dialog
     if (!rcmail.env.action)
-      kolab_files_from_cloud_widget($('#taskedit-attachment-form > div.buttons'));
+      kolab_files_from_cloud_widget($('#taskedit-attachment-form > div.buttons, #taskedit-attachments-form'));
   }
   else if (rcmail.task == 'files') {
     if (rcmail.gui_objects.fileslist) {
@@ -238,9 +238,9 @@ function kolab_files_token()
 
 function kolab_files_from_cloud_widget(elem)
 {
-  var input = $('<input class="button fromcloud" type="button">')
+  $('<a class="button btn btn-secondary fromcloud">')
       .attr('tabindex', $('input', elem).attr('tabindex') || 0)
-      .val(rcmail.gettext('kolab_files.fromcloud'))
+      .text(rcmail.gettext('kolab_files.fromcloud'))
       .click(function() { kolab_files_selector_dialog(); })
       .appendTo(elem);
 

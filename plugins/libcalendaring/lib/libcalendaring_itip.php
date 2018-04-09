@@ -824,7 +824,7 @@ class libcalendaring_itip
 
         return html::div($attrib,
             html::div('label', $this->gettext('acceptinvitation')) .
-            html::div('rsvp-buttons',
+            html::div('rsvp-buttons itip-buttons',
                 $buttons .
                 html::div('itip-reply-controls', $this->itip_rsvp_options_ui($attrib['id']))
             )
@@ -844,9 +844,15 @@ class libcalendaring_itip
         }
         // add checkbox to suppress itip reply message
         else if ($itip_sending >= 2) {
+            $toggle_attrib = array(
+                'type'     => 'checkbox',
+                'id'       => 'noreply-'.$dom_id,
+                'value'    => 1,
+                'disabled' => $disable,
+                'checked'  => ($itip_sending & 1) == 0,
+            );
             $rsvp_additions = html::label(array('class' => 'noreply-toggle'),
-                html::tag('input', array('type' => 'checkbox', 'id' => 'noreply-'.$dom_id, 'value' => 1, 'disabled' => $disable, 'checked' => ($itip_sending & 1) == 0))
-                . ' ' . $this->gettext('itipsuppressreply')
+                html::tag('input', $toggle_attrib) . ' ' . $this->gettext('itipsuppressreply')
             );
         }
 
@@ -860,7 +866,8 @@ class libcalendaring_itip
             'id'    => 'reply-comment-' . $dom_id,
             'name'  => '_comment',
             'cols'  => 40,
-            'rows'  => 6,
+            'rows'  => 4,
+            'class' => 'form-control',
             'style' => 'display:none',
             'placeholder' => $this->gettext('itipcomment')
         );

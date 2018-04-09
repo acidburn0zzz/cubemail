@@ -15,6 +15,7 @@ $labels['tagactions'] = 'Tag actions...';
 $labels['tagadd'] = 'Tag as...';
 $labels['tagremove'] = 'Remove tag...';
 $labels['untag'] = 'Remove tag';
+$labels['notags'] = 'No tags';
 $labels['tagremoveall'] = 'Remove all tags';
 $labels['add'] = 'Add';
 $labels['edit'] = 'Edit';

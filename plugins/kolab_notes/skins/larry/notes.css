@@ -68,17 +68,9 @@
 	left: 252px;
 }
 
-.notesview #tagsbox {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 240px;
-}
-
 .notesview #notebooksbox {
 	position: absolute;
-	top: 252px;
+	top: 0;
 	left: 0;
 	width: 100%;
 	bottom: 0px;
@@ -106,6 +98,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	outline: none;
+	border: 0;
 }
 
 .notesview #kolabnoteslist .date {
@@ -271,11 +264,6 @@
 	border-bottom: 0;
 }
 
-.notesview .ui-dialog-content .tagline {
-	display: none !important;
-}
-
-.notesview .notetitle .disabled .tagedit-list,
 .notesview .notetitle input.inline-edit:disabled {
 	outline: none;
 	padding-left: 0;
@@ -305,7 +293,6 @@
 }
 
 .notesview .notetitle .dates,
-.notesview .notetitle .tagline,
 .notesdialog .notebookselect label {
 	color: #999;
 	font-weight: normal;
@@ -317,53 +304,20 @@
 	margin-top: 4px;
 }
 
-.notesview .notetitle .tagline {
-	position: relative;
-	cursor: text;
-	margin: 4px 0 0 0;
+.notetitle .col-form-label {
+	display: none;
 }
 
-.notesview .notetitle .tagline.disabled {
-	margin-top: 0;
+.notetitle .dates div.row {
+	display: inline;
 }
 
-.notesview .notetitle .tagline .placeholder {
-	position: absolute;
-	top: 6px;
-	left: 6px;
-	z-index: 2;
+.notetitle .dates .col-form-label {
+	display: inline;
 }
 
-.notesview .notetitle .tagline.disabled .placeholder {
-	left: 0;
-}
-
-.notesview .notetitle .tagedit-list {
-	position: relative;
-	z-index: 1;
-	min-height: 32px;
-/*	padding: 2px; */
-	-webkit-box-sizing: border-box;
-	   -moz-box-sizing: border-box;
-	    -ms-box-sizing: border-box;
-	        box-sizing: border-box;
-}
-
-/* Firefox 3.6 */
-_:not(), _:-moz-handler-blocked, .notesview .notetitle .tagedit-list {
-	min-height: 26px;
-}
-
-.notesview .notetitle .disabled .tagedit-list {
-	min-height: 26px;
-}
-
-.notesview .notetitle #tagedit-input {
-	background: none;
-}
-
-.notesview .tag-draghelper {
-	z-index: 1000;
+.notebookselect {
+	clear: both;
 }
 
 .notesview .notetitle .notecreated,

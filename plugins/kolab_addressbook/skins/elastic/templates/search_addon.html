@@ -1,0 +1,32 @@
+<div id="search-addon" class="searchbar toolbar" role="search" aria-labelledby="aria-labelfoldersearchform">
+	<h2 id="aria-label-labelfoldersearchform" class="voice"><roundcube:label name="kolab_addressbook.foldersearchform" /></h2>
+	<form name="foldersearchform" onsubmit="return false">
+		<input id="addressbooksearch" type="text" name="q" placeholder="<roundcube:label name="searchplaceholder" />" />
+		<a class="button reset" href="#" onclick="return rcmail.command(\'reset-listsearch\',null,this,event)" title="<roundcube:label name="resetsearch" />" tabindex="0">
+			<span class="inner"><roundcube:label name="resetsearch" /></span>
+		</a>
+	</form>
+		<a class="button search" href="#"title="<roundcube:label name="kolab_addressbook.findaddressbooks" />" tabindex="0" >
+			<span class="inner"><roundcube:label name="kolab_addressbook.findaddressbooks" /></span>
+		</a>
+</div>
+
+<script>
+    // append search form for address books
+    if (rcmail.gui_objects.folderlist) {
+        var searchbar = $('#search-addon')
+            .attr('aria-controls', rcmail.gui_objects.folderlist)
+            .insertAfter($('#layout > .sidebar > .header > .header-title'))
+            .get(0);
+
+        // Initialize searchbar
+        UI.searchbar_init(searchbar);
+
+        // Make checkboxes pretty
+        rcmail.addEventListener('init', function() {
+            rcmail.treelist.addEventListener('add-item', function(prop) {
+                UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
+            });
+        });
+    }
+</script>

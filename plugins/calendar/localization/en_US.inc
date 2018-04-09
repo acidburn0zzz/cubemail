@@ -38,6 +38,7 @@ $labels['calendar'] = 'Calendar';
 $labels['calendars'] = 'Calendars';
 $labels['category'] = 'Category';
 $labels['categories'] = 'Categories';
+$labels['addcalendar'] = 'Add calendar';
 $labels['createcalendar'] = 'Create new calendar';
 $labels['editcalendar'] = 'Edit calendar properties';
 $labels['name'] = 'Name';
@@ -102,6 +103,8 @@ $labels['printdescriptions'] = 'Print descriptions';
 $labels['parentcalendar'] = 'Insert inside';
 $labels['searchearlierdates'] = '« Search for earlier events';
 $labels['searchlaterdates'] = 'Search for later events »';
+$labels['earlierevents'] = 'Earlier';
+$labels['laterevents'] = 'Later';
 $labels['andnmore'] = '$nr more...';
 $labels['togglerole'] = 'Click to toggle role';
 $labels['createfrommail'] = 'Save as event';
@@ -116,6 +119,7 @@ $labels['showfburl'] = 'Show free-busy URL';
 $labels['fburldescription'] = 'Use the following address to access Free-Busy information from other applications. You can copy and paste this into any calendar software that supports free-busy information in iCal format. No authentication is required for this URL.';
 $labels['findcalendars'] = 'Find calendars...';
 $labels['searchterms'] = 'Search terms';
+$labels['findevents'] = 'Find events';
 $labels['calsearchresults'] = 'Available Calendars';
 $labels['calendarsubscribe'] = 'List permanently';
 $labels['nocalendarsfound'] = 'No calendars found';
@@ -210,6 +214,7 @@ $labels['savetocalendar'] = 'Save to calendar';
 $labels['openpreview'] = 'Check Calendar';
 $labels['noearlierevents'] = 'No earlier events';
 $labels['nolaterevents'] = 'No later events';
+$labels['legend'] = 'Legend';
 
 // resources
 $labels['resource'] = 'Resource';
@@ -259,6 +264,7 @@ $labels['importsuccess'] = 'Successfully imported $nr events';
 $labels['importnone'] = 'No events found to be imported';
 $labels['importerror'] = 'An error occured while importing';
 $labels['aclnorights'] = 'You do not have administrator rights on this calendar.';
+$labels['importtext'] = 'You can upload events in <a href="https://wikipedia.org/wiki/ICalendar">iCalendar</a> format (.ics).';
 
 $labels['changeeventconfirm'] = 'Change event';
 $labels['removeeventconfirm'] = 'Delete event';
@@ -289,7 +295,6 @@ $labels['revisionrestoreconfirm'] = 'Do you really want to restore revision $rev
 $labels['objectrestoresuccess'] = 'Revision $rev successfully restored';
 $labels['objectrestoreerror'] = 'Failed to restore the old revision';
 
-
 // (hidden) titles and labels for accessibility annotations
 $labels['arialabelminical'] = 'Calendar date selection';
 $labels['arialabelcalendarview'] = 'Calendar view';
@@ -297,9 +302,11 @@ $labels['arialabelsearchform'] = 'Event search form';
 $labels['arialabelquicksearchbox'] = 'Event search input';
 $labels['arialabelcalsearchform'] = 'Calendars search form';
 $labels['calendaractions'] = 'Calendar actions';
+$labels['calendarprops'] = 'Calendar properties';
 $labels['arialabeleventattendees'] = 'Event participants list';
 $labels['arialabeleventresources'] = 'Event resources list';
 $labels['arialabelresourcesearchform'] = 'Resources search form';
 $labels['arialabelresourceselection'] = 'Available resources';
+$labels['arialabeleventform'] = 'Event editing form';
 
 ?>

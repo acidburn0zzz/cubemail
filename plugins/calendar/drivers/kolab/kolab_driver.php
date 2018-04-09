@@ -2325,7 +2325,14 @@ class kolab_driver extends calendar_driver
     if (in_array($calendar['id'], array(self::BIRTHDAY_CALENDAR_ID, self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED))) {
       if ($calendar['id'] != self::BIRTHDAY_CALENDAR_ID)
         unset($formfields['showalarms']);
-      return parent::calendar_form($action, $calendar, $formfields);
+
+      // General tab
+      $form['props'] = array(
+        'name'   => $this->rc->gettext('properties'),
+        'fields' => $formfields,
+      );
+
+      return kolab_utils::folder_form($form, '', 'calendar');
     }
 
     $this->_read_calendars();
@@ -2358,7 +2365,8 @@ class kolab_driver extends calendar_driver
 
     // General tab
     $form['props'] = array(
-      'name' => $this->rc->gettext('properties'),
+      'name'   => $this->rc->gettext('properties'),
+      'fields' => array(),
     );
 
     // Disable folder name input
@@ -2369,12 +2377,7 @@ class kolab_driver extends calendar_driver
     }
 
     // calendar name (default field)
-    $form['props']['fieldsets']['location'] = array(
-      'name'  => $this->rc->gettext('location'),
-      'content' => array(
-        'name' => $formfields['name']
-      ),
-    );
+    $form['props']['fields']['location'] = $formfields['name'];
 
     if (!empty($options) && ($options['norename'] || $options['protected'])) {
       // prevent user from moving folder
@@ -2382,7 +2385,7 @@ class kolab_driver extends calendar_driver
     }
     else {
       $select = kolab_storage::folder_selector('event', array('name' => 'parent', 'id' => 'calendar-parent'), $folder);
-      $form['props']['fieldsets']['location']['content']['path'] = array(
+      $form['props']['fields']['path'] = array(
         'id' => 'calendar-parent',
         'label' => $this->cal->gettext('parentcalendar'),
         'value' => $select->show(strlen($folder) ? $path_imap : ''),
@@ -2390,138 +2393,10 @@ class kolab_driver extends calendar_driver
     }
 
     // calendar color (default field)
-    $form['props']['fieldsets']['settings'] = array(
-      'name'  => $this->rc->gettext('settings'),
-      'content' => array(
-        'color' => $formfields['color'],
-        'showalarms' => $formfields['showalarms'],
-      ),
-    );
-    
-    
-    if ($action != 'form-new') {
-      $form['sharing'] = array(
-          'name'    => rcube::Q($this->cal->gettext('tabsharing')),
-          'content' => html::tag('iframe', array(
-            'src' => $this->cal->rc->url(array('_action' => 'calendar-acl', 'id' => $calendar['id'], 'framed' => 1)),
-            'width' => '100%',
-            'height' => 350,
-            'border' => 0,
-            'style' => 'border:0'),
-        ''),
-      );
-    }
+    $form['props']['fields']['color']  = $formfields['color'];
+    $form['props']['fields']['alarms'] = $formfields['showalarms'];
 
-    $this->form_html = '';
-    if (is_array($hidden_fields)) {
-        foreach ($hidden_fields as $field) {
-            $hiddenfield = new html_hiddenfield($field);
-            $this->form_html .= $hiddenfield->show() . "\n";
-        }
-    }
-
-    // Create form output
-    foreach ($form as $tab) {
-      if (!empty($tab['fieldsets']) && is_array($tab['fieldsets'])) {
-        $content = '';
-        foreach ($tab['fieldsets'] as $fieldset) {
-          $subcontent = $this->get_form_part($fieldset);
-          if ($subcontent) {
-            $content .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($fieldset['name'])) . $subcontent) ."\n";
-          }
-        }
-      }
-      else {
-        $content = $this->get_form_part($tab);
-      }
-
-      if ($content) {
-        $this->form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) ."\n";
-      }
-    }
-
-    // Parse form template for skin-dependent stuff
-    $this->rc->output->add_handler('calendarform', array($this, 'calendar_form_html'));
-    return $this->rc->output->parse('calendar.kolabform', false, false);
-  }
-
-  /**
-   * Handler for template object
-   */
-  public function calendar_form_html()
-  {
-    return $this->form_html;
-  }
-
-  /**
-   * Helper function used in calendar_form_content(). Creates a part of the form.
-   */
-  private function get_form_part($form)
-  {
-    $content = '';
-
-    if (is_array($form['content']) && !empty($form['content'])) {
-      $table = new html_table(array('cols' => 2));
-      foreach ($form['content'] as $col => $colprop) {
-        $label = !empty($colprop['label']) ? $colprop['label'] : $this->cal->gettext($col);
-
-        $table->add('title', html::label($colprop['id'], rcube::Q($label)));
-        $table->add(null, $colprop['value']);
-      }
-      $content = $table->show();
-    }
-    else {
-      $content = $form['content'];
-    }
-
-    return $content;
-  }
-
-
-  /**
-   * Handler to render ACL form for a calendar folder
-   */
-  public function calendar_acl()
-  {
-    $this->rc->output->add_handler('folderacl', array($this, 'calendar_acl_form'));
-    $this->rc->output->send('calendar.kolabacl');
-  }
-
-  /**
-   * Handler for ACL form template object
-   */
-  public function calendar_acl_form()
-  {
-    $calid = rcube_utils::get_input_value('_id', rcube_utils::INPUT_GPC);
-    if ($calid && ($cal = $this->get_calendar($calid))) {
-      $folder = $cal->get_realname(); // UTF7
-      $color  = $cal->get_color();
-    }
-    else {
-      $folder = '';
-      $color  = '';
-    }
-
-    $storage = $this->rc->get_storage();
-    $delim   = $storage->get_hierarchy_delimiter();
-    $form   = array();
-
-    if (strlen($folder)) {
-      $path_imap = explode($delim, $folder);
-      array_pop($path_imap);  // pop off name part
-      $path_imap = implode($path_imap, $delim);
-
-      $options = $storage->folder_info($folder);
-
-      // Allow plugins to modify the form content (e.g. with ACL form)
-      $plugin = $this->rc->plugins->exec_hook('calendar_form_kolab',
-        array('form' => $form, 'options' => $options, 'name' => $folder));
-    }
-
-    if (!$plugin['form']['sharing']['content'])
-        $plugin['form']['sharing']['content'] = html::div('hint', $this->cal->gettext('aclnorights'));
-
-    return $plugin['form']['sharing']['content'];
+    return kolab_utils::folder_form($form, $folder, 'calendar', $hidden_fields);
   }
 
   /**
