@@ -183,37 +183,52 @@
 </div>
 
 <div id="eventresourcesdialog" class="popupmenu">
-	<div class="resources-dialog">
-		<h3 class="voice" id="aria-label-resourceselection"><roundcube:label name="calendar.arialabelresourceselection" /></h3>
-		<div class="resource-selection uibox listbox" role="navigation" aria-labelledby="aria-label-resourceselection">
+	<h3 class="voice" id="aria-label-resourceselection"><roundcube:label name="calendar.arialabelresourceselection" /></h3>
+	<div class="resource-selection " role="navigation" aria-labelledby="aria-label-resourceselection">
+		<div class="header">
 			<span class="header-title"><roundcube:label name="calendar.tabresources" /></span>
-			<div id="resourcequicksearch" class="header">
-				<div class="searchbox" role="search" aria-labelledby="aria-label-resourcesearchform" aria-controls="resources-list">
-					<h3 id="aria-label-resourcesearchform" class="voice"><roundcube:label name="calendar.arialabelresourcesearchform" /></h3>
-					<label for="resourcesearchbox" class="voice"><roundcube:label name="calendar.searchterms" /></label>
-					<roundcube:object name="plugin.resources_searchform" id="resourcesearchbox" />
-					<a id="resourcesearchmenulink" class="iconbutton searchoptions"> </a>
-					<roundcube:button type="link" command="reset-resource-search" id="resourcesearchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
-				</div>
-			</div>
-			<div class="scroller">
-				<roundcube:object name="plugin.resources_list" id="resources-list" class="listing treelist" />
-			</div>
+			<roundcube:object name="plugin.resources_searchform" id="resourcesearchbox"
+				wrapper="searchbar toolbar" ariatag="h4" buttontitle="calendar.findresources"
+				label="resourcesearchform" label-domain="calendar" />
 		</div>
-		<div class="resource-content">
-			<div id="resource-info" class="uibox contentbox" role="region" aria-labelledby="aria-label-resourcedetails">
-				<h2 class="boxtitle" id="aria-label-resourcedetails"><roundcube:label name="calendar.resourcedetails" /></h2>
-				<div class="scroller">
-					<roundcube:object name="plugin.resource_info" id="resource-details" class="propform" aria-live="polite" aria-relevant="text" aria-atomic="true" />
+		<div class="scroller">
+			<roundcube:object name="plugin.resources_list" id="resources-list" class="listing treelist" />
+		</div>
+	</div>
+	<div class="resource-content">
+		<div class="header" data-hidden="normal,big">
+			<a class="button icon back" href="#back" onclick="$('#eventresourcesdialog .resource-content').hide(); $('#eventresourcesdialog .resource-selection').show()">
+				<span class="inner"><roundcube:label name="back" /></span>
+			</a>
+			<span class="header-title"><roundcube:label name="calendar.resourceprops" /></span>
+		</div>
+		<ul class="nav nav-tabs" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" href="#resource-availability" data-toggle="tab" role="tab">
+					<roundcube:label name="calendar.resourceavailability" />
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#resource-info" data-toggle="tab" role="tab">
+					<roundcube:label name="calendar.resourcedetails" />
+				</a>
+			</li>
+		</ul>
+		<div class="tab-content">
+			<div id="resource-availability" class="tab-pane active" role="tabpanel" aria-labelledby="aria-label-resourceavailability">
+				<h3 class="voice" id="aria-label-resourceavailability"><roundcube:label name="calendar.resourceavailability" /></h3>
+				<roundcube:object name="plugin.resource_calendar" id="resource-freebusy-calendar" class="raw-tables" />
+				<div class="slot-nav">
+					<roundcube:button name="resource-cal-prev" id="resource-calendar-prev" type="link"
+						class="icon prevpage" title="calendar.prevslot" label="calendar.prevweek" />
+					<roundcube:button name="resource-cal-next" id="resource-calendar-next" type="link"
+						class="icon nextpage" title="calendar.nextslot" label="calendar.nextweek" />
 				</div>
 			</div>
-			<div id="resource-availability" class="uibox contentbox" role="region" aria-labelledby="aria-label-resourceavailability">
-				<h2 class="boxtitle" id="aria-label-resourceavailability"><roundcube:label name="calendar.resourceavailability" /></h2>
-				<roundcube:object name="plugin.resource_calendar" id="resource-freebusy-calendar" />
-				<div class="boxpagenav">
-					<roundcube:button name="resource-cal-prev" id="resource-calendar-prev" type="link" class="icon prevpage" title="calendar.prevslot" label="calendar.prevweek" />
-					<roundcube:button name="resource-cal-next" id="resource-calendar-next" type="link" class="icon nextpage" title="calendar.nextslot" label="calendar.nextweek" />
-				</div>
+			<div id="resource-info" class="tab-pane" role="tabpanel" aria-labelledby="aria-label-resourcedetails">
+				<h3 class="voice" id="aria-label-resourcedetails"><roundcube:label name="calendar.resourcedetails" /></h3>
+				<roundcube:object name="plugin.resource_info" id="resource-details" class="propform text-only"
+					aria-live="polite" aria-relevant="text" aria-atomic="true" />
 			</div>
 		</div>
 	</div>

@@ -222,6 +222,7 @@ $labels['addresource'] = 'Book resource';
 $labels['findresources'] = 'Find resources';
 $labels['resourcedetails'] = 'Details';
 $labels['resourceavailability'] = 'Availability';
+$labels['resourceprops'] = 'Resource properties';
 $labels['resourceowner'] = 'Owner';
 $labels['resourceadded'] = 'The resource was added to your event';
 

@@ -805,20 +805,16 @@ class calendar_ui
    */
   function resources_search_form($attrib)
   {
-    $attrib += array('command' => 'search-resource', 'id' => 'rcmcalresqsearchbox', 'autocomplete' => 'off');
-    $attrib['name'] = '_q';
-
-    $input_q = new html_inputfield($attrib);
-    $out = $input_q->show();
+    $attrib += array(
+        'command'       => 'search-resource',
+        'reset-command' => 'reset-resource-search',
+        'id'            => 'rcmcalresqsearchbox',
+        'autocomplete'  => 'off',
+        'form-name'     => 'rcmcalresoursqsearchform',
+    );
 
     // add form tag around text field
-    $out = $this->rc->output->form_tag(array(
-      'name' => "rcmcalresoursqsearchform",
-      'onsubmit' => rcmail_output::JS_OBJECT_NAME . ".command('" . $attrib['command'] . "'); return false",
-      'style' => "display:inline"),
-      $out);
-
-    return $out;
+    return $this->rc->output->search_form($attrib);
   }
 
   /**
