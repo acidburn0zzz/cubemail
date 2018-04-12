@@ -770,7 +770,7 @@ function rcube_calendar_ui(settings)
 
           // basic input validatetion
           if (start.getTime() > end.getTime()) {
-            alert(rcmail.gettext('invalideventdates', 'calendar'));
+            rcmail.alert_dialog(rcmail.gettext('invalideventdates', 'calendar'));
             return false;
           }
 
@@ -1757,7 +1757,7 @@ function rcube_calendar_ui(settings)
           break;
         }
       }
-      
+
       // update event date/time display
       if (success) {
         update_freebusy_dates(event.start, event.end);
@@ -1779,7 +1779,7 @@ function rcube_calendar_ui(settings)
         rcmail.display_message(rcmail.gettext('suggestedslot', 'calendar') + ': ' + me.event_date_text(event, true), 'voice');
       }
       else {
-        alert(rcmail.gettext('noslotfound','calendar'));
+        rcmail.alert_dialog(rcmail.gettext('noslotfound','calendar'));
       }
     };
 
@@ -1826,7 +1826,7 @@ function rcube_calendar_ui(settings)
           success = true;
         }
         else {
-          alert(rcmail.gettext('noemailwarning'));
+          rcmail.alert_dialog(rcmail.gettext('noemailwarning'));
         }
       }
       

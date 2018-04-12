@@ -117,7 +117,7 @@
 			</div>
 		</fieldset>
 		<!-- attendees list -->
-		<fieldset id="event-panel-attendees">
+		<fieldset id="event-panel-attendees" data-navlink-class="nav-icon attendees">
 			<legend><roundcube:label name="calendar.tabattendees" /></legend>
 			<h3 id="aria-label-attendeestable" class="voice"><roundcube:label name="calendar.arialabeleventattendees" /></h3>
 			<roundcube:object name="plugin.attendees_list" id="edit-attendees-table" class="edit-attendees-table no-img table table-sm"
@@ -126,7 +126,7 @@
 			<roundcube:include file="/templates/freebusylegend.html" />
 		</fieldset>
 		<!-- resources list -->
-		<fieldset id="event-panel-resources">
+		<fieldset id="event-panel-resources" data-navlink-class="nav-icon resources">
 			<legend><roundcube:label name="calendar.tabresources" /></legend>
 			<h3 id="aria-label-resourcestable" class="voice"><roundcube:label name="calendar.arialabeleventresources" /></h3>
 			<roundcube:object name="plugin.attendees_list" id="edit-resources-table" class="edit-attendees-table no-img table table-sm"
@@ -135,7 +135,7 @@
 			<roundcube:include file="/templates/freebusylegend.html" />
 		</fieldset>
 		<!-- attachments list (with upload form) -->
-		<fieldset id="event-panel-attachments">
+		<fieldset id="event-panel-attachments" data-navlink-class="nav-icon attachments">
 			<legend><roundcube:label name="calendar.tabattachments" /></legend>
 			<div id="edit-attachments-droparea" class="file-upload">
 				<h3 id="aria-label-attachmentuploadform" class="voice"><roundcube:label name="arialabelattachmentuploadform" /></h3>

@@ -287,7 +287,6 @@ body.quickview-active .fc-content {
         cursor: pointer;
     }
 
-
     // Button states
     // borrowed from twitter bootstrap (http://twitter.github.com/bootstrap/)
 
@@ -884,6 +883,32 @@ body.quickview-active .fc-content {
     }
 }
 
+// Add scrollbar on iOS
+html:matches(.ipad,.iphone) {
+    .ui-dialog-content:not(.iframe),
+    #fish-eye-view,
+    .fc-list-content,
+    .fc-view > div > div {
+        &::-webkit-scrollbar {
+            -webkit-appearance: none;
+        }
+
+        &::-webkit-scrollbar:vertical {
+             width: .6rem;
+        }
+
+        &::-webkit-scrollbar:horizontal {
+            height: .6rem;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, .4);
+            border-radius: .3rem;
+            border: 2px solid #fff;
+        }
+    }
+}
+
 // fullcalendar style overrides for printing
 .print-content {
     .fc-header {
@@ -917,6 +942,7 @@ body.quickview-active .fc-content {
         color: black !important;
     }
 
+    .fc-state-highlight,
     .fc-event:not(.fc-event-row) .fc-event-skin {
         background-color: #fff !important;
     }
@@ -944,7 +970,7 @@ body.quickview-active .fc-content {
         padding-right: 0.3em;
     }
 
-    .fc-event-cateories {
+    .fc-event-categories {
         font-style: italic;
     }
 
@@ -981,20 +1007,26 @@ body.quickview-active .fc-content {
     }
 
     .fc-view-table {
-        tr.fc-event td,
-        tr.fc-event td.fc-event-handle {
-            border-color: @color-calendar-border;
-            padding-top: 0.5em;
-            padding-bottom: 0.5em;
+        tr.fc-event {
+            td,
+            td.fc-event-handle {
+                border-color: @color-calendar-border;
+                padding-top: .5em;
+                padding-bottom: .5em;
+            }
+
+            td.fc-event-handle {
+                padding-top: .8em;
+            }
+
+            .fc-event-description {
+                padding-left: 1.5em;
+                padding-top: 0;
+            }
         }
 
         tr.fc-last td {
             border: 0;
-        }
-
-        tr.fc-event .fc-event-description {
-            padding-left: 2em;
-            padding-top: 0em;
         }
 
         col.fc-event-location {
@@ -1002,9 +1034,13 @@ body.quickview-active .fc-content {
         }
     }
 
-    .fc-event-vert .fc-event-description {
-        font-size: 90%;
-        font-style: italic;
+    .fc-event-description {
+        white-space: pre-wrap;
+
+        .fc-event-vert & {
+            font-size: 90%;
+            font-style: italic;
+        }
     }
 
     .fc-day {
@@ -1231,6 +1267,10 @@ body.task-calendar {
     .faded {
         color: @color-black-shade-text;
     }
+
+    .attachmentslist {
+        margin-top: .25rem;
+    }
 }
 
 #eventedit {
@@ -1246,7 +1286,10 @@ body.task-calendar {
 
 #fish-eye-view {
     padding: 0;
-    border-bottom: 1px solid @color-calendar-border;
+
+    @media screen and (min-width: (@screen-width-small + 1px)) {
+        border-bottom: 1px solid @color-calendar-border;
+    }
 
     .fc-header {
         display: none;
@@ -1339,20 +1382,79 @@ body.task-calendar {
     input[type=checkbox] {
         width: auto !important;
     }
+
+    @media screen and (max-width: 420px) {
+        input {
+            width: 8em !important;
+
+            & + input {
+                width: 6em !important;
+            }
+        }
+    }
 }
 
 .calendar-scheduler {
-    .schedule-nav {
-        position: absolute;
-        right: 1rem;
-        top: 1rem;
+    .nav {
+        align-items: center;
 
-        html.layout-phone & {
-            top: 1.5rem;
+        button:first-child {
+            margin-right: .25rem;
         }
 
+        & > div {
+            white-space: nowrap;
+        }
+
+        @media screen and (max-width: 420px) {
+            button {
+                padding-left: .5rem;
+                padding-right: .5rem;
+            }
+        }
+    }
+
+    .schedule-buttons {
+        .prev-slot:before {
+            content: @fa-var-chevron-left;
+        }
+
+        .next-slot:after {
+            &:extend(.font-icon-class);
+            content: @fa-var-chevron-right;
+            display: inline-block;
+            float: none;
+            margin-right: 0;
+        }
+    }
+
+    .schedule-options {
+        flex: 1;
+        margin-left: 1rem;
+
+        html.layout-phone & {
+            order: 100;
+            margin-left: 0;
+        }
+
+        label {
+            vertical-align: middle;
+        }
+
+        input.icon-checkbox + label:before {
+            margin-right:.25rem;
+            display: inline;
+            float: none;
+        }
+    }
+
+    .schedule-nav {
+        flex: 1;
+        margin-left: .3rem;
+        text-align: right;
+
         button {
-            padding: 0 1rem;
+            line-height: 1.8;
         }
     }
 
@@ -1368,48 +1470,6 @@ body.task-calendar {
     .schedule-legend {
         .attendee {
             margin-right: .5rem;
-        }
-    }
-
-    .slot-nav {
-        display: flex;
-        align-items: center;
-
-        html.layout-phone & {
-            flex-wrap: wrap;
-        }
-    }
-
-    .schedule-find-buttons {
-        margin-right: 1rem;
-        float: left;
-
-        button:first-child {
-            margin-right: .5rem;
-        }
-
-        .prev-slot:before {
-            content: @fa-var-chevron-left;
-        }
-
-        .next-slot:after {
-            &:extend(.font-icon-class);
-            content: @fa-var-chevron-right;
-            display: inline-block;
-            float: none;
-            margin-right: 0;
-        }
-    }
-
-    .schedule-options {
-        label {
-            vertical-align: middle;
-        }
-
-        input.icon-checkbox + label:before {
-            margin-right:.25rem;
-            display: inline;
-            float: none;
         }
     }
 
@@ -1527,14 +1587,23 @@ body.task-calendar {
             height: 10px;
         }
 
+        tr.dates th[colspan="1"] {
+            min-width: 48px;
+            max-width: 48px;
+            text-align: center;
+            font-size: .7rem;
+            line-height: 2.9;
+        }
+
         tr.times td {
             cursor: pointer;
-            min-width: 30px;
+            min-width: 48px;
+            max-width: 48px;
             font-size: .7rem;
             text-align: center;
             color: @color-link;
             height: 1.4rem;
-            padding: 0 .25rem;
+            padding: 0 .1rem;
             vertical-align: middle;
             border-top: 1px solid @color-table-border;
             border-left: 1px solid @color-list-border;
@@ -1578,11 +1647,11 @@ body.task-calendar {
             // This span imitates a slanting line across the parent element
             span {
                 display: block;
-                width: 200%;
-                height: 200%;
+                width: 300%;
+                height: 300%;
                 border: 1px solid #fff;
                 background: darken(@color-availability-busy, 10%);
-                transform: rotate(33deg) translate(10%);
+                transform: rotate(42deg) translate(2%);
             }
 
             &.w10 span {
@@ -1591,32 +1660,36 @@ body.task-calendar {
 
             &.w20 span,
             &.w25 span {
-                transform: rotate(10deg) translate(10%);
+                transform: rotate(17deg) translate(-9%);
             }
 
             &.w30 span {
-                transform: rotate(15deg) translate(10%);
+                transform: rotate(28deg) translate(-7%);
             }
 
             &.w40 span {
-                transform: rotate(20deg) translate(10%);
+                transform: rotate(36deg) translate(-3%);
+            }
+
+            &.w60 span {
+                transform: rotate(48deg) translate(6%);
             }
 
             &.w70 span,
             &.w75 span {
-                transform: rotate(42deg) translate(13%);
+                transform: rotate(55deg) translate(12%, 30%);
             }
 
             &.w80 span {
-                transform: rotate(48deg) translate(15%);
+                transform: rotate(56deg) translate(13%, 30%);
             }
 
             &.w90 span {
-                transform: rotate(52deg) translate(18%);
+                transform: rotate(59deg) translate(16%, 30%);
             }
 
             &.w100 span {
-                transform: rotate(55deg) translate(20%, 15%);
+                transform: rotate(62deg) translate(19%, 30%);
             }
         }
 
@@ -1861,24 +1934,6 @@ body.task-calendar {
 
     #resource-availability {
         margin: 0 1em;
-    }
-}
-
-@media screen and (max-width: 420px) {
-    #eventedit {
-        .nav-link {
-            padding: .5rem;
-        }
-    }
-
-    .datetime {
-        input {
-            width: 8em !important;
-
-            & + input {
-                width: 6em !important;
-            }
-        }
     }
 }
 

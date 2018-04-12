@@ -695,3 +695,31 @@ html.touch {
         }
     }
 }
+
+@media screen and (max-width: 420px) {
+    .nav-link.nav-icon {
+        width: 3em;
+        margin-right: 5px;
+        padding: .5rem .5rem .5rem .65rem;
+
+        &:before {
+            .font-icon-class;
+            margin: 0 1rem 0 0;
+            width: 1em;
+            line-height: 1.2;
+        }
+
+        &.resources:before {
+            content: @fa-var-cube;
+            margin-left: .1rem;
+        }
+
+        &.attachments:before {
+            content: @fa-var-paperclip;
+        }
+
+        &.attendees:before {
+            content: @fa-var-users;
+        }
+    }
+}
