@@ -27,3 +27,276 @@ a.button.filesaveall:before {
     &:extend(.font-icon-class);
     content: @fa-var-folder;
 }
+
+.toolbarmenu.listing li a.mount.storage:before {
+    content: @fa-var-database;
+}
+
+.toolbar a.button.open:before {
+    content: @fa-var-eye;
+}
+
+.toolbar a.button.rename:before {
+    content: @fa-var-pen-square;
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link.options.add-folder {
+    &:after {
+        display: none;
+    }
+
+    &:before {
+        display: inline !important;
+        content: @fa-var-plus;
+        margin-right: .2em;
+    }
+}
+
+.folderlist {
+    li.collection {
+        a.name {
+            padding-left: .5em;
+        }
+
+        &.audio a.name:before {
+            .font-icon-solid(@fa-var-volume-up);
+        }
+
+        &.video a.name:before {
+            .font-icon-solid(@fa-var-video);
+        }
+
+        &.image a.name:before {
+            content: @fa-var-image;
+        }
+
+        &.document a.name:before {
+            .font-icon-solid(@fa-var-book);
+        }
+
+        &.sessions a.name:before {
+            .font-icon-solid(@fa-var-users);
+        }
+    }
+
+    li.mailbox {
+        a.subscription {
+            cursor: pointer;
+            // reset listing's link style
+            padding: 0;
+            border-left: 0;
+            width: auto;
+
+            &:before {
+                .font-icon-regular(@fa-var-bookmark); // TODO: better icon
+                height: auto;
+                color: @color-link;
+                margin-right: .25rem;
+            }
+
+            &.subscribed:before {
+                &:extend(.font-icon-class);
+                .font-icon-solid(@fa-var-bookmark); // TODO: better icon
+            }
+        }
+    }
+}
+
+.filelist {
+    table-layout: auto !important;
+
+    td.options {
+        width: 2em;
+    }
+
+    td.name {
+    
+    }
+
+    td.mtime {
+        width: 5em;
+    }
+
+    td.size {
+        text-align: right;
+        width: 3em;
+    }
+}
+
+.filelist tbody td.filename {
+    & span {
+        background: transparent !important;
+    }
+
+    & span:before {
+        &:extend(.font-icon-class);
+        .font-icon-regular(@fa-var-file);
+    }
+
+    &.pdf span:before,
+    &.application_pdf span:before {
+        content: @fa-var-file-pdf;
+    }
+
+    &.application_vnd_ms_word span:before,
+    &.application_msword span:before {
+        content: @fa-var-file-word;
+    }
+
+    &.application_vnd_ms_excel span:before,
+    &.application_vnd_oasis_opendocument_spreadsheet span:before,
+    &.application_vnd_oasis_opendocument_spreadsheet_template span:before {
+        content: @fa-var-file-excel;
+    }
+
+    &.application_vnd_ms_powerpoint span:before {
+        content: @fa-var-file-powerpoint;
+    }
+
+    &.application_vnd_oasis_opendocument_text span:before {
+        content: @fa-var-file-alt; // TODO
+    }
+
+    &.application_vnd_oasis_opendocument_presentation span:before,
+    &.application_vnd_oasis_opendocument_presentation_template span:before {
+        content: @fa-var-file-powerpoint; // TODO
+    }
+
+    &.tar span:before,
+    &.application_zip span:before,
+    &.application_x_7z_compressed span:before,
+    &.application_x_ace span:before,
+    &.application_x_arc span:before,
+    &.application_x_arj span:before,
+    &.application_x_bzip_compressed_tar span:before,
+    &.application_x_lha span:before,
+    &.application_x_rar span:before,
+    &.application_x_tarz span:before,
+    &.application_x_tzo span:before,
+    &.application_x_zip span:before,
+    &.application_x_zoo span:before {
+        content: @fa-var-file-archive;
+    }
+
+    &.image span:before,
+    &.image_png span:before,
+    &.image_svg_xml span:before,
+    &.image_jpeg span:before,
+    &.image_jpeg2000 span:before,
+    &.image_x_eps span:before,
+    &.application_vnd_stardivision_draw span:before,
+    &.application_vnd_sun_xml_draw span:before,
+    &.application_vnd_sun_xml_draw_template span:before {
+        content: @fa-var-file-image;
+    }
+
+    &.application_pgp_keys span:before,
+    &.application_pkcs7_mime span:before {
+        // TODO
+    }
+
+    &.audio span:before {
+        content: @fa-var-file-audio;
+    }
+
+    &.video span:before {
+        content: @fa-var-file-video;
+    }
+
+    &.ascii span:before,
+    &.text_plain span:before {
+        content: @fa-var-file-alt;
+    }
+
+    &.vcalendar span:before {
+        // TODO
+    }
+
+    &.vcard span:before,
+    &.text_x_vcard span:before {
+        // TODO
+    }
+
+    &.text_html span:before {
+        content: @fa-var-file-code;
+    }
+
+    &.style_css span:before {
+        // TODO
+    }
+
+    &.text_csv span:before {
+        // TODO
+    }
+
+    &.message_rfc822 span:before {
+        // TODO
+    }
+}
+
+#folder-mount-form {
+    td.source {
+        display: flex;
+        align-items: flex-start;
+        padding: .5rem;
+
+        &.selected {
+            background-color: @color-list-selected-background;
+        }
+
+        & > input {
+            height: 32px;
+            margin-right: .5rem;
+        }
+
+        & > div {
+            flex: 1;
+        }
+
+        img {
+            height: 32px;
+            margin-right: .5rem;
+        }
+
+        .name {
+            font-weight: bold;
+        }
+
+        .description {
+            font-size: 90%;
+        }
+
+        table {
+            margin-top: .5rem;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+    }
+
+    .auth-options {
+        margin-top: .5rem;
+
+        & > label:before {
+            line-height: 1;
+        }
+    }
+}
+
+.files-dialog {
+    .selection-list {
+        flex: 1;
+        min-width: 220px;
+    }
+
+    .selection-content {
+        flex: 2;
+        border: 1px solid @color-layout-border;
+        border-left: 0;
+    }
+
+    a.subscription {
+        display: none;
+    }
+}

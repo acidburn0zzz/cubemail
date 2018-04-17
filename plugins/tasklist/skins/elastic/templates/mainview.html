@@ -8,18 +8,8 @@
 	<div class="header">
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-tasklists" class="header-title"><roundcube:label name="tasklist.lists" /></span>
-		<div id="tasklist-search" class="searchbar toolbar" role="search" aria-labelledby="aria-label-tasklistsearchform">
-			<h2 id="aria-label-label-tasklistsearchform" class="voice"><roundcube:label name="tasklist.arialabelfoldersearchform" /></h2>
-			<form name="foldersearchform" onsubmit="return false">
-				<input id="tasklistsearch" type="text" name="q" placeholder="<roundcube:label name="searchplaceholder" />" />
-				<a class="button reset" href="#" onclick="return rcmail.command(\'reset-listsearch\',null,this,event)" title="<roundcube:label name="resetsearch" />" tabindex="0">
-					<span class="inner"><roundcube:label name="resetsearch" /></span>
-				</a>
-			</form>
-			<a class="button search" href="#" title="<roundcube:label name="tasklist.findlists" />" tabindex="0">
-				<span class="inner"><roundcube:label name="tasklist.findlists" /></span>
-			</a>
-		</div>
+		<roundcube:object name="libkolab.folder_search_form" id="tasklistsearch" wrapper="searchbar toolbar"
+			ariatag="h2" label="foldersearchform" label-domain="tasklist" buttontitle="findlists" />
 	</div>
 	<div id="tasklists-content" class="scroller">
 		<roundcube:object name="plugin.tasklists" id="tasklists" class="treelist listing iconized" />

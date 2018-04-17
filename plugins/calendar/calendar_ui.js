@@ -2024,7 +2024,7 @@ function rcube_calendar_ui(settings)
         resizable: false, // prevents from Availability tab reflow bugs on resize
         closeOnEscape: true,
         title: rcmail.gettext('findresources', 'calendar'),
-        classes: {'ui-dialog': 'resources-dialog'},
+        classes: {'ui-dialog': 'selection-dialog resources-dialog'},
         open: function() {
           rcmail.ksearch_blur();
           $dialog.attr('aria-hidden', 'false');

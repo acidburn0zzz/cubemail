@@ -1713,50 +1713,13 @@ body.task-calendar {
 }
 
 .resources-dialog {
-    .ui-dialog-content {
-        display: flex !important;
-        overflow: hidden !important;
-    }
-
     .resource-selection {
         flex: 4;
-        display: flex;
-        flex-direction: column;
-        border: 1px solid @color-layout-border;
         min-width: 300px;
-        justify-content: center;
-
-        .scroller {
-            flex: 1;
-            overflow-y: auto;
-        }
-    }
-
-    .header {
-        border-bottom: 1px solid @color-layout-border;
-        display: flex;
-        background-color: @color-layout-header-background;
-        font-size: @layout-header-font-size;
-        font-weight: bold;
-        line-height: @layout-header-height;
-        height: @layout-header-height;
-        min-height: @layout-header-height;
-        padding: 0 .25em;
-        position: relative; // for absolute positioning of searchbar
-        overflow: hidden;
-        white-space: nowrap;
-    }
-
-    .header-title {
-        width: 100%;
-        text-align: center;
-        margin: 0 2em;
     }
 
     .resource-content {
         flex: 10;
-        display: flex;
-        flex-direction: column;
         margin-left: 1em;
     }
 
@@ -1767,12 +1730,6 @@ body.task-calendar {
             &:extend(.font-icon-class);
             content: @fa-var-cube;
         }
-    }
-
-    .tab-content {
-        margin-top: 1rem;
-        height: 100%;
-        overflow-y: auto;
     }
 
     .slot-nav {
@@ -1907,25 +1864,12 @@ body.task-calendar {
     }
 
     .resources-dialog {
-        .ui-dialog-content {
-            padding: 0 !important;
-        }
-
-        .resource-selection {
-            border: 0;
-        }
-
-        .resource-content,
-        .ui-dialog-titlebar {
+        .resource-content {
             display: none;
             margin: 0;
         }
 
         .resource-content {
-            .header-title {
-                margin-left: 0;
-            }
-
             ul {
                 margin: 1em 1em 0 1em;
             }
