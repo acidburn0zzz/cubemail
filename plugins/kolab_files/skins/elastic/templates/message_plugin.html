@@ -1,7 +1,8 @@
 <div id="files-dialog" class="popupmenu selection-list" data-editable="true" role="dialog" aria-labelledby="aria-label-filesavedialog">
 	<h3 id="aria-label-filesavedialog" class="voice"><roundcube:label name="kolab_files.arialabelfilesavedialog" /></h3>
 	<div class="header">
-		<span class="header-title"><roundcube:label name="folders" /></span>
+		<span class="header-title" data-hidden="small"><roundcube:label name="folders" /></span>
+		<span class="header-title" data-hidden="big"><roundcube:label name="kolab_files.saveto" /></span>
 		<roundcube:object name="libkolab.folder_search_form" id="foldersearch" wrapper="searchbar toolbar"
 			ariatag="h2" label="foldersearchform" buttontitle="kolab_files.findfolders" />
 	</div>

@@ -49,7 +49,7 @@
 			<roundcube:button command="files-edit" type="link"
 				class="button edit disabled" classAct="button edit"
 				label="kolab_files.edit" title="kolab_files.editfile" innerClass="inner" />
-			<roundcube:button command="files-create" type="link"
+			<roundcube:button command="files-create" type="link" data-fab="true"
 				class="button create disabled" classAct="button create"
 				label="kolab_files.create" title="kolab_files.createfile" innerClass="inner "/>
 			<roundcube:button command="files-rename" type="link"
@@ -67,12 +67,13 @@
 		<h2 id="aria-label-filelist" class="voice"><roundcube:label name="kolab_files.arialabelfilelist" /></h2>
 		<div id="filelistbox" class="droptarget">
 			<roundcube:object name="filelist" id="filelist" class="records-table listing filelist sortheader fixedheader"
-				aria-labelledby="aria-label-filelist" />
+				aria-labelledby="aria-label-filelist" data-list="fileslist"
+				data-label-msg="listempty" data-label-ext="listusebutton" data-create-command="files-create" />
 		</div>
 		<h2 id="aria-label-sessionslist" class="voice"><roundcube:label name="kolab_files.arialabelsessionslist" /></h2>
 		<div id="sessionslistbox" class="boxlistcontent" style="display:none">
 		<roundcube:object name="sessionslist" id="sessionslist" class="records-table listing filelist sortheader fixedheader"
-			optionsmenuIcon="true" aria-labelledby="aria-label-sessionslist" />
+			optionsmenuIcon="true" aria-labelledby="aria-label-sessionslist" data-label-msg="listempty" />
 		</div>
 	</div>
 </div>

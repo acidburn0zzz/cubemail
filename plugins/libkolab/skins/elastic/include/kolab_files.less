@@ -23,7 +23,8 @@
 
 a.btn.fromcloud:before,
 li > a.icon.saveas:before,
-a.button.filesaveall:before {
+a.button.filesaveall:before,
+a.button.saveas:before {
     &:extend(.font-icon-class);
     content: @fa-var-folder;
 }
@@ -41,14 +42,18 @@ a.button.filesaveall:before {
 }
 
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link.options.add-folder {
-    &:after {
-        display: none;
-    }
+    order: 99;
 
     &:before {
-        display: inline !important;
         content: @fa-var-plus;
-        margin-right: .2em;
+    }
+
+    &:after {
+        content: @fa-var-plus;
+
+        @media screen and (max-width: @screen-width-xs) {
+            display: none;
+        }
     }
 }
 
@@ -102,11 +107,17 @@ a.button.filesaveall:before {
     }
 }
 
+#filelistcontainer {
+    position: relative;
+}
+
 .filelist {
-    table-layout: auto !important;
+    thead {
+        display: none;
+    }
 
     td.options {
-        width: 2em;
+        display: none;
     }
 
     td.name {
@@ -114,12 +125,29 @@ a.button.filesaveall:before {
     }
 
     td.mtime {
-        width: 5em;
+        width: 10em;
     }
 
     td.size {
         text-align: right;
-        width: 3em;
+        width: 6em;
+    }
+
+    tbody tr.session > td.options span {
+    }
+
+    tbody tr.session.invited > td.options span {
+    }
+
+    tbody tr.session.owner > td.options span {
+    }
+}
+
+@media screen and (max-width: @screen-width-xs) {
+    .filelist {
+        td.mtime {
+            display: none;
+        }
     }
 }
 
@@ -292,11 +320,20 @@ a.button.filesaveall:before {
 
     .selection-content {
         flex: 2;
-        border: 1px solid @color-layout-border;
-        border-left: 0;
+
+        @media screen and (min-width: (@screen-width-small + 1px)) {
+            border: 1px solid @color-layout-border;
+            border-left: 0;
+        }
     }
 
     a.subscription {
         display: none;
+    }
+
+    @media screen and (max-width: @screen-width-small) {
+        .selection-list {
+            display: none;
+        }
     }
 }

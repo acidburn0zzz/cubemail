@@ -1453,6 +1453,7 @@ class kolab_files_engine
         $this->rc->output->set_env('file', $file);
         $this->rc->output->set_env('file_data', $this->file_data);
         $this->rc->output->set_env('mimetype', $this->file_data['type']);
+        $this->rc->output->set_env('filename', pathinfo($file, PATHINFO_BASENAME));
         $this->rc->output->set_env('editor_type', $editor_type);
         $this->rc->output->set_env('photo_placeholder', $placeholder);
         $this->rc->output->set_pagetitle(rcube::Q($file));

@@ -15,6 +15,9 @@
 	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
 		<span class="header-title constant"><roundcube:var name="env:filename" /></span>
 		<div id="messagetoolbar" class="toolbar">
+			<a class="button properties" id="properties-button" href="#properties" onclick="UI.show_sidebar()" data-hidden="big">
+				<span class="inner"><roundcube:label name="properties"></span>
+			</a>
 			<roundcube:button command="files-get" type="link"
 				class="button download disabled" classAct="button download"
 				label="kolab_files.get" title="kolab_files.getfile" innerClass="inner" />

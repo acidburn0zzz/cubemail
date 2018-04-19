@@ -501,9 +501,41 @@ button.btn.print:before {
                 margin-left: 0;
             }
         }
+
+        .header {
+            a:before {
+                font-size: 1.75rem;
+            }
+        }
     }
 }
 
+// Use icons-only on taskmenu with small screen height
+@media screen and (max-height: 640px) and (min-width: (@screen-width-small + 1px)) {
+    body > #layout > .menu {
+        width: 2.5rem;
+    }
+
+    #taskmenu {
+        a {
+            height: auto;
+            width: 100%;
+
+            &:before {
+                height: 2.1rem;
+                width: 100%;
+            }
+        }
+
+        .special-buttons {
+            width: 2.5rem;
+        }
+
+        span.inner {
+            display: none;
+        }
+    }
+}
 
 @import "include/calendar";
 @import "include/kolab_activesync";

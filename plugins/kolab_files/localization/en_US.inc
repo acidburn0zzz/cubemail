@@ -26,6 +26,7 @@ $labels['foldermount'] = 'Add storage';
 $labels['folderdelete'] = 'Delete folder';
 $labels['folderoptions'] = 'Folder options';
 $labels['findfolders'] = 'Find folders';
+$labels['findfiles'] = 'Find files';
 
 $labels['folderinside'] = 'Insert inside';
 $labels['foldername'] = 'Folder name';
