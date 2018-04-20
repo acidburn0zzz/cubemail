@@ -702,20 +702,20 @@ class kolab_files_engine
         $table = new html_table(array('cols' => 2, 'class' => $attrib['class']));
 
         // file name
-        $table->add('label', $this->plugin->gettext('name').':');
+        $table->add('title', $this->plugin->gettext('name').':');
         $table->add('data filename', $this->file_data['name']);
 
         // file type
         // @TODO: human-readable type name
-        $table->add('label', $this->plugin->gettext('type').':');
+        $table->add('title', $this->plugin->gettext('type').':');
         $table->add('data filetype', $this->file_data['type']);
 
         // file size
-        $table->add('label', $this->plugin->gettext('size').':');
+        $table->add('title', $this->plugin->gettext('size').':');
         $table->add('data filesize', $this->rc->show_bytes($this->file_data['size']));
 
         // file modification time
-        $table->add('label', $this->plugin->gettext('mtime').':');
+        $table->add('title', $this->plugin->gettext('mtime').':');
         $table->add('data filemtime', $this->file_data['mtime']);
 
         // @TODO: for images: width, height, color depth, etc.

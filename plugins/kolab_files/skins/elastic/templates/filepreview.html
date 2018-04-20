@@ -7,17 +7,17 @@
 		<a class="button icon back-content-button" href="#content" data-hidden="big"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span class="header-title" id="aria-label-contentinfo"><roundcube:label name="properties" /></span>
 	</div>
-	<roundcube:object name="fileinfobox" id="fileinfo" class="listing" />
+	<roundcube:object name="fileinfobox" id="fileinfo" class="listing props-table" />
 </div>
 
 <div class="content selected">
 	<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
 	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
+		<a class="button icon properties" id="properties-button" href="#properties" onclick="UI.show_sidebar()" data-hidden="big">
+			<span class="inner"><roundcube:label name="properties"></span>
+		</a>
 		<span class="header-title constant"><roundcube:var name="env:filename" /></span>
 		<div id="messagetoolbar" class="toolbar">
-			<a class="button properties" id="properties-button" href="#properties" onclick="UI.show_sidebar()" data-hidden="big">
-				<span class="inner"><roundcube:label name="properties"></span>
-			</a>
 			<roundcube:button command="files-get" type="link"
 				class="button download disabled" classAct="button download"
 				label="kolab_files.get" title="kolab_files.getfile" innerClass="inner" />

@@ -377,7 +377,7 @@ ul.toolbarmenu li span.saveas {
   table-layout: fixed;
 }
 
-#fileinfobox table td.label {
+#fileinfobox table td.title {
   width: 60px;
   font-weight: bold;
   padding-right: 0;
