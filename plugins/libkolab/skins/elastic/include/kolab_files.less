@@ -121,11 +121,11 @@ a.button.saveas:before {
     }
 
     td.name {
-    
+        position: relative;
     }
 
     td.mtime {
-        width: 10em;
+        width: 11em;
     }
 
     td.size {
@@ -133,13 +133,25 @@ a.button.saveas:before {
         width: 6em;
     }
 
-    tbody tr.session > td.options span {
+    tr.session > td.name {
+        padding-right: 2em;
+
+        &:after {
+            &:extend(.font-icon-class);
+            content: @fa-var-users;
+            color: @color-black-shade-border;
+            position: absolute;
+            right: .25em;
+            top: 0;
+        }
     }
 
-    tbody tr.session.invited > td.options span {
+    tr.session.invited > td.name:after {
+        color: @color-success;
     }
 
-    tbody tr.session.owner > td.options span {
+    tr.session.owner > td.name:after {
+        color: @color-black;
     }
 }
 

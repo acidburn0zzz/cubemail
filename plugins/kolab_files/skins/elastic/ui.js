@@ -1,74 +1,42 @@
 function kolab_files_enable_command(p)
 {
-  if (p.command == 'files-save') {
-    var toolbar = $('#toolbar-menu');
-    $('a.button.edit', toolbar).parent().hide();
-    $('a.button.save', toolbar).show().parent().show();
-  }
+    if (p.command == 'files-save') {
+        var toolbar = $('#toolbar-menu');
+        $('a.button.edit', toolbar).parent().hide();
+        $('a.button.save', toolbar).show().parent().show();
+    }
 };
 
-function kolab_files_show_listoptions(p)
+function kolab_files_listoptions(type)
 {
-  if (!p || !p.name) {
-    return;
-  }
+    var content = $('#' + type + 'listoptions'),
+        width = content.width() + 25,
+        dialog = content.clone(),
+        title = rcmail.gettext('kolab_files.arialabel' + (type == 'sessions' ? 'sessions' : '') + 'listoptions'),
+        close_func = function() { rcmail[type + 'list'].focus(); },
+        save_func = function(e) {
+            if (rcube_event.is_keyboard(e.originalEvent)) {
+                $('#' + type + 'listmenu-link').focus();
+            }
 
-  if (p.name.match(/^(files|sessions)listmenu$/)) {
-    var type = RegExp.$1;
-  }
-  else {
-    return;
-  }
+            var col = $('select[name="sort_col"]', dialog).val(),
+                ord = $('select[name="sort_ord"]', dialog).val();
 
-  var $dialog = $('#' + type + 'listoptions');
+            kolab_files_set_list_options([], col, ord, type);
+            close_func();
+            return true;
+        };
 
-  // close the dialog
-  if ($dialog.is(':visible')) {
-    $dialog.dialog('close');
-    return;
-  }
+    // set form values
+    $('select[name="sort_col"]', dialog).val(rcmail.env[type + '_sort_col'] || 'name');
+    $('select[name="sort_ord"]', dialog).val(rcmail.env[type + '_sort_order'] == 'DESC' ? 'DESC' : 'ASC');
 
-  // set form values
-  $('input[name="sort_col"][value="'+rcmail.env[type + '_sort_col']+'"]', $dialog).prop('checked', true);
-  $('input[name="sort_ord"][value="DESC"]', $dialog).prop('checked', rcmail.env[type + '_sort_order'] == 'DESC');
-  $('input[name="sort_ord"][value="ASC"]', $dialog).prop('checked', rcmail.env[type + '_sort_order'] != 'DESC');
-
-  // set checkboxes
-  $('input[name="list_col[]"]').each(function() {
-    $(this).prop('checked', $.inArray(this.value, rcmail.env[type + '_coltypes']) != -1);
-  });
-
-  $dialog.dialog({
-    modal: true,
-    resizable: false,
-    closeOnEscape: true,
-    close: function() { rcmail[type + 'list'].focus(); },
-    title: null,
-    minWidth: 400,
-    width: $dialog.width()+20
-  }).show();
-};
-
-function kolab_files_save_listoptions(p)
-{
-  if (!p || !p.originalEvent) {
-    return;
-  }
-
-  if (p.originalEvent.target.id.match(/^(files|sessions)listmenusave$/)) {
-    var type = RegExp.$1;
-  }
-  else {
-    return;
-  }
-
-  var dialog = $('#' + type + 'listoptions').dialog('close');
-  var sort = $('input[name="sort_col"]:checked', dialog).val(),
-    ord = $('input[name="sort_ord"]:checked', dialog).val(),
-    cols = $('input[name="list_col[]"]:checked', dialog)
-      .map(function() { return this.value; }).get();
-
-  kolab_files_set_list_options(cols, sort, ord, type);
+    dialog = rcmail.simple_dialog(dialog, title, save_func, {
+        cancel_func: close_func,
+        closeOnEscape: true,
+        minWidth: 400,
+        width: width
+    });
 };
 
 
@@ -88,11 +56,18 @@ if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
         });
     }
 }
+else {
+    rcmail.addEventListener('files-folder-select', function(p) {
+        var is_sess = p.folder == 'folder-collection-sessions';
+        $('#fileslistmenu-link, #layout > .content > .header > a.toggleselect, #layout > .content > .header > .searchbar')[is_sess ? 'hide' : 'show']();
+        $('#sessionslistmenu-link')[is_sess ? 'removeClass' : 'addClass']('hidden');
+
+        // set list header title for mobile
+        // $('#layout > .content > .header > .header-title').text($('#files-folder-list li.selected a.name:first').text());
+    });
+}
 
 $(document).ready(function() {
-    rcmail.addEventListener('menu-open', kolab_files_show_listoptions);
-    rcmail.addEventListener('menu-save', kolab_files_save_listoptions);
-    rcmail.addEventListener('menu-close', kolab_files_show_listoptions);
 
     $('#toolbar-menu a.button.save').parent().hide();
 

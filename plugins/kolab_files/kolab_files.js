@@ -793,7 +793,7 @@ function kolab_files_session_dialog(session)
     owner = session.owner_name || session.owner,
     title = rcmail.gettext('kolab_files.sessiondialog'),
     content = rcmail.gettext('kolab_files.sessiondialogcontent'),
-    button_classes = ['mainaction'],
+    button_classes = ['mainaction edit'],
     join_session = function(id) {
       var viewer = file_api.file_type_supported('application/vnd.oasis.opendocument.text', rcmail.env.files_caps);
         params = {action: 'edit', session: id};
@@ -2121,6 +2121,8 @@ function kolab_files_ui()
   {
     if (rcmail.busy)
       return;
+
+    rcmail.triggerEvent('files-folder-select', {folder: folder});
 
     var is_collection = folder.match(/^folder-collection-(.*)$/),
       collection = RegExp.$1 || null;

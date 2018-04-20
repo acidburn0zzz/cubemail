@@ -174,6 +174,7 @@ $labels['arialabelfileprops'] = 'File properties';
 $labels['arialabelfilecontent'] = 'File content';
 $labels['arialabelfileeditdialog'] = 'File editing dialog';
 $labels['arialabelsessionslist'] = 'List of document editing sessions';
+$labels['arialabelsessionslistoptions'] = 'Sessions list options';
 $labels['arialabelfilerenameform'] = 'File rename form';
 $labels['arialabelfilesessiondialog'] = 'Document editing session';
 $labels['arialabelcollaborators'] = 'List of document editors';
