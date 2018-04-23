@@ -387,28 +387,29 @@ class kolab_files_engine
      */
     public function document_editors_dialog($attrib)
     {
-        $table = new html_table(array('cols' => 3, 'border' => 0, 'cellpadding' => 0, 'class' => 'records-table'));
+        $table = new html_table($attrib + array('cols' => 3, 'border' => 0, 'cellpadding' => 0));
 
         $table->add_header('username', $this->plugin->gettext('participant'));
         $table->add_header('status', $this->plugin->gettext('status'));
         $table->add_header('options', null);
 
-        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'invitation-editor-name', 'size' => 30));
+        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'invitation-editor-name', 'size' => 30, 'class' => 'form-control'));
         $textarea = new html_textarea(array('name' => 'comment', 'id' => 'invitation-comment',
-            'rows' => 4, 'cols' => 55, 'title' => $this->plugin->gettext('invitationtexttitle')));
-        $button   = new html_inputfield(array('type' => 'button', 'class' => 'button', 'id' => 'invitation-editor-add', 'value' => $this->plugin->gettext('addparticipant')));
+            'rows' => 4, 'cols' => 55, 'class' => 'form-control', 'title' => $this->plugin->gettext('invitationtexttitle')));
+        $button   = new html_inputfield(array('type' => 'button', 'class' => 'button', 'id' => 'invitation-editor-add',
+            'value' => $this->plugin->gettext('addparticipant')));
 
-        $this->plugin->add_label('manageeditors', 'statusorganizer');
+        $this->plugin->add_label('manageeditors', 'statusorganizer', 'addparticipant');
 
         // initialize attendees autocompletion
         $this->rc->autocomplete_init();
 
-        return '<div>' . $table->show() . html::div(null,
-            html::div(null, $input->show() . " " . $button->show())
+        return html::div(null, $table->show() . html::div(null,
+            html::div('form-searchbar', $input->show() . " " . $button->show())
             . html::p('attendees-commentbox', html::label(null,
                 $this->plugin->gettext('invitationtextlabel') . $textarea->show())
             )
-        ) . '</div>';
+        ));
     }
 
     /**

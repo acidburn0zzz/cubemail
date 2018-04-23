@@ -787,13 +787,12 @@ function kolab_files_file_create_dialog(file)
 // file session dialog
 function kolab_files_session_dialog(session)
 {
-  var buttons = {},
+  var buttons = {}, button_classes = [],
     dialog = $('#files-session-dialog'),
     filename = file_api.file_name(session.file),
     owner = session.owner_name || session.owner,
     title = rcmail.gettext('kolab_files.sessiondialog'),
     content = rcmail.gettext('kolab_files.sessiondialogcontent'),
-    button_classes = ['mainaction edit'],
     join_session = function(id) {
       var viewer = file_api.file_type_supported('application/vnd.oasis.opendocument.text', rcmail.env.files_caps);
         params = {action: 'edit', session: id};
@@ -813,19 +812,19 @@ function kolab_files_session_dialog(session)
       kolab_dialog_close(this);
       file_api.document_delete(session.id);
     };
-    button_classes.push('delete');
+    button_classes = ['mainaction edit', 'delete'];
   }
   else if (session.is_invited) {
+    button_classes = ['mainaction edit'];
     // @TODO: check if not-accepted and provide "Decline invitation" button
     // @TODO: Add "Accept button", add comment field to the dialog
-    button_classes.push('session join');
     buttons[rcmail.gettext('kolab_files.join')] = function() {
       kolab_dialog_close(this);
       join_session(session.id);
     };
   }
   else {
-    button_classes.push('session request');
+    button_classes = ['mainaction session request'];
     buttons[rcmail.gettext('kolab_files.request')] = function() {
       kolab_dialog_close(this);
       // @TODO: Add comment field to the dialog
@@ -1150,7 +1149,8 @@ function kolab_files_drag_end(e)
 
       if (menu && modkey == SHIFT_KEY && rcmail.commands['files-copy']) {
         var pos = rcube_event.get_mouse_pos(e);
-        $(menu).css({top: (pos.y-10)+'px', left: (pos.x-10)+'px'}).show();
+        rcmail.show_menu(menu.id, true, e);
+        $(menu).css({top: (pos.y-10)+'px', left: (pos.x-10)+'px'});
         return;
       }
 
@@ -3160,7 +3160,7 @@ function kolab_files_ui()
   // or overwrite destination file(s)
   this.file_move_ask_user = function(list, move)
   {
-    var file = list[0], buttons = {}, button_classes = ['save file overwrite'],
+    var file = list[0], buttons = {}, button_classes = ['mainaction save file overwrite'],
       text = rcmail.gettext('kolab_files.filemoveconfirm').replace('$file', file.dst),
       dialog = $('<div></div>');
 
@@ -3178,7 +3178,7 @@ function kolab_files_ui()
     };
 
     if (list.length > 1) {
-      button_classes.push('file overwrite all');
+      button_classes.push('save file overwrite all');
       buttons[rcmail.gettext('kolab_files.fileoverwriteall')] = function() {
         var f = {}, action = move ? 'file_move' : 'file_copy';
 
@@ -3203,18 +3203,21 @@ function kolab_files_ui()
     button_classes.push('cancel file skip');
     buttons[rcmail.gettext('kolab_files.fileskip')] = skip_func;
 
-    if (list.length > 1)
+    if (list.length > 1) {
       button_classes.push('cancel file skip all');
       buttons[rcmail.gettext('kolab_files.fileskipall')] = function() {
       kolab_dialog_close(this, true);
         if (move)
           file_api.file_list();
       };
+    }
 
     // open jquery UI dialog
     kolab_dialog_show(dialog.html(text), {
+      title: rcmail.gettext('confirmationtitle'),
       close: skip_func,
       buttons: buttons,
+      button_classes: button_classes,
       height: 50,
       minWidth: 400,
       width: 400

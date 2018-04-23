@@ -39,12 +39,40 @@ function kolab_files_listoptions(type)
     });
 };
 
+function kolab_files_members_list(link)
+{
+    var dialog = $('<div id="members-dialog" class="session-members"><ul></ul></div>'),
+        title = $(link).text(),
+        add_button = $('#collaborators a.button.add'),
+        save_func = function(e) {
+            add_button.click();
+            return true;
+        };
 
-if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
+    if (add_button.is('.disabled')) {
+        save_func = null;
+    }
+
+    $('#members img').each(function() {
+        var cloned = $(this).clone();
+        $('<li>').append(cloned).append($('<span>').text(this.title))
+            .appendTo(dialog.find('ul'));
+    });
+
+    dialog = rcmail.simple_dialog(dialog, title, save_func, {
+        closeOnEscape: true,
+        width: 400,
+        button: 'kolab_files.addparticipant',
+        button_class: 'participant add',
+        cancel_button: 'close'
+    });
+};
+
+
+if (rcmail.env.action == 'open') {
     rcmail.addEventListener('enable-command', kolab_files_enable_command);
 
-    if ($('#exportmenu').length)
-        rcmail.gui_object('exportmenu', 'exportmenu');
+    $('#toolbar-menu a.button.save').parent().hide();
 
     // center and scale the image in preview frame
     if (rcmail.env.mimetype.startsWith('image/')) {
@@ -55,6 +83,9 @@ if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
             $(this).contents().find('head').append('<style type="text/css">'+ css + '</style>');
         });
     }
+}
+else if (rcmail.env.action == 'edit') {
+    rcmail.gui_object('exportmenu', 'export-menu');
 }
 else {
     rcmail.addEventListener('files-folder-select', function(p) {
@@ -68,9 +99,6 @@ else {
 }
 
 $(document).ready(function() {
-
-    $('#toolbar-menu a.button.save').parent().hide();
-
     if ($('#dragfilemenu').length) {
         rcmail.gui_object('file_dragmenu', 'dragfilemenu');
     }

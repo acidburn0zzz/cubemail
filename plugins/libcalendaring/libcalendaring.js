@@ -677,14 +677,6 @@ function rcube_libcalendaring(settings)
         this.alarm_dialog = $('<div>').attr('id', 'alarm-display').append(records);
 
         buttons.push({
-            text: rcmail.gettext('close'),
-            click: function() {
-                $(this).dialog('close');
-            },
-            'class': 'cancel'
-        });
-
-        buttons.push({
             text: rcmail.gettext('dismissall','libcalendaring'),
             click: function(e) {
                 // submit dismissed event_ids to server
@@ -692,6 +684,14 @@ function rcube_libcalendaring(settings)
                 $(this).dialog('close');
             },
             'class': 'delete'
+        });
+
+        buttons.push({
+            text: rcmail.gettext('close'),
+            click: function() {
+                $(this).dialog('close');
+            },
+            'class': 'cancel'
         });
 
         this.alarm_dialog.appendTo(document.body).dialog({
