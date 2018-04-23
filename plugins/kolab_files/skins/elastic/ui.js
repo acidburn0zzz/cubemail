@@ -72,8 +72,6 @@ function kolab_files_members_list(link)
 if (rcmail.env.action == 'open') {
     rcmail.addEventListener('enable-command', kolab_files_enable_command);
 
-    $('#toolbar-menu a.button.save').parent().hide();
-
     // center and scale the image in preview frame
     if (rcmail.env.mimetype.startsWith('image/')) {
         $('#fileframe').on('load', function() {
@@ -99,6 +97,10 @@ else {
 }
 
 $(document).ready(function() {
+    if (rcmail.env.action == 'open') {
+        $('#toolbar-menu a.button.save').parent().hide();
+    }
+
     if ($('#dragfilemenu').length) {
         rcmail.gui_object('file_dragmenu', 'dragfilemenu');
     }

@@ -461,3 +461,17 @@ a.button.saveas:before {
 button.participant.add:before {
     content: @fa-var-user-plus;
 }
+
+.iframe-wrapper.file-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media screen and (min-width: (@screen-width-small + 1px)) {
+        padding: 1em;
+    }
+
+    & + .footer.toolbar {
+        display: none !important;
+    }
+}
