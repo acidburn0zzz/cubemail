@@ -1430,7 +1430,7 @@ class kolab_files_engine
 
         $this->file_data['filename'] = $file;
 
-        $this->plugin->add_label('filedeleteconfirm', 'filedeleting', 'filedeletenotice');
+        $this->plugin->add_label('filedeleteconfirm', 'filedeleting', 'filedeletenotice', 'terminate');
 
         // register template objects for dialogs (and main interface)
         $this->rc->output->add_handlers(array(

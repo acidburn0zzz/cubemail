@@ -4,6 +4,15 @@ function kolab_files_enable_command(p)
         var toolbar = $('#toolbar-menu');
         $('a.button.edit', toolbar).parent().hide();
         $('a.button.save', toolbar).show().parent().show();
+
+        if (window.editor_edit_button)
+            window.editor_edit_button.addClass('hidden');
+        if (window.editor_save_button)
+            window.editor_save_button.removeClass('hidden');
+    }
+    else if (p.command == 'files-edit' && p.status) {
+        if (window.editor_edit_button)
+            window.editor_edit_button.removeClass('hidden');
     }
 };
 
@@ -81,6 +90,26 @@ if (rcmail.env.action == 'open') {
             $(this).contents().find('head').append('<style type="text/css">'+ css + '</style>');
         });
     }
+
+    // Elastic mobile preview uses an iframe in a dialog
+    if (rcmail.is_framed()) {
+        var edit_button = $('#filetoolbar a.button.edit'),
+            save_button = $('#filetoolbar a.button.save');
+
+        parent.$('.ui-dialog:visible .ui-dialog-buttonpane .ui-dialog-buttonset').prepend(
+            window.editor_save_button = $('<button>')
+                .addClass('save btn btn-secondary' + (save_button.is('.disabled') ? ' hidden' : ''))
+                .text(save_button.text())
+                .on('click', function() { save_button.click(); })
+        );
+
+        parent.$('.ui-dialog:visible .ui-dialog-buttonpane .ui-dialog-buttonset').prepend(
+            window.editor_edit_button = $('<button>')
+                .addClass('edit btn btn-secondary' + (edit_button.is('.disabled') ? ' hidden' : ''))
+                .text(edit_button.text())
+                .on('click', function() { edit_button.click(); })
+        );
+    }
 }
 else if (rcmail.env.action == 'edit') {
     rcmail.gui_object('exportmenu', 'export-menu');
@@ -99,6 +128,11 @@ else {
 $(document).ready(function() {
     if (rcmail.env.action == 'open') {
         $('#toolbar-menu a.button.save').parent().hide();
+    }
+    else if (rcmail.env.action == 'edit') {
+        if (rcmail.is_framed()) {
+            parent.$('.ui-dialog:visible .ui-dialog-buttonpane').addClass('hidden');
+        }
     }
 
     if ($('#dragfilemenu').length) {

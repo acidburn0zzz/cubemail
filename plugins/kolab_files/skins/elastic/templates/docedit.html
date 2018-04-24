@@ -28,7 +28,7 @@
 			<roundcube:endif />
 			<roundcube:button command="document-save" type="link"
 				class="button save disabled" classAct="button save"
-				label="kolab_files.save" title="kolab_files.savefile" innerClass="inner" />
+				label="kolab_files.save" title="kolab_files.savefile" innerClass="inner" data-hidden="small" />
 		</div>
 		<roundcube:if condition="env:editor_type != 'wopi'" />
 			<div id="doc-title" data-hidden="small">
@@ -47,6 +47,13 @@
 	<div class="iframe-wrapper">
 		<roundcube:object name="filepreviewframe" id="fileframe" role="main"
 			title="kolab_files.arialabelfilecontent" aria-labelledby="aria-label-filecontent" />
+	</div>
+	<div class="footer toolbar hidden-big">
+		<roundcube:button command="document-save" type="link"
+			class="button save disabled" classAct="button save"
+			label="kolab_files.save" title="kolab_files.savefile" innerClass="inner" />
+		<roundcube:button name="close-window" type="link" onclick="parent.$('.ui-dialog:visible button.cancel').click()"
+			class="button cancel" label="cancel" title="cancel" innerClass="inner" />
 	</div>
 </div>
 

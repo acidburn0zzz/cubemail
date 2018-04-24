@@ -7,7 +7,9 @@
 		<a class="button icon back-content-button" href="#content" data-hidden="big"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span class="header-title" id="aria-label-contentinfo"><roundcube:label name="properties" /></span>
 	</div>
-	<roundcube:object name="fileinfobox" id="fileinfo" class="listing props-table" />
+	<div class="scroller">
+		<roundcube:object name="fileinfobox" id="fileinfo" class="listing props-table" />
+	</div>
 </div>
 
 <div class="content selected">
@@ -17,16 +19,16 @@
 			<span class="inner"><roundcube:label name="properties"></span>
 		</a>
 		<span class="header-title constant"><roundcube:var name="env:filename" /></span>
-		<div id="messagetoolbar" class="toolbar">
+		<div id="filetoolbar" class="toolbar">
 			<roundcube:button command="files-get" type="link"
 				class="button download disabled" classAct="button download"
 				label="kolab_files.get" title="kolab_files.getfile" innerClass="inner" />
 			<roundcube:button command="files-edit" type="link"
 				class="button edit disabled" classAct="button edit"
-				label="kolab_files.edit" title="kolab_files.editfile" innerClass="inner" />
+				label="kolab_files.edit" title="kolab_files.editfile" innerClass="inner" data-hidden="small" />
 			<roundcube:button command="files-save" type="link"
 				class="button save disabled" classAct="button save"
-				label="kolab_files.save" title="kolab_files.savefile" innerClass="inner" style="display:none" />
+				label="kolab_files.save" title="kolab_files.savefile" innerClass="inner" style="display:none" data-hidden="small" />
 			<roundcube:button command="files-delete" type="link"
 				class="button delete disabled" classAct="button delete"
 				label="delete" title="kolab_files.deletefile" innerClass="inner" />
@@ -47,7 +49,7 @@
 		</div>
 	</div>
 	<h2 id="aria-label-filecontent" class="voice"><roundcube:label name="kolab_files.arialabelfilecontent" /></h2>
-	<div class="iframe-wrapper file-preview">
+	<div class="iframe-wrapper file-type-<roundcube:exp expression="strtolower(preg_replace('|/.*$|', '', env:mimetype))" />">
 		<roundcube:object name="filepreviewframe" id="fileframe" role="main" aria-labelledby="aria-label-filecontent" />
 	</div>
 <roundcube:if condition="stripos(env:mimetype, 'image/') === 0" />

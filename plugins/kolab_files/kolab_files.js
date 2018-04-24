@@ -461,7 +461,8 @@ function kolab_files_folder_create_dialog()
   kolab_dialog_show(dialog, {
     title: rcmail.gettext('kolab_files.foldercreate'),
     buttons: buttons,
-    button_classes: ['mainaction save', 'cancel']
+    button_classes: ['mainaction save', 'cancel'],
+    height: 200
   });
 
   // Fix submitting form with Enter
@@ -1366,7 +1367,7 @@ rcube_webmail.prototype.document_close = function()
   if (this.commands['document-save'])
     this.confirm_dialog(this.gettext('kolab_files.unsavedchanges'), 'kolab_files.terminate', function() {
       file_api.document_delete(rcmail.env.file_data.session.id);
-    });
+    }, {button_class: 'delete'});
 };
 
 // document editors management dialog
@@ -2009,8 +2010,8 @@ function kolab_files_ui()
       collections = ['audio', 'video', 'image', 'document'];
 
     // try parent window if the list element does not exist
-    // i.e. called from dialog in parent window
-    if (!elem.length && rcmail.is_framed()) {
+    // i.e. called from a dialog in parent window
+    if (!elem.length && rcmail.is_framed() && (rcmail.env.task != 'files' || (rcmail.env.action != 'open' && rcmail.env.action != 'edit'))) {
       body = window.parent.document.body;
       elem = $(list_selector, body);
       searchbox = $(search_selector, body);
@@ -2115,6 +2116,14 @@ function kolab_files_ui()
 
     // handle authentication errors on external sources
     this.folder_list_auth_errors(response.result);
+
+    // Elastic: Set notree class on the folder list
+    var callback = function() {
+        list[list.find('.treetoggle').length > 0 ? 'removeClass' : 'addClass']('notree');
+    };
+    if (window.MutationObserver)
+      (new MutationObserver(callback)).observe(list.get(0), {childList: true, subtree: true});
+    callback();
   };
 
   this.folder_select = function(folder)
@@ -2131,7 +2140,7 @@ function kolab_files_ui()
       rcmail.update_state(is_collection ? {collection: collection} : {folder: folder});
 
     if (collection == 'sessions') {
-      rcmail.enable_command('files-list', 'files-folder-delete', 'folder-rename', 'files-upload', false);
+      rcmail.enable_command('files-list', 'files-folder-delete', 'folder-rename', 'files-upload', 'files-open', 'files-edit', false);
       this.sessions_list();
       return;
     }
@@ -3067,16 +3076,22 @@ function kolab_files_ui()
       // check if opener window contains files list, if not we can just close current window
       if (rco && rco.fileslist && (opener.file_api.env.folder == dir || !opener.file_api.env.folder))
         self = opener.file_api;
-      else
-        window.close();
+      // also try parent for framed UI (Elastic)
+      else if (rcmail.is_framed() && parent.rcmail.fileslist && (parent.file_api.env.folder == dir || !parent.file_api.env.folder))
+        self = parent.file_api;
     }
 
     // @TODO: consider list modification "in-place" instead of full reload
     self.file_list();
     self.quota();
 
-    if (rcmail.env.file)
-      window.close();
+    if (rcmail.env.file) {
+      if (rcmail.is_framed()) {
+        parent.$('.ui-dialog:visible > .ui-dialog-buttonpane button.cancel').click();
+      }
+      else
+        window.close();
+    }
   };
 
   // file(s) move request
@@ -3631,7 +3646,7 @@ function kolab_files_ui()
     var win = window, list = rcmail.sessionslist;
 
     if (!list) {
-      win = window.opener;
+      win = window.opener || window.parent;
       if (win && win.rcmail && win.file_api)
         list = win.rcmail.sessionslist;
     }
@@ -3639,8 +3654,13 @@ function kolab_files_ui()
     // remove session from the list (if sessions list exist)
     if (list)
       list.remove_row(this.deleted_session);
-    if (win.file_api && win.file_api.env.sessions_list)
+    if (win && win.file_api && win.file_api.env.sessions_list)
       delete win.file_api.env.sessions_list[this.deleted_session];
+
+    // For Elastic: hide the parent dialog
+    if (rcmail.is_framed()) {
+      parent.$('.ui-dialog:visible button.cancel').click();
+    }
   };
 
   // Invite document session participants

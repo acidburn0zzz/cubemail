@@ -41,6 +41,10 @@ a.button.saveas:before {
     content: @fa-var-pen-square;
 }
 
+.toolbar a.button.cancel:before {
+    content: @fa-var-times;
+}
+
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link.options.add-folder {
     order: 99;
 
@@ -370,6 +374,10 @@ a.button.saveas:before {
         text-align: left !important;
     }
 
+    .header-title {
+        margin: 0 !important;
+    }
+
     a.button.icon.members:before {
         content: @fa-var-users;
     }
@@ -401,12 +409,13 @@ a.button.saveas:before {
 
 .session-members {
     img.photo {
-        width: 32px;
-        height: 32px;
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
         overflow: hidden;
         background: url(../../../../skins/elastic/images/contactpic.png) center center no-repeat #fff;
         background-size: cover;
-        border-radius: .25rem;
+        border-radius: 50%;
         border: solid 3px #eee;
         margin-left: .5rem;
     }
@@ -422,9 +431,6 @@ a.button.saveas:before {
         }
 
         img.photo {
-            width: 48px;
-            height: 48px;
-            min-width: 48px;
             margin-left: 0;
             margin-right: 1em;
         }
@@ -462,16 +468,13 @@ button.participant.add:before {
     content: @fa-var-user-plus;
 }
 
-.iframe-wrapper.file-preview {
+.iframe-wrapper.file-type-audio,
+.iframe-wrapper.file-type-video {
     display: flex;
     align-items: center;
     justify-content: center;
 
     @media screen and (min-width: (@screen-width-small + 1px)) {
         padding: 1em;
-    }
-
-    & + .footer.toolbar {
-        display: none !important;
     }
 }
