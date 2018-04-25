@@ -180,6 +180,7 @@ $labels['arialabelfilesessiondialog'] = 'Document editing session';
 $labels['arialabelcollaborators'] = 'List of document editors';
 $labels['arialabelexportoptions'] = 'Export options';
 $labels['arialabeldoceditorsdialog'] = 'Document editors (invitations)';
+$labels['arialabelmorefileactions'] = 'More file actions';
 
 $labels['type.plain'] = 'Plain Text Document';
 $labels['type.vndoasisopendocumenttext'] = 'Text Document (ODF)';

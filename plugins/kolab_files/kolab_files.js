@@ -1709,17 +1709,58 @@ rcube_webmail.prototype.files_delete = function()
   });
 };
 
-rcube_webmail.prototype.files_move = function(folder)
+rcube_webmail.prototype.files_move = function(folder, obj, event, files)
 {
-  var files = kolab_files_selected();
+  if (!files)
+    files = kolab_files_selected();
+
+  if (!folder) {
+    var ref = this;
+    return this.files_folder_selector(event, function(folder) {
+      ref.files_move(folder, null, event, files);
+    });
+  }
+
   file_api.file_move(files, folder);
 };
 
-rcube_webmail.prototype.files_copy = function(folder)
+rcube_webmail.prototype.files_copy = function(folder, obj, event, files)
 {
-  var files = kolab_files_selected();
+  if (!files)
+    files = kolab_files_selected();
+
+  if (!folder) {
+    var ref = this;
+    return this.files_folder_selector(event, function(folder) {
+      ref.files_copy(folder, null, event, files);
+    });
+  }
+
   file_api.file_copy(files, folder);
 };
+
+  // create folder selector popup
+rcube_webmail.prototype.files_folder_selector = function(event, callback)
+{
+  this.entity_selector('folder-selector', callback, file_api.env.folders, function(folder, a, folder_fullname) {
+    var n = folder.depth || 0,
+        id = folder.id,
+        row = $('<li>');
+
+      if (folder.virtual || folder.readonly)
+        a.addClass('virtual').attr({'aria-disabled': 'true', tabindex: '-1'});
+      else
+        a.addClass('active').data('id', folder_fullname);
+
+      a.css('padding-left', n ? (n * 16) + 'px' : 0);
+
+      // add folder name element
+      a.append($('<span>').text(folder.name));
+
+      return row.append(a);
+    }, event);
+  };
+
 
 rcube_webmail.prototype.files_upload = function(form)
 {

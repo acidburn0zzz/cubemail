@@ -52,12 +52,12 @@
 			<roundcube:button command="files-create" type="link" data-fab="true"
 				class="button create disabled" classAct="button create"
 				label="kolab_files.create" title="kolab_files.createfile" innerClass="inner "/>
-			<roundcube:button command="files-rename" type="link"
-				class="button rename disabled" classAct="button rename"
-				label="kolab_files.rename" title="kolab_files.renamefile" innerClass="inner" />
 			<roundcube:button command="files-delete" type="link"
 				class="button delete disabled" classAct="button delete"
 				label="delete" title="kolab_files.deletefile" innerClass="inner" />
+			<roundcube:button name="filemenulink" id="filemenulink" type="link"
+				class="button more" label="more" title="moreactions"
+				data-popup="file-menu" innerclass="inner" />
 		</div>
 		<roundcube:object name="file-search-form" id="searchform" wrapper="searchbar toolbar"
 			label="searchform" buttontitle="kolab_files.findfiles" label-domain="kolab_files"
@@ -200,6 +200,15 @@
 	<h3 id="aria-label-searchmenu" class="voice"><roundcube:label name="searchmod" /></h3>
 	<ul class="toolbarmenu" role="menu" aria-labelledby="aria-label-searchmenu">
 		<li role="menuitem" class="checkbox"><label><input type="checkbox" name="all_folders" value="1" id="search_all_folders" /><roundcube:label name="kolab_files.allfolders" /></label></li>
+	</ul>
+</div>
+
+<div id="file-menu" class="popupmenu">
+	<h3 id="aria-label-message-menu" class="voice"><roundcube:label name="kolab_files.arialabelmorefileactions" /></h3>
+	<ul class="toolbarmenu listing" role="menu" aria-labelledby="aria-label-file-menu">
+		<roundcube:button type="link-menuitem" command="files-rename" label="kolab_files.rename" class="rename" classAct="rename active" />
+		<roundcube:button type="link-menuitem" command="files-move" label="moveto" class="move" classAct="move active" innerclass="folder-selector-link" aria-haspopup="true" />
+		<roundcube:button type="link-menuitem" command="files-copy" label="copyto" class="copy" classAct="copy active" innerclass="folder-selector-link" aria-haspopup="true" />
 	</ul>
 </div>
 
