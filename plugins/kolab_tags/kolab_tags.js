@@ -529,7 +529,7 @@ function remove_tags(tags, selection)
 
     var taglist = $('#taglist li'),
         list = main_list_widget(),
-        tagboxes = $((selection && list ? 'tr.selected ' : '') + 'span.tagbox'),
+        tagboxes = $('span.tagbox'),
         win = rcmail.get_frame_window(rcmail.env.contentframe),
         frame_tagboxes = win && win.jQuery ? win.jQuery('span.tagbox') : [],
         update_filter = false;
@@ -602,7 +602,7 @@ function reset_tags()
 function tag_add(props, obj, event)
 {
     if (!props) {
-        return tag_selector(event, function(props) { rcmail.command('tag-add', props); });
+        return tag_selector(event, function(props) { tag_add(props); });
     }
 
     var tag, postdata = rcmail.selection_post_data();
@@ -668,7 +668,7 @@ function tag_add_callback(tag)
 function tag_remove(props, obj, event)
 {
     if (!props) {
-        return tag_selector(event, function(props) { rcmail.command('tag-remove', props); }, true);
+        return tag_selector(event, function(props) { tag_remove(props); }, true);
     }
 
     if (props.name) {
@@ -689,7 +689,39 @@ function tag_remove(props, obj, event)
     postdata._act = 'remove';
 
     rc.http_post('plugin.kolab_tags', postdata, true);
+
+    // remove tags from message(s) without waiting to a response
+    // in case of an error the list will be refreshed
+    tag_remove_callback(this.tag_find(props));
 }
+
+// update messages list and message frame after removing tag assignments
+function tag_remove_callback(tag)
+{
+    if (!tag)
+        return;
+
+    var frame_window = rcmail.get_frame_window(rcmail.env.contentframe),
+        list = rcmail.message_list;
+
+    if (list) {
+        $.each(list.get_selection(), function (i, uid) {
+            var row = list.rows[uid];
+            if (row) {
+                $('span.tagbox', row.obj).each(function() {
+                    if (!tag || $(this).data('tag') == tag.uid) {
+                        $(this).remove();
+                    }
+                });
+            }
+        });
+
+        message_list_select(list);
+    }
+
+    // TODO: remove tag(s) from the preview frame
+}
+
 
 // executes messages search according to selected messages
 function apply_tags_filter()
@@ -732,11 +764,22 @@ function search_request(url)
 
 function message_list_select(list)
 {
-    var has_tags_to_remove = (rcmail.env.tags.length
-        && (rcmail.select_all_mode || $('tr.selected span.tagbox', list.list).length));
+    var selection = list.get_selection(),
+        has_tags = selection.length && rcmail.env.tags.length;
 
-    rcmail.enable_command('tag-remove', 'tag-remove-all', has_tags_to_remove);
-    rcmail.enable_command('tag-add', list.selection.length);
+    if (has_tags && !rcmail.select_all_mode) {
+        has_tags = false;
+        $.each(selection, function() {
+            var row = list.rows[this];
+            if (row && row.obj && $('span.tagbox', row.obj).length) {
+                has_tags = true;
+                return false;
+            }
+        });
+    }
+
+    rcmail.enable_command('tag-remove', 'tag-remove-all', has_tags);
+    rcmail.enable_command('tag-add', selection.length);
 }
 
 // add tags to message subject on message list
@@ -897,7 +940,7 @@ function tag_selector(event, callback, remove_mode)
         // temporarily show element to calculate its size
         container.css({left: '-1000px', top: '-1000px'})
             .appendTo(document.body).show()
-            .on('click', 'a.tag', function() {
+            .on('click', 'a.tag', function(e) {
                 container.data('callback')($(this).data('uid'));
                 return rcmail.hide_menu('tag-selector', e);
             });
