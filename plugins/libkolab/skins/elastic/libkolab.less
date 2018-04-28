@@ -21,8 +21,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import (reference) "../../../../skins/elastic/styles/variables";
-@import (reference) "../../../../skins/elastic/styles/mixins";
+@skin: "elastic";
+@skin-path: "../../../../skins/@{skin}";
+
+@import (reference) "@{skin-path}/styles/variables";
+@import (reference) "@{skin-path}/styles/mixins";
 
 
 /*** Common folders list extensions ***/
