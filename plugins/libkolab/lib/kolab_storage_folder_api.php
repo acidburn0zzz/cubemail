@@ -157,7 +157,8 @@ abstract class kolab_storage_folder_api
      */
     public function get_foldername()
     {
-        $parts = explode('/', $this->name);
+        $parts = explode($this->imap->get_hierarchy_delimiter(), $this->name);
+
         return rcube_charset::convert(end($parts), 'UTF7-IMAP');
     }
 
@@ -168,7 +169,9 @@ abstract class kolab_storage_folder_api
      */
     public function get_parent()
     {
-        $path = explode('/', $this->name);
+        $delim = $this->imap->get_hierarchy_delimiter();
+        $path  = explode($delim, $this->name);
+
         array_pop($path);
 
         // don't list top-level namespace folder
@@ -176,7 +179,7 @@ abstract class kolab_storage_folder_api
             $path = array();
         }
 
-        return join('/', $path);
+        return join($delim, $path);
     }
 
     /**

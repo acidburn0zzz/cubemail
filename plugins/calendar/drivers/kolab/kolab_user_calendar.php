@@ -38,7 +38,8 @@ class kolab_user_calendar extends kolab_calendar
    */
   public function __construct($user_or_folder, $calendar)
   {
-    $this->cal = $calendar;
+    $this->cal  = $calendar;
+    $this->imap = $calendar->rc->get_storage();
 
     // full user record is provided
     if (is_array($user_or_folder)) {
