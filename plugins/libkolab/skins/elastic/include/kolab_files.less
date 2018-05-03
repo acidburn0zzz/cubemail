@@ -46,18 +46,10 @@ a.button.saveas:before {
 }
 
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset a.btn-link.options.add-folder {
-    order: 99;
+    order: -1;
 
     &:before {
         content: @fa-var-plus;
-    }
-
-    &:after {
-        content: @fa-var-plus;
-
-        @media screen and (max-width: @screen-width-xs) {
-            display: none;
-        }
     }
 }
 
