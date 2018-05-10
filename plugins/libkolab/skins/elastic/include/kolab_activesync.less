@@ -28,13 +28,13 @@
 }
 
 #devices-table {
-    td:before {
-        &:extend(.font-icon-class);
-        content: @fa-var-rss-square; // TODO: mobile icon is not free
-    }
-
-    td {
+    td:not(.selection) {
         display: flex;
+
+        &:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-rss-square; // TODO: mobile icon is not free
+        }
 
         span {
             .overflow-ellipsis;
