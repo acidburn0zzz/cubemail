@@ -8,9 +8,9 @@
 	<div class="header">
 		<a class="button icon back-content-button" href="#back" data-hidden="big"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-calendars" class="header-title"><roundcube:label name="calendar.calendars" /></span>
-		<roundcube:object name="libkolab.folder_search_form" id="calendarlistsearch" wrapper="searchbar toolbar"
-			ariatag="h2" label="calsearchform" label-domain="calendar" buttontitle="findcalendars" />
 	</div>
+	<roundcube:object name="libkolab.folder_search_form" id="calendarlistsearch" wrapper="searchbar toolbar"
+		ariatag="h2" label="calsearchform" label-domain="calendar" buttontitle="findcalendars" />
 	<div id="calendars-content" class="scroller">
 		<roundcube:object name="plugin.calendar_list" id="calendarslist" class="treelist listing iconized" />
 	</div>
@@ -50,9 +50,9 @@
 				label="calendar.export" title="calendar.exporttitle" innerClass="inner" />
 			<roundcube:container name="toolbar" id="calendartoolbar" />
 		</div>
-		<roundcube:object name="plugin.searchform" id="searchform" wrapper="searchbar toolbar"
-			label="searchform" buttontitle="calendar.findevents" label-domain="calendar" ariatag="h2" />
 	</div>
+	<roundcube:object name="plugin.searchform" id="searchform" wrapper="searchbar toolbar"
+		label="searchform" buttontitle="calendar.findevents" label-domain="calendar" ariatag="h2" />
 	<h2 id="aria-label-calendarview" class="voice"><roundcube:label name="calendar.arialabelcalendarview" /></h2>
 	<div id="calendar" class="content" role="main" aria-labelledby="aria-label-calendarview" data-elastic-mode="true">
 		<roundcube:object name="plugin.agenda_options" id="agendaoptions" />

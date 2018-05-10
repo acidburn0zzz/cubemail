@@ -5,18 +5,29 @@
 		<div class="header">
 			<a class="button icon back" href="#back" data-hidden="big" onclick="$('#folderlistbox').hide();$('#filelistcontainer').css('display','flex')"><span class="inner"><roundcube:label name="back" /></span></a>
 			<span class="header-title"><roundcube:label name="folders" /></span>
-			<roundcube:object name="libkolab.folder_search_form" id="foldersearch" wrapper="searchbar toolbar"
-				ariatag="h5" label="foldersearchform" buttontitle="kolab_files.findfolders" />
 		</div>
+		<roundcube:object name="libkolab.folder_search_form" id="foldersearch" wrapper="searchbar toolbar"
+			ariatag="h5" label="foldersearchform" buttontitle="kolab_files.findfolders" />
 		<div id="files-folder-list" class="scroller"></div>
 	</div>
 	<div id="filelistcontainer" class="selection-content content">
 		<div class="header">
 			<a class="button icon folders" href="#sidebar" data-hidden="big" onclick="$('#filelistcontainer').hide();$('#folderlistbox').css('display','flex')"><span class="inner"><roundcube:label name="folders" /></span></a>
 			<span class="header-title" data-hidden="big" ><roundcube:label name="kolab_files.selectfiles" /></span>
-			<roundcube:object name="file-search-form" id="filesearchbox" wrapper="searchbar toolbar"
-				label="searchform" buttontitle="kolab_files.findfiles" label-domain="kolab_files"
-				ariatag="h3" options="filesearchmenu" />
+		</div>
+		<roundcube:object name="file-search-form" id="filesearchbox" wrapper="searchbar toolbar"
+			label="searchform" buttontitle="kolab_files.findfiles" label-domain="kolab_files"
+			ariatag="h3" options="filesearchmenu" />
+		<div id="filesearchmenu" class="hidden searchoptions scroller propform formcontainer" aria-labelledby="aria-label-search-menu" aria-controls="filelist">
+			<h3 id="aria-label-search-menu" class="voice"><roundcube:label name="searchmod" /></h3>
+			<div class="formcontent">
+				<ul class="proplist">
+					<li><label><input type="checkbox" name="all_folders" value="1" id="search_all_folders" /><roundcube:label name="kolab_files.allfolders" /></label></li>
+				</ul>
+			</div>
+			<div class="formbuttons">
+				<button class="btn btn-primary icon search" href="#" onclick="return rcmail.command('files-search')"><roundcube:label name="search" /></button>
+			</div>
 		</div>
 		<h4 id="aria-label-filelist" class="voice"><roundcube:label name="kolab_files.arialabelfilelist" /></h4>
 		<div class="scroller">
@@ -24,13 +35,6 @@
 				aria-labelledby="aria-label-filelist" data-list="fileslist" data-label-msg="listempty" />
 		</div>
 	</div>
-</div>
-
-<div id="filesearchmenu" class="popupmenu form" data-editable="true">
-	<h3 id="aria-label-searchmenu" class="voice"><roundcube:label name="searchmod" /></h3>
-	<ul class="toolbarmenu" role="menu" aria-labelledby="aria-label-searchmenu">
-		<li role="menuitem" class="checkbox"><label><input type="checkbox" name="all_folders" value="1" id="search_all_folders" /><roundcube:label name="kolab_files.allfolders" /></label></li>
-	</ul>
 </div>
 
 <div id="files-folder-auth-dialog" class="popupmenu formcontent" role="dialog" aria-labelledby="aria-label-folderauthform">

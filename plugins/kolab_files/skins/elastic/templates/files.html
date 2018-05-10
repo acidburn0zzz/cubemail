@@ -8,9 +8,9 @@
 	<div class="header">
 		<a class="button icon back-content-button" href="#back" data-hidden="big"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-folders" class="header-title"><roundcube:label name="folders" /></span>
-		<roundcube:object name="libkolab.folder_search_form" id="foldersearch" wrapper="searchbar toolbar"
-			ariatag="h2" label="foldersearchform" buttontitle="kolab_files.findfolders" />
 	</div>
+	<roundcube:object name="libkolab.folder_search_form" id="foldersearch" wrapper="searchbar toolbar"
+		ariatag="h2" label="foldersearchform" buttontitle="kolab_files.findfolders" />
 	<div id="files-folder-list" class="scroller"></div>
 	<div class="footer toolbar" role="toolbar">
 		<roundcube:button command="folder-create" type="link"
@@ -19,13 +19,15 @@
 		<roundcube:button name="folderoptions" id="folderoptionslink" type="link"
 			title="moreactions" label="actions"
 			class="button actions" innerClass="inner" data-popup="folderoptions-menu" />
-		<roundcube:if condition="env:files_quota" />
-			<div id="quotadisplay" class="quota-widget">
-				<span class="voice"><roundcube:label name="quota"></span>
-				<roundcube:object name="filequotadisplay" class="count" display="text" />
-			</div>
-		<roundcube:endif />
 	</div>
+<roundcube:if condition="env:files_quota" />
+	<div class="footer toolbar small">
+		<div id="quotadisplay" class="quota-widget">
+			<span class="voice"><roundcube:label name="quota"></span>
+			<roundcube:object name="filequotadisplay" class="count" display="text" />
+		</div>
+	</div>
+<roundcube:endif />
 </div>
 
 <!-- files -->
@@ -37,6 +39,13 @@
 		<span class="header-title"></span>
 		<!-- toolbar -->
 		<div id="filestoolbar" class="toolbar">
+			<roundcube:button id="fileslistmenu-link" name="fileslistmenu-link"
+				type="link" onclick="kolab_files_listoptions('files')"
+				label="options" class="button settings" innerClass="inner" />
+			<roundcube:button id="sessionslistmenu-link" name="sessionslistmenu-link"
+				type="link" onclick="kolab_files_listoptions('sessions')"
+				label="options" class="button hidden settings" innerClass="inner" />
+			<span class="spacer"></span>
 			<roundcube:button command="files-upload" type="link" onclick="$('#filesuploadform').click()"
 				class="button upload disabled" classAct="button upload"
 				label="kolab_files.upload" title="kolab_files.uploadfile" innerClass="inner" />
@@ -59,9 +68,20 @@
 				class="button more" label="more" title="moreactions"
 				data-popup="file-menu" innerclass="inner" />
 		</div>
-		<roundcube:object name="file-search-form" id="searchform" wrapper="searchbar toolbar"
-			label="searchform" buttontitle="kolab_files.findfiles" label-domain="kolab_files"
-			ariatag="h3" options="filesearchmenu" />
+	</div>
+	<roundcube:object name="file-search-form" id="searchform" wrapper="searchbar toolbar"
+		label="searchform" buttontitle="kolab_files.findfiles" label-domain="kolab_files"
+		ariatag="h3" options="filesearchmenu" />
+	<div id="filesearchmenu" class="hidden searchoptions scroller propform formcontainer" aria-labelledby="aria-label-search-menu" aria-controls="filelist">
+		<h3 id="aria-label-search-menu" class="voice"><roundcube:label name="searchmod" /></h3>
+		<div class="formcontent">
+			<ul class="proplist">
+				<li><label><input type="checkbox" name="all_folders" value="1" id="search_all_folders" /><roundcube:label name="kolab_files.allfolders" /></label></li>
+			</ul>
+		</div>
+		<div class="formbuttons">
+			<button class="btn btn-primary icon search" href="#" onclick="return rcmail.command('files-search')"><roundcube:label name="search" /></button>
+		</div>
 	</div>
 	<div id="filelistcontainer" class="content" role="main" aria-labelledby="aria-label-filelist" data-elastic-mode="true">
 		<h2 id="aria-label-filelist" class="voice"><roundcube:label name="kolab_files.arialabelfilelist" /></h2>
@@ -74,16 +94,6 @@
 		<div id="sessionslistbox" class="boxlistcontent" style="display:none">
 		<roundcube:object name="sessionslist" id="sessionslist" class="records-table listing filelist sortheader fixedheader"
 			optionsmenuIcon="true" aria-labelledby="aria-label-sessionslist" data-label-msg="listempty" />
-		</div>
-	</div>
-	<div class="footer toolbar" role="toolbar">
-		<div id="listcontrols" class="listselectors">
-			<roundcube:button id="fileslistmenu-link" name="fileslistmenu-link"
-				type="link" onclick="kolab_files_listoptions('files')"
-				label="options" class="button settings" innerClass="inner" />
-			<roundcube:button id="sessionslistmenu-link" name="sessionslistmenu-link"
-				type="link" onclick="kolab_files_listoptions('sessions')"
-				label="options" class="button hidden settings" innerClass="inner" />
 		</div>
 	</div>
 </div>
@@ -193,13 +203,6 @@
 	<ul class="toolbarmenu listing" role="menu">
 		<roundcube:button type="link-menuitem" command="files-move" onclick="return kolab_files_drag_menu_action('files-move')" label="move" classAct="active" />
 		<roundcube:button type="link-menuitem" command="files-copy" onclick="return kolab_files_drag_menu_action('files-copy')" label="copy" classAct="active" />
-	</ul>
-</div>
-
-<div id="filesearchmenu" class="popupmenu form" data-editable="true">
-	<h3 id="aria-label-searchmenu" class="voice"><roundcube:label name="searchmod" /></h3>
-	<ul class="toolbarmenu" role="menu" aria-labelledby="aria-label-searchmenu">
-		<li role="menuitem" class="checkbox"><label><input type="checkbox" name="all_folders" value="1" id="search_all_folders" /><roundcube:label name="kolab_files.allfolders" /></label></li>
 	</ul>
 </div>
 

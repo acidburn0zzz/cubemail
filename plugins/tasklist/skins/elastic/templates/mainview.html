@@ -8,9 +8,9 @@
 	<div class="header">
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-tasklists" class="header-title"><roundcube:label name="tasklist.lists" /></span>
-		<roundcube:object name="libkolab.folder_search_form" id="tasklistsearch" wrapper="searchbar toolbar"
-			ariatag="h2" label="foldersearchform" label-domain="tasklist" buttontitle="findlists" />
 	</div>
+	<roundcube:object name="libkolab.folder_search_form" id="tasklistsearch" wrapper="searchbar toolbar"
+		ariatag="h2" label="foldersearchform" label-domain="tasklist" buttontitle="findlists" />
 	<div id="tasklists-content" class="scroller">
 		<roundcube:object name="plugin.tasklists" id="tasklists" class="treelist listing iconized" />
 	</div>
@@ -29,10 +29,15 @@
 		<a class="button icon menu-button" href="#menu"><span class="inner"><roundcube:label name="menu" /></span></a>
 		<a class="button icon back-sidebar-button folders" href="#sidebar"><span class="inner"><roundcube:label name="tasklist.lists" /></span></a>
 		<span id="aria-label-taskslist" class="header-title"><roundcube:label name="tasklist.navtitle" /></span>
-		<roundcube:object name="plugin.searchform" id="searchform" wrapper="searchbar toolbar"
-			label="tasksearchform" label-domain="tasklist" buttontitle="tasklist.findtasks" ariatag="h2" />
+		<div id="listcontrols" class="toolbar" role="toolbar">
+			<a href="#threads" class="button threads" data-popup="threadselect-menu" title="<roundcube:label name="threads" />"><span class="inner"><roundcube:label name="threads" /></span></a>
+			<roundcube:button name="optionsmenu" id="listmenulink" type="link" class="button settings"
+				label="options" innerClass="inner" onclick="tasklist_options_menu()" />
+		</div>
 		<a class="button icon toolbar-menu-button" href="#list-menu"><span class="inner"><roundcube:label name="menu" /></span></a>
 	</div>
+	<roundcube:object name="plugin.searchform" id="searchform" wrapper="searchbar toolbar"
+		label="tasksearchform" label-domain="tasklist" buttontitle="tasklist.findtasks" ariatag="h2" />
 	<div class="pagenav pagenav-list toolbar" onclick="UI.switch_nav_list(this)">
 		<a class="button icon expand"><span class="inner"></span></a>
 		<span id="taskselector-name" class="pagenav-text"><roundcube:label name="tasklist.all" /></span>
@@ -62,13 +67,6 @@
 		<roundcube:object name="plugin.tasks" id="tasklist" role="tree"
 			class="listing" role="listbox" data-list="tasklist"
 			data-label-msg="listempty" data-label-ext="listusebutton" data-create-command="newtask" />
-	</div>
-	<div class="footer toolbar">
-		<div id="listcontrols" class="listselectors">
-			<a href="#threads" class="button threads" data-popup="threadselect-menu" title="<roundcube:label name="threads" />"><span class="inner"><roundcube:label name="threads" /></span></a>
-			<roundcube:button name="optionsmenu" id="listmenulink" type="link" class="button settings"
-				label="options" innerClass="inner" onclick="tasklist_options_menu()" />
-		</div>
 	</div>
 </div>
 

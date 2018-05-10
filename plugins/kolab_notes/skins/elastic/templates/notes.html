@@ -8,9 +8,9 @@
 	<div class="header">
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-notebooks" class="header-title"><roundcube:label name="kolab_notes.lists" /></span>
-		<roundcube:object name="libkolab.folder_search_form" id="notebooksearch" wrapper="searchbar toolbar"
-			ariatag="h2" label="foldersearchform" label-domain="kolab_notes" buttontitle="findnotebooks" />
 	</div>
+	<roundcube:object name="libkolab.folder_search_form" id="notebooksearch" wrapper="searchbar toolbar"
+		ariatag="h2" label="foldersearchform" label-domain="kolab_notes" buttontitle="findnotebooks" />
 	<div id="notebooks-content" class="scroller">
 		<roundcube:object name="plugin.notebooks" id="notebooks" class="listing treelist iconized" />
 	</div>
@@ -29,22 +29,20 @@
 		<a class="button icon menu-button" href="#menu"><span class="inner"><roundcube:label name="menu" /></span></a>
 		<a class="button icon back-sidebar-button folders" href="#sidebar"><span class="inner"><roundcube:label name="kolab_notes.notebooks" /></span></a>
 		<span id="aria-label-noteslist" class="header-title"><roundcube:label name="kolab_notes.notes" /></span>
-		<roundcube:object name="plugin.searchform" id="searchform" wrapper="searchbar toolbar"
-			label="notesearchform" label-domain="kolab_notes" buttontitle="kolab_notes.findnotes" ariatag="h2" />
+		<div id="listcontrols" class="toolbar" role="toolbar">
+			<roundcube:button name="optionsmenu" id="listmenulink" type="link" class="button settings"
+				label="options" innerClass="inner" onclick="return kolab_notes_options_menu()" />
+		</div>
 		<a class="button icon toolbar-menu-button" href="#list-menu"><span class="inner"><roundcube:label name="menu" /></span></a>
 	</div>
+	<roundcube:object name="plugin.searchform" id="searchform" wrapper="searchbar toolbar"
+		label="notesearchform" label-domain="kolab_notes" buttontitle="kolab_notes.findnotes" ariatag="h2" />
 	<div class="scroller">
 		<h2 id="aria-label-noteslist" class="voice"><roundcube:label name="kolab_notes.notes" /></h2>
 		<roundcube:object name="plugin.listing" id="kolabnoteslist"
 			class="listing" summary="kolab_notes.arialabelnoteslist"
 			role="listbox" data-list="noteslist"
 			data-label-msg="listempty" data-label-ext="listusebutton" data-create-command="createnote" />
-	</div>
-	<div class="footer toolbar">
-		<div id="listcontrols" class="listselectors">
-			<roundcube:button name="optionsmenu" id="listmenulink" type="link" class="button settings"
-				label="options" innerClass="inner" onclick="return kolab_notes_options_menu()" />
-		</div>
 	</div>
 </div>
 
