@@ -58,6 +58,7 @@ class libkolab extends rcube_plugin
         $this->add_texts('localization/', false);
 
         if ($rcmail->output->type == 'html') {
+            $rcmail->output->add_handler('libkolab.folder_search_form', array($this, 'folder_search_form'));
             $this->include_stylesheet($this->local_skin_path() . '/libkolab.css');
         }
 
@@ -341,5 +342,30 @@ class libkolab extends rcube_plugin
     public static function recurrence_id_format($event)
     {
         return $event['allday'] ? 'Ymd' : 'Ymd\THis';
+    }
+
+    /**
+     * Returns HTML code for folder search widget
+     *
+     * @param array $attrib Named parameters
+     *
+     * @return string HTML code for the gui object
+     */
+    public function folder_search_form($attrib)
+    {
+        $rcmail = rcube::get_instance();
+        $attrib += array(
+            'gui-object'    => false,
+            'wrapper'       => true,
+            'form-name'     => 'foldersearchform',
+            'command'       => 'non-extsing-command',
+            'reset-command' => 'non-existing-command',
+        );
+
+        if ($attrib['label-domain'] && !strpos($attrib['buttontitle'], '.')) {
+            $attrib['buttontitle'] = $attrib['label-domain'] . '.' . $attrib['buttontitle'];
+        }
+
+        return $rcmail->output->search_form($attrib);
     }
 }

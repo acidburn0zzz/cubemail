@@ -236,7 +236,7 @@ class kolab_files_engine
             $out = $this->rc->output->form_tag($attrib, $out);
         }
 
-        $this->plugin->add_label('foldercreating', 'foldercreatenotice', 'create', 'foldercreate', 'cancel');
+        $this->plugin->add_label('foldercreating', 'foldercreatenotice', 'create', 'foldercreate', 'cancel', 'addfolder');
         $this->rc->output->add_gui_object('folder-create-form', $attrib['id']);
 
         return $out;
@@ -256,9 +256,9 @@ class kolab_files_engine
         $select_parent = new html_select(array('id' => 'folder-edit-parent', 'name' => 'parent'));
         $table         = new html_table(array('cols' => 2, 'class' => 'propform'));
 
-        $table->add('title', html::label('folder-name', rcube::Q($this->plugin->gettext('foldername'))));
+        $table->add('title', html::label('folder-edit-name', rcube::Q($this->plugin->gettext('foldername'))));
         $table->add(null, $input_name->show());
-        $table->add('title', html::label('folder-parent', rcube::Q($this->plugin->gettext('folderinside'))));
+        $table->add('title', html::label('folder-edit-parent', rcube::Q($this->plugin->gettext('folderinside'))));
         $table->add(null, $select_parent->show());
 
         $out = $table->show();
@@ -318,7 +318,7 @@ class kolab_files_engine
                 . html::img(array('src' => $source['image'], 'alt' => $key, 'title' => $source['name']))
                 . html::div(null, html::span('name', rcube::Q($source['name']))
                     . html::br()
-                    . html::span('description', rcube::Q($source['description']))
+                    . html::span('description hint', rcube::Q($source['description']))
                     . $form->show()
                 );
 
@@ -348,12 +348,13 @@ class kolab_files_engine
         $checkbox = new html_checkbox(array(
             'name'  => 'store_passwords',
             'value' => '1',
+            'class' => 'pretty-checkbox',
             'id'    => 'auth-pass-checkbox' . $attrib['suffix'],
         ));
 
         return html::div('auth-options', $checkbox->show(). '&nbsp;'
             . html::label('auth-pass-checkbox' . $attrib['suffix'], $this->plugin->gettext('storepasswords'))
-            . html::span('description', $this->plugin->gettext('storepasswordsdesc'))
+            . html::p('description hint', $this->plugin->gettext('storepasswordsdesc'))
         );
     }
 
@@ -386,28 +387,29 @@ class kolab_files_engine
      */
     public function document_editors_dialog($attrib)
     {
-        $table = new html_table(array('cols' => 3, 'border' => 0, 'cellpadding' => 0, 'class' => 'records-table'));
+        $table = new html_table($attrib + array('cols' => 3, 'border' => 0, 'cellpadding' => 0));
 
         $table->add_header('username', $this->plugin->gettext('participant'));
         $table->add_header('status', $this->plugin->gettext('status'));
         $table->add_header('options', null);
 
-        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'invitation-editor-name', 'size' => 30));
+        $input    = new html_inputfield(array('name' => 'participant', 'id' => 'invitation-editor-name', 'size' => 30, 'class' => 'form-control'));
         $textarea = new html_textarea(array('name' => 'comment', 'id' => 'invitation-comment',
-            'rows' => 4, 'cols' => 55, 'title' => $this->plugin->gettext('invitationtexttitle')));
-        $button   = new html_inputfield(array('type' => 'button', 'class' => 'button', 'id' => 'invitation-editor-add', 'value' => $this->plugin->gettext('addparticipant')));
+            'rows' => 4, 'cols' => 55, 'class' => 'form-control', 'title' => $this->plugin->gettext('invitationtexttitle')));
+        $button   = new html_inputfield(array('type' => 'button', 'class' => 'button', 'id' => 'invitation-editor-add',
+            'value' => $this->plugin->gettext('addparticipant')));
 
-        $this->plugin->add_label('manageeditors', 'statusorganizer');
+        $this->plugin->add_label('manageeditors', 'statusorganizer', 'addparticipant');
 
         // initialize attendees autocompletion
         $this->rc->autocomplete_init();
 
-        return '<div>' . $table->show() . html::div(null,
-            html::div(null, $input->show() . " " . $button->show())
+        return html::div(null, $table->show() . html::div(null,
+            html::div('form-searchbar', $input->show() . " " . $button->show())
             . html::p('attendees-commentbox', html::label(null,
                 $this->plugin->gettext('invitationtextlabel') . $textarea->show())
             )
-        ) . '</div>';
+        ));
     }
 
     /**
@@ -465,7 +467,7 @@ class kolab_files_engine
         $table->add(null, $input_name->show());
         $table->add('title', html::label('file-create-type', rcube::Q($this->plugin->gettext('type'))));
         $table->add(null, $select_type->show());
-        $table->add('title', html::label('folder-parent', rcube::Q($this->plugin->gettext('folderinside'))));
+        $table->add('title', html::label('file-create-parent', rcube::Q($this->plugin->gettext('folderinside'))));
         $table->add(null, $select_parent->show());
 
         $out = $table->show();
@@ -488,32 +490,16 @@ class kolab_files_engine
      */
     public function file_search_form($attrib)
     {
-        $attrib['name'] = '_q';
-
-        if (empty($attrib['id'])) {
-            $attrib['id'] = 'filesearchbox';
-        }
-        if ($attrib['type'] == 'search' && !$this->rc->output->browser->khtml) {
-            unset($attrib['type'], $attrib['results']);
-        }
-
-        $input_q = new html_inputfield($attrib);
-        $out = $input_q->show();
-
-        // add some labels to client
-        $this->rc->output->add_label('searching');
-        $this->rc->output->add_gui_object('filesearchbox', $attrib['id']);
+        $attrib += array(
+            'name'          => '_q',
+            'gui-object'    => 'filesearchbox',
+            'form-name'     => 'filesearchform',
+            'command'       => 'files-search',
+            'reset-command' => 'files-search-reset',
+        );
 
         // add form tag around text field
-        if (empty($attrib['form'])) {
-            $out = $this->rc->output->form_tag(array(
-                    'action'   => '?_task=files',
-                    'name'     => "filesearchform",
-                    'onsubmit' => rcmail_output::JS_OBJECT_NAME . ".command('files-search'); return false",
-                ), $out);
-        }
-
-        return $out;
+        return $this->rc->output->search_form($attrib);
     }
 
     /**
@@ -717,20 +703,20 @@ class kolab_files_engine
         $table = new html_table(array('cols' => 2, 'class' => $attrib['class']));
 
         // file name
-        $table->add('label', $this->plugin->gettext('name').':');
+        $table->add('title', $this->plugin->gettext('name').':');
         $table->add('data filename', $this->file_data['name']);
 
         // file type
         // @TODO: human-readable type name
-        $table->add('label', $this->plugin->gettext('type').':');
+        $table->add('title', $this->plugin->gettext('type').':');
         $table->add('data filetype', $this->file_data['type']);
 
         // file size
-        $table->add('label', $this->plugin->gettext('size').':');
+        $table->add('title', $this->plugin->gettext('size').':');
         $table->add('data filesize', $this->rc->show_bytes($this->file_data['size']));
 
         // file modification time
-        $table->add('label', $this->plugin->gettext('mtime').':');
+        $table->add('title', $this->plugin->gettext('mtime').':');
         $table->add('data filemtime', $this->file_data['mtime']);
 
         // @TODO: for images: width, height, color depth, etc.
@@ -1444,7 +1430,7 @@ class kolab_files_engine
 
         $this->file_data['filename'] = $file;
 
-        $this->plugin->add_label('filedeleteconfirm', 'filedeleting', 'filedeletenotice');
+        $this->plugin->add_label('filedeleteconfirm', 'filedeleting', 'filedeletenotice', 'terminate');
 
         // register template objects for dialogs (and main interface)
         $this->rc->output->add_handlers(array(
@@ -1467,6 +1453,8 @@ class kolab_files_engine
         $this->rc->output->set_env('extwin', true);
         $this->rc->output->set_env('file', $file);
         $this->rc->output->set_env('file_data', $this->file_data);
+        $this->rc->output->set_env('mimetype', $this->file_data['type']);
+        $this->rc->output->set_env('filename', pathinfo($file, PATHINFO_BASENAME));
         $this->rc->output->set_env('editor_type', $editor_type);
         $this->rc->output->set_env('photo_placeholder', $placeholder);
         $this->rc->output->set_pagetitle(rcube::Q($file));

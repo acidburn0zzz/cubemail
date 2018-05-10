@@ -1,0 +1,72 @@
+<roundcube:include file="includes/layout.html" />
+
+<h1 class="voice"><roundcube:var name="env:filename" /></h1>
+
+<div class="content selected editor-<roundcube:var name="env:editor_type" />">
+	<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
+	<div class="header document-editor-header" role="toolbar" aria-labelledby="aria-label-toolbar">
+		<a class="button icon members" href="#members" onclick="kolab_files_members_list(this)" data-hidden="big">
+			<span class="inner"><roundcube:label name="kolab_files.arialabelcollaborators"></span>
+		</a>
+		<span class="header-title constant"><roundcube:var name="env:filename" /></span>
+		<div class="toolbar">
+			<roundcube:button command="document-close" type="link"
+				class="button delete disabled" classAct="button delete"
+				label="kolab_files.terminate" title="kolab_files.terminatesession" innerClass="inner" />
+			<span class="dropbutton">
+				<roundcube:button command="document-export" type="link"
+					class="button export disabled" classAct="button export"
+					label="kolab_files.get" title="kolab_files.getfile" innerClass="inner" />
+				<a href="#export" class="button dropdown" id="exportmenulink" data-popup="export-menu" tabindex="0">
+					<span class="inner"><roundcubemail:label name="kolab_files.exportoptions" /><span>
+				</a>
+			</span>
+			<roundcube:if condition="env:editor_type == 'wopi'" />
+				<roundcube:button command="document-print" type="link"
+					class="button print disabled" classAct="button print"
+					label="print" title="kolab_files.printfile" innerClass="inner" data-hidden="small" />
+			<roundcube:endif />
+			<roundcube:button command="document-save" type="link"
+				class="button save disabled" classAct="button save"
+				label="kolab_files.save" title="kolab_files.savefile" innerClass="inner" data-hidden="small" />
+		</div>
+		<roundcube:if condition="env:editor_type != 'wopi'" />
+			<div id="doc-title" data-hidden="small">
+				<label for="document-title"><roundcube:label name="kolab_files.documenttitle" />&nbsp;<input id="document-title" type="text" class="form-control" /></label>
+			</div>
+		<roundcube:endif />
+		<div id="collaborators" role="toolbar" aria-labelledby="aria-label-collaborators" data-hidden="small">
+			<h3 id="aria-label-collaborators" class="voice"><roundcube:label name="kolab_files.arialabelcollaborators" /></h3>
+			<roundcube:button command="document-editors" type="link"
+				class="button add disabled" classAct="button add"
+				label="kolab_files.manageeditors" title="kolab_files.manageeditors" innerClass="inner" />
+			<div id="members" class="session-members"></div>
+		</div>
+	</div>
+	<h2 id="aria-label-filecontent" class="voice"><roundcube:label name="kolab_files.arialabelfilecontent" /></h2>
+	<div class="iframe-wrapper">
+		<roundcube:object name="filepreviewframe" id="fileframe" role="main"
+			title="kolab_files.arialabelfilecontent" aria-labelledby="aria-label-filecontent" />
+	</div>
+	<div class="footer toolbar hidden-big">
+		<roundcube:button command="document-save" type="link"
+			class="button save disabled" classAct="button save"
+			label="kolab_files.save" title="kolab_files.savefile" innerClass="inner" />
+		<roundcube:button name="close-window" type="link" onclick="parent.$('.ui-dialog:visible button.cancel').click()"
+			class="button cancel" label="cancel" title="cancel" innerClass="inner" />
+	</div>
+</div>
+
+<div id="export-menu" class="popupmenu">
+	<h3 id="aria-label-exportmenu" class="voice"><roundcube:label name="kolab_files.arialabelexportoptions" /></h3>
+	<ul id="exportmenu-menu" class="toolbarmenu listing" role="menu" aria-labelledby="aria-label-exportmenu"></ul>
+</div>
+
+<div id="document-editors-dialog" class="popupmenu editors-dialog" data-editable="true" role="dialog" aria-labelledby="aria-label-doceditorsdialog">
+	<h3 id="aria-label-doceditorsdialog" class="voice"><roundcube:label name="kolab_files.arialabeldoceditorsdialog" /></h3>
+	<roundcube:object name="document-editors-dialog" class="records-table table no-img" />
+</div>
+
+<script src="plugins/kolab_files/skins/elastic/ui.js" type="text/javascript"></script>
+
+<roundcube:include file="includes/footer.html" />

@@ -1,0 +1,27 @@
+<div id="files-dialog" class="popupmenu selection-list" data-editable="true" role="dialog" aria-labelledby="aria-label-filesavedialog">
+	<h3 id="aria-label-filesavedialog" class="voice"><roundcube:label name="kolab_files.arialabelfilesavedialog" /></h3>
+	<div class="header">
+		<span class="header-title" data-hidden="small"><roundcube:label name="folders" /></span>
+		<span class="header-title" data-hidden="big"><roundcube:label name="kolab_files.saveto" /></span>
+		<roundcube:object name="libkolab.folder_search_form" id="foldersearch" wrapper="searchbar toolbar"
+			ariatag="h2" label="foldersearchform" buttontitle="kolab_files.findfolders" />
+	</div>
+	<h3 id="aria-label-folderlist" class="voice"><roundcube:label name="kolab_files.arialabelfolderlist" /></h3>
+	<div id="files-folder-list" class="scroller" aria-labelledby="aria-label-folderlist" data-no-collections="true"></div>
+	<div id="file-save-as" class="form-addon form-group row">
+		<label for="file-save-as-input" class="col-form-label col-sm-4"><roundcube:label name="kolab_files.saveas" /></label>
+		<div class="col-sm-8">
+			<input id="file-save-as-input" type="text" value="" class="form-control">
+		</div>
+	</div>
+</div>
+
+<div id="files-folder-create-dialog" class="popupmenu formcontent" role="dialog" aria-labelledby="aria-label-foldercreateform">
+	<h3 id="aria-label-foldercreateform" class="voice"><roundcube:label name="kolab_files.arialabelfoldercreateform" /></h3>
+	<roundcube:object name="folder-create-form" />
+</div>
+
+<div id="files-folder-auth-dialog" class="popupmenu formcontent" role="dialog" aria-labelledby="aria-label-folderauthform">
+	<h3 id="aria-label-folderauthform" class="voice"><roundcube:label name="kolab_files.arialabelfolderauthform" /></h3>
+	<roundcube:object name="folder-auth-options">
+</div>

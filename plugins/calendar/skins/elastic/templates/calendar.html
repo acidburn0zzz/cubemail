@@ -8,18 +8,8 @@
 	<div class="header">
 		<a class="button icon back-content-button" href="#back" data-hidden="big"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-calendars" class="header-title"><roundcube:label name="calendar.calendars" /></span>
-		<div id="calendar-search" class="searchbar toolbar" role="search" aria-labelledby="aria-label-calendarsearchform">
-			<h2 id="aria-label-calendarsearchform" class="voice"><roundcube:label name="calendar.arialabelcalsearchform" /></h2>
-			<form name="foldersearchform" onsubmit="return false">
-				<input id="calendarlistsearch" type="text" name="q" placeholder="<roundcube:label name="searchplaceholder" />" />
-				<a class="button reset" href="#" onclick="return rcmail.command(\'reset-listsearch\',null,this,event)" title="<roundcube:label name="resetsearch" />" tabindex="0">
-					<span class="inner"><roundcube:label name="resetsearch" /></span>
-				</a>
-			</form>
-			<a class="button search" href="#" title="<roundcube:label name="calendar.findcalendars" />" tabindex="0">
-				<span class="inner"><roundcube:label name="calendar.findcalendars" /></span>
-			</a>
-		</div>
+		<roundcube:object name="libkolab.folder_search_form" id="calendarlistsearch" wrapper="searchbar toolbar"
+			ariatag="h2" label="calsearchform" label-domain="calendar" buttontitle="findcalendars" />
 	</div>
 	<div id="calendars-content" class="scroller">
 		<roundcube:object name="plugin.calendar_list" id="calendarslist" class="treelist listing iconized" />
@@ -136,6 +126,10 @@
 		<label class="col-sm-4 col-form-label"><roundcube:label name="calendar.links" /></label>
 		<span class="event-text col-sm-8"></span>
 	</div>
+	<div id="event-attachments" class="form-group row">
+		<label class="col-sm-4 col-form-label"><roundcube:label name="attachments" /></label>
+		<span class="event-text col-sm-8"></span>
+	</div>
 	<div id="event-created" class="form-group row faded">
 		<label class="col-sm-4 col-form-label"><roundcube:label name="calendar.created" /></label>
 		<span class="event-text event-created col-sm-8 form-control-plaintext"></span>
@@ -143,9 +137,6 @@
 	<div id="event-changed" class="form-group row faded">
 		<label class="col-sm-4 col-form-label"><roundcube:label name="calendar.changed" /></label>
 		<span class="event-text event-changed col-sm-8 form-control-plaintext"></span>
-	</div>
-	<div id="event-attachments" class="form-group row">
-		<div class="event-text"></div>
 	</div>
 	<roundcube:object name="plugin.event_rsvp_buttons" id="event-rsvp" class="calendar-invitebox invitebox boxinformation" style="display:none" />
 </div>
@@ -183,37 +174,52 @@
 </div>
 
 <div id="eventresourcesdialog" class="popupmenu">
-	<div class="resources-dialog">
-		<h3 class="voice" id="aria-label-resourceselection"><roundcube:label name="calendar.arialabelresourceselection" /></h3>
-		<div class="resource-selection uibox listbox" role="navigation" aria-labelledby="aria-label-resourceselection">
+	<h3 class="voice" id="aria-label-resourceselection"><roundcube:label name="calendar.arialabelresourceselection" /></h3>
+	<div class="resource-selection selection-list" role="navigation" aria-labelledby="aria-label-resourceselection">
+		<div class="header">
 			<span class="header-title"><roundcube:label name="calendar.tabresources" /></span>
-			<div id="resourcequicksearch" class="header">
-				<div class="searchbox" role="search" aria-labelledby="aria-label-resourcesearchform" aria-controls="resources-list">
-					<h3 id="aria-label-resourcesearchform" class="voice"><roundcube:label name="calendar.arialabelresourcesearchform" /></h3>
-					<label for="resourcesearchbox" class="voice"><roundcube:label name="calendar.searchterms" /></label>
-					<roundcube:object name="plugin.resources_searchform" id="resourcesearchbox" />
-					<a id="resourcesearchmenulink" class="iconbutton searchoptions"> </a>
-					<roundcube:button type="link" command="reset-resource-search" id="resourcesearchreset" class="iconbutton reset" title="resetsearch" label="resetsearch" />
-				</div>
-			</div>
-			<div class="scroller">
-				<roundcube:object name="plugin.resources_list" id="resources-list" class="listing treelist" />
-			</div>
+			<roundcube:object name="plugin.resources_searchform" id="resourcesearchbox"
+				wrapper="searchbar toolbar" ariatag="h4" buttontitle="calendar.findresources"
+				label="resourcesearchform" label-domain="calendar" />
 		</div>
-		<div class="resource-content">
-			<div id="resource-info" class="uibox contentbox" role="region" aria-labelledby="aria-label-resourcedetails">
-				<h2 class="boxtitle" id="aria-label-resourcedetails"><roundcube:label name="calendar.resourcedetails" /></h2>
-				<div class="scroller">
-					<roundcube:object name="plugin.resource_info" id="resource-details" class="propform" aria-live="polite" aria-relevant="text" aria-atomic="true" />
+		<div class="scroller">
+			<roundcube:object name="plugin.resources_list" id="resources-list" class="listing treelist" />
+		</div>
+	</div>
+	<div class="resource-content selection-content">
+		<div class="header" data-hidden="normal,big">
+			<a class="button icon back" href="#back" onclick="$('#eventresourcesdialog .resource-content').hide(); $('#eventresourcesdialog .resource-selection').show()">
+				<span class="inner"><roundcube:label name="back" /></span>
+			</a>
+			<span class="header-title"><roundcube:label name="calendar.resourceprops" /></span>
+		</div>
+		<ul class="nav nav-tabs" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" href="#resource-availability" data-toggle="tab" role="tab">
+					<roundcube:label name="calendar.resourceavailability" />
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#resource-info" data-toggle="tab" role="tab">
+					<roundcube:label name="calendar.resourcedetails" />
+				</a>
+			</li>
+		</ul>
+		<div class="tab-content">
+			<div id="resource-availability" class="tab-pane active" role="tabpanel" aria-labelledby="aria-label-resourceavailability">
+				<h3 class="voice" id="aria-label-resourceavailability"><roundcube:label name="calendar.resourceavailability" /></h3>
+				<roundcube:object name="plugin.resource_calendar" id="resource-freebusy-calendar" class="raw-tables" />
+				<div class="slot-nav">
+					<roundcube:button name="resource-cal-prev" id="resource-calendar-prev" type="link"
+						class="icon prevpage" title="calendar.prevslot" label="calendar.prevweek" />
+					<roundcube:button name="resource-cal-next" id="resource-calendar-next" type="link"
+						class="icon nextpage" title="calendar.nextslot" label="calendar.nextweek" />
 				</div>
 			</div>
-			<div id="resource-availability" class="uibox contentbox" role="region" aria-labelledby="aria-label-resourceavailability">
-				<h2 class="boxtitle" id="aria-label-resourceavailability"><roundcube:label name="calendar.resourceavailability" /></h2>
-				<roundcube:object name="plugin.resource_calendar" id="resource-freebusy-calendar" />
-				<div class="boxpagenav">
-					<roundcube:button name="resource-cal-prev" id="resource-calendar-prev" type="link" class="icon prevpage" title="calendar.prevslot" label="calendar.prevweek" />
-					<roundcube:button name="resource-cal-next" id="resource-calendar-next" type="link" class="icon nextpage" title="calendar.nextslot" label="calendar.nextweek" />
-				</div>
+			<div id="resource-info" class="tab-pane" role="tabpanel" aria-labelledby="aria-label-resourcedetails">
+				<h3 class="voice" id="aria-label-resourcedetails"><roundcube:label name="calendar.resourcedetails" /></h3>
+				<roundcube:object name="plugin.resource_info" id="resource-details" class="propform text-only"
+					aria-live="polite" aria-relevant="text" aria-atomic="true" />
 			</div>
 		</div>
 	</div>
@@ -222,17 +228,17 @@
 <div id="eventfreebusy" class="popupmenu calendar-scheduler formcontent">
 	<roundcube:object name="plugin.attendees_freebusy_table" id="attendees-freebusy-table"
 		class="schedule-table" data-h-margin="-1" data-v-margin="1" />
-	<div class="schedule-nav">
-		<button id="schedule-freebusy-prev" title="<roundcube:label name='previouspage' />">&#9668;</button>
-		<button id="schedule-freebusy-next" title="<roundcube:label name='nextpage' />">&#9658;</button>
-	</div>
-	<div class="slot-nav">
-		<div class="schedule-find-buttons">
+	<div class="nav">
+		<div class="schedule-buttons">
 			<button id="schedule-find-prev" class="btn btn-secondary prev-slot"><roundcube:label name="calendar.prevslot" /></button>
 			<button id="schedule-find-next" class="btn btn-secondary next-slot"><roundcube:label name="calendar.nextslot" /></button>
 		</div>
 		<div class="schedule-options">
 			<label><input type="checkbox" id="schedule-freebusy-workinghours" value="1" class="pretty-checkbox" /><roundcube:label name="calendar.onlyworkinghours" /></label>
+		</div>
+		<div class="schedule-nav">
+			<button id="schedule-freebusy-prev" title="<roundcube:label name='previouspage' />">&#9668;</button>
+			<button id="schedule-freebusy-next" title="<roundcube:label name='nextpage' />">&#9658;</button>
 		</div>
 	</div>
 	<div class="schedule-range">

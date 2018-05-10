@@ -8,18 +8,8 @@
 	<div class="header">
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span id="aria-label-notebooks" class="header-title"><roundcube:label name="kolab_notes.lists" /></span>
-		<div id="notebook-search" class="searchbar toolbar" role="search" aria-labelledby="aria-label-notebooksearchform">
-			<h2 id="aria-label-label-notebooksearchform" class="voice"><roundcube:label name="kolab_notes.arialabelfoldersearchform" /></h2>
-			<form name="foldersearchform" onsubmit="return false">
-				<input id="notebooksearch" type="text" name="q" placeholder="<roundcube:label name="searchplaceholder" />" />
-				<a class="button reset" href="#" onclick="return rcmail.command(\'reset-listsearch\',null,this,event)" title="<roundcube:label name="resetsearch" />" tabindex="0">
-					<span class="inner"><roundcube:label name="resetsearch" /></span>
-				</a>
-			</form>
-			<a class="button search" href="#" title="<roundcube:label name="kolab_notes.findnotebooks" />" tabindex="0">
-				<span class="inner"><roundcube:label name="kolab_notes.findnotebooks" /></span>
-			</a>
-		</div>
+		<roundcube:object name="libkolab.folder_search_form" id="notebooksearch" wrapper="searchbar toolbar"
+			ariatag="h2" label="foldersearchform" label-domain="kolab_notes" buttontitle="findnotebooks" />
 	</div>
 	<div id="notebooks-content" class="scroller">
 		<roundcube:object name="plugin.notebooks" id="notebooks" class="listing treelist iconized" />

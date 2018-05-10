@@ -234,7 +234,7 @@ class kolab_invitation_calendar
     $events = array();
     foreach (kolab_storage::list_folders('', '*', 'event', null) as $foldername) {
       $cal = $this->_get_calendar($foldername);
-      if ($cal->get_namespace() == 'other')
+      if (!$cal || $cal->get_namespace() == 'other')
         continue;
 
       foreach ($cal->list_events($start, $end, $search, 1, $query, array(array($subquery, 'OR'))) as $event) {
@@ -288,7 +288,7 @@ class kolab_invitation_calendar
     $count = 0;
     foreach (kolab_storage::list_folders('', '*', 'event', null) as $foldername) {
       $cal = $this->_get_calendar($foldername);
-      if ($cal->get_namespace() == 'other')
+      if (!$cal || $cal->get_namespace() == 'other')
         continue;
 
       $count += $cal->count_events($start, $end, $filter);

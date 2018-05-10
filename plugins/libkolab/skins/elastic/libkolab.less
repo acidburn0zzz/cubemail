@@ -21,8 +21,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import (reference) "../../../../skins/elastic/styles/variables";
-@import (reference) "../../../../skins/elastic/styles/mixins";
+@skin: "elastic";
+@skin-path: "../../../../skins/@{skin}";
+
+@import (reference) "@{skin-path}/styles/variables";
+@import (reference) "@{skin-path}/styles/mixins";
 
 
 /*** Common folders list extensions ***/
@@ -366,6 +369,10 @@ button.btn.print:before {
     content: @fa-var-print;
 }
 
+.formcontent.text-only .faded * {
+    color: @color-black-shade-text;
+}
+
 .print-config {
     position: fixed;
     top: 0;
@@ -408,6 +415,134 @@ button.btn.print:before {
     }
 }
 
+.selection-dialog {
+    .ui-dialog-content {
+        display: flex !important;
+        overflow: hidden !important;
+    }
+
+    .selection-list {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid @color-layout-border;
+        justify-content: center;
+    }
+
+    .ui-dialog-content .popupmenu {
+        display: flex !important; // overwrites .popupmenu style
+        width: 100%;
+    }
+
+    .scroller {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .header {
+        border-bottom: 1px solid @color-layout-border;
+        display: flex;
+        background-color: @color-layout-header-background;
+        font-size: @layout-header-font-size;
+        font-weight: bold;
+        line-height: @layout-header-height;
+        height: @layout-header-height;
+        min-height: @layout-header-height;
+        padding: 0 .25em;
+        position: relative; // for absolute positioning of searchbar
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .header-title {
+        width: 100%;
+        text-align: center;
+        margin: 0 2em;
+    }
+
+    .selection-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tab-content {
+        margin-top: 1rem;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .form-addon {
+        margin: 0;
+        padding: .5rem 0;
+        width: 100%;
+        background-color: @color-black-shade-bg;
+        border-top: 1px solid @color-layout-border;
+    }
+
+    // overwrite .popupmenu colors
+    .listing {
+        ul {
+            background-color: @color-layout-list-background;
+        }
+
+        li.selected {
+            color: @color-font;
+        }
+    }
+
+    @media screen and (max-width: @screen-width-small) {
+        .ui-dialog-content {
+            padding: 0 !important;
+        }
+
+        .selection-list {
+            border: 0;
+        }
+
+        .ui-dialog-titlebar {
+            display: none;
+            margin: 0;
+        }
+
+        .selection-content {
+            .header-title {
+                margin-left: 0;
+            }
+        }
+
+        .header {
+            a:before {
+                font-size: 1.75rem;
+            }
+        }
+    }
+}
+
+// Use icons-only on taskmenu with small screen height
+@media screen and (max-height: 640px) and (min-width: (@screen-width-small + 1px)) {
+    body > #layout > .menu {
+        width: 2.5rem;
+    }
+
+    #taskmenu {
+        a {
+            height: auto;
+            width: 100%;
+
+            &:before {
+                height: 2.1rem;
+                width: 100%;
+            }
+        }
+
+        .special-buttons {
+            width: 2.5rem;
+        }
+
+        span.inner {
+            display: none;
+        }
+    }
+}
 
 @import "include/calendar";
 @import "include/kolab_activesync";

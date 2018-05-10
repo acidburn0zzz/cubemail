@@ -222,6 +222,7 @@ $labels['addresource'] = 'Book resource';
 $labels['findresources'] = 'Find resources';
 $labels['resourcedetails'] = 'Details';
 $labels['resourceavailability'] = 'Availability';
+$labels['resourceprops'] = 'Resource properties';
 $labels['resourceowner'] = 'Owner';
 $labels['resourceadded'] = 'The resource was added to your event';
 
@@ -254,6 +255,7 @@ $labels['nowritecalendarfound'] = 'No calendar found to save the event';
 $labels['importedsuccessfully'] = 'The event was successfully added to \'$calendar\'';
 $labels['updatedsuccessfully'] = 'The event was successfully updated in \'$calendar\'';
 $labels['attendeupdateesuccess'] = 'Successfully updated the participant\'s status';
+$labels['errorunknownattendee'] = 'Failed to find the participant information.';
 $labels['itipsendsuccess'] = 'Invitation sent to participants.';
 $labels['itipresponseerror'] = 'Failed to send the response to this event invitation';
 $labels['itipinvalidrequest'] = 'This invitation is no longer valid';

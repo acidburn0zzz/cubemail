@@ -4,7 +4,7 @@
     "description": "Better HTML to Text converter that uses text-based browser (lynx) for this task",
     "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
-    "version": "3.3.0",
+    "version": "3.4.0",
     "authors": [
         {
             "name": "Aleksander Machniak",

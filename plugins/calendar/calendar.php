@@ -3006,13 +3006,13 @@ class calendar extends rcube_plugin
          $calendar = $this->get_default_calendar($event['sensitivity'], $calendars);
 
       $metadata = array(
-        'uid' => $event['uid'],
+        'uid'       => $event['uid'],
         '_instance' => $event['_instance'],
-        'changed' => is_object($event['changed']) ? $event['changed']->format('U') : 0,
-        'sequence' => intval($event['sequence']),
-        'fallback' => strtoupper($status),
-        'method' => $event['_method'],
-        'task' => 'calendar',
+        'changed'   => is_object($event['changed']) ? $event['changed']->format('U') : 0,
+        'sequence'  => intval($event['sequence']),
+        'fallback'  => strtoupper($status),
+        'method'    => $event['_method'],
+        'task'      => 'calendar',
       );
 
       // update my attendee status according to submitted method
@@ -3039,9 +3039,9 @@ class calendar extends rcube_plugin
         if (!$reply_sender) {
           $sender_identity = $this->rc->user->list_emails(true);
           $event['attendees'][] = array(
-            'name' => $sender_identity['name'],
-            'email' => $sender_identity['email'],
-            'role' => 'OPT-PARTICIPANT',
+            'name'   => $sender_identity['name'],
+            'email'  => $sender_identity['email'],
+            'role'   => 'OPT-PARTICIPANT',
             'status' => strtoupper($status),
           );
           $metadata['attendee'] = $sender_identity['email'];
@@ -3067,23 +3067,27 @@ class calendar extends rcube_plugin
           // only update attendee status
           if ($event['_method'] == 'REPLY') {
             // try to identify the attendee using the email sender address
-            $existing_attendee = -1;
+            $existing_attendee        = -1;
             $existing_attendee_emails = array();
+
             foreach ($existing['attendees'] as $i => $attendee) {
               $existing_attendee_emails[] = $attendee['email'];
               if ($this->itip->compare_email($attendee['email'], $event['_sender'], $event['_sender_utf'])) {
                 $existing_attendee = $i;
               }
             }
-            $event_attendee = null;
+
+            $event_attendee   = null;
             $update_attendees = array();
+
             foreach ($event['attendees'] as $attendee) {
               if ($this->itip->compare_email($attendee['email'], $event['_sender'], $event['_sender_utf'])) {
-                $event_attendee = $attendee;
-                $update_attendees[] = $attendee;
+                $event_attendee       = $attendee;
+                $update_attendees[]   = $attendee;
                 $metadata['fallback'] = $attendee['status'];
                 $metadata['attendee'] = $attendee['email'];
-                $metadata['rsvp'] = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
+                $metadata['rsvp']     = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
+
                 if ($attendee['status'] != 'DELEGATED') {
                   break;
                 }
@@ -3109,6 +3113,23 @@ class calendar extends rcube_plugin
               }
             }
 
+            // Accept sender as a new participant (different email in From: and the iTip)
+            // Use ATTENDEE entry from the iTip with replaced email address
+            if (!$event_attendee) {
+              // remove the organizer
+              $itip_attendees = array_filter($event['attendees'], function($item) { return $item['role'] != 'ORGANIZER'; });
+
+              // there must be only one attendee
+              if (is_array($itip_attendees) && count($itip_attendees) == 1) {
+                $event_attendee          = $itip_attendees[key($itip_attendees)];
+                $event_attendee['email'] = $event['_sender'];
+                $update_attendees[]      = $event_attendee;
+                $metadata['fallback']    = $event_attendee['status'];
+                $metadata['attendee']    = $event_attendee['email'];
+                $metadata['rsvp']        = $event_attendee['rsvp'] || $event_attendee['role'] != 'NON-PARTICIPANT';
+              }
+            }
+
             // found matching attendee entry in both existing and new events
             if ($existing_attendee >= 0 && $event_attendee) {
               $existing['attendees'][$existing_attendee] = $event_attendee;
@@ -3118,6 +3139,9 @@ class calendar extends rcube_plugin
             else if (($event['sequence'] >= $existing['sequence'] || $event['changed'] >= $existing['changed']) && $event_attendee) {
               $existing['attendees'][] = $event_attendee;
               $success = $this->driver->update_attendees($existing, $update_attendees);
+            }
+            else if (!$event_attendee) {
+              $error_msg = $this->gettext('errorunknownattendee');
             }
             else {
               $error_msg = $this->gettext('newerversionexists');

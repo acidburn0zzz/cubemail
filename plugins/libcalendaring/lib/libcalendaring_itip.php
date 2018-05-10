@@ -613,6 +613,20 @@ class libcalendaring_itip
                 }
             }
 
+            // It may happen that sender's address is different in From: and the attached iTip
+            // In such case use the ATTENDEE entry with the address from From: header
+            if (empty($metadata['attendee']) && !empty($event['_sender'])) {
+                // remove the organizer
+                $itip_attendees = array_filter($event['attendees'], function($item) { return $item['role'] != 'ORGANIZER'; });
+
+                // there must be only one attendee
+                if (is_array($itip_attendees) && count($itip_attendees) == 1) {
+                    $event_attendee       = $itip_attendees[key($itip_attendees)];
+                    $metadata['attendee'] = $event['_sender'];
+                    $rsvp_status          = strtoupper($event_attendee['status']);
+                }
+            }
+
             // 1. update the attendee status on our copy
             $update_button = html::tag('input', array(
                 'type' => 'button',

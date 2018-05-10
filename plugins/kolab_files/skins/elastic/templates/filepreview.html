@@ -8,8 +8,7 @@
 		<span class="header-title" id="aria-label-contentinfo"><roundcube:label name="properties" /></span>
 	</div>
 	<div class="scroller">
-		<roundcube:object name="plugin.attachmentcontrols" class="listing props-table" role="contentinfo"
-			aria-labelledby="aria-label-contentinfo" />
+		<roundcube:object name="fileinfobox" id="fileinfo" class="listing props-table" />
 	</div>
 </div>
 
@@ -20,11 +19,22 @@
 			<span class="inner"><roundcube:label name="properties"></span>
 		</a>
 		<span class="header-title constant"><roundcube:var name="env:filename" /></span>
-		<div id="messagetoolbar" class="toolbar">
-			<roundcube:button command="download-attachment" type="link" label="download" title="download"
-				class="button download disabled" classAct="button download" innerclass="inner" />
-			<roundcube:button command="print-attachment" type="link" label="print" title="print"
-				class="button print disabled" classAct="button print" innerclass="inner" data-hidden="small" />
+		<div id="filetoolbar" class="toolbar">
+			<roundcube:button command="files-get" type="link"
+				class="button download disabled" classAct="button download"
+				label="kolab_files.get" title="kolab_files.getfile" innerClass="inner" />
+			<roundcube:button command="files-edit" type="link"
+				class="button edit disabled" classAct="button edit"
+				label="kolab_files.edit" title="kolab_files.editfile" innerClass="inner" data-hidden="small" />
+			<roundcube:button command="files-save" type="link"
+				class="button save disabled" classAct="button save"
+				label="kolab_files.save" title="kolab_files.savefile" innerClass="inner" style="display:none" data-hidden="small" />
+			<roundcube:button command="files-delete" type="link"
+				class="button delete disabled" classAct="button delete"
+				label="delete" title="kolab_files.deletefile" innerClass="inner" />
+			<roundcube:button command="files-print" type="link"
+				class="button print disabled" classAct="button print"
+				label="print" title="kolab_files.printfile" innerClass="inner" data-hidden="small" />
 			<roundcube:if condition="stripos(env:mimetype, 'image/') === 0" />
 				<roundcube:button command="image-scale" type="link" prop="+" data-hidden="small"
 					class="button zoomin disabled" classAct="button zoomin"
@@ -38,13 +48,10 @@
 			<roundcube:endif />
 		</div>
 	</div>
-	<h2 id="aria-label-messagepart" class="voice"><roundcube:label name="arialabelattachmentpreview" /></h2>
-	<div class="iframe-wrapper">
-		<roundcube:object name="plugin.attachmentframe" id="attachmentframe" title="arialabelattachmentpreview"
-			role="main" aria-labelledby="aria-label-messagepart" />
+	<h2 id="aria-label-filecontent" class="voice"><roundcube:label name="kolab_files.arialabelfilecontent" /></h2>
+	<div class="iframe-wrapper file-type-<roundcube:exp expression="strtolower(preg_replace('|/.*$|', '', env:mimetype))" />">
+		<roundcube:object name="filepreviewframe" id="fileframe" role="main" aria-labelledby="aria-label-filecontent" />
 	</div>
-</div>
-
 <roundcube:if condition="stripos(env:mimetype, 'image/') === 0" />
 	<div id="image-tools" class="image-tools" data-hidden="big">
 		<h3 id="aria-label-imagetools" class="voice"><roundcube:label name="arialabelimagetools" /></h3>
@@ -65,5 +72,18 @@
 		</a>
 	</div>
 <roundcube:endif />
+</div>
+
+<div id="files-file-create-dialog" class="popupmenu" role="dialog" aria-labelledby="aria-label-filecreateform" aria-hidden="true">
+	<h3 id="aria-label-filecreateform" class="voice"><roundcube:label name="kolab_files.arialabelfilecreateform" /></h3>
+	<roundcube:object name="file-create-form" />
+</div>
+
+<div id="files-file-edit-dialog" class="popupmenu" role="dialog" aria-labelledby="aria-label-fileeditdialog" aria-hidden="true">
+	<h3 id="aria-label-fileeditdialog" class="voice"><roundcube:label name="kolab_files.arialabelfileeditdialog" /></h3>
+	<roundcube:object name="file-edit-dialog">
+</div>
+
+<script src="plugins/kolab_files/skins/elastic/ui.js" type="text/javascript"></script>
 
 <roundcube:include file="includes/footer.html" />

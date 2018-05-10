@@ -20,10 +20,13 @@ $labels['fromcloud'] = 'From cloud...';
 $labels['selectfiles'] = 'Select file(s) to attach...';
 $labels['attachsel'] = 'Attach selected';
 $labels['foldercreate'] = 'Create folder';
+$labels['addfolder'] = 'Add folder';
 $labels['folderedit'] = 'Edit folder';
 $labels['foldermount'] = 'Add storage';
 $labels['folderdelete'] = 'Delete folder';
 $labels['folderoptions'] = 'Folder options';
+$labels['findfolders'] = 'Find folders';
+$labels['findfiles'] = 'Find files';
 
 $labels['folderinside'] = 'Insert inside';
 $labels['foldername'] = 'Folder name';
@@ -171,11 +174,13 @@ $labels['arialabelfileprops'] = 'File properties';
 $labels['arialabelfilecontent'] = 'File content';
 $labels['arialabelfileeditdialog'] = 'File editing dialog';
 $labels['arialabelsessionslist'] = 'List of document editing sessions';
+$labels['arialabelsessionslistoptions'] = 'Sessions list options';
 $labels['arialabelfilerenameform'] = 'File rename form';
 $labels['arialabelfilesessiondialog'] = 'Document editing session';
 $labels['arialabelcollaborators'] = 'List of document editors';
 $labels['arialabelexportoptions'] = 'Export options';
 $labels['arialabeldoceditorsdialog'] = 'Document editors (invitations)';
+$labels['arialabelmorefileactions'] = 'More file actions';
 
 $labels['type.plain'] = 'Plain Text Document';
 $labels['type.vndoasisopendocumenttext'] = 'Text Document (ODF)';

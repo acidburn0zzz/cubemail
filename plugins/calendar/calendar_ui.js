@@ -770,7 +770,7 @@ function rcube_calendar_ui(settings)
 
           // basic input validatetion
           if (start.getTime() > end.getTime()) {
-            alert(rcmail.gettext('invalideventdates', 'calendar'));
+            rcmail.alert_dialog(rcmail.gettext('invalideventdates', 'calendar'));
             return false;
           }
 
@@ -1757,7 +1757,7 @@ function rcube_calendar_ui(settings)
           break;
         }
       }
-      
+
       // update event date/time display
       if (success) {
         update_freebusy_dates(event.start, event.end);
@@ -1779,7 +1779,7 @@ function rcube_calendar_ui(settings)
         rcmail.display_message(rcmail.gettext('suggestedslot', 'calendar') + ': ' + me.event_date_text(event, true), 'voice');
       }
       else {
-        alert(rcmail.gettext('noslotfound','calendar'));
+        rcmail.alert_dialog(rcmail.gettext('noslotfound','calendar'));
       }
     };
 
@@ -1826,7 +1826,7 @@ function rcube_calendar_ui(settings)
           success = true;
         }
         else {
-          alert(rcmail.gettext('noemailwarning'));
+          rcmail.alert_dialog(rcmail.gettext('noemailwarning'));
         }
       }
       
@@ -2004,7 +2004,7 @@ function rcube_calendar_ui(settings)
         {
           text: rcmail.gettext('addresource', 'calendar'),
           'class': 'mainaction save',
-          click: function() { rcmail.command('add-resource'); }
+          click: function() { rcmail.command('add-resource'); $dialog.dialog("close"); }
         },
         {
           text: rcmail.gettext('close'),
@@ -2013,23 +2013,33 @@ function rcube_calendar_ui(settings)
         }
       ];
 
+      var resize = function() {
+        var container = $(rcmail.gui_objects.resourceinfocalendar);
+        container.fullCalendar('option', 'height', container.height() + 1);
+      };
+
       // open jquery UI dialog
       $dialog.dialog({
         modal: true,
-        resizable: true,
+        resizable: false, // prevents from Availability tab reflow bugs on resize
         closeOnEscape: true,
         title: rcmail.gettext('findresources', 'calendar'),
+        classes: {'ui-dialog': 'selection-dialog resources-dialog'},
         open: function() {
           rcmail.ksearch_blur();
           $dialog.attr('aria-hidden', 'false');
+
+          // for Elastic
+          if ($('html.layout-small,html.layout-phone').length) {
+            $('#eventresourcesdialog .resource-selection').css('display', 'flex');
+            $('#eventresourcesdialog .resource-content').css('display', 'none');
+          }
+          setTimeout(resize, 50);
         },
         close: function() {
           $dialog.dialog('destroy').attr('aria-hidden', 'true').hide();
         },
-        resize: function(e) {
-          var container = $(rcmail.gui_objects.resourceinfocalendar);
-          container.fullCalendar('option', 'height', container.height() + 4);
-        },
+        resize: resize,
         buttons: buttons,
         width: 900,
         height: 500
@@ -2055,6 +2065,14 @@ function rcube_calendar_ui(settings)
           if (resources_data[node.id]) {
             resource_showinfo(resources_data[node.id]);
             rcmail.enable_command('add-resource', me.selected_event && $("#eventedit").is(':visible') ? true : false);
+
+            // on elastic mobile display resource info box
+            if ($('html.layout-small,html.layout-phone').length) {
+              $('#eventresourcesdialog .resource-selection').css('display', 'none');
+              $('#eventresourcesdialog .resource-content').css('display', 'flex');
+              $(window).resize();
+              resize();
+            }
           }
           else {
             rcmail.enable_command('add-resource', false);
@@ -2130,9 +2148,9 @@ function rcube_calendar_ui(settings)
         for (var k in attribs) {
           if (typeof attribs[k] == 'undefined')
             continue;
-          table.append($('<tr>').addClass(k)
-            .append('<td class="title">' + Q(ucfirst(rcmail.get_label(k, 'calendar'))) + '</td>')
-            .append('<td class="value">' + text2html(render_attrib(attribs[k])) + '</td>')
+          table.append($('<tr>').addClass(k + ' form-group row')
+            .append('<td class="title col-sm-4"><label class="col-form-label">' + Q(ucfirst(rcmail.get_label(k, 'calendar'))) + '</label></td>')
+            .append('<td class="value col-sm-8 form-control-plaintext">' + text2html(render_attrib(attribs[k])) + '</td>')
           );
         }
 
@@ -2388,7 +2406,7 @@ function rcube_calendar_ui(settings)
         }
         else {
           me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
-          rcmail.http_post('event', { action:'rsvp', e:submit_data, status:response, attendees:attendees, noreply:noreply });
+          rcmail.http_post('calendar/event', { action:'rsvp', e:submit_data, status:response, attendees:attendees, noreply:noreply });
         }
 
         event_show_dialog(me.selected_event);
@@ -4050,10 +4068,15 @@ function rcube_calendar_ui(settings)
           input.val('');
         }
       });
-      
+
       $('#edit-resource-find').click(function(){
         event_resources_dialog();
         return false;
+      });
+
+      $('#resource-content a.nav-link').on('click', function() {
+        e.preventDefault();
+        $(this).tab('show');
       });
 
       // handle change of "send invitations" checkbox
