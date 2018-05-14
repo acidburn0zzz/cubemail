@@ -314,7 +314,6 @@ class kolab_calendar extends kolab_storage_folder_api
       if ($event['start'] <= $end && $event['end'] >= $start) {
         unset($event['_attendees']);
         $add = true;
-
         // skip the first instance of a recurring event if listed in exdate
         if ($virtual && !empty($event['recurrence']['EXDATE'])) {
           $event_date = $event['start']->format('Ymd');
@@ -589,10 +588,11 @@ class kolab_calendar extends kolab_storage_folder_api
   /**
    * Create instances of a recurring event
    *
-   * @param array  Hash array with event properties
-   * @param object DateTime Start date of the recurrence window
-   * @param object DateTime End date of the recurrence window
-   * @param string ID of a specific recurring event instance
+   * @param array    $event    Hash array with event properties
+   * @param DateTime $start    Start date of the recurrence window
+   * @param DateTime $end      End date of the recurrence window
+   * @param string   $event_id ID of a specific recurring event instance
+   *
    * @return array List of recurring event instances
    */
   public function get_recurring_events($event, $start, $end = null, $event_id = null)
@@ -602,6 +602,7 @@ class kolab_calendar extends kolab_storage_folder_api
       $rec = $this->storage->get_object($event['id']);
       $object = $rec['_formatobj'];
     }
+
     if (!is_object($object))
       return array();
 
@@ -651,6 +652,16 @@ class kolab_calendar extends kolab_storage_folder_api
     // found the specifically requested instance, exiting...
     if ($event_id && !empty($this->events[$event_id])) {
       return array($this->events[$event_id]);
+    }
+
+    // Check first occurrence, it might have been moved
+    if ($first = $exdata[$event['start']->format('Ymd')]) {
+      // return it only if not already in the result, but in the requested period
+      if (!($event['start'] <= $end && $event['end'] >= $start)
+        && ($first['start'] <= $end && $first['end'] >= $start)
+      ) {
+          $events[] = $first;
+      }
     }
 
     // use libkolab to compute recurring events
