@@ -1868,7 +1868,7 @@ function rcube_calendar_ui(settings)
       if (organizer && !readonly)
         dispname = rcmail.env['identities-selector'];
 
-      var select = '<select class="edit-attendee-role form-control"'
+      var select = '<select class="edit-attendee-role custom-select"'
         + (organizer || readonly ? ' disabled="true"' : '')
         + ' aria-label="' + rcmail.gettext('role','calendar') + '">';
       for (var r in opts)
@@ -1939,13 +1939,15 @@ function rcube_calendar_ui(settings)
       }
 
       // Make Elastic checkboxes pretty
-      if (window.UI && UI.pretty_checkbox)
+      if (window.UI && UI.pretty_checkbox) {
         $(tr).find('input[type=checkbox]').each(function() { UI.pretty_checkbox(this); });
+        $(tr).find('select').each(function() { UI.pretty_select(this); });
+      }
 
       event_attendees.push(data);
       return true;
     };
-    
+
     // iterate over all attendees and update their free-busy status display
     var update_freebusy_status = function(event)
     {
@@ -3902,14 +3904,14 @@ function rcube_calendar_ui(settings)
           ignore_click = true;
           var d = minical.datepicker('getDate'); //parse_datetime('0:0', dateText);
           fc.fullCalendar('gotoDate', d).fullCalendar('select', d, d, true);
-          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
+          setTimeout(function() { $('select', minical).addClass('custom-select'); }, 25);
         },
         onChangeMonthYear: function(year, month, inst) {
           minical.data('year', year).data('month', month);
-          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
+          setTimeout(function() { $('select', minical).addClass('custom-select'); }, 25);
         },
         beforeShowDay: function(date) {
-          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
+          setTimeout(function() { $('select', minical).addClass('custom-select'); }, 25);
           var view = fc.fullCalendar('getView');
           var active = view.visStart && date.getTime() >= view.visStart.getTime() && date.getTime() < view.visEnd.getTime();
           return [ true, (active ? 'ui-datepicker-activerange ui-datepicker-active-' + view.name : ''), ''];
@@ -3937,7 +3939,7 @@ function rcube_calendar_ui(settings)
               date = new Date(base_date.getTime() - day_off * DAY_MS + wdiff * 7 * DAY_MS);
             fc.fullCalendar('gotoDate', date).fullCalendar('setDate', date).fullCalendar('changeView', 'agendaWeek');
             minical.datepicker('setDate', date);
-            setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
+            setTimeout(function() { $('select', minical).addClass('custom-select'); }, 25);
           }
         });
 

@@ -322,7 +322,7 @@ class calendar extends rcube_plugin
     $this->rc->output->set_env('identities-selector', $this->ui->identity_select(array(
         'id'         => 'edit-identities-list',
         'aria-label' => $this->gettext('roleorganizer'),
-        'class'      => 'form-control',
+        'class'      => 'custom-select',
     )));
 
     $view = rcube_utils::get_input_value('view', rcube_utils::INPUT_GPC);
@@ -2621,7 +2621,7 @@ class calendar extends rcube_plugin
       && ($response['action'] == 'rsvp' || $response['action'] == 'import')
     ) {
       $calendars = $this->driver->list_calendars($mode);
-      $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'itip-saveto', 'is_escaped' => true, 'class' => 'form-control'));
+      $calendar_select = new html_select(array('name' => 'calendar', 'id' => 'itip-saveto', 'is_escaped' => true, 'class' => 'custom-select'));
       $calendar_select->add('--', '');
       $numcals = 0;
       foreach ($calendars as $calendar) {
