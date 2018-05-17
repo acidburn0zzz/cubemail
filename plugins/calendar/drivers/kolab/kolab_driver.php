@@ -982,6 +982,15 @@ class kolab_driver extends calendar_driver
       // force 'current' mode for single occurrences stored as exception
       else if (!$old['recurrence'] && !$old['recurrence_id'] && $old['isexception'])
         $savemode = 'current';
+
+      // Stick to the master timezone for all occurrences (Bifrost#T104637)
+      $master_tz = $master['start']->getTimezone();
+      $event_tz  = $event['start']->getTimezone();
+
+      if ($master_tz->getName() != $event_tz->getName()) {
+        $event['start']->setTimezone($master_tz);
+        $event['end']->setTimezone($master_tz);
+      }
     }
 
     // check if update affects scheduling and update attendee status accordingly
