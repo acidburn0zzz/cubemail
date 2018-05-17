@@ -1764,6 +1764,16 @@ body.task-calendar {
     }
 }
 
+.searchbar a.button.date {
+    @media screen and (min-width: (@screen-width-small + 1px)) {
+        display: none;
+    }
+
+    &:before {
+        line-height: 1.25;
+    }
+}
+
 @media screen and (max-width: @screen-width-small) {
     .fc {
         .fc-header-left {
@@ -1917,8 +1927,4 @@ body.task-calendar {
         font-weight: normal;
         color: @color-black-shade-text;
     }
-}
-
-.searchbar a.button.date:before {
-    line-height: 1.25;
 }
