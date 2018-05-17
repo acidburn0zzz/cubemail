@@ -4315,6 +4315,8 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     $('#timezone-display').appendTo($('.fc-header-center')).removeClass('hidden');
     $('#agendaoptions').detach().insertAfter('table.fc-header');
 
+    $('.content-frame-navigation a.button.date').appendTo('.content > .searchbar');
+
     // Mobile header title
     if (window.MutationObserver) {
       var title = $('.fc-header-title'),
