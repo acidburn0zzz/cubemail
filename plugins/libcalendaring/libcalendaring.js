@@ -408,6 +408,11 @@ function rcube_libcalendaring(settings)
             $(prefix+' label:first').attr('for', dom_id);
         }
 
+        // Elastic
+        if (window.UI && UI.pretty_select) {
+          $(prefix + ' select').each(function() { UI.pretty_select(this); });
+        }
+
         if (index)
             return;
 
@@ -438,13 +443,14 @@ function rcube_libcalendaring(settings)
         var i, alarm, domnode, val, offset;
         for (i=0; i < valarms.length; i++) {
           alarm = valarms[i];
+
           if (!alarm.action)
               alarm.action = 'DISPLAY';
 
           domnode = $(prefix + ' .edit-alarm-item').eq(0);
 
           if (i > 0) {
-            domnode = domnode.clone(false).removeClass('first').appendTo(prefix);
+            domnode = domnode.clone(false).removeClass('first').insertAfter(domnode);
             this.init_alarms_edit(prefix + ' .edit-alarm-item:eq(' + i + ')', i);
           }
 
