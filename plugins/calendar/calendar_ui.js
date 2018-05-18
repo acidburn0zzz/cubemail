@@ -3894,6 +3894,13 @@ function rcube_calendar_ui(settings)
     var minical;
     var init_calendar_ui = function()
     {
+      var pretty_select = function(elem) {
+        // for Elastic
+        if (window.UI && UI.pretty_select) {
+          $(elem).addClass('custom-select').each(function() { UI.pretty_select(this); });
+        }
+      };
+
       // initialize small calendar widget using jQuery UI datepicker
       minical = $('#datepicker').datepicker($.extend(datepicker_settings, {
         inline: true,
@@ -3904,14 +3911,14 @@ function rcube_calendar_ui(settings)
           ignore_click = true;
           var d = minical.datepicker('getDate'); //parse_datetime('0:0', dateText);
           fc.fullCalendar('gotoDate', d).fullCalendar('select', d, d, true);
-          setTimeout(function() { $('select', minical).addClass('custom-select'); }, 25);
+          setTimeout(function() { pretty_select($('select', minical)); }, 25);
         },
         onChangeMonthYear: function(year, month, inst) {
           minical.data('year', year).data('month', month);
-          setTimeout(function() { $('select', minical).addClass('custom-select'); }, 25);
+          setTimeout(function() { pretty_select($('select', minical)); }, 25);
         },
         beforeShowDay: function(date) {
-          setTimeout(function() { $('select', minical).addClass('custom-select'); }, 25);
+          setTimeout(function() { pretty_select($('select', minical)); }, 25);
           var view = fc.fullCalendar('getView');
           var active = view.visStart && date.getTime() >= view.visStart.getTime() && date.getTime() < view.visEnd.getTime();
           return [ true, (active ? 'ui-datepicker-activerange ui-datepicker-active-' + view.name : ''), ''];
@@ -3939,7 +3946,7 @@ function rcube_calendar_ui(settings)
               date = new Date(base_date.getTime() - day_off * DAY_MS + wdiff * 7 * DAY_MS);
             fc.fullCalendar('gotoDate', date).fullCalendar('setDate', date).fullCalendar('changeView', 'agendaWeek');
             minical.datepicker('setDate', date);
-            setTimeout(function() { $('select', minical).addClass('custom-select'); }, 25);
+            setTimeout(function() { pretty_select($('select', minical)); }, 25);
           }
         });
 
