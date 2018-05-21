@@ -201,6 +201,7 @@ function rcube_tasklist_ui(settings)
             rcmail.enable_command('list-showurl', me.tasklists[node.id] && !!me.tasklists[node.id].caldavurl);
             me.selected_list = node.id;
             rcmail.update_state({source: node.id});
+            rcmail.triggerEvent('show-list', {title: me.tasklists[node.id].name});
         });
         tasklists_widget.addEventListener('subscribe', function(p) {
             var list;
@@ -1413,7 +1414,7 @@ function rcube_tasklist_ui(settings)
             // Elastic
             if (!$('.selected', rcmail.gui_objects.resultlist).length) {
                 $('#taskedit').parents('.watermark').removeClass('formcontainer');
-                rcmail.triggerEvent('show-list');
+                rcmail.triggerEvent('show-list', {force: true});
             }
         }
     }
