@@ -343,7 +343,7 @@ class calendar_ui
     $attrib += array('id' => 'agendaoptions');
     $attrib['style'] .= 'display:none';
 
-    $select_range = new html_select(array('name' => 'listrange', 'id' => 'agenda-listrange', 'class' => 'custom-select'));
+    $select_range = new html_select(array('name' => 'listrange', 'id' => 'agenda-listrange', 'class' => 'form-control custom-select'));
     $select_range->add(1 . ' ' . preg_replace('/\(.+\)/', '', $this->cal->lib->gettext('days')), $days);
     foreach (array(2,5,7,14,30,60,90,180,365) as $days)
       $select_range->add($days . ' ' . preg_replace('/\(|\)/', '', $this->cal->lib->gettext('days')), $days);
@@ -354,7 +354,7 @@ class calendar_ui
         . $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']))
     );
 
-    $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections', 'class' => 'custom-select'));
+    $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections', 'class' => 'form-control custom-select'));
     $select_sections->add('---', '');
     foreach (array('day' => 'libcalendaring.days', 'week' => 'libcalendaring.weeks', 'month' => 'libcalendaring.months', 'smart' => 'calendar.smartsections') as $val => $label)
       $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
@@ -592,9 +592,9 @@ class calendar_ui
 
     $html = html::div('form-section form-group row',
       html::label(array('for' => 'event-export-calendar', 'class' => 'col-sm-4 col-form-label'), $this->cal->gettext('calendar'))
-        . html::div('col-sm-8', $this->calendar_select(array('name' => 'calendar', 'id' => 'event-export-calendar', 'class' => 'custom-select'))));
+        . html::div('col-sm-8', $this->calendar_select(array('name' => 'calendar', 'id' => 'event-export-calendar', 'class' => 'form-control custom-select'))));
 
-    $select = new html_select(array('name' => 'range', 'id' => 'event-export-range', 'class' => 'custom-select'));
+    $select = new html_select(array('name' => 'range', 'id' => 'event-export-range', 'class' => 'form-control custom-select'));
     $select->add(array(
         $this->cal->gettext('all'),
         $this->cal->gettext('onemonthback'),

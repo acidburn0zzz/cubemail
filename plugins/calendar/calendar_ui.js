@@ -1868,7 +1868,7 @@ function rcube_calendar_ui(settings)
       if (organizer && !readonly)
         dispname = rcmail.env['identities-selector'];
 
-      var select = '<select class="edit-attendee-role custom-select"'
+      var select = '<select class="edit-attendee-role form-control custom-select"'
         + (organizer || readonly ? ' disabled="true"' : '')
         + ' aria-label="' + rcmail.gettext('role','calendar') + '">';
       for (var r in opts)
@@ -3897,7 +3897,7 @@ function rcube_calendar_ui(settings)
       var pretty_select = function(elem) {
         // for Elastic
         if (window.UI && UI.pretty_select) {
-          $(elem).addClass('custom-select').each(function() { UI.pretty_select(this); });
+          $(elem).addClass('form-control custom-select').each(function() { UI.pretty_select(this); });
         }
       };
 
