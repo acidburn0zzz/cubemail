@@ -4131,10 +4131,14 @@ function rcube_calendar_ui(settings)
 
       $('#eventshow .changersvp').click(function(e) {
         var d = $('#eventshow'),
-          h = -$(this).closest('.event-line').toggle().height();
+          record = $(this).closest('.event-line,.form-group'),
+          h = d.height() - record.height();
+
+        record.toggle();
         $('#event-rsvp').slideDown(300, function() {
-          h += $(this).height();
-          me.dialog_resize(d.get(0), d.height() + h, d.outerWidth() - 50);
+          me.dialog_resize(d.get(0), h + $(this).outerHeight());
+          if (this.scrollIntoView)
+            this.scrollIntoView(false);
         });
         return false;
       })

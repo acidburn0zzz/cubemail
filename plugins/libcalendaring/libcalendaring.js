@@ -1078,11 +1078,14 @@ function rcube_libcalendaring(settings)
     // resize and reposition (center) the dialog window
     this.dialog_resize = function(id, height, width)
     {
-        var win = $(window), w = win.width(), h = win.height();
+        var win = $(window), w = win.width(), h = win.height(),
+            dialog = $('.ui-dialog:visible'),
+            h_delta = dialog.find('.ui-dialog-titlebar').outerHeight() + dialog.find('.ui-dialog-buttonpane').outerHeight() + 30,
+            w_delta = 50;
 
         $(id).dialog('option', {
-            height: Math.min(h-20, height+130),
-            width: Math.min(w-20, width+50)
+            height: Math.min(h-20, height + h_delta),
+            width: Math.min(w-20, width + w_delta)
         });
     };
 }
