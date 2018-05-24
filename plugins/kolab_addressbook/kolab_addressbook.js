@@ -84,43 +84,36 @@ if (window.rcmail) {
                 });
         }
 
-        // append button to show contact audit trail
-        if (rcmail.env.action == 'show' && rcmail.env.kolab_audit_trail && rcmail.env.cid) {
-            $('<a>').attr({href: '#history', 'class': 'btn btn-secondary history contact-history', role: 'button', tabindex: 0})
-                .append($('<span class="inner">').text(rcmail.get_label('kolab_addressbook.showhistory')))
-                .click(function(e) {
-                    var rc = rcmail.is_framed() && parent.rcmail.contact_history_dialog ? parent.rcmail : rcmail;
-                    rc.contact_history_dialog();
-                    return false;
-                })
-                .appendTo($('<div>').addClass('formbuttons-secondary-kolab').appendTo('.formbuttons'));
-        }
+        rcmail.contact_list && rcmail.contact_list.addEventListener('select', function(list) {
+            var source, is_writable = true, is_traceable = false;
+
+            // delete/move commands status was set by Roundcube core,
+            // however, for Kolab addressbooks we like to check folder ACL
+            if (list.selection.length && rcmail.commands['delete']) {
+                $.each(rcmail.env.selection_sources, function() {
+                    source = rcmail.env.address_sources[this];
+                    if (source && source.kolab && source.rights.indexOf('t') < 0) {
+                        return is_writable = false;
+                    }
+                });
+
+                rcmail.enable_command('delete', 'move', is_writable);
+            }
+
+            if (list.get_single_selection()) {
+                $.each(rcmail.env.selection_sources, function() {
+                    source = rcmail.env.address_sources[this];
+                    is_traceable = source && !!source.audittrail;
+                });
+            }
+
+            rcmail.enable_command('contact-history-dialog', is_traceable);
+        });
     });
 
     rcmail.addEventListener('listupdate', function() {
         rcmail.set_book_actions();
     });
-
-    // wait until rcmail.contact_list is ready and subscribe to 'select' events
-    setTimeout(function() {
-        rcmail.contact_list && rcmail.contact_list.addEventListener('select', function(list) {
-            var source, is_writable = true;
-
-            // delete/move commands status was set by Roundcube core,
-            // however, for Kolab addressbooks we like to check folder ACL
-            if (list.selection.length && rcmail.commands['delete']) {
-                for (n in rcmail.env.selection_sources) {
-                    source = rcmail.env.address_sources[n];
-                    if (source && source.kolab && source.rights.indexOf('t') < 0) {
-                        is_writable = false;
-                        break;
-                    }
-                }
-
-                rcmail.enable_command('delete', 'move', is_writable);
-            }
-        });
-    }, 100);
 }
 
 // (De-)activates address book management commands
@@ -559,21 +552,6 @@ function kolab_addressbook_contextmenu()
 
                     if (p.command == 'book-showurl') {
                         return !!(props.carddavurl);
-                    }
-                });
-            }
-            else if (menu.menu_name == 'contactlist' && rcmail.env.kolab_audit_trail) {
-                // add "Show History" item to context menu
-                menu.menu_source.push({
-                    label: rcmail.get_label('kolab_addressbook.showhistory'),
-                    command: 'contact_history_dialog',
-                    classes: 'history'
-                });
-                // enable history item if the contact source supports it
-                menu.addEventListener('activate', function(p) {
-                    if (p.command == 'contact_history_dialog') {
-                        var source = rcmail.env.address_sources ? rcmail.env.address_sources[rcmail.env.source] : {};
-                        return !!source.audittrail;
                     }
                 });
             }

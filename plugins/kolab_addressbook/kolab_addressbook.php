@@ -84,6 +84,17 @@ class kolab_addressbook extends rcube_plugin
                 $this->load_config();
                 require_once($this->home . '/lib/kolab_addressbook_ui.php');
                 $this->ui = new kolab_addressbook_ui($this);
+
+                if ($this->bonnie_api) {
+                    $this->add_button(array(
+                        'command'    => 'contact-history-dialog',
+                        'class'      => 'history contact-history',
+                        'classact'   => 'history contact-history active',
+                        'innerclass' => 'icon inner',
+                        'label'      => 'kolab_addressbook.showhistory',
+                        'type'       => 'link-menuitem'
+                    ), 'contactmenu');
+                }
             }
         }
         else if ($this->rc->task == 'settings') {
