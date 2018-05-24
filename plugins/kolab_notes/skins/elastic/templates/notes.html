@@ -59,10 +59,16 @@
 			<roundcube:button command="delete" type="link"
 				class="button delete disabled" classAct="button delete"
 				title="delete" label="delete" innerClass="inner" />
+			<span class="spacer"></span>
 			<roundcube:button command="sendnote" type="link"
 				class="button send disabled" classAct="button send"
 				label="kolab_notes.send" title="kolab_notes.sendnote" innerClass="inner" />
 			<roundcube:container name="toolbar" id="notestoolbar" />
+			<roundcube:if condition="config:kolab_bonnie_api" />
+				<roundcube:button command="history" type="link"
+					class="button history note-history disabled" classAct="button history note-history"
+					label="libkolab.objectchangelog" title="libkolab.showhistory" innerClass="inner" />
+			<roundcube:endif />
 		</div>
 	</div>
 	<!-- note content frame -->
@@ -80,10 +86,6 @@
 		</div>
 		<div class="formbuttons">
 			<roundcube:button command="save" class="btn btn-primary submit" label="save" id="btn-save-note" />
-			<roundcube:if condition="config:kolab_bonnie_api" />
-				<roundcube:button command="history" type="link" label="libkolab.showhistory"
-					class="btn btn-secondary history note-history disabled" classAct="btn btn-secondary history note-history" />
-			<roundcube:endif />
 		</div>
 	</div>
 </div>

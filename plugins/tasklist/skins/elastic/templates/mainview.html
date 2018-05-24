@@ -84,6 +84,11 @@
 				label="delete" title="tasklist.deletetask"
 				class="button delete disabled" classAct="button delete" innerclass="inner" />
 			<span class="spacer"></span>
+			<roundcube:if condition="config:kolab_bonnie_api" />
+				<roundcube:button command="task-history" type="link"
+					class="button history task-history disabled" classAct="button history task-history"
+					label="tasklist.taskhistory" title="libkolab.showhistory" innerClass="inner" />
+			<roundcube:endif />
 			<roundcube:button command="import" type="link"
 				class="button import disabled" classAct="button import"
 				label="import" title="tasklist.importtasks" innerClass="inner" />
@@ -171,10 +176,6 @@
 				class="btn btn-primary edit disabled" classAct="btn btn-primary edit" innerclass="inner" />
 			<roundcube:button command="add-child-task" label="tasklist.addsubtask"
 				class="create btn btn-secondary disabled" classAct="create btn btn-secondary" innerclass="inner" />
-			<roundcube:if condition="config:kolab_bonnie_api" />
-				<roundcube:button command="task-history" type="link" label="libkolab.showhistory"
-					class="btn btn-secondary history task-history disabled" classAct="btn btn-secondary history task-history" />
-			<roundcube:endif />
 		</div>
 	</div>
 </div>
