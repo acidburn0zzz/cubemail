@@ -134,6 +134,7 @@ $labels['arialabelfilesavedialog'] = 'Datei(en) speichern Dialog';
 $labels['arialabelfileprops'] = 'Dateieigenschaften';
 $labels['arialabelfilecontent'] = 'Datei Inhalt';
 $labels['arialabelfileeditdialog'] = 'Dateibearbeitungsdialog';
+$labels['arialabelfilesessiondialog'] = 'Dokumentbearbeitungssitzung';
 $labels['type.plain'] = 'Klartextdokument';
 $labels['type.vndoasisopendocumenttext'] = 'Textdokument (ODF)';
 $labels['type.html'] = 'HTML-Dokument';
