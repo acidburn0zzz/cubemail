@@ -921,8 +921,7 @@ function rcube_tasklist_ui(settings)
         // open jquery UI dialog
         this.import_dialog = rcmail.show_popup_dialog($dialog, rcmail.gettext('tasklist.importtasks'), buttons, {
             closeOnEscape: false,
-            button_classes: ['import mainaction', 'cancel'],
-            close: null // do not remove the $dialog element
+            button_classes: ['import mainaction', 'cancel']
         });
     };
 
@@ -1015,8 +1014,7 @@ function rcube_tasklist_ui(settings)
 
         // open jquery UI dialog
         rcmail.show_popup_dialog($dialog, rcmail.gettext('exporttitle', 'tasklist'), buttons, {
-            button_classes: ['export mainaction', 'cancel'],
-            close: null // do not remove the $dialog element
+            button_classes: ['export mainaction', 'cancel']
         });
     };
 /*
