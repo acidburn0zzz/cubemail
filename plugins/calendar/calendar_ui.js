@@ -3163,7 +3163,7 @@ function rcube_calendar_ui(settings)
     this.showurl = function(calendar)
     {
       if (calendar.feedurl) {
-        var dialog = $('#calendarurlbox').clone(true);
+        var dialog = $('#calendarurlbox').clone(true).removeClass('uidialog');
 
         if (calendar.caldavurl) {
           $('#caldavurl', dialog).val(calendar.caldavurl);
