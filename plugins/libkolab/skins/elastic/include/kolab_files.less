@@ -189,17 +189,24 @@ a.button.saveas:before {
         content: @fa-var-file-pdf;
     }
 
+    &.application_vnd_openxmlformats_officedocument_wordprocessingml_document span:before,
+    &.application_vnd_openxmlformats_officedocument_wordprocessingml_template span:before,
     &.application_vnd_ms_word span:before,
     &.application_msword span:before {
         content: @fa-var-file-word;
     }
 
     &.application_vnd_ms_excel span:before,
+    &.application_vnd_openxmlformats_officedocument_spreadsheetml_sheet span:before,
+    &.application_vnd_openxmlformats_officedocument_spreadsheetml_template span:before,
     &.application_vnd_oasis_opendocument_spreadsheet span:before,
     &.application_vnd_oasis_opendocument_spreadsheet_template span:before {
         content: @fa-var-file-excel;
     }
 
+    &.application_vnd_openxmlformats_officedocument_presentationml_presentation span:before,
+    &.application_vnd_openxmlformats_officedocument_presentationml_template span:before,
+    &.application_vnd_openxmlformats_officedocument_presentationml_slideshow span:before,
     &.application_vnd_ms_powerpoint span:before {
         content: @fa-var-file-powerpoint;
     }

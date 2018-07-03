@@ -237,7 +237,7 @@ function kolab_files_token()
 function kolab_files_from_cloud_widget(elem)
 {
   $('<a class="button btn btn-secondary fromcloud">')
-      .attr('tabindex', $('input', elem).attr('tabindex') || 0)
+      .attr('tabindex', $('button,input', elem).first().attr('tabindex') || 0)
       .text(rcmail.gettext('kolab_files.fromcloud'))
       .click(function() { kolab_files_selector_dialog(); })
       .appendTo(elem);

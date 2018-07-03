@@ -1,5 +1,10 @@
 
-ul.toolbarmenu li a.history span.history {
+ul.toolbarmenu li a.history {
+	padding: 2px 6px;
+	color: #eee;
+}
+
+ul.toolbarmenu li a.history span.icon {
 	background-image: url('data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAQAAAD8x0bcAAABXUlEQVQoFbXBvUsCYQAH4N/mdm5uN9UStzn1AYG0HC1Jg01tV/9A0NYQ5dRm4BI0VYRYUYOD3CSB2FaLXBJhIXYeXr7veVGd8qus0D6Whp4H+Duq1LnEBDX8jiqz3XpgPzqB3a0zSw3fUetavlux0hkjlc5cnPtut84EBlEJLr1WOoN5RKEiisTylmMHNjX0Pa17rd0TRAFqzOLN8Ma2FN4u+tpVx8Y4Xp1O+y7eaRXroUkFn7xWqYieXFwKfDjek6IxCYAqy6xJ8dBkjatALi4FDfQUN6XIxfEqPJt0bCmkMAuIAXMjx/nnBvPUAGtfip0p9ERmk45tFqDjTQix0TXrzFqg4t3cVhHBh8jECnQqVPAujAS0zqHXOshgQJhKx+ycUUcPx5j33YqFcXwRMo/a94HNMrMsd+58t1gaWsQPMSNlFq7Kvlu7LpaMFGYQwi9U6JjHEgzMQMU/eAHASL3dDo5S4wAAAABJRU5ErkJggg==');
 	background-position: 0px 2px;
 	background-repeat: no-repeat;

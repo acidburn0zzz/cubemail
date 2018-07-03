@@ -4,10 +4,9 @@
 <script>
     // append search form for address books
     if (rcmail.gui_objects.folderlist) {
-        var searchbar = $('#addressbooksearch').parent().parent()
+        $('#addressbooksearch').parent().parent()
             .attr('aria-controls', rcmail.gui_objects.folderlist)
-            .insertAfter($('#layout > .sidebar > .header > .header-title'))
-            .get(0);
+            .insertBefore('#' + rcmail.gui_objects.folderlist);
 
         rcmail.addEventListener('init', function() {
             // Make checkboxes pretty

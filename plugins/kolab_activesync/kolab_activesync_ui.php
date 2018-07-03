@@ -157,7 +157,7 @@ class kolab_activesync_ui
     {
         $alarms = ($attrib['type'] == 'event' || $attrib['type'] == 'task');
 
-        $table = new html_table(array('cellspacing' => 0));
+        $table = new html_table(array('cellspacing' => 0, 'class' => 'table-striped'));
         $table->add_header(array(
                 'class'    => 'subscription checkbox-cell',
                 'title'    => $this->plugin->gettext('synchronize'),

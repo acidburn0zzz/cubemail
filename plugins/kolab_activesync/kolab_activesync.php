@@ -159,12 +159,17 @@ class kolab_activesync extends rcube_plugin
             break;
 
         case 'delete':
-            $success = $this->device_delete($imei);
+            foreach ((array) $imei as $id) {
+                $success = $this->device_delete($id);
+            }
 
             if ($success) {
                 $this->rc->output->show_message($this->gettext('successfullydeleted'), 'confirmation');
                 $this->rc->output->command('plugin.activesync_save_complete', array(
-                    'success' => true, 'id' => $imei, 'delete' => true));
+                        'success' => true,
+                        'delete'  => true,
+                        'id'      => count($imei) > 1 ? 'ALL' : $imei[0],
+                ));
             }
             else
                 $this->rc->output->show_message($this->gettext('savingerror'), 'error');

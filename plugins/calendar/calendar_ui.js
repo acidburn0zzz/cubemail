@@ -1868,7 +1868,7 @@ function rcube_calendar_ui(settings)
       if (organizer && !readonly)
         dispname = rcmail.env['identities-selector'];
 
-      var select = '<select class="edit-attendee-role form-control"'
+      var select = '<select class="edit-attendee-role form-control custom-select"'
         + (organizer || readonly ? ' disabled="true"' : '')
         + ' aria-label="' + rcmail.gettext('role','calendar') + '">';
       for (var r in opts)
@@ -1939,13 +1939,15 @@ function rcube_calendar_ui(settings)
       }
 
       // Make Elastic checkboxes pretty
-      if (window.UI && UI.pretty_checkbox)
+      if (window.UI && UI.pretty_checkbox) {
         $(tr).find('input[type=checkbox]').each(function() { UI.pretty_checkbox(this); });
+        $(tr).find('select').each(function() { UI.pretty_select(this); });
+      }
 
       event_attendees.push(data);
       return true;
     };
-    
+
     // iterate over all attendees and update their free-busy status display
     var update_freebusy_status = function(event)
     {
@@ -3892,6 +3894,13 @@ function rcube_calendar_ui(settings)
     var minical;
     var init_calendar_ui = function()
     {
+      var pretty_select = function(elem) {
+        // for Elastic
+        if (window.UI && UI.pretty_select) {
+          $(elem).addClass('form-control custom-select').each(function() { UI.pretty_select(this); });
+        }
+      };
+
       // initialize small calendar widget using jQuery UI datepicker
       minical = $('#datepicker').datepicker($.extend(datepicker_settings, {
         inline: true,
@@ -3902,14 +3911,14 @@ function rcube_calendar_ui(settings)
           ignore_click = true;
           var d = minical.datepicker('getDate'); //parse_datetime('0:0', dateText);
           fc.fullCalendar('gotoDate', d).fullCalendar('select', d, d, true);
-          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
+          setTimeout(function() { pretty_select($('select', minical)); }, 25);
         },
         onChangeMonthYear: function(year, month, inst) {
           minical.data('year', year).data('month', month);
-          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
+          setTimeout(function() { pretty_select($('select', minical)); }, 25);
         },
         beforeShowDay: function(date) {
-          setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
+          setTimeout(function() { pretty_select($('select', minical)); }, 25);
           var view = fc.fullCalendar('getView');
           var active = view.visStart && date.getTime() >= view.visStart.getTime() && date.getTime() < view.visEnd.getTime();
           return [ true, (active ? 'ui-datepicker-activerange ui-datepicker-active-' + view.name : ''), ''];
@@ -3937,7 +3946,7 @@ function rcube_calendar_ui(settings)
               date = new Date(base_date.getTime() - day_off * DAY_MS + wdiff * 7 * DAY_MS);
             fc.fullCalendar('gotoDate', date).fullCalendar('setDate', date).fullCalendar('changeView', 'agendaWeek');
             minical.datepicker('setDate', date);
-            setTimeout(function() { $('select', minical).addClass('form-control'); }, 25);
+            setTimeout(function() { pretty_select($('select', minical)); }, 25);
           }
         });
 
@@ -4122,10 +4131,14 @@ function rcube_calendar_ui(settings)
 
       $('#eventshow .changersvp').click(function(e) {
         var d = $('#eventshow'),
-          h = -$(this).closest('.event-line').toggle().height();
+          record = $(this).closest('.event-line,.form-group'),
+          h = d.height() - record.height();
+
+        record.toggle();
         $('#event-rsvp').slideDown(300, function() {
-          h += $(this).height();
-          me.dialog_resize(d.get(0), d.height() + h, d.outerWidth() - 50);
+          me.dialog_resize(d.get(0), h + $(this).outerHeight());
+          if (this.scrollIntoView)
+            this.scrollIntoView(false);
         });
         return false;
       })
@@ -4312,6 +4325,8 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
     $('#timezone-display').appendTo($('.fc-header-center')).removeClass('hidden');
     $('#agendaoptions').detach().insertAfter('table.fc-header');
+
+    $('.content-frame-navigation a.button.date').appendTo('.content > .searchbar');
 
     // Mobile header title
     if (window.MutationObserver) {

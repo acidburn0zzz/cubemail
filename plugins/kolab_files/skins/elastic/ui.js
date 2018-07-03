@@ -117,7 +117,7 @@ else if (rcmail.env.action == 'edit') {
 else {
     rcmail.addEventListener('files-folder-select', function(p) {
         var is_sess = p.folder == 'folder-collection-sessions';
-        $('#fileslistmenu-link, #layout > .content > .header > a.toggleselect, #layout > .content > .header > .searchbar')[is_sess ? 'hide' : 'show']();
+        $('#fileslistmenu-link, #layout > .content > .pagenav, #layout > .content .searchbar')[is_sess ? 'hide' : 'show']();
         $('#sessionslistmenu-link')[is_sess ? 'removeClass' : 'addClass']('hidden');
 
         // set list header title for mobile

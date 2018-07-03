@@ -1183,7 +1183,7 @@ function rcube_kolab_notes_ui(settings)
         rcmail.enable_command('save', false);
 
         if (!list) {
-            rcmail.triggerEvent('show-list');
+            rcmail.triggerEvent('show-list', {force: true});
         }
     }
 

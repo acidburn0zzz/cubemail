@@ -1764,6 +1764,16 @@ body.task-calendar {
     }
 }
 
+.searchbar a.button.date {
+    @media screen and (min-width: (@screen-width-small + 1px)) {
+        display: none;
+    }
+
+    &:before {
+        line-height: 1.25;
+    }
+}
+
 @media screen and (max-width: @screen-width-small) {
     .fc {
         .fc-header-left {
@@ -1906,7 +1916,9 @@ body.task-calendar {
     }
 }
 
-.header-title {
+body.task-calendar .header-title {
+    position: relative;
+
     .tz {
         position: absolute;
         bottom: 0;

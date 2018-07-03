@@ -629,24 +629,24 @@ class libcalendaring_itip
 
             // 1. update the attendee status on our copy
             $update_button = html::tag('input', array(
-                'type' => 'button',
-                'class' => 'button',
+                'type'    => 'button',
+                'class'   => 'button',
                 'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . rcube::JQ($mime_id) . "', '$task')",
-                'value' => $this->gettext('updateattendeestatus'),
+                'value'   => $this->gettext('updateattendeestatus'),
             ));
 
             // 2. accept or decline a new or delegate attendee
             $accept_buttons = html::tag('input', array(
-                'type' => 'button',
-                'class' => "button accept",
+                'type'    => 'button',
+                'class'   => "button accept",
                 'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . rcube::JQ($mime_id) . "', '$task')",
-                'value' => $this->gettext('acceptattendee'),
+                'value'   => $this->gettext('acceptattendee'),
             ));
             $accept_buttons .= html::tag('input', array(
-                'type' => 'button',
-                'class' => "button decline",
+                'type'    => 'button',
+                'class'   => "button decline",
                 'onclick' => "rcube_libcalendaring.decline_attendee_reply('" . rcube::JQ($mime_id) . "', '$task')",
-                'value' => $this->gettext('declineattendee'),
+                'value'   => $this->gettext('declineattendee'),
             ));
 
             $buttons[] = html::div(array('id' => 'update-'.$dom_id, 'style' => 'display:none'), $update_button);
@@ -679,10 +679,10 @@ class libcalendaring_itip
             // 1. display RSVP buttons (if the user was invited)
             foreach ($this->rsvp_actions as $method) {
                 $rsvp_buttons .= html::tag('input', array(
-                    'type' => 'button',
-                    'class' => "button $method",
+                    'type'    => 'button',
+                    'class'   => "button $method",
                     'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . rcube::JQ($mime_id) . "', '$task', '$method', '$dom_id')",
-                    'value' => $this->gettext('itip' . $method),
+                    'value'   => $this->gettext('itip' . $method),
                 ));
             }
 
@@ -690,34 +690,35 @@ class libcalendaring_itip
             if (!empty($preview_url)) {
               $msgref = $this->lib->ical_message->folder . '/' . $this->lib->ical_message->uid . '#' . $mime_id;
               $rsvp_buttons .= html::tag('input', array(
-                  'type' => 'button',
-                  'class' => "button preview",
+                  'type'    => 'button',
+                  // TODO: Temp. disable this button on small screen in Elastic (Bifrost#T105747)
+                  'class'   => "button preview hidden-phone hidden-small",
                   'onclick' => "rcube_libcalendaring.open_itip_preview('" . rcube::JQ($preview_url) . "', '" . rcube::JQ($msgref) . "')",
-                  'value' => $this->gettext('openpreview'),
+                  'value'   => $this->gettext('openpreview'),
               ));
             }
 
             // 2. update the local copy with minor changes
             $update_button = html::tag('input', array(
-                'type' => 'button',
-                'class' => 'button',
+                'type'    => 'button',
+                'class'   => 'button',
                 'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . rcube::JQ($mime_id) . "', '$task')",
-                'value' => $this->gettext('updatemycopy'),
+                'value'   => $this->gettext('updatemycopy'),
             ));
 
             // 3. Simply import the event without replying
             $import_button = html::tag('input', array(
-                'type' => 'button',
-                'class' => 'button',
+                'type'    => 'button',
+                'class'   => 'button',
                 'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . rcube::JQ($mime_id) . "', '$task')",
-                'value' => $this->gettext('importtocalendar'),
+                'value'   => $this->gettext('importtocalendar'),
             ));
 
             // check my status
             foreach ($event['attendees'] as $attendee) {
                 if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
                     $metadata['attendee'] = $attendee['email'];
-                    $metadata['rsvp'] = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
+                    $metadata['rsvp']     = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
                     $rsvp_status = !empty($attendee['status']) ? strtoupper($attendee['status']) : 'NEEDS-ACTION';
                     break;
                 }
@@ -738,9 +739,9 @@ class libcalendaring_itip
         else if ($method == 'CANCEL') {
             $title = $this->gettext('itipcancellation');
             $event_prop = array_filter(array(
-              'uid' => $event['uid'],
-              '_instance' => $event['_instance'],
-              '_savemode' => $event['_savemode'],
+                'uid'       => $event['uid'],
+                '_instance' => $event['_instance'],
+                '_savemode' => $event['_savemode'],
             ));
 
             // 1. remove the event from our calendar
@@ -753,10 +754,10 @@ class libcalendaring_itip
 
             // 2. update our copy with status=cancelled
             $button_update = html::tag('input', array(
-              'type' => 'button',
-              'class' => 'button',
-              'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . rcube::JQ($mime_id) . "', '$task')",
-              'value' => $this->gettext('updatemycopy'),
+                'type'    => 'button',
+                'class'   => 'button',
+                'onclick' => "rcube_libcalendaring.add_from_itip_mail('" . rcube::JQ($mime_id) . "', '$task')",
+                'value'   => $this->gettext('updatemycopy'),
             ));
 
             $buttons[] = html::div(array('id' => 'rsvp-'.$dom_id, 'style' => 'display:none'), $button_remove . $button_update);
@@ -780,7 +781,7 @@ class libcalendaring_itip
         foreach (array('savingdata','deleteobjectconfirm','declinedeleteconfirm','declineattendee',
             'cancel','itipdelegated','declineattendeeconfirm','itipcomment','delegateinvitation',
             'delegateto','delegatersvpme','delegateinvalidaddress') as $label) {
-          $this->rc->output->command('add_label', "itip.$label", $this->gettext($label));
+            $this->rc->output->command('add_label', "itip.$label", $this->gettext($label));
         }
 
         // show event details with buttons
