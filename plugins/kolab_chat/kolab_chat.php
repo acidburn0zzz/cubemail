@@ -23,10 +23,9 @@
 
 class kolab_chat extends rcube_plugin
 {
-    public $task   = '^(?!login|logout).*$';
-    public $noajax = true;
-    public $rc;
+    public $task = '^(?!login|logout).*$';
 
+    private $rc;
     private $driver;
 
 
@@ -66,8 +65,9 @@ class kolab_chat extends rcube_plugin
         // Register UI end-points
         $this->register_task('kolab-chat');
         $this->register_action('index', array($this, 'ui'));
+        $this->register_action('action', array($this, 'action'));
 
-        if (!$this->rc->output->framed) {
+        if ($this->rc->output->type == 'html' && !$this->rc->output->get_env('framed')) {
             $this->rc->output->set_env('kolab_chat_extwin', (bool) $extwin);
             $this->rc->output->add_script(
 "rcmail.addEventListener('beforeswitch-task', function(p) {
@@ -87,9 +87,11 @@ class kolab_chat extends rcube_plugin
                     'label'      => 'kolab_chat.chat',
                     'type'       => 'link',
                 ), 'taskbar');
+
+            $this->driver->ui();
         }
 
-        if ($args['task'] == 'settings') {
+        if ($this->rc->output->type == 'html' && $args['task'] == 'settings') {
             // add hooks for Chat settings
             $this->add_hook('preferences_sections_list', array($this, 'preferences_sections_list'));
             $this->add_hook('preferences_list', array($this, 'preferences_list'));
@@ -104,7 +106,7 @@ class kolab_chat extends rcube_plugin
     function ui()
     {
         if ($this->driver) {
-            $this->driver->authenticate($_SESSION['username'], $this->rc->decrypt($_SESSION['password']));
+            $this->driver->ui();
 
             $url = rcube::JQ($this->driver->url());
 
@@ -124,6 +126,16 @@ class kolab_chat extends rcube_plugin
 
                 $this->rc->output->send('kolab_chat.chat');
             }
+        }
+    }
+
+    /**
+     * Handler for driver specific actions
+     */
+    function action()
+    {
+        if ($this->driver) {
+            $this->driver->action();
         }
     }
 

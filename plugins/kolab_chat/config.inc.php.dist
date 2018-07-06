@@ -11,16 +11,14 @@
 
     ProxyPreserveHost Off
     RewriteEngine On
-    RewriteCond %{REQUEST_URI} /api/v[0-9]+/(users/)?websocket [NC,OR]
+    RewriteCond %{REQUEST_URI} (/mattermost)?/api/v[0-9]+/(users/)?websocket [NC,OR]
     RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC,OR]
     RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
-    RewriteRule .* ws://mattermost.example.com:8065%{REQUEST_URI} [P,QSA,L]
-    ProxyPass  /mattermost              http://mattermost.example.com:8065
-    ProxyPass  /static                  http://mattermost.example.com:8065/static
-    ProxyPass  /help                    http://mattermost.example.com:8065/help
-    ProxyPass  /api                     http://mattermost.example.com:8065/api
-    ProxyPass  /api/v4/websocket        ws://mattermost.example.com:8065/api/v4/websocket
-    ProxyPass  /api/v4/users/websocket  ws://mattermost.example.com:8065/api/v4/users/websocket
+    RewriteRule (/mattermost)?(/api/v[0-9]+/(users/)?websocket) ws://mattermost.example.com:8065$2 [P,QSA,L]
+    ProxyPass         /mattermost http://mattermost.example.com:8065
+    ProxyPass         /static http://mattermost.example.com:8065/static
+    ProxyPass         /help http://mattermost.example.com:8065/help
+    ProxyPass         /api http://mattermost.example.com:8065/api
 
   2. Enabling CORS connections in Mattermost config: AllowCorsFrom:"*"
 */

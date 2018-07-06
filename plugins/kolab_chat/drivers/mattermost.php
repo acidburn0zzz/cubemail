@@ -23,8 +23,8 @@
 
 class kolab_chat_mattermost
 {
-    public $rc;
-    public $plugin;
+    private $rc;
+    private $plugin;
 
 
     /**
@@ -41,62 +41,193 @@ class kolab_chat_mattermost
     /**
      * Returns location of the chat app
      *
+     * @param bool $websocket Return websocket URL
+     *
      * @return string The chat app location
      */
-    public function url()
+    public function url($websocket = false)
     {
-        return rtrim($this->rc->config->get('kolab_chat_url'), '/');
+        $url = rtrim($this->rc->config->get('kolab_chat_url'), '/');
+
+        if ($websocket) {
+            $url  = str_replace(array('http://', 'https://'), array('ws://', 'wss://'), $url);
+            $url .= '/api/v4/websocket';
+        }
+        else if ($this->rc->action == 'index' && $this->rc->task == 'kolab-chat') {
+            if (($channel = rcube_utils::get_input_value('_channel', rcube_utils::INPUT_GET))
+                && ($channel = $this->get_channel($channel))
+            ) {
+                // FIXME: This does not work yet because team_id is empty for direct-message channels
+                $url .= '/' . urlencode($channel['team_name']) . '/channels/' . urlencode($channel['id']);
+            }
+        }
+
+        return $url;
     }
 
     /**
-     * Authenticates the user and sets cookies to auto-login the user
+     * Add/register UI elements
+     */
+    public function ui()
+    {
+        if ($this->rc->task != 'kolab-chat') {
+            $this->plugin->include_script("js/mattermost.js");
+            $this->plugin->add_label('openchat', 'directmessage');
+        }
+        else if ($this->get_token()) {
+            rcube_utils::setcookie('MMUSERID', $_SESSION['mattermost'][0], 0, false);
+            rcube_utils::setcookie('MMAUTHTOKEN', $_SESSION['mattermost'][1], 0, false);
+        }
+    }
+
+    /**
+     * Driver specific actions handler
+     */
+    public function action()
+    {
+        $result = array(
+            'url'   => $this->url(true),
+            'token' => $this->get_token(),
+        );
+
+        echo rcube_output::json_serialize($result);
+        exit;
+    }
+
+    /**
+     * Returns the Mattermost session token
      * Note: This works only if the user/pass is the same in Kolab and Mattermost
      *
-     * @param string $user Username
-     * @param string $pass Password
+     * @return string Session token
      */
-    public function authenticate($user, $pass)
+    protected function get_token()
     {
-        $url = $this->url() . '/api/v4/users/login';
+        $user = $_SESSION['username'];
+        $pass = $this->rc->decrypt($_SESSION['password']);
 
-        $config = array(
+        // Use existing token if still valid
+        if (!empty($_SESSION['mattermost'])) {
+            $user_id = $_SESSION['mattermost'][0];
+            $token   = $_SESSION['mattermost'][1];
+
+            try {
+                $request = $this->get_api_request('GET', '/api/v4/users/me');
+                $request->setHeader('Authorization', "Bearer $token");
+
+                $response = $request->send();
+                $status   = $response->getStatus();
+
+                if ($status != 200) {
+                    $token = null;
+                }
+            }
+            catch (Exception $e) {
+                rcube::raise_error($e, true, false);
+                $token = null;
+            }
+        }
+
+        // Request a new session token
+        if (empty($token)) {
+            $request = $this->get_api_request('POST', '/api/v4/users/login');
+            $request->setBody(json_encode(array(
+                    'login_id' => $user,
+                    'password' => $pass,
+            )));
+
+            // send request to the API, get token and user ID
+            try {
+                $response = $request->send();
+                $status   = $response->getStatus();
+                $token    = $response->getHeader('Token');
+                $body     = json_decode($response->getBody(), true);
+
+                if ($status == 200) {
+                    $user_id = $body['id'];
+                }
+                else if (is_array($body) && $body['message']) {
+                    throw new Exception($body['message']);
+                }
+                else {
+                    throw new Exception("Failed to authenticate the chat user ($user). Status: $status");
+                }
+            }
+            catch (Exception $e) {
+                rcube::raise_error($e, true, false);
+            }
+        }
+
+        if ($user_id && $token) {
+            $_SESSION['mattermost'] = array($user_id, $token);
+            return $token;
+        }
+    }
+
+    /**
+     * Returns the Mattermost channel info
+     *
+     * @param string $channel_id Channel ID
+     *
+     * @return array Channel information
+     */
+    protected function get_channel($channel_id)
+    {
+        $token = $this->get_token();
+
+        if ($token) {
+            $channel = $this->api_get('/api/v4/channels/' . urlencode($channel_id), $token);
+        }
+
+        if (is_array($channel) && !empty($channel['team_id'])) {
+            if ($team = $this->api_get('/api/v4/teams/' . urlencode($channel['team_id']), $token)) {
+                $channel['team_name'] = $team['name'];
+            }
+        }
+
+        return $channel;
+    }
+
+    /**
+     * Return HTTP/Request2 instance for Mattermost API connection
+     */
+    protected function get_api_request($type, $path)
+    {
+        $url      = rtrim($this->rc->config->get('kolab_chat_url'), '/');
+        $defaults = array(
             'store_body'       => true,
             'follow_redirects' => true,
         );
 
-        $config  = array_merge($config, (array) $this->rc->config->get('kolab_chat_http_request'));
-        $request = libkolab::http_request($url, 'POST', $config);
+        $config = array_merge($defaults, (array) $this->rc->config->get('kolab_chat_http_request'));
 
-        $request->setBody(json_encode(array(
-                'login_id' => $user,
-                'password' => $pass,
-        )));
+        return libkolab::http_request($url . $path, $type, $config);
+    }
 
-        // send request to the API, get token and user ID
-        try {
-            $response = $request->send();
-            $status   = $response->getStatus();
-            $token    = $response->getHeader('Token');
-            $body     = json_decode($response->getBody(), true);
-
-            if ($status == 200) {
-                $user_id = $body['id'];
-            }
-            else if (is_array($body) && $body['message']) {
-                throw new Exception($body['message']);
-            }
-            else {
-                throw new Exception("Failed to authenticate the chat user ($user). Status: $status");
-            }
-        }
-        catch (Exception $e) {
-            rcube::raise_error($e, true, false);
+    /**
+     * Call API GET command
+     */
+    protected function api_get($path, $token = null)
+    {
+        if (!$token) {
+            $token = $this->get_token();
         }
 
-        // Set cookies
-        if ($user_id && $token) {
-            rcube_utils::setcookie('MMUSERID', $user_id, 0, false);
-            rcube_utils::setcookie('MMAUTHTOKEN', $token, 0, false);
+        if ($token) {
+            try {
+                $request = $this->get_api_request('GET', $path);
+                $request->setHeader('Authorization', "Bearer $token");
+
+                $response = $request->send();
+                $status   = $response->getStatus();
+                $body     = $response->getBody();
+
+                if ($status == 200) {
+                    return json_decode($body, true);
+                }
+            }
+            catch (Exception $e) {
+                rcube::raise_error($e, true, false);
+            }
         }
     }
 }
