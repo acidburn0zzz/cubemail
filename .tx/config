@@ -71,6 +71,11 @@ file_filter = plugins/kolab_auth/localization/<lang>.inc
 source_file = plugins/kolab_auth/localization/en_US.inc
 source_lang = en_US
 
+[kolab.kolab_chat]
+file_filter = plugins/kolab_chat/localization/<lang>.inc
+source_file = plugins/kolab_chat/localization/en_US.inc
+source_lang = en_US
+
 [kolab.kolab_delegation]
 file_filter = plugins/kolab_delegation/localization/<lang>.inc
 source_file = plugins/kolab_delegation/localization/en_US.inc
