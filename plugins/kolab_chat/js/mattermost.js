@@ -278,23 +278,43 @@ function mattermost_websocket_init(url, token)
  */
 function mattermost_event_handler(event)
 {
-    // We're interested only in direct messages for now
+    var msg, type;
+
+    // Direct message notification
     if (event.event == 'posted' && event.data.channel_type == 'D') {
-        var user = event.data.sender_name,
+        msg = rcmail.gettext('kolab_chat.directmessage');
+        type = 'user';
+    }
+    // Mention notification
+    else if (event.event == 'posted' && String(event.data.mentions).indexOf(rcmail.env.mattermost_user) > 0) {
+        msg = rcmail.gettext('kolab_chat.mentionmessage');
+        type = 'channel';
+    }
+
+    if (msg) {
+        var link = $('<a>').text(rcmail.gettext('kolab_chat.openchat')),
+            user = event.data.sender_name,
+            channel = event.data.channel_display_name,
             channel_id = event.broadcast.channel_id,
-            // channel_name = event.data.channel_display_name,
-            msg = rcmail.gettext('kolab_chat.directmessage').replace('$u', user),
-            link = $('<a>').text(rcmail.gettext('kolab_chat.openchat'))
-                .attr('href', '?_task=kolab-chat&_channel=' + urlencode(channel_id));
+            msg_id = 'chat-' + type + '-' + (type == 'channel' ? channel_id : user),
+            href = '?_task=kolab-chat&_channel=' + urlencode(channel_id);
+
+        msg = msg.replace('$u', user).replace('$c', channel);
 
         if (rcmail.env.kolab_chat_extwin) {
-            link.attr('target', '_blank').attr('href', link.attr('href') + '&redirect=1');
+            link.attr('target', '_blank');
+            href += '&redirect=1';
         }
 
+        if (event.data.team_id) {
+            href += '&_team=' + urlencode(event.data.team_id);
+        }
+
+        link.attr('href', href);
         msg = $('<p>').text(msg + ' ').append(link).html();
 
         // FIXME: Should we display it indefinitely?
-        rcmail.display_message(msg, 'notice chat', 10 * 60 * 1000, 'chat-user-' + user);
+        rcmail.display_message(msg, 'notice chat', 10 * 60 * 1000, msg_id);
     }
 }
 
@@ -307,7 +327,7 @@ window.WebSocket && window.rcmail && rcmail.addEventListener('init', function() 
         success: function(data) {
             data = JSON.parse(data);
             if (data && data.token) {
-//                rcmail.set_env({mattermost_url: data.url, mattermost_token: data.token});
+                rcmail.set_env({mattermost_url: data.url, mattermost_token: data.token, mattermost_user: data.user_id});
                 mattermost_websocket_init(data.url, data.token);
             }
         }

@@ -55,10 +55,16 @@ class kolab_chat_mattermost
             $url .= '/api/v4/websocket';
         }
         else if ($this->rc->action == 'index' && $this->rc->task == 'kolab-chat') {
-            if (($channel = rcube_utils::get_input_value('_channel', rcube_utils::INPUT_GET))
-                && ($channel = $this->get_channel($channel, true))
-            ) {
-                $url .= '/' . urlencode($channel['team_name']) . '/channels/' . urlencode($channel['id']);
+            if ($channel = rcube_utils::get_input_value('_channel', rcube_utils::INPUT_GET)) {
+                $team    = rcube_utils::get_input_value('_team', rcube_utils::INPUT_GET);
+
+                if (empty($team) && ($_channel = $this->get_channel($channel, true))) {
+                    $team = $_channel['team_name'];
+                }
+
+                if ($channel && $team) {
+                    $url .= '/' . urlencode($team) . '/channels/' . urlencode($channel);
+                }
             }
         }
 
@@ -72,7 +78,7 @@ class kolab_chat_mattermost
     {
         if ($this->rc->task != 'kolab-chat') {
             $this->plugin->include_script("js/mattermost.js");
-            $this->plugin->add_label('openchat', 'directmessage');
+            $this->plugin->add_label('openchat', 'directmessage', 'mentionmessage');
         }
         else if ($this->get_token()) {
             rcube_utils::setcookie('MMUSERID', $_SESSION['mattermost'][0], 0, false);
@@ -86,8 +92,9 @@ class kolab_chat_mattermost
     public function action()
     {
         $result = array(
-            'url'   => $this->url(true),
-            'token' => $this->get_token(),
+            'url'     => $this->url(true),
+            'token'   => $this->get_token(),
+            'user_id' => $this->get_user_id(),
         );
 
         echo rcube_output::json_serialize($result);

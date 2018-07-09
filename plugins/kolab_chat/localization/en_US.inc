@@ -11,4 +11,5 @@
 $labels['chat'] = 'Chat';
 $labels['showinextwin'] = 'Open chat application in a new window';
 $labels['directmessage'] = 'A direct message from $u.';
+$labels['mentionmessage'] = 'You have been mentioned by $u in $c.';
 $labels['openchat'] = 'Open chat';
