@@ -25,6 +25,7 @@ class kolab_chat_mattermost
 {
     private $rc;
     private $plugin;
+    private $token_valid = false;
 
 
     /**
@@ -55,9 +56,8 @@ class kolab_chat_mattermost
         }
         else if ($this->rc->action == 'index' && $this->rc->task == 'kolab-chat') {
             if (($channel = rcube_utils::get_input_value('_channel', rcube_utils::INPUT_GET))
-                && ($channel = $this->get_channel($channel))
+                && ($channel = $this->get_channel($channel, true))
             ) {
-                // FIXME: This does not work yet because team_id is empty for direct-message channels
                 $url .= '/' . urlencode($channel['team_name']) . '/channels/' . urlencode($channel['id']);
             }
         }
@@ -110,6 +110,10 @@ class kolab_chat_mattermost
             $user_id = $_SESSION['mattermost'][0];
             $token   = $_SESSION['mattermost'][1];
 
+            if ($this->token_valid) {
+                return $token;
+            }
+
             try {
                 $request = $this->get_api_request('GET', '/api/v4/users/me');
                 $request->setHeader('Authorization', "Bearer $token");
@@ -158,8 +162,22 @@ class kolab_chat_mattermost
         }
 
         if ($user_id && $token) {
+            $this->token_valid = true;
             $_SESSION['mattermost'] = array($user_id, $token);
             return $token;
+        }
+    }
+
+    /**
+     * Returns the Mattermost user ID
+     * Note: This works only if the user/pass is the same in Kolab and Mattermost
+     *
+     * @return string User ID
+     */
+    protected function get_user_id()
+    {
+        if ($token = $this->get_token()) {
+            return $_SESSION['mattermost'][0];
         }
     }
 
@@ -167,24 +185,41 @@ class kolab_chat_mattermost
      * Returns the Mattermost channel info
      *
      * @param string $channel_id Channel ID
+     * @param bool   $extended   Return extended information (i.e. team information)
      *
      * @return array Channel information
      */
-    protected function get_channel($channel_id)
+    protected function get_channel($channel_id, $extended = false)
     {
-        $token = $this->get_token();
+        $channel = $this->api_get('/api/v4/channels/' . urlencode($channel_id));
 
-        if ($token) {
-            $channel = $this->api_get('/api/v4/channels/' . urlencode($channel_id), $token);
-        }
+        if ($extended && is_array($channel)) {
+            if (!empty($channel['team_id'])) {
+                 $team = $this->api_get('/api/v4/teams/' . urlencode($channel['team_id']));
+            }
+            else if ($teams = $this->get_user_teams()) {
+                // if there's no team assigned to the channel, we'll get the user's team
+                // so we can build proper channel URL, there's no other way in the API
+                $team = $teams[0];
+            }
 
-        if (is_array($channel) && !empty($channel['team_id'])) {
-            if ($team = $this->api_get('/api/v4/teams/' . urlencode($channel['team_id']), $token)) {
+            if (!empty($team)) {
+                $channel['team_id']   = $team['id'];
                 $channel['team_name'] = $team['name'];
             }
         }
 
         return $channel;
+    }
+
+    /**
+     * Returns the Mattermost teams of the user
+     *
+     * @return array List of teams
+     */
+    protected function get_user_teams()
+    {
+        return $this->api_get('/api/v4/users/' . urlencode($this->get_user_id()) . '/teams');
     }
 
     /**
@@ -206,13 +241,9 @@ class kolab_chat_mattermost
     /**
      * Call API GET command
      */
-    protected function api_get($path, $token = null)
+    protected function api_get($path)
     {
-        if (!$token) {
-            $token = $this->get_token();
-        }
-
-        if ($token) {
+        if ($token = $this->get_token()) {
             try {
                 $request = $this->get_api_request('GET', $path);
                 $request->setHeader('Authorization', "Bearer $token");
