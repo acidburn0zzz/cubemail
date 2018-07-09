@@ -1,0 +1,16 @@
+#taskbar a.button-chat span.button-inner {
+    background: url(images/buttons.png) 0 -4px no-repeat;
+}
+
+#taskbar a.button-chat:hover span.button-inner,
+#taskbar a.button-chat.button-selected span.button-inner {
+    background-position: 0 -36px;
+}
+
+#sections-table #rcmrowkolab-chat .section {
+    background: url(images/buttons.png) 0 -98px no-repeat;
+}
+
+#sections-table #rcmrowkolab-chat.selected .section {
+    background-position: -1px -69px;
+}

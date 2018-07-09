@@ -68,6 +68,7 @@ class kolab_chat extends rcube_plugin
         $this->register_action('action', array($this, 'action'));
 
         if ($this->rc->output->type == 'html' && !$this->rc->output->get_env('framed')) {
+            $this->include_stylesheet($this->local_skin_path() . '/kolab_chat.css');
             $this->rc->output->set_env('kolab_chat_extwin', (bool) $extwin);
             $this->rc->output->add_script(
 "rcmail.addEventListener('beforeswitch-task', function(p) {
