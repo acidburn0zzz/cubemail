@@ -46,7 +46,6 @@ class kolab_chat extends rcube_plugin
             return;
         }
 
-        $this->add_texts('localization/');
         $this->load_config();
 
         $extwin = $this->rc->config->get('kolab_chat_extwin');
@@ -61,6 +60,8 @@ class kolab_chat extends rcube_plugin
 
         $class_name = "kolab_chat_$driver";
         $this->driver = new $class_name($this);
+
+        $this->add_texts('localization/');
 
         // Register UI end-points
         $this->register_task('kolab-chat');
@@ -106,27 +107,25 @@ class kolab_chat extends rcube_plugin
      */
     function ui()
     {
-        if ($this->driver) {
-            $this->driver->ui();
+        $this->driver->ui();
 
-            $url = rcube::JQ($this->driver->url());
+        $url = rcube::JQ($this->driver->url());
 
-            if (!empty($_GET['redirect'])) {
-                echo '<!DOCTYPE html><html><head>'
-                    . '<meta http-equiv="refresh" content="0; url=' . $url . '">'
-                    . '</head><body></body></html>';
-                exit;
-            }
-            else {
-                $this->rc->output->add_script(
-                    "rcmail.addEventListener('init', function() {"
-                        . "rcmail.location_href('$url', rcmail.get_frame_window(rcmail.env.contentframe));"
-                    . "});",
-                    'foot'
-                );
+        if (!empty($_GET['redirect'])) {
+            echo '<!DOCTYPE html><html><head>'
+                . '<meta http-equiv="refresh" content="0; url=' . $url . '">'
+                . '</head><body></body></html>';
+            exit;
+        }
+        else {
+            $this->rc->output->add_script(
+                "rcmail.addEventListener('init', function() {"
+                    . "rcmail.location_href('$url', rcmail.get_frame_window(rcmail.env.contentframe));"
+                . "});",
+                'foot'
+            );
 
-                $this->rc->output->send('kolab_chat.chat');
-            }
+            $this->rc->output->send('kolab_chat.chat');
         }
     }
 
@@ -135,9 +134,7 @@ class kolab_chat extends rcube_plugin
      */
     function action()
     {
-        if ($this->driver) {
-            $this->driver->action();
-        }
+        $this->driver->action();
     }
 
     /**
@@ -193,6 +190,9 @@ class kolab_chat extends rcube_plugin
         if ($p['current']) {
             // update env flag in the parent window
             $this->rc->output->command('parent.set_env', array('kolab_chat_extwin' => (bool) $this->rc->config->get('kolab_chat_extwin')));
+
+            // Add driver-specific options
+            $this->driver->preferences_list($p);
         }
 
         return $p;
@@ -212,6 +212,9 @@ class kolab_chat extends rcube_plugin
             $p['prefs'] = array(
                 'kolab_chat_extwin' => isset($_POST['_kolab_chat_extwin']),
             );
+
+            // Add driver-specific options
+            $this->driver->preferences_save($p);
         }
 
         return $p;

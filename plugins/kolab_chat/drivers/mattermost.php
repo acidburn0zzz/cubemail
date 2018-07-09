@@ -55,9 +55,13 @@ class kolab_chat_mattermost
             $url .= '/api/v4/websocket';
         }
         else if ($this->rc->action == 'index' && $this->rc->task == 'kolab-chat') {
-            if ($channel = rcube_utils::get_input_value('_channel', rcube_utils::INPUT_GET)) {
-                $team    = rcube_utils::get_input_value('_team', rcube_utils::INPUT_GET);
+            $channel = rcube_utils::get_input_value('_channel', rcube_utils::INPUT_GET);
+            if (empty($channel)) {
+                $channel = $this->rc->config->get('kolab_chat_channel');
+            }
 
+            if ($channel) {
+                $team = rcube_utils::get_input_value('_team', rcube_utils::INPUT_GET);
                 if (empty($team) && ($_channel = $this->get_channel($channel, true))) {
                     $team = $_channel['team_name'];
                 }
@@ -102,6 +106,49 @@ class kolab_chat_mattermost
     }
 
     /**
+     * Handler for preferences_list hook.
+     * Adds options blocks into Chat settings sections in Preferences.
+     *
+     * @param array &$p Hook parameters
+     */
+    public function preferences_list(&$p)
+    {
+        $no_override = array_flip((array) $this->rc->config->get('dont_override'));
+
+        if (!isset($no_override['kolab_chat_channel'])) {
+            $field_id = 'rcmfd_kolab_chat_channel';
+            $select   = new html_select(array('name' => '_kolab_chat_channel', 'id' => $field_id));
+
+            $select->add('', '');
+            if ($channels = $this->get_channels_list()) {
+                foreach ($channels as $channel) {
+                    if ($channel['name'] && $channel['display_name']) {
+                        $select->add($channel['display_name'], $channel['id']);
+                    }
+                }
+            }
+
+            $p['blocks']['main']['options']['kolab_chat_channel'] = array(
+                'title'   => html::label($field_id, rcube::Q($this->plugin->gettext('defaultchannel'))),
+                'content' => $select->show($this->rc->config->get('kolab_chat_channel')),
+            );
+        }
+    }
+
+    /**
+     * Handler for preferences_save hook.
+     * Executed on Chat settings form submit.
+     *
+     * @param array &$p Hook parameters
+     */
+    public function preferences_save(&$p)
+    {
+        if (isset($_POST['_kolab_chat_channel'])) {
+            $p['prefs']['kolab_chat_channel'] = rcube_utils::get_input_value('_kolab_chat_channel', rcube_utils::INPUT_POST);
+        }
+    }
+
+    /**
      * Returns the Mattermost session token
      * Note: This works only if the user/pass is the same in Kolab and Mattermost
      *
@@ -122,7 +169,7 @@ class kolab_chat_mattermost
             }
 
             try {
-                $request = $this->get_api_request('GET', '/api/v4/users/me');
+                $request = $this->get_api_request('GET', '/users/me');
                 $request->setHeader('Authorization', "Bearer $token");
 
                 $response = $request->send();
@@ -140,7 +187,7 @@ class kolab_chat_mattermost
 
         // Request a new session token
         if (empty($token)) {
-            $request = $this->get_api_request('POST', '/api/v4/users/login');
+            $request = $this->get_api_request('POST', '/users/login');
             $request->setBody(json_encode(array(
                     'login_id' => $user,
                     'password' => $pass,
@@ -198,11 +245,11 @@ class kolab_chat_mattermost
      */
     protected function get_channel($channel_id, $extended = false)
     {
-        $channel = $this->api_get('/api/v4/channels/' . urlencode($channel_id));
+        $channel = $this->api_get('/channels/' . urlencode($channel_id));
 
         if ($extended && is_array($channel)) {
             if (!empty($channel['team_id'])) {
-                 $team = $this->api_get('/api/v4/teams/' . urlencode($channel['team_id']));
+                 $team = $this->api_get('/teams/' . urlencode($channel['team_id']));
             }
             else if ($teams = $this->get_user_teams()) {
                 // if there's no team assigned to the channel, we'll get the user's team
@@ -220,13 +267,34 @@ class kolab_chat_mattermost
     }
 
     /**
+     * Returns the Mattermost channels list for the user
+     *
+     * @return array Channels list (id, name, display_name, etc.)
+     */
+    protected function get_channels_list()
+    {
+        // FIXME: Should we list only public channels here?
+        // FIXME: SHould we check all user teams?
+
+        $user_id = $this->get_user_id();
+        $teams   = $this->get_user_teams();
+
+        if (!empty($teams) && ($team = $teams[0])) {
+            // FIXME: Why it does return channels not assigned to the specified team?
+            return $this->api_get(sprintf('/users/%s/teams/%s/channels', urlencode($user_id), urlencode($team['id'])));
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the Mattermost teams of the user
      *
      * @return array List of teams
      */
     protected function get_user_teams()
     {
-        return $this->api_get('/api/v4/users/' . urlencode($this->get_user_id()) . '/teams');
+        return $this->api_get('/users/' . urlencode($this->get_user_id()) . '/teams');
     }
 
     /**
@@ -242,7 +310,7 @@ class kolab_chat_mattermost
 
         $config = array_merge($defaults, (array) $this->rc->config->get('kolab_chat_http_request'));
 
-        return libkolab::http_request($url . $path, $type, $config);
+        return libkolab::http_request($url . '/api/v4' . $path, $type, $config);
     }
 
     /**

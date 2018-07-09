@@ -8,6 +8,7 @@
     as in the Kolab server. Thanks to this we can auto-login users.
   1. It has to use the same domain, if it's using different we have to use a proxy:
     Following Apache config worked for me with kolab_chat_url=https://kolab.example.com/mattermost
+    Note: This should be simpler with Mattermost 5.1 (to be released soon).
 
     ProxyPreserveHost Off
     RewriteEngine On
@@ -31,3 +32,7 @@ $config['kolab_chat_url'] = 'https://mattermost.example.com';
 
 // Enables opening chat in a new window (or tab)
 $config['kolab_chat_extwin'] = false;
+
+// Default channel to select when opening the chat app.
+// Note: This has to be a channel ID.
+$config['kolab_chat_channel'] = null;
