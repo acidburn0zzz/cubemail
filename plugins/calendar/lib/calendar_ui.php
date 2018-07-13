@@ -171,7 +171,7 @@ class calendar_ui
   /**
    *
    */
-  public function calendar_css_classes($id, $prop, $mode, $attrib)
+  public function calendar_css_classes($id, $prop, $mode, $attrib = array())
   {
     $color = $folder_color = $prop['color'];
 
