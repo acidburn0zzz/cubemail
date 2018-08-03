@@ -366,7 +366,9 @@ class kolab_auth extends rcube_plugin
             }
         }
         // Define the user log directory if a username is provided
-        else if ($rcmail->config->get('per_user_logging') && !empty($this->username)) {
+        else if ($rcmail->config->get('per_user_logging') && !empty($this->username)
+            && !stripos($log_dir, '/' . $this->username) // maybe already set by syncroton, skip
+        ) {
             $user_log_dir = $log_dir . '/' . strtolower($this->username);
             if (is_writable($user_log_dir)) {
                 $args['dir'] = $user_log_dir;
