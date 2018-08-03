@@ -596,7 +596,7 @@ class kolab_delegation_engine
 
         if (!empty($delegators)) {
             $storage  = $this->rc->get_storage();
-            $other_ns = $storage->get_namespace('other');
+            $other_ns = $storage->get_namespace('other') ?: array();
             $folders  = $storage->list_folders();
         }
 
@@ -796,7 +796,7 @@ class kolab_delegation_engine
         }
 
         $storage  = $this->rc->get_storage();
-        $other_ns = $storage->get_namespace('other');
+        $other_ns = $storage->get_namespace('other') ?: array();
         $delim    = $storage->get_hierarchy_delimiter();
 
         if ($mode == 'calendars') {
