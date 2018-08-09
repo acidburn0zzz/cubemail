@@ -221,7 +221,7 @@ class kolab_driver extends calendar_driver
     }
 
     // list virtual calendars showing invitations
-    if ($this->rc->config->get('kolab_invitation_calendars')) {
+    if ($this->rc->config->get('kolab_invitation_calendars') && !($filter & self::FILTER_INSERTABLE)) {
       foreach (array(self::INVITATIONS_CALENDAR_PENDING, self::INVITATIONS_CALENDAR_DECLINED) as $id) {
         $cal = new kolab_invitation_calendar($id, $this->cal);
         $this->calendars[$cal->id] = $cal;
@@ -256,7 +256,7 @@ class kolab_driver extends calendar_driver
     }
 
     // append the virtual birthdays calendar
-    if ($this->rc->config->get('calendar_contact_birthdays', false)) {
+    if ($this->rc->config->get('calendar_contact_birthdays', false) && !($filter & self::FILTER_INSERTABLE)) {
       $id = self::BIRTHDAY_CALENDAR_ID;
       $prefs = $this->rc->config->get('kolab_calendars', array());  // read local prefs
       if (!($filter & self::FILTER_ACTIVE) || $prefs[$id]['active']) {
@@ -312,7 +312,7 @@ class kolab_driver extends calendar_driver
       if (($filter & self::FILTER_WRITEABLE) && !$cal->editable) {
         continue;
       }
-      if (($filter & self::FILTER_INSERTABLE) && !$cal->insert) {
+      if (($filter & self::FILTER_INSERTABLE) && !$cal->editable) {
         continue;
       }
       if (($filter & self::FILTER_ACTIVE) && !$cal->is_active()) {
