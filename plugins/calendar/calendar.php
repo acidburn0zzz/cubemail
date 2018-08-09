@@ -579,7 +579,7 @@ class calendar extends rcube_plugin
 
       $p['blocks']['itip']['options']['after_action'] = array(
         'title'   => html::label($field_id, rcube::Q($this->gettext('afteraction'))),
-        'content' => html::div('input-group', $select->show($val) . $folders->show($folder)),
+        'content' => html::div('input-group input-group-combo', $select->show($val) . $folders->show($folder)),
       );
     }
 
