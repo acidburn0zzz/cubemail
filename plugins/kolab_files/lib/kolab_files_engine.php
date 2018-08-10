@@ -1574,7 +1574,7 @@ class kolab_files_engine
         $this->plugin->add_label(
             'folderdeleting', 'folderdeleteconfirm', 'folderdeletenotice',
             'collection_audio', 'collection_video', 'collection_image', 'collection_document',
-            'additionalfolders', 'listpermanent'
+            'additionalfolders', 'listpermanent', 'storageautherror'
         );
         $this->rc->output->add_label('foldersubscribing', 'foldersubscribed',
             'folderunsubscribing', 'folderunsubscribed', 'searching'

@@ -151,6 +151,7 @@ $labels['invitationrequesting'] = 'Requesting an invitation...';
 
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
+$labels['storageautherror'] = 'Authentication failed for $title storage.';
 
 $labels['arialabelsearchform'] = 'Files search form';
 $labels['arialabelquicksearchbox'] = 'Search input';
