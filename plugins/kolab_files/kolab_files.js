@@ -3771,6 +3771,16 @@ function kolab_files_ui()
       if (!this.auth_errors)
         this.auth_errors = {};
 
+      $.each(result.auth_errors || {}, function(i, v) {
+        // for normal errors we display only an error message, other will display a dialog
+        if (v.error) {
+          if (v.error == 580) {
+            rcmail.display_message(rcmail.gettext('kolab_files.storageautherror').replace('$title', i), 'error');
+          }
+          delete result.auth_errors[i];
+        }
+      });
+
       $.extend(this.auth_errors, result.auth_errors);
     }
 
