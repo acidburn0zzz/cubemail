@@ -3403,7 +3403,7 @@ function tasklist_options_menu(p)
 {
     var content = $('#listoptions-menu'),
         width = content.width() + 25,
-        dialog = content.clone();
+        dialog = content.clone(true);
 
     // set form values
     $('#options-sortcol', dialog).val(rctasks.get_setting('sort_col') || 'auto');
