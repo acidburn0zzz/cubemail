@@ -1439,7 +1439,7 @@ function kolab_notes_options_menu()
 {
     var content = $('#options-menu'),
         width = content.width() + 25,
-        dialog = content.clone();
+        dialog = content.clone(true);
 
     // set form values
     $('select[name="sort_col"]', dialog).val(kolabnotes.settings.sort_col || '');
