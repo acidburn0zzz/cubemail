@@ -811,6 +811,7 @@ class calendar_ui
         'id'            => 'rcmcalresqsearchbox',
         'autocomplete'  => 'off',
         'form-name'     => 'rcmcalresoursqsearchform',
+        'gui-object'    => 'resourcesearchform',
     );
 
     // add form tag around text field
