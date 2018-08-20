@@ -1381,7 +1381,9 @@ class kolab_notes extends rcube_plugin
 
         // try to be smart and convert to plain-text if no real formatting is detected
         if (preg_match('!<body><(?:p|pre)>(.*)</(?:p|pre)></body>!Uims', $object['description'], $m)) {
-            if (!preg_match('!<(a|b|i|strong|em|p|span|div|pre|li)(\s+[a-z]|>)!im', $m[1], $n) || !strpos($m[1], '</'.$n[1].'>')) {
+            if (!preg_match('!<(a|b|i|strong|em|p|span|div|pre|li|img)(\s+[a-z]|>)!im', $m[1], $n)
+                || ($n[1] != 'img' && !strpos($m[1], '</'.$n[1].'>'))
+            ) {
                 // $converter = new rcube_html2text($m[1], false, true, 0);
                 // $object['description'] = rtrim($converter->get_text());
                 $object['description'] = html_entity_decode(preg_replace('!<br(\s+/)>!', "\n", $m[1]));
