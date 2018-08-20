@@ -328,18 +328,6 @@ a.history {
         display: none;
     }
 
-    &.formcontainer {
-        background: transparent !important;
-
-        &:before {
-            background: unset !important;
-        }
-
-        &  > * {
-            display: initial;
-        }
-    }
-
     // this is to blend the watermark image
     &:before {
         content: "";
@@ -349,6 +337,18 @@ a.history {
         left: 0;
         right: 0;
         background: rgba(255, 255, 255, .85);
+    }
+
+    &.formcontainer {
+        background: transparent !important;
+
+        &:before {
+            display: none;
+        }
+
+        & > * {
+            display: initial;
+        }
     }
 }
 
