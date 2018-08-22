@@ -212,7 +212,9 @@ class kolab_addressbook extends rcube_plugin
 
         // render a hierarchical list of kolab contact folders
         kolab_storage::folder_hierarchy($this->folders, $tree);
-        $out .= $this->folder_tree_html($tree, $sources, $jsdata);
+        if ($tree && !empty($tree->children)) {
+            $out .= $this->folder_tree_html($tree, $sources, $jsdata);
+        }
 
         $this->rc->output->set_env('contactgroups', array_filter($jsdata, function($src){ return $src['type'] == 'group'; }));
         $this->rc->output->set_env('address_sources', array_filter($jsdata, function($src){ return $src['type'] != 'group'; }));
