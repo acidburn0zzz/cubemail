@@ -20,7 +20,7 @@ function kolab_files_listoptions(type)
 {
     var content = $('#' + type + 'listoptions'),
         width = content.width() + 25,
-        dialog = content.clone(),
+        dialog = content.clone(true),
         title = rcmail.gettext('kolab_files.arialabel' + (type == 'sessions' ? 'sessions' : '') + 'listoptions'),
         close_func = function() { rcmail[type + 'list'].focus(); },
         save_func = function(e) {
