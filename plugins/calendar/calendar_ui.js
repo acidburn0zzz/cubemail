@@ -3855,7 +3855,8 @@ function rcube_calendar_ui(settings)
           id: event.id,
           calendar: event.calendar,
           start: date2servertime(event.start),
-          end: date2servertime(event.end)
+          end: date2servertime(event.end),
+          allday: event.allDay?1:0
         };
         update_event_confirm('resize', event, data);
       },
