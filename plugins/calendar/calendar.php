@@ -2662,11 +2662,16 @@ class calendar extends rcube_plugin
 
       $before = $after = array();
       foreach ($events as $event) {
-
         // TODO: skip events with free_busy == 'free' ?
-        if ($event['uid'] == $data['uid'] || $event['end'] < $day_start || $event['start'] > $day_end)
+        if ($event['uid'] == $data['uid']
+            || $event['end'] < $day_start || $event['start'] > $day_end
+            || $event['status'] == 'CANCELLED'
+            || (!empty($event['className']) && strpos($event['className'], 'declined') !== false)
+        ) {
           continue;
-        else if ($event['start'] < $event_start)
+        }
+
+        if ($event['start'] < $event_start)
           $before[] = $this->mail_agenda_event_row($event);
         else
           $after[] = $this->mail_agenda_event_row($event);
@@ -2834,7 +2839,7 @@ class calendar extends rcube_plugin
       $this->rc->format_date($event['start'], $this->rc->config->get('time_format')) . ' - ' .
         $this->rc->format_date($event['end'], $this->rc->config->get('time_format'));
 
-    return html::div(rtrim('event-row ' . $class),
+    return html::div(rtrim('event-row ' . ($class ?: $event['className'])),
       html::span('event-date', $time) .
       html::span('event-title', rcube::Q($event['title']))
     );

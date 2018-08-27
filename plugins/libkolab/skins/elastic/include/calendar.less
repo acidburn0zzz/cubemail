@@ -137,8 +137,15 @@ fieldset.categories .input-group {
         }
 
         &.no-event {
-            color: @color-black-shade-text;
             font-style: italic;
+        }
+
+        &.fc-invitation-needs-action {
+            color: @color-black-shade-text;
+
+            .event-title {
+                font-style: italic;
+            }
         }
     }
 

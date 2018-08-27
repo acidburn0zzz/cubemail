@@ -2238,6 +2238,11 @@ div.calendar-invitebox .calendar-agenda-preview .event-row.no-event {
 	font-style: italic;
 }
 
+div.calendar-invitebox .calendar-agenda-preview .event-row.fc-invitation-needs-action {
+	font-style: italic;
+	opacity: .5;
+}
+
 div.calendar-invitebox .calendar-agenda-preview .event-date {
 	display: inline-block;
 	min-width: 8em;
