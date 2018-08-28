@@ -1261,19 +1261,20 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
  */
 rcube_libcalendaring.itip_rsvp_recurring = function(btn, callback)
 {
-    var mnu = $('<ul></ul>').addClass('popupmenu libcal-rsvp-replymode');
+    var menu = $('<ul></ul>').attr('class', 'popupmenu libcal-rsvp-replymode');
 
     $.each(['all','current'/*,'future'*/], function(i, mode) {
-        $('<li><a>' + rcmail.get_label('rsvpmode'+mode, 'libcalendaring') + '</a>')
-        .addClass('ui-menu-item')
-        .attr('rel', mode)
-        .appendTo(mnu);
+        $('<li>')
+            .attr({rel: mode, 'class': 'ui-menu-item'})
+            .append($('<a>').attr({tabindex: "0", 'class': 'ui-menu-item-wrapper'})
+                .text(rcmail.get_label('rsvpmode' + mode)))
+            .appendTo(menu);
     });
 
     var action = btn.attr('rel');
 
-    // open the mennu
-    mnu.menu({
+    // open the menu
+    menu.menu({
         select: function(event, ui) {
             callback(action, ui.item.attr('rel'));
         }
@@ -1284,8 +1285,8 @@ rcube_libcalendaring.itip_rsvp_recurring = function(btn, callback)
 
     setTimeout(function() {
         $(document).one('click', function() {
-            mnu.menu('destroy');
-            mnu.remove();
+            menu.menu('destroy');
+            menu.remove();
         });
     }, 100);
 };
