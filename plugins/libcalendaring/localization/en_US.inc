@@ -183,6 +183,7 @@ $labels['delegatedto'] = 'Delegated to:';
 $labels['delegatedfrom'] = 'Delegated from:';
 
 $labels['savingdata'] = 'Saving data...';
+$labels['savein'] = 'Save in';
 
 // attendees labels
 $labels['expandattendeegroup'] = 'Substitute with group members';

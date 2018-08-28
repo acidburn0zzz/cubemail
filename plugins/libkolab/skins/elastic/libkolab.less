@@ -373,6 +373,22 @@ a.history {
     }
 }
 
+.form-section.form-group.form-check {
+    display: flex;
+    padding: 0;
+
+    label {
+        order: 10;
+    }
+
+    .icon-checkbox + label {
+        order: unset;
+        min-width: 2em;
+        padding: 0;
+        line-height: 1;
+    }
+}
+
 button.btn.save.notify:before {
     content: @fa-var-envelope;
 }
