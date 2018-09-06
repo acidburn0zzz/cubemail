@@ -119,7 +119,7 @@ class kolab_chat_mattermost
             $field_id = 'rcmfd_kolab_chat_channel';
             $select   = new html_select(array('name' => '_kolab_chat_channel', 'id' => $field_id));
 
-            $select->add('', '');
+            $select->add('---', '');
             if ($channels = $this->get_channels_list()) {
                 foreach ($channels as $channel) {
                     if ($channel['name'] && $channel['display_name']) {
