@@ -85,8 +85,8 @@ class kolab_chat_mattermost
             $this->plugin->add_label('openchat', 'directmessage', 'mentionmessage');
         }
         else if ($this->get_token()) {
-            rcube_utils::setcookie('MMUSERID', $_SESSION['mattermost'][0], 0, false);
-            rcube_utils::setcookie('MMAUTHTOKEN', $_SESSION['mattermost'][1], 0, false);
+            $this->setcookie('MMUSERID', $_SESSION['mattermost'][0]);
+            $this->setcookie('MMAUTHTOKEN', $_SESSION['mattermost'][1]);
         }
     }
 
@@ -335,5 +335,24 @@ class kolab_chat_mattermost
                 rcube::raise_error($e, true, false);
             }
         }
+    }
+
+    /**
+     * Set mattermost session cookies
+     */
+    protected function setcookie($name, $value)
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        $cookie = session_get_cookie_params();
+        $secure = $cookie['secure'] || self::https_check();
+
+        if ($domain = $this->rc->config->get('kolab_chat_session_domain')) {
+            $cookie['domain'] = $domain;
+        }
+
+        setcookie($name, $value, 0, $cookie['path'], $cookie['domain'], $secure, false);
     }
 }
