@@ -1760,14 +1760,19 @@ body.task-calendar {
 
 .standalone-invitebox {
     margin: 0 auto;
-    padding-top: 36vh;
     max-width: 500px;
     width: 95%;
-    background: url("@{skin-path}/images/watermark.jpg") center -20px no-repeat;
-    background-size: auto 40%;
+    display: flex;
+    flex-direction: column;
+    top: 15vh;
+    position: relative;
+
+    #logo {
+        max-height: 90px;
+    }
 
     .invitebox {
-        border: 1px solid @color-layout-border !important;
+        margin-top: 3em !important;
     }
 }
 
