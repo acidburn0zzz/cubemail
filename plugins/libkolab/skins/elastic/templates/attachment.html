@@ -43,8 +43,6 @@
 		<roundcube:object name="plugin.attachmentframe" id="attachmentframe" title="arialabelattachmentpreview"
 			role="main" aria-labelledby="aria-label-messagepart" />
 	</div>
-</div>
-
 <roundcube:if condition="stripos(env:mimetype, 'image/') === 0" />
 	<div id="image-tools" class="image-tools" data-hidden="big">
 		<h3 id="aria-label-imagetools" class="voice"><roundcube:label name="arialabelimagetools" /></h3>
@@ -65,5 +63,6 @@
 		</a>
 	</div>
 <roundcube:endif />
+</div>
 
 <roundcube:include file="includes/footer.html" />
