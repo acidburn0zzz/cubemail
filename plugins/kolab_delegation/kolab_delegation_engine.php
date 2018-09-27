@@ -28,6 +28,7 @@ class kolab_delegation_engine
     public $context;
 
     private $rc;
+    private $ldap;
     private $ldap_filter;
     private $ldap_delegate_field;
     private $ldap_login_field;
@@ -225,7 +226,29 @@ class kolab_delegation_engine
      */
     private function ldap()
     {
-        $ldap = kolab_auth::ldap();
+        if ($this->ldap !== null) {
+            return $this->ldap;
+        }
+
+        if ($addressbook = $this->rc->config->get('kolab_delegation_addressbook')) {
+            if (!is_array($addressbook)) {
+                $ldap_config = (array) $this->rc->config->get('ldap_public');
+                $addressbook = $ldap_config[$addressbook];
+            }
+
+            if (!empty($addressbook)) {
+                require_once __DIR__ . '/../kolab_auth/kolab_auth_ldap.php';
+
+                $ldap = new kolab_auth_ldap($addressbook);
+            }
+        }
+
+        // Fallback to kolab_auth plugin's addressbook
+        if (!$ldap) {
+            $ldap = kolab_auth::ldap();
+        }
+
+        $this->ldap = $ldap;
 
         if (!$ldap || !$ldap->ready) {
             return null;
@@ -239,13 +262,13 @@ class kolab_delegation_engine
         $this->ldap_dn = $_SESSION['kolab_dn'];
 
         // Name of the LDAP field with authentication ID
-        $this->ldap_login_field = $this->rc->config->get('kolab_auth_login');
+        $this->ldap_login_field = $this->rc->config->get('kolab_delegation_login_field', $this->rc->config->get('kolab_auth_login'));
         // Name of the LDAP field with user name used for identities
-        $this->ldap_name_field = $this->rc->config->get('kolab_auth_name');
+        $this->ldap_name_field = $this->rc->config->get('kolab_delegation_name_field', $this->rc->config->get('kolab_auth_name'));
         // Name of the LDAP field with email addresses used for identities
-        $this->ldap_email_field = $this->rc->config->get('kolab_auth_email');
+        $this->ldap_email_field = $this->rc->config->get('kolab_delegation_email_field', $this->rc->config->get('kolab_auth_email'));
         // Name of the LDAP field with organization name for identities
-        $this->ldap_org_field = $this->rc->config->get('kolab_auth_organization');
+        $this->ldap_org_field = $this->rc->config->get('kolab_delegation_organization_field', $this->rc->config->get('kolab_auth_organization'));
 
         $ldap->set_filter($this->ldap_filter);
         $ldap->extend_fieldmap(array($this->ldap_delegate_field => $this->ldap_delegate_field));
