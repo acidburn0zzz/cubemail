@@ -394,13 +394,6 @@ class libcalendaring_itip
                         break;
                     }
                 }
-
-                // Detect re-sheduling
-                if (!$latest) {
-                    // FIXME: This is probably to simplistic, or maybe we should just check
-                    //        attendee's RSVP flag in the new event?
-                    $rescheduled = $existing['start'] != $event['start'] || $existing['end'] > $event['end'];
-                }
             }
             else {
                 $rsvp = $event['rsvp'] && $this->rc->config->get('calendar_allow_itip_uninvited', true);
@@ -426,17 +419,29 @@ class libcalendaring_itip
                 else if (!$existing && !$rsvp) {
                     $action = 'import';
                 }
-                else if ($rescheduled) {
-                    $action = 'rsvp';
-                }
-                else if ($status_lc != 'needs-action') {
-                    // check if there are any changes
+                else {
                     if ($latest) {
-                        $diff   = $this->get_itip_diff($event, $existing);
-                        $latest = empty($diff);
+                        $diff = $this->get_itip_diff($event, $existing);
+
+                        // Detect re-scheduling
+                        // FIXME: This is probably to simplistic, or maybe we should just check
+                        //        attendee's RSVP flag in the new event?
+                        $rescheduled = !empty($diff['start']) || !empty($diff['end']);
+                        unset($diff['start'], $diff['end']);
                     }
 
-                    $action = !$latest ? 'update' : '';
+                    if ($rescheduled) {
+                        $action = 'rsvp';
+                        $latest = false;
+                    }
+                    else if ($status_lc != 'needs-action') {
+                        // check if there are any changes
+                        if ($latest) {
+                            $latest = empty($diff);
+                        }
+
+                        $action = !$latest ? 'update' : '';
+                    }
                 }
 
                 $html = html::div('rsvp-status ' . $status_lc, $status_text);
@@ -565,6 +570,20 @@ class libcalendaring_itip
                 $diff['attendees'] = array(
                     'new' => $itip['attendees'],
                     'old' => $existing['attendees']
+                );
+            }
+
+            if ($existing['start'] != $itip['start']) {
+                $diff['start'] = array(
+                    'new' => $itip['start'],
+                    'old' => $existing['start'],
+                );
+            }
+
+            if ($existing['end'] != $itip['end']) {
+                $diff['end'] = array(
+                    'new' => $itip['end'],
+                    'old' => $existing['end'],
                 );
             }
 
