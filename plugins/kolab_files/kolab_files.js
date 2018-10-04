@@ -190,6 +190,9 @@ function kolab_files_init()
       // get ongoing sessions
       file_api.request('folder_info', {folder: file_api.file_path(rcmail.env.file), sessions: 1}, 'folder_info_response');
     }
+    else if (rcmail.env.action == 'share') {
+      // do nothing
+    }
     else {
       file_api.env.init_folder = rcmail.env.folder;
       file_api.env.init_collection = rcmail.env.collection;
@@ -516,6 +519,18 @@ function kolab_files_folder_edit_dialog()
 
   // build parent selector
   file_api.folder_select_element(select, {selected: path, empty: true});
+};
+
+// folder sharing dialog
+function kolab_files_folder_share_dialog()
+{
+  var dialog = $('<iframe>').attr('src', rcmail.url('share', {folder: file_api.env.folder, _framed: 1}));
+
+  rcmail.simple_dialog(dialog, rcmail.gettext('kolab_files.foldershare'), null, {
+    cancel_button: 'close',
+    width: 600,
+    height: 500
+  });
 };
 
 // folder mounting dialog
@@ -1945,6 +1960,12 @@ rcube_webmail.prototype.folder_rename = function(prop, elem, event)
   kolab_files_folder_edit_dialog();
 };
 
+rcube_webmail.prototype.folder_share = function(prop, elem, event)
+{
+  this.hide_menu('folderoptions', event);
+  kolab_files_folder_share_dialog();
+};
+
 rcube_webmail.prototype.folder_mount = function(prop, elem, event)
 {
   this.hide_menu('folderoptions', event);
@@ -2020,6 +2041,21 @@ function kolab_files_ui()
       return false;
 
     return true;
+  };
+
+  // Check if specified folder (hierarchy) supports sharing
+  this.is_shareable = function(folder)
+  {
+    if (!folder)
+      folder = this.env.folder;
+
+    if (!folder)
+      return false;
+
+    var root = folder.split(this.env.directory_separator)[0],
+      caps = this.env.caps.MOUNTPOINTS && this.env.caps.MOUNTPOINTS[root] ? this.env.caps.MOUNTPOINTS[root] : this.env.caps;
+
+    return !!caps.ACL;
   };
 
   // folders list request
@@ -2199,6 +2235,7 @@ function kolab_files_ui()
     rcmail.enable_command('files-list', true);
     rcmail.enable_command('files-folder-delete', 'folder-rename', !is_collection);
     rcmail.enable_command('files-upload', !is_collection && this.is_writable());
+    rcmail.enable_command('folder-share', !is_collection && this.is_shareable());
     rcmail.command('files-list', is_collection ? {collection: collection} : {folder: folder});
 
     this.quota();

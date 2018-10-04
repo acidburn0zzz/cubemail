@@ -21,12 +21,15 @@ $labels['selectfiles'] = 'Select file(s) to attach...';
 $labels['attachsel'] = 'Attach selected';
 $labels['foldercreate'] = 'Create folder';
 $labels['addfolder'] = 'Add folder';
+$labels['foldershare'] = 'Share folder';
 $labels['folderedit'] = 'Edit folder';
+$labels['folderrename'] = 'Rename folder';
 $labels['foldermount'] = 'Add storage';
 $labels['folderdelete'] = 'Delete folder';
 $labels['folderoptions'] = 'Folder options';
 $labels['findfolders'] = 'Find folders';
 $labels['findfiles'] = 'Find files';
+$labels['share'] = 'Share';
 
 $labels['folderinside'] = 'Insert inside';
 $labels['foldername'] = 'Folder name';

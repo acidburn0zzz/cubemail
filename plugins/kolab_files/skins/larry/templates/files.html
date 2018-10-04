@@ -76,6 +76,7 @@
     <h3 id="aria-label-folderoptions" class="voice"><roundcube:label name="kolab_files.folderoptions" /></h3>
     <ul id="folderoptionsmenu" class="toolbarmenu" role="menu" aria-labelledby="aria-label-folderoptions">
         <li role="menuitem"><roundcube:button type="link" command="folder-rename" label="rename" classAct="active" /></li>
+        <li role="menuitem"><roundcube:button type="link" command="folder-share" label="kolab_files.share" classAct="active" /></li>
         <li role="menuitem"><roundcube:button type="link" command="files-folder-delete" label="delete" classAct="active" /></li>
         <roundcube:if condition="!empty(env:external_sources)" />
         <li role="menuitem"><roundcube:button type="link" command="folder-mount" label="kolab_files.foldermount" classAct="active" /></li>

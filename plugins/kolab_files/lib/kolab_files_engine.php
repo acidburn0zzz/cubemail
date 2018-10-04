@@ -106,7 +106,7 @@ class kolab_files_engine
             $this->get_external_storage_drivers();
 
             // these labels may be needed even if fetching ext sources failed
-            $this->plugin->add_label('folderauthtitle', 'authenticating');
+            $this->plugin->add_label('folderauthtitle', 'authenticating', 'foldershare');
         }
 
         if ($list_widget) {
@@ -356,6 +356,19 @@ class kolab_files_engine
             . html::label('auth-pass-checkbox' . $attrib['suffix'], $this->plugin->gettext('storepasswords'))
             . html::p('description hint', $this->plugin->gettext('storepasswordsdesc'))
         );
+    }
+
+    /**
+     * Template object for sharing form
+     */
+    public function folder_share_form($attrib)
+    {
+        $folder = rcube_utils::get_input_value('folder', rcube_utils::INPUT_POST, true);
+
+        $form = $this->get_share_form($folder);
+
+print_r($form);
+        $this->rc->output->set_env('folder', $folder);
     }
 
     /**
@@ -1074,6 +1087,16 @@ class kolab_files_engine
     }
 
     /**
+     * Handler for folder sharing action
+     */
+    protected function action_share()
+    {
+        $this->rc->output->add_handler('share-form', array($this, 'folder_share_form'));
+
+        $this->rc->output->send('kolab_files.share');
+    }
+
+    /**
      * Handler for "save all attachments into cloud" action
      */
     protected function action_save_file()
@@ -1553,6 +1576,36 @@ class kolab_files_engine
         }
 
         $this->rc->output->set_env('external_sources', $sources);
+    }
+
+    /**
+     * Get list of available external storage drivers
+     */
+    protected function get_share_form($folder)
+    {
+        // first get configured sources from Chwala
+        $token   = $this->get_api_token();
+        $request = $this->get_request(array('method' => 'sharing', 'folder' => $folder), $token);
+
+        // send request to the API
+        try {
+            $response = $request->send();
+            $status   = $response->getStatus();
+            $body     = @json_decode($response->getBody(), true);
+
+            if ($status == 200 && $body['status'] == 'OK') {
+                $form = $body['result'];
+            }
+            else {
+                throw new Exception($body['reason'] ?: "Failed to get sharing form information. Status: $status");
+            }
+        }
+        catch (Exception $e) {
+            rcube::raise_error($e, true, false);
+            return;
+        }
+
+        return $form;
     }
 
     /**
