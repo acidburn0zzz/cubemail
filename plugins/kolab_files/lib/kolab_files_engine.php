@@ -363,12 +363,75 @@ class kolab_files_engine
      */
     public function folder_share_form($attrib)
     {
-        $folder = rcube_utils::get_input_value('folder', rcube_utils::INPUT_POST, true);
+        $folder = rcube_utils::get_input_value('_folder', rcube_utils::INPUT_GET, true);
 
-        $form = $this->get_share_form($folder);
+        $info = $this->get_share_info($folder);
 
-print_r($form);
         $this->rc->output->set_env('folder', $folder);
+
+        if (empty($info) || empty($info['form'])) {
+            return;
+        }
+
+        $out = '';
+
+        foreach ($info['form'] as $mode => $tab) {
+            $table  = new html_table(array('cols' => count($tab['form']) + 1));
+            $submit = new html_button(array('class' => 'btn btn-secondary submit'));
+            $delete = new html_button(array('class' => 'btn btn-secondary delete'));
+            $fields = array();
+
+            // Table header
+            foreach ($tab['form'] as $field) {
+                $table->add_header(null, rcube::Q($field['title']));
+            }
+            $table->add_header(null, '');
+
+            // Submit form
+            foreach ($tab['form'] as $index => $field) {
+                if ($field['type'] == 'select') {
+                    $ff = new html_select(array('name' => $index));
+                    foreach ($field['options'] as $opt_idx => $opt) {
+                        $ff->add($opt, $opt_idx);
+                    }
+                }
+                else {
+                    $ff = new html_inputfield(array('name' => $index));
+                }
+
+                $table->add(null, $ff->show());
+                $fields[$index] = $ff;
+            }
+            $table->add(null, $submit->show(rcube::Q($this->plugin->gettext('submit'))));
+
+            // Existing entries
+            foreach ((array) $info['rights'] as $entry) {
+                if ($entry['mode'] == $mode) {
+                    foreach ($tab['form'] as $index => $field) {
+                        if ($fields[$index] instanceof html_select) {
+                            $table->add(null, $fields[$index]->show($entry[$index]));
+                        }
+                        else if ($fields[$index] instanceof html_inputfield) {
+                            $table->add(null, $fields[$index]->show($entry[$index], array('readonly' => true, 'class' => 'form-control-plaintext')));
+                        }
+                    }
+
+                    $hidden = '';
+                    foreach (array('type', 'id') as $key) {
+                        if (isset($entry[$key])) {
+                            $h = new html_hiddenfield(array('name' => $key));
+                            $hidden .= $h->show($entry[$key]);
+                        }
+                    }
+
+                    $table->add(null, $hidden . $delete->show(rcube::Q($this->rc->gettext('delete'))));
+                }
+            }
+
+            $out .= html::tag('fieldset', $idx, html::tag('legend', null, rcube::Q($tab['title'])) . $table->show()) . "\n";
+        }
+
+        return html::div($attrib, $out);
     }
 
     /**
@@ -1579,9 +1642,9 @@ print_r($form);
     }
 
     /**
-     * Get list of available external storage drivers
+     * Get folder share dialog data
      */
-    protected function get_share_form($folder)
+    protected function get_share_info($folder)
     {
         // first get configured sources from Chwala
         $token   = $this->get_api_token();
@@ -1594,7 +1657,7 @@ print_r($form);
             $body     = @json_decode($response->getBody(), true);
 
             if ($status == 200 && $body['status'] == 'OK') {
-                $form = $body['result'];
+                $info = $body['result'];
             }
             else {
                 throw new Exception($body['reason'] ?: "Failed to get sharing form information. Status: $status");
@@ -1605,7 +1668,7 @@ print_r($form);
             return;
         }
 
-        return $form;
+        return $info;
     }
 
     /**

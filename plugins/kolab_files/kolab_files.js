@@ -524,7 +524,7 @@ function kolab_files_folder_edit_dialog()
 // folder sharing dialog
 function kolab_files_folder_share_dialog()
 {
-  var dialog = $('<iframe>').attr('src', rcmail.url('share', {folder: file_api.env.folder, _framed: 1}));
+  var dialog = $('<iframe>').attr('src', rcmail.url('share', {_folder: file_api.env.folder, _framed: 1}));
 
   rcmail.simple_dialog(dialog, rcmail.gettext('kolab_files.foldershare'), null, {
     cancel_button: 'close',
@@ -2053,7 +2053,10 @@ function kolab_files_ui()
       return false;
 
     var root = folder.split(this.env.directory_separator)[0],
-      caps = this.env.caps.MOUNTPOINTS && this.env.caps.MOUNTPOINTS[root] ? this.env.caps.MOUNTPOINTS[root] : this.env.caps;
+      caps = this.env.caps;
+
+    if (root != folder && this.env.caps.MOUNTPOINTS && this.env.caps.MOUNTPOINTS[root])
+      caps = this.env.caps.MOUNTPOINTS[root];
 
     return !!caps.ACL;
   };
