@@ -367,16 +367,19 @@ class kolab_files_engine
 
         $info = $this->get_share_info($folder);
 
-        $this->rc->output->set_env('folder', $folder);
-
         if (empty($info) || empty($info['form'])) {
-            return;
+            $msg = $this->plugin->gettext($info === false ? 'sharepermissionerror' : 'sharestorageerror');
+            return html::div(array('class' => 'boxerror', 'id' => 'share-notice'), rcube::Q($msg));
+        }
+
+        if (empty($attrib['id'])) {
+            $attrib['id'] = 'foldershareform';
         }
 
         $out = '';
 
         foreach ($info['form'] as $mode => $tab) {
-            $table  = new html_table(array('cols' => count($tab['form']) + 1));
+            $table  = new html_table(array('cols' => count($tab['form']) + 1, 'data-mode' => $mode));
             $submit = new html_button(array('class' => 'btn btn-secondary submit'));
             $delete = new html_button(array('class' => 'btn btn-secondary delete'));
             $fields = array();
@@ -402,7 +405,14 @@ class kolab_files_engine
                 $table->add(null, $ff->show());
                 $fields[$index] = $ff;
             }
-            $table->add(null, $submit->show(rcube::Q($this->plugin->gettext('submit'))));
+
+            $hidden = '';
+            foreach ((array) $tab['extra_fields'] as $key => $default) {
+                $h = new html_hiddenfield(array('name' => $key, 'value' => $default));
+                $hidden .= $h->show();
+            }
+
+            $table->add(null, $hidden . $submit->show(rcube::Q($this->plugin->gettext('submit'))));
 
             // Existing entries
             foreach ((array) $info['rights'] as $entry) {
@@ -412,15 +422,15 @@ class kolab_files_engine
                             $table->add(null, $fields[$index]->show($entry[$index]));
                         }
                         else if ($fields[$index] instanceof html_inputfield) {
-                            $table->add(null, $fields[$index]->show($entry[$index], array('readonly' => true, 'class' => 'form-control-plaintext')));
+                            $table->add(null, html::span('name', rcube::Q($entry[$index])));
                         }
                     }
 
                     $hidden = '';
-                    foreach (array('type', 'id') as $key) {
+                    foreach ((array) $tab['extra_fields'] as $key => $default) {
                         if (isset($entry[$key])) {
-                            $h = new html_hiddenfield(array('name' => $key));
-                            $hidden .= $h->show($entry[$key]);
+                            $h = new html_hiddenfield(array('name' => $key, 'value' => $entry[$key]));
+                            $hidden .= $h->show();
                         }
                     }
 
@@ -428,8 +438,13 @@ class kolab_files_engine
                 }
             }
 
-            $out .= html::tag('fieldset', $idx, html::tag('legend', null, rcube::Q($tab['title'])) . $table->show()) . "\n";
+            $out .= html::tag('fieldset', $mode, html::tag('legend', null, rcube::Q($tab['title'])) . $table->show()) . "\n";
         }
+
+        $this->rc->output->set_env('folder', $folder);
+        $this->rc->output->set_env('form_info', $info['form']);
+        $this->rc->output->add_gui_object('shareform', $attrib['id']);
+        $this->rc->output->add_label('kolab_files.submit', 'delete', 'kolab_files.updatingfoldershares');
 
         return html::div($attrib, $out);
     }
@@ -1658,6 +1673,9 @@ class kolab_files_engine
 
             if ($status == 200 && $body['status'] == 'OK') {
                 $info = $body['result'];
+            }
+            else if ($body['code'] == 530) {
+                return false;
             }
             else {
                 throw new Exception($body['reason'] ?: "Failed to get sharing form information. Status: $status");

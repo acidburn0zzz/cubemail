@@ -92,6 +92,7 @@ $labels['filedeletenotice'] = 'File(s) deleted successfully.';
 $labels['filemovenotice'] = 'File(s) moved successfully.';
 $labels['filecopynotice'] = 'File(s) copied successfully.';
 $labels['uploadsizeerror'] = 'Maximum file size ($size) exceeded!';
+$labels['updatingfoldershares'] = 'Updating folder permissions...';
 
 $labels['listpermanent'] = 'List permanently';
 $labels['additionalfolders'] = 'Additional folders';
@@ -159,6 +160,8 @@ $labels['invitationrequesting'] = 'Requesting an invitation...';
 $labels['storepasswords'] = 'remember password';
 $labels['storepasswordsdesc'] = 'Stored passwords will be encrypted. Enable this if you do not want to be asked for the password on every login or you want this storage to be available via WebDAV.';
 $labels['storageautherror'] = 'Authentication failed for $title storage.';
+$labels['sharepermissionerror'] = 'You do not have permission to manage this folder sharing.';
+$labels['sharestorageerror'] = 'Failed to get folder sharing information.';
 
 $labels['arialabelsearchform'] = 'Files search form';
 $labels['arialabelquicksearchbox'] = 'Search input';

@@ -191,7 +191,7 @@ function kolab_files_init()
       file_api.request('folder_info', {folder: file_api.file_path(rcmail.env.file), sessions: 1}, 'folder_info_response');
     }
     else if (rcmail.env.action == 'share') {
-      // do nothing
+      kolab_files_share_form_init();
     }
     else {
       file_api.env.init_folder = rcmail.env.folder;
@@ -1322,6 +1322,22 @@ function kolab_files_progress_str(param)
     .replace(/\$percent/, param.percent + '%')
     .replace(/\$current/, current)
     .replace(/\$total/, total);
+};
+
+function kolab_files_share_form_init()
+{
+  $('fieldset > table', rcmail.gui_objects.shareform).each(function() {
+    var mode = $(this).data('mode');
+    $('tbody > tr', this).each(function(i, row) {
+      if (!i) {
+        $('button.submit', row).on('click', function() { file_api.sharing_submit(rcmail.env.folder, row, mode); });
+      }
+      else {
+        $('button.delete', row).on('click', function() { file_api.sharing_delete(rcmail.env.folder, row, mode); });
+        $('select,input[type=text]', row).on('change', function() { file_api.sharing_update(rcmail.env.folder, row, mode); });
+      }
+    });
+  });
 };
 
 
@@ -2692,6 +2708,103 @@ function kolab_files_ui()
     // refresh folders list
     this.folder_list();
     this.quota();
+  };
+
+  this.sharing_submit = function(folder, row, mode)
+  {
+    var post = this.sharing_data(row, {action: 'submit', folder: folder, mode: mode});
+
+    this.sharing_submit_post = post;
+    this.sharing_submit_row = row;
+    this.req = this.set_busy(true, 'kolab_files.updatingfolder' + mode);
+    this.post('sharing', post, 'sharing_submit_response');
+  };
+
+  this.sharing_submit_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    // reset inputs
+    $(this.sharing_submit_row).find('input[type=text]').val('');
+
+    var hidden = [],
+      post = $.extend({}, this.sharing_submit_post, response.data || {}),
+      form_info = rcmail.env.form_info[post.mode],
+      row = $('<tr>'),
+      btn = $('<button type="button" class="btn btn-secondary delete">')
+        .text(rcmail.gettext('delete'))
+        .on('click', function() { file_api.sharing_delete(post.folder, $(this).closest('tr'), post.mode); });
+
+    $.each(form_info.form || [], function(i, v) {
+      var content, opts = [];
+
+      if (v.type == 'select') {
+        content = $('<select>').attr('name', i)
+          .on('change', function() { file_api.sharing_update(post.folder, $(this).closest('tr'), post.mode); });
+        $.each(v.options, function(i, v) {
+          opts.push($('<option>').attr('value', i).text(v));
+        });
+
+        content.append(opts).val(post[i]);
+      }
+      else {
+        content = $('<span class="name">').text(post[i]);
+        hidden.push($('<input>').attr({type: 'hidden', name: i, value: post[i] || ''}));
+      }
+
+      row.append($('<td>').append(content));
+    });
+
+    $.each(form_info.extra_fields || [], function(i, v) {
+      hidden.push($('<input>').attr({type: 'hidden', name: i, value: post[i] || ''}));
+    });
+
+    row.append($('<td>').append(btn).append(hidden));
+
+    $(this.sharing_submit_row).parent().append(row);
+  };
+
+  this.sharing_update = function(folder, row, mode)
+  {
+    var post = this.sharing_data(row, {action: 'update', folder: folder, mode: mode});
+
+    this.req = this.set_busy(true, 'kolab_files.updatingfolder' + mode);
+    this.post('sharing', post, 'sharing_update_response');
+  };
+
+  this.sharing_update_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    // todo: on error reset fields?
+  };
+
+  this.sharing_delete = function(folder, row, mode)
+  {
+    var post = this.sharing_data(row, {action: 'delete', folder: folder, mode: mode});
+
+    this.sharing_delete_row = row;
+    this.req = this.set_busy(true, 'kolab_files.updatingfolder' + mode);
+    this.post('sharing', post, 'sharing_delete_response');
+  };
+
+  this.sharing_delete_response = function(response)
+  {
+    if (!this.response(response))
+      return;
+
+    $(this.sharing_delete_row).remove();
+  };
+
+  this.sharing_data = function(row, data)
+  {
+    $('select,input', row).each(function() {
+      data[this.name] = $(this).val();
+    });
+
+    return data;
   };
 
   // quota request
