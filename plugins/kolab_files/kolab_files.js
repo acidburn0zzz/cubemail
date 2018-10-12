@@ -1331,6 +1331,41 @@ function kolab_files_share_form_init()
     $('tbody > tr', this).each(function(i, row) {
       if (!i) {
         $('button.submit', row).on('click', function() { file_api.sharing_submit(rcmail.env.folder, row, mode); });
+        $('input[data-autocomplete]').each(function() {
+          var input = $(this), req_name = 'filesac-' + mode;
+
+          rcmail.init_address_input_events(input, {action: req_name});
+
+          // "Redirect" autocomplete requests to Chwala API
+          rcmail.addEventListener('request' + req_name, function(post) {
+            var params = {search: post._search, mode: input.data('autocomplete'), folder: rcmail.env.folder},
+              callback = function(response) {
+                var result = response.result || [];
+                $.each(result, function() {
+                  // add fake email to skip Roundcube's group expanding code
+                  if (this.type == 'group' && !this.email)
+                    this.email = 1;
+                });
+
+                rcmail.ksearch_query_results(result, post._search, post._reqid);
+              },
+              error_callback = function(o, status, err, data) {
+                file_api.http_error(o, status, err, data);
+                rcmail.ksearch_query_results([], post._search, post._reqid);
+              };
+            return file_api.get('autocomplete', params, callback, error_callback);
+          });
+
+          // Update hidden fields on selection
+          rcmail.addEventListener('autocomplete_insert', function(e) {
+            if (e.field == input[0]) {
+              input.val(e.insert.replace(/[, ]+$/, ''));
+            }
+            $(row).find('input[type=hidden]').each(function() {
+              $(this).val(e.data[this.name] || '');
+            });
+          });
+        });
       }
       else {
         $('button.delete', row).on('click', function() { file_api.sharing_delete(rcmail.env.folder, row, mode); });

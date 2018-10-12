@@ -399,7 +399,10 @@ class kolab_files_engine
                     }
                 }
                 else {
-                    $ff = new html_inputfield(array('name' => $index));
+                    $ff = new html_inputfield(array(
+                            'name'              => $index,
+                            'data-autocomplete' => $field['autocomplete'],
+                    ));
                 }
 
                 $table->add(null, $ff->show());
