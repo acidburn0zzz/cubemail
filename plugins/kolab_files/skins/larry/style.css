@@ -629,3 +629,30 @@ table.propform td.source table.propform td {
   white-space: nowrap;
   font-weight: bold;
 }
+
+#folder-share table {
+  margin-top: 20px;
+  width: 100%;
+}
+
+#folder-share table th {
+  text-align: left;
+}
+
+#folder-share table th,
+#folder-share table td {
+  padding: 5px;
+}
+
+#folder-share table td:last-child {
+  width: 1%;
+}
+
+#folder-share table select,
+#folder-share table input {
+  width: 100%;
+}
+
+#folder-share table td.form input {
+  margin-bottom: 4px;
+}
