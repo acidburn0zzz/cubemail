@@ -2816,6 +2816,9 @@ function kolab_files_ui()
 
     $(this.sharing_submit_row).parent().append(row);
 
+    if (window.UI && UI.pretty_select)
+      row.find('select').each(function() { UI.pretty_select(this); }); // for Elastic
+
     if (table.data('single')) {
       $('tbody > tr:first', table).find('button,input,select').prop('disabled', true);
     }
@@ -2867,7 +2870,7 @@ function kolab_files_ui()
     var error;
 
     $('select,input', row).each(function() {
-      if (this.type == 'password' && this.value != $('input[name=' + this.name + 'confirm]', row).val())
+      if (this.type == 'password' && !this.name.match(/confirm$/) && this.value != $('input[name=' + this.name + 'confirm]', row).val())
         error = rcmail.display_message('kolab_files.passwordconflict', 'error');
 
       data[this.name] = $(this).val();

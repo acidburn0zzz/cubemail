@@ -482,3 +482,40 @@ button.participant.add:before {
         padding: 1em;
     }
 }
+
+#shareform {
+    table {
+        td,th {
+            padding-left: .15rem;
+            max-width: 10vw; // needed for overflow
+            .overflow-ellipsis;
+
+            &:last-child {
+                padding-right: .15rem;
+                width: 1%;
+                max-width: unset;
+            }
+        }
+
+        td {
+            vertical-align: middle;
+
+            &.form {
+                input {
+                    margin-bottom: .25rem;
+                    width: 100%;
+                }
+            }
+        }
+
+        tr + tr > td {
+            border-top: 0;
+            padding-bottom: .25rem;
+        }
+
+        button {
+            padding: .175rem .75rem;
+            width: 100%;
+        }
+    }
+}
