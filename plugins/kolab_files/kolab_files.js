@@ -1327,7 +1327,10 @@ function kolab_files_progress_str(param)
 function kolab_files_share_form_init()
 {
   $('fieldset > table', rcmail.gui_objects.shareform).each(function() {
-    var mode = $(this).data('mode');
+    var cnt = 0,
+      mode = $(this).data('mode'),
+      single = $(this).data('single');
+
     $('tbody > tr', this).each(function(i, row) {
       if (!i) {
         $('button.submit', row).on('click', function() { file_api.sharing_submit(rcmail.env.folder, row, mode); });
@@ -1368,10 +1371,15 @@ function kolab_files_share_form_init()
         });
       }
       else {
+        cnt++;
         $('button.delete', row).on('click', function() { file_api.sharing_delete(rcmail.env.folder, row, mode); });
         $('select,input[type=text]', row).on('change', function() { file_api.sharing_update(rcmail.env.folder, row, mode); });
       }
     });
+
+    if (single && cnt) {
+      $('tbody > tr:first', this).find('button.submit, input, select').prop('disabled', true);
+    }
   });
 };
 
@@ -2106,8 +2114,8 @@ function kolab_files_ui()
     var root = folder.split(this.env.directory_separator)[0],
       caps = this.env.caps;
 
-    if (root != folder && this.env.caps.MOUNTPOINTS && this.env.caps.MOUNTPOINTS[root])
-      caps = this.env.caps.MOUNTPOINTS[root];
+    if (this.env.caps.MOUNTPOINTS && this.env.caps.MOUNTPOINTS[root])
+      caps = root != folder ? this.env.caps.MOUNTPOINTS[root] : {};
 
     return !!caps.ACL;
   };
@@ -2749,6 +2757,9 @@ function kolab_files_ui()
   {
     var post = this.sharing_data(row, {action: 'submit', folder: folder, mode: mode});
 
+    if (post === false)
+      return;
+
     this.sharing_submit_post = post;
     this.sharing_submit_row = row;
     this.req = this.set_busy(true, 'kolab_files.updatingfolder' + mode);
@@ -2764,32 +2775,38 @@ function kolab_files_ui()
     $(this.sharing_submit_row).find('input[type=text]').val('');
 
     var hidden = [],
-      post = $.extend({}, this.sharing_submit_post, response.data || {}),
+      post = $.extend({}, this.sharing_submit_post, response.result || {}),
       form_info = rcmail.env.form_info[post.mode],
+      table = $(this.sharing_submit_row).closest('table'),
       row = $('<tr>'),
-      btn = $('<button type="button" class="btn btn-secondary delete">')
+      btn = $('<button type="button" class="btn btn-secondary btn-danger delete">')
         .text(rcmail.gettext('delete'))
         .on('click', function() { file_api.sharing_delete(post.folder, $(this).closest('tr'), post.mode); });
 
-    $.each(form_info.form || [], function(i, v) {
-      var content, opts = [];
+    if (form_info.list_column) {
+      row.append($('<td>').append($('<span class="name">').text(post[form_info.list_column])));
+    }
+    else {
+      $.each(form_info.form || [], function(i, v) {
+        var content, opts = [];
 
-      if (v.type == 'select') {
-        content = $('<select>').attr('name', i)
-          .on('change', function() { file_api.sharing_update(post.folder, $(this).closest('tr'), post.mode); });
-        $.each(v.options, function(i, v) {
-          opts.push($('<option>').attr('value', i).text(v));
-        });
+        if (v.type == 'select') {
+          content = $('<select>').attr('name', i)
+            .on('change', function() { file_api.sharing_update(post.folder, $(this).closest('tr'), post.mode); });
+          $.each(v.options, function(i, v) {
+            opts.push($('<option>').attr('value', i).text(v));
+          });
 
-        content.append(opts).val(post[i]);
-      }
-      else {
-        content = $('<span class="name">').text(post[i]);
-        hidden.push($('<input>').attr({type: 'hidden', name: i, value: post[i] || ''}));
-      }
+          content.append(opts).val(post[i]);
+        }
+        else {
+          content = $('<span class="name">').text(post[i]);
+          hidden.push($('<input>').attr({type: 'hidden', name: i, value: post[i] || ''}));
+        }
 
-      row.append($('<td>').append(content));
-    });
+        row.append($('<td>').append(content));
+      });
+    }
 
     $.each(form_info.extra_fields || [], function(i, v) {
       hidden.push($('<input>').attr({type: 'hidden', name: i, value: post[i] || ''}));
@@ -2798,6 +2815,12 @@ function kolab_files_ui()
     row.append($('<td>').append(btn).append(hidden));
 
     $(this.sharing_submit_row).parent().append(row);
+
+    if (table.data('single')) {
+      $('tbody > tr:first', table).find('button,input,select').prop('disabled', true);
+    }
+
+    $('tbody > tr:first', table).find('input[type=text],input[type=password]').val('');
   };
 
   this.sharing_update = function(folder, row, mode)
@@ -2830,16 +2853,27 @@ function kolab_files_ui()
     if (!this.response(response))
       return;
 
+    var table = $(this.sharing_delete_row).closest('table');
+
+    if (table.data('single')) {
+      $('tbody > tr:first', table).find('button,input,select').prop('disabled', false);
+    }
+
     $(this.sharing_delete_row).remove();
   };
 
   this.sharing_data = function(row, data)
   {
+    var error;
+
     $('select,input', row).each(function() {
+      if (this.type == 'password' && this.value != $('input[name=' + this.name + 'confirm]', row).val())
+        error = rcmail.display_message('kolab_files.passwordconflict', 'error');
+
       data[this.name] = $(this).val();
     });
 
-    return data;
+    return error ? false : data;
   };
 
   // quota request

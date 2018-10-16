@@ -59,6 +59,8 @@ $labels['documenttitle'] = 'Title:';
 $labels['close'] = 'Close';
 $labels['docedit'] = 'Document editing';
 $labels['submit'] = 'Submit';
+$labels['confirmpassword'] = 'Confirm password';
+$labels['passwordconflict'] = 'Passwords do not match';
 
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
@@ -93,6 +95,8 @@ $labels['filemovenotice'] = 'File(s) moved successfully.';
 $labels['filecopynotice'] = 'File(s) copied successfully.';
 $labels['uploadsizeerror'] = 'Maximum file size ($size) exceeded!';
 $labels['updatingfoldershares'] = 'Updating folder permissions...';
+$labels['updatingfolderupload-link'] = 'Updating upload link...';
+$labels['updatingfolderdownload-link'] = 'Updating download link...';
 
 $labels['listpermanent'] = 'List permanently';
 $labels['additionalfolders'] = 'Additional folders';

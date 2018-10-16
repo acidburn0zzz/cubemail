@@ -379,34 +379,66 @@ class kolab_files_engine
         $out = '';
 
         foreach ($info['form'] as $mode => $tab) {
-            $table  = new html_table(array('cols' => count($tab['form']) + 1, 'data-mode' => $mode));
+            $table  = new html_table(array(
+                    'cols'        => ($tab['list_column'] ? 1 : count($tab['form'])) + 1,
+                    'data-mode'   => $mode,
+                    'data-single' => $tab['single'] ? 1 : 0,
+            ));
             $submit = new html_button(array('class' => 'btn btn-secondary submit'));
-            $delete = new html_button(array('class' => 'btn btn-secondary delete'));
+            $delete = new html_button(array('class' => 'btn btn-secondary btn-danger delete'));
             $fields = array();
 
             // Table header
-            foreach ($tab['form'] as $field) {
-                $table->add_header(null, rcube::Q($field['title']));
+            if (!empty($tab['list_column'])) {
+                $table->add_header(null, rcube::Q($tab['list_column_label']));
+            }
+            else {
+                foreach ($tab['form'] as $field) {
+                    $table->add_header(null, rcube::Q($field['title']));
+                }
             }
             $table->add_header(null, '');
 
             // Submit form
+            $record = '';
             foreach ($tab['form'] as $index => $field) {
+                $add = '';
                 if ($field['type'] == 'select') {
                     $ff = new html_select(array('name' => $index));
                     foreach ($field['options'] as $opt_idx => $opt) {
                         $ff->add($opt, $opt_idx);
                     }
                 }
+                else if ($field['type'] == 'password') {
+                    $ff = new html_passwordfield(array(
+                            'name'        => $index,
+                            'placeholder' => $this->rc->gettext('password'),
+                    ));
+                    $add = new html_passwordfield(array(
+                            'name'        => $index . 'confirm',
+                            'placeholder' => $this->plugin->gettext('confirmpassword'),
+                    ));
+                    $add = $add->show();
+                }
                 else {
                     $ff = new html_inputfield(array(
                             'name'              => $index,
                             'data-autocomplete' => $field['autocomplete'],
+                            'placeholder'       => $field['placeholder'],
                     ));
                 }
 
-                $table->add(null, $ff->show());
+                if (!empty($tab['list_column'])) {
+                    $record .= $ff->show() . $add;
+                }
+                else {
+                    $table->add(null, $ff->show() . $add);
+                }
                 $fields[$index] = $ff;
+            }
+
+            if (!empty($tab['list_column'])) {
+                $table->add('form', $record);
             }
 
             $hidden = '';
@@ -415,17 +447,22 @@ class kolab_files_engine
                 $hidden .= $h->show();
             }
 
-            $table->add(null, $hidden . $submit->show(rcube::Q($this->plugin->gettext('submit'))));
+            $table->add(null, $hidden . $submit->show(rcube::Q($tab['label'] ?: $this->plugin->gettext('submit'))));
 
             // Existing entries
             foreach ((array) $info['rights'] as $entry) {
                 if ($entry['mode'] == $mode) {
-                    foreach ($tab['form'] as $index => $field) {
-                        if ($fields[$index] instanceof html_select) {
-                            $table->add(null, $fields[$index]->show($entry[$index]));
-                        }
-                        else if ($fields[$index] instanceof html_inputfield) {
-                            $table->add(null, html::span('name', rcube::Q($entry[$index])));
+                    if (!empty($tab['list_column'])) {
+                        $table->add(null, html::span('name', rcube::Q($entry[$tab['list_column']])));
+                    }
+                    else {
+                        foreach ($tab['form'] as $index => $field) {
+                            if ($fields[$index] instanceof html_select) {
+                                $table->add(null, $fields[$index]->show($entry[$index]));
+                            }
+                            else if ($fields[$index] instanceof html_inputfield) {
+                                $table->add(null, html::span('name', rcube::Q($entry[$index])));
+                            }
                         }
                     }
 
@@ -441,13 +478,15 @@ class kolab_files_engine
                 }
             }
 
+            $this->rc->output->add_label('kolab_files.updatingfolder' . $mode);
+
             $out .= html::tag('fieldset', $mode, html::tag('legend', null, rcube::Q($tab['title'])) . $table->show()) . "\n";
         }
 
         $this->rc->output->set_env('folder', $folder);
         $this->rc->output->set_env('form_info', $info['form']);
         $this->rc->output->add_gui_object('shareform', $attrib['id']);
-        $this->rc->output->add_label('kolab_files.submit', 'delete', 'kolab_files.updatingfoldershares');
+        $this->rc->output->add_label('kolab_files.submit', 'kolab_files.passwordconflict', 'delete');
 
         return html::div($attrib, $out);
     }
