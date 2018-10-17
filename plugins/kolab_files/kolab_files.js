@@ -1336,34 +1336,7 @@ function kolab_files_share_form_init()
         $('button.submit', row).on('click', function() { file_api.sharing_submit(rcmail.env.folder, row, mode); });
         $('input[data-autocomplete]').each(function() {
           var input = $(this), req_name = 'filesac-' + mode;
-
-          rcmail.init_address_input_events(input, {action: req_name});
-
-          // "Redirect" autocomplete requests to Chwala API
-          rcmail.addEventListener('request' + req_name, function(post) {
-            var params = {search: post._search, mode: input.data('autocomplete'), folder: rcmail.env.folder},
-              callback = function(response) {
-                var result = response.result || [];
-                $.each(result, function() {
-                  // add fake email to skip Roundcube's group expanding code
-                  if (this.type == 'group' && !this.email)
-                    this.email = 1;
-                });
-
-                rcmail.ksearch_query_results(result, post._search, post._reqid);
-              },
-              error_callback = function(o, status, err, data) {
-                file_api.http_error(o, status, err, data);
-                rcmail.ksearch_query_results([], post._search, post._reqid);
-              };
-            return file_api.get('autocomplete', params, callback, error_callback);
-          });
-
-          // Update hidden fields on selection
-          rcmail.addEventListener('autocomplete_insert', function(e) {
-            if (e.field == input[0]) {
-              input.val(e.insert.replace(/[, ]+$/, ''));
-            }
+          kolab_files_autocomplete(input, req_name, function(e) {
             $(row).find('input[type=hidden]').each(function() {
               $(this).val(e.data[this.name] || '');
             });
@@ -1380,6 +1353,43 @@ function kolab_files_share_form_init()
     if (single && cnt) {
       $('tbody > tr:first', this).find('button.submit, input, select').prop('disabled', true);
     }
+  });
+};
+
+function kolab_files_autocomplete(input, action, insert_callback)
+{
+  rcmail.init_address_input_events(input, {action: action});
+
+  // "Redirect" autocomplete requests to Chwala API
+  if (rcmail.env.files_api_version > 3) {
+    rcmail.addEventListener('request' + action, function(post) {
+      var params = {search: post._search, mode: input.data('autocomplete') || 'user', folder: rcmail.env.folder},
+        callback = function(response) {
+          var result = response.result || [];
+          $.each(result, function() {
+            // add fake email to skip Roundcube's group expanding code
+            if (this.type == 'group' && !this.email)
+              this.email = 1;
+            });
+
+            rcmail.ksearch_query_results(result, post._search, post._reqid);
+        },
+        error_callback = function(o, status, err, data) {
+          file_api.http_error(o, status, err, data);
+          rcmail.ksearch_query_results([], post._search, post._reqid);
+        };
+
+      return file_api.get('autocomplete', params, callback, error_callback);
+    });
+  }
+
+  // Update hidden fields on selection
+  rcmail.addEventListener('autocomplete_insert', function(e) {
+    if (e.field == input[0]) {
+      input.val(e.insert.replace(/[, ]+$/, ''));
+    }
+    if (insert_callback)
+      insert_callback(e);
   });
 };
 
@@ -1479,9 +1489,8 @@ function kolab_files_editors_dialog(session)
 
   if (!rcmail.env.editors_dialog) {
     rcmail.env.editors_dialog = dialog;
-    rcmail.init_address_input_events($('#invitation-editor-name'), {action: 'files/autocomplete'});
 
-    rcmail.addEventListener('autocomplete_insert', function(e) {
+    kolab_files_autocomplete($('#invitation-editor-name'), 'files/autocomplete', function(e) {
       var success = false;
       if (e.field.name == 'participant') {
         // e.data && e.data.type == 'group' ? 'GROUP' : 'INDIVIDUAL'

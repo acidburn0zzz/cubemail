@@ -484,6 +484,8 @@ class kolab_files_engine
             $out .= html::tag('fieldset', $mode, html::tag('legend', null, rcube::Q($tab['title'])) . $table->show()) . "\n";
         }
 
+        $this->rc->autocomplete_init();
+
         $this->rc->output->set_env('folder', $folder);
         $this->rc->output->set_env('form_info', $info['form']);
         $this->rc->output->add_gui_object('shareform', $attrib['id']);
