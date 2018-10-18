@@ -32,7 +32,7 @@ class kolab_files_engine
     private $files_sort_cols    = array('name', 'mtime', 'size');
     private $sessions_sort_cols = array('name');
 
-    const API_VERSION = 2;
+    const API_VERSION = 4;
 
 
     /**
@@ -143,7 +143,7 @@ class kolab_files_engine
         $this->rc->output->set_env('files_url', $this->url . '/api/');
         $this->rc->output->set_env('files_token', $this->get_api_token());
         $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
-        $this->rc->output->set_env('files_api_version', $_SESSION['kolab_files_caps']['API_VERSION'] ?: 3);
+        $this->rc->output->set_env('files_api_version', $_SESSION['kolab_files_caps']['VERSION'] ?: 3);
         $this->rc->output->set_env('files_user', $this->rc->get_user_name());
 
         if ($_SESSION['kolab_files_caps']['DOCEDIT']) {
