@@ -198,6 +198,38 @@ function kolab_files_init()
       file_api.env.init_collection = rcmail.env.collection;
       file_api.folder_list();
       file_api.browser_capabilities_check();
+
+      if (rcmail.env.contextmenu) {
+        rcmail.env.folders_cm = rcmail.contextmenu.init({menu_name: 'foldercontextmenu', menu_source: '#folderoptions > ul', list_object: 'folder_list'}, {
+          addmenuitem: function(p) {
+            // don't add Mount option to the menu
+            var str = $(p.el).children('a').first().attr('onclick');
+            if (str && str.match(/folder-mount/))
+              return {result: false, abort: true};
+          },
+          activate: function(p) {
+            var folder = rcmail.env.context_menu_source_id;
+            switch (p.command) {
+              case 'files-folder-delete':
+              case 'folder-rename':
+                return !folder.match(/^folder-collection-(.*)$/);
+              case 'folder-share':
+                return !folder.match(/^folder-collection-(.*)$/) && file_api.is_shareable(folder);
+              case 'folder-create':
+              case 'folder-mount':
+                return true;
+            }
+          },
+          beforecommand: function(e) {
+            rcmail.env.file_api_context = [file_api.env.folder, file_api.env.collection];
+            file_api.env.folder = rcmail.env.context_menu_source_id;
+          },
+          aftercommand: function(e) {
+            file_api.env.folder = rcmail.env.file_api_context[0];
+            file_api.env.collection = rcmail.env.file_api_context[1];
+          }
+        });
+      }
     }
   }
 
@@ -481,7 +513,8 @@ function kolab_files_folder_edit_dialog()
   var dialog = $('#files-folder-edit-dialog'),
     buttons = {},
     separator = file_api.env.directory_separator,
-    arr = file_api.env.folder.split(separator),
+    current_folder = file_api.env.folder,
+    arr = current_folder.split(separator),
     folder = arr.pop(),
     path = arr.join(separator),
     select = $('select[name="parent"]', dialog).html(''),
@@ -498,7 +531,7 @@ function kolab_files_folder_edit_dialog()
 
     folder += name;
 
-    file_api.folder_rename(file_api.env.folder, folder);
+    file_api.folder_rename(current_folder, folder);
     kolab_dialog_close(this);
   };
 
@@ -2209,6 +2242,13 @@ function kolab_files_ui()
         return file_api.folder_list_subscription_button_click(this);
       });
 
+    if (rcmail.env.contextmenu)
+      list.on('contextmenu', function(e) {
+        var elem = $(e.target).closest('li');
+          id = rcmail.html_identifier_decode(elem.attr('id').replace(/^rcmli/, ''));
+        rcmail.contextmenu.show_one(e, elem[0], id, rcmail.env.folders_cm);
+      });
+
     if (rcmail.folder_list) {
       rcmail.folder_list.reset();
       this.search_results_widget = null;
@@ -2276,7 +2316,7 @@ function kolab_files_ui()
 
   this.folder_select = function(folder)
   {
-    if (rcmail.busy)
+    if (rcmail.busy || !folder)
       return;
 
     rcmail.triggerEvent('files-folder-select', {folder: folder});
@@ -2703,13 +2743,12 @@ function kolab_files_ui()
     if (folder == new_name)
       return;
 
-    this.env.folder_rename = new_name;
     this.req = this.set_busy(true, 'kolab_files.folderupdating');
     this.request('folder_move', {folder: folder, 'new': new_name}, 'folder_rename_response');
   };
 
   // folder create response handler
-  this.folder_rename_response = function(response)
+  this.folder_rename_response = function(response, data)
   {
     if (!this.response(response))
       return;
@@ -2717,7 +2756,9 @@ function kolab_files_ui()
     this.display_message('kolab_files.folderupdatenotice', 'confirmation');
 
     // refresh folders and files list
-    this.env.folder = this.env.folder_rename;
+    if (this.env.folder == data.folder)
+      this.env.folder = data['new'];
+
     this.folder_list();
   };
 
@@ -2748,14 +2789,17 @@ function kolab_files_ui()
   };
 
   // folder delete response handler
-  this.folder_delete_response = function(response)
+  this.folder_delete_response = function(response, data)
   {
     if (!this.response(response))
       return;
 
-    this.env.folder = null;
-    rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-list', false);
     this.display_message('kolab_files.folderdeletenotice', 'confirmation');
+
+    if (this.env.folder == data.folder) {
+      this.env.folder = null;
+      rcmail.enable_command('files-folder-delete', 'folder-rename', 'files-list', false);
+    }
 
     // refresh folders list
     this.folder_list();
