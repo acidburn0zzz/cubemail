@@ -520,7 +520,7 @@ rcube_webmail.prototype.close_contact_history_dialog = function(refresh)
 
 function kolab_addressbook_contextmenu()
 {
-    if (!window.rcm_callbackmenu_init) {
+    if (!rcmail.env.contextmenu) {
         return;
     }
 
@@ -529,7 +529,7 @@ function kolab_addressbook_contextmenu()
         rcmail.addEventListener('contextmenu_init', function(menu) {
             if (menu.menu_name == 'abooklist') {
                 menu.addEventListener('activate', function(p) {
-                    var source = !rcmail.env.group ? rcmail.env.source : null,
+                    var source = $(p.source).is('.addressbook') ? rcmail.html_identifier_decode($(p.source).attr('id').replace(/^rcmli/, '')) : null,
                         sources = rcmail.env.address_sources,
                         props = source && sources[source] && sources[source].kolab ?
                             sources[source] : { readonly: true, removable: false, rights: '' };
