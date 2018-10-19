@@ -504,7 +504,7 @@ function kolab_files_folder_create_dialog()
   $('form', dialog).submit(kolab_dialog_submit_handler);
 
   // build parent selector
-  file_api.folder_select_element(select, {empty: true, writable: true});
+  file_api.folder_select_element(select, {empty: !rcmail.env.files_caps.NOROOT, writable: true});
 };
 
 // folder edit dialog
@@ -551,7 +551,7 @@ function kolab_files_folder_edit_dialog()
   $('form', dialog).submit(kolab_dialog_submit_handler);
 
   // build parent selector
-  file_api.folder_select_element(select, {selected: path, empty: true});
+  file_api.folder_select_element(select, {selected: path, empty: !rcmail.env.files_caps.NOROOT});
 };
 
 // folder sharing dialog
@@ -1875,8 +1875,7 @@ rcube_webmail.prototype.files_folder_selector = function(event, callback)
 
       return row.append(a);
     }, event);
-  };
-
+};
 
 rcube_webmail.prototype.files_upload = function(form)
 {
@@ -1888,7 +1887,7 @@ rcube_webmail.prototype.files_list = function(param)
 {
   // just rcmail wrapper, to handle command busy states
   file_api.file_list(param);
-}
+};
 
 rcube_webmail.prototype.files_list_update = function(head)
 {
@@ -1903,7 +1902,7 @@ rcube_webmail.prototype.sessions_list = function(param)
 {
   // just rcmail wrapper, to handle command busy states
   file_api.session_list(param);
-}
+};
 
 rcube_webmail.prototype.sessions_list_update = function(head)
 {
@@ -2935,7 +2934,7 @@ function kolab_files_ui()
   // quota request
   this.quota = function()
   {
-    if (rcmail.env.files_quota)
+    if (rcmail.env.files_quota && (this.env.folder || !rcmail.env.files_caps.NOROOT))
       this.request('quota', {folder: this.env.folder}, 'quota_response');
   };
 
