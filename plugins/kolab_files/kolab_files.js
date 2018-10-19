@@ -2285,7 +2285,7 @@ function kolab_files_ui()
     if (response.result.auth_errors && response.result.auth_errors.length)
       this.env.folder = this.env.collection = null;
     else if (this.env.folder)
-      rcmail.folder_list.select(folder);
+      rcmail.folder_list.select(this.env.folder);
     else if (this.env.collection)
       rcmail.folder_list.select('folder-collection-' + this.env.collection);
     else if (folder = this.env.init_folder) {
