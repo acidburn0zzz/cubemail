@@ -131,7 +131,7 @@ class Reader {
         } else {
             $token = '[A-Z0-9-\.]+';
         }
-        $parameters = "(?:;(?P<parameters>([^:^\"]|\"([^\"]*)\")*))?";
+        $parameters = "(?:;(?P<parameters>([^:\"]|\"([^\"]*)\")*))?";
         $regex = "/^(?P<name>$token)$parameters:(?P<value>.*)$/i";
 
         $result = preg_match($regex,$line,$matches);
