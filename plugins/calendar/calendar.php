@@ -773,6 +773,10 @@ class calendar extends rcube_plugin
         $colors     = (array) rcube_utils::get_input_value('_colors', rcube_utils::INPUT_POST);
 
         foreach ($categories as $key => $name) {
+          if (!isset($colors[$key])) {
+            continue;
+          }
+
           $color = preg_replace('/^#/', '', strval($colors[$key]));
 
           // rename categories in existing events -> driver's job
