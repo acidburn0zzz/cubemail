@@ -366,6 +366,10 @@ class libkolab extends rcube_plugin
             $attrib['buttontitle'] = $attrib['label-domain'] . '.' . $attrib['buttontitle'];
         }
 
+        if ($attrib['buttontitle']) {
+            $attrib['placeholder'] = $rcmail->gettext($attrib['buttontitle']);
+        }
+
         return $rcmail->output->search_form($attrib);
     }
 }

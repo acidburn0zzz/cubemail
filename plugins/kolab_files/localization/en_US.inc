@@ -27,7 +27,7 @@ $labels['folderrename'] = 'Rename folder';
 $labels['foldermount'] = 'Add storage';
 $labels['folderdelete'] = 'Delete folder';
 $labels['folderoptions'] = 'Folder options';
-$labels['findfolders'] = 'Find folders';
+$labels['findfolders'] = 'Find folders...';
 $labels['findfiles'] = 'Find files';
 $labels['share'] = 'Share';
 

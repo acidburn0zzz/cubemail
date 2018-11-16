@@ -43,7 +43,7 @@ $labels['globalfirst'] = 'Global address book(s) first';
 $labels['personalonly'] = 'Personal address book(s) only';
 $labels['globalonly'] = 'Global address book(s) only';
 
-$labels['findaddressbooks'] = 'Find address books';
+$labels['findaddressbooks'] = 'Find address books...';
 $labels['searchterms'] = 'Search terms';
 $labels['listsearchresults'] = 'Additional address books';
 $labels['foldersearchform'] = 'Address book search form';
