@@ -1,0 +1,46 @@
+Single Sign On Authentication for Kolab
+---------------------------------------
+
+This plugin adds possibility to authenticate users via external authentication
+services. Currently the only supported method of authentication is OpenID Connect.
+
+Because Kolab backends do not support token authentication it is required
+to use master user (sasl proxy) authentication, i.e. you have to put
+master user credentials in plugin's config.
+
+Plugin requires libkolab plugin and HTTP/Request2 library.
+Plugin contains BSD-licensed https://github.com/firebase/php-jwt (v5.0.0) library.
+
+Supported algorithms:
+- HS256, HS385, HS512 (PHP hash extension required)
+- RS256, RS384, RS512 (PHP openssl extension required).
+
+
+INSTALLATION
+------------
+
+Enable plugin in Roundcube's main configuration file. Make sure it is first
+on the list of plugins, especially before any authentication plugin, e.g. kolab_auth.
+
+Default return URL for Auth Provider is https://host.roundcube?_task=login&_action=sso,
+but not all providers support query params. To workaround this limitation you have to
+define an alias URI or redirect. For example:
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI}  ^/roundcubemail
+RewriteRule "^sso" "/roundcubemail/?_task=login&_action=sso" [L,QSA]
+
+For the above "alias" plugin configuration should include 'response_uri' = '/sso'
+and on the provider side configured URI will be https://host/roundcubemail/sso.
+
+
+TODO
+----
+
+- SMTP auth
+- LDAP addressbook
+- kolab_delegation (LDAP auth)
+- Chwala auth (+Seafile, +WebDAV)
+- Freebusy auth
+- Mattermost auth
+- Improved token validation
