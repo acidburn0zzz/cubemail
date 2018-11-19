@@ -186,13 +186,8 @@ class kolab_sso extends rcube_plugin
      */
     public function smtp_connect($args)
     {
-        $user = $this->rc->config->get('kolab_sso_username');
-        $pass = $this->rc->config->get('kolab_sso_password');
-
-        if ($user && $pass) {
-            $args['smtp_auth_cid']  = $user;
-            $args['smtp_auth_pw']   = $pass;
-            $args['smtp_auth_type'] = 'PLAIN';
+        foreach (array('smtp_server', 'smtp_user', 'smtp_pass') as $prop) {
+            $args[$prop] = $this->rc->config->get("kolab_sso_$prop", $args[$prop]);
         }
 
         return $args;

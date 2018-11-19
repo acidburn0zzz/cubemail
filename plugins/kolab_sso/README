@@ -6,7 +6,9 @@ services. Currently the only supported method of authentication is OpenID Connec
 
 Because Kolab backends do not support token authentication it is required
 to use master user (sasl proxy) authentication, i.e. you have to put
-master user credentials in plugin's config.
+master user credentials in plugin's config. For the same reason and also because
+the same master user does not work in Postfix, you have to specify SMTP connection
+parameters/user+password.
 
 Plugin requires libkolab plugin and HTTP/Request2 library.
 Plugin contains BSD-licensed https://github.com/firebase/php-jwt (v5.0.0) library.
@@ -22,7 +24,7 @@ INSTALLATION
 Enable plugin in Roundcube's main configuration file. Make sure it is first
 on the list of plugins, especially before any authentication plugin, e.g. kolab_auth.
 
-Default return URL for Auth Provider is https://host.roundcube?_task=login&_action=sso,
+Default return-URL for Auth Provider is https://host.roundcube?_task=login&_action=sso,
 but not all providers support query params. To workaround this limitation you have to
 define an alias URI or redirect. For example:
 

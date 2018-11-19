@@ -3,11 +3,21 @@
 // Enable debugging
 $config['kolab_sso_debug'] = true;
 
-// Proxy user
+// IMAP (master) user
 $config['kolab_sso_username'] = 'cyrus-admin';
 
-// Proxy user password
+// IMAP (master) password
 $config['kolab_sso_password'] = 'password';
+
+// SMTP server host
+// To override the SMTP port or connection method, provide a full URL like 'tls://somehost:587'
+$config['kolab_sso_smtp_server'] = null;
+
+// SMTP username
+$config['kolab_sso_smtp_user'] = '';
+
+// SMTP password
+$config['kolab_sso_smtp_pass'] = '';
 
 // Require SSO logon by removing possibility to logon with user/password
 $config['kolab_sso_disable_login'] = false;
