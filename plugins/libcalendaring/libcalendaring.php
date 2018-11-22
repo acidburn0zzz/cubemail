@@ -830,7 +830,7 @@ class libcalendaring extends rcube_plugin
                 $more    = true;
             }
 
-            $output  = '; ' . $this->gettext('except') . ' ' . join(', ', $exdates)
+            $output  .= '; ' . $this->gettext('except') . ' ' . join(', ', $exdates)
                 . ($more ? '...' : '');
         }
 
