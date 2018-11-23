@@ -5,10 +5,8 @@ This plugin adds possibility to authenticate users via external authentication
 services. Currently the only supported method of authentication is OpenID Connect.
 
 Because Kolab backends do not support token authentication it is required
-to use master user (sasl proxy) authentication, i.e. you have to put
-master user credentials in plugin's config. For the same reason and also because
-the same master user does not work in Postfix, you have to specify SMTP connection
-parameters/user+password.
+to use master user (sasl proxy) authentication where possible and service
+user credentials in other places. See IMPLEMENTATION NOTES below for details.
 
 Plugin requires libkolab plugin and HTTP/Request2 library.
 Plugin contains BSD-licensed https://github.com/firebase/php-jwt (v5.0.0) library.
@@ -36,13 +34,32 @@ For the above "alias" plugin configuration should include 'response_uri' = '/sso
 and on the provider side configured URI will be https://host/roundcubemail/sso.
 
 
+IMPLEMENTATION NOTES
+--------------------
+
+[IMAP] Because Kolab backend do not support token authentication it is required
+to use master user (sasl proxy) authentication, i.e. you have to put
+master user credentials in plugin's config.
+
+[SMTP] For the same reason and also because the same master user does not work in Postfix,
+you have to specify SMTP connection parameters/user+password.
+
+[Freebusy] Authentication into kolab-freebusy service is not yet implemented. A solution for
+now is to add Roundcube host(s) into trustednetworks.allow option in kolab-freebusy service config.
+
+[Chwala] Authentication to Chwala will work if it uses the same (session) database as Roundcube.
+Additionally set $config['fileapi_plugins'] = array('kolab_sso', 'kolab_auth', 'kolab_folders');
+Authenticating to Seafile/WebDAV storage is not supported (until it's custom user-defined
+storage with saved password).
+
+
 TODO
 ----
 
-- SMTP auth
 - LDAP addressbook
 - kolab_delegation (LDAP auth)
-- Chwala auth (+Seafile, +WebDAV)
+- Chwala+Seafile
+- Chwala+WebDAV
 - Freebusy auth
 - Mattermost auth
-- Improved token validation
+- Extended token validation

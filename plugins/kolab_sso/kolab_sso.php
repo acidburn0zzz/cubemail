@@ -34,17 +34,15 @@ class kolab_sso extends rcube_plugin
      */
     public function init()
     {
-        $this->rc = rcube::get_instance();
+        // Roundcube or Chwala
+        if (defined('RCMAIL_VERSION') || defined('FILE_API_START')) {
+            $this->rc = rcube::get_instance();
 
-        // Disable the plugin in Syncroton, iRony, etc.
-        if (!($this->rc instanceof rcmail)) {
-            return;
+            $this->add_hook('startup', array($this, 'startup'));
+            $this->add_hook('authenticate', array($this, 'authenticate'));
+
+            $this->rc->add_shutdown_function(array($this, 'shutdown'));
         }
-
-        $this->add_hook('startup', array($this, 'startup'));
-        $this->add_hook('ready', array($this, 'ready'));
-        $this->add_hook('login_after', array($this, 'ready'));
-        $this->add_hook('authenticate', array($this, 'authenticate'));
     }
 
     /**
@@ -116,7 +114,41 @@ class kolab_sso extends rcube_plugin
      */
     public function authenticate($args, $internal = false)
     {
-        if (!empty($this->data) && ($email = $this->data['email'])) {
+        // Chwala
+        if (defined('FILE_API_START') && !$internal && empty($args['pass']) && strpos($args['user'], 'RC:') === 0) {
+            // extract session ID and username from the token
+            list(, $sess_id, $user) = explode(':', $args['user']);
+
+            // unset user, set invalid state
+            $args['valid'] = false;
+            $args['user']  = null;
+
+            $session = rcube_session::factory($this->rc->config);
+
+            if ($data = $session->read($sess_id)) {
+                // get SSO data from the existing session
+                $old_session = $_SESSION;
+                session_decode($data);
+                $session_user = $_SESSION['username'];
+                $data         = $_SESSION['sso_data'];
+                $_SESSION     = $old_session;
+
+                // TODO: allow only configured REMOTE_ADDR?
+                if ($session_user == $user && $data && ($data = json_decode($this->rc->decrypt($data), true)) && ($mode = $data['mode'])) {
+                    $driver = $this->get_driver($mode);
+
+                    // Session validation, token refresh, etc.
+                    if ($this->data = $driver->validate_session($data)) {
+                        $args['user']  = $user;
+                        $args['pass']  = 'fake-sso-password';
+                        $args['valid'] = true;
+                        $this->authenticate(array(), true);
+                    }
+                }
+            }
+        }
+        // Roundcube
+        else if (!empty($this->data) && ($email = $this->data['email'])) {
             if (!$internal) {
                 $args['user']        = $email;
                 $args['pass']        = 'fake-sso-password';
@@ -130,38 +162,22 @@ class kolab_sso extends rcube_plugin
             $this->add_hook('storage_connect', array($this, 'storage_connect'));
             $this->add_hook('managesieve_connect', array($this, 'storage_connect'));
             $this->add_hook('smtp_connect', array($this, 'smtp_connect'));
+            $this->add_hook('chwala_authenticate', array($this, 'chwala_authenticate'));
         }
 
         return $args;
     }
 
     /**
-     * Login_after hook handler
+     * Shutdown handler
      */
-    public function login_after($args)
-    {
-        // Between startup and authenticate the session is destroyed.
-        // So, we save the data later than that. Here, because of
-        // a redirect after successful login
-        if (!empty($this->data)) {
-            $_SESSION['sso_data'] = $this->rc->encrypt(json_encode($this->data));
-        }
-
-        return $args;
-    }
-
-    /**
-     * Ready hook handler
-     */
-    public function ready($args)
+    public function shutdown()
     {
         // Between startup and authenticate the session is destroyed.
         // So, we save the data later than that.
-        if (!empty($this->data)) {
+        if (!empty($this->data) && !empty($_SESSION['user_id'])) {
             $_SESSION['sso_data'] = $this->rc->encrypt(json_encode($this->data));
         }
-
-        return $args;
     }
 
     /**
@@ -189,6 +205,21 @@ class kolab_sso extends rcube_plugin
         foreach (array('smtp_server', 'smtp_user', 'smtp_pass') as $prop) {
             $args[$prop] = $this->rc->config->get("kolab_sso_$prop", $args[$prop]);
         }
+
+        return $args;
+    }
+
+    /**
+     * Chwala_authenticate hook handler
+     */
+    public function chwala_authenticate($args)
+    {
+        // Instead of normal basic auth with  user/pass we'll use
+        // Authorization: Bearer <roundcube session id>
+        $bearer = 'RC:' . session_id() . ':' . $_SESSION['username'];
+
+        $args['request']->setAuth(null);
+        $args['request']->setHeader('Authorization', 'Bearer ' . base64_encode($bearer));
 
         return $args;
     }
