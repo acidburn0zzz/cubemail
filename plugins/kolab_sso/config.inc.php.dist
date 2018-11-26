@@ -50,7 +50,7 @@ $config['kolab_sso_options'] = array(
         // Define it if the Provider does not allow above
         // to use https://domain.tld/path/<response_uri> instead
         'response_uri' => '/sso',
-        // Public key for token validation when using RS256/RS385/RS512 method
+        // Public key (or certificate) for token validation when using RS256/RS385/RS512 method
         'pubkey' => '-----BEGIN CERTIFICATE-----
             ...
             -----END CERTIFICATE-----

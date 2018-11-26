@@ -121,11 +121,6 @@ class kolab_sso_openidc
         $now     = new DateTime('now', new DateTimezone('UTC'));
         $validto = new DateTime($session['validto'], new DateTimezone('UTC'));
 
-        if ($now >= $validto) {
-            $this->plugin->debug("[{$this->id}][validate] Token expired");
-            return;
-        }
-
         // Don't refresh often than TTL/2
         $validto->sub(new DateInterval(sprintf('PT%dS', $session['ttl']/2)));
         if ($now < $validto) {
@@ -248,6 +243,11 @@ class kolab_sso_openidc
 
                 if (!empty($this->config['pubkey'])) {
                     $pubkey = trim(preg_replace('/\r?\n[\s\t]+/', "\n", $this->config['pubkey']));
+
+                    if (strpos($pubkey, '-----') !== 0) {
+                        $pubkey = "-----BEGIN PUBLIC KEY-----\n" . trim(chunk_split($pubkey, 64, "\n")) . "\n-----END PUBLIC KEY-----";
+                    }
+
                     if ($keyid = openssl_pkey_get_public($pubkey)) {
                         $key = $keyid;
                     }
