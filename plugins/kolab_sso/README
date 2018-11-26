@@ -44,20 +44,22 @@ master user credentials in plugin's config.
 [SMTP] For the same reason and also because the same master user does not work in Postfix,
 you have to specify SMTP connection parameters/user+password.
 
+[LDAP] Global addressbook (read-only) requires LDAP user/password. 'user_specific' option does
+not work as well as proxy authentication.
+
 [Freebusy] Authentication into kolab-freebusy service is not yet implemented. A solution for
 now is to add Roundcube host(s) into trustednetworks.allow option in kolab-freebusy service config.
 
 [Chwala] Authentication to Chwala will work if it uses the same (session) database as Roundcube.
 Additionally set $config['fileapi_plugins'] = array('kolab_sso', 'kolab_auth', 'kolab_folders');
 Authenticating to Seafile/WebDAV storage is not supported (until it's custom user-defined
-storage with saved password).
+storage).
 
 
 TODO
 ----
 
-- LDAP addressbook
-- kolab_delegation (LDAP auth)
+- kolab_delegation (LDAP auth for write operation)
 - Chwala+Seafile
 - Chwala+WebDAV
 - Freebusy auth

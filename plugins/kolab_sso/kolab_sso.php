@@ -162,6 +162,7 @@ class kolab_sso extends rcube_plugin
             $this->add_hook('storage_connect', array($this, 'storage_connect'));
             $this->add_hook('managesieve_connect', array($this, 'storage_connect'));
             $this->add_hook('smtp_connect', array($this, 'smtp_connect'));
+            $this->add_hook('ldap_connected', array($this, 'ldap_connected'));
             $this->add_hook('chwala_authenticate', array($this, 'chwala_authenticate'));
         }
 
@@ -185,8 +186,8 @@ class kolab_sso extends rcube_plugin
      */
     public function storage_connect($args)
     {
-        $user = $this->rc->config->get('kolab_sso_username');
-        $pass = $this->rc->config->get('kolab_sso_password');
+        $user = $this->rc->config->get('kolab_sso_imap_user');
+        $pass = $this->rc->config->get('kolab_sso_imap_pass');
 
         if ($user && $pass) {
             $args['auth_cid']  = $user;
@@ -204,6 +205,23 @@ class kolab_sso extends rcube_plugin
     {
         foreach (array('smtp_server', 'smtp_user', 'smtp_pass') as $prop) {
             $args[$prop] = $this->rc->config->get("kolab_sso_$prop", $args[$prop]);
+        }
+
+        return $args;
+    }
+
+    /**
+     * ldap_connected hook handler
+     */
+    public function ldap_connected($args)
+    {
+        $user = $this->rc->config->get('kolab_sso_ldap_user');
+        $pass = $this->rc->config->get('kolab_sso_ldap_pass');
+
+        if ($user && $pass && $args['user_specific']) {
+            $args['bind_dn']       = $user;
+            $args['bind_pass']     = $pass;
+            $args['search_filter'] = null;
         }
 
         return $args;
