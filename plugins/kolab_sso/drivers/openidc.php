@@ -69,14 +69,13 @@ class kolab_sso_openidc
     {
         $this->plugin->debug("[{$this->id}][authorize] Response: " . $_SERVER['REQUEST_URI']);
 
-        $error = $this->response_error(
+        $this->error = $this->error_message(
             rcube_utils::get_input_value('error', rcube_utils::INPUT_GET),
             rcube_utils::get_input_value('error_description', rcube_utils::INPUT_GET),
             rcube_utils::get_input_value('error_uri', rcube_utils::INPUT_GET)
         );
 
-        if ($error) {
-            // TODO: display error in UI
+        if ($this->error) {
             return;
         }
 
@@ -85,23 +84,33 @@ class kolab_sso_openidc
 
         if (!$state) {
             $this->plugin->debug("[{$this->id}][response] State missing");
-            $error = $this->plugin->gettext('errorinvalidresponse');
+            $this->error = $this->plugin->gettext('errorinvalidresponse');
             return;
         }
 
         if ($state != $this->plugin->rc->get_request_token()) {
             $this->plugin->debug("[{$this->id}][response] Invalid response state");
-            $error = $this->plugin->gettext('errorinvalidresponse');
+            $this->error = $this->plugin->gettext('errorinvalidresponse');
             return;
         }
 
         if (!$code) {
             $this->plugin->debug("[{$this->id}][response] Code missing");
-            $error = $this->plugin->gettext('errorinvalidresponse');
+            $this->error = $this->plugin->gettext('errorinvalidresponse');
             return;
         }
 
         return $this->request_token($code);
+    }
+
+    /**
+     * Error message for the response handler
+     */
+    public function response_error()
+    {
+        if ($this->error) {
+            return $this->plugin->rc->gettext('loginfailed') . ' ' . $this->error;
+        }
     }
 
     /**
@@ -194,11 +203,12 @@ class kolab_sso_openidc
             $response = @json_decode($response, true);
 
             if ($status != 200 || !is_array($response) || !empty($response['error'])) {
-                $err = $this->error_message(is_array($response) ? $response['error'] : null);
+                $err = $this->error_text(is_array($response) ? $response['error'] : null);
                 throw new Exception("OpenIDC request failed with error: $err");
             }
         }
         catch (Exception $e) {
+            $this->error = $this->plugin->gettext('errorunknown');
             rcube::raise_error(array(
                 'line' => __LINE__, 'file' => __FILE__, 'message' => $e->getMessage()),
                 true, false);
@@ -218,6 +228,7 @@ class kolab_sso_openidc
         if (empty($response['access_token']) || empty($response['token_type'])
             || strtolower($response['token_type']) != 'bearer'
         ) {
+            $this->error = $this->plugin->gettext('errorinvalidresponse');
             $this->plugin->debug("[{$this->id}][$mode] Error: Invalid or unsupported response");
             return;
         }
@@ -276,6 +287,7 @@ class kolab_sso_openidc
                 $result['email'] = $email;
             }
             catch (Exception $e) {
+                $this->error = $this->plugin->gettext('errorinvalidtoken');
                 rcube::raise_error(array(
                     'line' => __LINE__, 'file' => __FILE__, 'message' => $e->getMessage()),
                     true, false);
@@ -328,30 +340,30 @@ class kolab_sso_openidc
     /**
      * Returns (localized) user-friendly error message
      */
-    protected function response_error($error, $description, $uri)
+    protected function error_message($error, $description, $uri)
     {
         if (empty($error)) {
             return;
         }
 
-        $msg = $this->error_message($error);
+        $msg = $this->error_text($error);
 
-        $this->plugin->debug("[{$this->id}] Error: $msg");
-
-        // TODO: Add URI to the message
+        rcube::raise_error(array(
+            'message' => "[SSO] $msg." . ($description ? " $description" : '') . ($uri ? " ($uri)" : '')
+            ), true, false);
 
         $label = 'error' . str_replace('_', '', $error);
-        if ($this->plugin->rc->text_exists($label, 'kolab_sso')) {
-            return $this->plugin->gettext($label);
+        if (!$this->plugin->rc->text_exists($label, 'kolab_sso')) {
+            $label = 'errorunknown';
         }
 
-        return $this->plugin->gettext('responseerrorunknown');
+        return $this->plugin->gettext($label);
     }
 
     /**
-     * Returns error message for specified OpenIDC error code
+     * Returns error text for specified OpenIDC error code
      */
-    protected function error_message($error)
+    protected function error_text($error)
     {
         switch ($error) {
         // OAuth2 codes
@@ -389,11 +401,11 @@ class kolab_sso_openidc
         case 'invalid_request_object':
             return "Invalid Request Object";
         case 'request_not_supported':
-            return "Request param not supported";
+            return "Request not supported";
         case 'request_uri_not_supported':
             return "request_uri param not supported";
         case 'registration_not_supported':
-            return "Registration parameter not supported";
+            return "Registration not supported";
         }
 
         return "Unknown error";

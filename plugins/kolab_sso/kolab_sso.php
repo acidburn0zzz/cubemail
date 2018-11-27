@@ -27,6 +27,7 @@ class kolab_sso extends rcube_plugin
     private $data;
     private $old_data;
     private $driver;
+    private $logon_error;
     private $debug = false;
 
 
@@ -67,6 +68,9 @@ class kolab_sso extends rcube_plugin
                         $this->data['timezone'] = $_SESSION['sso_timezone'];
                         $this->data['url']      = $_SESSION['sso_url'];
                         $this->data['mode']     = $mode;
+                    }
+                    else {
+                        $this->logon_error = $driver->response_error();
                     }
                 }
                 // This is where we handle clicking one of "Login by SSO" buttons
@@ -167,6 +171,10 @@ class kolab_sso extends rcube_plugin
             $this->add_hook('smtp_connect', array($this, 'smtp_connect'));
             $this->add_hook('ldap_connected', array($this, 'ldap_connected'));
             $this->add_hook('chwala_authenticate', array($this, 'chwala_authenticate'));
+        }
+        else if ($this->logon_error) {
+            $args['valid'] = false;
+            $args['error'] = $this->logon_error;
         }
 
         return $args;
