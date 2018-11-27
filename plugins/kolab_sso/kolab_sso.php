@@ -25,6 +25,7 @@ class kolab_sso extends rcube_plugin
     public $rc;
 
     private $data;
+    private $old_data;
     private $driver;
     private $debug = false;
 
@@ -89,6 +90,8 @@ class kolab_sso extends rcube_plugin
             && ($mode = $data['mode'])
         ) {
             $driver = $this->get_driver($mode);
+
+            $this->old_data = $data;
 
             // Session validation, token refresh, etc.
             if ($this->data = $driver->validate_session($data)) {
@@ -176,7 +179,10 @@ class kolab_sso extends rcube_plugin
     {
         // Between startup and authenticate the session is destroyed.
         // So, we save the data later than that.
-        if (!empty($this->data) && !empty($_SESSION['user_id'])) {
+        if (!empty($this->data) && !empty($_SESSION['user_id'])
+            // update session only when data changed
+            && (empty($this->old_data) || $this->old_data != $this->data)
+        ) {
             $_SESSION['sso_data'] = $this->rc->encrypt(json_encode($this->data));
         }
     }
