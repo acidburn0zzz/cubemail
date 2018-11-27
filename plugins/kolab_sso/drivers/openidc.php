@@ -53,7 +53,7 @@ class kolab_sso_openidc
 
         // TODO: Other params by config: display, prompt, max_age,
 
-        $url = $this->config['authorize_uri'] ?: (unslashify($this->config['uri']) . '/authorize');
+        $url = $this->config['auth_uri'] ?: (unslashify($this->config['uri']) . '/authorize');
         $url .= '?' . http_build_query($params);
 
         $this->plugin->debug("[{$this->id}][authorize] Redirecting to $url");
@@ -178,11 +178,11 @@ class kolab_sso_openidc
         $this->plugin->debug("[{$this->id}][$mode] Requesting POST $url?$post");
 
         try {
-            // TODO: HTTP Basic and JWT methods of client authentication
+            // TODO: JWT-based methods of client authentication
             // https://openid.net/specs/openid-connect-core-1_0.html#rfc.section.9
 
             $request = $this->get_request($url, 'POST');
-//            $request->setAuth($this->config['client_id'], $this->config['client_secret']);
+            $request->setAuth($this->config['client_id'], $this->config['client_secret']);
             $request->setBody($post);
 
             $response = $request->send();

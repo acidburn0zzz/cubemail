@@ -45,7 +45,7 @@ $config['kolab_sso_options'] = array(
         // Token URI, if different than <uri>/token
         'token_uri' => 'https://kolab.eu.auth0.com/oauth/token',
         // Authorize URI, if different than <uri>/authorize
-        'authorize_uri' => 'https://kolab.eu.auth0.com/authorize',
+        'auth_uri' => 'https://kolab.eu.auth0.com/authorize',
         // Response URI, by default we use https://domain.tld/path?_task=login&_action=sso
         // Define it if the Provider does not allow above
         // to use https://domain.tld/path/<response_uri> instead
