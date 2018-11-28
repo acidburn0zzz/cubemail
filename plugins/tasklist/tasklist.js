@@ -1893,10 +1893,7 @@ function rcube_tasklist_ui(settings)
             return false;
 
         var dispname = Q(data.name || data.email);
-        if (data.email)
-            dispname = '<a href="mailto:' + data.email + '" title="' + Q(data.email) + '" class="mailtolink" data-cutype="' + data.cutype + '">' + dispname + '</a>';
-        else
-            dispname = '<span>' + dispname + '</span>';
+        dispname = '<span' + ((data.email && data.email != dispname) ? ' title="' + Q(data.email) + '"' : '') + '>' + dispname + '</span>';
 
         // delete icon
         var icon = rcmail.env.deleteicon ? '<img src="' + rcmail.env.deleteicon + '" alt="" />' : '<span class="inner">' + Q(rcmail.gettext('delete')) + '</span>';
@@ -1938,7 +1935,6 @@ function rcube_tasklist_ui(settings)
             tr.appendTo(attendees_list);
 
         tr.find('a.deletelink').click({ id:(data.email || data.name) }, function(e) { remove_attendee(this, e.data.id); return false; });
-        tr.find('a.mailtolink').click(task_attendee_click);
         tr.find('a.expandlink').click(data, function(e) { me.expand_attendee_group(e, add_attendee, remove_attendee); return false; });
         tr.find('input.edit-attendee-reply').click(function() {
             var enabled = $('#edit-attendees-invite:checked').length || $('input.edit-attendee-reply:checked').length;
