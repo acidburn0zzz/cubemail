@@ -215,6 +215,7 @@ body.quickview-active .fc-content {
 
 // Fullcalendar styles
 @color-calendar-border: @color-layout-border;
+@color-calendar-free-bg: fadeout(@color-black-shade-text, 97%);
 
 .fc {
     flex: auto !important;
@@ -441,8 +442,10 @@ body.quickview-active .fc-content {
     // Month View, Basic Week View, Basic Day View
 
     .fc-week-number {
-        width: 22px;
-        text-align: center;
+        width: 1%;
+        color: tint(@color-black-shade-text, 50%) !important;
+        border-left: 0;
+        font-size: .9rem;
 
         div {
             padding: 0 2px;
@@ -523,7 +526,7 @@ body.quickview-active .fc-content {
             width: 50px;
             padding: 0 4px;
             vertical-align: middle;
-            text-align: right;
+            text-align: center;
             white-space: nowrap;
             font-weight: normal;
             font-size: .9rem;
@@ -873,7 +876,7 @@ body.quickview-active .fc-content {
     }
 
     .fc-sat, .fc-sun {
-        background-color: fadeout(@color-black-shade-text, 97%);
+        background-color: @color-calendar-free-bg;
     }
 
     // remove redundant borders

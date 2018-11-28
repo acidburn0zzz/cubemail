@@ -32,6 +32,10 @@ $labels['afterflagdeleted'] = 'Flag as deleted';
 $labels['aftermoveto'] = 'Move to...';
 $labels['itipoptions'] = 'Event Invitations';
 $labels['afteraction'] = 'After an invitation or update message is processed';
+$labels['showweekno'] = 'Display week numbers';
+$labels['weeknonone'] = 'never';
+$labels['weeknodatepicker'] = 'in datepicker only';
+$labels['weeknoall'] = 'in datepicker and calendar view';
 
 // calendar
 $labels['calendar'] = 'Calendar';
@@ -130,6 +134,7 @@ $labels['invitationsdeclined'] = 'Declined invitations';
 $labels['changepartstat'] = 'Change participant status';
 $labels['rsvpcomment'] = 'Invitation text';
 $labels['eventstartsync'] = 'Move the event start date to the first occurrence';
+$labels['weekshort'] = 'Wk';
 
 // agenda view
 $labels['listrange'] = 'Range to display:';

@@ -79,6 +79,7 @@ function rcube_calendar_ui(settings)
       monthNames: settings.months,
       monthNamesShort: settings.months,
       changeMonth: false,
+      showWeek: settings.show_weekno >= 0,
       showOtherMonths: true,
       selectOtherMonths: true
     };
@@ -119,6 +120,8 @@ function rcube_calendar_ui(settings)
       tableCols: ['handle', 'date', 'time', 'title', 'location'],
       defaultView: rcmail.env.view || settings.default_view,
       allDayText: rcmail.gettext('all-day', 'calendar'),
+      weekNumbers: settings.show_weekno > 0,
+      weekNumberTitle: rcmail.gettext('weekshort', 'calendar') + ' ',
       buttonText: {
         prev: '&nbsp;&#9668;&nbsp;',
         next: '&nbsp;&#9658;&nbsp;',
@@ -3901,7 +3904,6 @@ function rcube_calendar_ui(settings)
       // initialize small calendar widget using jQuery UI datepicker
       minical = $('#datepicker').datepicker($.extend(datepicker_settings, {
         inline: true,
-        showWeek: true,
         changeMonth: true,
         changeYear: true,
         onSelect: function(dateText, inst) {

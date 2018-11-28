@@ -392,7 +392,7 @@ table.fc-border-separate {
 
 .fc .fc-week-number {
 	width: 22px;
-	text-align: center;
+	text-align: center !important;
 	}
 
 .fc .fc-week-number div {

@@ -544,6 +544,24 @@ class calendar extends rcube_plugin
       );
     }
 
+    if (!isset($no_override['calendar_show_weekno'])) {
+      if (!$p['current']) {
+        $p['blocks']['view']['content'] = true;
+        return $p;
+      }
+
+      $field_id   = 'rcmfd_show_weekno';
+      $select = new html_select(array('name' => '_show_weekno', 'id' => $field_id));
+      $select->add($this->gettext('weeknonone'), -1);
+      $select->add($this->gettext('weeknodatepicker'), 0);
+      $select->add($this->gettext('weeknoall'), 1);
+
+      $p['blocks']['view']['options']['show_weekno'] = array(
+        'title' => html::label($field_id, rcube::Q($this->gettext('showweekno'))),
+        'content' => $select->show(intval($this->rc->config->get('calendar_show_weekno'))),
+      );
+    }
+
     $p['blocks']['itip']['name'] = $this->gettext('itipoptions');
 
     // Invitations handling
@@ -745,6 +763,7 @@ class calendar extends rcube_plugin
         'calendar_first_hour'   => intval(rcube_utils::get_input_value('_first_hour', rcube_utils::INPUT_POST)),
         'calendar_work_start'   => intval(rcube_utils::get_input_value('_work_start', rcube_utils::INPUT_POST)),
         'calendar_work_end'     => intval(rcube_utils::get_input_value('_work_end', rcube_utils::INPUT_POST)),
+        'calendar_show_weekno'  => intval(rcube_utils::get_input_value('_show_weekno', rcube_utils::INPUT_POST)),
         'calendar_event_coloring'       => intval(rcube_utils::get_input_value('_event_coloring', rcube_utils::INPUT_POST)),
         'calendar_default_alarm_type'   => rcube_utils::get_input_value('_alarm_type', rcube_utils::INPUT_POST),
         'calendar_default_alarm_offset' => $default_alarm,
@@ -1762,6 +1781,7 @@ class calendar extends rcube_plugin
     $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', $this->defaults['calendar_allow_invite_shared']);
     $settings['invitation_calendars'] = (bool)$this->rc->config->get('kolab_invitation_calendars', false);
     $settings['itip_notify'] = (int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']);
+    $settings['show_weekno'] = (int)$this->rc->config->get('calendar_show_weekno', $this->defaults['calendar_show_weekno']);
 
     // get user identity to create default attendee
     if ($this->ui->screen == 'calendar') {

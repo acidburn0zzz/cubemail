@@ -82,6 +82,12 @@ $config['calendar_work_end'] = 18;
 // show line at current time of the day
 $config['calendar_time_indicator'] = true;
 
+// Display week numbers:
+// -1: don't display week numbers
+//  0: in datepicker only (default)
+//  1: in both datepicker and calendar
+$config['calendar_show_weekno'] = 0;
+
 // default alarm settings for new events.
 // this is only a preset when a new event dialog opens
 // possible values are <empty>, DISPLAY, EMAIL
