@@ -999,6 +999,10 @@ class kolab_files_engine
             $url->setQueryVariables(array('method' => 'authenticate', 'version' => self::API_VERSION));
             $request->setUrl($url);
             $request->setAuth($this->rc->user->get_username(), $this->rc->decrypt($_SESSION['password']));
+
+            // Allow plugins (e.g. kolab_sso) to modify the request
+            $this->rc->plugins->exec_hook('chwala_authenticate', array('request' => $request));
+
             $response = $request->send();
             $status   = $response->getStatus();
 
