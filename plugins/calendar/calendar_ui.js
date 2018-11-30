@@ -66,6 +66,7 @@ function rcube_calendar_ui(settings)
     var freebusy_data = {};
     var current_view = null;
     var count_sources = [];
+    var event_sources = [];
     var exec_deferred = 1;
     var sensitivitylabels = { 'public':rcmail.gettext('public','calendar'), 'private':rcmail.gettext('private','calendar'), 'confidential':rcmail.gettext('confidential','calendar') };
     var ui_loading = rcmail.set_busy(true, 'loading');
@@ -2972,6 +2973,10 @@ function rcube_calendar_ui(settings)
         $('#edit-calendar option[value="'+id+'"]').remove();
         delete this.calendars[id];
       }
+
+      if (this.selected_calendar == id) {
+        this.init_calendars(true);
+      }
     };
 
     // open a dialog to upload an .ics file with events to be imported
@@ -3492,7 +3497,7 @@ function rcube_calendar_ui(settings)
             });
         }
       }
-      
+
       if (this.fisheye_date)
         this.fisheye_view(this.fisheye_date);
     };
@@ -3516,6 +3521,8 @@ function rcube_calendar_ui(settings)
       this.selected_calendar = id;
 
       rcmail.update_state({source: id});
+
+      rcmail.enable_command('addevent', this.calendars[id] && this.calendars[id].editable);
     };
 
     // register the given calendar to the current view
@@ -3569,31 +3576,40 @@ function rcube_calendar_ui(settings)
       }
     };
 
+    this.init_calendars = function(refresh)
+    {
+      var id, cal, active;
+
+      for (id in rcmail.env.calendars) {
+        cal = rcmail.env.calendars[id];
+        active = cal.active || false;
+
+        if (!refresh) {
+          add_calendar_source(cal);
+
+          // check active calendars
+          $('#rcmlical'+id+' > .calendar input').prop('checked', active);
+
+          if (active) {
+            event_sources.push(this.calendars[id]);
+          }
+          if (cal.counts) {
+            count_sources.push(id);
+          }
+        }
+
+        if (cal.editable && (!this.selected_calendar || refresh)) {
+          this.selected_calendar = id;
+          if (refresh) {
+            this.select_calendar(id);
+            refresh = false;
+          }
+        }
+      }
+    };
+
 
     /***  startup code  ***/
-
-    // create list of event sources AKA calendars
-    var id, cal, active, event_sources = [];
-    for (id in rcmail.env.calendars) {
-      cal = rcmail.env.calendars[id];
-      active = cal.active || false;
-      add_calendar_source(cal);
-
-      // check active calendars
-      $('#rcmlical'+id+' > .calendar input').prop('checked', active);
-
-      if (active) {
-        event_sources.push(this.calendars[id]);
-      }
-      if (cal.counts) {
-        count_sources.push(id);
-      }
-
-      if (cal.editable && !this.selected_calendar) {
-        this.selected_calendar = id;
-        rcmail.enable_command('addevent', true);
-      }
-    }
 
     // initialize treelist widget that controls the calendars list
     var widget_class = window.kolab_folderlist || rcube_treelist_widget;
@@ -3731,15 +3747,18 @@ function rcube_calendar_ui(settings)
        });
     }
 
+    // create list of event sources AKA calendars
+    this.init_calendars();
+
     // select default calendar
     if (rcmail.env.source && this.calendars[rcmail.env.source])
       this.selected_calendar = rcmail.env.source;
     else if (settings.default_calendar && this.calendars[settings.default_calendar] && this.calendars[settings.default_calendar].editable)
       this.selected_calendar = settings.default_calendar;
-    
+
     if (this.selected_calendar)
       this.select_calendar(this.selected_calendar);
-    
+
     var viewdate = new Date();
     if (rcmail.env.date)
       viewdate.setTime(fromunixtime(rcmail.env.date));
@@ -4228,7 +4247,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   }
 
   // configure toolbar buttons
-  rcmail.register_command('addevent', function(){ cal.add_event(); }, true);
+  rcmail.register_command('addevent', function(){ cal.add_event(); });
   rcmail.register_command('print', function(){ cal.print_calendars(); }, true);
 
   // configure list operations
