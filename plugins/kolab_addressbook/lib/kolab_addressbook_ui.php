@@ -108,12 +108,16 @@ class kolab_addressbook_ui
             )));
             $this->plugin->api->add_content($content, 'groupoptions');
 
-            $this->rc->output->add_label('kolab_addressbook.bookdeleteconfirm',
-                'kolab_addressbook.bookdeleting', 'kolab_addressbook.bookshowurl',
+            $this->rc->output->add_label(
+                'kolab_addressbook.bookdeleteconfirm',
+                'kolab_addressbook.bookdeleting',
                 'kolab_addressbook.carddavurldescription',
-                'kolab_addressbook.bookedit',
                 'kolab_addressbook.bookdelete',
                 'kolab_addressbook.bookshowurl',
+                'kolab_addressbook.bookedit',
+                'kolab_addressbook.bookcreate',
+                'kolab_addressbook.nobooknamewarning',
+                'kolab_addressbook.booksaving',
                 'kolab_addressbook.findaddressbooks',
                 'kolab_addressbook.searchterms',
                 'kolab_addressbook.foldersearchform',
@@ -121,10 +125,6 @@ class kolab_addressbook_ui
                 'kolab_addressbook.nraddressbooksfound',
                 'kolab_addressbook.noaddressbooksfound',
                 'kolab_addressbook.foldersubscribe',
-                'kolab_addressbook.bookedit',
-                'kolab_addressbook.bookcreate',
-                'kolab_addressbook.nobooknamewarning',
-                'kolab_addressbook.booksaving',
                 'resetsearch'
             );
 
