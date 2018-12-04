@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Localizations for the Kolab SSO plugin
+ *
+ * Copyright (C) 2018, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_sso/
+ */
+
 $labels['loginby'] = 'Login by $provider';
 $labels['sso'] = 'Single Sign On';
 $labels['errorunknown'] = 'Unknown SSO error.';
