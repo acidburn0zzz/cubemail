@@ -4297,6 +4297,22 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     // http://bugs.jquery.com/ticket/9841
     if (e.target == window) {
       cal.view_resize();
+
+      // In Elastic append the datepicker back to sidebar/dialog when resizing
+      // the window from tablet/phone to desktop and vice-versa
+      var dp = $('#datepicker'), in_dialog = dp.is('.ui-dialog-content'), width = $(window).width();
+      if (in_dialog && width > 768) {
+        if (dp.is(':visible')) {
+          dp.dialog('close');
+        }
+        dp.height('auto').removeClass('ui-dialog-content ui-widget-content')
+          .data('dialog-parent', dp.closest('.ui-dialog'))
+          .appendTo('#layout > div.sidebar');
+      }
+      else if (!in_dialog && dp.length && width <= 768 && dp.data('dialog-parent')) {
+        dp.addClass('ui-dialog-content ui-widget-content')
+          .insertAfter(dp.data('dialog-parent').find('.ui-dialog-titlebar'));
+      }
     }
   }).resize();
 
