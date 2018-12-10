@@ -297,7 +297,7 @@ class kolab_sso extends rcube_plugin
             $doc->createNode('button', $this->gettext($label), array(
                     'type'    => 'button',
                     'value'   => $idx,
-                    'class'   => 'button sso w-100',
+                    'class'   => 'button sso w-100 mb-1',
                     'onclick' => 'kolab_sso_submit(this)',
                 ), $form);
         }
