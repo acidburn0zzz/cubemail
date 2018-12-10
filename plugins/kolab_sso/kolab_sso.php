@@ -304,11 +304,9 @@ class kolab_sso extends rcube_plugin
 
         $doc->createNode('input', null, array('name' => '_sso', 'type' => 'hidden'), $form);
 
-        // Save the form content back
-        $args['content'] = preg_replace('|</?body>|', '', $doc->saveHTML($body));
-
-        // Add script
-        $args['content'] .= "<script>"
+        // Save the form content back and append script
+        $args['content'] = $doc->saveHTML($body)
+            . "<script>"
             . "function kolab_sso_submit(button) {"
                 . "\$('[name=_sso]').val(button.value);"
                 . "\$('input[type=text],input[type=password]').attr('required', false);"
@@ -372,6 +370,16 @@ class kolab_sso extends rcube_plugin
  */
 class DOMDocumentHelper extends DOMDocument
 {
+    public function loadHTML($html, $options = 0)
+    {
+        return parent::loadHTML('<html><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head><body>' . $html);
+    }
+
+    public function saveHTML($node = null)
+    {
+        return preg_replace('|</?body>|', '', parent::saveHTML($node));
+    }
+
     public function createNode($name, $value = null, $args = array(), $parent = null, $prepend = false)
     {
         $node = parent::createElement($name);
