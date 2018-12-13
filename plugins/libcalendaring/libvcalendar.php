@@ -1081,9 +1081,7 @@ class libvcalendar implements Iterator
             // add RDATEs
             if (is_array($rdates)) {
                 foreach ($rdates as $rdate) {
-                    if ($ex instanceof DateTime) {
-                        $ve->add($this->datetime_prop($cal, 'RDATE', $rdate));
-                    }
+                    $ve->add($this->datetime_prop($cal, 'RDATE', $rdate));
                 }
             }
         }
