@@ -325,10 +325,13 @@ class kolab_calendar extends kolab_storage_folder_api
         // skip the first instance of a recurring event if listed in exdate
         if ($virtual && !empty($event['recurrence']['EXDATE'])) {
           $event_date = $event['start']->format('Ymd');
-          $exdates = (array)$event['recurrence']['EXDATE'];
+          $event_tz   = $event['start']->getTimezone();
 
-          foreach ($exdates as $exdate) {
-            if ($exdate->format('Ymd') == $event_date) {
+          foreach ((array) $event['recurrence']['EXDATE'] as $exdate) {
+            $ex = clone $exdate;
+            $ex->setTimezone($event_tz);
+
+            if ($ex->format('Ymd') == $event_date) {
               $add = false;
               break;
             }

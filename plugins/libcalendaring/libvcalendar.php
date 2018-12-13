@@ -1072,19 +1072,18 @@ class libvcalendar implements Iterator
 
             // add EXDATEs each one per line (for Thunderbird Lightning)
             if (is_array($exdates)) {
-                foreach ($exdates as $ex) {
-                    if ($ex instanceof \DateTime) {
-                        $exd = clone $event['start'];
-                        $exd->setDate($ex->format('Y'), $ex->format('n'), $ex->format('j'));
-                        $exd->setTimeZone(new \DateTimeZone('UTC'));
-                        $ve->add($this->datetime_prop($cal, 'EXDATE', $exd, true));
+                foreach ($exdates as $exdate) {
+                    if ($exdate instanceof DateTime) {
+                        $ve->add($this->datetime_prop($cal, 'EXDATE', $exdate));
                     }
                 }
             }
             // add RDATEs
-            if (!empty($rdates)) {
-                foreach ((array)$rdates as $rdate) {
-                    $ve->add($this->datetime_prop($cal, 'RDATE', $rdate));
+            if (is_array($rdates)) {
+                foreach ($rdates as $rdate) {
+                    if ($ex instanceof DateTime) {
+                        $ve->add($this->datetime_prop($cal, 'RDATE', $rdate));
+                    }
                 }
             }
         }

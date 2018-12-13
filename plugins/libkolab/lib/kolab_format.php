@@ -203,17 +203,20 @@ abstract class kolab_format
      * @param mixed         Date/Time value either as unix timestamp, date string or PHP DateTime object
      * @param DateTimeZone  The timezone the date/time is in. Use global default if Null, local time if False
      * @param boolean       True of the given date has no time component
-     * @return object       The libkolabxml date/time object
+     * @param DateTimeZone  The timezone to convert the date to before converting to cDateTime
+     *
+     * @return cDateTime The libkolabxml date/time object
      */
-    public static function get_datetime($datetime, $tz = null, $dateonly = false)
+    public static function get_datetime($datetime, $tz = null, $dateonly = false, $dest_tz = null)
     {
-        // use timezone information from datetime of global setting
+        // use timezone information from datetime or global setting
         if (!$tz && $tz !== false) {
             if ($datetime instanceof DateTime)
                 $tz = $datetime->getTimezone();
             if (!$tz)
                 $tz = self::$timezone;
         }
+
         $result = new cDateTime();
 
         try {
@@ -225,14 +228,26 @@ abstract class kolab_format
             else if (is_string($datetime) && strlen($datetime)) {
                 $datetime = $tz ? new DateTime($datetime, $tz) : new DateTime($datetime);
             }
+            else if ($datetime instanceof DateTime) {
+                $datetime = clone $datetime;
+            }
         }
         catch (Exception $e) {}
 
         if ($datetime instanceof DateTime) {
+            if ($dest_tz instanceof DateTimeZone && $dest_tz !== $datetime->getTimezone()) {
+                $datetime->setTimezone($dest_tz);
+                $tz = $dest_tz;
+            }
+
             $result->setDate($datetime->format('Y'), $datetime->format('n'), $datetime->format('j'));
 
-            if (!$dateonly)
-                $result->setTime($datetime->format('G'), $datetime->format('i'), $datetime->format('s'));
+            if ($dateonly) {
+                // Dates should be always in local time only
+                return $result;
+            }
+
+            $result->setTime($datetime->format('G'), $datetime->format('i'), $datetime->format('s'));
 
             // libkolabxml throws errors on some deprecated timezone names
             $utc_aliases = array('UTC', 'GMT', '+00:00', 'Z', 'Etc/GMT', 'Etc/UTC');
@@ -254,16 +269,19 @@ abstract class kolab_format
     /**
      * Convert the given cDateTime into a PHP DateTime object
      *
-     * @param object cDateTime  The libkolabxml datetime object
-     * @return object DateTime  PHP datetime instance
+     * @param cDateTime    The libkolabxml datetime object
+     * @param DateTimeZone The timezone to convert the date to
+     *
+     * @return DateTime PHP datetime instance
      */
-    public static function php_datetime($cdt)
+    public static function php_datetime($cdt, $dest_tz = null)
     {
-        if (!is_object($cdt) || !$cdt->isValid())
+        if (!is_object($cdt) || !$cdt->isValid()) {
             return null;
+        }
 
         $d = new DateTime;
-        $d->setTimezone(self::$timezone);
+        $d->setTimezone($dest_tz ?: self::$timezone);
 
         try {
             if ($tzs = $cdt->timezone()) {

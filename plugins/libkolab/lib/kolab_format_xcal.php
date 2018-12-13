@@ -174,6 +174,10 @@ abstract class kolab_format_xcal extends kolab_format
             }
         }
 
+        if ($object['start'] instanceof DateTime) {
+            $start_tz = $object['start']->getTimezone();
+        }
+
         // read recurrence rule
         if (($rr = $this->obj->recurrenceRule()) && $rr->isValid()) {
             $rrule_type_map = array_flip($this->rrule_type_map);
@@ -185,7 +189,7 @@ abstract class kolab_format_xcal extends kolab_format
             if (($count = $rr->count()) && $count > 0) {
                 $object['recurrence']['COUNT'] = $count;
             }
-            else if ($until = self::php_datetime($rr->end())) {
+            else if ($until = self::php_datetime($rr->end(), $start_tz)) {
                 $refdate = $this->get_reference_date();
                 if ($refdate && $refdate instanceof DateTime && !$refdate->_dateonly) {
                     $until->setTime($refdate->format('G'), $refdate->format('i'), 0);
@@ -214,16 +218,18 @@ abstract class kolab_format_xcal extends kolab_format
 
             if ($exdates = $this->obj->exceptionDates()) {
                 for ($i=0; $i < $exdates->size(); $i++) {
-                    if ($exdate = self::php_datetime($exdates->get($i)))
+                    if ($exdate = self::php_datetime($exdates->get($i), $start_tz)) {
                         $object['recurrence']['EXDATE'][] = $exdate;
+                    }
                 }
             }
         }
 
         if ($rdates = $this->obj->recurrenceDates()) {
             for ($i=0; $i < $rdates->size(); $i++) {
-                if ($rdate = self::php_datetime($rdates->get($i)))
+                if ($rdate = self::php_datetime($rdates->get($i), $start_tz)) {
                     $object['recurrence']['RDATE'][] = $rdate;
+                }
             }
         }
 
@@ -415,6 +421,10 @@ abstract class kolab_format_xcal extends kolab_format
             $this->obj->setOrganizer($organizer);
         }
 
+        if ($object['start'] instanceof DateTime) {
+            $start_tz = $object['start']->getTimezone();
+        }
+
         // save recurrence rule
         $rr = new RecurrenceRule;
         $rr->setFrequency(RecurrenceRule::FreqNone);
@@ -470,13 +480,13 @@ abstract class kolab_format_xcal extends kolab_format
             if ($object['recurrence']['COUNT'])
                 $rr->setCount(intval($object['recurrence']['COUNT']));
             else if ($object['recurrence']['UNTIL'])
-                $rr->setEnd(self::get_datetime($object['recurrence']['UNTIL'], null, true));
+                $rr->setEnd(self::get_datetime($object['recurrence']['UNTIL'], null, true, $start_tz));
 
             if ($rr->isValid()) {
                 // add exception dates (only if recurrence rule is valid)
                 $exdates = new vectordatetime;
                 foreach ((array)$object['recurrence']['EXDATE'] as $exdate)
-                    $exdates->push(self::get_datetime($exdate, null, true));
+                    $exdates->push(self::get_datetime($exdate, null, true, $start_tz));
                 $this->obj->setExceptionDates($exdates);
             }
             else {
@@ -494,7 +504,7 @@ abstract class kolab_format_xcal extends kolab_format
         if (!empty($object['recurrence']['RDATE'])) {
             $rdates = new vectordatetime;
             foreach ((array)$object['recurrence']['RDATE'] as $rdate)
-                $rdates->push(self::get_datetime($rdate, null, true));
+                $rdates->push(self::get_datetime($rdate, null, true, $start_tz));
             $this->obj->setRecurrenceDates($rdates);
         }
 
@@ -760,7 +770,7 @@ abstract class kolab_format_xcal extends kolab_format
             $error_logged = true;
             rcube::raise_error(array(
                 'code'    => 900,
-                'message' => "required kolabcalendaring module not found"
+                'message' => "Required kolabcalendaring module not found"
             ), true);
         }
 
