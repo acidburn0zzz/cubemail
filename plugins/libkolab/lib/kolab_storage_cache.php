@@ -1155,7 +1155,7 @@ class kolab_storage_cache
     }
 
     /**
-     * Set Roundcube storage options and bypass messages cache.
+     * Set Roundcube storage options and bypass messages/indexes cache.
      *
      * We use skip_deleted and threading settings specific to Kolab,
      * we have to change these global settings only temporarily.
@@ -1210,17 +1210,18 @@ class kolab_storage_cache
 
             switch ($cache_bypass) {
                 case 2:
-                    // Disable messages cache completely
+                    // Disable messages and index cache completely
                     $this->imap->set_messages_caching(!$force);
                     break;
 
+                case 3:
                 case 1:
-                    // We'll disable messages cache, but keep index cache.
+                    // We'll disable messages cache, but keep index cache (1) or vice-versa (3)
                     // Default mode is both (MODE_INDEX | MODE_MESSAGE)
-                    $mode = rcube_imap_cache::MODE_INDEX;
+                    $mode = $cache_bypass == 3 ? rcube_imap_cache::MODE_MESSAGE : rcube_imap_cache::MODE_INDEX;
 
                     if (!$force) {
-                        $mode |= rcube_imap_cache::MODE_MESSAGE;
+                        $mode |= $cache_bypass == 3 ? rcube_imap_cache::MODE_INDEX : rcube_imap_cache::MODE_MESSAGE;
                     }
 
                     $this->imap->set_messages_caching(true, $mode);
