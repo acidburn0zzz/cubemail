@@ -214,7 +214,12 @@ class kolab_calendar extends kolab_storage_folder_api
           $this->events[$id] = $master;
         }
         else if (is_array($master['recurrence'])) {
-          $this->get_recurring_events($record, $master['start'], null, $id);
+          // For performance reasons we'll get only the specific instance
+          if (($date = substr($id, strlen($master_id) + 1, 8)) && strlen($date) == 8 && is_numeric($date)) {
+            $start_date = new DateTime($date . 'T000000', $master['start']->getTimezone());
+          }
+
+          $this->get_recurring_events($record, $start_date ?: $master['start'], null, $id, 1);
         }
       }
     }
@@ -597,10 +602,11 @@ class kolab_calendar extends kolab_storage_folder_api
    * @param DateTime $start    Start date of the recurrence window
    * @param DateTime $end      End date of the recurrence window
    * @param string   $event_id ID of a specific recurring event instance
+   * @param int      $limit    Max. number of instances to return
    *
    * @return array List of recurring event instances
    */
-  public function get_recurring_events($event, $start, $end = null, $event_id = null)
+  public function get_recurring_events($event, $start, $end = null, $event_id = null, $limit = null)
   {
     $object = $event['_formatobj'];
     if (!$object) {
@@ -669,6 +675,10 @@ class kolab_calendar extends kolab_storage_folder_api
       }
     }
 
+    if ($limit && count($events) >= $limit) {
+      return $events;
+    }
+
     // use libkolab to compute recurring events
     $recurrence = new kolab_date_recurrence($object);
 
@@ -712,6 +722,10 @@ class kolab_calendar extends kolab_storage_folder_api
         if ($rec_id == $event_id) {
           $this->events[$rec_id] = $rec_event;
           break;
+        }
+
+        if ($limit && count($events) >= $limit) {
+          return $events;
         }
       }
       else if ($next_event['start'] > $end)  // stop loop if out of range

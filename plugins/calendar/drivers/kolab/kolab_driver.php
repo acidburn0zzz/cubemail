@@ -819,7 +819,7 @@ class kolab_driver extends calendar_driver
 
           // removing the first instance => just move to next occurence
           if ($master['recurrence'] && $event['_instance'] == libcalendaring::recurrence_instance_identifier($master)) {
-            $recurring = reset($storage->get_recurring_events($event, $event['start'], null, $event['id'].'-1'));
+            $recurring = reset($storage->get_recurring_events($event, $event['start'], null, $event['id'] . '-1', 1));
 
             // no future instances found: delete the master event (bug #1677)
             if (!$recurring['start']) {
