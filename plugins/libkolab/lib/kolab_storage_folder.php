@@ -281,12 +281,14 @@ class kolab_storage_folder extends kolab_storage_folder_api
     /**
      * Select Kolab objects matching the given query
      *
-     * @param mixed Pseudo-SQL query as list of filter parameter triplets
-     *    or string with object type (e.g. contact, event, todo, journal, note, configuration)
+     * @param mixed   Pseudo-SQL query as list of filter parameter triplets
+     *                or string with object type (e.g. contact, event, todo, journal, note, configuration)
+     * @param boolean Use fast mode to fetch only minimal set of information
+     *                (no xml fetching and parsing, etc.)
      *
      * @return array List of Kolab data objects (each represented as hash array)
      */
-    public function select($query = array())
+    public function select($query = array(), $fast = false)
     {
         if (!$this->valid) {
             return array();
@@ -296,7 +298,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
         $this->cache->synchronize();
 
         // fetch objects from cache
-        return $this->cache->select($this->_prepare_query($query));
+        return $this->cache->select($this->_prepare_query($query), false, $fast);
     }
 
     /**

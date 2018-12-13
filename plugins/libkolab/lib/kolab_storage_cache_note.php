@@ -23,5 +23,5 @@
 
 class kolab_storage_cache_note extends kolab_storage_cache
 {
-    
+    protected $data_props = array('uid', 'title', 'created', 'changed');
 }
