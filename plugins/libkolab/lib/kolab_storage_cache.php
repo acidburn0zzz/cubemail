@@ -48,6 +48,7 @@ class kolab_storage_cache
     protected $max_sync_lock_time = 600;
     protected $binary_items = array();
     protected $extra_cols = array();
+    protected $data_props = array();
     protected $order_by = null;
     protected $limit = null;
     protected $error = 0;
@@ -585,9 +586,12 @@ class kolab_storage_cache
      * @param array Pseudo-SQL query as list of filter parameter triplets
      *   triplet: array('<colname>', '<comparator>', '<value>')
      * @param boolean Set true to only return UIDs instead of complete objects
+     * @param boolean Use fast mode to fetch only minimal set of information
+     *                (no xml fetching and parsing, etc.)
+     *
      * @return array List of Kolab data objects (each represented as hash array) or UIDs
      */
-    public function select($query = array(), $uids = false)
+    public function select($query = array(), $uids = false, $fast = false)
     {
         $result = $uids ? array() : new kolab_storage_dataset($this);
 
@@ -621,6 +625,9 @@ class kolab_storage_cache
             }
 
             while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
+                if ($fast) {
+                    $sql_arr['fast-mode'] = true;
+                }
                 if ($uids) {
                     $this->uid2msg[$sql_arr['uid']] = $sql_arr['_msguid'];
                     $result[] = $sql_arr['uid'];
@@ -862,6 +869,11 @@ class kolab_storage_cache
             $sql_data['words'] = ' ' . join(' ', $object['_formatobj']->get_words()) . ' ';
         }
 
+        // TODO: get rid of xml column
+        // TODO: store only small subset of properties in data column, i.e. properties that are
+        //       needed for fast-mode only (use $data_props)
+        // TODO: store data in JSON format and no base64-encoding
+
         // extract object data
         $data = array();
         foreach ($object as $key => $val) {
@@ -896,8 +908,25 @@ class kolab_storage_cache
      */
     protected function _unserialize($sql_arr)
     {
+        if ($sql_arr['fast-mode'] && !empty($sql_arr['data'])
+            && ($object = unserialize(base64_decode($sql_arr['data'])))
+        ) {
+            foreach ($this->data_props as $prop) {
+                if (!isset($object[$prop]) && isset($sql_arr[$prop])) {
+                    $object[$prop] = $sql_arr[$prop];
+
+                    if (($prop == 'created' || $prop == 'changed') && $object[$prop] && is_string($object[$prop])) {
+                        $object[$prop] = new DateTime($object[$prop]);
+                    }
+                }
+            }
+
+            $object['_type']     = $sql_arr['type'] ?: $this->folder->type;
+            $object['_msguid']   = $sql_arr['msguid'];
+            $object['_mailbox']  = $this->folder->name;
+        }
         // Fetch object xml
-        if ($object = $this->folder->read_object($sql_arr['msguid'])) {
+        else if ($object = $this->folder->read_object($sql_arr['msguid'])) {
             // additional meta data
             $object['_size'] = strlen($xml);
         }

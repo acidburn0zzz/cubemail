@@ -480,7 +480,7 @@ class kolab_notes extends rcube_plugin
 
         $this->_read_lists();
         if ($folder = $this->get_folder($list_id)) {
-            foreach ($folder->select($query) as $record) {
+            foreach ($folder->select($query, empty($query)) as $record) {
                 // post-filter search results
                 if (strlen($search)) {
                     $matches = 0;
