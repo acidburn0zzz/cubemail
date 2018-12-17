@@ -13,6 +13,7 @@ $labels['tagactions'] = 'Etiquetar acciones...';
 $labels['tagadd'] = 'Etiquetar como...';
 $labels['tagremove'] = 'Eliminar etiqueta...';
 $labels['untag'] = 'Eliminar etiqueta';
+$labels['notags'] = 'Sin etiquetas';
 $labels['tagremoveall'] = 'Eliminar todas las etiquetas';
 $labels['add'] = 'Añadir';
 $labels['edit'] = 'Editar';

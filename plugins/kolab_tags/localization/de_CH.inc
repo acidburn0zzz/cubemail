@@ -13,6 +13,7 @@ $labels['tagactions'] = 'Schlagwort Aktion...';
 $labels['tagadd'] = 'Vergebe Schlagwort...';
 $labels['tagremove'] = 'Entferne Schlagwort..';
 $labels['untag'] = 'Entferne Schlagwort';
+$labels['notags'] = 'Keine Schlagworte';
 $labels['tagremoveall'] = 'Entferne alle Schlagworte';
 $labels['add'] = 'Hinzufügen';
 $labels['edit'] = 'Bearbeiten';

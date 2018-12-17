@@ -13,6 +13,7 @@ $labels['tagactions'] = 'Afmærk handlinger...';
 $labels['tagadd'] = 'Markér som...';
 $labels['tagremove'] = 'Fjern mærke...';
 $labels['untag'] = 'Fjern mærke';
+$labels['notags'] = 'Ingen mærker';
 $labels['tagremoveall'] = 'Fjern alle mærker';
 $labels['add'] = 'Tilføj';
 $labels['edit'] = 'Redigér';

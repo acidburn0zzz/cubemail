@@ -58,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'Sortieroptionen für Notizen';
 $labels['arialabelnotesoptionsmenu'] = 'Notizbuch Aktionsmenü';
 $labels['arialabelnotebookform'] = 'Notizbucheigenschaften';
 $labels['arialabelmessagereferences'] = 'Verknüpfte E-Mail-Mitteilungen';
-$labels['arialabelfolderearchform'] = 'Notizbücher-Suchmaske';
+$labels['arialabelfoldersearchform'] = 'Notizbücher-Suchmaske';
 $labels['arialabelnoteform'] = 'Notizbearbeitungsmaske';

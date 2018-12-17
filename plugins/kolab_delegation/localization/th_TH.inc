@@ -9,7 +9,7 @@
 $labels['tabtitle'] = 'การมอบหมายงาน';
 $labels['delegationtitle'] = 'การจัดการการมอบหมายงาน';
 $labels['mail'] = 'อีเมล์';
-$labels['contact'] = 'สมุดรายชื่อ';
+$labels['contact'] = 'รายชื้อผู้ติดต่อ';
 $labels['event'] = 'ปฎิทิน';
 $labels['task'] = 'งาน';
 $labels['note'] = 'บันทึก';

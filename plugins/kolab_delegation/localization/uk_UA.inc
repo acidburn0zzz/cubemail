@@ -9,7 +9,6 @@
 $labels['delegates'] = 'Представники';
 $labels['delegate'] = 'Представник';
 $labels['mail'] = 'Пошта';
-$labels['contact'] = 'Адресні книги';
 $labels['event'] = 'Календарі';
 $labels['task'] = 'Задачі';
 $labels['note'] = 'Нотатки';

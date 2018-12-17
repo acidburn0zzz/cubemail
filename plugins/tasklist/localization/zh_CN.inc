@@ -44,3 +44,4 @@ $labels['roleoptional'] = '可选';
 $labels['sendinvitations'] = '发送邀请';
 $labels['taskhistory'] = '历史';
 $labels['comment'] = '注释';
+$labels['rsvpcomment'] = '注释';

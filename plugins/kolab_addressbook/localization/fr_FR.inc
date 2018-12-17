@@ -37,7 +37,6 @@ $labels['personalfirst'] = 'Carnet(s) d\'adresses personnel(s) en premier';
 $labels['globalfirst'] = 'Carnet(s) d\'adresses global(aux) en premier';
 $labels['personalonly'] = 'Carnet(s) d\'adresses personnel(s) seulement';
 $labels['globalonly'] = 'Carnet(s) d\'adresse global(aux) seulement';
-$labels['findaddressbooks'] = 'Trouver carnets d\'adresses';
 $labels['searchterms'] = 'Critères de recherche';
 $labels['listsearchresults'] = 'Carnets d\'adresses supplémentaires';
 $labels['foldersearchform'] = 'Formulaire de recherche carnet d\'adresses';

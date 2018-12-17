@@ -7,7 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
 $labels['mail'] = 'Ηλεκτρονική αλληλογραφία';
-$labels['contact'] = 'Βιβλίο διευθύνσεων';
+$labels['contact'] = 'Επαφές';
 $labels['event'] = 'Ημερολόγια';
 $labels['task'] = 'Εργασίες';
 $labels['note'] = 'Σημειώσεις';

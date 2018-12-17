@@ -27,6 +27,7 @@ $labels['afterflagdeleted'] = 'Atzīmēt kā dzēstu';
 $labels['aftermoveto'] = 'Pārvietot uz ...';
 $labels['itipoptions'] = 'Notikuma uzaicinājumi';
 $labels['afteraction'] = 'Pēc tam, kad uzaicinājums vai izmaiņu ziņojums ir apstrādāts';
+$labels['weeknonone'] = 'nekad';
 $labels['calendar'] = 'Kalendārs';
 $labels['calendars'] = 'Kalendāri';
 $labels['category'] = 'Kategorija';

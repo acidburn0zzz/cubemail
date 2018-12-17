@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'Příznak nastaven';
 $labels['actionflagclear'] = 'Příznak odstraněn';
 $labels['showrevision'] = 'Ukázat tuto verzi';
 $labels['restore'] = 'Obnovit tuto verzi';
-$labels['objectchangelognotavailable'] = 'Pro tuto zprávu není historie dostupná';
+$labels['tabsharing'] = 'Sdílení';

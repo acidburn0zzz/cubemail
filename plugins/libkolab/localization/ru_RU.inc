@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'Флаг установлен';
 $labels['actionflagclear'] = 'Флаг удалён';
 $labels['showrevision'] = 'Показать эту версию';
 $labels['restore'] = 'Восстановить эту версию';
-$labels['objectchangelognotavailable'] = 'История не доступна для этого сообщения';
+$labels['tabsharing'] = 'Поделиться';

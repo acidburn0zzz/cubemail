@@ -8,6 +8,7 @@
  */
 $labels['tags'] = 'Taggar';
 $labels['untag'] = 'Ta bort tagg';
+$labels['notags'] = 'Inga taggar';
 $labels['edit'] = 'Redigera';
 $labels['tagname'] = 'Namn';
 $labels['tagcolor'] = 'Färg';

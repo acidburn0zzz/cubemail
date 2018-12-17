@@ -58,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'Nastavitve za sortiranje zapiskov';
 $labels['arialabelnotesoptionsmenu'] = 'Ukazni meni za beležke';
 $labels['arialabelnotebookform'] = 'Nastavitve beležke';
 $labels['arialabelmessagereferences'] = 'Povezana email sporočila';
-$labels['arialabelfolderearchform'] = 'Obrazec za iskanje beležk';
+$labels['arialabelfoldersearchform'] = 'Obrazec za iskanje beležk';
 $labels['arialabelnoteform'] = 'Obrazec za urejanje zapiska';

@@ -7,7 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
 $labels['mail'] = 'Електронна поща';
-$labels['contact'] = 'Адресни книги';
+$labels['contact'] = 'Контакти';
 $labels['event'] = 'Календари';
 $labels['task'] = 'Задачи';
 $labels['note'] = 'Бележки';

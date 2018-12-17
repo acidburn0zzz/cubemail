@@ -95,6 +95,7 @@ $labels['printdescriptions'] = 'Imprimeix descripcions';
 $labels['parentcalendar'] = 'Insereix dins';
 $labels['searchearlierdates'] = '« Cerca els esdeveniments d\'abans';
 $labels['searchlaterdates'] = 'Cerca els esdeveniments de després »';
+$labels['laterevents'] = 'Després';
 $labels['andnmore'] = '$nr més...';
 $labels['togglerole'] = 'Feu clic per commutar el rol';
 $labels['createfrommail'] = 'Desa com a esdeveniment';

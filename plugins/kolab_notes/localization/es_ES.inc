@@ -58,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'Opciones de clasificación de la lista de n
 $labels['arialabelnotesoptionsmenu'] = 'Menú de acciones de la lista de notas';
 $labels['arialabelnotebookform'] = 'Propiedades de la lista de notas';
 $labels['arialabelmessagereferences'] = 'Mensajes de correo electrónico vinculados';
-$labels['arialabelfolderearchform'] = 'Formulario de búsqueda de la libreta de notas';
+$labels['arialabelfoldersearchform'] = 'Formulario de búsqueda de la libreta de notas';
 $labels['arialabelnoteform'] = 'Formulario de edición de la nota';

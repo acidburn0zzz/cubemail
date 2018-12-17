@@ -16,3 +16,4 @@ $labels['actionmove'] = 'Переміщено';
 $labels['actiondelete'] = 'Вилучено';
 $labels['showrevision'] = 'Показати дану весію';
 $labels['restore'] = 'Відновити дану версію';
+$labels['tabsharing'] = 'Спільне використання';

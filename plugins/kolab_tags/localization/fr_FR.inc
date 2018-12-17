@@ -13,6 +13,7 @@ $labels['tagactions'] = 'Actions étiquette...';
 $labels['tagadd'] = 'Étiqueter en tant que...';
 $labels['tagremove'] = 'Supprimer l\'étiquette...';
 $labels['untag'] = 'Supprimer l\'étiquette';
+$labels['notags'] = 'Pas d\'étiquette';
 $labels['tagremoveall'] = 'Supprimer toutes les étiquettes';
 $labels['add'] = 'Ajouter';
 $labels['edit'] = 'Modifier';

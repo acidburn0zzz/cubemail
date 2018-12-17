@@ -58,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'ノートリスト並び替えオプショ�
 $labels['arialabelnotesoptionsmenu'] = 'ノートブック操作メニュー';
 $labels['arialabelnotebookform'] = 'ノートブックプロパティ';
 $labels['arialabelmessagereferences'] = 'Eメールメッセージをリンク';
-$labels['arialabelfolderearchform'] = 'ノートブック検索フォーム';
+$labels['arialabelfoldersearchform'] = 'ノートブック検索フォーム';
 $labels['arialabelnoteform'] = 'ノート編集フォーム';

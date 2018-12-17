@@ -17,3 +17,4 @@ $labels['actionmove'] = 'Przeniesione';
 $labels['actiondelete'] = 'Usunięte';
 $labels['showrevision'] = 'Pokaż tą wersję';
 $labels['restore'] = 'Przywróć tą wersję';
+$labels['tabsharing'] = 'Udostępnianie';

@@ -37,7 +37,6 @@ $labels['personalfirst'] = 'Private(s) Adressbuch/Adressbücher zuerst';
 $labels['globalfirst'] = 'Globale(s) Adressbuch/Adressbücher zuerst';
 $labels['personalonly'] = 'Nur persönliche(s) Adressbuch/Adressbücher';
 $labels['globalonly'] = 'Nur globale(s) Adressbuch/Adressbücher';
-$labels['findaddressbooks'] = 'Adressbücher finden';
 $labels['searchterms'] = 'Suchbegriffe';
 $labels['listsearchresults'] = 'Zusätzliche Adressbücher';
 $labels['foldersearchform'] = 'Suchformular für Adressbuch';

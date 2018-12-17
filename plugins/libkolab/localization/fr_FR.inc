@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'Marque mise';
 $labels['actionflagclear'] = 'Marque retirée';
 $labels['showrevision'] = 'Afficher cette version';
 $labels['restore'] = 'Restaurer cette version';
-$labels['objectchangelognotavailable'] = 'Il n\'y a pas d\'historique pour ce message';
+$labels['tabsharing'] = 'Partage';

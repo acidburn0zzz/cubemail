@@ -58,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'Sorteeropties voor lijst met notities';
 $labels['arialabelnotesoptionsmenu'] = 'Actiemenu voor notitieblok';
 $labels['arialabelnotebookform'] = 'Eigenschappen van notitieblok';
 $labels['arialabelmessagereferences'] = 'Gekoppelde e-mailberichten';
-$labels['arialabelfolderearchform'] = 'Zoekformulier voor notitieblokken';
+$labels['arialabelfoldersearchform'] = 'Zoekformulier voor notitieblokken';
 $labels['arialabelnoteform'] = 'Formulier voor bewerking van notities';

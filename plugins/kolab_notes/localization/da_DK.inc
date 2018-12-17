@@ -58,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'Valgmuligheder for sortering af noteliste';
 $labels['arialabelnotesoptionsmenu'] = 'Handlingsmenu for notebog';
 $labels['arialabelnotebookform'] = 'Egenskaber for notesbog';
 $labels['arialabelmessagereferences'] = 'Sammenkædede e-mailbeskeder';
-$labels['arialabelfolderearchform'] = 'Søgeformular for notesbøger';
+$labels['arialabelfoldersearchform'] = 'Søgeformular for notesbøger';
 $labels['arialabelnoteform'] = 'Redigeringsformular for note';

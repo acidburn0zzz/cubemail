@@ -16,3 +16,4 @@ $labels['actionmove'] = 'Moved';
 $labels['actiondelete'] = 'Deleted';
 $labels['showrevision'] = 'Show this version';
 $labels['restore'] = 'Restore this version';
+$labels['tabsharing'] = 'Sharing';

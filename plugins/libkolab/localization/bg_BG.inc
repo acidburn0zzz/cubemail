@@ -7,3 +7,4 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
 $labels['objectchangelog'] = 'История';
+$labels['tabsharing'] = 'Споделяне';

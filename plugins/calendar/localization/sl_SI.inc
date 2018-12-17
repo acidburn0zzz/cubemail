@@ -95,6 +95,7 @@ $labels['printdescriptions'] = 'Opis za tisk';
 $labels['parentcalendar'] = 'Vstavi';
 $labels['searchearlierdates'] = '« Išči po prejšnjih dogodkih';
 $labels['searchlaterdates'] = 'Išči po kasnejših dogodkih »';
+$labels['laterevents'] = 'Kasneje';
 $labels['andnmore'] = '$nr več...';
 $labels['togglerole'] = 'Klikni za prikaz vloge';
 $labels['createfrommail'] = 'Shrani kot dogodek';

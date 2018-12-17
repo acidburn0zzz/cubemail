@@ -6,6 +6,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
+$labels['contact'] = 'Contacts';
 $labels['event'] = 'Calendaris';
 $labels['task'] = 'Tasques';
 $labels['deletedelegate'] = 'Delete delegate';

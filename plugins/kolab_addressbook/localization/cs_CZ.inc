@@ -37,7 +37,6 @@ $labels['personalfirst'] = 'Nejprve osobní adresář(e)';
 $labels['globalfirst'] = 'Nejprve globální adresář(e)';
 $labels['personalonly'] = 'Pouze osobní adresář(e)';
 $labels['globalonly'] = 'Pouze globální adresář(e)';
-$labels['findaddressbooks'] = 'Hledat adresáře';
 $labels['searchterms'] = 'Hledané výrazy';
 $labels['listsearchresults'] = 'Další adresáře';
 $labels['foldersearchform'] = 'Vyhledávací formulář pro adresář';

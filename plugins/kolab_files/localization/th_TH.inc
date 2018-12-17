@@ -39,6 +39,7 @@ $labels['save'] = 'บันทึก';
 $labels['savefile'] = 'บันทึกไฟล์';
 $labels['printfile'] = 'พิมพ์ไฟล์';
 $labels['close'] = 'ปิด';
+$labels['submit'] = 'ส่งเข้าระบบ';
 $labels['collection_audio'] = 'เสียง';
 $labels['collection_video'] = 'วีดีโอ';
 $labels['collection_image'] = 'ภาพ';

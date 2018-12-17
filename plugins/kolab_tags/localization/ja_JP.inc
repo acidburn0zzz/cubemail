@@ -13,6 +13,7 @@ $labels['tagactions'] = 'タグの動作…';
 $labels['tagadd'] = 'タグの種類';
 $labels['tagremove'] = 'タグの削除…';
 $labels['untag'] = 'タグを削除';
+$labels['notags'] = 'タグなし';
 $labels['tagremoveall'] = '全タグの削除';
 $labels['add'] = '追加';
 $labels['edit'] = '編集';

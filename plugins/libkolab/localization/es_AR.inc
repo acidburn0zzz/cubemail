@@ -22,4 +22,6 @@ $labels['actionflagset'] = 'Marca realizada';
 $labels['actionflagclear'] = 'Marca eliminada';
 $labels['showrevision'] = 'Mostrar esta versión';
 $labels['restore'] = 'Recuperar esta versión';
-$labels['objectchangelognotavailable'] = 'El historial no está disponible para este mensaje';
+$labels['objectchangelognotavailable'] = 'El historial no está disponible para este objeto.';
+$labels['tabsharing'] = 'Compartir';
+$labels['aclnorights'] = 'No tiene permisos de administrador para esta carpeta.';

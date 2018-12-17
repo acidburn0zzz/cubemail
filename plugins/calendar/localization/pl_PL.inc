@@ -95,6 +95,7 @@ $labels['printdescriptions'] = 'Drukuj opisy';
 $labels['parentcalendar'] = 'Wstaw wewnątrz';
 $labels['searchearlierdates'] = '« Szukaj wcześniejszych zdarzeń';
 $labels['searchlaterdates'] = 'Szukaj późniejszych zdarzeń »';
+$labels['laterevents'] = 'Później';
 $labels['andnmore'] = '$nr więcej...';
 $labels['togglerole'] = 'Kliknuj aby przestawić rolę';
 $labels['createfrommail'] = 'Zapisz jako zdarzenie';

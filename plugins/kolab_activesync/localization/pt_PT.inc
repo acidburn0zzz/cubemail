@@ -9,7 +9,6 @@ $labels['syncsettings'] = 'Definições de sincronização';
 $labels['deviceconfig'] = 'Configuração de dispositivo';
 $labels['folderstosync'] = 'Pastas a sincronizar';
 $labels['mail'] = 'Email';
-$labels['contact'] = 'Livro de Contactos';
 $labels['event'] = 'Calendários';
 $labels['task'] = 'Tarefas';
 $labels['note'] = 'Notas';

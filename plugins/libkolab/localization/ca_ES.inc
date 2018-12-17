@@ -16,3 +16,4 @@ $labels['actionmove'] = 'Mogut';
 $labels['actiondelete'] = 'Suprimit';
 $labels['showrevision'] = 'Mostra aquesta versió';
 $labels['restore'] = 'Restaura aquesta versió';
+$labels['tabsharing'] = 'Compartit';

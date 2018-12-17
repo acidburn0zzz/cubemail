@@ -8,3 +8,4 @@
  */
 $labels['objectchangelog'] = 'Vēsture';
 $labels['objectdiff'] = 'Izmaiņas no $rev1 uz $rev2';
+$labels['tabsharing'] = 'Dalīšanās';

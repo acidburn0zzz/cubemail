@@ -58,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'Options de tri de la liste de notes';
 $labels['arialabelnotesoptionsmenu'] = 'Menu des actions pour un carnet';
 $labels['arialabelnotebookform'] = 'Propriétés du carnet';
 $labels['arialabelmessagereferences'] = 'Courriels liés';
-$labels['arialabelfolderearchform'] = 'Masque de recherche des carnets';
+$labels['arialabelfoldersearchform'] = 'Masque de recherche des carnets';
 $labels['arialabelnoteform'] = 'Zone d\'édition de note';

@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'Marca establecita';
 $labels['actionflagclear'] = 'Marca eliminada';
 $labels['showrevision'] = 'Mostrar esta versión';
 $labels['restore'] = 'Restaurar esta versión';
-$labels['objectchangelognotavailable'] = 'El historial no está disponible para este mensaje';
+$labels['tabsharing'] = 'Compartir';

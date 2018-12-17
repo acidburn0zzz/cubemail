@@ -22,4 +22,6 @@ $labels['actionflagset'] = 'Lippu asetettu';
 $labels['actionflagclear'] = 'Lippu poistettu';
 $labels['showrevision'] = 'Näytä tämä versio';
 $labels['restore'] = 'Palauta tämä versio';
-$labels['objectchangelognotavailable'] = 'Tälle viestille ei ole saatavissa historiaa';
+$labels['objectchangelognotavailable'] = 'Tälle objektille ei ole historiaa saatavilla.';
+$labels['tabsharing'] = 'Jakaminen';
+$labels['aclnorights'] = 'Sinulla ei ole ylläpitäjän oikeuksia tähän kansioon.';

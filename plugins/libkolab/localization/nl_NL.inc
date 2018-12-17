@@ -14,3 +14,4 @@ $labels['user'] = 'Gebruiker';
 $labels['actionappend'] = 'Opgeslagen';
 $labels['actionmove'] = 'Verplaatst';
 $labels['actiondelete'] = 'Verwijderd';
+$labels['tabsharing'] = 'Delen';

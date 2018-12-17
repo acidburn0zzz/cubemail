@@ -37,7 +37,6 @@ $labels['personalfirst'] = 'Eerst persoonlijke adresboeken';
 $labels['globalfirst'] = 'Eerst algemene adresboeken';
 $labels['personalonly'] = 'Alleen persoonlijke adresboeken';
 $labels['globalonly'] = 'Alleen algemene adresboeken';
-$labels['findaddressbooks'] = 'Adresboeken zoeken';
 $labels['searchterms'] = 'Zoektermen';
 $labels['listsearchresults'] = 'Extra adresboeken';
 $labels['foldersearchform'] = 'Zoekformulier voor adresboeken';

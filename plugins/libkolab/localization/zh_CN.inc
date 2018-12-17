@@ -12,3 +12,4 @@ $labels['objectchangelog'] = '历史';
 $labels['user'] = '用户';
 $labels['operation'] = '应用';
 $labels['actionread'] = '标记为已读';
+$labels['tabsharing'] = '分享';

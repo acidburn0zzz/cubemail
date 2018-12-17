@@ -17,3 +17,4 @@ $labels['actionmove'] = 'Movido';
 $labels['actiondelete'] = 'Eliminado';
 $labels['showrevision'] = 'Mostrar esta versão';
 $labels['restore'] = 'Restaurar esta versão';
+$labels['tabsharing'] = 'Partilha';

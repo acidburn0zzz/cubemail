@@ -43,6 +43,7 @@ $labels['copyfile'] = 'Αντιγραφή αρχείου';
 $labels['copyandedit'] = 'Αντιγραφή και επεξεργασία';
 $labels['documenttitle'] = 'Τίτλος:';
 $labels['close'] = 'Κλείσιμο';
+$labels['submit'] = 'Υποβολή';
 $labels['collection_audio'] = 'Ήχος';
 $labels['collection_video'] = 'Βίντεο';
 $labels['collection_image'] = 'Εικόνες';

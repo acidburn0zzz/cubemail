@@ -16,3 +16,4 @@ $labels['actionmove'] = 'Flyttad';
 $labels['actiondelete'] = 'Borttagen';
 $labels['showrevision'] = 'Visa denna version';
 $labels['restore'] = 'Återställ denna verson';
+$labels['tabsharing'] = 'Delning';

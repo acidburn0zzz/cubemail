@@ -15,4 +15,6 @@ $labels['title'] = 'Títol';
 $labels['listname'] = 'Nom';
 $labels['tabsharing'] = 'Compartit';
 $labels['foldersubscribe'] = 'Llista permanentment';
+$labels['findnotebooks'] = 'Find notebooks...';
 $labels['savingdata'] = 'S\'estan desant les dades...';
+$labels['arialabelfoldersearchform'] = 'Notebooks search form';

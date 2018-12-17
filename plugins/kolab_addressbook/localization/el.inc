@@ -28,7 +28,6 @@ $labels['bookproperties'] = 'Ιδιότητες βιβλίου διευθύνσ�
 $labels['bookname'] = 'Όνομα βιβλίου';
 $labels['bookshowurl'] = 'Εμφάνιση URL για CardDAV';
 $labels['carddavurldescription'] = 'Αντιγράψτε αυτή τη διεύθυνση στον πελάτη <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a> για πλήρη συγχρονισμό του συγκεκριμένου βιβλίου με τον υπολογιστή σας ή το κινητό σας.';
-$labels['findaddressbooks'] = 'Εύρεση βιβλίων διευθύνσεων';
 $labels['searchterms'] = 'Όροι αναζήτησης';
 $labels['listsearchresults'] = 'Επιπλέον βιβλία διευθύνσεων';
 $labels['showhistory'] = 'Προβολή ιστορικού';

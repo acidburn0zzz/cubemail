@@ -37,7 +37,6 @@ $labels['personalfirst'] = 'Персональные адресные книги
 $labels['globalfirst'] = 'Глобальные адресные книги в начале';
 $labels['personalonly'] = 'Только персональные адресные книги';
 $labels['globalonly'] = 'Только глобальные адресные книги';
-$labels['findaddressbooks'] = 'Найти адресные книги';
 $labels['searchterms'] = 'Условия поиска';
 $labels['listsearchresults'] = 'Дополнительные адресные книги';
 $labels['foldersearchform'] = 'Форма поиска адресных книг';

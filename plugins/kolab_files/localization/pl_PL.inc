@@ -26,6 +26,7 @@ $labels['save'] = 'Zapisz';
 $labels['savefile'] = 'Zapisz plik';
 $labels['printfile'] = 'Wydrukuj plik';
 $labels['close'] = 'Zamknij';
+$labels['submit'] = 'Wyślij';
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
 $labels['collection_image'] = 'Obrazy';

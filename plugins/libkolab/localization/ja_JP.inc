@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'フラグ設定';
 $labels['actionflagclear'] = 'フラグ削除';
 $labels['showrevision'] = '現在のバージョンの表示';
 $labels['restore'] = 'このバージョンを復元';
-$labels['objectchangelognotavailable'] = 'このメッセージの履歴は利用できません';
+$labels['tabsharing'] = '共有';

@@ -37,7 +37,6 @@ $labels['personalfirst'] = 'Libreta(s) de direcciones personal primero';
 $labels['globalfirst'] = 'Libreta(s) de direcciones globales primero';
 $labels['personalonly'] = 'Sólo libreta(s) de direcciones personal';
 $labels['globalonly'] = 'Sólo libreta(s) de direcciones global';
-$labels['findaddressbooks'] = 'Encontrar libreta de direcciones';
 $labels['searchterms'] = 'Buscar términos';
 $labels['listsearchresults'] = 'Libreta de direcciones adicional';
 $labels['foldersearchform'] = 'Formulario de búsqueda de libreta de direcciones';

@@ -21,6 +21,7 @@ $labels['rename'] = '重命名';
 $labels['edit'] = '编辑';
 $labels['save'] = '保存';
 $labels['close'] = '关闭';
+$labels['submit'] = '提交';
 $labels['collection_audio'] = '声音';
 $labels['collection_video'] = '视频';
 $labels['collection_image'] = '图片';

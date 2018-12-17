@@ -9,3 +9,4 @@
 $labels['objectchangelog'] = 'História';
 $labels['user'] = 'Usuário';
 $labels['actiondelete'] = 'Deletado';
+$labels['tabsharing'] = 'Compartilhamento';

@@ -13,6 +13,7 @@ $labels['tagactions'] = 'Tagacties...';
 $labels['tagadd'] = 'Taggen als...';
 $labels['tagremove'] = 'Tag verwijderen...';
 $labels['untag'] = 'Tag verwijderen';
+$labels['notags'] = 'Geen tags';
 $labels['tagremoveall'] = 'Alle tags verwijderen';
 $labels['add'] = 'Toevoegen';
 $labels['edit'] = 'Bewerken';

@@ -16,3 +16,4 @@ $labels['actionmove'] = 'ย้ายเรียบร้อย';
 $labels['actiondelete'] = 'ลบเรียบร้อย';
 $labels['showrevision'] = 'แสดงรุ่นการปรับปรุงนี้';
 $labels['restore'] = 'ย้อนกลับไปยังรุ่นการปรับปรุงนี้';
+$labels['tabsharing'] = 'แบ่งปัน';

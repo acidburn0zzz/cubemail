@@ -6,6 +6,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
+$labels['contact'] = 'Kontakter';
 $labels['event'] = 'Kalendrar';
 $labels['task'] = 'Uppgifter';
 $labels['note'] = 'Anteckningar';

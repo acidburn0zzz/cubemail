@@ -10,6 +10,7 @@ $labels['tags'] = 'Ετικέτες';
 $labels['unset'] = 'Αναίρεση επιλογής όλων';
 $labels['tagremove'] = 'Αφαίρεση ετικέτας...';
 $labels['untag'] = 'Αφαίρεση ετικέτας';
+$labels['notags'] = 'Καμία ετικέτα';
 $labels['add'] = 'Προσθήκη';
 $labels['edit'] = 'Επεξεργασία';
 $labels['delete'] = 'Διαγραφή';

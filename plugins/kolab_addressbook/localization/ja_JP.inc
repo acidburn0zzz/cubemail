@@ -37,7 +37,6 @@ $labels['personalfirst'] = '個人アドレス帳(s) を前に';
 $labels['globalfirst'] = 'グローバルアドレス帳(s) を前に';
 $labels['personalonly'] = '個人アドレス帳(s) のみ';
 $labels['globalonly'] = 'グローバルアドレス帳(s) のみ';
-$labels['findaddressbooks'] = 'アドレス帳を見つける';
 $labels['searchterms'] = '検索単語';
 $labels['listsearchresults'] = '追加アドレス帳';
 $labels['foldersearchform'] = 'アドレス帳検索フォーム';

@@ -1,6 +1,6 @@
 <?php
 $labels['mail'] = 'Email';
-$labels['contact'] = 'Imeniki';
+$labels['contact'] = 'Kontakti';
 $labels['event'] = 'Koledarji';
 $labels['task'] = 'Naloge';
 $labels['note'] = 'Zapiski';

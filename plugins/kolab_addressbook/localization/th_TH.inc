@@ -30,7 +30,6 @@ $labels['bookshowurl'] = 'แสดงลิงค์ CardDAV';
 $labels['carddavurldescription'] = 'คัดลอกลิงค์ที่อยู่นี้ไปยัง <a href="http://en.wikipedia.org/wiki/CardDAV" target="_blank">CardDAV</a> โปรแกรมที่เครื่องลูกข่ายเพื่อซิงค์ข้อมูลในสมุดที่อยู่ฉบับนี้กับคอมพิวเตอร์หรืออุปกรณ์มือถือของท่าน';
 $labels['personalfirst'] = 'สมุดที่อยู่ส่วนตัวก่อน';
 $labels['personalonly'] = 'สมุดที่อยู่ส่วนตัวเท่านั้น';
-$labels['findaddressbooks'] = 'ค้นหาสมุดที่อยู่';
 $labels['searchterms'] = 'ข้อความที่ต้องการค้นหา';
 $labels['listsearchresults'] = 'สมุดที่อยู่เพิ่มเติม';
 $labels['foldersearchform'] = 'ฟอร์มค้นหาสมุดที่อยู่';

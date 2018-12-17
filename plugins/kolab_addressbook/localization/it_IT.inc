@@ -37,7 +37,6 @@ $labels['personalfirst'] = 'Usa prima rubrica/che personale/i';
 $labels['globalfirst'] = 'Usa prima rubrica/che globale/i';
 $labels['personalonly'] = 'Usa solo rubrica/che personale/i';
 $labels['globalonly'] = 'Usa solo rubrica/che globale/i';
-$labels['findaddressbooks'] = 'Torva rubrica';
 $labels['searchterms'] = 'Cerca elemento';
 $labels['listsearchresults'] = 'Rubriche aggiuntive';
 $labels['foldersearchform'] = 'Modulo ricerca rubrica';

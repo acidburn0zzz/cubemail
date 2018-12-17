@@ -13,6 +13,7 @@ $labels['tagactions'] = 'Možnosti taga...';
 $labels['tagadd'] = 'Označi kot tag...';
 $labels['tagremove'] = 'Odstrani tag...';
 $labels['untag'] = 'Odstrani tag';
+$labels['notags'] = 'Ni tagov';
 $labels['tagremoveall'] = 'Odstrani vse tage';
 $labels['add'] = 'Dodaj';
 $labels['edit'] = 'Uredi';

@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'Markering er angivet';
 $labels['actionflagclear'] = 'Markering er fjernet';
 $labels['showrevision'] = 'Vis denne version';
 $labels['restore'] = 'Genskab denne version';
-$labels['objectchangelognotavailable'] = 'Historikken er utilgængelig for denne besked';
+$labels['tabsharing'] = 'Deling';

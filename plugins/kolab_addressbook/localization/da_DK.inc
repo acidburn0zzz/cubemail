@@ -37,7 +37,6 @@ $labels['personalfirst'] = 'Personlige adressebøger først';
 $labels['globalfirst'] = 'Globale adressebøger først';
 $labels['personalonly'] = 'Kun personlige adresse';
 $labels['globalonly'] = 'Kun globale adressebøger';
-$labels['findaddressbooks'] = 'Find adressebøger';
 $labels['searchterms'] = 'Søgetermer';
 $labels['listsearchresults'] = 'Yderligere adressebøger';
 $labels['foldersearchform'] = 'Søgeformular for adressebog';

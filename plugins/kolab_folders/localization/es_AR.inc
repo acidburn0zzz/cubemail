@@ -25,5 +25,7 @@ $labels['wastebasket'] = 'Papelera';
 $labels['junkemail'] = 'Basura';
 $labels['confidential'] = 'Confidential';
 $labels['private'] = 'Privado';
+$labels['folderexpire'] = 'Eliminar mensajes mas antiguos que';
+$labels['xdays'] = '$x días';
 $messages['defaultfolderexists'] = 'Ya existe una carpeta predeterminada del tipo especificado';
 ?>

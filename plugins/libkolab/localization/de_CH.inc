@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'Status gesetzt';
 $labels['actionflagclear'] = 'Status entfernt';
 $labels['showrevision'] = 'Diese Version anzeigen';
 $labels['restore'] = 'Diese Version wiederherstellen';
-$labels['objectchangelognotavailable'] = 'Verlauf ist nicht verfügbar für diese Nachricht';
+$labels['tabsharing'] = 'Freigabe';

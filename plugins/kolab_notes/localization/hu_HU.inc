@@ -11,4 +11,6 @@ $labels['tags'] = 'Kulcsszavak';
 $labels['notes'] = 'Jegyzetek';
 $labels['listname'] = 'Név';
 $labels['tabsharing'] = 'Megosztás';
+$labels['findnotebooks'] = 'Find notebooks...';
 $labels['savingdata'] = 'Adatok mentése...';
+$labels['arialabelfoldersearchform'] = 'Notebooks search form';

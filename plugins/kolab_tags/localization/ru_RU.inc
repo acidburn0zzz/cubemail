@@ -13,6 +13,7 @@ $labels['tagactions'] = 'Действия с тегами...';
 $labels['tagadd'] = 'Назначить тег...';
 $labels['tagremove'] = 'Снять тег...';
 $labels['untag'] = 'Удалить тег';
+$labels['notags'] = 'Нет тегов';
 $labels['tagremoveall'] = 'Удалить все теги';
 $labels['add'] = 'Добавить';
 $labels['edit'] = 'Редактировать';

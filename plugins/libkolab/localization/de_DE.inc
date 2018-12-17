@@ -22,4 +22,4 @@ $labels['actionflagset'] = 'Markierung festgelegt';
 $labels['actionflagclear'] = 'Markierung entfernt';
 $labels['showrevision'] = 'Diese Version anzeigen';
 $labels['restore'] = 'Diese Version wiederherstellen';
-$labels['objectchangelognotavailable'] = 'Änderungsverlauf ist nicht verfügbar für diese Nachricht';
+$labels['tabsharing'] = 'Teilen';

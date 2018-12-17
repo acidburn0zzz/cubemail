@@ -16,3 +16,4 @@ $labels['actionmove'] = 'Premaknjeno';
 $labels['actiondelete'] = 'Izbrisano';
 $labels['showrevision'] = 'Prikaži to verzijo';
 $labels['restore'] = 'Obnovi to verzijo';
+$labels['tabsharing'] = 'Deli z ostalimi';

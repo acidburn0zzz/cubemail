@@ -16,3 +16,4 @@ $labels['actionmove'] = 'Spostato';
 $labels['actiondelete'] = 'Cancellato';
 $labels['showrevision'] = 'Mostra questa versione';
 $labels['restore'] = 'Rirpistina questa versione';
+$labels['tabsharing'] = 'Condivisione';
