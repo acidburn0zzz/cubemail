@@ -263,14 +263,14 @@ function manage_tags()
     var form = $('#tagsform'),
         select = $('select', form),
         buttons = [
-            $('<button class="btn btn-secondary create">')
+            $('<button type="button" class="btn btn-secondary create">')
                 .text(rcmail.gettext('kolab_tags.add'))
                 .click(function() { tag_form_dialog(); }),
-            $('<button class="btn btn-secondary edit">')
+            $('<button type="button" class="btn btn-secondary edit">')
                 .text(rcmail.gettext('kolab_tags.edit'))
                 .attr('disabled', true)
                 .click(function() { tag_form_dialog((select.val())[0]); }),
-            $('<button class="btn btn-danger delete">')
+            $('<button type="button" class="btn btn-danger delete">')
                 .text(rcmail.gettext('kolab_tags.delete'))
                 .attr('disabled', true)
                 .click(function() {

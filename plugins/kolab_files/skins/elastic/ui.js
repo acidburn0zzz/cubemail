@@ -97,14 +97,14 @@ if (rcmail.env.action == 'open') {
             save_button = $('#filetoolbar a.button.save');
 
         parent.$('.ui-dialog:visible .ui-dialog-buttonpane .ui-dialog-buttonset').prepend(
-            window.editor_save_button = $('<button>')
+            window.editor_save_button = $('<button type="button">')
                 .addClass('save btn btn-secondary' + (save_button.is('.disabled') ? ' hidden' : ''))
                 .text(save_button.text())
                 .on('click', function() { save_button.click(); })
         );
 
         parent.$('.ui-dialog:visible .ui-dialog-buttonpane .ui-dialog-buttonset').prepend(
-            window.editor_edit_button = $('<button>')
+            window.editor_edit_button = $('<button type="button">')
                 .addClass('edit btn btn-secondary' + (edit_button.is('.disabled') ? ' hidden' : ''))
                 .text(edit_button.text())
                 .on('click', function() { edit_button.click(); })

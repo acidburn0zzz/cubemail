@@ -4338,7 +4338,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         cl += ' active';
       }
 
-      new_btn = $('<button>').attr({'class': cl}).text(btn.text())
+      new_btn = $('<button>').attr({'class': cl, type: 'button'}).text(btn.text())
         .appendTo(selector)
         .on('click', function() {
           activate(this);
@@ -4353,7 +4353,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
     $.each(['prev', 'today', 'next'], function() {
       var btn = $('.fc-header-right').find('.fc-button-' + this);
-      $('<button>').attr({'class': 'btn btn-secondary'})
+      $('<button>').attr({'class': 'btn btn-secondary', type: 'button'})
         .text(btn.text()).appendTo(nav).on('click', function() { btn.click(); });
     });
 

@@ -186,7 +186,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         cl += ' active';
       }
 
-      $('<button>').attr({'class': cl})
+      $('<button>').attr({'class': cl, type: 'button'})
         .text(btn.text())
         .appendTo(selector)
           .on('click', function() {
