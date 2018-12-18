@@ -572,7 +572,7 @@ function rcube_libcalendaring(settings)
             widget = $this.autocomplete('widget')
             menu = $this.data('ui-autocomplete').menu,
             amregex = /^(.+)(a[.m]*)/i,
-            pmregex = /^(.+)(a[.m]*)/i,
+            pmregex = /^(.+)(p[.m]*)/i,
             val = $(this).val().replace(amregex, '0:$1').replace(pmregex, '1:$1');
 
         widget.css('width', '10em');
