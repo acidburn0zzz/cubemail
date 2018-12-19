@@ -486,8 +486,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
         $content_type = kolab_format::KTYPE_PREFIX . $object_type;
 
         // check object type header and abort on mismatch
-        if ($type != '*' && $object_type != $type)
+        if ($type != '*' && strpos($object_type, $type) !== 0) {
             return false;
+        }
 
         $attachments = array();
 

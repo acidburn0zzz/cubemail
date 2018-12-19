@@ -679,7 +679,6 @@ class kolab_storage_cache
         return $result;
     }
 
-
     /**
      * Get number of objects mathing the given query
      *
@@ -897,44 +896,10 @@ class kolab_storage_cache
      */
     protected function _unserialize($sql_arr)
     {
-        // check if data is a base64-encoded string, for backward compat.
-        if (strpos(substr($sql_arr['data'], 0, 64), ':') === false) {
-            $sql_arr['data'] = base64_decode($sql_arr['data']);
-        }
-
-        $object = unserialize($sql_arr['data']);
-
-        // de-serialization failed
-        if ($object === false) {
-            rcube::raise_error(array(
-                'code' => 900, 'type' => 'php',
-                'message' => "Malformed data for {$this->resource_uri}/{$sql_arr['msguid']} object."
-            ), true);
-
-            return null;
-        }
-
-        // decode binary properties
-        foreach ($this->binary_items as $key => $regexp) {
-            if (!empty($object[$key]) && preg_match($regexp, $sql_arr['xml'], $m)) {
-                $object[$key] = base64_decode($m[1]);
-            }
-        }
-
-        $object_type = $sql_arr['type'] ?: $this->folder->type;
-        $format_type = $this->folder->type == 'configuration' ? 'configuration' : $object_type;
-
-        // add meta data
-        $object['_type']      = $object_type;
-        $object['_msguid']    = $sql_arr['msguid'];
-        $object['_mailbox']   = $this->folder->name;
-        $object['_size']      = strlen($sql_arr['xml']);
-        $object['_formatobj'] = kolab_format::factory($format_type, 3.0, $sql_arr['xml']);
-
-        // Fix old broken objects with missing creation date
-        if (empty($object['created']) && method_exists($object['_formatobj'], 'to_array')) {
-            $new_object        = $object['_formatobj']->to_array();
-            $object['created'] = $new_object['created'];
+        // Fetch object xml
+        if ($object = $this->folder->read_object($sql_arr['msguid'])) {
+            // additional meta data
+            $object['_size'] = strlen($xml);
         }
 
         return $object;
