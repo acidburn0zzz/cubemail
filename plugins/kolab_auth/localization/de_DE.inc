@@ -1,11 +1,3 @@
 <?php
-/**
- * Localizations for the Kolab Auth plugin
- *
- * Copyright (C) 2014, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_auth/
- */
 $labels['loginas'] = 'Anmelden als';
-$labels['loginasnotallowed'] = 'Keine Berechtigung sich als $user anzumelden';
-?>
+$labels['loginasnotallowed'] = 'Keine Privilegien zum Anmelden als $user';

@@ -1,24 +1,18 @@
 <?php
-/**
- * Localizations for the Kolab libkolab plugin
- *
- * Copyright (C) 2015, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
- */
-$labels['showhistory'] = 'Historie anzeigen';
+$labels['showhistory'] = 'Verlauf anzeigen';
 $labels['compare'] = 'Vergleichen';
-$labels['objectchangelog'] = 'Historie';
-$labels['objectdiff'] = 'Änderungen seit $rev1 bis $rev2';
-$labels['revision'] = 'Revision';
+$labels['objectchangelog'] = 'Verlauf';
+$labels['objectdiff'] = 'Änderungen aus $rev1 nach $rev2';
+$labels['revision'] = 'Version';
 $labels['user'] = 'Benutzer';
 $labels['operation'] = 'Aktion';
 $labels['actionreceive'] = 'Empfangen';
 $labels['actionappend'] = 'Gespeichert';
 $labels['actionmove'] = 'Verschoben';
 $labels['actiondelete'] = 'Gelöscht';
-$labels['actionread'] = 'Als gelesen markiert';
-$labels['actionflagset'] = 'Kennzeichnung gesetzt';
-$labels['actionflagclear'] = 'Kennzeichnung entfernt';
-$labels['showrevision'] = 'Zeige diese Version';
+$labels['actionread'] = 'Als gelesen markieren';
+$labels['actionflagset'] = 'Markierung festgelegt';
+$labels['actionflagclear'] = 'Markierung entfernt';
+$labels['showrevision'] = 'Diese Version anzeigen';
 $labels['restore'] = 'Diese Version wiederherstellen';
+$labels['tabsharing'] = 'Teilen';
