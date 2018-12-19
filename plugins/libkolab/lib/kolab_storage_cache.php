@@ -186,7 +186,9 @@ class kolab_storage_cache
 
         if (!$this->ready) {
             // kolab cache is disabled, synchronize IMAP mailbox cache only
+            $this->imap_mode(true);
             $this->imap->folder_sync($this->folder->name);
+            $this->imap_mode(false);
         }
         else {
             // read cached folder metadata
@@ -204,7 +206,7 @@ class kolab_storage_cache
                 $this->_sync_lock();
 
                 // disable messages cache if configured to do so
-                $this->bypass(true);
+                $this->imap_mode(true);
 
                 // synchronize IMAP mailbox cache
                 $this->imap->folder_sync($this->folder->name);
@@ -212,25 +214,50 @@ class kolab_storage_cache
                 // compare IMAP index with object cache index
                 $imap_index = $this->imap->index($this->folder->name, null, null, true, true);
 
+                $this->imap_mode(false);
+
                 // determine objects to fetch or to invalidate
                 if (!$imap_index->is_error()) {
                     $imap_index = $imap_index->get();
+                    $old_index  = array();
+                    $del_index  = array();
 
                     // read cache index
                     $sql_result = $this->db->query(
-                        "SELECT `msguid`, `uid` FROM `{$this->cache_table}` WHERE `folder_id` = ?",
-                        $this->folder_id
+                        "SELECT `msguid`, `uid` FROM `{$this->cache_table}` WHERE `folder_id` = ?"
+                            . " ORDER BY `msguid` DESC", $this->folder_id
                     );
 
-                    $old_index = array();
                     while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
-                        $old_index[] = $sql_arr['msguid'];
+                        // Mark all duplicates for removal (note sorting order above)
+                        // Duplicates here should not happen, but they do sometimes
+                        if (isset($old_index[$sql_arr['uid']])) {
+                            $del_index[] = $sql_arr['msguid'];
+                        }
+                        else {
+                            $old_index[$sql_arr['uid']] = $sql_arr['msguid'];
+                        }
                     }
 
                     // fetch new objects from imap
                     $i = 0;
                     foreach (array_diff($imap_index, $old_index) as $msguid) {
                         if ($object = $this->folder->read_object($msguid, '*')) {
+                            // Deduplication: remove older objects with the same UID
+                            // Here we do not resolve conflicts, we just make sure
+                            // the most recent version of the object will be used
+                            if ($old_msguid = $old_index[$object['uid']]) {
+                                if ($old_msguid < $msguid) {
+                                    $del_index[] = $old_msguid;
+                                }
+                                else {
+                                    $del_index[] = $msguid;
+                                    continue;
+                                }
+                            }
+
+                            $old_index[$object['uid']] = $msguid;
+
                             $this->_extended_insert($msguid, $object);
 
                             // check time limit and abort sync if running too long
@@ -242,8 +269,18 @@ class kolab_storage_cache
                     }
                     $this->_extended_insert(0, null);
 
-                    // delete invalid entries from local DB
-                    $del_index = array_diff($old_index, $imap_index);
+                    $del_index = array_unique($del_index);
+
+                    // delete duplicate entries from IMAP
+                    $rem_index = array_intersect($del_index, $imap_index);
+                    if (!empty($rem_index)) {
+                        $this->imap_mode(true);
+                        $this->imap->delete_message($rem_index, $this->folder->name);
+                        $this->imap_mode(false);
+                    }
+
+                    // delete old/invalid entries from the cache
+                    $del_index += array_diff($old_index, $imap_index);
                     if (!empty($del_index)) {
                         $quoted_ids = join(',', array_map(array($this->db, 'quote'), $del_index));
                         $this->db->query(
@@ -260,8 +297,6 @@ class kolab_storage_cache
                         $this->metadata['objectcount'] = $this->count();
                     }
                 }
-
-                $this->bypass(false);
 
                 // remove lock
                 $this->_sync_unlock();
@@ -323,6 +358,33 @@ class kolab_storage_cache
         return $this->objects[$msguid];
     }
 
+    /**
+     * Getter for a single Kolab object identified by its UID
+     *
+     * @param string $uid Object UID
+     *
+     * @return array The Kolab object represented as hash array
+     */
+    public function get_by_uid($uid)
+    {
+        $old_order_by = $this->order_by;
+        $old_limit    = $this->limit;
+
+        // set order to make sure we get most recent object version
+        // set limit to skip count query
+        $this->order_by = '`msguid` DESC';
+        $this->limit    = array(1, 0);
+
+        $list = $this->select(array(array('uid', '=', $uid)));
+
+        // set the order/limit back to defined value
+        $this->order_by = $old_order_by;
+        $this->limit    = $old_limit;
+
+        if (!empty($list) && !empty($list[0])) {
+            return $list[0];
+        }
+    }
 
     /**
      * Insert/Update a cache entry
@@ -576,6 +638,8 @@ class kolab_storage_cache
         else {
             $filter = $this->_query2assoc($query);
 
+            $this->imap_mode(true);
+
             if ($filter['type']) {
                 $search = 'UNDELETED HEADER X-Kolab-Type ' . kolab_format::KTYPE_PREFIX . $filter['type'];
                 $index  = $this->imap->search_once($this->folder->name, $search);
@@ -583,6 +647,8 @@ class kolab_storage_cache
             else {
                 $index = $this->imap->index($this->folder->name, null, null, true, true);
             }
+
+            $this->imap_mode(false);
 
             if ($index->is_error()) {
                 $this->check_error();
@@ -643,6 +709,8 @@ class kolab_storage_cache
         else {
             $filter = $this->_query2assoc($query);
 
+            $this->imap_mode(true);
+
             if ($filter['type']) {
                 $search = 'UNDELETED HEADER X-Kolab-Type ' . kolab_format::KTYPE_PREFIX . $filter['type'];
                 $index  = $this->imap->search_once($this->folder->name, $search);
@@ -650,6 +718,8 @@ class kolab_storage_cache
             else {
                 $index = $this->imap->index($this->folder->name, null, null, true, true);
             }
+
+            $this->imap_mode(false);
 
             if ($index->is_error()) {
                 $this->check_error();
@@ -716,6 +786,11 @@ class kolab_storage_cache
                 $not = ($param[1] == '!~' || $param[1] == '!LIKE') ? 'NOT ' : '';
                 $param[1] = $not . 'LIKE';
                 $qvalue = $this->db->quote('%'.preg_replace('/(^\^|\$$)/', ' ', $param[2]).'%');
+            }
+            else if ($param[1] == '~*' || $param[1] == '!~*') {
+                $not = $param[1][1] == '!' ? 'NOT ' : '';
+                $param[1] = $not . 'LIKE';
+                $qvalue = $this->db->quote(preg_replace('/(^\^|\$$)/', ' ', $param[2]).'%');
             }
             else if ($param[0] == 'tags') {
                 $param[1] = ($param[1] == '!=' ? 'NOT ' : '' ) . 'LIKE';
@@ -855,6 +930,12 @@ class kolab_storage_cache
         $object['_mailbox']   = $this->folder->name;
         $object['_size']      = strlen($sql_arr['xml']);
         $object['_formatobj'] = kolab_format::factory($format_type, 3.0, $sql_arr['xml']);
+
+        // Fix old broken objects with missing creation date
+        if (empty($object['created']) && method_exists($object['_formatobj'], 'to_array')) {
+            $new_object        = $object['_formatobj']->to_array();
+            $object['created'] = $new_object['created'];
+        }
 
         return $object;
     }
@@ -1109,13 +1190,31 @@ class kolab_storage_cache
     }
 
     /**
-     * Bypass Roundcube messages cache.
-     * Roundcube cache duplicates information already stored in kolab_cache.
+     * Set Roundcube storage options and bypass messages cache.
      *
-     * @param bool $disable True disables, False enables messages cache
+     * We use skip_deleted and threading settings specific to Kolab,
+     * we have to change these global settings only temporarily.
+     * Roundcube cache duplicates information already stored in kolab_cache,
+     * that's why we can disable it for better performance.
+     *
+     * @param bool $force True to start Kolab mode, False to stop it.
      */
-    public function bypass($disable = false)
+    public function imap_mode($force = false)
     {
+        // remember current IMAP settings
+        if ($force) {
+            $this->imap_options = array(
+                'skip_deleted' => $this->imap->get_option('skip_deleted'),
+                'threading'    => $this->imap->get_threading(),
+            );
+        }
+
+        // re-set IMAP settings
+        $this->imap->set_threading($force ? false : $this->imap_options['threading']);
+        $this->imap->set_options(array(
+                'skip_deleted' => $force ? true : $this->imap_options['skip_deleted'],
+        ));
+
         // if kolab cache is disabled do nothing
         if (!$this->enabled) {
             return;
@@ -1131,7 +1230,7 @@ class kolab_storage_cache
 
         if ($messages_cache) {
             // handle recurrent (multilevel) bypass() calls
-            if ($disable) {
+            if ($force) {
                 $this->cache_bypassed += 1;
                 if ($this->cache_bypassed > 1) {
                     return;
@@ -1147,7 +1246,7 @@ class kolab_storage_cache
             switch ($cache_bypass) {
                 case 2:
                     // Disable messages cache completely
-                    $this->imap->set_messages_caching(!$disable);
+                    $this->imap->set_messages_caching(!$force);
                     break;
 
                 case 1:
@@ -1155,7 +1254,7 @@ class kolab_storage_cache
                     // Default mode is both (MODE_INDEX | MODE_MESSAGE)
                     $mode = rcube_imap_cache::MODE_INDEX;
 
-                    if (!$disable) {
+                    if (!$force) {
                         $mode |= rcube_imap_cache::MODE_MESSAGE;
                     }
 

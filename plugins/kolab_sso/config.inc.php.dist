@@ -1,0 +1,60 @@
+<?php
+
+// Enable debugging
+$config['kolab_sso_debug'] = true;
+
+// IMAP (master) user
+$config['kolab_sso_imap_user'] = 'cyrus-admin';
+
+// IMAP (master) password
+$config['kolab_sso_imap_pass'] = 'password';
+
+// SMTP server host
+// To override the SMTP port or connection method, provide a full URL like 'tls://somehost:587'
+$config['kolab_sso_smtp_server'] = null;
+
+// SMTP username
+$config['kolab_sso_smtp_user'] = '';
+
+// SMTP password
+$config['kolab_sso_smtp_pass'] = '';
+
+// LDAP user DN
+$config['kolab_sso_ldap_user'] = 'uid=kolab-service,ou=Special Users,dc=example,dc=org';
+
+// LDAP password
+$config['kolab_sso_ldap_pass'] = 'password';
+
+// Require SSO logon by removing possibility to logon with user/password
+$config['kolab_sso_disable_login'] = false;
+
+// SSO providers/configuration
+$config['kolab_sso_options'] = array();
+/* Example:
+$config['kolab_sso_options'] = array(
+    'keycloak' => array(
+        // User-friendly name (will be displayed in the button label)
+        'name'   => 'OpenIDC Test',
+        // Driver name
+        'driver' => 'openidc',
+        // Provider API URI
+        'uri' => 'https://kolab.eu.auth0.com',
+        // Client ID/Secret for the API
+        'client_id' => '20w6DXX69isNBaufCwyK24wkBHqPT2ht',
+        'client_secret' => 'd78McGW4UWfFyZprGd8BCKooll',
+        // Token URI, if different than <uri>/token
+        'token_uri' => 'https://kolab.eu.auth0.com/oauth/token',
+        // Authorize URI, if different than <uri>/authorize
+        'auth_uri' => 'https://kolab.eu.auth0.com/authorize',
+        // Response URI, by default we use https://domain.tld/path?_task=login&_action=sso
+        // Define it if the Provider does not allow above
+        // to use https://domain.tld/path/<response_uri> instead
+        'response_uri' => '/sso',
+        // Public key (or certificate) for token validation when using RS256/RS385/RS512 method
+        'pubkey' => '-----BEGIN CERTIFICATE-----
+            ...
+            -----END CERTIFICATE-----
+        ',
+    ),
+);
+*/

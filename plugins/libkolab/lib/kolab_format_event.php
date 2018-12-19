@@ -50,29 +50,6 @@ class kolab_format_event extends kolab_format_xcal
     }
 
     /**
-     * Clones into an instance of libcalendaring's extended EventCal class
-     *
-     * @return mixed EventCal object or false on failure
-     */
-    public function to_libcal()
-    {
-        static $error_logged = false;
-
-        if (class_exists('kolabcalendaring')) {
-            return new EventCal($this->obj);
-        }
-        else if (!$error_logged) {
-            $error_logged = true;
-            rcube::raise_error(array(
-                'code' => 900, 'type' => 'php',
-                'message' => "required kolabcalendaring module not found"
-            ), true);
-        }
-
-        return false;
-    }
-
-    /**
      * Set event properties to the kolabformat object
      *
      * @param array  Event data as hash array
@@ -190,6 +167,10 @@ class kolab_format_event extends kolab_format_xcal
             $interval->s = $duration->seconds();
             $object['end'] = clone $object['start'];
             $object['end']->add($interval);
+        }
+        // make sure end date is specified (#5307) RFC5545 3.6.1
+        else if (!$object['end'] && $object['start']) {
+            $object['end'] = clone $object['start'];
         }
 
         // organizer is part of the attendees list in Roundcube
@@ -310,7 +291,9 @@ class kolab_format_event extends kolab_format_xcal
         }
 
         // preserve this property for date serialization
-        $exception['allday'] = $master['allday'];
+        if (!isset($exception['allday'])) {
+            $exception['allday'] = $master['allday'];
+        }
 
         return $exception;
     }
@@ -323,7 +306,7 @@ class kolab_format_event extends kolab_format_xcal
         // Note: If an exception has no attendees it means there's "no attendees
         // for this occurrence", not "attendees are the same as in the event" (#5300)
 
-        $forbidden    = array('exceptions', 'attendees');
+        $forbidden    = array('exceptions', 'attendees', 'allday');
         $is_recurring = !empty($master['recurrence']);
 
         foreach ($master as $prop => $value) {

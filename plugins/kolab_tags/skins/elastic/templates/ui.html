@@ -1,0 +1,67 @@
+<div id="tagcloud" style="display:none">
+	<h2 class="voice"><roundcube:label name="kolab_tags.tags" id="taglist" /></h2>
+	<div class="scroller withfooter">
+		<roundcube:object name="plugin.taglist" id="taglist" class="listing" />
+	</div>
+</div>
+
+<div id="tagsmenu" class="popupmenu" aria-hidden="true">
+	<ul class="toolbarmenu iconized">
+		<li class="separator"><label><roundcube:label name="kolab_tags.tags" /></label></li>
+		<roundcube:button type="link-menuitem" command="reset-tags" label="kolab_tags.unset" class="tags reset disabled" classAct="tags reset active" />
+		<roundcube:button type="link-menuitem" command="manage-tags" label="kolab_tags.manage" class="tags disabled" classAct="tags active" />
+		<roundcube:container name="tagoptions" id="tagoptionsmenu" />
+	</ul>
+</div>
+
+<div id="tagmessagemenu" class="popupmenu" aria-hidden="true">
+	<ul class="toolbarmenu iconized">
+		<li class="separator"><label><roundcube:label name="kolab_tags.tags" /></label></li>
+		<roundcube:button type="link-menuitem" command="tag-add" label="kolab_tags.tagadd" classAct="tag add active" class="tag add disabled" />
+		<roundcube:button type="link-menuitem" command="tag-remove" label="kolab_tags.tagremove" classAct="tag remove active" class="tag remove disabled" />
+		<roundcube:button type="link-menuitem" command="tag-remove-all" label="kolab_tags.tagremoveall" classAct="tag remove all active" class="tag remove all disabled" />
+	</ul>
+</div>
+
+<script>
+
+$(document).ready(function(e) {
+    // put tags cloud under folders list
+    var tagcloud = $('#tagcloud').detach();
+    $('#folderlist-content,#notebooks-content,#tasklists-content').children('ul:first').after(tagcloud.show());
+
+    // add tag message menu positions to Mark menu
+    var menu = $('#tagmessagemenu li').detach();
+    $('#markmessage-menu ul').append(menu);
+
+    // add tags management menu positions to folder actions menu
+    menu = $('#tagsmenu li').detach();
+    $('#mailboxoptions-menu,#notebookactions-menu,#tasklistactions-menu').find('ul').append(menu);
+
+    // Apply tags colors in Elastic-way
+    rcmail.addEventListener('kolab-tags-update', function() {
+        var style = '';
+
+        $.each(rcmail.env.tags || {}, function() {
+            if (this.color) {
+                var uid = this.uid.replace(/[^a-z0-9]/ig, '');
+                style += '.kolab-tag-' + uid + '::before {color: ' + this.color + ' !important}\n';
+            }
+        });
+
+        $('#kolab-tags-style').remove();
+
+        if (style) {
+            $('<style>').attr('id', 'kolab-tags-style').text(style).appendTo('head');
+        }
+    });
+
+    // Ignore tags coloring on lists, handled above, use default method for tagboxes only
+    rcmail.addEventListener('kolab-tag-color', function(prop) {
+        if ($(prop.obj).is('li:not(.tagedit-listelement)')) {
+            return false;
+        }
+    });
+});
+
+</script>

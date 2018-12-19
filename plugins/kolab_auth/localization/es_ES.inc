@@ -6,4 +6,6 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_auth/
  */
+$labels['loginas'] = 'Iniciar sesión como';
+$labels['loginasnotallowed'] = 'No hay privilegios para iniciar sesión como $usuario';
 ?>

@@ -80,7 +80,7 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
      *
      * @return string  The owner of this folder.
      */
-    public function get_owner()
+    public function get_owner($fully_qualified = false)
     {
         return $this->ldaprec['mail'];
     }

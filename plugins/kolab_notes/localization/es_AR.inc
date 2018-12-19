@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Folders plugin
+ *
+ * Copyright (C) 2015, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
+ */
 $labels['navtitle'] = 'Notas';
 $labels['tags'] = 'Etiquetas';
 $labels['lists'] = 'Libretas de notas';
@@ -28,10 +35,13 @@ $labels['editnote'] = 'Editar nota';
 $labels['savein'] = 'Guardar en';
 $labels['foldersubscribe'] = 'Listar permanentemente';
 $labels['findnotebooks'] = 'Encontrar libretas de notas...';
+$labels['findnotes'] = 'Encontrar notas';
 $labels['listsearchresults'] = 'Libretas de notas adicionales';
 $labels['nrnotebooksfound'] = '$nr libretas de notas encontradas';
 $labels['nonotebooksfound'] = 'No se encontraron libretas de notas';
 $labels['removelist'] = 'Eliminar de la lista';
+$labels['removelink'] = 'Eliminar referencia de correo';
+$labels['listactions'] = 'Lista de acciones de libreta de notas';
 $labels['savingdata'] = 'Guardando...';
 $labels['recordnotfound'] = 'Registro no encontrado';
 $labels['norecordsfound'] = 'No se encontraron notas';
@@ -50,4 +60,5 @@ $labels['arialabelnotessortmenu'] = 'Opciones de orden de notas';
 $labels['arialabelnotesoptionsmenu'] = 'Menú de acciones de libreta de notas';
 $labels['arialabelnotebookform'] = 'Propiedades de libreta de notas';
 $labels['arialabelmessagereferences'] = 'Mensajes de email enlazados';
-$labels['arialabelfolderearchform'] = 'Formulario de búsqueda de libretas de notas';
+$labels['arialabelfoldersearchform'] = 'Formulario de búsqueda de libretas de notas';
+$labels['arialabelnoteform'] = 'Formulario de edición de nota';

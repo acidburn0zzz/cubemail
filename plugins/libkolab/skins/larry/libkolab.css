@@ -1,5 +1,10 @@
 
-ul.toolbarmenu li a.history span.history {
+ul.toolbarmenu li a.history {
+	padding: 2px 6px;
+	color: #eee;
+}
+
+ul.toolbarmenu li a.history span.icon {
 	background-image: url('data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAQAAAD8x0bcAAABXUlEQVQoFbXBvUsCYQAH4N/mdm5uN9UStzn1AYG0HC1Jg01tV/9A0NYQ5dRm4BI0VYRYUYOD3CSB2FaLXBJhIXYeXr7veVGd8qus0D6Whp4H+Duq1LnEBDX8jiqz3XpgPzqB3a0zSw3fUetavlux0hkjlc5cnPtut84EBlEJLr1WOoN5RKEiisTylmMHNjX0Pa17rd0TRAFqzOLN8Ma2FN4u+tpVx8Y4Xp1O+y7eaRXroUkFn7xWqYieXFwKfDjek6IxCYAqy6xJ8dBkjatALi4FDfQUN6XIxfEqPJt0bCmkMAuIAXMjx/nnBvPUAGtfip0p9ERmk45tFqDjTQix0TXrzFqg4t3cVhHBh8jECnQqVPAujAS0zqHXOshgQJhKx+ycUUcPx5j33YqFcXwRMo/a94HNMrMsd+58t1gaWsQPMSNlFq7Kvlu7LpaMFGYQwi9U6JjHEgzMQMU/eAHASL3dDo5S4wAAAABJRU5ErkJggg==');
 	background-position: 0px 2px;
 	background-repeat: no-repeat;
@@ -64,4 +69,75 @@ ul.toolbarmenu li a.history span.history {
 
 #mailmessagehistory .changelog-table .operation {
 	width: 25%;
+}
+
+fieldset.birthdays .proplist li {
+	padding: 0;
+	border: 0;
+}
+
+fieldset.categories input {
+	height: auto !important;
+	line-height: 16px !important;
+}
+
+#calendarcategories .minicolors-swatch {
+	height: 14px;
+	width: 14px;
+}
+
+a.button.input-group-text {
+	line-height: 19px;
+	vertical-align: middle;
+}
+
+.libkolab.attachmentwin #attachmenttoolbar {
+	position: relative;
+	top: -6px;
+	height: 40px;
+}
+
+.libkolab.attachmentwin #attachmentcontainer {
+	position: absolute;
+	top: 0;
+	left: 232px;
+	right: 0;
+	bottom: 0;
+}
+
+.libkolab.attachmentwin #attachmentframe {
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background-color: #fff;
+	border-radius: 4px;
+}
+
+.libkolab.attachmentwin #partheader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 220px;
+	bottom: 0;
+}
+
+.libkolab.attachmentwin #partheader table {
+	table-layout: fixed;
+	overflow: hidden;
+}
+
+.libkolab.attachmentwin #partheader table td {
+	color: #666;
+	padding: 4px 6px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.libkolab.attachmentwin #partheader table td.header {
+	font-weight: bold;
+}
+
+.libkolab.attachmentwin #partheader table td.title {
+	width: 60px;
+	padding-right: 0;
 }

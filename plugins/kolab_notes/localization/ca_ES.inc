@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Folders plugin
+ *
+ * Copyright (C) 2015, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
+ */
 $labels['navtitle'] = 'Notes';
 $labels['tags'] = 'Etiquetes';
 $labels['notes'] = 'Notes';
@@ -8,4 +15,6 @@ $labels['title'] = 'Títol';
 $labels['listname'] = 'Nom';
 $labels['tabsharing'] = 'Compartit';
 $labels['foldersubscribe'] = 'Llista permanentment';
+$labels['findnotebooks'] = 'Find notebooks...';
 $labels['savingdata'] = 'S\'estan desant les dades...';
+$labels['arialabelfoldersearchform'] = 'Notebooks search form';

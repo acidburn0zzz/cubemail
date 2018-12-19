@@ -57,13 +57,16 @@ class libkolab extends rcube_plugin
 
         $this->add_texts('localization/', false);
 
+        if ($rcmail->output->type == 'html') {
+            $rcmail->output->add_handler('libkolab.folder_search_form', array($this, 'folder_search_form'));
+            $this->include_stylesheet($this->local_skin_path() . '/libkolab.css');
+        }
+
         // embed scripts and templates for email message audit trail
         if ($rcmail->task == 'mail' && self::get_bonnie_api()) {
             if ($rcmail->output->type == 'html') {
                 $this->add_hook('render_page', array($this, 'bonnie_render_page'));
-
-                $this->include_script('js/audittrail.js');
-                $this->include_stylesheet($this->local_skin_path() . '/libkolab.css');
+                $this->include_script('libkolab.js');
 
                 // add 'Show history' item to message menu
                 $this->api->add_content(html::tag('li', null,
@@ -87,7 +90,7 @@ class libkolab extends rcube_plugin
      */
     function storage_init($p)
     {
-        $p['fetch_headers'] = trim($p['fetch_headers'] .' X-KOLAB-TYPE X-KOLAB-MIME-VERSION');
+        $p['fetch_headers'] = trim($p['fetch_headers'] .' X-KOLAB-TYPE X-KOLAB-MIME-VERSION MESSAGE-ID');
         return $p;
     }
 
@@ -277,6 +280,7 @@ class libkolab extends rcube_plugin
             'libkolab.actionflagset',
             'libkolab.actionflagclear',
             'libkolab.objectchangelog',
+            'libkolab.objectchangelognotavailable',
             'close'
         );
 
@@ -338,5 +342,34 @@ class libkolab extends rcube_plugin
     public static function recurrence_id_format($event)
     {
         return $event['allday'] ? 'Ymd' : 'Ymd\THis';
+    }
+
+    /**
+     * Returns HTML code for folder search widget
+     *
+     * @param array $attrib Named parameters
+     *
+     * @return string HTML code for the gui object
+     */
+    public function folder_search_form($attrib)
+    {
+        $rcmail = rcube::get_instance();
+        $attrib += array(
+            'gui-object'    => false,
+            'wrapper'       => true,
+            'form-name'     => 'foldersearchform',
+            'command'       => 'non-extsing-command',
+            'reset-command' => 'non-existing-command',
+        );
+
+        if ($attrib['label-domain'] && !strpos($attrib['buttontitle'], '.')) {
+            $attrib['buttontitle'] = $attrib['label-domain'] . '.' . $attrib['buttontitle'];
+        }
+
+        if ($attrib['buttontitle']) {
+            $attrib['placeholder'] = $rcmail->gettext($attrib['buttontitle']);
+        }
+
+        return $rcmail->output->search_form($attrib);
     }
 }

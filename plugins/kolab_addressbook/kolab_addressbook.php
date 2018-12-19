@@ -29,7 +29,7 @@
 
 class kolab_addressbook extends rcube_plugin
 {
-    public $task = '?(?!login|logout).*';
+    public $task = '?(?!logout).*';
 
     private $sources;
     private $folders;
@@ -84,6 +84,17 @@ class kolab_addressbook extends rcube_plugin
                 $this->load_config();
                 require_once($this->home . '/lib/kolab_addressbook_ui.php');
                 $this->ui = new kolab_addressbook_ui($this);
+
+                if ($this->bonnie_api) {
+                    $this->add_button(array(
+                        'command'    => 'contact-history-dialog',
+                        'class'      => 'history contact-history',
+                        'classact'   => 'history contact-history active',
+                        'innerclass' => 'icon inner',
+                        'label'      => 'kolab_addressbook.showhistory',
+                        'type'       => 'link-menuitem'
+                    ), 'contactmenu');
+                }
             }
         }
         else if ($this->rc->task == 'settings') {
@@ -96,7 +107,6 @@ class kolab_addressbook extends rcube_plugin
         $this->add_hook('folder_rename', array($this, 'prefs_folder_rename'));
         $this->add_hook('folder_update', array($this, 'prefs_folder_update'));
     }
-
 
     /**
      * Handler for the addressbooks_list hook.
@@ -202,7 +212,9 @@ class kolab_addressbook extends rcube_plugin
 
         // render a hierarchical list of kolab contact folders
         kolab_storage::folder_hierarchy($this->folders, $tree);
-        $out .= $this->folder_tree_html($tree, $sources, $jsdata);
+        if ($tree && !empty($tree->children)) {
+            $out .= $this->folder_tree_html($tree, $sources, $jsdata);
+        }
 
         $this->rc->output->set_env('contactgroups', array_filter($jsdata, function($src){ return $src['type'] == 'group'; }));
         $this->rc->output->set_env('address_sources', array_filter($jsdata, function($src){ return $src['type'] != 'group'; }));
@@ -340,13 +352,16 @@ class kolab_addressbook extends rcube_plugin
      */
     public function config_get($args)
     {
-        if ($args['name'] != 'autocomplete_addressbooks') {
+        if ($args['name'] != 'autocomplete_addressbooks' || $this->recurrent) {
             return $args;
         }
 
         $abook_prio = $this->addressbook_prio();
-        // here we cannot use rc->config->get()
-        $sources    = $GLOBALS['CONFIG']['autocomplete_addressbooks'];
+
+        // Get the original setting, use temp flag to prevent from an infinite recursion
+        $this->recurrent = true;
+        $sources = $this->rc->config->get('autocomplete_addressbooks');
+        $this->recurrent = false;
 
         // Disable all global address books
         // Assumes that all non-kolab_addressbook sources are global
@@ -932,15 +947,16 @@ class kolab_addressbook extends rcube_plugin
 
             $this->rc->output->show_message('kolab_addressbook.book'.$type.'d', 'confirmation');
             $this->rc->output->command('book_update', $props, kolab_storage::folder_id($prop['oldname'], true));
-            $this->rc->output->send('iframe');
+        }
+        else {
+            if (!$error) {
+                $error = $plugin['message'] ? $plugin['message'] : 'kolab_addressbook.book'.$type.'error';
+            }
+
+            $this->rc->output->show_message($error, 'error');
         }
 
-        if (!$error)
-            $error = $plugin['message'] ? $plugin['message'] : 'kolab_addressbook.book'.$type.'error';
-
-        $this->rc->output->show_message($error, 'error');
-        // display the form again
-        $this->ui->book_edit();
+        $this->rc->output->send('iframe');
     }
 
     /**
@@ -1025,7 +1041,7 @@ class kolab_addressbook extends rcube_plugin
 
         // report more results available
         if ($search_more_results) {
-            $this->rc->output->show_message('autocompletemore', 'info');
+            $this->rc->output->show_message('autocompletemore', 'notice');
         }
 
         $this->rc->output->command('multi_thread_http_response', $results, rcube_utils::get_input_value('_reqid', rcube_utils::INPUT_GPC));

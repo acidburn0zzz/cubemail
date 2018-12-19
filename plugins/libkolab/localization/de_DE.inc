@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab libkolab plugin
  *
@@ -7,19 +6,20 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
-
-$labels = array();
-$labels['showhistory'] = 'Historie anzeigen';
+$labels['showhistory'] = 'Verlauf anzeigen';
 $labels['compare'] = 'Vergleichen';
-$labels['objectchangelog'] = 'Historie';
+$labels['objectchangelog'] = 'Verlauf';
 $labels['objectdiff'] = 'Änderungen aus $rev1 nach $rev2';
 $labels['revision'] = 'Version';
 $labels['user'] = 'Benutzer';
 $labels['operation'] = 'Aktion';
+$labels['actionreceive'] = 'Empfangen';
 $labels['actionappend'] = 'Gespeichert';
 $labels['actionmove'] = 'Verschoben';
 $labels['actiondelete'] = 'Gelöscht';
+$labels['actionread'] = 'Als gelesen markieren';
+$labels['actionflagset'] = 'Markierung festgelegt';
+$labels['actionflagclear'] = 'Markierung entfernt';
 $labels['showrevision'] = 'Diese Version anzeigen';
 $labels['restore'] = 'Diese Version wiederherstellen';
-$labels['objectchangelognotavailable'] = 'Änderungshistorie ist nicht verfügbar für diese Nachricht';
-
+$labels['tabsharing'] = 'Teilen';

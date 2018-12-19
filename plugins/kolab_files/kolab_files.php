@@ -50,6 +50,7 @@ class kolab_files extends rcube_plugin
         $this->register_action('prefs', array($this, 'actions'));
         $this->register_action('open',  array($this, 'actions'));
         $this->register_action('edit',  array($this, 'actions'));
+        $this->register_action('share',  array($this, 'actions'));
         $this->register_action('autocomplete', array($this, 'autocomplete'));
 
         // we use libkolab::http_request() from libkolab with its configuration
@@ -57,6 +58,8 @@ class kolab_files extends rcube_plugin
 
         // Load UI from startup hook
         $this->add_hook('startup', array($this, 'startup'));
+
+        $this->add_hook('preferences_save', array($this, 'preferences_save'));
     }
 
     /**
@@ -72,15 +75,16 @@ class kolab_files extends rcube_plugin
 
             $this->load_config();
 
-            $url = $this->rc->config->get('kolab_files_url');
+            $client_url = $this->rc->config->get('kolab_files_url');
+            $server_url = $this->rc->config->get('kolab_files_server_url');
 
-            if (!$url) {
+            if (!$client_url) {
                 return $this->engine = false;
             }
 
             require_once $this->home . '/lib/kolab_files_engine.php';
 
-            $this->engine = new kolab_files_engine($this, $url);
+            $this->engine = new kolab_files_engine($this, $client_url, $server_url);
         }
 
         return $this->engine;
@@ -144,5 +148,26 @@ class kolab_files extends rcube_plugin
         require_once $this->home . '/lib/kolab_files_autocomplete.php';
 
         new kolab_files_autocomplete($this);
+    }
+
+    /**
+     * Update chwala config on user preferences change
+     */
+    public function preferences_save($props)
+    {
+        if ($props['section'] == 'general') {
+            $dont_override = (array) $this->rc->config->get('dont_override');
+            $prefs         = array();
+
+            foreach (array('timezone', 'date_long') as $idx) {
+                if (isset($props['prefs'][$idx]) && !in_array($idx, $dont_override)) {
+                    $prefs[$idx] = $props['prefs'][$idx];
+                }
+            }
+
+            if (!empty($prefs) && ($engine = $this->engine())) {
+                $engine->configure(false, $prefs);
+            }
+        }
     }
 }

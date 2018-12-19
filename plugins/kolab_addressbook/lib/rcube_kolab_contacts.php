@@ -290,21 +290,24 @@ class rcube_kolab_contacts extends rcube_addressbook
     /**
      * List all active contact groups of this source
      *
-     * @param string  Optional search string to match group name
+     * @param string Optional search string to match group name
+     * @param int    Search mode. Sum of self::SEARCH_*
+     *
      * @return array  Indexed list of contact groups, each a hash array
      */
-    function list_groups($search = null)
+    function list_groups($search = null, $mode = 0)
     {
         $this->_fetch_groups();
         $groups = array();
 
         foreach ((array)$this->distlists as $group) {
-            if (!$search || strstr(strtolower($group['name']), strtolower($search)))
-                $groups[$group['name']] = array('ID' => $group['ID'], 'name' => $group['name']);
+            if (!$search || strstr(mb_strtolower($group['name']), mb_strtolower($search))) {
+                $groups[$group['ID']] = array('ID' => $group['ID'], 'name' => $group['name']);
+            }
         }
 
-        // sort groups
-        ksort($groups, SORT_LOCALE_STRING);
+        // sort groups by name
+        uasort($groups, function($a, $b) { return strcoll($a['name'], $b['name']); });
 
         return array_values($groups);
     }
@@ -352,7 +355,7 @@ class rcube_kolab_contacts extends rcube_addressbook
 
             // get members by UID
             if (!empty($uids)) {
-                $this->_fetch_contacts($query = array(array('uid', '=', $uids)), !$fetch_all);
+                $this->_fetch_contacts($query = array(array('uid', '=', $uids)), $fetch_all ? false : count($uids));
                 $this->sortindex = array_merge($this->sortindex, $local_sortindex);
             }
         }
@@ -360,7 +363,7 @@ class rcube_kolab_contacts extends rcube_addressbook
             $ids = $this->filter['ids'];
             if (count($ids)) {
                 $uids = array_map(array($this, 'id2uid'), $this->filter['ids']);
-                $this->_fetch_contacts($query = array(array('uid', '=', $uids)), true);
+                $this->_fetch_contacts($query = array(array('uid', '=', $uids)), count($ids));
             }
         }
         else {
@@ -414,6 +417,7 @@ class rcube_kolab_contacts extends rcube_addressbook
      *                          0 - partial (*abc*),
      *                          1 - strict (=),
      *                          2 - prefix (abc*)
+     *                          4 - include groups (if supported)
      * @param boolean $select   True if results are requested, False if count only
      * @param boolean $nocount  True to skip the count query (select only)
      * @param array   $required List of fields that cannot be empty
@@ -436,7 +440,7 @@ class rcube_kolab_contacts extends rcube_addressbook
             return $result;
         }
         else if ($fields == '*') {
-          $fields = $this->search_fields;
+            $fields = $this->search_fields;
         }
 
         if (!is_array($fields))
@@ -464,6 +468,8 @@ class rcube_kolab_contacts extends rcube_addressbook
         if (in_array('birthday', $required)) {
             $squery[] = array('tags', '=', 'x-has-birthday');
         }
+
+        $squery[] = array('type', '=', 'contact');
 
         // get all/matching records
         $this->_fetch_contacts($squery);
@@ -788,14 +794,16 @@ class rcube_kolab_contacts extends rcube_addressbook
 
     /**
      * Remove all records from the database
+     *
+     * @param bool $with_groups Remove also groups
      */
-    public function delete_all()
+    public function delete_all($with_groups = false)
     {
         if ($this->storagefolder->delete_all()) {
-            $this->contacts = array();
+            $this->contacts  = array();
             $this->sortindex = array();
-            $this->dataset = null;
-            $this->result = null;
+            $this->dataset   = null;
+            $this->result    = null;
         }
     }
 
@@ -877,9 +885,11 @@ class rcube_kolab_contacts extends rcube_addressbook
      *
      * @param string Group identifier
      * @param string New name to set for this group
+     * @param string New group identifier (if changed, otherwise don't set)
+     *
      * @return boolean New name on success, false if no data was changed
      */
-    function rename_group($gid, $newname)
+    function rename_group($gid, $newname, &$newid)
     {
         $this->_fetch_groups();
         $list = $this->distlists[$gid];
@@ -1025,10 +1035,11 @@ class rcube_kolab_contacts extends rcube_addressbook
      * If input not valid, the message to display can be fetched using get_error()
      *
      * @param array Associative array with contact data to save
+     * @param bool  Attempt to fix/complete data automatically
      *
      * @return boolean True if input is valid, False if not.
      */
-    public function validate(&$save_data)
+    public function validate(&$save_data, $autofix = false)
     {
         // validate e-mail addresses
         $valid = parent::validate($save_data);
@@ -1055,10 +1066,13 @@ class rcube_kolab_contacts extends rcube_addressbook
     {
         if (!isset($this->dataset) || !empty($query)) {
             if ($limit) {
-                $this->storagefolder->set_order_and_limit($this->_sort_columns(), $this->page_size, ($this->list_page-1) * $this->page_size);
+                $size = is_int($limit) && $limit < $this->page_size ? $limit : $this->page_size;
+                $this->storagefolder->set_order_and_limit($this->_sort_columns(), $size, ($this->list_page-1) * $this->page_size);
             }
+
             $this->sortindex = array();
-            $this->dataset = $this->storagefolder->select($query);
+            $this->dataset   = $this->storagefolder->select($query);
+
             foreach ($this->dataset as $idx => $record) {
                 $contact = $this->_to_rcube_contact($record);
                 $this->sortindex[$idx] = $this->_sort_string($contact);
@@ -1123,7 +1137,7 @@ class rcube_kolab_contacts extends rcube_addressbook
     {
         if (!isset($this->distlists)) {
             $this->distlists = $this->groupmembers = array();
-            foreach ($this->storagefolder->get_objects('distribution-list') as $record) {
+            foreach ($this->storagefolder->select('distribution-list') as $record) {
                 $record['ID'] = $this->uid2id($record['uid']);
                 foreach ((array)$record['member'] as $i => $member) {
                     $mid = $this->uid2id($member['uid'] ? $member['uid'] : 'mailto:' . $member['email']);
@@ -1174,10 +1188,14 @@ class rcube_kolab_contacts extends rcube_addressbook
         }
 
         if (count($cols) == count($fields)) {
-            switch ($mode) {
-                case 1:  $prefix = '^'; $suffix = '$'; break;  // strict
-                case 2:  $prefix = '^'; $suffix = '';  break;  // prefix
-                default: $prefix = '';  $suffix = '';  break;  // substring
+            if ($mode & rcube_addressbook::SEARCH_STRICT) {
+                $prefix = '^'; $suffix = '$';
+            }
+            else if ($mode & rcube_addressbook::SEARCH_PREFIX) {
+                $prefix = '^'; $suffix = '';
+            }
+            else {
+                $prefix = ''; $suffix = '';
             }
 
             $search_string = is_array($value) ? join(' ', $value) : $value;

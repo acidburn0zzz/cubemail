@@ -20,22 +20,40 @@
 <div id="tagmessagemenu" class="popupmenu" aria-hidden="true">
 	<ul class="toolbarmenu iconized">
 		<li class="separator"><label><roundcube:label name="kolab_tags.tags" /></label></li>
-		<li role="menuitem"><roundcube:button command="tag-add" label="kolab_tags.tagadd" classAct="icon active" class="icon" innerclass="icon tagadd folder-selector-link" /></li>
-		<li role="menuitem"><roundcube:button command="tag-remove" label="kolab_tags.tagremove" classAct="icon active" class="icon" innerclass="icon tagremove folder-selector-link" /></li>
-		<li role="menuitem"><roundcube:button command="tag-remove-all" label="kolab_tags.tagremoveall" classAct="icon active" class="icon" innerclass="icon tagremoveall" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="tag-add" label="kolab_tags.tagadd" classAct="icon active" class="icon" innerclass="icon tagadd folder-selector-link" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="tag-remove" label="kolab_tags.tagremove" classAct="icon active" class="icon" innerclass="icon tagremove folder-selector-link" /></li>
+		<li role="menuitem"><roundcube:button type="link" command="tag-remove-all" label="kolab_tags.tagremoveall" classAct="icon active" class="icon" innerclass="icon tagremoveall" /></li>
 	</ul>
 </div>
-
 
 <script type="text/javascript">
 
 $(document).ready(function(e) {
     // put tags cloud under folders list
-    var tagcloud = $('#tagcloud').detach();
-    $('#mailview-left').append(tagcloud.show());
+    var containers, tagcloud = $('#tagcloud').detach();
 
-    new rcube_splitter({ id:'mailtagsplitter', p1:'#mailboxcontainer', p2:'#tagcloud',
-        orientation:'h', relative:true, start:242, min:120, size:12, offset:4 }).init();
+    if (rcmail.env.task == 'mail')
+        containers = {
+            sidebar: '#mailview-left',
+            list: '#mailboxcontainer'
+        };
+    else if (rcmail.env.task == 'notes')
+        containers = {
+            sidebar: '#sidebar',
+            list: '#notebooksbox'
+        };
+    else if (rcmail.env.task == 'tasks')
+        containers = {
+            sidebar: '#sidebar',
+            list: '#tasklistsbox'
+        };
+
+    if (containers) {
+        $(containers.sidebar).append(tagcloud.show());
+
+        new rcube_splitter({ id: rcmail.task + 'tagsplitter', p1:containers.list, p2:'#tagcloud',
+            orientation:'h', relative:true, start:242, min:120, size:12, offset:4 }).init();
+    }
 
     // add tag message menu positions to Mark menu
     var menu = $('#tagmessagemenu li').detach();

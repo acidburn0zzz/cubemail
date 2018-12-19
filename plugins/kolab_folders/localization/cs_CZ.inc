@@ -24,5 +24,6 @@ $labels['outbox'] = 'Odeslaná pošta';
 $labels['wastebasket'] = 'Koš';
 $labels['junkemail'] = 'Nevyžádaná pošta';
 $labels['confidential'] = 'Důvěrné';
+$labels['private'] = 'Soukromé';
 $messages['defaultfolderexists'] = 'Již je výchozí složka daného typu';
 ?>

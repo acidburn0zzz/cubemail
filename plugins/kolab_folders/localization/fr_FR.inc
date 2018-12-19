@@ -16,7 +16,7 @@ $labels['foldertypecontact'] = 'Contacts';
 $labels['foldertypeconfiguration'] = 'Configuration';
 $labels['foldertypefile'] = 'Fichiers';
 $labels['foldertypefreebusy'] = 'Disponible/Occupé';
-$labels['default'] = 'Par Défaut';
+$labels['default'] = 'Par défaut';
 $labels['inbox'] = 'Courrier entrant';
 $labels['drafts'] = 'Brouillons';
 $labels['sentitems'] = 'Envoyés';
@@ -24,5 +24,6 @@ $labels['outbox'] = 'Courrier sortant';
 $labels['wastebasket'] = 'Corbeille';
 $labels['junkemail'] = 'Indésirables';
 $labels['confidential'] = 'Confidentiel';
+$labels['private'] = 'Privé';
 $messages['defaultfolderexists'] = 'Il existe déjà un répertoire par défaut pour le type spécifié';
 ?>

@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Folders plugin
+ *
+ * Copyright (C) 2015, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
+ */
 $labels['navtitle'] = 'Заметки';
 $labels['tags'] = 'Теги';
 $labels['lists'] = 'Записные книжки';
@@ -48,8 +55,7 @@ $labels['arialabelnoteslist'] = 'Список заметок';
 $labels['arialabelnotesearchform'] = 'Форма поиска заметок';
 $labels['arialabelnotesquicksearchbox'] = 'Поиск заметок';
 $labels['arialabelnotessortmenu'] = 'Настройки сортировки списка заметок';
-$labels['arialabelnotesoptionsmenu'] = 'Действия с записными книжками';
 $labels['arialabelnotebookform'] = 'Свойства записной книжки';
 $labels['arialabelmessagereferences'] = 'Связанные сообщения почты';
-$labels['arialabelfolderearchform'] = 'Форма поиска записных книжек';
+$labels['arialabelfoldersearchform'] = 'Форма поиска записных книжек';
 $labels['arialabelnoteform'] = 'Форма редактирования заметок';

@@ -6,6 +6,9 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
+$labels['mail'] = 'Email';
 $labels['event'] = 'Calendários';
+$labels['task'] = 'Tarefas';
+$labels['note'] = 'Notas';
 $labels['savingdata'] = 'Salvando dados...';
 ?>

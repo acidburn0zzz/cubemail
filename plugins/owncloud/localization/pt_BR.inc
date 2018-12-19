@@ -1,3 +1,0 @@
-<?php
-$labels['owncloud'] = 'Arquivos';
-?>

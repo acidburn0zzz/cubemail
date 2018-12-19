@@ -7,6 +7,7 @@
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
  */
 $labels['tabtitle'] = 'Vertretung';
+$labels['delegationtitle'] = 'Verwalte Vertreter';
 $labels['delegates'] = 'Vertreter';
 $labels['delegate'] = 'Vertreter';
 $labels['mail'] = 'E-Mail';
@@ -16,6 +17,8 @@ $labels['task'] = 'Aufgaben';
 $labels['note'] = 'Notizen';
 $labels['yes'] = 'Ja';
 $labels['no'] = 'Nein';
+$labels['read'] = 'Schreibgeschützt';
+$labels['write'] = 'Schreiben';
 $labels['adddelegate'] = 'Vertreter hinzufügen';
 $labels['deletedelegate'] = 'Vertreter löschen';
 $labels['savingdata'] = 'Speichere Daten...';
@@ -28,4 +31,6 @@ $labels['updatesuccess'] = 'Der Vertreter wurde erfolgreich aktualisiert.';
 $labels['updateerror'] = 'Vertreter konnte nicht aktualisiert werden.';
 $labels['createsuccess'] = 'Der Vertreter wurde erfolgreich hinzugefügt.';
 $labels['createerror'] = 'Vertreter konnte nicht hinzugefügt werden.';
+$labels['arialabeldelegatedelete'] = 'Vertreter Löschen Dialog';
+$labels['arialabeldelegateform'] = 'Verterter Eigenschaften Maske';
 ?>

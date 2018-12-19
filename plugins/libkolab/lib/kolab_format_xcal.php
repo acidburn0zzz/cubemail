@@ -92,12 +92,14 @@ abstract class kolab_format_xcal extends kolab_format
     );
 
     protected $part_status_map = array(
-        'UNKNOWN' => kolabformat::PartNeedsAction,
+        'UNKNOWN'      => kolabformat::PartNeedsAction,
         'NEEDS-ACTION' => kolabformat::PartNeedsAction,
-        'TENTATIVE' => kolabformat::PartTentative,
-        'ACCEPTED' => kolabformat::PartAccepted,
-        'DECLINED' => kolabformat::PartDeclined,
-        'DELEGATED' => kolabformat::PartDelegated,
+        'TENTATIVE'    => kolabformat::PartTentative,
+        'ACCEPTED'     => kolabformat::PartAccepted,
+        'DECLINED'     => kolabformat::PartDeclined,
+        'DELEGATED'    => kolabformat::PartDelegated,
+        'IN-PROCESS'   => kolabformat::PartInProcess,
+        'COMPLETED'    => kolabformat::PartCompleted,
       );
 
 
@@ -172,6 +174,10 @@ abstract class kolab_format_xcal extends kolab_format
             }
         }
 
+        if ($object['start'] instanceof DateTime) {
+            $start_tz = $object['start']->getTimezone();
+        }
+
         // read recurrence rule
         if (($rr = $this->obj->recurrenceRule()) && $rr->isValid()) {
             $rrule_type_map = array_flip($this->rrule_type_map);
@@ -183,7 +189,7 @@ abstract class kolab_format_xcal extends kolab_format
             if (($count = $rr->count()) && $count > 0) {
                 $object['recurrence']['COUNT'] = $count;
             }
-            else if ($until = self::php_datetime($rr->end())) {
+            else if ($until = self::php_datetime($rr->end(), $start_tz)) {
                 $refdate = $this->get_reference_date();
                 if ($refdate && $refdate instanceof DateTime && !$refdate->_dateonly) {
                     $until->setTime($refdate->format('G'), $refdate->format('i'), 0);
@@ -212,16 +218,18 @@ abstract class kolab_format_xcal extends kolab_format
 
             if ($exdates = $this->obj->exceptionDates()) {
                 for ($i=0; $i < $exdates->size(); $i++) {
-                    if ($exdate = self::php_datetime($exdates->get($i)))
+                    if ($exdate = self::php_datetime($exdates->get($i), $start_tz)) {
                         $object['recurrence']['EXDATE'][] = $exdate;
+                    }
                 }
             }
         }
 
         if ($rdates = $this->obj->recurrenceDates()) {
             for ($i=0; $i < $rdates->size(); $i++) {
-                if ($rdate = self::php_datetime($rdates->get($i)))
+                if ($rdate = self::php_datetime($rdates->get($i), $start_tz)) {
                     $object['recurrence']['RDATE'][] = $rdate;
+                }
             }
         }
 
@@ -413,12 +421,19 @@ abstract class kolab_format_xcal extends kolab_format
             $this->obj->setOrganizer($organizer);
         }
 
+        if ($object['start'] instanceof DateTime) {
+            $start_tz = $object['start']->getTimezone();
+        }
+
         // save recurrence rule
         $rr = new RecurrenceRule;
         $rr->setFrequency(RecurrenceRule::FreqNone);
 
         if ($object['recurrence'] && !empty($object['recurrence']['FREQ'])) {
-            $rr->setFrequency($this->rrule_type_map[$object['recurrence']['FREQ']]);
+            $freq     = $object['recurrence']['FREQ'];
+            $bysetpos = explode(',', $object['recurrence']['BYSETPOS']);
+
+            $rr->setFrequency($this->rrule_type_map[$freq]);
 
             if ($object['recurrence']['INTERVAL'])
                 $rr->setInterval(intval($object['recurrence']['INTERVAL']));
@@ -431,8 +446,19 @@ abstract class kolab_format_xcal extends kolab_format
                         $occurrence = intval($m[1]);
                         $day = $m[2];
                     }
-                    if (isset($this->weekday_map[$day]))
-                        $byday->push(new DayPos($occurrence, $this->weekday_map[$day]));
+
+                    if (isset($this->weekday_map[$day])) {
+                        // @TODO: libkolabxml does not support BYSETPOS, neither we.
+                        // However, we can convert most common cases to BYDAY
+                        if (!$occurrence && $freq == 'MONTHLY' && !empty($bysetpos)) {
+                            foreach ($bysetpos as $pos) {
+                                $byday->push(new DayPos(intval($pos), $this->weekday_map[$day]));
+                            }
+                        }
+                        else {
+                            $byday->push(new DayPos($occurrence, $this->weekday_map[$day]));
+                        }
+                    }
                 }
                 $rr->setByday($byday);
             }
@@ -454,13 +480,13 @@ abstract class kolab_format_xcal extends kolab_format
             if ($object['recurrence']['COUNT'])
                 $rr->setCount(intval($object['recurrence']['COUNT']));
             else if ($object['recurrence']['UNTIL'])
-                $rr->setEnd(self::get_datetime($object['recurrence']['UNTIL'], null, true));
+                $rr->setEnd(self::get_datetime($object['recurrence']['UNTIL'], null, true, $start_tz));
 
             if ($rr->isValid()) {
                 // add exception dates (only if recurrence rule is valid)
                 $exdates = new vectordatetime;
                 foreach ((array)$object['recurrence']['EXDATE'] as $exdate)
-                    $exdates->push(self::get_datetime($exdate, null, true));
+                    $exdates->push(self::get_datetime($exdate, null, true, $start_tz));
                 $this->obj->setExceptionDates($exdates);
             }
             else {
@@ -478,17 +504,25 @@ abstract class kolab_format_xcal extends kolab_format
         if (!empty($object['recurrence']['RDATE'])) {
             $rdates = new vectordatetime;
             foreach ((array)$object['recurrence']['RDATE'] as $rdate)
-                $rdates->push(self::get_datetime($rdate, null, true));
+                $rdates->push(self::get_datetime($rdate, null, true, $start_tz));
             $this->obj->setRecurrenceDates($rdates);
         }
 
-        // save alarm
+        // save alarm(s)
         $valarms = new vectoralarm;
+        $valarm_hashes = array();
         if ($object['valarms']) {
             foreach ($object['valarms'] as $valarm) {
                 if (!array_key_exists($valarm['action'], $this->alarm_type_map)) {
                     continue;  // skip unknown alarm types
                 }
+
+                // Get rid of duplicates, some CalDAV clients can set them
+                $hash = serialize($valarm);
+                if (in_array($hash, $valarm_hashes)) {
+                    continue;
+                }
+                $valarm_hashes[] = $hash;
 
                 if ($valarm['action'] == 'EMAIL') {
                     $recipients = new vectorcontactref;
@@ -514,7 +548,15 @@ abstract class kolab_format_xcal extends kolab_format
                 if (is_object($valarm['trigger']) && $valarm['trigger'] instanceof DateTime) {
                     $alarm->setStart(self::get_datetime($valarm['trigger'], new DateTimeZone('UTC')));
                 }
+                else if (preg_match('/^@([0-9]+)$/', $valarm['trigger'], $m)) {
+                    $alarm->setStart(self::get_datetime($m[1], new DateTimeZone('UTC')));
+                }
                 else {
+                    // Support also interval in format without PT, e.g. -10M
+                    if (preg_match('/^([-+]*)([0-9]+[DHMS])$/', strtoupper($valarm['trigger']), $m)) {
+                        $valarm['trigger'] = $m[1] . ($m[2][strlen($m[2])-1] == 'D' ? 'P' : 'PT') . $m[2];
+                    }
+
                     try {
                         $period   = new DateInterval(preg_replace('/[^0-9PTWDHMS]/', '', $valarm['trigger']));
                         $duration = new Duration($period->d, $period->h, $period->i, $period->s, $valarm['trigger'][0] == '-');
@@ -710,5 +752,28 @@ abstract class kolab_format_xcal extends kolab_format
         }
 
         return $reschedule;
+    }
+
+    /**
+     * Clones into an instance of libcalendaring's extended EventCal class
+     *
+     * @return mixed EventCal object or false on failure
+     */
+    public function to_libcal()
+    {
+        static $error_logged = false;
+
+        if (class_exists('kolabcalendaring')) {
+            return new EventCal($this->obj);
+        }
+        else if (!$error_logged) {
+            $error_logged = true;
+            rcube::raise_error(array(
+                'code'    => 900,
+                'message' => "Required kolabcalendaring module not found"
+            ), true);
+        }
+
+        return false;
     }
 }

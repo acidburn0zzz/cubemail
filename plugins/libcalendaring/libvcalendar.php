@@ -45,6 +45,14 @@ class libvcalendar implements Iterator
         'delegated-from'  => 'DELEGATED-FROM',
         'delegated-to'    => 'DELEGATED-TO',
         'schedule-status' => 'SCHEDULE-STATUS',
+        'schedule-agent'  => 'SCHEDULE-AGENT',
+        'sent-by'         => 'SENT-BY',
+    );
+    private $organizer_keymap = array(
+        'name'            => 'CN',
+        'schedule-status' => 'SCHEDULE-STATUS',
+        'schedule-agent'  => 'SCHEDULE-AGENT',
+        'sent-by'         => 'SENT-BY',
     );
     private $iteratorkey = 0;
     private $charset;
@@ -543,6 +551,10 @@ class libvcalendar implements Iterator
                     $attendee['role'] = 'ORGANIZER';
                     $attendee['status'] = 'ACCEPTED';
                     $event['organizer'] = $attendee;
+
+                    if (array_key_exists('schedule-agent', $attendee)) {
+                        $schedule_agent = $attendee['schedule-agent'];
+                    }
                 }
                 else if ($attendee['email'] != $event['organizer']['email']) {
                     $event['attendees'][] = $attendee;
@@ -591,8 +603,8 @@ class libvcalendar implements Iterator
                 $event['allday'] = true;
             }
 
-            // all-day events may lack the DTEND property
-            if ($event['allday'] && empty($event['end'])) {
+            // events may lack the DTEND property, set it to DTSTART (RFC5545 3.6.1)
+            if (empty($event['end'])) {
                 $event['end'] = clone $event['start'];
             }
             // shift end-date by one day (except Thunderbird)
@@ -702,6 +714,12 @@ class libvcalendar implements Iterator
             $event['end'] = clone $event['start'];
         }
 
+        // T2531: Remember SCHEDULE-AGENT in custom property to properly
+        // support event updates via CalDAV when SCHEDULE-AGENT=CLIENT is used
+        if (isset($schedule_agent)) {
+            $event['x-custom'][] = array('SCHEDULE-AGENT', $schedule_agent);
+        }
+
         // minimal validation
         if (empty($event['uid']) || ($event['_type'] == 'event' && empty($event['start']) != empty($event['end']))) {
             throw new VObject\ParseException('Object validation failed: missing mandatory object properties');
@@ -745,7 +763,7 @@ class libvcalendar implements Iterator
 
                 // skip dupes
                 if ($seen[$value.':'.$fbtype]++)
-                    continue;
+                    break;
 
                 foreach ($periods as $period) {
                     // Every period is formatted as [start]/[end]. The start is an
@@ -996,8 +1014,8 @@ class libvcalendar implements Iterator
         $ve->UID = $event['uid'];
 
         // set DTSTAMP according to RFC 5545, 3.8.7.2.
-        $dtstamp = !empty($event['changed']) && !empty($this->method) ? $event['changed'] : new DateTime('now', new \DateTimeZone('UTC'));
-        $ve->add($this->datetime_prop($cal, 'DTSTAMP', $dtstamp, true));
+        $dtstamp = !empty($event['changed']) && empty($this->method) ? $event['changed'] : new DateTime('now', new \DateTimeZone('UTC'));
+        $ve->DTSTAMP = $this->datetime_prop($cal, 'DTSTAMP', $dtstamp, true);
 
         // all-day events end the next day
         if ($event['allday'] && !empty($event['end'])) {
@@ -1054,18 +1072,15 @@ class libvcalendar implements Iterator
 
             // add EXDATEs each one per line (for Thunderbird Lightning)
             if (is_array($exdates)) {
-                foreach ($exdates as $ex) {
-                    if ($ex instanceof \DateTime) {
-                        $exd = clone $event['start'];
-                        $exd->setDate($ex->format('Y'), $ex->format('n'), $ex->format('j'));
-                        $exd->setTimeZone(new \DateTimeZone('UTC'));
-                        $ve->add($this->datetime_prop($cal, 'EXDATE', $exd, true));
+                foreach ($exdates as $exdate) {
+                    if ($exdate instanceof DateTime) {
+                        $ve->add($this->datetime_prop($cal, 'EXDATE', $exdate));
                     }
                 }
             }
             // add RDATEs
-            if (!empty($rdates)) {
-                foreach ((array)$rdates as $rdate) {
+            if (is_array($rdates)) {
+                foreach ($rdates as $rdate) {
                     $ve->add($this->datetime_prop($cal, 'RDATE', $rdate));
                 }
             }
@@ -1158,6 +1173,13 @@ class libvcalendar implements Iterator
             $ve->add($va);
         }
 
+        // Find SCHEDULE-AGENT
+        foreach ((array)$event['x-custom'] as $prop) {
+            if ($prop[0] === 'SCHEDULE-AGENT') {
+                $schedule_agent = $prop[1];
+            }
+        }
+
         foreach ((array)$event['attendees'] as $attendee) {
             if ($attendee['role'] == 'ORGANIZER') {
                 if (empty($event['organizer']))
@@ -1166,14 +1188,26 @@ class libvcalendar implements Iterator
             else if (!empty($attendee['email'])) {
                 if (isset($attendee['rsvp']))
                     $attendee['rsvp'] = $attendee['rsvp'] ? 'TRUE' : null;
-                $ve->add('ATTENDEE', 'mailto:' . $attendee['email'],
-                    array_filter(self::map_keys($attendee, $this->attendee_keymap)));
+
+                $mailto   = $attendee['email'];
+                $attendee = array_filter(self::map_keys($attendee, $this->attendee_keymap));
+
+                if ($schedule_agent !== null && !isset($attendee['SCHEDULE-AGENT'])) {
+                    $attendee['SCHEDULE-AGENT'] = $schedule_agent;
+                }
+
+                $ve->add('ATTENDEE', 'mailto:' . $mailto, $attendee);
             }
         }
 
         if ($event['organizer']) {
-            $ve->add('ORGANIZER', 'mailto:' . $event['organizer']['email'],
-                array_filter(self::map_keys($event['organizer'], array('name' => 'CN', 'schedule-status' => 'SCHEDULE-STATUS'))));
+            $organizer = array_filter(self::map_keys($event['organizer'], $this->organizer_keymap));
+
+            if ($schedule_agent !== null && !isset($organizer['SCHEDULE-AGENT'])) {
+                $organizer['SCHEDULE-AGENT'] = $schedule_agent;
+            }
+
+            $ve->add('ORGANIZER', 'mailto:' . $event['organizer']['email'], $organizer);
         }
 
         foreach ((array)$event['url'] as $url) {

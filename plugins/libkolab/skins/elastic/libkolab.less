@@ -1,0 +1,583 @@
+/**
+ * Kolab core library
+ *
+ * This file contains Elastic skin styles for various Kolab plugins.
+ *
+ * @author Aleksander Machniak <machniak@kolabsys.com>
+ *
+ * Copyright (C) 2012-2018, Kolab Systems AG <contact@kolabsys.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@skin: "elastic";
+@skin-path: "../../../../skins/@{skin}";
+
+@import (reference) "@{skin-path}/styles/variables";
+@import (reference) "@{skin-path}/styles/mixins";
+
+
+/*** Common folders list extensions ***/
+
+.listing {
+    // Fix focus indicator, because we add div element in the list record
+    @media screen and (min-width: @screen-width-large) {
+        li > div > a {
+            border-left: 2px solid transparent;
+        }
+        li > div > a:focus {
+            border-left: 2px solid @color-list-focus-indicator;
+            outline: 0;
+        }
+    }
+
+    li {
+        & > div {
+            display: flex;
+
+            & > a:first-child {
+                .overflow-ellipsis;
+                position: relative;
+                flex-grow: 1;
+
+                &:after {
+                    color: #ccc;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    height: @listing-line-height !important;
+                    font-size: 1.1em !important;
+                }
+
+                & + input {
+                    position: initial;
+                }
+            }
+
+            &.folder .listname:before {
+                &:extend(.font-icon-class);
+                content: @fa-var-sticky-note;
+                margin-right: .5rem;
+            }
+
+            span.actions {
+                display: flex;
+
+                input + & {
+                    padding-right: 2em;
+                }
+
+                a {
+                    padding: 0;
+                    margin: 0;
+                    margin-right: .2rem;
+                    cursor: pointer;
+
+                    &:before {
+                        margin: 0;
+                    }
+
+                    &.remove {
+                        display: none;
+                    }
+                }
+            }
+
+            a.quickview {
+                &:before {
+                    content: @fa-var-eye;
+                    opacity: .2;
+                    color: @color-link;
+                }
+
+                &:after {
+                    display: none !important;
+                }
+            }
+
+            &.focusview {
+                a.quickview:before {
+                    content: @fa-var-eye;
+                    opacity: 1;
+                }
+            }
+
+            .subscribed {
+                cursor: pointer;
+                // reset listing's link style
+                padding: 0;
+                border-left: 0;
+                width: auto;
+
+                &:before {
+                    .font-icon-regular(@fa-var-bookmark); // TODO: better icon
+                    height: auto;
+                    color: @color-link;
+                    margin-right: .25rem;
+                }
+            }
+
+            // span.subscribed is used on addressbooks list, a.subscribed in other places
+            span.subscribed:before {
+                &:extend(.font-icon-class);
+                .font-icon-regular(@fa-var-bookmark); // TODO: better icon
+            }
+
+            &.subscribed {
+                .subscribed:before {
+                    .font-icon-solid(@fa-var-bookmark); // TODO: better icon
+                }
+            }
+        }
+
+        &.selected > div {
+            color: @color-list-selected;
+            background-color: @color-list-selected-background;
+        }
+
+        & > div.readonly a:first-child,
+        &.readonly:not(.virtual) > div a:first-child {
+            padding-right: 1.6em;
+
+            &:after {
+                &:extend(.font-icon-class);
+                content: @fa-var-lock;
+            }
+        }
+
+        & > div.other.user > .listname,
+        &.other.user > div a:first-child {
+            &:before {
+                .font-icon-solid(@fa-var-user);
+            }
+        }
+
+        & > div.virtual.user > .listname,
+        &.virtual.user > div a:first-child {
+            &:after {
+                display: none;
+            }
+        }
+
+        & > div.virtual.shared > .listname,
+        &.virtual.shared > div a:first-child {
+            &:before {
+                .font-icon-solid(@fa-var-share-alt);
+            }
+
+            &:after {
+                display: none;
+            }
+        }
+
+        &.virtual > div > a {
+            opacity: .5;
+        }
+    }
+
+    // Tree structure fix
+    &.treelist:not(.notree) {
+        & > li > div > a {
+            padding-left: @listing-treetoggle-width;
+        }
+    }
+
+    input.flex-checkbox {
+        position: relative !important;
+        margin: 0 0 0 .25em !important;
+
+        & + label {
+            position: relative !important;
+            margin: 0 .3em 0 -1em !important;
+            right: 0 !important;
+            font-size: 1.15em;
+        }
+    }
+
+    li.droptarget > div {
+        background-color: @color-list-droptarget-background;
+    }
+
+    li .count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 2em;
+        line-height: 1.4rem;
+        margin: (@listing-line-height - 1.4rem)/2;
+        padding: 0 .3em;
+        border-radius: .4em;
+        background: @color-list-secondary;
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+
+        html.touch & {
+            line-height: 2rem;
+            margin: (@listing-touch-line-height - 2rem)/2;
+        }
+    }
+}
+
+html.touch .listing {
+    li {
+        & > div {
+            a:after {
+                height: @listing-touch-line-height !important;
+            }
+        }
+
+        .actions {
+            margin-left: .2rem;
+            a {
+                margin-right: .5rem;
+            }
+        }
+    }
+}
+
+.searchresults {
+    .boxtitle {
+        line-height: 2rem !important;
+        font-size: 80%;
+        padding: 0 .5rem;
+        margin: 0;
+        color: @color-popover-separator;
+        background-color: @color-popover-separator-background;
+        text-align: center;
+        border-bottom: 1px solid @color-layout-border;
+    }
+}
+
+.folderlist li.mailbox {
+    &.type-event > a:before {
+        .font-icon-solid(@fa-var-calendar);
+    }
+    &.type-task > a:before {
+        .font-icon-solid(@fa-var-calendar-check);
+    }
+    &.type-journal > a:before {
+        .font-icon-regular(@fa-var-calendar);
+    }
+    &.type-contact > a:before {
+        .font-icon-regular(@fa-var-address-book);
+    }
+    &.type-note > a:before {
+        .font-icon-regular(@fa-var-sticky-note);
+    }
+    &.type-configuration > a:before {
+        .font-icon-solid(@fa-var-cog);
+    }
+    &.type-freebusy > a:before {
+        .font-icon-regular(@fa-var-calendar);
+    }
+    &.type-file > a:before {
+        .font-icon-solid(@fa-var-folder);
+    }
+}
+
+.toolbarmenu.listing li {
+    &.search {
+        padding: .25rem .5rem;
+        .input-group {
+
+            i.icon {
+                font-size: 80%;
+                padding: .5rem;
+            }
+
+            input {
+                font-size: 100%;
+            }
+        }
+    }
+
+    a.history:before {
+        content: @fa-var-history;
+    }
+}
+
+a.history {
+    &:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-history;
+        display: inline;
+        float: none;
+    }
+}
+
+// E.g. notes preview frame
+.watermark {
+    background: url("@{skin-path}/images/logo.svg") center no-repeat #fff;
+    background-size: 30%;
+    background-blend-mode: luminosity;
+    width: 100%;
+    height: 100%;
+
+    & > * {
+        display: none;
+    }
+
+    // this is to blend the watermark image
+    &:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, .85);
+    }
+
+    &.formcontainer {
+        background: transparent !important;
+
+        &:before {
+            display: none;
+        }
+
+        & > * {
+            display: initial;
+        }
+    }
+}
+
+.form-group > .datetime {
+    display: flex;
+    white-space: nowrap;
+
+    input {
+        width: 10em;
+    }
+
+    input:first-child {
+        margin-right: .5rem;
+        width: 15em;
+    }
+
+    a {
+        margin-left: 1em;
+        text-align: right;
+        flex: 1;
+        line-height: 2.4;
+    }
+}
+
+.form-section.form-group.form-check {
+    display: flex;
+    padding: 0;
+
+    label {
+        order: 10;
+    }
+
+    .icon-checkbox + label {
+        order: unset;
+        min-width: 2em;
+        padding: 0;
+        line-height: 1;
+    }
+}
+
+button.btn.save.notify:before {
+    content: @fa-var-envelope;
+}
+
+button.btn.print:before {
+    content: @fa-var-print;
+}
+
+.formcontent.text-only .faded * {
+    color: @color-black-shade-text;
+}
+
+.print-config {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10000;
+    padding: .5em 1em;
+    background-color: @color-black-shade-bg;
+
+    button.print {
+        margin-right: 1rem;
+    }
+
+    .prop {
+        margin-left: .5rem;
+        display: inline-block;
+        vertical-align: middle;
+
+        label {
+            margin: 0;
+        }
+
+        label:before {
+            line-height: 1.25;
+            margin-right: .25rem;
+        }
+    }
+
+    @media print {
+        display: none;
+    }
+
+    & + .print-content {
+        position: relative;
+        top: 0;
+        left: 0;
+        height: auto;
+        margin: 5em auto 0 auto;
+        overflow: visible;
+    }
+}
+
+.selection-dialog {
+    .ui-dialog-content {
+        display: flex !important;
+        overflow: hidden !important;
+    }
+
+    .selection-list {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid @color-layout-border;
+        justify-content: center;
+    }
+
+    .ui-dialog-content .popupmenu {
+        display: flex !important; // overwrites .popupmenu style
+        width: 100%;
+    }
+
+    .scroller {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .header {
+        border-bottom: 1px solid @color-layout-border;
+        display: flex;
+        background-color: @color-layout-header-background;
+        font-size: @layout-header-font-size;
+        font-weight: bold;
+        line-height: @layout-header-height;
+        height: @layout-header-height;
+        min-height: @layout-header-height;
+        padding: 0 .25em;
+        position: relative; // for absolute positioning of searchbar
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .header-title {
+        width: 100%;
+        text-align: center;
+        margin: 0 2em;
+    }
+
+    .selection-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tab-content {
+        margin-top: 1rem;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .form-addon {
+        margin: 0;
+        padding: .5rem 0;
+        width: 100%;
+        background-color: @color-black-shade-bg;
+        border-top: 1px solid @color-layout-border;
+    }
+
+    // overwrite .popupmenu colors
+    .listing {
+        ul {
+            background-color: @color-layout-list-background;
+        }
+
+        li.selected {
+            color: @color-font;
+        }
+    }
+
+    @media screen and (max-width: @screen-width-small) {
+        .ui-dialog-content {
+            padding: 0 !important;
+        }
+
+        .selection-list {
+            border: 0;
+        }
+
+        .ui-dialog-titlebar {
+            display: none;
+            margin: 0;
+        }
+
+        .selection-content {
+            .header-title {
+                margin-left: 0;
+            }
+        }
+
+        .header {
+            a:before {
+                font-size: 1.75rem;
+            }
+        }
+    }
+}
+
+// Use icons-only on taskmenu with small screen height
+@media screen and (max-height: 640px) and (min-width: (@screen-width-small + 1px)) {
+    body > #layout > .menu {
+        width: 2.5rem;
+    }
+
+    #taskmenu {
+        a {
+            height: auto;
+            width: 100%;
+
+            &:before {
+                height: 2.1rem;
+                width: 100%;
+            }
+        }
+
+        .special-buttons {
+            width: 2.5rem;
+        }
+
+        span.inner {
+            display: none;
+        }
+    }
+}
+
+@import "include/calendar";
+@import "include/kolab_activesync";
+@import "include/kolab_delegation";
+@import "include/kolab_files";
+@import "include/kolab_notes";
+@import "include/kolab_tags";
+@import "include/libcalendaring";
+@import "include/tasklist";

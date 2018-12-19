@@ -38,11 +38,13 @@ $labels['editnote'] = 'Edit Note';
 $labels['savein'] = 'Save in';
 $labels['foldersubscribe'] = 'List permanently';
 $labels['findnotebooks'] = 'Find notebooks...';
+$labels['findnotes'] = 'Find notes';
 $labels['listsearchresults'] = 'Additional notebooks';
 $labels['nrnotebooksfound'] = '$nr notebooks found';
 $labels['nonotebooksfound'] = 'No notebooks found';
 $labels['removelist'] = 'Remove from list';
 $labels['removelink'] = 'Remove email reference';
+$labels['listactions'] = 'Notebooks list actions';
 
 $labels['savingdata'] = 'Saving data...';
 $labels['recordnotfound'] = 'Record not found';
@@ -56,18 +58,6 @@ $labels['invalidlistproperties'] = 'Invalid notebook properties! Please set a va
 $labels['entertitle'] = 'Please enter a title for this note!';
 $labels['aclnorights'] = 'You do not have administrator rights for this notebook.';
 
-// history dialog
-$labels['showhistory'] = 'Show History';
-$labels['objectchangelog'] = 'Change History';
-$labels['objectdiff'] = 'Changes from $rev1 to $rev2';
-$labels['objectnotfound'] = 'Failed to load note data';
-$labels['objectchangelognotavailable'] = 'Change history is not available for this note';
-$labels['objectdiffnotavailable'] = 'No comparison possible for the selected revisions';
-$labels['revisionrestoreconfirm'] = 'Do you really want to restore revision $rev of this note? This will replace the current note with the old version.';
-$labels['objectrestoresuccess'] = 'Revision $rev successfully restored';
-$labels['objectrestoreerror'] = 'Failed to restore the old revision';
-
-// (hidden) titles and labels for accessibility annotations
 $labels['arialabelnoteslist'] = 'List of notes';
 $labels['arialabelnotesearchform'] = 'Notes search form';
 $labels['arialabelnotesquicksearchbox'] = 'Notes search input';
@@ -75,5 +65,5 @@ $labels['arialabelnotessortmenu'] = 'Notes list sorting options';
 $labels['arialabelnotesoptionsmenu'] = 'Notebook actions menu';
 $labels['arialabelnotebookform'] = 'Notebook properties';
 $labels['arialabelmessagereferences'] = 'Linked email messages';
-$labels['arialabelfolderearchform'] = 'Notebooks search form';
+$labels['arialabelfoldersearchform'] = 'Notebooks search form';
 $labels['arialabelnoteform'] = 'Note edit form';

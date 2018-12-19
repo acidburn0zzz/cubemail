@@ -39,6 +39,7 @@ $labels['personalonly'] = 'Catálogo de endereço(s) pessoal apenas';
 $labels['globalonly'] = 'Catálogo(s) de endereço global apenas';
 $labels['searchterms'] = 'Search terms';
 $labels['foldersubscribe'] = 'Listar permanentemente';
+$labels['objectchangelog'] = 'Mudar Histórico';
 $messages['bookdeleteconfirm']  = 'Você realmente gostaria de remover o catálogo de endereços selecionado e todos os contatos que estão dentro dele?';
 $messages['bookdeleting'] = 'Removendo catálogo de endereço...';
 $messages['booksaving'] = 'Salvando catálogo de endereço...';

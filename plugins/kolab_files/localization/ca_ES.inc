@@ -12,4 +12,13 @@ $labels['folderinside'] = 'Insereix dins';
 $labels['name'] = 'Nom';
 $labels['edit'] = 'Edita';
 $labels['save'] = 'Desa';
-?>
+$labels['listpermanent'] = 'Llista permanentment';
+$labels['select'] = 'Selecciona';
+$labels['participant'] = 'Participant';
+$labels['status'] = 'Estat';
+$labels['addparticipant'] = 'Afegeix participant';
+$labels['invitationtextlabel'] = 'Comentari de la invitació/notificació';
+$labels['statusorganizer'] = 'Organitzador';
+$labels['removeparticipant'] = 'Suprimeix';
+$labels['owner'] = 'Propietari';
+$labels['comment'] = 'Comentari';

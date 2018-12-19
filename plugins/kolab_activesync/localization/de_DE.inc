@@ -1,13 +1,13 @@
 <?php
-$labels['tabtitle'] = 'Activesync';
-$labels['activesynctitle'] = 'Verwalte Activesync-Geräte';
+$labels['tabtitle'] = 'ActiveSync';
+$labels['activesynctitle'] = 'Verwalte ActiveSync-Geräte';
 $labels['devices'] = 'Geräte';
 $labels['devicealias'] = 'Gerätename';
 $labels['synchronize'] = 'Synchronisieren';
 $labels['withalarms'] = 'Mit Erinnerungen';
 $labels['syncsettings'] = 'Synchronisationseinstellungen';
 $labels['deviceconfig'] = 'Gerätekonfiguration';
-$labels['folderstosync'] = 'Order zum Synchronisieren';
+$labels['folderstosync'] = 'Ordner zum Synchronisieren';
 $labels['mail'] = 'E-Mail';
 $labels['contact'] = 'Kontakte';
 $labels['event'] = 'Kalender';
@@ -15,8 +15,9 @@ $labels['task'] = 'Aufgaben';
 $labels['note'] = 'Notizen';
 $labels['configuration'] = 'Konfiguration';
 $labels['deletedevice'] = 'Gerät löschen';
+$labels['nodevices'] = 'Es sind aktuell keine Geräte registriert.<br/><br/>Um ein Gerät zu registrieren, bitte zuerst nach der Anleitung von <a href="$url" target="_blank">dieser Seite</a> mit dem Server verbinden. Anschließend sollte das Gerät für die Konfiguration hier zur Verfügung stehen.';
 $labels['savingdata'] = 'Daten werden gespeichert...';
-$labels['savingerror'] = 'Fehler beim Speichern';
+$labels['savingerror'] = 'Fehler beim Speichern der Konfiguration';
 $labels['notsupported'] = 'Ihr Server unterstützt keine Activesync-Konfiguration';
 $labels['devicedeleteconfirm'] = 'Wollen Sie wirklich alle Einstellungen für dieses Gerät löschen?';
 $labels['successfullydeleted'] = 'Die Geräteinstellungen wurden erfolgreich gelöscht';

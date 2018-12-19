@@ -38,7 +38,8 @@ class kolab_user_calendar extends kolab_calendar
    */
   public function __construct($user_or_folder, $calendar)
   {
-    $this->cal = $calendar;
+    $this->cal  = $calendar;
+    $this->imap = $calendar->rc->get_storage();
 
     // full user record is provided
     if (is_array($user_or_folder)) {
@@ -84,9 +85,11 @@ class kolab_user_calendar extends kolab_calendar
   /**
    * Getter for the IMAP folder owner
    *
+   * @param bool Return a fully qualified owner name (unused)
+   *
    * @return string Name of the folder owner
    */
-  public function get_owner()
+  public function get_owner($fully_qualified = false)
   {
     return $this->userdata['mail'];
   }
@@ -122,7 +125,7 @@ class kolab_user_calendar extends kolab_calendar
   /**
    * Return color to display this calendar
    */
-  public function get_color()
+  public function get_color($default = null)
   {
     // calendar color is stored in local user prefs
     $prefs = $this->cal->rc->config->get('kolab_calendars', array());
@@ -130,7 +133,7 @@ class kolab_user_calendar extends kolab_calendar
     if (!empty($prefs[$this->id]) && !empty($prefs[$this->id]['color']))
       return $prefs[$this->id]['color'];
 
-    return 'cc0000';
+    return $default ?: 'cc0000';
   }
 
   /**
@@ -195,9 +198,11 @@ class kolab_user_calendar extends kolab_calendar
    * @param  string  Search query (optional)
    * @param  boolean Include virtual events (optional)
    * @param  array   Additional parameters to query storage
+   * @param  array   Additional query to filter events
+   *
    * @return array A list of event records
    */
-  public function list_events($start, $end, $search = null, $virtual = 1, $query = array())
+  public function list_events($start, $end, $search = null, $virtual = 1, $query = array(), $filter_query = null)
   {
     // convert to DateTime for comparisons
     try {
@@ -223,12 +228,13 @@ class kolab_user_calendar extends kolab_calendar
       }
     }
 
-    // aggregate all calendar folders the user shares (but are not subscribed)
-    foreach (kolab_storage::list_user_folders($this->userdata, 'event', false) as $foldername) {
+    // aggregate all calendar folders the user shares (but are not activated)
+    foreach (kolab_storage::list_user_folders($this->userdata, 'event', 2) as $foldername) {
       $cal = new kolab_calendar($foldername, $this->cal);
       foreach ($cal->list_events($start, $end, $search, 1) as $event) {
-        $this->events[$event['id']] = $event;
-        $this->timeindex[$this->time_key($event)] = $event['id'];
+        $uid = $event['id'] ?: $event['uid'];
+        $this->events[$uid] = $event;
+        $this->timeindex[$this->time_key($event)] = $uid;
       }
     }
 
@@ -257,9 +263,10 @@ class kolab_user_calendar extends kolab_calendar
    *
    * @param  integer Date range start (unix timestamp)
    * @param  integer Date range end (unix timestamp)
+   * @param  array   Additional query to filter events
    * @return integer Count
    */
-  public function count_events($start, $end = null)
+  public function count_events($start, $end = null, $filter_query = null)
   {
     // not implemented
     return 0;
@@ -316,7 +323,7 @@ class kolab_user_calendar extends kolab_calendar
       'X-OUT-OF-OFFICE' => $this->cal->gettext('availoutofoffice'),
     );
 
-    // console('_fetch_freebusy', kolab_storage::get_freebusy_url($this->userdata['mail']), $fbdata);
+    // rcube::console('_fetch_freebusy', kolab_storage::get_freebusy_url($this->userdata['mail']), $fbdata);
 
     // parse free-busy information
     $count = 0;
@@ -332,7 +339,7 @@ class kolab_user_calendar extends kolab_calendar
         foreach ($fb['periods'] as $tuple) {
           list($from, $to, $type) = $tuple;
           $event = array(
-            'id'        => md5($this->id . $from->format('U') . '/' . $to->format('U')),
+            'uid'       => md5($this->id . $from->format('U') . '/' . $to->format('U')),
             'calendar'  => $this->id,
             'changed'   => $fb['created'] ?: new DateTime(),
             'title'     => $this->get_name() . ' ' . ($titlemap[$type] ?: $type),
@@ -349,8 +356,8 @@ class kolab_user_calendar extends kolab_calendar
           // avoid duplicate entries
           $key = $this->time_key($event);
           if (!$this->timeindex[$key]) {
-            $this->events[$event['id']] = $event;
-            $this->timeindex[$key] = $event['id'];
+            $this->events[$event['uid']] = $event;
+            $this->timeindex[$key] = $event['uid'];
             $count++;
           }
         }
@@ -365,7 +372,7 @@ class kolab_user_calendar extends kolab_calendar
    */
   private function time_key($event)
   {
-    return sprintf('%s/%s', $event['start']->format('U'), is_object($event['end']->format('U')) ?: '0');
+    return sprintf('%s/%s', $event['start']->format('U'), is_object($event['end']) ? $event['end']->format('U') : '0');
   }
 
   /**
@@ -411,16 +418,5 @@ class kolab_user_calendar extends kolab_calendar
   public function restore_event($event)
   {
     return false;
-  }
-
-  /**
-   * Convert from Kolab_Format to internal representation
-   */
-  private function _to_rcube_event($record)
-  {
-    $record['id'] = $record['uid'];
-    $record['calendar'] = $this->id;
-
-    return kolab_driver::to_rcube_event($record);
   }
 }

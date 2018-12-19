@@ -203,17 +203,20 @@ abstract class kolab_format
      * @param mixed         Date/Time value either as unix timestamp, date string or PHP DateTime object
      * @param DateTimeZone  The timezone the date/time is in. Use global default if Null, local time if False
      * @param boolean       True of the given date has no time component
-     * @return object       The libkolabxml date/time object
+     * @param DateTimeZone  The timezone to convert the date to before converting to cDateTime
+     *
+     * @return cDateTime The libkolabxml date/time object
      */
-    public static function get_datetime($datetime, $tz = null, $dateonly = false)
+    public static function get_datetime($datetime, $tz = null, $dateonly = false, $dest_tz = null)
     {
-        // use timezone information from datetime of global setting
+        // use timezone information from datetime or global setting
         if (!$tz && $tz !== false) {
             if ($datetime instanceof DateTime)
                 $tz = $datetime->getTimezone();
             if (!$tz)
                 $tz = self::$timezone;
         }
+
         $result = new cDateTime();
 
         try {
@@ -225,16 +228,31 @@ abstract class kolab_format
             else if (is_string($datetime) && strlen($datetime)) {
                 $datetime = $tz ? new DateTime($datetime, $tz) : new DateTime($datetime);
             }
+            else if ($datetime instanceof DateTime) {
+                $datetime = clone $datetime;
+            }
         }
         catch (Exception $e) {}
 
         if ($datetime instanceof DateTime) {
+            if ($dest_tz instanceof DateTimeZone && $dest_tz !== $datetime->getTimezone()) {
+                $datetime->setTimezone($dest_tz);
+                $tz = $dest_tz;
+            }
+
             $result->setDate($datetime->format('Y'), $datetime->format('n'), $datetime->format('j'));
 
-            if (!$dateonly)
-                $result->setTime($datetime->format('G'), $datetime->format('i'), $datetime->format('s'));
+            if ($dateonly) {
+                // Dates should be always in local time only
+                return $result;
+            }
 
-            if ($tz && in_array($tz->getName(), array('UTC', 'GMT', '+00:00', 'Z'))) {
+            $result->setTime($datetime->format('G'), $datetime->format('i'), $datetime->format('s'));
+
+            // libkolabxml throws errors on some deprecated timezone names
+            $utc_aliases = array('UTC', 'GMT', '+00:00', 'Z', 'Etc/GMT', 'Etc/UTC');
+
+            if ($tz && in_array($tz->getName(), $utc_aliases)) {
                 $result->setUTC(true);
             }
             else if ($tz !== false) {
@@ -251,16 +269,19 @@ abstract class kolab_format
     /**
      * Convert the given cDateTime into a PHP DateTime object
      *
-     * @param object cDateTime  The libkolabxml datetime object
-     * @return object DateTime  PHP datetime instance
+     * @param cDateTime    The libkolabxml datetime object
+     * @param DateTimeZone The timezone to convert the date to
+     *
+     * @return DateTime PHP datetime instance
      */
-    public static function php_datetime($cdt)
+    public static function php_datetime($cdt, $dest_tz = null)
     {
-        if (!is_object($cdt) || !$cdt->isValid())
+        if (!is_object($cdt) || !$cdt->isValid()) {
             return null;
+        }
 
         $d = new DateTime;
-        $d->setTimezone(self::$timezone);
+        $d->setTimezone($dest_tz ?: self::$timezone);
 
         try {
             if ($tzs = $cdt->timezone()) {
@@ -520,11 +541,12 @@ abstract class kolab_format
             $this->obj->setUid($object['uid']);
 
         // set some automatic values if missing
-        if (empty($object['created']) && method_exists($this->obj, 'setCreated')) {
-            $cdt = $this->obj->created();
-            $object['created'] = $cdt && $cdt->isValid() ? self::php_datetime($cdt) : new DateTime('now', new DateTimeZone('UTC'));
-            if (!$cdt || !$cdt->isValid())
-                $this->obj->setCreated(self::get_datetime($object['created']));
+        if (method_exists($this->obj, 'setCreated')) {
+            // Always set created date to workaround libkolabxml (>1.1.4) bug
+            $created = $object['created'] ?: new DateTime('now');
+            $created->setTimezone(new DateTimeZone('UTC')); // must be UTC
+            $this->obj->setCreated(self::get_datetime($created));
+            $object['created'] = $created;
         }
 
         $object['changed'] = new DateTime('now', new DateTimeZone('UTC'));
@@ -703,5 +725,69 @@ abstract class kolab_format
         if ($write) {
             $this->obj->setAttachments($vattach);
         }
+    }
+
+    /**
+     * Unified way of updating/deleting attachments of edited object
+     *
+     * @param array $object Kolab object data
+     * @param array $old    Old version of Kolab object
+     */
+    public static function merge_attachments(&$object, $old)
+    {
+        $object['_attachments'] = (array) $old['_attachments'];
+
+        // delete existing attachment(s)
+        if (!empty($object['deleted_attachments'])) {
+            foreach ($object['_attachments'] as $idx => $att) {
+                if ($object['deleted_attachments'] === true || in_array($att['id'], $object['deleted_attachments'])) {
+                    $object['_attachments'][$idx] = false;
+                }
+            }
+        }
+
+        // in kolab_storage attachments are indexed by content-id
+        foreach ((array) $object['attachments'] as $attachment) {
+            $key = null;
+
+            // Roundcube ID has nothing to do with the storage ID, remove it
+            // for uploaded/new attachments
+            // FIXME: Roundcube uses 'data', kolab_format uses 'content'
+            if ($attachment['content'] || $attachment['path'] || $attachment['data']) {
+                unset($attachment['id']);
+            }
+
+            if ($attachment['id']) {
+                foreach ((array) $object['_attachments'] as $cid => $att) {
+                    if ($att && $attachment['id'] == $att['id']) {
+                        $key = $cid;
+                    }
+                }
+            }
+            else {
+                // find attachment by name, so we can update it if exists
+                // and make sure there are no duplicates
+                foreach ((array) $object['_attachments'] as $cid => $att) {
+                    if ($att && $attachment['name'] == $att['name']) {
+                        $key = $cid;
+                    }
+                }
+            }
+
+            if ($key && $attachment['_deleted']) {
+                $object['_attachments'][$key] = false;
+            }
+            // replace existing entry
+            else if ($key) {
+                $object['_attachments'][$key] = $attachment;
+            }
+            // append as new attachment
+            else {
+                $object['_attachments'][] = $attachment;
+            }
+        }
+
+        unset($object['attachments']);
+        unset($object['deleted_attachments']);
     }
 }

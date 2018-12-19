@@ -156,18 +156,18 @@
 	text-align: center;
 }
 
-.formbuttons .btn-contact-history {
+.formbuttons .contact-history {
 	display: inline-block;
 	padding: 1px;
 	color: #333;
 	text-decoration: none;
 }
 
-.formbuttons .btn-contact-history:hover {
+.formbuttons .contact-history:hover {
 	text-decoration: underline;
 }
 
-.formbuttons .btn-contact-history:before {
+.formbuttons .contact-history:before {
 	content: "";
 	display: inline-block;
 	position: relative;

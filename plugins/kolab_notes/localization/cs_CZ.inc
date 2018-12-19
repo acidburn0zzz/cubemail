@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Folders plugin
+ *
+ * Copyright (C) 2015, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
+ */
 $labels['navtitle'] = 'Poznámky';
 $labels['tags'] = 'Značky';
 $labels['lists'] = 'Zápisníky';
@@ -51,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'Volby pro třídění seznamů poznámek';
 $labels['arialabelnotesoptionsmenu'] = 'Nabídka činností pro zápisník';
 $labels['arialabelnotebookform'] = 'Vlastnosti zápisníku';
 $labels['arialabelmessagereferences'] = 'Odkazované zprávy elektronické pošty';
-$labels['arialabelfolderearchform'] = 'Hledání zápisníků';
+$labels['arialabelfoldersearchform'] = 'Hledání zápisníků';
 $labels['arialabelnoteform'] = 'Úprava poznámky';

@@ -24,5 +24,8 @@ $labels['outbox'] = 'Outbox';
 $labels['wastebasket'] = 'Trash';
 $labels['junkemail'] = 'Junk';
 $labels['confidential'] = 'Confidential';
+$labels['private'] = 'Privado';
+$labels['folderexpire'] = 'Eliminar mensajes anteriores a';
+$labels['xdays'] = '$x días';
 $messages['defaultfolderexists'] = 'There is already default folder of specified type';
 ?>

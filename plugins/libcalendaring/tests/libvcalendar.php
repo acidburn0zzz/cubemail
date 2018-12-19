@@ -394,6 +394,7 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertContains('END:VTIMEZONE', $ics, "VTIMEZONE encapsulation END");
 
         $this->assertContains('BEGIN:VEVENT',       $ics, "VEVENT encapsulation BEGIN");
+        $this->assertSame(2, substr_count($ics, 'DTSTAMP'), "Duplicate DTSTAMP (T1148)");
         $this->assertContains('UID:ac6b0aee-2519-4e5c-9a25-48c57064c9f0', $ics, "Event UID");
         $this->assertContains('SEQUENCE:' . $event['sequence'],           $ics, "Export Sequence number");
         $this->assertContains('CLASS:CONFIDENTIAL',                       $ics, "Sensitivity => Class");

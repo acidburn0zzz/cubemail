@@ -35,7 +35,15 @@ function kolab_activesync_config()
   if (rcmail.gui_objects.devicelist) {
     var devicelist = new rcube_list_widget(rcmail.gui_objects.devicelist,
       { multiselect:true, draggable:false, keyboard:true });
-    devicelist.addEventListener('select', select_device).init().focus();
+
+    devicelist.addEventListener('select', select_device)
+      .init()
+      .focus();
+
+    rcmail.devicelist = devicelist;
+    setTimeout(function() {
+      rcmail.triggerEvent('listupdate', {list: devicelist, rowcount: devicelist.rowcount});
+    }, 100);
 
     // load frame if there are no devices
     if (!rcmail.env.devicecount)
@@ -56,7 +64,7 @@ function kolab_activesync_config()
     });
 
     var fn = function(elem) {
-      var classname = elem.className,
+      var classname = elem.className.split(' ')[0],
         list = $(elem).closest('table').find('input.' + classname),
         check = list.not(':checked').length > 0;
 
@@ -72,7 +80,9 @@ function kolab_activesync_config()
   {
     active_device = list.get_single_selection();
 
-    if (active_device)
+    rcmail.enable_command('plugin.delete-device', list.get_selection().length > 0);
+
+    if (active_device && !list.multi_selecting)
       device_select(active_device);
     else if (rcmail.env.contentframe)
       rcmail.show_contentframe(false);
@@ -139,16 +149,25 @@ function kolab_activesync_config()
     if (p.success && p.id && p['delete']) {
       active_device = null;
       device_select();
-      devicelist.remove_row(p.id);
+
+      if (p.id == 'ALL')
+        devicelist.clear();
+      else
+        devicelist.remove_row(p.id);
+
+      rcmail.triggerEvent('listupdate', {list: devicelist, rowcount: devicelist.rowcount});
       rcmail.enable_command('plugin.delete-device', false);
     }
   };
+
   // handler for delete commands
   function delete_device_config()
   {
-    if (active_device && confirm(rcmail.gettext('devicedeleteconfirm', 'kolab_activesync'))) {
+    var selection = devicelist.get_selection();
+
+    if (selection.length && confirm(rcmail.gettext('devicedeleteconfirm', 'kolab_activesync'))) {
       http_lock = rcmail.set_busy(true, 'kolab_activesync.savingdata');
-      rcmail.http_post('plugin.activesync-json', { cmd:'delete', id:active_device }, http_lock);
+      rcmail.http_post('plugin.activesync-json', { cmd:'delete', id:selection }, http_lock);
     }
   };
 

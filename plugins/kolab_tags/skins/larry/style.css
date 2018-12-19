@@ -70,6 +70,7 @@ ul.toolbarmenu li span.icon.tagremoveall {
 }
 
 .tag-draghelper .tag .count,
+#taglist li .count:empty,
 #taglist li.inactive .count {
 	display: none;
 }
@@ -87,14 +88,19 @@ ul.toolbarmenu li span.icon.tagremoveall {
 	margin-left: 10px;
 }
 
-#tagsform div.buttons input {
+#tagsform div.buttons button {
 	display: block;
 	width: 80px;
+	margin-bottom: 5px;
 }
 
 #tagsform select {
 	width: 300px;
 	float: left;
+}
+
+#tageditform div.col-sm-10 {
+	display: inline-block;
 }
 
 #tageditform input {
@@ -132,4 +138,87 @@ ul.toolbarmenu li span.icon.tagremoveall {
 
 #tag-selector li.search input {
 	width: 120px;
+}
+
+.tagline {
+	color: #999;
+	font-weight: normal;
+	font-size: 0.9em;
+	position: relative;
+	cursor: text;
+	margin: 4px 0 0 0;
+	min-height: 31px;
+}
+
+.tagline.disabled {
+	margin-top: 0;
+}
+
+.tagline .tagedit-list {
+	min-height: 31px;
+}
+
+.tagline.disabled .tagedit-list {
+	outline: none;
+	padding-left: 0;
+	border: 0;
+	min-height: 31px;
+	background: rgba(255,255,255,0.01);
+	-webkit-box-shadow: none;
+	   -moz-box-shadow: none;
+	     -o-box-shadow: none;
+	        box-shadow: none;
+}
+
+.tagline .placeholder {
+	position: absolute;
+	top: 6px;
+	left: 6px;
+	z-index: 2;
+}
+
+.tagline.disabled .placeholder {
+	left: 0;
+}
+
+.tagedit-list {
+	position: relative;
+	z-index: 1;
+	min-height: 32px;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.tagedit-list #tagedit-input {
+	background: none;
+}
+
+.tag-draghelper {
+	z-index: 1000;
+}
+
+.tagedit span.tag-element,
+.tagedit-list li.tagedit-listelement-old {
+	background: #ddeef5 !important;
+	border: 0 !important;
+	padding: 2px 20px 0 6px !important;
+	line-height: 1.5 !important;
+	position: relative !important;
+}
+
+.tagedit-list li.tagedit-listelement-old a.tagedit-close,
+.tagedit-list li.tagedit-listelement-old a.tagedit-break,
+.tagedit-list li.tagedit-listelement-old a.tagedit-delete,
+.tagedit-list li.tagedit-listelement-old a.tagedit-save {
+	position: absolute !important;
+	top: 1px !important;
+	right: 0;
+	background: transparent !important;
+	text-indent: initial !important;
+}
+
+.tag-droppable.ui-droppable-hover {
+	background-color: #e8e798;
 }

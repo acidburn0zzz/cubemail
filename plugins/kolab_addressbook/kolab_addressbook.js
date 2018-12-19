@@ -29,55 +29,12 @@
 if (window.rcmail) {
     rcmail.addEventListener('init', function() {
         rcmail.set_book_actions();
-        if (rcmail.gui_objects.editform && rcmail.env.action.match(/^plugin\.book/)) {
-            rcmail.enable_command('book-save', true);
-        }
 
         // contextmenu
         kolab_addressbook_contextmenu();
 
         // append search form for address books
         if (rcmail.gui_objects.folderlist) {
-            var container = $(rcmail.gui_objects.folderlist);
-            $('<div class="listsearchbox" style="display:none">' +
-                '<div class="searchbox" role="search" aria-labelledby="aria-labelfoldersearchform" aria-controls="' + rcmail.gui_objects.folderlist.id + '">' +
-                    '<h3 id="aria-label-labelfoldersearchform" class="voice">' + rcmail.gettext('foldersearchform', 'kolab_addressbook') + '" /></h3>' +
-                    '<label for="addressbooksearch" class="voice">' + rcmail.gettext('searchterms', 'kolab_addressbook') + '</label>' +
-                    '<input type="text" name="q" id="addressbooksearch" placeholder="' + rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '" />' +
-                    '<a class="iconbutton searchicon"></a>' +
-                    '<a href="#reset" onclick="return rcmail.command(\'reset-listsearch\',null,this,event)" id="directorylistsearch-reset" class="iconbutton reset" title="' + rcmail.gettext('resetsearch') + '">' +
-                        rcmail.gettext('resetsearch') + '</a>' +
-                '</div>' +
-            '</div>')
-            .insertBefore(container.parent());
-
-            $('<a href="#search" class="iconbutton search" title="' + rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '" tabindex="0">' +
-                rcmail.gettext('findaddressbooks', 'kolab_addressbook') + '</a>')
-                .appendTo('#directorylistbox h2.boxtitle')
-                .click(function(e){
-                    var title = $('#directorylistbox .boxtitle'),
-                        box = $('#directorylistbox .listsearchbox'),
-                        dir = box.is(':visible') ? -1 : 1;
-
-                    box.slideToggle({
-                        duration: 160,
-                        progress: function(animation, progress) {
-                            if (dir < 0) progress = 1 - progress;
-                            $('#directorylistbox .scroller').css('top', (title.outerHeight() + 34 * progress) + 'px');
-                        },
-                        complete: function() {
-                            box.toggleClass('expanded');
-                            if (box.is(':visible')) {
-                                box.find('input[type=text]').focus();
-                            }
-                            else {
-                                $('#directorylistsearch-reset').click();
-                            }
-                        }
-                    });
-                });
-
-
             // remove event handlers set by the regular treelist widget
             rcmail.treelist.container.off('click mousedown focusin focusout');
 
@@ -123,46 +80,40 @@ if (window.rcmail) {
                     if (data.length)
                         rcmail.display_message(rcmail.gettext('nraddressbooksfound','kolab_addressbook').replace('$nr', data.length), 'voice');
                     else
-                        rcmail.display_message(rcmail.gettext('noaddressbooksfound','kolab_addressbook'), 'info');
+                        rcmail.display_message(rcmail.gettext('noaddressbooksfound','kolab_addressbook'), 'notice');
                 });
         }
 
-        // append button to show contact audit trail
-        if (rcmail.env.action == 'show' && rcmail.env.kolab_audit_trail && rcmail.env.cid) {
-            $('<a href="#history" class="btn-contact-history active" role="button" tabindex="0">' + rcmail.get_label('kolab_addressbook.showhistory') + '</a>')
-                .click(function(e) {
-                    var rc = rcmail.is_framed() && parent.rcmail.contact_history_dialog ? parent.rcmail : rcmail;
-                    rc.contact_history_dialog();
-                    return false;
-                })
-                .appendTo($('<div>').addClass('formbuttons-secondary-kolab').appendTo('.formbuttons'));
-        }
+        rcmail.contact_list && rcmail.contact_list.addEventListener('select', function(list) {
+            var source, is_writable = true, is_traceable = false;
+
+            // delete/move commands status was set by Roundcube core,
+            // however, for Kolab addressbooks we like to check folder ACL
+            if (list.selection.length && rcmail.commands['delete']) {
+                $.each(rcmail.env.selection_sources, function() {
+                    source = rcmail.env.address_sources[this];
+                    if (source && source.kolab && source.rights.indexOf('t') < 0) {
+                        return is_writable = false;
+                    }
+                });
+
+                rcmail.enable_command('delete', 'move', is_writable);
+            }
+
+            if (list.get_single_selection()) {
+                $.each(rcmail.env.selection_sources, function() {
+                    source = rcmail.env.address_sources[this];
+                    is_traceable = source && !!source.audittrail;
+                });
+            }
+
+            rcmail.enable_command('contact-history-dialog', is_traceable);
+        });
     });
 
     rcmail.addEventListener('listupdate', function() {
         rcmail.set_book_actions();
     });
-
-    // wait until rcmail.contact_list is ready and subscribe to 'select' events
-    setTimeout(function() {
-        rcmail.contact_list && rcmail.contact_list.addEventListener('select', function(list) {
-            var source, is_writable = true;
-
-            // delete/move commands status was set by Roundcube core,
-            // however, for Kolab addressbooks we like to check folder ACL
-            if (list.selection.length && rcmail.commands['delete']) {
-                for (n in rcmail.env.selection_sources) {
-                    source = rcmail.env.address_sources[n];
-                    if (source && source.kolab && source.rights.indexOf('t') < 0) {
-                        is_writable = false;
-                        break;
-                    }
-                }
-
-                rcmail.enable_command('delete', 'move', is_writable);
-            }
-        });
-    }, 100);
 }
 
 // (De-)activates address book management commands
@@ -181,12 +132,48 @@ rcube_webmail.prototype.set_book_actions = function()
 
 rcube_webmail.prototype.book_create = function()
 {
-    this.book_show_contentframe('create');
+    this.book_dialog('create');
 };
 
 rcube_webmail.prototype.book_edit = function()
 {
-    this.book_show_contentframe('edit');
+    this.book_dialog('edit');
+};
+
+// displays page with book edit/create form
+rcube_webmail.prototype.book_dialog = function(action)
+{
+    var title = rcmail.gettext('kolab_addressbook.book' + action),
+        params = {_act: action, _source: this.book_realname(), _framed: 1},
+        dialog = $('<iframe>').attr('src', rcmail.url('plugin.book', params)),
+        save_func = function() {
+            var data,
+                form = dialog.contents().find('form'),
+                input = form.find("input[name='_name']");
+
+            // form is not loaded
+            if (!form || !form.length)
+                return false;
+
+            if (input.length && input.val() == '') {
+                rcmail.alert_dialog(rcmail.get_label('kolab_addressbook.nobooknamewarning'), function() {
+                    input.focus();
+                });
+
+                return;
+            }
+
+            // post data to server
+            data = form.serializeJSON();
+
+            rcmail.http_post('plugin.book-save', data, rcmail.set_busy(true, 'kolab_addressbook.booksaving'));
+            return true;
+        };
+
+    rcmail.simple_dialog(dialog, title, save_func, {
+        width: 600,
+        height: 400
+    });
 };
 
 rcube_webmail.prototype.book_remove = function(id)
@@ -200,9 +187,11 @@ rcube_webmail.prototype.book_remove = function(id)
 
 rcube_webmail.prototype.book_delete = function()
 {
-    if (this.env.source != '' && confirm(this.get_label('kolab_addressbook.bookdeleteconfirm'))) {
-        var lock = this.set_busy(true, 'kolab_addressbook.bookdeleting');
-        this.http_request('plugin.book', '_act=delete&_source='+urlencode(this.book_realname()), lock);
+    if (this.env.source != '') {
+        this.confirm_dialog(this.get_label('kolab_addressbook.bookdeleteconfirm'), 'delete', function() {
+            var lock = rcmail.set_busy(true, 'kolab_addressbook.bookdeleting');
+            rcmail.http_request('plugin.book', '_act=delete&_source='+urlencode(rcmail.book_realname()), lock);
+        });
     }
 };
 
@@ -218,69 +207,14 @@ rcube_webmail.prototype.book_showurl = function()
     }
 
     if (url) {
-        $('div.showurldialog:ui-dialog').dialog('close');
-
         var txt = rcmail.gettext('carddavurldescription', 'kolab_addressbook'),
-            $dialog = $('<div>').addClass('showurldialog').append('<p>' + txt + '</p>'),
-            textbox = $('<textarea>').addClass('urlbox').css('width', '100%').attr('rows', 2).appendTo($dialog);
+            dialog = $('<div>').addClass('showurldialog').append('<p>' + txt + '</p>'),
+            textbox = $('<textarea>').addClass('urlbox').css('width', '100%').attr('rows', 3).appendTo(dialog);
 
-        $dialog.dialog({
-            resizable: true,
-            closeOnEscape: true,
-            title: rcmail.gettext('bookshowurl', 'kolab_addressbook'),
-            close: function() {
-                $dialog.dialog("destroy").remove();
-            },
-            width: 520
-        }).show();
+        this.simple_dialog(dialog, rcmail.gettext('bookshowurl', 'kolab_addressbook'), null, {width: 520});
 
         textbox.val(url).select();
     }
-};
-
-// displays page with book edit/create form
-rcube_webmail.prototype.book_show_contentframe = function(action, framed)
-{
-    var add_url = '', target = window;
-
-    // unselect contact
-    this.contact_list.clear_selection();
-    this.enable_command('edit', 'delete', 'compose', false);
-
-    if (this.env.contentframe && window.frames && window.frames[this.env.contentframe]) {
-        add_url = '&_framed=1';
-        target = window.frames[this.env.contentframe];
-        this.show_contentframe(true);
-    }
-    else if (framed)
-        return false;
-
-    if (action) {
-        this.lock_frame();
-        this.location_href(this.env.comm_path+'&_action=plugin.book&_act='+action
-            +'&_source='+urlencode(this.book_realname())
-            +add_url, target);
-    }
-
-    return true;
-};
-
-// submits book create/update form
-rcube_webmail.prototype.book_save = function()
-{
-    var form = this.gui_objects.editform,
-        input = $("input[name='_name']", form)
-
-    if (input.length && input.val() == '') {
-        alert(this.get_label('kolab_addressbook.nobooknamewarning'));
-        input.focus();
-        return;
-    }
-
-    input = this.display_message(this.get_label('kolab_addressbook.booksaving'), 'loading');
-    $('<input type="hidden" name="_unlock" />').val(input).appendTo(form);
-
-    form.submit();
 };
 
 // action executed after book delete
@@ -331,8 +265,6 @@ rcube_webmail.prototype.book_update = function(data, old)
                 title: this.gettext('kolab_addressbook.foldersubscribe')
             })
         );
-
-    this.show_contentframe(false);
 
     // set row attributes
     if (data.readonly)
@@ -588,7 +520,7 @@ rcube_webmail.prototype.close_contact_history_dialog = function(refresh)
 
 function kolab_addressbook_contextmenu()
 {
-    if (!window.rcm_callbackmenu_init) {
+    if (!rcmail.env.contextmenu) {
         return;
     }
 
@@ -597,101 +529,32 @@ function kolab_addressbook_contextmenu()
         rcmail.addEventListener('contextmenu_init', function(menu) {
             if (menu.menu_name == 'abooklist') {
                 menu.addEventListener('activate', function(p) {
-                    // deactivate kolab addressbook actions
-                    if (p.command.match(/^book-/)) {
-                        return p.command == 'book-create';
+                    var source = $(p.source).is('.addressbook') ? rcmail.html_identifier_decode($(p.source).attr('id').replace(/^rcmli/, '')) : null,
+                        sources = rcmail.env.address_sources,
+                        props = source && sources[source] && sources[source].kolab ?
+                            sources[source] : { readonly: true, removable: false, rights: '' };
+
+                    if (p.command == 'book-create') {
+                        return true;
                     }
-                });
-            }
-            else if (menu.menu_name == 'contactlist' && rcmail.env.kolab_audit_trail) {
-                // add "Show History" item to context menu
-                menu.menu_source.push({
-                    label: rcmail.get_label('kolab_addressbook.showhistory'),
-                    command: 'contact_history_dialog',
-                    classes: 'history'
-                });
-                // enable history item if the contact source supports it
-                menu.addEventListener('activate', function(p) {
-                    if (p.command == 'contact_history_dialog') {
-                        var source = rcmail.env.address_sources ? rcmail.env.address_sources[rcmail.env.source] : {};
-                        return !!source.audittrail;
+
+                    if (p.command == 'book-edit') {
+                        return props.rights.indexOf('a') >= 0;
+                    }
+
+                    if (p.command == 'book-delete') {
+                        return props.rights.indexOf('a') >= 0 || props.rights.indexOf('x') >= 0;
+                    }
+
+                    if (p.command == 'book-remove') {
+                        return props.removable;
+                    }
+
+                    if (p.command == 'book-showurl') {
+                        return !!(props.carddavurl);
                     }
                 });
             }
         });
     }
-
-    rcmail.env.kolab_addressbook_contextmenu = true;
-
-    // add menu on kolab addressbooks
-    var menu = rcm_callbackmenu_init({
-            menu_name: 'kolab_abooklist',
-            mouseover_timeout: -1, // no submenus here
-            menu_source: ['#directorylist-footer', '#groupoptionsmenu']
-        }, {
-            'activate': function(p) {
-                var source = !rcmail.env.group ? rcmail.env.source : null,
-                    sources = rcmail.env.address_sources,
-                    props = source && sources[source] && sources[source].kolab ?
-                        sources[source] : { readonly: true, removable: false, rights: '' };
-
-                if (p.command == 'book-create') {
-                    return true;
-                }
-
-                if (p.command == 'book-edit') {
-                    return props.rights.indexOf('a') >= 0;
-                }
-
-                if (p.command == 'book-delete') {
-                    return props.rights.indexOf('a') >= 0 || props.rights.indexOf('x') >= 0;
-                }
-
-                if (p.command == 'group-create') {
-                    return !props.readonly;
-                }
-
-                if (p.command == 'book-remove') {
-                    return props.removable;
-                }
-
-                if (p.command == 'book-showurl') {
-                    return !!(props.carddavurl);
-                }
-
-                if (p.command == 'group-rename' || p.command == 'group-delete') {
-                    return !!(rcmail.env.group && sources[rcmail.env.source] && !sources[rcmail.env.source].readonly);
-                }
-
-                return false;
-            },
-            'beforeactivate': function(p) {
-                // remove dummy items
-                $('li.submenu', p.ref.container).remove();
-
-                rcmail.env.kolab_old_source = rcmail.env.source;
-                rcmail.env.kolab_old_group = rcmail.env.group;
-
-                var elem = $(p.source), onclick = elem.attr('onclick');
-                if (onclick && onclick.match(rcmail.context_menu_command_pattern)) {
-                    rcmail.env.source = RegExp.$2;
-                    rcmail.env.group = null;
-                }
-                else if (elem.parent().hasClass('contactgroup')) {
-                    var grp = String(elem.attr('rel')).split(':');
-                    rcmail.env.source = grp[0];
-                    rcmail.env.group = grp[1];
-                }
-            },
-            'aftercommand': function(p) {
-                rcmail.env.source = rcmail.env.kolab_old_source;
-                rcmail.env.group = rcmail.env.kolab_old_group;
-            }
-        }
-    );
-
-    $('#directorylist').off('contextmenu').on('contextmenu', 'div > a, li.contactgroup > a', function(e) {
-        $(this).blur();
-        rcm_show_menu(e, this, $(this).attr('rel'), menu);
-    });
 };

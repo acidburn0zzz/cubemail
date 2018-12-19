@@ -42,6 +42,7 @@ class kolab_auth extends rcube_plugin
 
         $this->add_hook('authenticate', array($this, 'authenticate'));
         $this->add_hook('startup', array($this, 'startup'));
+        $this->add_hook('ready', array($this, 'ready'));
         $this->add_hook('user_create', array($this, 'user_create'));
 
         // Hook for password change
@@ -64,7 +65,6 @@ class kolab_auth extends rcube_plugin
         // Enable debug logs (per-user), when logged as another user
         if (!empty($_SESSION['kolab_auth_admin']) && $rcmail->config->get('kolab_auth_auditlog')) {
             $rcmail->config->set('debug_level', 1);
-            $rcmail->config->set('devel_mode', true);
             $rcmail->config->set('smtp_log', true);
             $rcmail->config->set('log_logins', true);
             $rcmail->config->set('log_session', true);
@@ -79,6 +79,69 @@ class kolab_auth extends rcube_plugin
             // the object is already initialized/configured
             if ($db = $rcmail->get_dbh()) {
                 $db->set_debug(true);
+            }
+        }
+    }
+
+    /**
+     * Ready hook handler
+     */
+    public function ready($args)
+    {
+        $rcmail = rcube::get_instance();
+
+        // Store user unique identifier for freebusy_session_auth feature
+        if (!($uniqueid = $rcmail->config->get('kolab_uniqueid'))) {
+            $uniqueid = $_SESSION['kolab_auth_uniqueid'];
+
+            if (!$uniqueid) {
+                // Find user record in LDAP
+                if (($ldap = self::ldap()) && $ldap->ready) {
+                    if ($record = $ldap->get_user_record($rcmail->get_user_name(), $_SESSION['kolab_host'])) {
+                        $uniqueid = $record['uniqueid'];
+                    }
+                }
+            }
+
+            if ($uniqueid) {
+                $uniqueid = md5($uniqueid);
+                $rcmail->user->save_prefs(array('kolab_uniqueid' => $uniqueid));
+            }
+        }
+
+        // Set/update freebusy_session_auth entry
+        if ($uniqueid && empty($_SESSION['kolab_auth_admin'])
+            && ($ttl = $rcmail->config->get('freebusy_session_auth'))
+        ) {
+            if ($ttl === true) {
+                $ttl = $rcmail->config->get('session_lifetime', 0) * 60;
+
+                if (!$ttl) {
+                    $ttl = 10 * 60;
+                }
+            }
+
+            $rcmail->config->set('freebusy_auth_cache', 'db');
+            $rcmail->config->set('freebusy_auth_cache_ttl', $ttl);
+
+            if ($cache = $rcmail->get_cache_shared('freebusy_auth', false)) {
+                $key      = md5($uniqueid . ':' . rcube_utils::remote_addr() . ':' . $rcmail->get_user_name());
+                $value    = $cache->get($key);
+                $deadline = new DateTime('now', new DateTimeZone('UTC'));
+
+                // We don't want to do the cache update on every request
+                // do it once in a 1/10 of the ttl
+                if ($value) {
+                    $value = new DateTime($value);
+                    $value->sub(new DateInterval('PT' . intval($ttl * 9/10) . 'S'));
+                    if ($value > $deadline) {
+                        return;
+                    }
+                }
+
+                $deadline->add(new DateInterval('PT' . $ttl . 'S'));
+
+                $cache->set($key, $deadline->format(DateTime::ISO8601));
             }
         }
     }
@@ -158,7 +221,7 @@ class kolab_auth extends rcube_plugin
      * Modifies list of plugins and settings according to
      * specified LDAP roles
      */
-    public function load_user_role_plugins_and_settings()
+    public function load_user_role_plugins_and_settings($startup = false)
     {
         if (empty($_SESSION['user_roledns'])) {
             return;
@@ -263,7 +326,16 @@ class kolab_auth extends rcube_plugin
 
             if (!empty($role_plugins[$role_dn])) {
                 foreach ((array)$role_plugins[$role_dn] as $plugin) {
-                    $this->api->load_plugin($plugin);
+                    $loaded = $this->api->load_plugin($plugin);
+
+                    // Some plugins e.g. kolab_2fa use 'startup' hook to
+                    // register other hooks, but when called on 'authenticate' hook
+                    // we're already after 'startup', so we'll call it directly
+                    if ($loaded && $startup && $plugin == 'kolab_2fa'
+                        && ($plugin = $this->api->get_plugin($plugin))
+                    ) {
+                        $plugin->startup(array('task' => $rcmail->task, 'action' => $rcmail->action));
+                    }
                 }
             }
         }
@@ -294,13 +366,15 @@ class kolab_auth extends rcube_plugin
             }
         }
         // Define the user log directory if a username is provided
-        else if ($rcmail->config->get('per_user_logging') && !empty($this->username)) {
+        else if ($rcmail->config->get('per_user_logging') && !empty($this->username)
+            && !stripos($log_dir, '/' . $this->username) // maybe already set by syncroton, skip
+        ) {
             $user_log_dir = $log_dir . '/' . strtolower($this->username);
             if (is_writable($user_log_dir)) {
                 $args['dir'] = $user_log_dir;
             }
-            else if ($args['name'] != 'errors') {
-                $args['abort'] = true;  // don't log if unauthenticed
+            else if (!in_array($args['name'], array('errors', 'userlogins', 'sendmail'))) {
+                $args['abort'] = true;  // don't log if unauthenticed or no per-user log dir
             }
         }
 
@@ -390,17 +464,10 @@ class kolab_auth extends rcube_plugin
 
         $ldap = self::ldap();
         if (!$ldap || !$ldap->ready) {
-            $args['abort'] = true;
-            $args['kolab_ldap_error'] = true;
-            $message = sprintf(
-                    'Login failure for user %s from %s in session %s (error %s)',
-                    $user,
-                    rcube_utils::remote_ip(),
-                    session_id(),
-                    "LDAP not ready"
-                );
+            self::log_login_error($user, "LDAP not ready");
 
-            rcube::write_log('userlogins', $message);
+            $args['abort']            = true;
+            $args['kolab_ldap_error'] = true;
 
             return $args;
         }
@@ -409,16 +476,9 @@ class kolab_auth extends rcube_plugin
         $record = $ldap->get_user_record($user, $host);
 
         if (empty($record)) {
-            $args['abort'] = true;
-            $message = sprintf(
-                    'Login failure for user %s from %s in session %s (error %s)',
-                    $user,
-                    rcube_utils::remote_ip(),
-                    session_id(),
-                    "No user record found"
-                );
+            self::log_login_error($user, "No user record found");
 
-            rcube::write_log('userlogins', $message);
+            $args['abort'] = true;
 
             return $args;
         }
@@ -452,16 +512,9 @@ class kolab_auth extends rcube_plugin
             $result = $ldap->bind($record['dn'], $pass);
 
             if (!$result) {
-                $args['abort'] = true;
-                $message = sprintf(
-                        'Login failure for user %s from %s in session %s (error %s)',
-                        $user,
-                        rcube_utils::remote_ip(),
-                        session_id(),
-                        "Unable to bind with '" . $record['dn'] . "'"
-                    );
+                self::log_login_error($user, "Unable to bind with '" . $record['dn'] . "'");
 
-                rcube::write_log('userlogins', $message);
+                $args['abort'] = true;
 
                 return $args;
             }
@@ -549,16 +602,7 @@ class kolab_auth extends rcube_plugin
                     'vars' => array('user' => rcube::Q($loginas)),
                 ));
 
-                $message = sprintf(
-                        'Login failure for user %s (as user %s) from %s in session %s (error %s)',
-                        $user,
-                        $loginas,
-                        rcube_utils::remote_ip(),
-                        session_id(),
-                        "No privileges to login as '" . $loginas . "'"
-                    );
-
-                rcube::write_log('userlogins', $message);
+                self::log_login_error($user, "No privileges to login as '" . $loginas . "'", $loginas);
 
                 return $args;
             }
@@ -584,6 +628,12 @@ class kolab_auth extends rcube_plugin
         // which is executed on every request (via startup hook) and where
         // we don't like to use LDAP (connection + bind + search)
         $_SESSION['kolab_auth_vars'] = $ldap->get_parse_vars();
+
+        // Store user unique identifier for freebusy_session_auth feature
+        $_SESSION['kolab_auth_uniqueid'] = is_array($record['uniqueid']) ? $record['uniqueid'][0] : $record['uniqueid'];
+
+        // Store also host as we need it for get_user_reacod() in 'ready' hook handler
+        $_SESSION['kolab_host'] = $host;
 
         // Set user login
         if ($login_attr) {
@@ -624,7 +674,7 @@ class kolab_auth extends rcube_plugin
         }
 
         // load per-user settings/plugins
-        $this->load_user_role_plugins_and_settings();
+        $this->load_user_role_plugins_and_settings(true);
 
         return $args;
     }
@@ -762,11 +812,24 @@ class kolab_auth extends rcube_plugin
             return null;
         }
 
+        $addressbook['fieldmap']['uniqueid'] = 'nsuniqueid';
+
         require_once __DIR__ . '/kolab_auth_ldap.php';
 
         self::$ldap = new kolab_auth_ldap($addressbook);
 
         return self::$ldap;
+    }
+
+    /**
+     * Close LDAP connection
+     */
+    public static function ldap_close()
+    {
+        if (self::$ldap) {
+            self::$ldap->close();
+            self::$ldap = null;
+        }
     }
 
     /**
@@ -784,5 +847,45 @@ class kolab_auth extends rcube_plugin
         }
 
         return $str;
+    }
+
+    /**
+     * Log failed logins
+     *
+     * @param string $username Username/Login
+     * @param string $message  Error message (failure reason)
+     * @param string $login_as Username/Login of "login as" user
+     */
+    public static function log_login_error($username, $message = null, $login_as = null)
+    {
+        $config = rcube::get_instance()->config;
+
+        if ($config->get('log_logins')) {
+            // don't fill the log with complete input, which could
+            // have been prepared by a hacker
+            if (strlen($username) > 256) {
+                $username = substr($username, 0, 256) . '...';
+            }
+            if (strlen($login_as) > 256) {
+                $login_as = substr($login_as, 0, 256) . '...';
+            }
+
+            if ($login_as) {
+                $username = sprintf('%s (as user %s)', $username, $login_as);
+            }
+
+            $message = sprintf(
+                "Failed login for %s from %s in session %s %s",
+                $username,
+                rcube_utils::remote_ip(),
+                session_id() ?: 'no-session',
+                $message ? "($message)" : ''
+            );
+
+            rcube::write_log('userlogins', $message);
+
+            // disable log_logins to prevent from duplicate log entries
+            $config->set('log_logins', false);
+        }
     }
 }

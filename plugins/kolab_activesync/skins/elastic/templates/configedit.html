@@ -1,0 +1,23 @@
+<roundcube:include file="includes/layout.html" />
+
+<h1 class="voice"><roundcube:label name="kolab_activesync.syncsettings" /></h1>
+
+<div class="formcontent">
+	<form action="#" method="post" id="configform" class="propform">
+		<fieldset>
+			<legend><roundcube:label name="kolab_activesync.deviceconfig" /></legend>
+			<roundcube:object name="plugin.deviceconfigform" form="configform" class="propform" />
+		</fieldset>
+		<fieldset>
+			<legend><roundcube:label name="kolab_activesync.folderstosync" /></legend>
+			<roundcube:object name="plugin.foldersubscriptions" form="configform"
+				id="foldersubscriptions" use-fieldsets="true" class="tabbed" />
+		</fieldset>
+	</form>
+</div>
+
+<div class="formbuttons">
+	<roundcube:button command="plugin.save-config" class="btn btn-primary submit" label="save" />
+</div>
+
+<roundcube:include file="includes/footer.html" />

@@ -80,6 +80,7 @@
   vertical-align: top;
   color: #555;
   text-shadow: 0 1px 1px #eee;
+  display: inline-block;
 }
 
 ul.toolbarmenu li span.saveas {
@@ -376,7 +377,7 @@ ul.toolbarmenu li span.saveas {
   table-layout: fixed;
 }
 
-#fileinfobox table td.label {
+#fileinfobox table td.title {
   width: 60px;
   font-weight: bold;
   padding-right: 0;
@@ -627,4 +628,31 @@ table.propform td.source table.propform td {
   width: 1%;
   white-space: nowrap;
   font-weight: bold;
+}
+
+#folder-share table {
+  margin-top: 20px;
+  width: 100%;
+}
+
+#folder-share table th {
+  text-align: left;
+}
+
+#folder-share table th,
+#folder-share table td {
+  padding: 5px;
+}
+
+#folder-share table td:last-child {
+  width: 1%;
+}
+
+#folder-share table select,
+#folder-share table input {
+  width: 100%;
+}
+
+#folder-share table td.form input {
+  margin-bottom: 4px;
 }

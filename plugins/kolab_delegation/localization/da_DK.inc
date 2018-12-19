@@ -11,7 +11,7 @@ $labels['delegationtitle'] = 'Manage delegates';
 $labels['delegates'] = 'Delegerede';
 $labels['delegate'] = 'Delegér';
 $labels['mail'] = 'E-post';
-$labels['contact'] = 'Adressebøger';
+$labels['contact'] = 'Kontakter';
 $labels['event'] = 'Kalendere';
 $labels['task'] = 'Opgaver';
 $labels['note'] = 'Noter';
@@ -31,4 +31,6 @@ $labels['updatesuccess'] = 'Gennemførte opdatering af delegerede.';
 $labels['updateerror'] = 'Kunne ikke opdatere delegerede.';
 $labels['createsuccess'] = 'Gennemførte tilføjelse af den delegerede.';
 $labels['createerror'] = 'Kunne ikke tilføje delegerede.';
+$labels['arialabeldelegatedelete'] = 'Vindue til sletning af delegeret';
+$labels['arialabeldelegateform'] = 'Formular med egenskaber for delegeret';
 ?>

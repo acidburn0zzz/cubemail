@@ -1,7 +1,12 @@
 [main]
 host = https://www.transifex.com
-lang_map = en: en_US, de: de_DE, da: da_DK, es: es_ES, fi: fi_FI, fr: fr_FR, ja: ja_JP, nl: nl_NL, cs: cs_CZ, vi: vi_VN, pl: pl_PL, th: th_TH, sv: sv_SE, he: he_IL, hr: hr_HR, sk: sk_SK, sl: sl_SI, uk: uk_UA
+lang_map = en: en_US, de: de_DE, da: da_DK, es: es_ES, fi: fi_FI, fr: fr_FR, ja: ja_JP, nl: nl_NL, cs: cs_CZ, vi: vi_VN, th: th_TH, sv: sv_SE, he: he_IL, hr: hr_HR, sk: sk_SK, sl: sl_SI, uk: uk_UA
 type = PHP_ALT_ARRAY
+
+[kolab.kolab_2fa]
+file_filter = plugins/kolab_2fa/localization/<lang>.inc
+source_file = plugins/kolab_2fa/localization/en_US.inc
+source_lang = en_US
 
 [kolab.calendar]
 file_filter = plugins/calendar/localization/<lang>.inc
@@ -71,6 +76,11 @@ file_filter = plugins/kolab_auth/localization/<lang>.inc
 source_file = plugins/kolab_auth/localization/en_US.inc
 source_lang = en_US
 
+[kolab.kolab_chat]
+file_filter = plugins/kolab_chat/localization/<lang>.inc
+source_file = plugins/kolab_chat/localization/en_US.inc
+source_lang = en_US
+
 [kolab.kolab_delegation]
 file_filter = plugins/kolab_delegation/localization/<lang>.inc
 source_file = plugins/kolab_delegation/localization/en_US.inc
@@ -91,14 +101,14 @@ file_filter = plugins/kolab_notes/localization/<lang>.inc
 source_file = plugins/kolab_notes/localization/en_US.inc
 source_lang = en_US
 
+[kolab.kolab_sso]
+file_filter = plugins/kolab_sso/localization/<lang>.inc
+source_file = plugins/kolab_sso/localization/en_US.inc
+source_lang = en_US
+
 [kolab.kolab_tags]
 file_filter = plugins/kolab_tags/localization/<lang>.inc
 source_file = plugins/kolab_tags/localization/en_US.inc
-source_lang = en_US
-
-[kolab.owncloud]
-file_filter = plugins/owncloud/localization/<lang>.inc
-source_file = plugins/owncloud/localization/en_US.inc
 source_lang = en_US
 
 [kolab.tasklist]

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab libkolab plugin
  *
@@ -7,14 +6,14 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
-
-$labels = array();
+$labels['compare'] = 'Порівняти';
+$labels['objectchangelog'] = 'Історія';
 $labels['revision'] = 'Ревізія';
 $labels['user'] = 'Користувач';
 $labels['operation'] = 'Дія';
 $labels['actionappend'] = 'Збережено';
 $labels['actionmove'] = 'Переміщено';
 $labels['actiondelete'] = 'Вилучено';
-$labels['compare'] = 'Порівняти';
 $labels['showrevision'] = 'Показати дану весію';
 $labels['restore'] = 'Відновити дану версію';
+$labels['tabsharing'] = 'Спільне використання';

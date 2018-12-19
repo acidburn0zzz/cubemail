@@ -29,7 +29,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     var highsec_call_stack = [];
     var highsec_dialog;
     var factor_dialog;
-    
+
+    if (!rcmail.env.kolab_2fa_factors) {
+        rcmail.env.kolab_2fa_factors = {};
+    }
+
     /**
      * Equivalend of PHP time()
      */
@@ -47,10 +51,13 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         var rows = 0;
         $.each(rcmail.env.kolab_2fa_factors, function(id, props) {
             if (props.active) {
-                var tr = $('<tr>').addClass(props.method).appendTo(table);
+                var tr = $('<tr>').addClass(props.method).appendTo(table),
+                    button = $('<a class="button icon delete">').attr({href: '#', rel: id})
+                        .append($('<span class="inner">').text(rcmail.get_label('remove','kolab_2fa')));
+
                 $('<td>').addClass('name').text(props.label || props.name).appendTo(tr);
                 $('<td>').addClass('created').text(props.created || '??').appendTo(tr);
-                $('<td>').addClass('actions').html('<a class="button delete" rel="'+id+'">' + rcmail.get_label('remove','kolab_2fa') + '</a>').appendTo(tr);
+                $('<td>').addClass('actions buttons-cell').append(button).appendTo(tr);
                 rows++;
             }
         });
@@ -76,13 +83,14 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                 [
                     {
                         text: rcmail.gettext('save', 'kolab_2fa'),
-                        'class': 'mainaction',
+                        'class': 'mainaction save',
                         click: function(e) {
                             save_data(method);
                         }
                     },
                     {
                         text: rcmail.gettext('cancel'),
+                        'class': 'cancel',
                         click: function() {
                             factor_dialog.dialog('close');
                         }
@@ -102,7 +110,6 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                     }
                 }
             )
-            .addClass('propform')
             .data('method', method)
             .data('timestamp', time());
 
@@ -220,10 +227,11 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                                     highsec_dialog.find('input[name="_code"]').select();
                                 }
                             },
-                            'class': 'mainaction'
+                            'class': 'mainaction save'
                         },
                         {
                             text: rcmail.gettext('cancel'),
+                            'class': 'cancel',
                             click: function() {
                                 highsec_dialog.dialog('close');
                             }

@@ -12,9 +12,9 @@ necessary. To do so, execute the SQL commands in
 drivers/database/SQL/<yourdatabase>.initial.sql
 
 For some general calendar-based operations such as alarms handling, this
-plugin requires the `libcalendaring` plugin which is also part of the
-Kolab Roundcube Plugins repository. Make sure that plugin is installed
-and configured correctly.
+plugin requires the `libcalendaring` plugin, as well as libkolab plugin
+for more skins support, which are also part of the Kolab Roundcube Plugins
+repository. Make sure these plugins are installed and configured correctly.
 
 IMPORTANT
 ---------

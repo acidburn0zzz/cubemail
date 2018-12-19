@@ -1,7 +1,7 @@
 /**
  * libkolab database schema
  *
- * @version 1.1
+ * @version 1.2
  * @author Thomas Bruederli
  * @licence GNU AGPL
  **/
@@ -21,7 +21,7 @@ CREATE INDEX ix_resource_type ON kolab_folders(resource, type);
 CREATE TABLE kolab_cache_contact (
   folder_id INTEGER NOT NULL,
   msguid INTEGER NOT NULL,
-  uid VARCHAR(128) NOT NULL,
+  uid VARCHAR(512) NOT NULL,
   created DATETIME DEFAULT NULL,
   changed DATETIME DEFAULT NULL,
   data TEXT NOT NULL,
@@ -42,7 +42,7 @@ CREATE INDEX ix_contact_uid2msguid ON kolab_cache_contact(folder_id,uid,msguid);
 CREATE TABLE kolab_cache_event (
   folder_id INTEGER NOT NULL,
   msguid INTEGER NOT NULL,
-  uid VARCHAR(128) NOT NULL,
+  uid VARCHAR(512) NOT NULL,
   created DATETIME DEFAULT NULL,
   changed DATETIME DEFAULT NULL,
   data TEXT NOT NULL,
@@ -59,7 +59,7 @@ CREATE INDEX ix_event_uid2msguid ON kolab_cache_event(folder_id,uid,msguid);
 CREATE TABLE kolab_cache_task (
   folder_id INTEGER NOT NULL,
   msguid INTEGER NOT NULL,
-  uid VARCHAR(128) NOT NULL,
+  uid VARCHAR(512) NOT NULL,
   created DATETIME DEFAULT NULL,
   changed DATETIME DEFAULT NULL,
   data TEXT NOT NULL,
@@ -76,7 +76,7 @@ CREATE INDEX ix_task_uid2msguid ON kolab_cache_task(folder_id,uid,msguid);
 CREATE TABLE kolab_cache_journal (
   folder_id INTEGER NOT NULL,
   msguid INTEGER NOT NULL,
-  uid VARCHAR(128) NOT NULL,
+  uid VARCHAR(512) NOT NULL,
   created DATETIME DEFAULT NULL,
   changed DATETIME DEFAULT NULL,
   data TEXT NOT NULL,
@@ -93,7 +93,7 @@ CREATE INDEX ix_journal_uid2msguid ON kolab_cache_journal(folder_id,uid,msguid);
 CREATE TABLE kolab_cache_note (
   folder_id INTEGER NOT NULL,
   msguid INTEGER NOT NULL,
-  uid VARCHAR(128) NOT NULL,
+  uid VARCHAR(512) NOT NULL,
   created DATETIME DEFAULT NULL,
   changed DATETIME DEFAULT NULL,
   data TEXT NOT NULL,
@@ -108,7 +108,7 @@ CREATE INDEX ix_note_uid2msguid ON kolab_cache_note(folder_id,uid,msguid);
 CREATE TABLE kolab_cache_file (
   folder_id INTEGER NOT NULL,
   msguid INTEGER NOT NULL,
-  uid VARCHAR(128) NOT NULL,
+  uid VARCHAR(512) NOT NULL,
   created DATETIME DEFAULT NULL,
   changed DATETIME DEFAULT NULL,
   data TEXT NOT NULL,
@@ -125,7 +125,7 @@ CREATE INDEX ix_file_uid2msguid ON kolab_cache_file(folder_id,uid,msguid);
 CREATE TABLE kolab_cache_configuration (
   folder_id INTEGER NOT NULL,
   msguid INTEGER NOT NULL,
-  uid VARCHAR(128) NOT NULL,
+  uid VARCHAR(512) NOT NULL,
   created DATETIME DEFAULT NULL,
   changed DATETIME DEFAULT NULL,
   data TEXT NOT NULL,
@@ -142,7 +142,7 @@ CREATE INDEX ix_configuration_uid2msguid ON kolab_cache_configuration(folder_id,
 CREATE TABLE kolab_cache_freebusy (
   folder_id INTEGER NOT NULL,
   msguid INTEGER NOT NULL,
-  uid VARCHAR(128) NOT NULL,
+  uid VARCHAR(512) NOT NULL,
   created DATETIME DEFAULT NULL,
   changed DATETIME DEFAULT NULL,
   data TEXT NOT NULL,
@@ -156,4 +156,4 @@ CREATE TABLE kolab_cache_freebusy (
 
 CREATE INDEX ix_freebusy_uid2msguid ON kolab_cache_freebusy(folder_id,uid,msguid);
 
-INSERT INTO system (name, value) VALUES ('libkolab-version', '2015020600');
+INSERT INTO system (name, value) VALUES ('libkolab-version', '2018021300');

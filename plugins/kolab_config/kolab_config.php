@@ -28,7 +28,7 @@
 
 class kolab_config extends rcube_plugin
 {
-    public $task = 'utils';
+    public $task = 'utils|mail';
 
     private $config;
     private $dicts = array();

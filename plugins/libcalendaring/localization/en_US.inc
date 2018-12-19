@@ -70,7 +70,9 @@ $labels['days'] = 'day(s)';
 $labels['weeks'] = 'week(s)';
 $labels['months'] = 'month(s)';
 $labels['years'] = 'year(s)';
+$labels['bydates'] = 'On';
 $labels['bydays'] = 'On';
+$labels['bymonths'] = 'On';
 $labels['untildate'] = 'the';
 $labels['each'] = 'Each';
 $labels['onevery'] = 'On every';
@@ -78,7 +80,9 @@ $labels['onsamedate'] = 'On the same date';
 $labels['forever'] = 'forever';
 $labels['recurrencend'] = 'until';
 $labels['untilenddate'] = 'until date';
-$labels['forntimes'] = 'for $nr time(s)';
+$labels['forntimes'] = 'for $nr time(s)'; // old
+$labels['ntimes'] = '$n time(s)';
+$labels['for'] = 'for';
 $labels['first'] = 'first';
 $labels['second'] = 'second';
 $labels['third'] = 'third';
@@ -87,6 +91,16 @@ $labels['last'] = 'last';
 $labels['dayofmonth'] = 'Day of month';
 $labels['addrdate'] = 'Add repeat date';
 $labels['except'] = 'except';
+
+$labels['statusorganizer'] = 'Organizer';
+$labels['statusaccepted'] = 'Accepted';
+$labels['statustentative'] = 'Tentative';
+$labels['statusdeclined'] = 'Declined';
+$labels['statusdelegated'] = 'Delegated';
+$labels['statusneeds-action'] = 'Needs action';
+$labels['statusunknown'] = 'Unknown';
+$labels['statuscompleted'] = 'Completed';
+$labels['statusin-process'] = 'In process';
 
 // itip related labels
 $labels['itipinvitation'] = 'Invitation to';
@@ -165,8 +179,11 @@ $labels['delegateinvitation'] = 'Delegate Invitation';
 $labels['delegateto'] = 'Delegate to';
 $labels['delegatersvpme'] = 'Keep me informed about updates of this incidence';
 $labels['delegateinvalidaddress'] = 'Please enter a valid email address for the delegate';
+$labels['delegatedto'] = 'Delegated to:';
+$labels['delegatedfrom'] = 'Delegated from:';
 
 $labels['savingdata'] = 'Saving data...';
+$labels['savein'] = 'Save in';
 
 // attendees labels
 $labels['expandattendeegroup'] = 'Substitute with group members';

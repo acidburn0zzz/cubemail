@@ -7,7 +7,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2011-2015, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2016, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -27,17 +27,32 @@
  */
 
 window.rcmail && rcmail.addEventListener('init', function(evt) {
-  if (rcmail.env.task == 'mail' || rcmail.env.task == 'calendar') {
-    // set delegator context for calendar requests on invitation message
-    rcmail.addEventListener('requestcalendar/event', function(o) { rcmail.event_delegator_request(o); });
-    rcmail.addEventListener('requestcalendar/mailimportevent', function(o) { rcmail.event_delegator_request(o); });
+  if (rcmail.env.task == 'mail' || rcmail.env.task == 'calendar' || rcmail.env.task == 'tasks') {
+    // set delegator context for calendar/tasklist requests on invitation message
+    rcmail.addEventListener('requestcalendar/event', function(o) { rcmail.event_delegator_request(o); })
+      .addEventListener('requestcalendar/mailimportitip', function(o) { rcmail.event_delegator_request(o); })
+      .addEventListener('requestcalendar/itip-status', function(o) { rcmail.event_delegator_request(o); })
+      .addEventListener('requestcalendar/itip-remove', function(o) { rcmail.event_delegator_request(o); })
+      .addEventListener('requesttasks/task', function(o) { rcmail.event_delegator_request(o); })
+      .addEventListener('requesttasks/mailimportitip', function(o) { rcmail.event_delegator_request(o); })
+      .addEventListener('requesttasks/itip-status', function(o) { rcmail.event_delegator_request(o); })
+      .addEventListener('requesttasks/itip-remove', function(o) { rcmail.event_delegator_request(o); });
 
+    // Calendar UI
     if (rcmail.env.delegators && window.rcube_calendar_ui) {
-      rcmail.calendar_identity_init();
+      rcmail.calendar_identity_init('calendar');
       // delegator context for calendar event form
-      rcmail.addEventListener('calendar-event-init', function(o) { return rcmail.calendar_event_init(o); });
+      rcmail.addEventListener('calendar-event-init', function(o) { return rcmail.calendar_event_init(o, 'calendar'); });
       // change organizer identity on calendar folder change
-      $('#edit-calendar').change(function() { rcmail.calendar_change(); });
+      $('#edit-calendar').change(function() { rcmail.calendar_folder_change(this); });
+    }
+    // Tasks UI
+    else if (rcmail.env.delegators && window.rcube_tasklist_ui) {
+      rcmail.calendar_identity_init('tasklist');
+      // delegator context for task form
+      rcmail.addEventListener('tasklist-task-init', function(o) { return rcmail.calendar_event_init(o, 'tasklist'); });
+      // change organizer identity on tasks folder change
+      $('#taskedit-tasklist').change(function() { rcmail.calendar_folder_change(this); });
     }
   }
   else if (rcmail.env.task != 'settings')
@@ -78,7 +93,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
       });
 
       var fn = function(elem) {
-        var classname = elem.className,
+        var classname = elem.className.split(' ')[0],
           list = $(elem).closest('table').find('input.' + classname),
           check = list.not(':checked').length > 0;
 
@@ -149,29 +164,24 @@ rcube_webmail.prototype.delegate_delete = function()
   if (!this.env.active_delegate)
     return;
 
-  var $dialog = $("#delegate-delete-dialog").addClass('uidialog'),
-    buttons = {};
-
-  buttons[this.gettext('no', 'kolab_delegation')] = function() {
-    $dialog.dialog('close');
-  };
-  buttons[this.gettext('yes', 'kolab_delegation')] = function() {
-    $dialog.dialog('close');
-    var lock = rcmail.set_busy(true, 'kolab_delegation.savingdata');
-    rcmail.http_post('plugin.delegation-delete', {id: rcmail.env.active_delegate,
-      acl: $("#delegate-delete-dialog input:checked").length}, lock);
-  }
+  var content = $("#delegate-delete-dialog").addClass('uidialog').clone(),
+    title = this.gettext('deleteconfirm', 'kolab_delegation'),
+    save_func = function() {
+      var lock = rcmail.set_busy(true, 'kolab_delegation.savingdata'),
+        props = {id: rcmail.env.active_delegate, acl: $("#delegate-delete-dialog input:checked").length};
+      rcmail.http_post('plugin.delegation-delete', props, lock);
+      return true;
+    },
+    opts = {
+      resizable: false,
+      closeOnEscape: true,
+      width: 400,
+      button: 'kolab_delegation.yes',
+      cancel_button: 'kolab_delegation.no'
+    };
 
   // open jquery UI dialog
-  $dialog.dialog({
-    modal: true,
-    resizable: false,
-    closeOnEscape: true,
-    title: this.gettext('deleteconfirm', 'kolab_delegation'),
-    close: function() { $dialog.dialog('destroy').hide(); },
-    buttons: buttons,
-    width: 400
-  }).show();
+  this.simple_dialog(content, title, save_func, opts);
 };
 
   // submit delegate form to the server
@@ -188,8 +198,8 @@ rcube_webmail.prototype.delegate_save = function()
   }
 
   data.folders = {};
-  $('input.read:checked').each(function(i, elem) {
-    data.folders[elem.value] = 1;
+  $('input.read').each(function(i, elem) {
+    data.folders[elem.value] = this.checked ? 1 : 0;
   });
   $('input.write:checked').each(function(i, elem) {
     data.folders[elem.value] = 2;
@@ -248,27 +258,31 @@ rcube_webmail.prototype.event_delegator_request = function(data)
   return data;
 };
 
-// callback for calendar event form initialization
-rcube_webmail.prototype.calendar_event_init = function(data)
+// callback for calendar event/task form initialization
+rcube_webmail.prototype.calendar_event_init = function(data, type)
 {
+  var folder = data.o[type == 'calendar' ? 'calendar' : 'list']
+
   // set identity for delegator context
-  this.env.calendar_settings.identity = this.calendar_folder_delegator(data.o.calendar);
+  this.env[type + '_settings'].identity = this.calendar_folder_delegator(folder, type);
 };
 
-// returns delegator's identity data according to selected calendar folder
-rcube_webmail.prototype.calendar_folder_delegator = function(calendar)
+// returns delegator's identity data according to selected calendar/tasks folder
+rcube_webmail.prototype.calendar_folder_delegator = function(folder, type)
 {
-  var d, delegator;
+  var d, delegator,
+    settings = this.env[type + '_settings'],
+    list = this.env[type == 'calendar' ? 'calendars' : 'tasklists'];
 
   // derive delegator from the calendar owner property
-  if (this.env.calendars[calendar] && this.env.calendars[calendar].owner) {
-    delegator = this.env.calendars[calendar].owner.replace(/@.+$/, '');
+  if (list[folder] && list[folder].owner) {
+    delegator = list[folder].owner.replace(/@.+$/, '');
   }
 
   if (delegator && (d = this.env.delegators[delegator])) {
     // find delegator's identity id
     if (!d.identity_id)
-      $.each(this.env.calendar_settings.identities, function(i, v) {
+      $.each(settings.identities, function(i, v) {
         if (d.email == v) {
           d.identity_id = i;
           return false;
@@ -285,26 +299,28 @@ rcube_webmail.prototype.calendar_folder_delegator = function(calendar)
   return d;
 };
 
-// handler for calendar folder change
-rcube_webmail.prototype.calendar_change = function()
+// handler for calendar/tasklist folder change
+rcube_webmail.prototype.calendar_folder_change = function(element)
 {
-  var calendar = $('#edit-calendar').val(),
+  var folder = $(element).val(),
+    type = element.id.indexOf('task') > -1 ? 'tasklist' : 'calendar',
+    sname = type + '_settings',
     select = $('#edit-identities-list'),
-    old = this.env.calendar_settings.identity;
+    old = this.env[sname].identity;
 
-  this.env.calendar_settings.identity = this.calendar_folder_delegator(calendar);
+  this.env[sname].identity = this.calendar_folder_delegator(folder, type);
 
   // change organizer identity in identity selector
-  if (select.length && old != this.env.calendar_settings.identity) {
-    var id = this.env.calendar_settings.identity.identity_id;
+  if (select.length && old != this.env[sname].identity) {
+    var id = this.env[sname].identity.identity_id;
     select.val(id || select.find('option').first().val()).change();
   }
 };
 
 // modify default identity of the user
-rcube_webmail.prototype.calendar_identity_init = function()
+rcube_webmail.prototype.calendar_identity_init = function(type)
 {
-  var identity = this.env.calendar_settings.identity,
+  var identity = this.env[type + '_settings'].identity,
     emails = identity.emails.split(';');
 
   // remove delegators' emails from list of emails of the current user
@@ -317,4 +333,4 @@ rcube_webmail.prototype.calendar_identity_init = function()
 
   identity.emails = emails.join(';');
   this.env.original_identity = identity;
-}
+};

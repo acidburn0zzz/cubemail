@@ -6,7 +6,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2014, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2014-2017, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,99 +25,73 @@
  * for the JavaScript code in this file.
  */
 
-
 window.rcmail && rcmail.addEventListener('init', function(evt) {
     /**
      * Open the notes edit GUI in a jquery UI dialog
      */
     function kolab_note_dialog(url)
     {
-        var frame, name, mywin = window, edit = url && url._id,
-            $dialog = $('#kolabnotesinlinegui');
-
-        function dialog_render(p)
-        {
-            $dialog.parent().find('.ui-dialog-buttonset .ui-button')
-                .prop('disabled', p.readonly)
-                .last().prop('disabled', false);
-        }
-
-        // create dialog if not exists
-        if (!$dialog.length) {
-            $dialog = $('<iframe>')
-                .attr('id', 'kolabnotesinlinegui')
-                .attr('name', 'kolabnotesdialog')
-                .attr('src', 'about:blank')
-                .css('min-width', '100%')
-                .on('load', function(e) {
-                    frame = rcmail.get_frame_window('kolabnotesinlinegui');
-                    name = $('.notetitle', frame.rcmail.gui_objects.noteviewtitle);
-                    frame.rcmail.addEventListener('responseafteraction', refresh_mailview);
-                });
-
-            // subscribe event in parent window which is also triggered from iframe
-            // (probably before the 'load' event from above)
-            rcmail.addEventListener('kolab_notes_render', dialog_render);
-        }
-        // close show dialog first
-        else if ($dialog.is(':ui-dialog')) {
-            $dialog.dialog('close');
-        }
-
         if (!url) url = {};
         url._framed = 1;
-        $dialog.attr('src', rcmail.url('notes/dialog-ui', url));
+
+        var $dialog, frame, buttons = {},
+            button_classes = ['mainaction save'],
+            edit = url._id,
+            title = edit ? rcmail.gettext('kolab_notes.editnote') : rcmail.gettext('kolab_notes.appendnote'),
+            dialog_render = function(p) {
+                $dialog.parent().find('.ui-dialog-buttonset .ui-button')
+                    .prop('disabled', p.readonly)
+                    .last().prop('disabled', false);
+            };
+
+        $dialog = $('<iframe>').attr({
+                id: 'kolabnotesinlinegui',
+                name: 'kolabnotesdialog',
+                src: rcmail.url('notes/dialog-ui', url)
+            }).on('load', function(e) {
+                frame = rcmail.get_frame_window('kolabnotesinlinegui');
+                frame.rcmail.addEventListener('responseafteraction', refresh_mailview);
+            });
+
+        // subscribe event in parent window which is also triggered from iframe
+        // (probably before the 'load' event from above)
+        rcmail.addEventListener('kolab_notes_render', dialog_render);
 
         // dialog buttons
-        var buttons = {};
         buttons[rcmail.gettext('save')] = function() {
             // frame is not loaded
             if (!frame)
                 return;
 
-            // do some input validation
-            if (!name.val() || name.val().length < 2) {
-                alert(rcmail.gettext('entertitle', 'kolab_notes'));
-                name.select();
-                return;
-            }
-
             frame.rcmail.command('save');
         };
 
         if (edit) {
+            button_classes.push('delete');
             buttons[rcmail.gettext('delete')] = function() {
                 if (confirm(rcmail.gettext('deletenotesconfirm','kolab_notes'))) {
                     rcmail.addEventListener('responseafteraction', refresh_mailview);
                     rcmail.http_post('notes/action', { _data: { uid: url._id, list: url._list }, _do: 'delete' }, true);
-                    $dialog.dialog('close');
+                    $dialog.dialog('destroy');
                 }
             };
         }
 
+        button_classes.push('cancel');
         buttons[rcmail.gettext(edit ? 'close' : 'cancel')] = function() {
-            $dialog.dialog('close');
+            $dialog.dialog('destroy');
         };
 
         // open jquery UI dialog
-        var win = $(window);
-        $dialog.dialog({
-            modal: true,
-            resizable: true,
-            closeOnEscape: true,
-            title: edit ? rcmail.gettext('editnote','kolab_notes') : rcmail.gettext('appendnote','kolab_notes'),
-            open: function() {
-                $dialog.parent().find('.ui-dialog-buttonset .ui-button').prop('disabled', true).first().addClass('mainaction');
-            },
+        window.kolab_note_dialog_element = $dialog = rcmail.show_popup_dialog($dialog, title, buttons, {
+            button_classes: button_classes,
             close: function() {
-                $dialog.dialog('destroy');
                 rcmail.removeEventListener('kolab_notes_render', dialog_render);
             },
-            buttons: buttons,
-            minWidth: 480,
-            width: 680,
-            height: Math.min(640, win.height() - 100)
-        }).show();
+            minWidth: 500,
+            width: 600,
+            height: 500
+        });
     }
 
     /**
@@ -125,19 +99,19 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
      */
     function refresh_mailview(e)
     {
-        var win = rcmail.env.contentframe ? rcmail.get_frame_window(rcmail.env.contentframe) : mywin;
+        var win = rcmail.env.contentframe ? rcmail.get_frame_window(rcmail.env.contentframe) : window;
         if (win && e.response) {
             win.location.reload();
             if (e.response.action == 'action')
-                $('#kolabnotesinlinegui').dialog('close');
+                $('#kolabnotesinlinegui').dialog('destroy');
         }
     }
 
     // register commands
     rcmail.register_command('edit-kolab-note', kolab_note_dialog, true);
     rcmail.register_command('append-kolab-note', function() {
-        var uid;
-        if ((uid = rcmail.get_single_uid())) {
+        var uid = rcmail.get_single_uid();
+        if (uid) {
             kolab_note_dialog({ _msg: uid + '-' + rcmail.env.mailbox });
         }
     });

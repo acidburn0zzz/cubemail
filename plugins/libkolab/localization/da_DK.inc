@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localizations for the Kolab libkolab plugin
  *
@@ -7,15 +6,20 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/libkolab/
  */
-
-$labels = array();
+$labels['showhistory'] = 'Vis historik';
+$labels['compare'] = 'Sammenlign';
+$labels['objectchangelog'] = 'Historik';
+$labels['objectdiff'] = 'Ændringer fra $rev1 til $rev2';
 $labels['revision'] = 'Revision';
 $labels['user'] = 'Bruger';
 $labels['operation'] = 'Handling';
+$labels['actionreceive'] = 'Modtaget';
 $labels['actionappend'] = 'Gemt';
 $labels['actionmove'] = 'Flyttet';
 $labels['actiondelete'] = 'Slettet';
-$labels['compare'] = 'Sammenlign';
+$labels['actionread'] = 'Markér som læst';
+$labels['actionflagset'] = 'Markering er angivet';
+$labels['actionflagclear'] = 'Markering er fjernet';
 $labels['showrevision'] = 'Vis denne version';
 $labels['restore'] = 'Genskab denne version';
-
+$labels['tabsharing'] = 'Deling';

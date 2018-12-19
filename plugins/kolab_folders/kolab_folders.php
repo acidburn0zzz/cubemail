@@ -3,10 +3,9 @@
 /**
  * Type-aware folder management/listing for Kolab
  *
- * @version @package_version@
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2011, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2017, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -42,6 +41,7 @@ class kolab_folders extends rcube_plugin
 
     private $rc;
     private static $instance;
+    private $expire_annotation = '/shared/vendor/cmu/cyrus-imapd/expire';
 
 
     /**
@@ -206,6 +206,8 @@ class kolab_folders extends rcube_plugin
                 'value' => sprintf('%s (%s)', $this->gettext('foldertypemail'), $this->gettext('inbox')),
             );
 
+            $this->add_expire_input($args['form'], 'INBOX');
+
             return $args;
         }
 
@@ -260,7 +262,9 @@ class kolab_folders extends rcube_plugin
         $this->include_script('kolab_folders.js');
 
         // build type SELECT fields
-        $type_select = new html_select(array('name' => '_ctype', 'id' => '_ctype'));
+        $type_select = new html_select(array('name' => '_ctype', 'id' => '_folderctype',
+            'onchange' => "\$('[name=\"_expire\"]').attr('disabled', \$(this).val() != 'mail')"
+        ));
         $sub_select  = new html_select(array('name' => '_subtype', 'id' => '_subtype'));
         $sub_select->add('', '');
 
@@ -282,14 +286,18 @@ class kolab_folders extends rcube_plugin
             }
         }
 
-        $args['form']['props']['fieldsets']['settings']['content']['foldertype'] = array(
+        $args['form']['props']['fieldsets']['settings']['content']['folderctype'] = array(
             'label' => $this->gettext('folderctype'),
-            'value' => $type_select->show(isset($new_ctype) ? $new_ctype : $ctype)
-                . $sub_select->show(isset($new_subtype) ? $new_subtype : $subtype),
+            'value' => html::div('input-group',
+                $type_select->show(isset($new_ctype) ? $new_ctype : $ctype)
+                . $sub_select->show(isset($new_subtype) ? $new_subtype : $subtype)
+            ),
         );
 
         $this->rc->output->set_env('kolab_folder_subtypes', $sub_types);
         $this->rc->output->set_env('kolab_folder_subtype', isset($new_subtype) ? $new_subtype : $subtype);
+
+        $this->add_expire_input($args['form'], $args['name'], $ctype);
 
         return $args;
     }
@@ -373,7 +381,15 @@ class kolab_folders extends rcube_plugin
             }
         }
 
-        $args['record']['class'] = self::folder_class_name($ctype);
+        // Set messages expiration in days
+        if ($result && isset($_POST['_expire'])) {
+            $expire = trim(rcube_utils::get_input_value('_expire', rcube_utils::INPUT_POST));
+            $expire = intval($expire) && preg_match('/^mail/', $ctype) ? intval($expire) : null;
+
+            $storage->set_metadata($mbox, array($this->expire_annotation => $expire));
+        }
+
+        $args['record']['class']     = self::folder_class_name($ctype);
         $args['record']['subscribe'] = $subscribe;
         $args['result'] = $result;
 
@@ -464,13 +480,11 @@ class kolab_folders extends rcube_plugin
             // we're dealing with a groupware folder here...
             if ($type && $type !== 'mail') {
                 if ($args['rights']['write'] && $args['rights']['delete']) {
-                    $writeperms = $args['rights']['write'] . $args['rights']['delete'];
-                    $items = array(
-                        'read'   => 'lr',
-                        'write'  => $writeperms,
-                        'other'  => preg_replace('/[lr'.$writeperms.']/', '', $args['rights']['other']),
-                    );
-                    $args['rights'] = $items;
+                    $write_perms = $args['rights']['write'] . $args['rights']['delete'];
+                    $rw_perms    = $write_perms . $args['rights']['read'];
+
+                    $args['rights']['write'] = $write_perms;
+                    $args['rights']['other'] = preg_replace("/[$rw_perms]/", '', $args['rights']['other']);
 
                     // add localized labels and titles for the altered items
                     $args['labels'] = array(
@@ -501,7 +515,7 @@ class kolab_folders extends rcube_plugin
             // we're dealing with a groupware folder here...
             if ($type && $type !== 'mail') {
                 // remove some irrelevant (for groupware objects) rights
-                $args['rights'] = str_split(preg_replace('/[sp]/', '', join('', $args['rights'])));
+                $args['rights'] = str_split(preg_replace('/[p]/', '', join('', $args['rights'])));
             }
         }
 
@@ -700,5 +714,71 @@ class kolab_folders extends rcube_plugin
     public static function default_folder($type)
     {
         return self::$instance->get_default_folder($type);
+    }
+
+    /**
+     * Get /shared/vendor/cmu/cyrus-imapd/expire value
+     *
+     * @param string $folder IMAP folder name
+     *
+     * @return int|false The annotation value or False if not supported
+     */
+    private function get_expire_annotation($folder)
+    {
+        $storage = $this->rc->get_storage();
+
+        if ($storage->get_vendor() != 'cyrus') {
+            return false;
+        }
+
+        if (!strlen($folder)) {
+            return 0;
+        }
+
+        $value = $storage->get_metadata($folder, $this->expire_annotation);
+
+        if (is_array($value)) {
+            return $value[$folder] ? intval($value[$folder][$this->expire_annotation]) : 0;
+        }
+
+        return false;
+    }
+
+    /**
+     * Add expiration time input to the form if supported
+     */
+    private function add_expire_input(&$form, $folder, $type = null)
+    {
+        if (($expire = $this->get_expire_annotation($folder)) !== false) {
+            $post    = trim(rcube_utils::get_input_value('_expire', rcube_utils::INPUT_POST));
+            $is_mail = empty($type) || preg_match('/^mail/i', $type);
+            $label   = $this->gettext('xdays');
+            $input   = new html_inputfield(array(
+                    'id'       => '_kolabexpire',
+                    'name'     => '_expire',
+                    'size'     => 3,
+                    'disabled' => !$is_mail
+            ));
+
+            if ($post && $is_mail) {
+                $expire = (int) $post;
+            }
+
+            if (strpos($label, '$') === 0) {
+                $label = str_replace('$x', '', $label);
+                $html  = $input->show($expire ?: '')
+                    . html::span('input-group-append', html::span('input-group-text', rcube::Q($label)));
+            }
+            else {
+                $label = str_replace('$x', '', $label);
+                $html  = html::span('input-group-prepend', html::span('input-group-text', rcube::Q($label)))
+                    . $input->show($expire ?: '');
+            }
+
+            $form['props']['fieldsets']['settings']['content']['kolabexpire'] = array(
+                'label' => $this->gettext('folderexpire'),
+                'value' => html::div('input-group', $html),
+            );
+        }
     }
 }

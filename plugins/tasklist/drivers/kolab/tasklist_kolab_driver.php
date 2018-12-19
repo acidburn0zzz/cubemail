@@ -120,10 +120,10 @@ class tasklist_kolab_driver extends tasklist_driver
             $alarms = false;
             $rights = 'lr';
             $editable = false;
-            if (($myrights = $folder->get_myrights()) && !PEAR::isError($myrights)) {
+            if ($myrights = $folder->get_myrights()) {
                 $rights = $myrights;
                 if (strpos($rights, 't') !== false || strpos($rights, 'd') !== false)
-                    $editable = strpos($rights, 'i');
+                    $editable = strpos($rights, 'i') !== false;
             }
             $info = $folder->get_folder_info();
             $norename = $readonly || $info['norename'] || $info['protected'];
@@ -147,6 +147,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'rights'    => $rights,
             'norename' => $norename,
             'active' => $folder->is_active(),
+            'owner' => $folder->get_owner(),
             'parentfolder' => $folder->get_parent(),
             'default' => $folder->default,
             'virtual' => $folder->virtual,
@@ -163,8 +164,11 @@ class tasklist_kolab_driver extends tasklist_driver
 
     /**
      * Get a list of available task lists from this source
+     *
+     * @param integer Bitmask defining filter criterias.
+     *                See FILTER_* constants for possible values.
      */
-    public function get_lists(&$tree = null)
+    public function get_lists($filter = 0, &$tree = null)
     {
         $this->_read_lists();
 
@@ -175,12 +179,7 @@ class tasklist_kolab_driver extends tasklist_driver
                 $this->_read_lists(true);
         }
 
-        $folders = array();
-        foreach ($this->lists as $id => $list) {
-            if (!empty($this->folders[$id])) {
-                $folders[] = $this->folders[$id];
-            }
-        }
+        $folders = $this->filter_folders($filter);
 
         // include virtual folders for a full folder tree
         if (!is_null($tree)) {
@@ -249,6 +248,80 @@ class tasklist_kolab_driver extends tasklist_driver
         }
 
         return $lists;
+    }
+
+    /**
+     * Get list of folders according to specified filters
+     *
+     * @param integer Bitmask defining restrictions. See FILTER_* constants for possible values.
+     *
+     * @return array List of task folders
+     */
+    protected function filter_folders($filter)
+    {
+        $this->_read_lists();
+
+        $folders = array();
+        foreach ($this->lists as $id => $list) {
+            if (!empty($this->folders[$id])) {
+                $folder = $this->folders[$id];
+
+                if ($folder->get_namespace() == 'personal') {
+                    $folder->editable = true;
+                }
+                else if ($rights = $folder->get_myrights()) {
+                    if (strpos($rights, 't') !== false || strpos($rights, 'd') !== false) {
+                        $folder->editable = strpos($rights, 'i') !== false;
+                    }
+                }
+
+                $folders[] = $folder;
+            }
+        }
+
+        $plugin = $this->rc->plugins->exec_hook('tasklist_list_filter', array(
+            'list'      => $folders,
+            'filter'    => $filter,
+            'tasklists' => $folders,
+        ));
+
+        if ($plugin['abort'] || !$filter) {
+            return $plugin['tasklists'];
+        }
+
+        $personal = $filter & self::FILTER_PERSONAL;
+        $shared   = $filter & self::FILTER_SHARED;
+
+        $tasklists = array();
+        foreach ($folders as $folder) {
+            if (($filter & self::FILTER_WRITEABLE) && !$folder->editable) {
+                continue;
+            }
+/*
+            if (($filter & self::FILTER_INSERTABLE) && !$folder->insert) {
+                continue;
+            }
+            if (($filter & self::FILTER_ACTIVE) && !$folder->is_active()) {
+                continue;
+            }
+            if (($filter & self::FILTER_PRIVATE) && $folder->subtype != 'private') {
+                continue;
+            }
+            if (($filter & self::FILTER_CONFIDENTIAL) && $folder->subtype != 'confidential') {
+                continue;
+            }
+*/
+            if ($personal || $shared) {
+                $ns = $folder->get_namespace();
+                if (!(($personal && $ns == 'personal') || ($shared && $ns == 'shared'))) {
+                    continue;
+                }
+            }
+
+            $tasklists[$folder->id] = $folder;
+        }
+
+        return $tasklists;
     }
 
     /**
@@ -507,7 +580,7 @@ class tasklist_kolab_driver extends tasklist_driver
         $tomorrow_date = new DateTime('now + 1 day', $this->plugin->timezone);
         $tomorrow      = $tomorrow_date->format('Y-m-d');
 
-        $counts = array('all' => 0, 'flagged' => 0, 'today' => 0, 'tomorrow' => 0, 'overdue' => 0, 'nodate' => 0, 'mytasks' => 0);
+        $counts = array('all' => 0, 'today' => 0, 'tomorrow' => 0, 'later' => 0, 'overdue'  => 0);
 
         foreach ($lists as $list_id) {
             if (!$folder = $this->get_folder($list_id)) {
@@ -521,18 +594,16 @@ class tasklist_kolab_driver extends tasklist_driver
                     continue;
 
                 $counts['all']++;
-                if ($rec['flagged'])
-                    $counts['flagged']++;
                 if (empty($rec['date']))
-                    $counts['nodate']++;
+                    $counts['later']++;
                 else if ($rec['date'] == $today)
                     $counts['today']++;
                 else if ($rec['date'] == $tomorrow)
                     $counts['tomorrow']++;
                 else if ($rec['date'] < $today)
                     $counts['overdue']++;
-                if ($this->plugin->is_attendee($rec) !== false)
-                    $counts['mytasks']++;
+                else if ($rec['date'] > $tomorrow)
+                    $counts['later']++;
             }
         }
 
@@ -550,6 +621,7 @@ class tasklist_kolab_driver extends tasklist_driver
      *  - from:  Date range start as string (Y-m-d)
      *  - to:    Date range end as string (Y-m-d)
      *  - search: Search query string
+     *  - uid:   Task UIDs
      * @param array List of lists to get tasks from
      * @return array List of tasks records matchin the criteria
      */
@@ -585,6 +657,10 @@ class tasklist_kolab_driver extends tasklist_driver
             $query[] = array('changed', '>=', $filter['since']);
         }
 
+        if ($filter['uid']) {
+            $query[] = array('uid', '=', (array) $filter['uid']);
+        }
+
         foreach ($lists as $list_id) {
             if (!$folder = $this->get_folder($list_id)) {
                 continue;
@@ -613,20 +689,24 @@ class tasklist_kolab_driver extends tasklist_driver
     /**
      * Return data of a specific task
      *
-     * @param mixed  Hash array with task properties or task UID
+     * @param mixed   Hash array with task properties or task UID
+     * @param integer Bitmask defining filter criterias for folders.
+     *                See FILTER_* constants for possible values.
+     *
      * @return array Hash array with task properties or false if not found
      */
-    public function get_task($prop)
+    public function get_task($prop, $filter = 0)
     {
-        $this->_read_lists();
         $this->_parse_id($prop);
 
         $id      = $prop['uid'];
         $list_id = $prop['list'];
-        $folders = $list_id ? array($list_id => $this->get_folder($list_id)) : $this->folders;
+        $folders = $list_id ? array($list_id => $this->get_folder($list_id)) : $this->get_lists($filter);
 
         // find task in the available folders
         foreach ($folders as $list_id => $folder) {
+            if (is_array($folder))
+                $folder = $this->folders[$list_id];
             if (is_numeric($list_id) || !$folder)
                 continue;
             if (!$this->tasks[$id] && ($object = $folder->get_object($id))) {
@@ -1308,46 +1388,8 @@ class tasklist_kolab_driver extends tasklist_driver
             $object['recurrence'] = $old['recurrence'];
         }
 
-        // delete existing attachment(s)
-        if (!empty($task['deleted_attachments'])) {
-            foreach ($task['deleted_attachments'] as $attachment) {
-                if (is_array($object['_attachments'])) {
-                    foreach ($object['_attachments'] as $idx => $att) {
-                        if ($att['id'] == $attachment)
-                            $object['_attachments'][$idx] = false;
-                    }
-                }
-            }
-            unset($task['deleted_attachments']);
-        }
-
-        // in kolab_storage attachments are indexed by content-id
-        if (is_array($task['attachments'])) {
-            foreach ($task['attachments'] as $idx => $attachment) {
-                $key = null;
-                // Roundcube ID has nothing to do with the storage ID, remove it
-                if ($attachment['content'] || $attachment['path']) {
-                    unset($attachment['id']);
-                }
-                else {
-                    foreach ((array)$old['_attachments'] as $cid => $oldatt) {
-                        if ($oldatt && $attachment['id'] == $oldatt['id'])
-                            $key = $cid;
-                    }
-                }
-
-                // replace existing entry
-                if ($key) {
-                    $object['_attachments'][$key] = $attachment;
-                }
-                // append as new attachment
-                else {
-                    $object['_attachments'][] = $attachment;
-                }
-            }
-
-            unset($object['attachments']);
-        }
+        unset($task['attachments']);
+        kolab_format::merge_attachments($object, $old);
 
         // allow sequence increments if I'm the organizer
         if ($this->plugin->is_organizer($object) && empty($object['_method'])) {
@@ -1651,7 +1693,7 @@ class tasklist_kolab_driver extends tasklist_driver
         $hidden_fields[] = array('name' => 'oldname', 'value' => $folder_name);
 
         // folder name (default field)
-        $input_name = new html_inputfield(array('name' => 'name', 'id' => 'taskedit-tasklistame', 'size' => 20));
+        $input_name = new html_inputfield(array('name' => 'name', 'id' => 'taskedit-tasklistname', 'size' => 20));
         $fieldprop['name']['value'] = $input_name->show($list['editname'], array('disabled' => ($options['norename'] || $options['protected'])));
 
         // prevent user from moving folder
@@ -1677,78 +1719,6 @@ class tasklist_kolab_driver extends tasklist_driver
             $form['properties']['fields'][$f] = $fieldprop[$f];
         }
 
-        // add folder ACL tab
-        if ($action != 'form-new') {
-            $form['sharing'] = array(
-                'name'    => rcube::Q($this->plugin->gettext('tabsharing')),
-                'content' => html::tag('iframe', array(
-                    'src' => $this->rc->url(array('_action' => 'folder-acl', '_folder' => $folder_name, 'framed' => 1)),
-                    'width' => '100%',
-                    'height' => 280,
-                    'border' => 0,
-                    'style' => 'border:0'),
-                '')
-            );
-        }
-
-        $form_html = '';
-        if (is_array($hidden_fields)) {
-            foreach ($hidden_fields as $field) {
-                $hiddenfield = new html_hiddenfield($field);
-                $form_html .= $hiddenfield->show() . "\n";
-            }
-        }
-
-        // create form output
-        foreach ($form as $tab) {
-            if (is_array($tab['fields']) && empty($tab['content'])) {
-                $table = new html_table(array('cols' => 2));
-                foreach ($tab['fields'] as $col => $colprop) {
-                    $label = !empty($colprop['label']) ? $colprop['label'] : $this->plugin->gettext($col);
-
-                    $table->add('title', html::label($colprop['id'], rcube::Q($label)));
-                    $table->add(null, $colprop['value']);
-                }
-                $content = $table->show();
-            }
-            else {
-                $content = $tab['content'];
-            }
-
-            if (!empty($content)) {
-                $form_html .= html::tag('fieldset', null, html::tag('legend', null, rcube::Q($tab['name'])) . $content) . "\n";
-            }
-        }
-
-        return $form_html;
-    }
-
-    /**
-     * Handler to render ACL form for a notes folder
-     */
-    public function folder_acl()
-    {
-        $this->plugin->require_plugin('acl');
-        $this->rc->output->add_handler('folderacl', array($this, 'folder_acl_form'));
-        $this->rc->output->send('tasklist.kolabacl');
-    }
-
-    /**
-     * Handler for ACL form template object
-     */
-    public function folder_acl_form()
-    {
-        $folder = rcube_utils::get_input_value('_folder', rcube_utils::INPUT_GPC);
-
-        if (strlen($folder)) {
-            $storage = $this->rc->get_storage();
-            $options = $storage->folder_info($folder);
-
-            // get sharing UI from acl plugin
-            $acl = $this->rc->plugins->exec_hook('folder_form',
-                array('form' => array(), 'options' => $options, 'name' => $folder));
-        }
-
-        return $acl['form']['sharing']['content'] ?: html::div('hint', $this->plugin->gettext('aclnorights'));
+        return kolab_utils::folder_form($form, $folder_name, 'tasklist', $hidden_fields);
     }
 }

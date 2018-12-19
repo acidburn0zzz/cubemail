@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Folders plugin
+ *
+ * Copyright (C) 2015, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
+ */
 $labels['navtitle'] = 'Notizen';
 $labels['tags'] = 'Schlagworte';
 $labels['lists'] = 'Notizbücher';
@@ -51,5 +58,5 @@ $labels['arialabelnotessortmenu'] = 'Sortieroptionen für Notizen';
 $labels['arialabelnotesoptionsmenu'] = 'Notizbuch Aktionsmenü';
 $labels['arialabelnotebookform'] = 'Notizbucheigenschaften';
 $labels['arialabelmessagereferences'] = 'Verknüpfte E-Mail-Mitteilungen';
-$labels['arialabelfolderearchform'] = 'Notizbücher-Suchmaske';
+$labels['arialabelfoldersearchform'] = 'Notizbücher-Suchmaske';
 $labels['arialabelnoteform'] = 'Notizbearbeitungsmaske';

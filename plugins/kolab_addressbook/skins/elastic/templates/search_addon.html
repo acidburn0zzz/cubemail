@@ -1,0 +1,18 @@
+<roundcube:object name="libkolab.folder_search_form" id="addressbooksearch" wrapper="searchbar toolbar"
+	ariatag="h2" label="foldersearchform" label-domain="kolab_addressbook" buttontitle="findaddressbooks" />
+
+<script>
+    // append search form for address books
+    if (rcmail.gui_objects.folderlist) {
+        $('#addressbooksearch').parent().parent()
+            .attr('aria-controls', rcmail.gui_objects.folderlist)
+            .insertBefore('#' + rcmail.gui_objects.folderlist);
+
+        rcmail.addEventListener('init', function() {
+            // Make checkboxes pretty
+            rcmail.treelist.addEventListener('add-item', function(prop) {
+                UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
+            });
+        });
+    }
+</script>

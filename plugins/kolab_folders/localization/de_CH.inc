@@ -24,5 +24,6 @@ $labels['outbox'] = 'Postausgang';
 $labels['wastebasket'] = 'Gelöscht';
 $labels['junkemail'] = 'Spam';
 $labels['confidential'] = 'Confidential';
+$labels['private'] = 'Privat';
 $messages['defaultfolderexists'] = 'Es existiert bereits ein Standardordner für den angegebenen Typ';
 ?>

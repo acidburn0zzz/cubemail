@@ -27,8 +27,6 @@
 var UI = new rcube_mail_ui();
 
 $(document).ready(function(e){
-    UI.init();
-
     function layout_view()
     {
         var form = $('#noteform, #notedetails'),
@@ -50,7 +48,7 @@ $(document).ready(function(e){
 
         // fixes issue when toolbar is not ready yet and content
         // area height is set to 0, wait and try again later...
-        if (h < 0)
+        if (h < 40)
             setTimeout(function() { layout_view(); }, 100);
     }
 
