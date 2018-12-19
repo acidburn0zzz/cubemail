@@ -6,7 +6,7 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_folders/
  */
-$labels['folderctype'] = 'Art des Inhalts';
+$labels['folderctype'] = 'Inhaltstyp';
 $labels['foldertypemail'] = 'E-Mail';
 $labels['foldertypeevent'] = 'Kalender';
 $labels['foldertypejournal'] = 'Journal';
@@ -15,11 +15,16 @@ $labels['foldertypenote'] = 'Notizen';
 $labels['foldertypecontact'] = 'Kontakte';
 $labels['foldertypeconfiguration'] = 'Konfiguration';
 $labels['foldertypefile'] = 'Dateien';
-$labels['foldertypefreebusy'] = 'Frei/Beschäftigt';
+$labels['foldertypefreebusy'] = 'Frei/Belegt';
 $labels['default'] = 'Standard';
+$labels['inbox'] = 'Posteingang';
 $labels['drafts'] = 'Entwürfe';
 $labels['sentitems'] = 'Gesendet';
-$labels['wastebasket'] = 'Papierkorb';
+$labels['outbox'] = 'Postausgang';
+$labels['wastebasket'] = 'Mülleimer';
+$labels['junkemail'] = 'Spam';
 $labels['confidential'] = 'Vertraulich';
 $labels['private'] = 'Privat';
+$labels['xdays'] = '$x Tage';
+$messages['defaultfolderexists'] = 'Es gibt bereits einen Standardordner des angegebenen Typs';
 ?>
