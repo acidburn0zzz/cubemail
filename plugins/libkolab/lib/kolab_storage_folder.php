@@ -421,6 +421,8 @@ class kolab_storage_folder extends kolab_storage_folder_api
             }
             else {
                 // return message part from IMAP directly
+                // TODO: We could improve performance if we cache part's encoding
+                //       without 3rd argument get_message_part() will request BODYSTRUCTURE from IMAP
                 return $this->imap->get_message_part($msguid, $part, null, $print, $fp, $skip_charset_conv);
             }
         }
