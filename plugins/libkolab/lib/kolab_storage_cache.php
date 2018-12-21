@@ -864,7 +864,10 @@ class kolab_storage_cache
         }
 
         if ($object['_formatobj']) {
-            $sql_data['xml']   = preg_replace('!(</?[a-z0-9:-]+>)[\n\r\t\s]+!ms', '$1', (string)$object['_formatobj']->write(3.0));
+            $xml  = (string) $object['_formatobj']->write(3.0);
+            $size = strlen($xml);
+
+            $sql_data['xml']   = preg_replace('!(</?[a-z0-9:-]+>)[\n\r\t\s]+!ms', '$1', $xml);
             $sql_data['tags']  = ' ' . join(' ', $object['_formatobj']->get_tags()) . ' ';  // pad with spaces for strict/prefix search
             $sql_data['words'] = ' ' . join(' ', $object['_formatobj']->get_words()) . ' ';
         }
@@ -897,6 +900,10 @@ class kolab_storage_cache
             }
         }
 
+        if ($size) {
+            $data['_size'] = $size;
+        }
+
         // use base64 encoding (Bug #1912, #2662)
         $sql_data['data'] = base64_encode(serialize($data));
 
@@ -911,14 +918,20 @@ class kolab_storage_cache
         if ($sql_arr['fast-mode'] && !empty($sql_arr['data'])
             && ($object = unserialize(base64_decode($sql_arr['data'])))
         ) {
+            $object['uid'] = $sql_arr['uid'];
+
             foreach ($this->data_props as $prop) {
                 if (!isset($object[$prop]) && isset($sql_arr[$prop])) {
                     $object[$prop] = $sql_arr[$prop];
-
-                    if (($prop == 'created' || $prop == 'changed') && $object[$prop] && is_string($object[$prop])) {
-                        $object[$prop] = new DateTime($object[$prop]);
-                    }
                 }
+            }
+
+            if ($sql_arr['created'] && empty($object['created'])) {
+                $object['created'] = new DateTime($sql_arr['created']);
+            }
+
+            if ($sql_arr['changed'] && empty($object['changed'])) {
+                $object['changed'] = new DateTime($sql_arr['changed']);
             }
 
             $object['_type']     = $sql_arr['type'] ?: $this->folder->type;

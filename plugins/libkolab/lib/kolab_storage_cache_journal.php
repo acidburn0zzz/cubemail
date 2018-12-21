@@ -24,6 +24,7 @@
 class kolab_storage_cache_journal extends kolab_storage_cache
 {
     protected $extra_cols = array('dtstart','dtend');
+    protected $data_props = array('categories');
 
     /**
      * Helper method to convert the given Kolab object into a dataset to be written to cache
