@@ -32,6 +32,8 @@ class kolab_storage_cache_configuration extends kolab_storage_cache
      */
     protected function _serialize($object)
     {
+        $this->set_data_props($object['type']);
+
         $sql_data = parent::_serialize($object);
         $sql_data['type'] = $object['type'];
 
@@ -39,13 +41,28 @@ class kolab_storage_cache_configuration extends kolab_storage_cache
     }
 
     /**
+     * Helper method to convert database record to the given Kolab object
+     *
+     * @override
+     */
+    protected function _unserialize($sql_arr)
+    {
+        $this->set_data_props($sql_arr['type']);
+
+        return parent::_unserialize($sql_arr);
+    }
+
+    /**
      * Select Kolab objects filtered by the given query
      *
-     * @param array Pseudo-SQL query as list of filter parameter triplets
+     * @param array   Pseudo-SQL query as list of filter parameter triplets
      * @param boolean Set true to only return UIDs instead of complete objects
+     * @param boolean Use fast mode to fetch only minimal set of information
+     *                (no xml fetching and parsing, etc.)
+     *
      * @return array List of Kolab data objects (each represented as hash array) or UIDs
      */
-    public function select($query = array(), $uids = false)
+    public function select($query = array(), $uids = false, $fast = false)
     {
         // modify query for IMAP search: query param 'type' is actually a subtype
         if (!$this->ready) {
@@ -57,7 +74,7 @@ class kolab_storage_cache_configuration extends kolab_storage_cache
             }
         }
 
-        return parent::select($query, $uids);
+        return parent::select($query, $uids, $fast);
     }
 
     /**
@@ -84,5 +101,36 @@ class kolab_storage_cache_configuration extends kolab_storage_cache
         }
 
         return parent::_sql_where($query);
+    }
+
+    /**
+     * Set $data_props property depending on object type
+     */
+    protected function set_data_props($type)
+    {
+        switch ($type) {
+        case 'dictionary':
+            $this->data_props = array('language', 'e');
+            break;
+
+        case 'file_driver':
+            $this->data_props = array('driver', 'title', 'enabled', 'host', 'port', 'username', 'password');
+            break;
+
+        case 'relation':
+            // Note: Because relations are heavily used, for performance reasons
+            // we store all properties for them
+            $this->data_props = array('name', 'category', 'color', 'parent', 'iconName', 'priority', 'members');
+            break;
+
+        case 'snippet':
+            $this->data_props = array('name');
+            break;
+
+        case 'category':
+        default:
+            // TODO: implement this
+            $this->data_props = array();
+        }
     }
 }
