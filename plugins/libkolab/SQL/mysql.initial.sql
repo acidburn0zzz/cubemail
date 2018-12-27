@@ -33,7 +33,6 @@ CREATE TABLE `kolab_cache_contact` (
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
-  `xml` LONGBLOB NOT NULL,
   `tags` TEXT NOT NULL,
   `words` TEXT NOT NULL,
   `type` VARCHAR(32) CHARACTER SET ascii NOT NULL,
@@ -57,7 +56,6 @@ CREATE TABLE `kolab_cache_event` (
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
-  `xml` LONGBLOB NOT NULL,
   `tags` TEXT NOT NULL,
   `words` TEXT NOT NULL,
   `dtstart` DATETIME,
@@ -77,7 +75,6 @@ CREATE TABLE `kolab_cache_task` (
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
-  `xml` LONGBLOB NOT NULL,
   `tags` TEXT NOT NULL,
   `words` TEXT NOT NULL,
   `dtstart` DATETIME,
@@ -97,7 +94,6 @@ CREATE TABLE `kolab_cache_journal` (
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
-  `xml` LONGBLOB NOT NULL,
   `tags` TEXT NOT NULL,
   `words` TEXT NOT NULL,
   `dtstart` DATETIME,
@@ -117,7 +113,6 @@ CREATE TABLE `kolab_cache_note` (
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
-  `xml` LONGBLOB NOT NULL,
   `tags` TEXT NOT NULL,
   `words` TEXT NOT NULL,
   CONSTRAINT `fk_kolab_cache_note_folder` FOREIGN KEY (`folder_id`)
@@ -135,7 +130,6 @@ CREATE TABLE `kolab_cache_file` (
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
-  `xml` LONGBLOB NOT NULL,
   `tags` TEXT NOT NULL,
   `words` TEXT NOT NULL,
   `filename` varchar(255) DEFAULT NULL,
@@ -155,7 +149,6 @@ CREATE TABLE `kolab_cache_configuration` (
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
-  `xml` LONGBLOB NOT NULL,
   `tags` TEXT NOT NULL,
   `words` TEXT NOT NULL,
   `type` VARCHAR(32) CHARACTER SET ascii NOT NULL,
@@ -175,7 +168,6 @@ CREATE TABLE `kolab_cache_freebusy` (
   `created` DATETIME DEFAULT NULL,
   `changed` DATETIME DEFAULT NULL,
   `data` LONGTEXT NOT NULL,
-  `xml` LONGBLOB NOT NULL,
   `tags` TEXT NOT NULL,
   `words` TEXT NOT NULL,
   `dtstart` DATETIME,
@@ -188,4 +180,4 @@ CREATE TABLE `kolab_cache_freebusy` (
 
 /*!40014  SET FOREIGN_KEY_CHECKS=1 */;
 
-REPLACE INTO `system` (`name`, `value`) VALUES ('libkolab-version', '2018021300');
+REPLACE INTO `system` (`name`, `value`) VALUES ('libkolab-version', '2018122700');
