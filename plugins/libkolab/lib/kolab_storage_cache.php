@@ -46,7 +46,6 @@ class kolab_storage_cache
     protected $folders_table;
     protected $max_sql_packet;
     protected $max_sync_lock_time = 600;
-    protected $binary_items = array();
     protected $extra_cols = array();
     protected $data_props = array();
     protected $order_by = null;
@@ -202,7 +201,7 @@ class kolab_storage_cache
                   $this->metadata['changed'] < date(self::DB_DATE_FORMAT, time() - $this->cache_refresh) ||
                   $this->metadata['ctag'] != $this->folder->get_ctag() ||
                   intval($this->metadata['objectcount']) !== $this->count()
-                ) {
+            ) {
                 // lock synchronization for this folder or wait if locked
                 $this->_sync_lock();
 
@@ -448,7 +447,7 @@ class kolab_storage_cache
             $sql_data['uid']       = $object['uid'];
 
             $args = array();
-            $cols = array('folder_id', 'msguid', 'uid', 'changed', 'data', 'xml', 'tags', 'words');
+            $cols = array('folder_id', 'msguid', 'uid', 'changed', 'data', 'tags', 'words');
             $cols = array_merge($cols, $this->extra_cols);
 
             foreach ($cols as $idx => $col) {
@@ -857,55 +856,36 @@ class kolab_storage_cache
      */
     protected function _serialize($object)
     {
-        $sql_data = array('changed' => null, 'xml' => '', 'tags' => '', 'words' => '');
+        $data     = array();
+        $sql_data = array('changed' => null, 'tags' => '', 'words' => '');
 
         if ($object['changed']) {
             $sql_data['changed'] = date(self::DB_DATE_FORMAT, is_object($object['changed']) ? $object['changed']->format('U') : $object['changed']);
         }
 
         if ($object['_formatobj']) {
-            $xml  = (string) $object['_formatobj']->write(3.0);
-            $size = strlen($xml);
+            $xml = (string) $object['_formatobj']->write(3.0);
 
-            $sql_data['xml']   = preg_replace('!(</?[a-z0-9:-]+>)[\n\r\t\s]+!ms', '$1', $xml);
+            $data['_size']     = strlen($xml);
             $sql_data['tags']  = ' ' . join(' ', $object['_formatobj']->get_tags()) . ' ';  // pad with spaces for strict/prefix search
             $sql_data['words'] = ' ' . join(' ', $object['_formatobj']->get_words()) . ' ';
         }
 
-        // TODO: get rid of xml column
-        // TODO: store only small subset of properties in data column, i.e. properties that are
-        //       needed for fast-mode only (use $data_props)
-        // TODO: store data in JSON format and no base64-encoding
-
-        // extract object data
-        $data = array();
-        foreach ($object as $key => $val) {
-            // skip empty properties
-            if ($val === "" || $val === null) {
-                continue;
-            }
-            // mark binary data to be extracted from xml on unserialize()
-            if (isset($this->binary_items[$key])) {
-                $data[$key] = true;
-            }
-            else if ($key[0] != '_') {
-                $data[$key] = $val;
-            }
-            else if ($key == '_attachments') {
-                foreach ($val as $k => $att) {
-                    unset($att['content'], $att['path']);
-                    if ($att['id'])
-                        $data[$key][$k] = $att;
+        // Store only minimal set of object properties
+        foreach ($this->data_props as $prop) {
+            if (isset($object[$prop])) {
+                $data[$prop] = $object[$prop];
+                if ($data[$prop] instanceof DateTime) {
+                    $data[$prop] = array(
+                        'cl' => 'DateTime',
+                        'dt' => $data[$prop]->format('Y-m-d H:i:s'),
+                        'tz' => $data[$prop]->getTimezone()->getName(),
+                    );
                 }
             }
         }
 
-        if ($size) {
-            $data['_size'] = $size;
-        }
-
-        // use base64 encoding (Bug #1912, #2662)
-        $sql_data['data'] = base64_encode(serialize($data));
+        $sql_data['data'] = json_encode(rcube_charset::clean($data));
 
         return $sql_data;
     }
@@ -915,13 +895,14 @@ class kolab_storage_cache
      */
     protected function _unserialize($sql_arr)
     {
-        if ($sql_arr['fast-mode'] && !empty($sql_arr['data'])
-            && ($object = unserialize(base64_decode($sql_arr['data'])))
-        ) {
+        if ($sql_arr['fast-mode'] && !empty($sql_arr['data']) && ($object = json_decode($sql_arr['data'], true))) {
             $object['uid'] = $sql_arr['uid'];
 
             foreach ($this->data_props as $prop) {
-                if (!isset($object[$prop]) && isset($sql_arr[$prop])) {
+                if (isset($object[$prop]) && is_array($object[$prop]) && $object[$prop]['cl'] == 'DateTime') {
+                    $object[$prop] = new DateTime($object[$prop]['dt'], new DateTimeZone($object[$prop]['tz']));
+                }
+                else if (!isset($object[$prop]) && isset($sql_arr[$prop])) {
                     $object[$prop] = $sql_arr[$prop];
                 }
             }
@@ -939,9 +920,8 @@ class kolab_storage_cache
             $object['_mailbox']  = $this->folder->name;
         }
         // Fetch object xml
-        else if ($object = $this->folder->read_object($sql_arr['msguid'])) {
-            // additional meta data
-            $object['_size'] = strlen($xml);
+        else {
+            $object = $this->folder->read_object($sql_arr['msguid']);
         }
 
         return $object;
@@ -971,7 +951,7 @@ class kolab_storage_cache
                 }
 
                 $params = array($this->folder_id, $msguid, $object['uid'], $sql_data['changed'],
-                    $sql_data['data'], $sql_data['xml'], $sql_data['tags'], $sql_data['words']);
+                    $sql_data['data'], $sql_data['tags'], $sql_data['words']);
 
                 foreach ($this->extra_cols as $col) {
                     $params[] = $sql_data[$col];
@@ -979,8 +959,8 @@ class kolab_storage_cache
 
                 $result = $this->db->query(
                     "INSERT INTO `{$this->cache_table}` "
-                    . " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `xml`, `tags`, `words` $extra_cols)"
-                    . " VALUES (?, ?, ?, " . $this->db->now() . ", ?, ?, ?, ?, ? $extra_args)",
+                    . " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `tags`, `words`$extra_cols)"
+                    . " VALUES (?, ?, ?, " . $this->db->now() . ", ?, ?, ?, ? $extra_args)",
                     $params
                 );
 
@@ -1001,7 +981,6 @@ class kolab_storage_cache
                 $this->db->now(),
                 $this->db->quote($sql_data['changed']),
                 $this->db->quote($sql_data['data']),
-                $this->db->quote($sql_data['xml']),
                 $this->db->quote($sql_data['tags']),
                 $this->db->quote($sql_data['words']),
             );
@@ -1020,7 +999,7 @@ class kolab_storage_cache
 
             $result = $this->db->query(
                 "INSERT INTO `{$this->cache_table}` ".
-                " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `xml`, `tags`, `words` $extra_cols)".
+                " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `tags`, `words`$extra_cols)".
                 " VALUES $buffer"
             );
 

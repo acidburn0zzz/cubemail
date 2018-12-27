@@ -562,6 +562,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
             $object['_msguid']    = $msguid;
             $object['_mailbox']   = $this->name;
             $object['_formatobj'] = $format;
+            $object['_size']      = strlen($xml);
 
             return $object;
         }
