@@ -24,7 +24,7 @@
 class kolab_storage_cache_task extends kolab_storage_cache
 {
     protected $extra_cols = array('dtstart', 'dtend');
-    protected $data_props = array('categories', 'status'); // start, due
+    protected $data_props = array('categories', 'status', 'complete', 'start', 'due');
 
     /**
      * Helper method to convert the given Kolab object into a dataset to be written to cache
