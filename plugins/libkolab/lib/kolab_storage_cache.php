@@ -938,36 +938,38 @@ class kolab_storage_cache
         static $buffer = '';
 
         $line = '';
+        $cols = array('folder_id', 'msguid', 'uid', 'created', 'changed', 'data', 'tags', 'words');
+        if ($this->extra_cols) {
+            $cols = array_merge($cols, $this->extra_cols);
+        }
+
         if ($object) {
             $sql_data = $this->_serialize($object);
 
-            // Skip multifolder insert for Oracle, we can't put long data inline
-            if ($this->db->db_provider == 'oracle') {
-                $extra_cols = '';
-                if ($this->extra_cols) {
-                    $extra_cols = array_map(function($n) { return "`{$n}`"; }, $this->extra_cols);
-                    $extra_cols = ', ' . join(', ', $extra_cols);
-                    $extra_args = str_repeat(', ?', count($this->extra_cols));
-                }
-
+            // Skip multi-folder insert for all databases but MySQL
+            // In Oracle we can't put long data inline, others we don't support yet
+            if (strpos($this->db->db_provider, 'mysql') !== 0) {
+                $extra_args = array();
                 $params = array($this->folder_id, $msguid, $object['uid'], $sql_data['changed'],
                     $sql_data['data'], $sql_data['tags'], $sql_data['words']);
 
                 foreach ($this->extra_cols as $col) {
                     $params[] = $sql_data[$col];
+                    $extra_args[] = '?';
                 }
 
+                $cols = implode(', ', array_map(function($n) { return "`{$n}`"; }, $cols));
+                $extra_args = count($extra_args) ? ', ' . implode(', ', $extra_args) : '';
+
                 $result = $this->db->query(
-                    "INSERT INTO `{$this->cache_table}` "
-                    . " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `tags`, `words`$extra_cols)"
-                    . " VALUES (?, ?, ?, " . $this->db->now() . ", ?, ?, ?, ? $extra_args)",
+                    "INSERT INTO `{$this->cache_table}` ($cols)"
+                    . " VALUES (?, ?, ?, " . $this->db->now() . ", ?, ?, ?, ?$extra_args)",
                     $params
                 );
 
                 if (!$this->db->affected_rows($result)) {
                     rcube::raise_error(array(
-                        'code' => 900, 'type' => 'php',
-                        'message' => "Failed to write to kolab cache"
+                        'code' => 900, 'message' => "Failed to write to kolab cache"
                     ), true);
                 }
 
@@ -991,22 +993,17 @@ class kolab_storage_cache
         }
 
         if ($buffer && (!$msguid || (strlen($buffer) + strlen($line) > $this->max_sql_packet()))) {
-            $extra_cols = '';
-            if ($this->extra_cols) {
-                $extra_cols = array_map(function($n) { return "`{$n}`"; }, $this->extra_cols);
-                $extra_cols = ', ' . join(', ', $extra_cols);
-            }
+            $columns = implode(', ', array_map(function($n) { return "`{$n}`"; }, $cols));
+            $update  = implode(', ', array_map(function($i) { return "`{$i}` = VALUES(`{$i}`)"; }, array_slice($cols, 2)));
 
             $result = $this->db->query(
-                "INSERT INTO `{$this->cache_table}` ".
-                " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `tags`, `words`$extra_cols)".
-                " VALUES $buffer"
+                "INSERT INTO `{$this->cache_table}` ($columns) VALUES $buffer"
+                . " ON DUPLICATE KEY UPDATE $update"
             );
 
             if (!$this->db->affected_rows($result)) {
                 rcube::raise_error(array(
-                    'code' => 900, 'type' => 'php',
-                    'message' => "Failed to write to kolab cache"
+                    'code' => 900, 'message' => "Failed to write to kolab cache"
                 ), true);
             }
 
