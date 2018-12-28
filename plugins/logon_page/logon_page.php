@@ -51,6 +51,7 @@ class logon_page extends rcube_plugin
 
         if (file_exists($file)) {
             $html = file_get_contents($file);
+            $html = trim(str_replace('<!-- Put HTML content here -->', '', $html));
         }
 
         if ($html) {
@@ -62,6 +63,9 @@ class logon_page extends rcube_plugin
             // Wrap the additional content inside <div>,
             // so it can be styled by skins
             $html = '<div id="logon_page">' . $html . '</div>';
+
+            // In Elastic we have to move the element to more apropriate place
+            $html .= "<script>\$('#login-footer').append(\$('#logon_page'));</script>";
 
             // Add the content at the end of the BODY
             $rcmail->output->add_footer($html);
