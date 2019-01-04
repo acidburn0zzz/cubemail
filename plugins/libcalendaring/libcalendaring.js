@@ -45,13 +45,14 @@ function rcube_libcalendaring(settings)
     var client_timezone = new Date().getTimezoneOffset();
 
     // general datepicker settings
-    var datepicker_settings = {
+    this.datepicker_settings = {
         // translate from fullcalendar format to datepicker format
-        dateFormat: settings.date_format.replace(/M/g, 'm').replace(/mmmmm/, 'MM').replace(/mmm/, 'M').replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/yy/g, 'y'),
+        dateFormat: settings.date_format.replace(/M/g, 'm').replace(/mmmmm/, 'MM').replace(/mmm/, 'M').replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/DD/, 'dd').replace(/Y/g, 'y').replace(/yyyy/g, 'yy'),
         firstDay : settings.first_day,
         dayNamesMin: settings.days_short,
         monthNames: settings.months,
         monthNamesShort: settings.months,
+        showWeek: settings.show_weekno >= 0,
         changeMonth: false,
         showOtherMonths: true,
         selectOtherMonths: true
@@ -76,19 +77,27 @@ function rcube_libcalendaring(settings)
       if (!event.end)
         event.end = event.start;
 
-      var fromto, duration = event.end.getTime() / 1000 - event.start.getTime() / 1000,
+      // Support Moment.js objects
+      var start = 'toDate' in event.start ? event.start.toDate() : event.start,
+        end = 'toDate' in event.end ? event.end.toDate() : event.end;
+
+      var fromto, duration = end.getTime() / 1000 - start.getTime() / 1000,
         until = voice ? ' ' + rcmail.gettext('until','libcalendaring') + ' ' : ' — ';
+
       if (event.allDay) {
-        fromto = this.format_datetime(event.start, 1, voice)
-          + (duration > 86400 || event.start.getDay() != event.end.getDay() ? until + this.format_datetime(event.end, 1, voice) : '');
+        // fullcalendar end dates of all-day events are exclusive
+        end = new Date(end.getTime() - 1000*60*60*24*1);
+        duration = end.getTime() / 1000 - start.getTime() / 1000;
+        fromto = this.format_datetime(start, 1, voice)
+          + (duration > 86400 || start.getDay() != end.getDay() ? until + this.format_datetime(end, 1, voice) : '');
       }
-      else if (duration < 86400 && event.start.getDay() == event.end.getDay()) {
-        fromto = this.format_datetime(event.start, 0, voice)
-          + (duration > 0 ? until + this.format_datetime(event.end, 2, voice) : '');
+      else if (duration < 86400 && start.getDay() == end.getDay()) {
+        fromto = this.format_datetime(start, 0, voice)
+          + (duration > 0 ? until + this.format_datetime(end, 2, voice) : '');
       }
       else {
-        fromto = this.format_datetime(event.start, 0, voice)
-          + (duration > 0 ? until + this.format_datetime(event.end, 0, voice) : '');
+        fromto = this.format_datetime(start, 0, voice)
+          + (duration > 0 ? until + this.format_datetime(end, 0, voice) : '');
       }
 
       return fromto;
@@ -154,7 +163,7 @@ function rcube_libcalendaring(settings)
     this.parse_datetime = function(time, date)
     {
         // we use the utility function from datepicker to parse dates
-        var date = date ? $.datepicker.parseDate(datepicker_settings.dateFormat, date, datepicker_settings) : new Date();
+        var date = date ? $.datepicker.parseDate(this.datepicker_settings.dateFormat, date, this.datepicker_settings) : new Date();
 
         var time_arr = time.replace(/\s*[ap][.m]*/i, '').replace(/0([0-9])/g, '$1').split(/[:.]/);
         if (!isNaN(time_arr[0])) {
@@ -229,6 +238,9 @@ function rcube_libcalendaring(settings)
      */
     this.date2ISO8601 = function(date)
     {
+        if ('toDate' in date)
+            return date.format('YYYY-MM-DD[T]HH:mm:ss'); // MomentJS
+
         var zeropad = function(num) { return (num < 10 ? '0' : '') + num; };
 
         return date.getFullYear() + '-' + zeropad(date.getMonth()+1) + '-' + zeropad(date.getDate())
@@ -242,7 +254,7 @@ function rcube_libcalendaring(settings)
     {
         var res = '';
         if (!mode || mode == 1) {
-          res += $.datepicker.formatDate(voice ? 'MM d yy' : datepicker_settings.dateFormat, date, datepicker_settings);
+          res += $.datepicker.formatDate(voice ? 'MM d yy' : this.datepicker_settings.dateFormat, date, this.datepicker_settings);
         }
         if (!mode) {
             res += voice ? ' ' + rcmail.gettext('at','libcalendaring') + ' ' : ' ';
@@ -299,8 +311,10 @@ function rcube_libcalendaring(settings)
      */
     this.date2unixtime = function(date)
     {
-        var dst_offset = (client_timezone - date.getTimezoneOffset()) * 60;  // adjust DST offset
-        return Math.round(date.getTime()/1000 + gmt_offset * 3600 + dst_offset);
+        var dt = 'toDate' in date ? date.toDate() : date,
+            dst_offset = (client_timezone - dt.getTimezoneOffset()) * 60;  // adjust DST offset
+
+        return Math.round(dt.getTime()/1000 + gmt_offset * 3600 + dst_offset);
     }
 
     /**
@@ -396,7 +410,7 @@ function rcube_libcalendaring(settings)
             parent.find('.edit-alarm-related')[val === '@' ? 'hide' : 'show']();
         });
 
-        $(prefix+' .edit-alarm-date').removeClass('hasDatepicker').removeAttr('id').datepicker(datepicker_settings);
+        $(prefix+' .edit-alarm-date').removeClass('hasDatepicker').removeAttr('id').datepicker(this.datepicker_settings);
 
         if (rcmail.env.action != 'print')
             this.init_time_autocomplete($(prefix+' .edit-alarm-time')[0], {});
@@ -847,9 +861,9 @@ function rcube_libcalendaring(settings)
             return false;
         });
 
-        $('#edit-recurrence-enddate').datepicker(datepicker_settings).click(function(){ $("#edit-recurrence-repeat-until").prop('checked', true) });
+        $('#edit-recurrence-enddate').datepicker(this.datepicker_settings).click(function(){ $("#edit-recurrence-repeat-until").prop('checked', true) });
         $('#edit-recurrence-repeat-times').change(function(e){ $('#edit-recurrence-repeat-count').prop('checked', true); });
-        $('#edit-recurrence-rdate-input').datepicker(datepicker_settings);
+        $('#edit-recurrence-rdate-input').datepicker(this.datepicker_settings);
     };
 
     /**
@@ -857,7 +871,7 @@ function rcube_libcalendaring(settings)
      */
     this.set_recurrence_edit = function(rec)
     {
-        var recurrence = $('#edit-recurrence-frequency').val(rec.recurrence ? rec.recurrence.FREQ || (rec.recurrence.RDATE ? 'RDATE' : '') : '').change(),
+        var date, recurrence = $('#edit-recurrence-frequency').val(rec.recurrence ? rec.recurrence.FREQ || (rec.recurrence.RDATE ? 'RDATE' : '') : '').change(),
             interval = $('.recurrence-form select.edit-recurrence-interval').val(rec.recurrence ? rec.recurrence.INTERVAL || 1 : 1),
             rrtimes = $('#edit-recurrence-repeat-times').val(rec.recurrence ? rec.recurrence.COUNT || 1 : 1),
             rrenddate = $('#edit-recurrence-enddate').val(rec.recurrence && rec.recurrence.UNTIL ? this.format_datetime(this.parseISO8601(rec.recurrence.UNTIL), 1) : '');
@@ -887,13 +901,15 @@ function rcube_libcalendaring(settings)
             $('input.edit-recurrence-'+section+'-mode').val(['BYDAY']);
         }
         else if (rec.start) {
-            $('#edit-recurrence-monthly-byday').val(weekdays[rec.start.getDay()]);
+            date = 'toDate' in rec.start ? rec.start.toDate() : rec.start;
+            $('#edit-recurrence-monthly-byday').val(weekdays[date.getDay()]);
         }
         if (rec.recurrence && rec.recurrence.BYMONTH) {
             $('input.edit-recurrence-yearly-bymonth').val(String(rec.recurrence.BYMONTH).split(','));
         }
         else if (rec.start) {
-            $('input.edit-recurrence-yearly-bymonth').val([String(rec.start.getMonth()+1)]);
+            date = 'toDate' in rec.start ? rec.start.toDate() : rec.start;
+            $('input.edit-recurrence-yearly-bymonth').val([String(date.getMonth()+1)]);
         }
         if (rec.recurrence && rec.recurrence.RDATE) {
             $.each(rec.recurrence.RDATE, function(i,rdate){

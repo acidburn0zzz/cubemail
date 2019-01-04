@@ -207,14 +207,16 @@ class libcalendaring extends rcube_plugin
         $this->date_format_defaults();
 
         $settings = array();
-        $keys     = array('date_format', 'time_format', 'date_short', 'date_long');
+        $keys     = array('date_format', 'time_format', 'date_short', 'date_long', 'date_agenda');
 
         foreach ($keys as $key) {
             $settings[$key] = (string)$this->rc->config->get('calendar_' . $key, $this->defaults['calendar_' . $key]);
-            $settings[$key] = str_replace('Y', 'y', $settings[$key]);
+            $settings[$key] = str_replace('y', 'Y', $settings[$key]);
+            $settings[$key] = preg_replace('/(?<!d)dd(?!d)/', 'DD', $settings[$key]);
+            $settings[$key] = preg_replace('/(?<!d)d(?!d)/', 'D', $settings[$key]);
         }
 
-        $settings['dates_long']  = str_replace(' yyyy', '[ yyyy]', $settings['date_long']) . "{ '&mdash;' " . $settings['date_long'] . '}';
+        $settings['dates_long']  = $settings['date_long'];// . " - " . $settings['date_long'];
         $settings['first_day']   = (int)$this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']);
         $settings['timezone']    = $this->timezone_offset;
         $settings['dst']         = $this->dst_active;

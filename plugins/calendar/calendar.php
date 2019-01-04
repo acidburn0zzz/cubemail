@@ -1323,12 +1323,21 @@ class calendar extends rcube_plugin
    */
   function load_events()
   {
-    $events = $this->driver->load_events(
-      rcube_utils::get_input_value('start', rcube_utils::INPUT_GET),
-      rcube_utils::get_input_value('end', rcube_utils::INPUT_GET),
-      ($query = rcube_utils::get_input_value('q', rcube_utils::INPUT_GET)),
-      rcube_utils::get_input_value('source', rcube_utils::INPUT_GET)
-    );
+    $start = rcube_utils::get_input_value('start', rcube_utils::INPUT_GET);
+    $end   = rcube_utils::get_input_value('end', rcube_utils::INPUT_GET);
+    $query = rcube_utils::get_input_value('q', rcube_utils::INPUT_GET);
+    $sorce = rcube_utils::get_input_value('source', rcube_utils::INPUT_GET);
+
+    if (!is_numeric($start) || strpos($start, 'T')) {
+      $start = new DateTime($start, $this->timezone);
+      $start = $start->getTimestamp();
+    }
+    if (!is_numeric($end) || strpos($end, 'T')) {
+      $end = new DateTime($end, $this->timezone);
+      $end = $end->getTimestamp();
+    }
+
+    $events = $this->driver->load_events($start, $end, $query, $source);
     echo $this->encode($events, !empty($query));
     exit;
   }
@@ -1767,8 +1776,6 @@ class calendar extends rcube_plugin
     // configuration
     $settings['default_calendar'] = $this->rc->config->get('calendar_default_calendar');
     $settings['default_view'] = (string)$this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view']);
-    $settings['date_agenda'] = (string)$this->rc->config->get('calendar_date_agenda', $this->defaults['calendar_date_agenda']);
-
     $settings['timeslots'] = (int)$this->rc->config->get('calendar_timeslots', $this->defaults['calendar_timeslots']);
     $settings['first_day'] = (int)$this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']);
     $settings['first_hour'] = (int)$this->rc->config->get('calendar_first_hour', $this->defaults['calendar_first_hour']);
@@ -1889,24 +1896,31 @@ class calendar extends rcube_plugin
       $event['description'] = trim($h2t->get_text());
     }
 
-    // mapping url => vurl because of the fullcalendar client script
+    // mapping url => vurl, allday => allDay because of the fullcalendar client script
     $event['vurl'] = $event['url'];
+    $event['allDay'] = !empty($event['allday']);
     unset($event['url']);
+    unset($event['allday']);
+
+    $event['className'] = $event['className'] ? explode(' ', $event['className']) : array();
+    if ($addcss) {
+        $event['className'][] = 'fc-event-cal-' . asciiwords($event['calendar'], true);
+    }
+
+    if ($event['allDay']) {
+        $event['end'] = $event['end']->add(new DateInterval('P1D'));
+    }
 
     return array(
       '_id'   => $event['calendar'] . ':' . $event['id'],  // unique identifier for fullcalendar
-      'start' => $this->lib->adjust_timezone($event['start'], $event['allday'])->format('c'),
-      'end'   => $this->lib->adjust_timezone($event['end'], $event['allday'])->format('c'),
+      'start' => $this->lib->adjust_timezone($event['start'], $event['allDay'])->format('c'),
+      'end'   => $this->lib->adjust_timezone($event['end'], $event['allDay'])->format('c'),
       // 'changed' might be empty for event recurrences (Bug #2185)
       'changed' => $event['changed'] ? $this->lib->adjust_timezone($event['changed'])->format('c') : null,
       'created' => $event['created'] ? $this->lib->adjust_timezone($event['created'])->format('c') : null,
       'title'       => strval($event['title']),
       'description' => strval($event['description']),
       'location'    => strval($event['location']),
-      'className'   => ($addcss ? 'fc-event-cal-'.asciiwords($event['calendar'], true).' ' : '') .
-          'fc-event-cat-' . asciiwords(strtolower(join('-', (array)$event['categories'])), true) .
-          rtrim(' ' . $event['className']),
-      'allDay'      => ($event['allday'] == 1),
     ) + $event;
   }
 
@@ -2056,7 +2070,11 @@ class calendar extends rcube_plugin
     // convert dates into DateTime objects in user's current timezone
     $event['start']  = new DateTime($event['start'], $this->timezone);
     $event['end']    = new DateTime($event['end'], $this->timezone);
-    $event['allday'] = (bool)$event['allday'];
+    $event['allday'] = (bool) (isset($event['allDay']) ? $event['allDay'] : $event['allday']);
+
+    if ($event['allday']) {
+    
+    }
 
     // start/end is all we need for 'move' action (#1480)
     if ($action == 'move') {
@@ -2433,14 +2451,15 @@ class calendar extends rcube_plugin
     $skin_path = $this->local_skin_path();
     $this->include_stylesheet($skin_path . '/fullcalendar.css');
     $this->include_stylesheet($skin_path . '/print.css');
-    
+
     // Add JS files to the page header
     $this->include_script('print.js');
+    $this->include_script('lib/js/moment.js');
     $this->include_script('lib/js/fullcalendar.js');
-    
+
     $this->register_handler('plugin.calendar_css', array($this->ui, 'calendar_css'));
     $this->register_handler('plugin.calendar_list', array($this->ui, 'calendar_list'));
-    
+
     $this->rc->output->set_pagetitle($title);
     $this->rc->output->send("calendar.print");
   }
