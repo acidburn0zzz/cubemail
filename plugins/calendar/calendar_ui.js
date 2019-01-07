@@ -775,7 +775,7 @@ function rcube_calendar_ui(settings)
           // fetch attachments, some drivers doesn't set 'attachments' array for event?
         }
       };
-      
+
       // init dialog buttons
       var buttons = [],
         save_func = function() {
@@ -2480,7 +2480,7 @@ function rcube_calendar_ui(settings)
         if (data.end)
           event.end = data.end;
         if (data.allDay !== undefined)
-          event.allDay = data.allDay;
+          event.allDay = !!data.allDay; // must be boolean for fullcalendar
         event.editable = false;
         event.temp = true;
         event.className = ['fc-event-cal-'+data.calendar, 'fc-event-temp'];
@@ -3223,7 +3223,7 @@ function rcube_calendar_ui(settings)
             view.fullCalendar('removeEvents', function(e){ return e._id.indexOf(event._id+'-') == 0; });
         }
         else {
-          event.source = source;  // link with source
+          event.source = view.fullCalendar('getEventSourceById', source.id);  // link with source
           view.fullCalendar('renderEvent', event);
         }
       }
