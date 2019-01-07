@@ -1323,10 +1323,10 @@ class calendar extends rcube_plugin
    */
   function load_events()
   {
-    $start = rcube_utils::get_input_value('start', rcube_utils::INPUT_GET);
-    $end   = rcube_utils::get_input_value('end', rcube_utils::INPUT_GET);
-    $query = rcube_utils::get_input_value('q', rcube_utils::INPUT_GET);
-    $sorce = rcube_utils::get_input_value('source', rcube_utils::INPUT_GET);
+    $start  = rcube_utils::get_input_value('start', rcube_utils::INPUT_GET);
+    $end    = rcube_utils::get_input_value('end', rcube_utils::INPUT_GET);
+    $query  = rcube_utils::get_input_value('q', rcube_utils::INPUT_GET);
+    $source = rcube_utils::get_input_value('source', rcube_utils::INPUT_GET);
 
     if (!is_numeric($start) || strpos($start, 'T')) {
       $start = new DateTime($start, $this->timezone);
