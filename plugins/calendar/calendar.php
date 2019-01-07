@@ -2447,21 +2447,15 @@ class calendar extends rcube_plugin
       $title .= ' "' . $search . '"';
     }
 
-    // Add CSS stylesheets to the page header
-    $skin_path = $this->local_skin_path();
-    $this->include_stylesheet($skin_path . '/fullcalendar.css');
-    $this->include_stylesheet($skin_path . '/print.css');
-
-    // Add JS files to the page header
-    $this->include_script('print.js');
-    $this->include_script('lib/js/moment.js');
-    $this->include_script('lib/js/fullcalendar.js');
+    // Add CSS and JS to the page
+    $this->ui->addCSS();
+    $this->ui->addJS();
 
     $this->register_handler('plugin.calendar_css', array($this->ui, 'calendar_css'));
     $this->register_handler('plugin.calendar_list', array($this->ui, 'calendar_list'));
 
     $this->rc->output->set_pagetitle($title);
-    $this->rc->output->send("calendar.print");
+    $this->rc->output->send('calendar.print');
   }
 
   /**

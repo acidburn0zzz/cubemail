@@ -110,6 +110,10 @@ class calendar_ui
   {
     $skin_path = $this->cal->local_skin_path();
     $this->cal->include_stylesheet($skin_path . '/fullcalendar.css');
+
+    if ($this->rc->task == 'calendar' && $this->rc->action == 'print') {
+      $this->cal->include_stylesheet($skin_path . '/print.css');
+    }
   }
 
   /**
@@ -117,12 +121,18 @@ class calendar_ui
    */
   public function addJS()
   {
-    $this->cal->include_script('calendar_ui.js');
+    $this->cal->include_script('lib/js/moment.js');
     $this->cal->include_script('lib/js/fullcalendar.js');
-    $this->rc->output->include_script('treelist.js');
-    $this->cal->api->include_script('libkolab/libkolab.js');
 
-    jqueryui::miniColors();
+    if ($this->rc->task == 'calendar' && $this->rc->action == 'print') {
+      $this->cal->include_script('print.js');
+    }
+    else {
+      $this->rc->output->include_script('treelist.js');
+      $this->cal->api->include_script('libkolab/libkolab.js');
+      $this->cal->include_script('calendar_ui.js');
+      jqueryui::miniColors();
+    }
   }
 
   /**
