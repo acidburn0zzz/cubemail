@@ -46,8 +46,10 @@ function rcube_libcalendaring(settings)
 
     // general datepicker settings
     this.datepicker_settings = {
-        // translate from fullcalendar format to datepicker format
-        dateFormat: settings.date_format.replace(/M/g, 'm').replace(/mmmmm/, 'MM').replace(/mmm/, 'M').replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/DD/, 'dd').replace(/Y/g, 'y').replace(/yyyy/g, 'yy'),
+        // translate from fullcalendar (MomentJS) format to datepicker format
+        dateFormat: settings.date_format.replace(/M/g, 'm').replace(/mmmm/, 'MM').replace(/mmm/, 'M')
+            .replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/DD/, 'dd')
+            .replace(/Y/g, 'y').replace(/yyyy/, 'yy'),
         firstDay : settings.first_day,
         dayNamesMin: settings.days_short,
         monthNames: settings.months,
@@ -281,10 +283,8 @@ function rcube_libcalendaring(settings)
             hh  : function(d) { return zeroPad(d.getHours() % 12 || 12) },
             H   : function(d) { return d.getHours() },
             HH  : function(d) { return zeroPad(d.getHours()) },
-            t   : function(d) { return d.getHours() < 12 ? 'a' : 'p' },
-            tt  : function(d) { return d.getHours() < 12 ? 'am' : 'pm' },
-            T   : function(d) { return d.getHours() < 12 ? 'A' : 'P' },
-            TT  : function(d) { return d.getHours() < 12 ? 'AM' : 'PM' }
+            a   : function(d) { return d.getHours() < 12 ? 'am' : 'pm' },
+            A   : function(d) { return d.getHours() < 12 ? 'AM' : 'PM' }
         };
 
         var i, i2, c, formatter, res = '',
