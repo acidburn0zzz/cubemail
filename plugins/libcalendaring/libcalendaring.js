@@ -81,7 +81,7 @@ function rcube_libcalendaring(settings)
 
       // Support Moment.js objects
       var start = 'toDate' in event.start ? event.start.toDate() : event.start,
-        end = 'toDate' in event.end ? event.end.toDate() : event.end;
+        end = event.end && 'toDate' in event.end ? event.end.toDate() : event.end;
 
       var fromto, duration = end.getTime() / 1000 - start.getTime() / 1000,
         until = voice ? ' ' + rcmail.gettext('until','libcalendaring') + ' ' : ' — ';
@@ -240,6 +240,9 @@ function rcube_libcalendaring(settings)
      */
     this.date2ISO8601 = function(date)
     {
+        if (!date)
+            return null;
+
         if ('toDate' in date)
             return date.format('YYYY-MM-DD[T]HH:mm:ss'); // MomentJS
 
@@ -311,7 +314,7 @@ function rcube_libcalendaring(settings)
      */
     this.date2unixtime = function(date)
     {
-        var dt = 'toDate' in date ? date.toDate() : date,
+        var dt = date && 'toDate' in date ? date.toDate() : date,
             dst_offset = (client_timezone - dt.getTimezoneOffset()) * 60;  // adjust DST offset
 
         return Math.round(dt.getTime()/1000 + gmt_offset * 3600 + dst_offset);

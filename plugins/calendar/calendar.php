@@ -2070,11 +2070,8 @@ class calendar extends rcube_plugin
     // convert dates into DateTime objects in user's current timezone
     $event['start']  = new DateTime($event['start'], $this->timezone);
     $event['end']    = new DateTime($event['end'], $this->timezone);
-    $event['allday'] = (bool) (isset($event['allDay']) ? $event['allDay'] : $event['allday']);
-
-    if ($event['allday']) {
-    
-    }
+    $event['allday'] = !empty($event['allDay']);
+    unset($event['allDay']);
 
     // start/end is all we need for 'move' action (#1480)
     if ($action == 'move') {

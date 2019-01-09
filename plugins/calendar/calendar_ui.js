@@ -793,7 +793,7 @@ function rcube_calendar_ui(settings)
             calendar: event.calendar,
             start: date2servertime(start),
             end: date2servertime(end),
-            allday: allday.checked?1:0,
+            allDay: allday.checked?1:0,
             title: title.val(),
             description: description.val(),
             location: location.val(),
@@ -2474,13 +2474,20 @@ function rcube_calendar_ui(settings)
 
       // render event temporarily into the calendar
       if ((data.start && data.end) || data.id) {
-        var event = data.id ? $.extend(fc.fullCalendar('clientEvents', data.id)[0], data) : data;
+        var tmp, event = data.id ? $.extend(fc.fullCalendar('clientEvents', data.id)[0], data) : data;
+
         if (data.start)
           event.start = data.start;
         if (data.end)
           event.end = data.end;
         if (data.allDay !== undefined)
           event.allDay = !!data.allDay; // must be boolean for fullcalendar
+
+        // For fullCalendar all-day event's end date must be exclusive
+        if (event.allDay && data.end && (tmp = moment(data.end)) && tmp.format('Hms') !== '000') {
+          event.end = moment().year(tmp.year()).month(tmp.month()).date(tmp.date()).hour(0).minute(0).second(0).add(1, 'days');
+        }
+
         event.editable = false;
         event.temp = true;
         event.className = ['fc-event-cal-'+data.calendar, 'fc-event-temp'];
@@ -3837,33 +3844,18 @@ function rcube_calendar_ui(settings)
       },
       // callback when an event was dragged and finally dropped
       eventDrop: function(event, delta, revertFunc) {
-        var allday = !event.start.hasTime();
+        if (!event.end || event.end.diff(event.start) < 0) {
+          if (event.allDay)
+            event.end = moment(event.start).hour(13).minute(0).second(0);
+          else
+            event.end = moment(event.start).add(2, 'hours');
+        }
+        else if (event.allDay) {
+          event.end.subtract(1, 'days').hour(13);
+        }
 
-        if (!event.end || event.end.format('x') < event.start.format('x')) {
-          event.end = new Date(event.start.format('x') + (allday ? DAY_MS : HOUR_MS));
-        }
-        // moved to all-day section: set times to 12:00 - 13:00
-        if (allday && !event.allDay) {
-          event.start.hours(12);
-          event.start.minutes(0);
-          event.start.seconds(0);
-          event.end.hours(13);
-          event.end.minutes(0);
-          event.end.seconds(0);
-        }
-        // moved from all-day section: set times to working hours
-        else if (event.allDay && !allday) {
-          var newstart = event.start.format('x');
-          revertFunc();  // revert to get original duration
-          var numdays = Math.max(1, Math.round((event.end.format('x') - event.start.format('x')) / DAY_MS)) - 1;
-          event.start = moment(newstart);
-          event.end = moment(newstart + numdays * DAY_MS);
-          event.end.hours(settings.work_end || 18);
-          event.end.minutes(0);
-
-          if (event.end.diff(event.start) < 0)
-            event.end = new Date(newstart + HOUR_MS);
-        }
+        if (event.allDay)
+          event.start.hour(12);
 
         // send move request to server
         var data = {
@@ -3871,17 +3863,18 @@ function rcube_calendar_ui(settings)
           calendar: event.calendar,
           start: date2servertime(event.start),
           end: date2servertime(event.end),
-          allDay: allday?1:0
+          allDay: event.allDay?1:0
         };
+
         update_event_confirm('move', event, data);
       },
       // callback for event resizing
       eventResize: function(event, delta) {
         // sanitize event dates
-        if (event.allDay)
+        if (event.allDay) {
           event.start.hours(12);
-        if (!event.end || event.end.diff(event.start) < 0)
-          event.end = new Date(event.start.format('x') + HOUR_MS);
+          event.end.hour(13).subtract(1, 'days');
+        }
 
         // send resize request to server
         var data = {
@@ -3891,6 +3884,7 @@ function rcube_calendar_ui(settings)
           end: date2servertime(event.end),
           allDay: event.allDay?1:0
         };
+
         update_event_confirm('resize', event, data);
       },
       viewRender: function(view) {
