@@ -296,16 +296,12 @@ class calendar extends rcube_plugin
     return $calendar ?: $first;
   }
 
-
   /**
    * Render the main calendar view from skin template
    */
   function calendar_view()
   {
     $this->rc->output->set_pagetitle($this->gettext('calendar'));
-
-    // Add CSS stylesheets to the page header
-    $this->ui->addCSS();
 
     // Add JS files to the page header
     $this->ui->addJS();
@@ -2444,8 +2440,7 @@ class calendar extends rcube_plugin
       $title .= ' "' . $search . '"';
     }
 
-    // Add CSS and JS to the page
-    $this->ui->addCSS();
+    // Add JS to the page
     $this->ui->addJS();
 
     $this->register_handler('plugin.calendar_css', array($this->ui, 'calendar_css'));

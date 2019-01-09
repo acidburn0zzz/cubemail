@@ -60,9 +60,8 @@ class calendar_ui
       $this->cal->include_script('calendar_base.js');
     }
 
-    $skin_path = $this->cal->local_skin_path();
-    $this->cal->include_stylesheet($skin_path . '/calendar.css');
-    
+    $this->addCSS();
+
     $this->ready = true;
   }
 
@@ -109,7 +108,13 @@ class calendar_ui
   public function addCSS()
   {
     $skin_path = $this->cal->local_skin_path();
-    $this->cal->include_stylesheet($skin_path . '/fullcalendar.css');
+ 
+    if ($this->rc->task == 'calendar' && (!$this->rc->action || in_array($this->rc->action, array('index', 'print')))) {
+      // Include fullCalendar style before skin file for simpler style overriding
+      $this->cal->include_stylesheet($skin_path . '/fullcalendar.css');
+    }
+
+    $this->cal->include_stylesheet($skin_path . '/calendar.css');
 
     if ($this->rc->task == 'calendar' && $this->rc->action == 'print') {
       $this->cal->include_stylesheet($skin_path . '/print.css');

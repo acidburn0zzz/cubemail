@@ -1660,9 +1660,9 @@ a.dropdown-link:after {
 .calendarmain #calendar .fc-button,
 .calendarmain #calendar .fc-button.fc-state-default,
 .calendarmain #calendar .fc-button.fc-state-hover {
-	margin: -2px 0 0 0;
-	height: 24px;
-	line-height: 24px;
+	margin-top: -2px;
+	height: 26px;
+	line-height: 26px;
 	color: #333;
 	border: 1px solid #ababab;
 	background: #f1f1f1;
@@ -1793,8 +1793,8 @@ a.dropdown-link:after {
 	font-size: 1em !important;
 }
 
-.fc-event-hori.fc-type-freebusy,
-.fc-event-vert.fc-type-freebusy {
+.fc-event.fc-type-freebusy,
+.fc-event.fc-type-freebusy {
 	opacity: 0.60;
 	-moz-box-shadow: inset 0px 1px 0 0px #888;
 	-webkit-box-shadow: inset 0px 1px 0 0px #888;
@@ -1806,29 +1806,29 @@ a.dropdown-link:after {
 	color: #999;
 }
 
-.fc-event-hori.fc-type-freebusy .fc-title,
-.fc-event-vert.fc-type-freebusy .fc-title {
+.fc-event.fc-type-freebusy .fc-title,
+.fc-event.fc-type-freebusy .fc-title {
 	position: absolute;
 	top: -5000px;
 }
 
-.fc-event-vert.fc-invitation-needs-action,
-.fc-event-hori.fc-invitation-needs-action {
+.fc-event.fc-invitation-needs-action,
+.fc-event.fc-invitation-needs-action {
 	border: 1px dashed #5757c7 !important;
 }
 
-.fc-event-vert.fc-invitation-tentative,
-.fc-event-hori.fc-invitation-tentative {
+.fc-event.fc-invitation-tentative,
+.fc-event.fc-invitation-tentative {
 	border: 1px dashed #eb8900 !important;
 }
 
-.fc-event-vert.fc-invitation-declined,
-.fc-event-hori.fc-invitation-declined {
+.fc-event.fc-invitation-declined,
+.fc-event.fc-invitation-declined {
 	border: 1px dashed #c00 !important;
 }
 
-.fc-event-vert.fc-event-ns-other.fc-invitation-declined,
-.fc-event-hori.fc-event-ns-other.fc-invitation-declined {
+.fc-event.fc-event-ns-other.fc-invitation-declined,
+.fc-event.fc-event-ns-other.fc-invitation-declined {
 	opacity: 0.7;
 }
 
@@ -1836,16 +1836,25 @@ a.dropdown-link:after {
 	text-decoration: line-through;
 }
 
-.fc-event-vert.fc-invitation-tentative .fc-bg {
+.fc-event .fc-bg {
+	opacity: 1;
+	background: unset;
+	margin-top: 14px;
+}
+
+.fc-event.fc-invitation-tentative .fc-bg {
 	background: url(data:image/gif;base64,R0lGODlhCAAIAPABAOuJAP///yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+	opacity: .25;
 }
 
-.fc-event-vert.fc-invitation-needs-action .fc-bg {
+.fc-event.fc-invitation-needs-action .fc-bg {
 	background: url(data:image/gif;base64,R0lGODlhCAAIAPABAFdXx////yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+	opacity: .25;
 }
 
-.fc-event-vert.fc-invitation-declined .fc-bg {
+.fc-event.fc-invitation-declined .fc-bg {
 	background: url(data:image/gif;base64,R0lGODlhCAAIAPABAMwAAP///yH/C1hNUCBEYXRhWE1QAT8AIfkEBQAAAQAsAAAAAAgACAAAAg4Egmipx+ZaDPCtVPFNBQA7) 0 0 repeat #fff;
+	opacity: .25;
 }
 
 .fc-view-table tr.fc-invitation-tentative td,
@@ -1868,10 +1877,7 @@ a.dropdown-link:after {
 
 .calendarmain .fc-event:focus {
 	outline: 1px solid rgba(71,135,177, 0.4);
-	-webkit-box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
-	   -moz-box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
-	     -o-box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
-	        box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
+	box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
 }
 
 .fc-title {
@@ -1905,7 +1911,7 @@ a.dropdown-link:after {
 	padding-right: 0.3em;
 }
 
-.calendarmain .fc-event-vert .fc-inner {
+.calendarmain .fc-event .fc-inner {
 	z-index: 0;
 }
 
@@ -2049,7 +2055,12 @@ a.dropdown-link:after {
 }
 
 .fc-unthemed td.fc-today {
-	background: rgb(243, 226, 140, 0.2) !important;
+	background: rgb(243, 226, 140, 0.2);
+}
+
+.fc-axis {
+	width: 35px !important;
+	padding: 0 3px !important;
 }
 
 /* Settings section */
