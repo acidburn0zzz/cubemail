@@ -2049,7 +2049,7 @@ a.dropdown-link:after {
 }
 
 .fc-unthemed td.fc-today {
-	background: rgb(243, 226, 140, 0.5);
+	background: rgb(243, 226, 140, 0.2) !important;
 }
 
 /* Settings section */
