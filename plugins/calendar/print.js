@@ -139,12 +139,6 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         if (event.description && showdesc) {
           cont.after('<div class="fc-event-description">' + Q(event.description) + '</div>');
         }
-/* TODO: create icons black on white
-        if (event.recurrence)
-          element.find('.fc-event-time').append('<i class="fc-icon-recurring"></i>');
-        if (event.alarms)
-          element.find('.fc-event-time').append('<i class="fc-icon-alarms"></i>');
-*/
       }
       if (view.name == 'table' && event.description && showdesc) {
         var cols = element.children().css('border', 0).length;

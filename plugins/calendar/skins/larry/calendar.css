@@ -1615,8 +1615,7 @@ a.dropdown-link:after {
 #resourcesearchbox {
 	width: 100%;
 	height: 26px;
-	-moz-box-sizing: border-box;
-	     box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 #resourcequicksearch .iconbutton.searchoptions {
@@ -1631,7 +1630,6 @@ a.dropdown-link:after {
 	top: 4px;
 	right: 1px;
 }
-
 
 
 /* fullcalendar style overrides */
@@ -1796,9 +1794,6 @@ a.dropdown-link:after {
 .fc-event.fc-type-freebusy,
 .fc-event.fc-type-freebusy {
 	opacity: 0.60;
-	-moz-box-shadow: inset 0px 1px 0 0px #888;
-	-webkit-box-shadow: inset 0px 1px 0 0px #888;
-	-o-box-shadow: inset 0px 1px 0 0px #888;
 	box-shadow: inset 0px 1px 0 0px #888;
 }
 
@@ -1840,6 +1835,7 @@ a.dropdown-link:after {
 	opacity: 1;
 	background: unset;
 	margin-top: 14px;
+	cursor: pointer;
 }
 
 .fc-event.fc-invitation-tentative .fc-bg {
@@ -1923,7 +1919,7 @@ a.dropdown-link:after {
 	font-size: 90%;
 }
 
-.fc-more-link {
+.fc-more {
 	color: #999;
 	padding-top: 1px;
 	cursor: pointer;
@@ -1937,7 +1933,7 @@ a.dropdown-link:after {
 	background-color: rgba(198,198,198, 0.08);
 }
 
-.calendarmain .fc-state-highlight {
+.calendarmain .fc-unthemed td.fc-today {
 	background-color: rgba(233,198,14, 0.12);
 }
 
@@ -2051,16 +2047,15 @@ a.dropdown-link:after {
 
 .fc-event-temp {
 	opacity: 0.4;
-	filter: alpha(opacity=40); /* IE8 */
-}
-
-.fc-unthemed td.fc-today {
-	background: rgb(243, 226, 140, 0.2);
 }
 
 .fc-axis {
 	width: 35px !important;
 	padding: 0 3px !important;
+}
+
+.fc-time-grid .fc-now-indicator {
+	border-top: 2px solid #3ec400;
 }
 
 /* Settings section */

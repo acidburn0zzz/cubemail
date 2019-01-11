@@ -82,25 +82,32 @@ function rcube_calendar_ui(settings)
       firstDay : settings.first_day,
       firstHour : settings.first_hour,
       slotMinutes : 60/settings.timeslots,
+      businessHours: {
+        start: settings.work_start + ':00',
+        end: settings.work_end + ':00'
+      },
       views: {
+/*
         basic: {
           timeFormat: settings.time_format,
         },
         year: {
           columnFormat: settings.date_agenda,
-          titleFormat: settings.dates_long,
+          titleFormat: settings.dates_long
         },
+*/
         month: {
           columnFormat: 'ddd', // Mon
           titleFormat: 'MMMM YYYY',
+          eventLimit: 6
         },
         week: {
           columnFormat: 'ddd ' + settings.date_short, // Mon 9/7
-          titleFormat: settings.dates_long,
+          titleFormat: settings.dates_long
         },
         day: {
           columnFormat: 'dddd ' + settings.date_short,  // Monday 9/7
-          titleFormat: 'dddd ' + settings.date_long,
+          titleFormat: 'dddd ' + settings.date_long
         }
       },
       timeFormat: settings.time_format,
@@ -127,6 +134,9 @@ function rcube_calendar_ui(settings)
        next: 'right-single-arrow'
       },
       theme: false,
+      eventLimitText: function(num) {
+        return rcmail.gettext('andnmore', 'calendar').replace('$nr', num);
+      },
 /*
       listTexts: {
         until: rcmail.gettext('until', 'calendar'),
@@ -141,7 +151,7 @@ function rcube_calendar_ui(settings)
         week: rcmail.gettext('weekofyear', 'calendar')
       },
 */
-      currentTimeIndicator: settings.time_indicator,
+      nowIndicator: settings.time_indicator,
       // event rendering
       eventRender: function(event, element, view) {
         if (view.name != 'list' && view.name != 'table') {
@@ -165,11 +175,6 @@ function rcube_calendar_ui(settings)
         }
 
         element.attr('aria-label', event.title + ', ' + me.event_date_text(event, true));
-      },
-      // render element indicating more (invisible) events
-      overflowRender: function(data, element) {
-        element.html(rcmail.gettext('andnmore', 'calendar').replace('$nr', data.count))
-          .click(function(e){ me.fisheye_view(data.date); });
       },
       // callback when a specific event is clicked
       eventClick: function(event, ev, view) {
