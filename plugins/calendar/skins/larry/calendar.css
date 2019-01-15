@@ -1634,6 +1634,10 @@ a.dropdown-link:after {
 
 /* fullcalendar style overrides */
 
+.fc-scroller {
+	background: #fff;
+}
+
 .calendarmain .fc-body {
 	background: #fff;
 }
@@ -1691,7 +1695,7 @@ a.dropdown-link:after {
 	color: #555;
 	min-width: 50px;
 	max-width: 75px;
-	height: 43px;
+	height: 40px;
 	line-height: 1em;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -1702,13 +1706,7 @@ a.dropdown-link:after {
 	border: 0;
 	background: url(images/toolbar.png) center 100px no-repeat;
 	box-shadow: none;
-	-o-box-shadow: none;
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
 	outline: none;
-	-webkit-transition: none;
-	-moz-transition: none;
-	-o-transition: none;
 	transition: none;
 }
 
@@ -1754,12 +1752,11 @@ a.dropdown-link:after {
 	background-position: center -320px;
 }
 
-.calendarmain #calendar .fc-left .fc-listYear-button {
+.calendarmain #calendar .fc-left .fc-list-button {
 	background-position: center -360px;
-	display: none; /* hide Agenda button for now */
 }
 
-.calendarmain #calendar .fc-left .fc-listYear.fc-state-active {
+.calendarmain #calendar .fc-left .fc-list-button.fc-state-active {
 	background-position: center -400px;
 }
 
@@ -1783,7 +1780,7 @@ a.dropdown-link:after {
 }
 
 #calendar .fc-toolbar.fc-header-toolbar {
-	margin-bottom: 4px;
+	margin-bottom: 7px;
 	margin-right: 250px;
 }
 
@@ -1853,21 +1850,25 @@ a.dropdown-link:after {
 	opacity: .25;
 }
 
-.fc-view-table tr.fc-invitation-tentative td,
-.fc-view-table tr.fc-invitation-declined td,
-.fc-view-table tr.fc-invitation-needs-action td {
+.fc-list-view {
+	border-bottom: 0;
+}
+
+.fc-list-table tr.fc-invitation-tentative td,
+.fc-list-table tr.fc-invitation-declined td,
+.fc-list-table tr.fc-invitation-needs-action td {
 	color: #888;
 }
 
-.fc-view-table tr.fc-invitation-tentative td.fc-title,
-.fc-view-table tr.fc-invitation-declined td.fc-title,
-.fc-view-table tr.fc-invitation-needs-action td.fc-title {
+.fc-list-table tr.fc-invitation-tentative td.fc-list-item-title,
+.fc-list-table tr.fc-invitation-declined td.fc-list-item-title,
+.fc-list-table tr.fc-invitation-needs-action td.fc-list-item-title {
 	font-weight: normal;
 }
 
-#quickview-calendar .fc-view-table tr.fc-invitation-tentative td,
-#quickview-calendar .fc-view-table tr.fc-invitation-declined td,
-#quickview-calendar .fc-view-table tr.fc-invitation-needs-action td {
+#quickview-calendar .fc-list-table tr.fc-invitation-tentative td,
+#quickview-calendar .fc-list-table tr.fc-invitation-declined td,
+#quickview-calendar .fc-list-table tr.fc-invitation-needs-action td {
 	color: #333;
 }
 
@@ -1984,12 +1985,21 @@ a.dropdown-link:after {
 	cursor: pointer;
 }
 
-.calendarmain .fc-view-table td.fc-list-header {
+.fc-list-table td.fc-list-header {
 	color: #004458;
 	font-size: 12px;
 }
 
-.calendarmain .fc-view-table tr.fc-event td {
+.fc-list-table tr.fc-list-item {
+	background: transparent;
+}
+
+.fc-list-table tr.fc-list-item:hover td {
+	background: transparent;
+	cursor: pointer;
+}
+
+.fc-list-table tr.fc-list-item td {
 	border-color: #bbd3da;
 	padding: 6px 8px;
 	white-space: nowrap;
@@ -1997,12 +2007,12 @@ a.dropdown-link:after {
 	text-overflow: ellipsis;
 }
 
-.calendarmain .fc-view-table tr.fc-event td.fc-event-handle {
+.fc-list-table tr.fc-list-item td.fc-event-handle {
 	padding: 6px 0 2px 7px;
 	width: 12px;
 }
 
-.calendarmain .fc-view-table .fc-event-handle .fc-event-skin {
+.fc-list-table .fc-event-handle .fc-event-skin {
 	margin: 0;
 	padding: 0;
 	display: inline-block;
@@ -2012,7 +2022,7 @@ a.dropdown-link:after {
 	border-radius: 8px;
 }
 
-.calendarmain .fc-view-table .fc-event-handle .fc-event-inner {
+.fc-list-table .fc-event-handle .fc-event-inner {
 	display: inline-block;
 	width: 10px;
 	height: 10px;
@@ -2023,26 +2033,14 @@ a.dropdown-link:after {
 	border: 1px solid rgba(0, 0, 0, 0.4);
 }
 
-.calendarmain .fc-view-table col.fc-event-location {
+.calendarmain .fc-list-table col.fc-event-location {
 	width: 25%;
 }
 
-.fc-listappend {
-	text-align: center;
-	margin: 1em 0;
-}
-
-.fc-listappend .message {
-	padding: 0.5em;
-	margin-bottom: 0.5em;
+.fc-list-empty {
 	font-size: 150%;
 	color: #999;
-}
-
-.fc-listappend .formlinks a {
-	font-size: 12px;
-	padding: 0 0.3em;
-	max-width: initial;
+	background: unset !important;
 }
 
 .fc-event-temp {
@@ -2055,7 +2053,7 @@ a.dropdown-link:after {
 }
 
 .fc-time-grid .fc-now-indicator {
-	border-top: 2px solid #3ec400;
+	border: 1px solid #3ec400;
 }
 
 /* Settings section */

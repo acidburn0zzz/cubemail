@@ -322,7 +322,7 @@ class calendar extends rcube_plugin
     )));
 
     $view = rcube_utils::get_input_value('view', rcube_utils::INPUT_GPC);
-    if (in_array($view, array('agendaWeek', 'agendaDay', 'month', 'table')))
+    if (in_array($view, array('agendaWeek', 'agendaDay', 'month', 'list')))
       $this->rc->output->set_env('view', $view);
 
     if ($date = rcube_utils::get_input_value('date', rcube_utils::INPUT_GPC))
@@ -2421,7 +2421,7 @@ class calendar extends rcube_plugin
     $title = $this->gettext('print');
 
     $view = rcube_utils::get_input_value('view', rcube_utils::INPUT_GPC);
-    if (!in_array($view, array('agendaWeek', 'agendaDay', 'month', 'table')))
+    if (!in_array($view, array('agendaWeek', 'agendaDay', 'month', 'list')))
       $view = 'agendaDay';
 
     $this->rc->output->set_env('view',$view);
