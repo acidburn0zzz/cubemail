@@ -73,12 +73,15 @@ function rcube_calendar_ui(settings)
 
     // global fullcalendar settings
     var fullcalendar_defaults = {
+      theme: false,
       aspectRatio: 1,
       timezone: false,  // will treat the given date strings as in local (browser's) timezone
       monthNames: settings.months,
       monthNamesShort: settings.months_short,
       dayNames: settings.days,
       dayNamesShort: settings.days_short,
+      weekNumbers: settings.show_weekno > 0,
+      weekNumberTitle: rcmail.gettext('weekshort', 'calendar') + ' ',
       firstDay: settings.first_day,
       firstHour: settings.first_hour,
       slotDuration: {minutes: 60/settings.timeslots},
@@ -114,8 +117,6 @@ function rcube_calendar_ui(settings)
       axisFormat : settings.time_format,
       defaultView: rcmail.env.view || settings.default_view,
       allDayText: rcmail.gettext('all-day', 'calendar'),
-      weekNumbers: settings.show_weekno > 0,
-      weekNumberTitle: rcmail.gettext('weekshort', 'calendar') + ' ',
       buttonText: {
         today: settings['today'],
         day: rcmail.gettext('day', 'calendar'),
@@ -127,12 +128,10 @@ function rcube_calendar_ui(settings)
        prev: 'left-single-arrow',
        next: 'right-single-arrow'
       },
-      theme: false,
       nowIndicator: settings.time_indicator,
       eventLimitText: function(num) {
         return rcmail.gettext('andnmore', 'calendar').replace('$nr', num);
       },
-      noEventsMessage: rcmail.gettext('calendar.searchnoresults'),
 /*
       listTexts: {
         until: rcmail.gettext('until', 'calendar'),
@@ -154,8 +153,14 @@ function rcube_calendar_ui(settings)
           element.attr('title', prefix + event.title);
         }
         if (view.name != 'month') {
-          if (event.location) {
-            element.find('div.fc-title').after('<div class="fc-event-location">@&nbsp;' + Q(event.location) + '</div>');
+          if (view.name == 'list') {
+            var loc = $('<td>').attr('class', 'fc-event-location');
+            if (event.location)
+              loc.text(event.location);
+            element.find('.fc-list-item-title').after(loc);
+          }
+          else if (event.location && view.name != 'month') {
+            element.find('div.fc-title').after('<div class="fc-event-location">').html('@&nbsp;' + Q(event.location));
           }
           var time_element = element.find('div.fc-time');
           if (event.sensitivity && event.sensitivity != 'public')
@@ -2735,9 +2740,7 @@ function rcube_calendar_ui(settings)
           defaultView: 'agendaDay',
           header: { left: '', center: '', right: '' },
           height: h - 50,
-          date: date.getDate(),
-          month: date.getMonth(),
-          year: date.getFullYear(),
+          defaultDate: date,
           eventSources: sources
         }));
 
@@ -3427,36 +3430,27 @@ function rcube_calendar_ui(settings)
     this.reset_quicksearch = function()
     {
       $(rcmail.gui_objects.qsearchbox).val('');
-      
+
       if (this._search_message)
         rcmail.hide_message(this._search_message);
-      
+
       if (this.search_request) {
-        // restore original event sources and view mode from fullcalendar
-        // fc.fullCalendar('option', 'listSections', settings.agenda_sections);
-        update_agenda_toolbar();
-        
         $.each(fc.fullCalendar('getEventSources'), function() {
           this.url = this.url.replace(/&q=.+/, '');
           me.calendars[this.id].url = this.url;
         });
 
-        fc.fullCalendar('refetchEvents');
-        
         this.search_request = this.search_query = null;
+
+        fc.fullCalendar('refetchEvents');
       }
     };
 
     // callback if all sources have been fetched from server
     this.events_loaded = function()
     {
-      var addlinks, append = '';
-
-      // enhance list view when searching
-      if (this.search_request) {
-        if (!fc.fullCalendar('clientEvents').length) {
-          this._search_message = rcmail.display_message(rcmail.gettext('searchnoresults', 'calendar'), 'notice');
-        }
+      if (this.search_request && !fc.fullCalendar('clientEvents').length) {
+        this._search_message = rcmail.display_message(rcmail.gettext('searchnoresults', 'calendar'), 'notice');
       }
 
       if (this.fisheye_date)
@@ -3482,7 +3476,6 @@ function rcube_calendar_ui(settings)
       this.selected_calendar = id;
 
       rcmail.update_state({source: id});
-
       rcmail.enable_command('addevent', this.calendars[id] && this.calendars[id].editable);
     };
 
@@ -3702,10 +3695,10 @@ function rcube_calendar_ui(settings)
     if (window.UI && UI.pretty_checkbox) {
       $(rcmail.gui_objects.calendarslist).find('input[type=checkbox]').each(function() {
         UI.pretty_checkbox($(this).addClass('flex-checkbox'));
-       });
-       calendars_list.addEventListener('add-item', function(prop) {
-         UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
-       });
+      });
+      calendars_list.addEventListener('add-item', function(prop) {
+        UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
+      });
     }
 
     // create list of event sources AKA calendars
@@ -3745,16 +3738,14 @@ function rcube_calendar_ui(settings)
         center: 'title',
         left: 'agendaDay,agendaWeek,month,list'
       },
-      date: viewdate.getDate(),
-      month: viewdate.getMonth(),
-      year: viewdate.getFullYear(),
+      defaultDate: viewdate,
       height: $('#calendar').height(),
       eventSources: event_sources,
       selectable: true,
       selectHelper: false,
       loading: function(isLoading) {
         me.is_loading = isLoading;
-        this._rc_loading = rcmail.set_busy(isLoading, 'loading', this._rc_loading);
+        this._rc_loading = rcmail.set_busy(isLoading, me.search_request ? 'searching' : 'loading', this._rc_loading);
         // trigger callback (using timeout, otherwise clientEvents is always empty)
         if (!isLoading)
           setTimeout(function() { me.events_loaded(); }, 20);
@@ -3852,6 +3843,12 @@ function rcube_calendar_ui(settings)
           next.on('click.list', function() {
             fc.fullCalendar('gotoDate', viewStart.add(settings.agenda_range, 'days'));
           });
+        }
+      },
+      eventAfterAllRender: function(view) {
+        if (view.name == 'list') {
+          // Fix colspan of headers after we added Location column
+          fc.find('tr.fc-list-heading > td').attr('colspan', 4);
         }
       }
     }));

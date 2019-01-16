@@ -1581,12 +1581,9 @@ a.dropdown-link:after {
 	bottom: -1px;
 }
 
-#resource-freebusy-calendar .fc-content {
-	top: 0;
-}
-
-#resource-freebusy-calendar .fc-content .fc-bg {
-	background: 0;
+#resource-freebusy-calendar .fc-toolbar {
+	height: 0;
+	margin: 0;
 }
 
 #resource-freebusy-calendar .fc-event.status-busy,
@@ -1634,18 +1631,20 @@ a.dropdown-link:after {
 
 /* fullcalendar style overrides */
 
+.calendarmain .fc-body,
 .fc-scroller {
 	background: #fff;
 }
 
-.calendarmain .fc-body {
-	background: #fff;
-}
-
-.calendarmain.quickview-active .fc-body {
+.calendarmain.quickview-active .fc-view .fc-scroller {
 	background-image: url('images/focusview.png');
 	background-position: center;
 	background-repeat: no-repeat;
+}
+
+.fc-unthemed .fc-list-heading td {
+	background: rgba(0, 0, 0, .05);
+	padding: 8px;
 }
 
 #quickview-calendar {
@@ -1779,7 +1778,7 @@ a.dropdown-link:after {
 	padding-top: 5px;
 }
 
-#calendar .fc-toolbar.fc-header-toolbar {
+.calendarmain #calendar .fc-toolbar.fc-header-toolbar {
 	margin-bottom: 7px;
 	margin-right: 250px;
 }
@@ -1854,6 +1853,11 @@ a.dropdown-link:after {
 	border-bottom: 0;
 }
 
+.fc-title,
+.fc-list-item-title {
+	font-weight: bold;
+}
+
 .fc-list-table tr.fc-invitation-tentative td,
 .fc-list-table tr.fc-invitation-declined td,
 .fc-list-table tr.fc-invitation-needs-action td {
@@ -1875,10 +1879,6 @@ a.dropdown-link:after {
 .calendarmain .fc-event:focus {
 	outline: 1px solid rgba(71,135,177, 0.4);
 	box-shadow: 0 0 2px 3px rgba(71,135,177, 0.6);
-}
-
-.fc-title {
-	font-weight: bold;
 }
 
 .fc-needs-action,
@@ -1934,13 +1934,13 @@ a.dropdown-link:after {
 	background-color: rgba(198,198,198, 0.08);
 }
 
-.calendarmain .fc-unthemed td.fc-today {
+.calendarmain .fc-unthemed td.fc-day.fc-today {
 	background-color: rgba(233,198,14, 0.12);
 }
 
 .fc-widget-header,
 .fc-widget-content {
-	border-color: #bbd3da !important;
+	border-color: #c3c3c3 !important;
 }
 
 .fc-widget-header .fc-agenda-divider-inner {
@@ -1951,6 +1951,11 @@ a.dropdown-link:after {
 	background-color: #d6eaf3;
 	color: #004458;
 	text-shadow: 0px 1px 1px #fff;
+}
+
+.fc-popover .fc-header .fc-title,
+.fc-list-heading .fc-widget-header {
+	color: #666;
 }
 
 .fc-view thead th.fc-widget-header {
@@ -2000,7 +2005,7 @@ a.dropdown-link:after {
 }
 
 .fc-list-table tr.fc-list-item td {
-	border-color: #bbd3da;
+	border-color: #c3c3c3;
 	padding: 6px 8px;
 	white-space: nowrap;
 	overflow: hidden;
@@ -2037,6 +2042,10 @@ a.dropdown-link:after {
 	width: 25%;
 }
 
+.fc-event-dot {
+	vertical-align: middle;
+}
+
 .fc-list-empty {
 	font-size: 150%;
 	color: #999;
@@ -2052,8 +2061,21 @@ a.dropdown-link:after {
 	padding: 0 3px !important;
 }
 
+.fc .fc-week-number {
+	text-align: center;
+}
+
+.fc-month-view .fc-week-number {
+	width: 20px !important;
+	padding: 2px 0;
+}
+
 .fc-time-grid .fc-now-indicator {
 	border: 1px solid #3ec400;
+}
+
+.fc-list-empty {
+	display: none;
 }
 
 /* Settings section */

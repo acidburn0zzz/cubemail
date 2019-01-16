@@ -1907,6 +1907,10 @@ class calendar extends rcube_plugin
         $event['end'] = $event['end']->add(new DateInterval('P1D'));
     }
 
+    if ($_GET['mode'] == 'print') {
+        $event['editable'] = false;
+    }
+
     return array(
       '_id'   => $event['calendar'] . ':' . $event['id'],  // unique identifier for fullcalendar
       'start' => $this->lib->adjust_timezone($event['start'], $event['allDay'])->format('c'),
@@ -2424,7 +2428,7 @@ class calendar extends rcube_plugin
     if (!in_array($view, array('agendaWeek', 'agendaDay', 'month', 'list')))
       $view = 'agendaDay';
 
-    $this->rc->output->set_env('view',$view);
+    $this->rc->output->set_env('view', $view);
 
     if ($date = rcube_utils::get_input_value('date', rcube_utils::INPUT_GPC))
       $this->rc->output->set_env('date', $date);
