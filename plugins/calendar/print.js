@@ -131,7 +131,6 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
      prev: 'left-single-arrow',
      next: 'right-single-arrow'
     },
-    nowIndicator: settings.time_indicator,
     eventLimitText: function(num) {
       return rcmail.gettext('andnmore', 'calendar').replace('$nr', num);
     },
