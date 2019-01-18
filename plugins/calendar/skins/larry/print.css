@@ -125,7 +125,8 @@ body, td, th, div, p, h3, select, input, textarea {
 	background: transparent;
 }
 
-a.fc-event {
+a.fc-event,
+a.fc-event:hover {
 	color: black;
 	background-color: #fff !important;
 }
