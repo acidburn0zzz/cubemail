@@ -42,7 +42,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
   // create list of event sources AKA calendars
   var id, src, event_sources = [];
-  var add_url = (rcmail.env.search ? '&q='+escape(rcmail.env.search) : '');
+  var add_url = '&mode=print' + (rcmail.env.search ? '&q='+escape(rcmail.env.search) : '');
   for (id in rcmail.env.calendars) {
     if (!rcmail.env.calendars[id].active)
       continue;
@@ -93,6 +93,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     views: {
       list: {
         titleFormat: settings.dates_long,
+        listDayFormat: settings.date_long,
         visibleRange: function(currentDate) {
           return {
             start: currentDate.clone(),
@@ -103,7 +104,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
       month: {
         columnFormat: 'ddd', // Mon
         titleFormat: 'MMMM YYYY',
-        eventLimit: 6
+        eventLimit: 10
       },
       week: {
         columnFormat: 'ddd ' + settings.date_short, // Mon 9/7
@@ -115,7 +116,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
       }
     },
     timeFormat: settings.time_format,
-    axisFormat : settings.time_format,
+    slotLabelFormat: settings.time_format,
     allDayText: rcmail.gettext('all-day', 'calendar'),
     defaultDate: viewdate,
     defaultView: rcmail.env.view,
@@ -186,7 +187,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   if (selector) {
     selector = $('#' + selector);
 
-    $('.fc-right > button').each(function() {
+    $('.fc-right button').each(function() {
       var cl = 'btn btn-secondary', btn = $(this);
 
       if (btn.is('.fc-state-active')) {

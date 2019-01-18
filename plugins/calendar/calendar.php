@@ -374,14 +374,15 @@ class calendar extends rcube_plugin
       }
 
       $field_id = 'rcmfd_default_view';
+      $view = $this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view']);
       $select = new html_select(array('name' => '_default_view', 'id' => $field_id));
       $select->add($this->gettext('day'), "agendaDay");
       $select->add($this->gettext('week'), "agendaWeek");
       $select->add($this->gettext('month'), "month");
-      $select->add($this->gettext('agenda'), "table");
+      $select->add($this->gettext('agenda'), "list");
       $p['blocks']['view']['options']['default_view'] = array(
         'title' => html::label($field_id, rcube::Q($this->gettext('default_view'))),
-        'content' => $select->show($this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view'])),
+        'content' => $select->show($view == 'table' ? 'list' : $view),
       );
     }
 

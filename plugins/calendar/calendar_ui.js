@@ -89,9 +89,11 @@ function rcube_calendar_ui(settings)
         start: settings.work_start + ':00',
         end: settings.work_end + ':00'
       },
+      scrollTime: settings.work_start + ':00',
       views: {
         list: {
           titleFormat: settings.dates_long,
+          listDayFormat: settings.date_long,
           visibleRange: function(currentDate) {
             return {
               start: currentDate.clone(),
@@ -102,7 +104,7 @@ function rcube_calendar_ui(settings)
         month: {
           columnFormat: 'ddd', // Mon
           titleFormat: 'MMMM YYYY',
-          eventLimit: 6
+          eventLimit: 4
         },
         week: {
           columnFormat: 'ddd ' + settings.date_short, // Mon 9/7
@@ -114,7 +116,7 @@ function rcube_calendar_ui(settings)
         }
       },
       timeFormat: settings.time_format,
-      axisFormat : settings.time_format,
+      slotLabelFormat: settings.time_format,
       defaultView: rcmail.env.view || settings.default_view,
       allDayText: rcmail.gettext('all-day', 'calendar'),
       buttonText: {
@@ -159,8 +161,8 @@ function rcube_calendar_ui(settings)
               loc.text(event.location);
             element.find('.fc-list-item-title').after(loc);
           }
-          else if (event.location && view.name != 'month') {
-            element.find('div.fc-title').after('<div class="fc-event-location">').html('@&nbsp;' + Q(event.location));
+          else if (event.location) {
+            element.find('div.fc-title').after($('<div class="fc-event-location">').html('@&nbsp;' + Q(event.location)));
           }
           var time_element = element.find('div.fc-time');
           if (event.sensitivity && event.sensitivity != 'public')
@@ -3492,15 +3494,16 @@ function rcube_calendar_ui(settings)
 
       // choose black text color when background is bright, white otherwise
       if (color = settings.event_coloring % 2  ? '' : '#' + cal.color) {
+        me.calendars[id].color = color;
+        me.calendars[id].textColor = 'white';
+
         if (/^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i.test(color)) {
           // use information about brightness calculation found at
           // http://javascriptrules.com/2009/08/05/css-color-brightness-contrast-using-javascript/
           brightness = (parseInt(RegExp.$1, 16) * 299 + parseInt(RegExp.$2, 16) * 587 + parseInt(RegExp.$3, 16) * 114) / 1000;
           if (brightness > 125)
-            me.calendars[id].textColor = 'black';
+            me.calendars[id].textColor = '#222';
         }
-
-        me.calendars[id].color = color;
       }
 
       if (fc && (cal.active || cal.subscribed)) {
@@ -4314,13 +4317,13 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     });
 
     $.each(['prev', 'today', 'next'], function() {
-      var btn = $('.fc-header-toolbar > .fc-right').find('.fc-button-' + this);
-      $('<button>').attr({'class': 'btn btn-secondary', type: 'button'})
+      var btn = $('.fc-header-toolbar > .fc-right').find('.fc-' + this + '-button');
+      $('<button>').attr({'class': 'btn btn-secondary ' + this, type: 'button'})
         .text(btn.text()).appendTo(nav).on('click', function() { btn.click(); });
     });
 
     $('#timezone-display').appendTo($('.fc-header-toolbar > .fc-center')).removeClass('hidden');
-    $('#agendaoptions').detach().insertAfter('table.fc-header');
+    $('#agendaoptions').detach().insertAfter('.fc-header-toolbar');
 
     $('.content-frame-navigation a.button.date').appendTo('.content > .searchbar');
 
