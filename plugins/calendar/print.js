@@ -180,7 +180,8 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   // activate settings form
   $('#propdescription').change(function() {
     showdesc = this.checked;
-    fc.fullCalendar('render');
+    desc_elements = {};
+    fc.fullCalendar('rerenderEvents');
   });
 
   var selector = $('#calendar').data('view-selector');
