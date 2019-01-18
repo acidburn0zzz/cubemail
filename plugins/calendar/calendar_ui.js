@@ -3265,7 +3265,7 @@ function rcube_calendar_ui(settings)
           $('#rcmlical' + source.id + ' input').prop('checked', true);
         }
 
-        fc.fullCalendar('refetchEventSources', source);
+        fc.fullCalendar('refetchEventSources', source.id);
         fetch_counts();
       }
       // add/update single event object
