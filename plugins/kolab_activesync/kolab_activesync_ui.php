@@ -29,7 +29,7 @@ class kolab_activesync_ui
     private $plugin;
     public  $device = array();
 
-    const SETUP_URL = 'http://docs.kolab.org/client-configuration';
+    const SETUP_URL = 'https://kb.kolabenterprise.com/documentation/setting-up-an-activesync-client';
 
 
     public function __construct($plugin)
