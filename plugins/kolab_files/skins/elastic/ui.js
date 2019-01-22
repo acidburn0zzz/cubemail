@@ -78,8 +78,19 @@ function kolab_files_members_list(link)
 };
 
 
-if (rcmail.env.action == 'open') {
+if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
     rcmail.addEventListener('enable-command', kolab_files_enable_command);
+
+    if (rcmail.env.action == 'open') {
+        $('#toolbar-menu a.button.save').parent().hide();
+    }
+    else if (rcmail.env.action == 'edit') {
+        if (rcmail.env.editor_type == 'wopi' && rcmail.is_framed()) {
+            parent.$('.ui-dialog:visible .ui-dialog-buttonpane').addClass('hidden');
+        }
+
+        rcmail.gui_object('exportmenu', 'export-menu');
+    }
 
     // center and scale the image in preview frame
     if (rcmail.env.mimetype.startsWith('image/')) {
@@ -92,7 +103,7 @@ if (rcmail.env.action == 'open') {
     }
 
     // Elastic mobile preview uses an iframe in a dialog
-    if (rcmail.is_framed()) {
+    if ((rcmail.env.action == 'open' || rcmail.env.editor_type != 'wopi') && rcmail.is_framed()) {
         var edit_button = $('#filetoolbar a.button.edit'),
             save_button = $('#filetoolbar a.button.save');
 
@@ -111,9 +122,6 @@ if (rcmail.env.action == 'open') {
         );
     }
 }
-else if (rcmail.env.action == 'edit') {
-    rcmail.gui_object('exportmenu', 'export-menu');
-}
 else {
     rcmail.addEventListener('files-folder-select', function(p) {
         var is_sess = p.folder == 'folder-collection-sessions';
@@ -126,15 +134,6 @@ else {
 }
 
 $(document).ready(function() {
-    if (rcmail.env.action == 'open') {
-        $('#toolbar-menu a.button.save').parent().hide();
-    }
-    else if (rcmail.env.action == 'edit') {
-        if (rcmail.is_framed()) {
-            parent.$('.ui-dialog:visible .ui-dialog-buttonpane').addClass('hidden');
-        }
-    }
-
     if ($('#dragfilemenu').length) {
         rcmail.gui_object('file_dragmenu', 'dragfilemenu');
     }

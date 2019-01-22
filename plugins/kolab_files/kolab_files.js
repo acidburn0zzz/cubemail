@@ -1251,10 +1251,6 @@ function kolab_files_frame_load(frame)
   }
   catch (e) {};
 
-  // on edit page switch immediately to edit mode
-  if (rcmail.file_editor && rcmail.file_editor.editable && rcmail.env.action == 'edit')
-    rcmail.files_edit();
-
   rcmail.enable_command('files-edit', (rcmail.file_editor && rcmail.file_editor.editable)
     || rcmail.env.editor_type
     || (file_api.file_type_supported(rcmail.env.file_data.type, rcmail.env.files_caps) & 4));
@@ -1265,6 +1261,10 @@ function kolab_files_frame_load(frame)
   // Enable image tools
   rcmail.enable_command('image-scale', 'image-rotate', info && !!/^image\//.test(info.type));
   rcmail.gui_objects.messagepartframe = frame;
+
+  // on edit page switch immediately to edit mode
+  if (rcmail.file_editor && rcmail.file_editor.editable && rcmail.env.action == 'edit')
+    rcmail.files_edit();
 
   // detect Print button and check if it can be accessed
   try {
@@ -3894,6 +3894,9 @@ function kolab_files_ui()
       _viewer: viewer || 0,
       _frame: 1
     };
+
+    if (rcmail.is_framed())
+      args._framed = 1;
 
     if (params && params.session)
       args._session = params.session;
