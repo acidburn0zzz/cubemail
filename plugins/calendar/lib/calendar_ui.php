@@ -368,18 +368,7 @@ class calendar_ui
             html::span('input-group-text', $this->cal->gettext('listrange')))
         . $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']))
     );
-/*
-    $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections', 'class' => 'form-control custom-select'));
-    $select_sections->add('---', '');
-    foreach (array('day' => 'libcalendaring.days', 'week' => 'libcalendaring.weeks', 'month' => 'libcalendaring.months', 'smart' => 'calendar.smartsections') as $val => $label)
-      $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
 
-    $html .= html::span('input-group',
-        html::label(array('for' => 'agenda-listsections', 'class' => 'input-group-prepend'),
-            html::span('input-group-text', $this->cal->gettext('listsections')))
-        . $select_sections->show($this->rc->config->get('calendar_agenda_sections', $this->cal->defaults['calendar_agenda_sections']))
-    );
-*/
     return html::div($attrib, $html);
   }
 

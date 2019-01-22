@@ -134,20 +134,6 @@ function rcube_calendar_ui(settings)
       eventLimitText: function(num) {
         return rcmail.gettext('andnmore', 'calendar').replace('$nr', num);
       },
-/*
-      listTexts: {
-        until: rcmail.gettext('until', 'calendar'),
-        past: rcmail.gettext('pastevents', 'calendar'),
-        today: rcmail.gettext('today', 'calendar'),
-        tomorrow: rcmail.gettext('tomorrow', 'calendar'),
-        thisWeek: rcmail.gettext('thisweek', 'calendar'),
-        nextWeek: rcmail.gettext('nextweek', 'calendar'),
-        thisMonth: rcmail.gettext('thismonth', 'calendar'),
-        nextMonth: rcmail.gettext('nextmonth', 'calendar'),
-        future: rcmail.gettext('futureevents', 'calendar'),
-        week: rcmail.gettext('weekofyear', 'calendar')
-      },
-*/
       // event rendering
       eventRender: function(event, element, view) {
         if (view.name != 'list') {
@@ -2674,12 +2660,6 @@ function rcube_calendar_ui(settings)
       return true;
     };
 
-    var update_agenda_toolbar = function()
-    {
-//      $('#agenda-listrange').val();
-//      $('#agenda-listsections').val(fc.fullCalendar('option', 'listSections'));
-    }
-
 
     /*** public methods ***/
 
@@ -2690,63 +2670,6 @@ function rcube_calendar_ui(settings)
     {
         if (me.saving_lock)
             rcmail.set_busy(false, null, me.saving_lock);
-    };
-
-    // opens calendar day-view in a popup
-    this.fisheye_view = function(date)
-    {
-      $('#fish-eye-view:ui-dialog').dialog('close');
-      
-      // create list of active event sources
-      var src, cals = {}, sources = [];
-      for (var id in this.calendars) {
-        src = $.extend({}, this.calendars[id]);
-        src.editable = false;
-        src.url = null;
-        src.events = [];
-
-        if (src.active) {
-          cals[id] = src;
-          sources.push(src);
-        }
-      }
-      
-      // copy events already loaded
-      var events = fc.fullCalendar('clientEvents');
-      for (var event, i=0; i< events.length; i++) {
-        event = events[i];
-        if (event.source && (src = cals[event.source.id])) {
-          src.events.push(event);
-        }
-      }
-      
-      var h = $(window).height() - 50;
-      var dialog = $('<div>')
-        .attr('id', 'fish-eye-view')
-        .dialog({
-          modal: true,
-          width: 680,
-          height: h,
-          title: format_date(date, 'dddd ' + settings.date_long),
-          buttons: [{
-            text: rcmail.gettext('cancel', 'calendar'),
-            'class': 'cancel',
-            click: function() { $(this).dialog("close"); }
-          }],
-          close: function(){
-            dialog.dialog("destroy");
-            me.fisheye_date = null;
-          }
-        })
-        .fullCalendar($.extend({}, fullcalendar_defaults, {
-          defaultView: 'agendaDay',
-          header: { left: '', center: '', right: '' },
-          height: h - 50,
-          defaultDate: date,
-          eventSources: sources
-        }));
-
-        this.fisheye_date = date;
     };
 
     // opens the given calendar in a popup dialog
@@ -2865,13 +2788,11 @@ function rcube_calendar_ui(settings)
     {
       if (!view) view = fc.fullCalendar('getView').name;
       var date = fc.fullCalendar('getDate').toDate();
-//      var sections = fc.fullCalendar('option', 'listSections');
 
       rcmail.open_window(rcmail.url('print', {
           view: view,
           date: date2unixtime(date),
           range: settings.agenda_range,
-          // sections: sections,
           search: this.search_query
         }), true, true);
     };
@@ -3274,10 +3195,6 @@ function rcube_calendar_ui(settings)
         event.temp = false;
         event.editable = 0;
 
-          // update fish-eye view
-        if (this.fisheye_date)
-          update_view($('#fish-eye-view'), event, source);
-
         // update main view
         event.editable = source.editable;
         update_view(fc, event, source);
@@ -3414,11 +3331,8 @@ function rcube_calendar_ui(settings)
           this.search_query = q;
           
           // change to list view
-          // fc.fullCalendar('option', 'listSections', 'month');
           fc.fullCalendar('changeView', 'list');
-          
-          update_agenda_toolbar();
-          
+
           // refetch events with new url (if not already triggered by changeView)
           if (!this.is_loading)
             fc.fullCalendar('refetchEvents');
@@ -3454,9 +3368,6 @@ function rcube_calendar_ui(settings)
       if (this.search_request && !fc.fullCalendar('clientEvents').length) {
         this._search_message = rcmail.display_message(rcmail.gettext('searchnoresults', 'calendar'), 'notice');
       }
-
-      if (this.fisheye_date)
-        this.fisheye_view(this.fisheye_date);
     };
 
     // adjust calendar view size
@@ -3926,8 +3837,8 @@ function rcube_calendar_ui(settings)
             // select monday of the chosen calendar week
             var day_off = base_date.getDay() - me.datepicker_settings.firstDay,
               date = new Date(base_date.getTime() - day_off * DAY_MS + wdiff * 7 * DAY_MS);
-            fc.fullCalendar('gotoDate', date)
-            fc.fullCalendar('changeView', 'agendaWeek');
+
+            fc.fullCalendar('changeView', 'agendaWeek', date);
             minical.datepicker('setDate', date);
             setTimeout(function() { pretty_select($('select', minical)); }, 25);
           }
@@ -4145,14 +4056,7 @@ function rcube_calendar_ui(settings)
         fc.fullCalendar('changeView', 'list');
         // TODO: save new settings in prefs
       }).val(settings.agenda_range);
-/*
-      $('#agenda-listsections').change(function(e){
-        settings.agenda_sections = $(this).val();
-        fc.fullCalendar('option', 'listSections', settings.agenda_sections);
-        fc.fullCalendar('changeView', 'list');
-        // TODO: save new settings in prefs
-      }).val(fc.fullCalendar('option', 'listSections'));
-*/
+
       // hide event dialog when clicking somewhere into document
       $(document).bind('mousedown', dialog_check);
 
