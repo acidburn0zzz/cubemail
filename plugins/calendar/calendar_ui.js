@@ -3834,16 +3834,13 @@ function rcube_calendar_ui(settings)
           me.update_state();
         }
 
-        var prev = $('#calendar .fc-prev-button').off('click.list'),
-          next = $('#calendar .fc-next-button').off('click.list');
-
         if (view.name == 'list') {
           var viewStart = moment(view.start);
 
-          prev.on('click.list', function() {
+          $('#calendar .fc-prev-button').off('click').on('click', function() {
             fc.fullCalendar('gotoDate', viewStart.subtract(settings.agenda_range, 'days'));
           });
-          next.on('click.list', function() {
+          $('#calendar .fc-next-button').off('click').on('click', function() {
             fc.fullCalendar('gotoDate', viewStart.add(settings.agenda_range, 'days'));
           });
         }
