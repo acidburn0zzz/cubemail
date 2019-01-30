@@ -87,19 +87,6 @@ function rcube_tasklist_ui(settings)
     var task_attendees = [];
     var attendees_list;
     var me = this;
-
-    // general datepicker settings
-    var datepicker_settings = {
-      // translate from PHP format to datepicker format
-      dateFormat: settings.date_format.replace(/M/g, 'm').replace(/mmmmm/, 'MM').replace(/mmm/, 'M').replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/yy/g, 'y'),
-      firstDay : settings.first_day,
-//      dayNamesMin: settings.days_short,
-//      monthNames: settings.months,
-//      monthNamesShort: settings.months,
-      changeMonth: false,
-      showOtherMonths: true,
-      selectOtherMonths: true
-    };
     var extended_datepicker_settings;
 
     /*  public members  */
@@ -127,10 +114,6 @@ function rcube_tasklist_ui(settings)
     /* imports */
     var Q = this.quote_html;
     var text2html = this.text2html;
-    var event_date_text = this.event_date_text;
-    var parse_datetime = this.parse_datetime;
-    var date2unixtime = this.date2unixtime;
-    var fromunixtime = this.fromunixtime;
     var render_message_links = this.render_message_links;
 
     /**
@@ -639,7 +622,7 @@ function rcube_tasklist_ui(settings)
                         });
                 }, 1);
             }
-        }, datepicker_settings);
+        }, me.datepicker_settings);
 
         rcmail.addEventListener('kolab-tags-search', filter_tasks)
             .addEventListener('kolab-tags-drop-data', function(e) { return listdata[e.id]; })
@@ -743,7 +726,7 @@ function rcube_tasklist_ui(settings)
         me.init_alarms_edit('#taskedit-alarms');
         me.init_recurrence_edit('#eventedit');
 
-        $('#taskedit-date, #taskedit-startdate').datepicker(datepicker_settings);
+        $('#taskedit-date, #taskedit-startdate').datepicker(me.datepicker_settings);
 
         $('a.edit-nodate').click(function(){
             var sel = $(this).attr('rel');
@@ -2594,8 +2577,8 @@ function rcube_tasklist_ui(settings)
                 return false;
             }
             else if (data.startdate && data.date) {
-                var startdate = $.datepicker.parseDate(datepicker_settings.dateFormat, data.startdate, datepicker_settings);
-                var duedate = $.datepicker.parseDate(datepicker_settings.dateFormat, data.date, datepicker_settings);
+                var startdate = $.datepicker.parseDate(me.datepicker_settings.dateFormat, data.startdate, me.datepicker_settings);
+                var duedate = $.datepicker.parseDate(me.datepicker_settings.dateFormat, data.date, me.datepicker_settings);
                 if (startdate > duedate) {
                     rcmail.alert_dialog(rcmail.gettext('invalidstartduedates', 'tasklist'));
                     return false;

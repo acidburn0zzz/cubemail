@@ -60,9 +60,8 @@ class calendar_ui
       $this->cal->include_script('calendar_base.js');
     }
 
-    $skin_path = $this->cal->local_skin_path();
-    $this->cal->include_stylesheet($skin_path . '/calendar.css');
-    
+    $this->addCSS();
+
     $this->ready = true;
   }
 
@@ -109,7 +108,17 @@ class calendar_ui
   public function addCSS()
   {
     $skin_path = $this->cal->local_skin_path();
-    $this->cal->include_stylesheet($skin_path . '/fullcalendar.css');
+ 
+    if ($this->rc->task == 'calendar' && (!$this->rc->action || in_array($this->rc->action, array('index', 'print')))) {
+      // Include fullCalendar style before skin file for simpler style overriding
+      $this->cal->include_stylesheet($skin_path . '/fullcalendar.css');
+    }
+
+    $this->cal->include_stylesheet($skin_path . '/calendar.css');
+
+    if ($this->rc->task == 'calendar' && $this->rc->action == 'print') {
+      $this->cal->include_stylesheet($skin_path . '/print.css');
+    }
   }
 
   /**
@@ -117,12 +126,18 @@ class calendar_ui
    */
   public function addJS()
   {
-    $this->cal->include_script('calendar_ui.js');
+    $this->cal->include_script('lib/js/moment.js');
     $this->cal->include_script('lib/js/fullcalendar.js');
-    $this->rc->output->include_script('treelist.js');
-    $this->cal->api->include_script('libkolab/libkolab.js');
 
-    jqueryui::miniColors();
+    if ($this->rc->task == 'calendar' && $this->rc->action == 'print') {
+      $this->cal->include_script('print.js');
+    }
+    else {
+      $this->rc->output->include_script('treelist.js');
+      $this->cal->api->include_script('libkolab/libkolab.js');
+      $this->cal->include_script('calendar_ui.js');
+      jqueryui::miniColors();
+    }
   }
 
   /**
@@ -352,17 +367,6 @@ class calendar_ui
         html::label(array('for' => 'agenda-listrange', 'class' => 'input-group-prepend'),
             html::span('input-group-text', $this->cal->gettext('listrange')))
         . $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']))
-    );
-
-    $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections', 'class' => 'form-control custom-select'));
-    $select_sections->add('---', '');
-    foreach (array('day' => 'libcalendaring.days', 'week' => 'libcalendaring.weeks', 'month' => 'libcalendaring.months', 'smart' => 'calendar.smartsections') as $val => $label)
-      $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
-
-    $html .= html::span('input-group',
-        html::label(array('for' => 'agenda-listsections', 'class' => 'input-group-prepend'),
-            html::span('input-group-text', $this->cal->gettext('listsections')))
-        . $select_sections->show($this->rc->config->get('calendar_agenda_sections', $this->cal->defaults['calendar_agenda_sections']))
     );
 
     return html::div($attrib, $html);

@@ -40,21 +40,21 @@ class libcalendaring extends rcube_plugin
     public $ical_message;
 
     public $defaults = array(
-      'calendar_date_format'  => "yyyy-MM-dd",
-      'calendar_date_short'   => "M-d",
-      'calendar_date_long'    => "MMM d yyyy",
-      'calendar_date_agenda'  => "ddd MM-dd",
-      'calendar_time_format'  => "HH:mm",
+      'calendar_date_format'  => "Y-m-d",
+      'calendar_date_short'   => "M-j",
+      'calendar_date_long'    => "F j Y",
+      'calendar_date_agenda'  => "l M-d",
+      'calendar_time_format'  => "H:m",
       'calendar_first_day'    => 1,
       'calendar_first_hour'   => 6,
       'calendar_date_format_sets' => array(
-        'yyyy-MM-dd' => array('MMM d yyyy',   'M-d',  'ddd MM-dd'),
-        'dd-MM-yyyy' => array('d MMM yyyy',   'd-M',  'ddd dd-MM'),
-        'yyyy/MM/dd' => array('MMM d yyyy',   'M/d',  'ddd MM/dd'),
-        'MM/dd/yyyy' => array('MMM d yyyy',   'M/d',  'ddd MM/dd'),
-        'dd/MM/yyyy' => array('d MMM yyyy',   'd/M',  'ddd dd/MM'),
-        'dd.MM.yyyy' => array('dd. MMM yyyy', 'd.M',  'ddd dd.MM.'),
-        'd.M.yyyy'   => array('d. MMM yyyy',  'd.M',  'ddd d.MM.'),
+        'Y-m-d' => array('d M Y',   'm-d',  'l m-d'),
+        'd-m-Y' => array('d M Y',   'd-m',  'l d-m'),
+        'Y/m/d' => array('M d Y',   'm/d',  'l m/d'),
+        'm/d/Y' => array('M d Y',   'm/d',  'l m/d'),
+        'd/m/Y' => array('d M Y',   'd/m',  'l d/m'),
+        'd.m.Y' => array('d. M Y', 'd.m',  'l d.m.'),
+        'd.m.Y'   => array('d. M Y',  'd.m',  'l d.m.'),
       ),
     );
 
@@ -207,14 +207,14 @@ class libcalendaring extends rcube_plugin
         $this->date_format_defaults();
 
         $settings = array();
-        $keys     = array('date_format', 'time_format', 'date_short', 'date_long');
+        $keys     = array('date_format', 'time_format', 'date_short', 'date_long', 'date_agenda');
 
         foreach ($keys as $key) {
             $settings[$key] = (string)$this->rc->config->get('calendar_' . $key, $this->defaults['calendar_' . $key]);
-            $settings[$key] = str_replace('Y', 'y', $settings[$key]);
+            $settings[$key] = self::from_php_date_format($settings[$key]);
         }
 
-        $settings['dates_long']  = str_replace(' yyyy', '[ yyyy]', $settings['date_long']) . "{ '&mdash;' " . $settings['date_long'] . '}';
+        $settings['dates_long']  = $settings['date_long'];
         $settings['first_day']   = (int)$this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']);
         $settings['timezone']    = $this->timezone_offset;
         $settings['dst']         = $this->dst_active;
@@ -265,8 +265,8 @@ class libcalendaring extends rcube_plugin
         if (isset($defaults['date_format']))
           return;
 
-        $defaults['date_format'] = $this->rc->config->get('calendar_date_format', self::from_php_date_format($this->rc->config->get('date_format')));
-        $defaults['time_format'] = $this->rc->config->get('calendar_time_format', self::from_php_date_format($this->rc->config->get('time_format')));
+        $defaults['date_format'] = $this->rc->config->get('calendar_date_format', $this->rc->config->get('date_format'));
+        $defaults['time_format'] = $this->rc->config->get('calendar_time_format', $this->rc->config->get('time_format'));
 
         // override defaults
         if ($defaults['date_format'])
@@ -1477,8 +1477,8 @@ class libcalendaring extends rcube_plugin
             'M'    => 'n',
             'dddd' => 'l',
             'ddd'  => 'D',
-            'dd'   => 'd',
-            'd'    => 'j',
+            'DD'   => 'd',
+            'D'    => 'j',
             'HH'   => '**',
             'hh'   => '%%',
             'H'    => 'G',
@@ -1497,20 +1497,20 @@ class libcalendaring extends rcube_plugin
     }
 
     /**
-     * Convert from PHP date() format to fullcalendar format string
+     * Convert from PHP date() format to fullcalendar (MomentJS) format string
      */
     public static function from_php_date_format($from)
     {
         // "d.m.Y H:i:s" => "dd.MM.yyyy HH:mm:ss"
         return strtr($from, array(
-            'y' => 'yy',
-            'Y' => 'yyyy',
+            'y' => 'YY',
+            'Y' => 'YYYY',
             'M' => 'MMM',
             'F' => 'MMMM',
             'm' => 'MM',
             'n' => 'M',
-            'j' => 'd',
-            'd' => 'dd',
+            'j' => 'D',
+            'd' => 'DD',
             'D' => 'ddd',
             'l' => 'dddd',
             'H' => 'HH',
@@ -1519,9 +1519,7 @@ class libcalendaring extends rcube_plugin
             'g' => 'h',
             'i' => 'mm',
             's' => 'ss',
-            'A' => 'TT',
-            'a' => 'tt',
-            'c' => 'u',
+            'c' => '',
         ));
     }
 

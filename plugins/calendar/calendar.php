@@ -50,7 +50,6 @@ class calendar extends rcube_plugin
     'calendar_work_start'   => 6,
     'calendar_work_end'     => 18,
     'calendar_agenda_range' => 60,
-    'calendar_agenda_sections' => 'smart',
     'calendar_event_coloring'  => 0,
     'calendar_time_indicator'  => true,
     'calendar_allow_invite_shared' => false,
@@ -296,16 +295,12 @@ class calendar extends rcube_plugin
     return $calendar ?: $first;
   }
 
-
   /**
    * Render the main calendar view from skin template
    */
   function calendar_view()
   {
     $this->rc->output->set_pagetitle($this->gettext('calendar'));
-
-    // Add CSS stylesheets to the page header
-    $this->ui->addCSS();
 
     // Add JS files to the page header
     $this->ui->addJS();
@@ -326,7 +321,7 @@ class calendar extends rcube_plugin
     )));
 
     $view = rcube_utils::get_input_value('view', rcube_utils::INPUT_GPC);
-    if (in_array($view, array('agendaWeek', 'agendaDay', 'month', 'table')))
+    if (in_array($view, array('agendaWeek', 'agendaDay', 'month', 'list')))
       $this->rc->output->set_env('view', $view);
 
     if ($date = rcube_utils::get_input_value('date', rcube_utils::INPUT_GPC))
@@ -378,14 +373,15 @@ class calendar extends rcube_plugin
       }
 
       $field_id = 'rcmfd_default_view';
+      $view = $this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view']);
       $select = new html_select(array('name' => '_default_view', 'id' => $field_id));
       $select->add($this->gettext('day'), "agendaDay");
       $select->add($this->gettext('week'), "agendaWeek");
       $select->add($this->gettext('month'), "month");
-      $select->add($this->gettext('agenda'), "table");
+      $select->add($this->gettext('agenda'), "list");
       $p['blocks']['view']['options']['default_view'] = array(
         'title' => html::label($field_id, rcube::Q($this->gettext('default_view'))),
-        'content' => $select->show($this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view'])),
+        'content' => $select->show($view == 'table' ? 'list' : $view),
       );
     }
 
@@ -1323,12 +1319,21 @@ class calendar extends rcube_plugin
    */
   function load_events()
   {
-    $events = $this->driver->load_events(
-      rcube_utils::get_input_value('start', rcube_utils::INPUT_GET),
-      rcube_utils::get_input_value('end', rcube_utils::INPUT_GET),
-      ($query = rcube_utils::get_input_value('q', rcube_utils::INPUT_GET)),
-      rcube_utils::get_input_value('source', rcube_utils::INPUT_GET)
-    );
+    $start  = rcube_utils::get_input_value('start', rcube_utils::INPUT_GET);
+    $end    = rcube_utils::get_input_value('end', rcube_utils::INPUT_GET);
+    $query  = rcube_utils::get_input_value('q', rcube_utils::INPUT_GET);
+    $source = rcube_utils::get_input_value('source', rcube_utils::INPUT_GET);
+
+    if (!is_numeric($start) || strpos($start, 'T')) {
+      $start = new DateTime($start, $this->timezone);
+      $start = $start->getTimestamp();
+    }
+    if (!is_numeric($end) || strpos($end, 'T')) {
+      $end = new DateTime($end, $this->timezone);
+      $end = $end->getTimestamp();
+    }
+
+    $events = $this->driver->load_events($start, $end, $query, $source);
     echo $this->encode($events, !empty($query));
     exit;
   }
@@ -1767,15 +1772,12 @@ class calendar extends rcube_plugin
     // configuration
     $settings['default_calendar'] = $this->rc->config->get('calendar_default_calendar');
     $settings['default_view'] = (string)$this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view']);
-    $settings['date_agenda'] = (string)$this->rc->config->get('calendar_date_agenda', $this->defaults['calendar_date_agenda']);
-
     $settings['timeslots'] = (int)$this->rc->config->get('calendar_timeslots', $this->defaults['calendar_timeslots']);
     $settings['first_day'] = (int)$this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']);
     $settings['first_hour'] = (int)$this->rc->config->get('calendar_first_hour', $this->defaults['calendar_first_hour']);
     $settings['work_start'] = (int)$this->rc->config->get('calendar_work_start', $this->defaults['calendar_work_start']);
     $settings['work_end'] = (int)$this->rc->config->get('calendar_work_end', $this->defaults['calendar_work_end']);
     $settings['agenda_range'] = (int)$this->rc->config->get('calendar_agenda_range', $this->defaults['calendar_agenda_range']);
-    $settings['agenda_sections'] = $this->rc->config->get('calendar_agenda_sections', $this->defaults['calendar_agenda_sections']);
     $settings['event_coloring'] = (int)$this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring']);
     $settings['time_indicator'] = (int)$this->rc->config->get('calendar_time_indicator', $this->defaults['calendar_time_indicator']);
     $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', $this->defaults['calendar_allow_invite_shared']);
@@ -1889,24 +1891,35 @@ class calendar extends rcube_plugin
       $event['description'] = trim($h2t->get_text());
     }
 
-    // mapping url => vurl because of the fullcalendar client script
+    // mapping url => vurl, allday => allDay because of the fullcalendar client script
     $event['vurl'] = $event['url'];
+    $event['allDay'] = !empty($event['allday']);
     unset($event['url']);
+    unset($event['allday']);
+
+    $event['className'] = $event['className'] ? explode(' ', $event['className']) : array();
+    if ($addcss) {
+        $event['className'][] = 'fc-event-cal-' . asciiwords($event['calendar'], true);
+    }
+
+    if ($event['allDay']) {
+        $event['end'] = $event['end']->add(new DateInterval('P1D'));
+    }
+
+    if ($_GET['mode'] == 'print') {
+        $event['editable'] = false;
+    }
 
     return array(
       '_id'   => $event['calendar'] . ':' . $event['id'],  // unique identifier for fullcalendar
-      'start' => $this->lib->adjust_timezone($event['start'], $event['allday'])->format('c'),
-      'end'   => $this->lib->adjust_timezone($event['end'], $event['allday'])->format('c'),
+      'start' => $this->lib->adjust_timezone($event['start'], $event['allDay'])->format('c'),
+      'end'   => $this->lib->adjust_timezone($event['end'], $event['allDay'])->format('c'),
       // 'changed' might be empty for event recurrences (Bug #2185)
       'changed' => $event['changed'] ? $this->lib->adjust_timezone($event['changed'])->format('c') : null,
       'created' => $event['created'] ? $this->lib->adjust_timezone($event['created'])->format('c') : null,
       'title'       => strval($event['title']),
       'description' => strval($event['description']),
       'location'    => strval($event['location']),
-      'className'   => ($addcss ? 'fc-event-cal-'.asciiwords($event['calendar'], true).' ' : '') .
-          'fc-event-cat-' . asciiwords(strtolower(join('-', (array)$event['categories'])), true) .
-          rtrim(' ' . $event['className']),
-      'allDay'      => ($event['allday'] == 1),
     ) + $event;
   }
 
@@ -2056,7 +2069,8 @@ class calendar extends rcube_plugin
     // convert dates into DateTime objects in user's current timezone
     $event['start']  = new DateTime($event['start'], $this->timezone);
     $event['end']    = new DateTime($event['end'], $this->timezone);
-    $event['allday'] = (bool)$event['allday'];
+    $event['allday'] = !empty($event['allDay']);
+    unset($event['allDay']);
 
     // start/end is all we need for 'move' action (#1480)
     if ($action == 'move') {
@@ -2410,10 +2424,10 @@ class calendar extends rcube_plugin
     $title = $this->gettext('print');
 
     $view = rcube_utils::get_input_value('view', rcube_utils::INPUT_GPC);
-    if (!in_array($view, array('agendaWeek', 'agendaDay', 'month', 'table')))
+    if (!in_array($view, array('agendaWeek', 'agendaDay', 'month', 'list')))
       $view = 'agendaDay';
 
-    $this->rc->output->set_env('view',$view);
+    $this->rc->output->set_env('view', $view);
 
     if ($date = rcube_utils::get_input_value('date', rcube_utils::INPUT_GPC))
       $this->rc->output->set_env('date', $date);
@@ -2421,28 +2435,19 @@ class calendar extends rcube_plugin
     if ($range = rcube_utils::get_input_value('range', rcube_utils::INPUT_GPC))
       $this->rc->output->set_env('listRange', intval($range));
 
-    if (isset($_REQUEST['sections']))
-      $this->rc->output->set_env('listSections', rcube_utils::get_input_value('sections', rcube_utils::INPUT_GPC));
-
     if ($search = rcube_utils::get_input_value('search', rcube_utils::INPUT_GPC)) {
       $this->rc->output->set_env('search', $search);
       $title .= ' "' . $search . '"';
     }
 
-    // Add CSS stylesheets to the page header
-    $skin_path = $this->local_skin_path();
-    $this->include_stylesheet($skin_path . '/fullcalendar.css');
-    $this->include_stylesheet($skin_path . '/print.css');
-    
-    // Add JS files to the page header
-    $this->include_script('print.js');
-    $this->include_script('lib/js/fullcalendar.js');
-    
+    // Add JS to the page
+    $this->ui->addJS();
+
     $this->register_handler('plugin.calendar_css', array($this->ui, 'calendar_css'));
     $this->register_handler('plugin.calendar_list', array($this->ui, 'calendar_list'));
-    
+
     $this->rc->output->set_pagetitle($title);
-    $this->rc->output->send("calendar.print");
+    $this->rc->output->send('calendar.print');
   }
 
   /**
