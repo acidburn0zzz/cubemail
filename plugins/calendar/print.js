@@ -37,7 +37,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
   var rc_loading;
   var showdesc = true;
-  var desc_elements = {};
+  var desc_elements = [];
   var settings = $.extend(rcmail.env.calendar_settings, rcmail.env.libcal_settings);
 
   // create list of event sources AKA calendars
@@ -147,9 +147,9 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         element.find('.fc-list-item-title').after(loc);
 
         // we can't add HTML elements after the curent element,
-        // so we store it for later. One description per event
-        if (event.description && showdesc && !desc_elements[event.uid])
-          desc_elements[event.uid] = {element: element[0], description: event.description};
+        // so we store it for later.
+        if (event.description && showdesc)
+          desc_elements.push({element: element[0], description: event.description});
       }
       else if (view.name != 'month') {
         var cont = element.find('div.fc-title');
@@ -173,14 +173,14 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
       }
     },
     viewRender: function(view) {
-      desc_elements = {};
+      desc_elements = [];
     }
   });
 
   // activate settings form
   $('#propdescription').change(function() {
     showdesc = this.checked;
-    desc_elements = {};
+    desc_elements = [];
     fc.fullCalendar('rerenderEvents');
   });
 
