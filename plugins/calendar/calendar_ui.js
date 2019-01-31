@@ -2086,7 +2086,7 @@ function rcube_calendar_ui(settings)
             rcmail.enable_command('add-resource', false);
             $(rcmail.gui_objects.resourceinfo).hide();
             $(rcmail.gui_objects.resourceownerinfo).hide();
-            $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('removeEventSource', resources_events_source);
+            $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('removeEventSources');
           }
         });
 
@@ -2162,7 +2162,7 @@ function rcube_calendar_ui(settings)
         }
 
         $(rcmail.gui_objects.resourceownerinfo).hide();
-        $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('removeEventSource', resources_events_source);
+        $(rcmail.gui_objects.resourceinfocalendar).fullCalendar('removeEventSources');
 
         if (resource.owner) {
           // display cached data
