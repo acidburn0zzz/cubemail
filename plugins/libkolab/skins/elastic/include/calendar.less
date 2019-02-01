@@ -596,6 +596,39 @@ body.task-calendar {
             float: right;
             padding-top: .25rem;
         }
+
+        #calendarlist {
+            margin-top: 1rem;
+
+            &, ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            li {
+                display: inline-block;
+                white-space: nowrap;
+            }
+
+            ul, li, div {
+                float: left;
+            }
+
+            div {
+                margin-right: 2rem;
+            }
+
+            a {
+                text-decoration: none;
+                cursor: auto;
+            }
+
+            input,
+            span.actions,
+            span.handle {
+                display: none;
+            }
+        }
     }
 
     @media screen and (min-width: (@screen-width-small + 1px)) {
