@@ -775,7 +775,12 @@ function rcube_calendar_ui(settings)
           var start = me.parse_datetime(allday.checked ? '12:00' : starttime.val(), startdate.val());
           var end   = me.parse_datetime(allday.checked ? '13:00' : endtime.val(), enddate.val());
 
-          // basic input validatetion
+          // basic input validation
+          if (!title.val()) {
+            rcmail.alert_dialog(rcmail.gettext('emptyeventtitle', 'calendar'));
+            return false;
+          }
+
           if (start.getTime() > end.getTime()) {
             rcmail.alert_dialog(rcmail.gettext('invalideventdates', 'calendar'));
             return false;

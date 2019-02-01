@@ -248,6 +248,7 @@ $labels['savingdata'] = 'Saving data...';
 $labels['errorsaving'] = 'Failed to save changes.';
 $labels['operationfailed'] = 'The requested operation failed.';
 $labels['invalideventdates'] = 'Invalid dates entered! Please check your input.';
+$labels['emptyeventtitle'] = 'Event summary cannot be empty.';
 $labels['invalidcalendarproperties'] = 'Invalid calendar properties! Please set a valid name.';
 $labels['searchnoresults'] = 'No events found in the selected calendars.';
 $labels['successremoval'] = 'The event has been deleted successfully.';
