@@ -772,10 +772,18 @@ function rcube_calendar_ui(settings)
       // init dialog buttons
       var buttons = [],
         save_func = function() {
-          var start = me.parse_datetime(allday.checked ? '12:00' : starttime.val(), startdate.val());
-          var end   = me.parse_datetime(allday.checked ? '13:00' : endtime.val(), enddate.val());
+          var start = allday.checked ? '12:00' : $.trim(starttime.val()),
+            end = allday.checked ? '13:00' : $.trim(endtime.val()),
+            re = /^((0[0-9])|(1[0-9])|(2[0-3])):([0-5][0-9])(\s*[ap]\.?m\.?)?$/i;
 
-          // basic input validation
+          if (!re.test(start) || !re.test(end)) {
+            rcmail.alert_dialog(rcmail.gettext('invalideventdates', 'calendar'));
+            return false;
+          }
+
+          start = me.parse_datetime(start, startdate.val());
+          end   = me.parse_datetime(end, enddate.val());
+
           if (!title.val()) {
             rcmail.alert_dialog(rcmail.gettext('emptyeventtitle', 'calendar'));
             return false;
