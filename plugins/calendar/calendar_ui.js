@@ -359,14 +359,14 @@ function rcube_calendar_ui(settings)
         $('#event-alarm').show().find('.event-text').html(Q(event.alarms_text).replace(',', ',<br>'));
       
       if (calendar.name)
-        $('#event-calendar').show().find('.event-text').html(Q(calendar.name)).addClass('cal-'+calendar.id).css('color', calendar.textColor || calendar.color || '');
+        $('#event-calendar').show().find('.event-text').text(calendar.name).addClass('cal-'+calendar.id);
       if (event.categories)
-        $('#event-category').show().find('.event-text').html(Q(event.categories)).addClass('cat-'+String(event.categories).toLowerCase().replace(rcmail.identifier_expr, ''));
+        $('#event-category').show().find('.event-text').text(event.categories).addClass('cat-'+String(event.categories).toLowerCase().replace(rcmail.identifier_expr, ''));
       if (event.free_busy)
         $('#event-free-busy').show().find('.event-text').text(rcmail.gettext(event.free_busy, 'calendar'));
       if (event.priority > 0) {
         var priolabels = [ '', rcmail.gettext('highest'), rcmail.gettext('high'), '', '', rcmail.gettext('normal'), '', '', rcmail.gettext('low'), rcmail.gettext('lowest') ];
-        $('#event-priority').show().find('.event-text').html(Q(event.priority+' '+priolabels[event.priority]));
+        $('#event-priority').show().find('.event-text').text(event.priority+' '+priolabels[event.priority]);
       }
 
       if (event.status) {
