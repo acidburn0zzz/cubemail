@@ -416,9 +416,9 @@ function rcube_calendar_ui(settings)
         });
 
         var data, mystatus = null, rsvp, line, morelink, html = '', overflow = '',
-          organizer = me.is_organizer(event);
+          organizer = me.is_organizer(event), num_attendees = event.attendees.length;
 
-        for (var j=0; j < event.attendees.length; j++) {
+        for (var j=0; j < num_attendees; j++) {
           data = event.attendees[j];
           if (data.email) {
             if (data.role != 'ORGANIZER' && settings.identity.emails.indexOf(';'+data.email) >= 0) {
@@ -436,12 +436,12 @@ function rcube_calendar_ui(settings)
             html += ' ' + line;
 
           // stop listing attendees
-          if (j == 7 && event.attendees.length >= 7) {
-            morelink = $('<a href="#more" class="morelink"></a>').html(rcmail.gettext('andnmore', 'calendar').replace('$nr', event.attendees.length - j - 1));
+          if (j == 7 && num_attendees > 8) {
+            morelink = $('<a href="#more" class="morelink"></a>').html(rcmail.gettext('andnmore', 'calendar').replace('$nr', num_attendees - j - 1));
           }
         }
 
-        if (html && (event.attendees.length > 1 || !organizer)) {
+        if (html && (num_attendees > 1 || !organizer)) {
           $('#event-attendees').show()
             .find('.event-text')
             .html(html)
