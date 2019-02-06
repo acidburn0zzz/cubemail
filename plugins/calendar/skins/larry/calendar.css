@@ -1828,8 +1828,7 @@ a.dropdown-link:after {
 }
 
 .fc-event .fc-bg {
-	opacity: 1;
-	background: unset;
+	opacity: .15;
 	margin-top: 14px;
 	cursor: pointer;
 }
@@ -1862,6 +1861,12 @@ a.dropdown-link:after {
 .fc-list-table tr.fc-invitation-declined td,
 .fc-list-table tr.fc-invitation-needs-action td {
 	color: #888;
+}
+
+.fc-list-table tr.fc-invitation-tentative .fc-event-dot,
+.fc-list-table tr.fc-invitation-declined .fc-event-dot,
+.fc-list-table tr.fc-invitation-needs-action .fc-event-dot {
+	background-color: #aaa;
 }
 
 .fc-list-table tr.fc-invitation-tentative td.fc-list-item-title,

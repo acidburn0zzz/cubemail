@@ -162,6 +162,7 @@ function rcube_calendar_ui(settings)
           element.addClass('cal-event-status-' + String(event.status).toLowerCase());
         }
 
+        set_event_colors(element, event, view.name);
         element.attr('aria-label', event.title + ', ' + me.event_date_text(event, true));
       },
       // callback when a specific event is clicked
@@ -283,6 +284,50 @@ function rcube_calendar_ui(settings)
         return date.getHours() >= settings['work_start'] && date.getHours() < settings['work_end'];
     };
 
+    var set_event_colors = function(element, event, mode)
+    {
+      var bg_color = '', border_color = '',
+        cat = String(event.categories),
+        color = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar].color : '',
+        cat_color = rcmail.env.calendar_categories[cat] ? rcmail.env.calendar_categories[cat] : color;
+
+      switch (settings.event_coloring) {
+        case 1:
+          bg_color = border_color = cat_color;
+          break;
+        case 2:
+          border_color = color;
+          bg_color = cat_color;
+          break;
+        case 3:
+          border_color = cat_color;
+          bg_color = color;
+          break;
+        default:
+          bg_color = border_color = color;
+          break;
+      }
+
+      var css = {
+        'border-color': border_color,
+        'background-color': bg_color,
+        'color': me.text_color(bg_color)
+      };
+
+      if (String(css['border-color']).match(/^#?f+$/i))
+        delete css['border-color'];
+
+      $.each(css, function(i, v) { if (!v) delete css[i]; if (v.charAt(0) != '#') css[i] = '#' + v; });
+
+      if (mode == 'list') {
+        bg_color = css['background-color'];
+        if (bg_color && !bg_color.match(/^#?f+$/i))
+          $(element).find('.fc-event-dot').css('background-color', bg_color);
+      }
+      else
+        $(element).css(css);
+    };
+
     var load_attachment = function(data)
     {
       var event = data.record,
@@ -340,24 +385,17 @@ function rcube_calendar_ui(settings)
 
       $dialog.find('div.event-section, div.event-line, .form-group').hide();
       $('#event-title').html(Q(event.title)).show();
-      
+
       if (event.location)
         $('#event-location').html('@ ' + text2html(event.location)).show();
       if (event.description)
         $('#event-description').show().find('.event-text').html(text2html(event.description, 300, 6));
       if (event.vurl)
         $('#event-url').show().find('.event-text').html(render_link(event.vurl));
-      
-      // render from-to in a nice human-readable way
-      // -> now shown in dialog title
-      // $('#event-date').html(Q(me.event_date_text(event))).show();
-      
       if (event.recurrence && event.recurrence_text)
         $('#event-repeat').show().find('.event-text').html(Q(event.recurrence_text));
-      
       if (event.valarms && event.alarms_text)
         $('#event-alarm').show().find('.event-text').html(Q(event.alarms_text).replace(',', ',<br>'));
-      
       if (calendar.name)
         $('#event-calendar').show().find('.event-text').text(calendar.name).addClass('cal-'+calendar.id);
       if (event.categories)
@@ -2496,7 +2534,7 @@ function rcube_calendar_ui(settings)
 
         event.editable = false;
         event.temp = true;
-        event.className = ['fc-event-cal-'+data.calendar, 'fc-event-temp'];
+        event.className = ['fc-event-temp'];
 
         fc.fullCalendar(data.id ? 'updateEvent' : 'renderEvent', event);
 
@@ -3408,27 +3446,12 @@ function rcube_calendar_ui(settings)
     // register the given calendar to the current view
     var add_calendar_source = function(cal)
     {
-      var color, brightness, select, id = cal.id;
+      var brightness, select, id = cal.id;
 
       me.calendars[id] = $.extend({
         url: rcmail.url('calendar/load_events', { source: id }),
-        className: ['fc-event-cal-' + id],
         id: id
       }, cal);
-
-      // choose black text color when background is bright, white otherwise
-      if (color = settings.event_coloring % 2  ? '' : '#' + cal.color) {
-        me.calendars[id].color = color;
-        me.calendars[id].textColor = 'white';
-
-        if (/^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i.test(color)) {
-          // use information about brightness calculation found at
-          // http://javascriptrules.com/2009/08/05/css-color-brightness-contrast-using-javascript/
-          brightness = (parseInt(RegExp.$1, 16) * 299 + parseInt(RegExp.$2, 16) * 587 + parseInt(RegExp.$3, 16) * 114) / 1000;
-          if (brightness > 125)
-            me.calendars[id].textColor = '#222';
-        }
-      }
 
       if (fc && (cal.active || cal.subscribed)) {
         if (cal.active)
@@ -3648,7 +3671,6 @@ function rcube_calendar_ui(settings)
     if (rcmail.env.itip_events && rcmail.env.itip_events.length) {
       me.calendars['--invitation--itip'] = {
         events: rcmail.env.itip_events,
-        className: ['fc-event-cal---invitation--itip'],
         color: '#fff',
         textColor: '#333',
         editable: false,
@@ -3750,6 +3772,7 @@ function rcube_calendar_ui(settings)
       },
       viewRender: function(view, element) {
         $('#agendaoptions')[view.name == 'list' ? 'show' : 'hide']();
+
         if (minical) {
           window.setTimeout(function(){ minical.datepicker('setDate', fc.fullCalendar('getDate').toDate()); }, exec_deferred);
           if (view.name != current_view)
@@ -3758,16 +3781,20 @@ function rcube_calendar_ui(settings)
           me.update_state();
         }
 
-        if (view.name == 'list') {
-          var viewStart = moment(view.start);
+        var viewStart = moment(view.start);
 
-          $('#calendar .fc-prev-button').off('click').on('click', function() {
+        $('#calendar .fc-prev-button').off('click').on('click', function() {
+          if (view.name == 'list')
             fc.fullCalendar('gotoDate', viewStart.subtract(settings.agenda_range, 'days'));
-          });
-          $('#calendar .fc-next-button').off('click').on('click', function() {
+          else
+            fc.fullCalendar('prev');
+        });
+        $('#calendar .fc-next-button').off('click').on('click', function() {
+          if (view.name == 'list')
             fc.fullCalendar('gotoDate', viewStart.add(settings.agenda_range, 'days'));
-          });
-        }
+          else
+            fc.fullCalendar('next');
+        });
       },
       eventAfterAllRender: function(view) {
         if (view.name == 'list') {

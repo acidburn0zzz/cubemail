@@ -145,41 +145,30 @@ class calendar_ui
    */
   function calendar_css($attrib = array())
   {
+    $categories    = $this->cal->driver->list_categories();
+    $js_categories = array();
     $mode = $this->rc->config->get('calendar_event_coloring', $this->cal->defaults['calendar_event_coloring']);
-    $categories = $this->cal->driver->list_categories();
-    $css = "\n";
-    
+    $css  = "\n";
+
     foreach ((array)$categories as $class => $color) {
-      if (empty($color))
-        continue;
-      
-      $class = 'cat-' . asciiwords(strtolower($class), true);
-      $css  .= ".$class { color: #$color }\n";
-      if ($mode > 0) {
-        if ($mode == 2) {
-          $css .= ".fc-event-$class .fc-event-bg {";
-          $css .= " opacity: 0.9;";
-          $css .= " filter: alpha(opacity=90);";
-        }
-        else {
-          $css .= ".fc-event-$class.fc-event-skin, ";
-          $css .= ".fc-event-$class .fc-event-skin, ";
-          $css .= ".fc-event-$class .fc-event-inner {";
-        }
-        $css .= " background-color: #" . $color . ";";
-        if ($mode % 2)
-          $css .= " border-color: #$color;";
-        $css .= "}\n";
+      if (!empty($color)) {
+        $js_categories[$class] = $color;
+
+        $color = ltrim($color, '#');
+        $class = 'cat-' . asciiwords(strtolower($class), true);
+        $css  .= ".$class { color: #$color; }\n";
       }
     }
-    
+
+    $this->rc->output->set_env('calendar_categories', $js_categories);
+
     $calendars = $this->cal->driver->list_calendars();
     foreach ((array)$calendars as $id => $prop) {
-      if (!$prop['color'])
-        continue;
-      $css .= $this->calendar_css_classes($id, $prop, $mode, $attrib);
+      if ($prop['color']) {
+        $css .= $this->calendar_css_classes($id, $prop, $mode, $attrib);
+      }
     }
-    
+
     return html::tag('style', array('type' => 'text/css'), $css);
   }
 
@@ -192,29 +181,12 @@ class calendar_ui
 
     // replace white with skin-defined color
     if (!empty($attrib['folder-fallback-color']) && preg_match('/^f+$/i', $folder_color)) {
-        $folder_color = $attrib['folder-fallback-color'];
+        $folder_color = ltrim($attrib['folder-fallback-color'], '#');
     }
 
     $class = 'cal-' . asciiwords($id, true);
     $css   = str_replace('$class', $class, $attrib['folder-class']) ?: "li .$class";
-    $css  .= ", #eventshow .$class { color: #$folder_color; }\n";
-
-    if ($mode != 1) {
-      if ($mode == 3) {
-        $css .= ".fc-event-$class .fc-event-bg {";
-        $css .= " opacity: 0.9;";
-        $css .= " filter: alpha(opacity=90);";
-      }
-      else {
-        $css .= ".fc-event-$class, ";
-        $css .= ".fc-event-$class .fc-event-inner {";
-      }
-      if (!$prop['printmode'])
-        $css .= " background-color: #$color;";
-      if ($mode % 2 == 0)
-      $css .= " border-color: #$color;";
-      $css .= "}\n";
-    }
+    $css  .= " { color: #$folder_color; }\n";
 
     return $css . ".$class .handle { background-color: #$color; }\n";
   }

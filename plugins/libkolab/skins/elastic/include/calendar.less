@@ -210,6 +210,7 @@ fieldset.categories .input-group {
 @color-calendar-border: @color-layout-border;
 @color-calendar-free-bg: fadeout(@color-black-shade-text, 80%);
 @color-calendar-today: fadeout(@color-warning, 80%);
+@color-event-default: #c00;
 
 .fc {
     body.quickview-active & .fc-scroller {
@@ -262,7 +263,7 @@ fieldset.categories .input-group {
 
     button {
         height: unset;
-        padding: .375rem .75rem;
+        padding: .3rem .75rem;
     }
 
     button.prev:before {
@@ -297,23 +298,38 @@ fieldset.categories .input-group {
         }
     }
 
+    .fc-event-dot {
+        background-color: @color-event-default;
+    }
+
+    a.fc-event, a.fc-event:hover {
+        color: #fff;
+    }
+
     .fc-event {
-        font-size: 1rem;
+        font-size: 13px;
+        background-color: @color-event-default;
+        border-color: @color-event-default;
 
         .fc-title {
             font-weight: bold;
         }
 
+        .fc-bg {
+            opacity: .15;
+            margin-top: 1.1rem;
+        }
+
         &.fc-invitation-needs-action {
-            border: 1px dashed #5757c7 !important;
+            border: 1px dashed #5757c7;
         }
 
         &.fc-invitation-tentative {
-            border: 1px dashed #eb8900 !important;
+            border: 1px dashed #eb8900;
         }
 
         &.fc-invitation-declined {
-            border: 1px dashed #c00 !important;
+            border: 1px dashed #c00;
         }
 
         &.fc-event-ns-other.fc-invitation-declined {
@@ -342,6 +358,10 @@ fieldset.categories .input-group {
         tr.fc-invitation-declined,
         tr.fc-invitation-needs-action {
             color: #888;
+
+            .fc-event-dot {
+                background-color: #888;
+            }
         }
     }
 

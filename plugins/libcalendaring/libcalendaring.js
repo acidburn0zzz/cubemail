@@ -43,6 +43,7 @@ function rcube_libcalendaring(settings)
     var me = this;
     var gmt_offset = (new Date().getTimezoneOffset() / -60) - (settings.timezone || 0) - (settings.dst || 0);
     var client_timezone = new Date().getTimezoneOffset();
+    var color_map = {};
 
     // general datepicker settings
     this.datepicker_settings = {
@@ -331,6 +332,33 @@ function rcube_libcalendaring(settings)
         if (dst_offset)  // adjust DST offset
             date.setTime((ts + 3600) * 1000);
         return date;
+    }
+
+    /**
+     * Finds text color for specified background color
+     */
+    this.text_color = function(color)
+    {
+        var res = '#222';
+
+        if (!color) {
+            return res;
+        }
+
+        if (!color_map[color]) {
+            color_map[color] = '#fff';
+
+            if (/^#?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i.test(color)) {
+                // use information about brightness calculation found at
+                // http://javascriptrules.com/2009/08/05/css-color-brightness-contrast-using-javascript/
+                brightness = (parseInt(RegExp.$1, 16) * 299 + parseInt(RegExp.$2, 16) * 587 + parseInt(RegExp.$3, 16) * 114) / 1000;
+                if (brightness > 125) {
+                    color_map[color] = res;
+                }
+            }
+        }
+
+        return color_map[color];
     }
 
     /**

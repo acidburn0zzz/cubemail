@@ -55,7 +55,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
     source.color = '#' + source.color.replace(/^#/, '');
 
-    if (source.color == '#ffffff')
+    if (source.color.match(/^#f+$/i))
       source.color = '#ccc';
 
     event_sources.push(source);

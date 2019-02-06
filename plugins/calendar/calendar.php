@@ -1898,9 +1898,6 @@ class calendar extends rcube_plugin
     unset($event['allday']);
 
     $event['className'] = $event['className'] ? explode(' ', $event['className']) : array();
-    if ($addcss) {
-        $event['className'][] = 'fc-event-cal-' . asciiwords($event['calendar'], true);
-    }
 
     if ($event['allDay']) {
         $event['end'] = $event['end']->add(new DateInterval('P1D'));
