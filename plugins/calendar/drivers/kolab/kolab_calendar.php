@@ -40,7 +40,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
   protected $cal;
   protected $events = array();
-  protected $search_fields = array('title', 'description', 'location', 'attendees');
+  protected $search_fields = array('title', 'description', 'location', 'attendees', 'categories');
 
   /**
    * Factory method to instantiate a kolab_calendar object
