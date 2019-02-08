@@ -1448,8 +1448,11 @@ function rcube_calendar_ui(settings)
     // render overlay element over the grid to visiualize the current event date/time
     var render_freebusy_overlay = function()
     {
-      var overlay = $('#schedule-event-time');
-      if (me.selected_event.end.getTime() <= freebusy_ui.start.getTime() || me.selected_event.start.getTime() >= freebusy_ui.end.getTime()) {
+      var overlay = $('#schedule-event-time'),
+        event_start = 'toDate' in me.selected_event.start ? me.selected_event.start.toDate() : me.selected_event.start;
+        event_end = 'toDate' in me.selected_event.end ? me.selected_event.end.toDate() : me.selected_event.end;
+
+      if (event_end.getTime() <= freebusy_ui.start.getTime() || event_start.getTime() >= freebusy_ui.end.getTime()) {
         overlay.hide();
         if (overlay.data('isdraggable'))
           overlay.draggable('disable');
@@ -1716,7 +1719,7 @@ function rcube_calendar_ui(settings)
         });
       }
     };
-    
+
     // write changed event date/times back to form fields
     var update_freebusy_dates = function(start, end)
     {
@@ -1812,8 +1815,8 @@ function rcube_calendar_ui(settings)
         
         // if candidate is big enough, this is it!
         if (candidatecount == numslots) {
-          event.start.setTime(candidatestart);
-          event.end.setTime(candidatestart + duration);
+          'toDate' in event.start ? (event.start = new Date(candidatestart)) : event.start.setTime(candidatestart);
+          'toDate' in event.end ? (event.end = new Date(candidatestart + duration)) : event.end.setTime(candidatestart + duration);
           success = true;
           break;
         }
@@ -1822,17 +1825,20 @@ function rcube_calendar_ui(settings)
       // update event date/time display
       if (success) {
         update_freebusy_dates(event.start, event.end);
-        
+
         // move freebusy grid if necessary
-        var offset = Math.ceil((event.start.getTime() - freebusy_ui.end.getTime()) / DAY_MS);
-        if (event.start.getTime() >= freebusy_ui.end.getTime())
+        var event_start = 'toDate' in event.start ? event.start.toDate() : event.start,
+          event_end = 'toDate' in event.end ? event.end.toDate() : event.end,
+          offset = Math.ceil((event_start.getTime() - freebusy_ui.end.getTime()) / DAY_MS);
+
+        if (event_start.getTime() >= freebusy_ui.end.getTime())
           render_freebusy_grid(Math.max(1, offset));
-        else if (event.end.getTime() <= freebusy_ui.start.getTime())
+        else if (event_end.getTime() <= freebusy_ui.start.getTime())
           render_freebusy_grid(Math.min(-1, offset));
         else
           render_freebusy_overlay();
 
-        var now = new Date(), disabled = event.start.getTime() < now.getTime();
+        var now = new Date(), disabled = event_start.getTime() < now.getTime();
         // FIXME: .button() does nothing in Elastic skin
         $('#schedule-find-prev').button('option', 'disabled', disabled).prop('disabled', disabled);
 
