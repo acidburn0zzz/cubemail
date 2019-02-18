@@ -79,10 +79,10 @@ class kolab_storage
             return true;
 
         $rcmail = rcube::get_instance();
-        self::$config = $rcmail->config;
+        self::$config  = $rcmail->config;
         self::$version = strval($rcmail->config->get('kolab_format_version', self::$version));
-        self::$imap = $rcmail->get_storage();
-        self::$ready = class_exists('kolabformat') &&
+        self::$imap    = $rcmail->get_storage();
+        self::$ready   = class_exists('kolabformat') &&
             (self::$imap->get_capability('METADATA') || self::$imap->get_capability('ANNOTATEMORE') || self::$imap->get_capability('ANNOTATEMORE2'));
 
         if (self::$ready) {
@@ -96,8 +96,7 @@ class kolab_storage
         }
         else {
             rcube::raise_error(array(
-                'code' => 900, 'type' => 'php',
-                'message' => "IMAP server doesn't support METADATA or ANNOTATEMORE"
+                'code' => 900, 'type' => 'php', 'message' => "IMAP error"
             ), true);
         }
 
