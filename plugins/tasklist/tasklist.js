@@ -360,16 +360,19 @@ function rcube_tasklist_ui(settings)
         }).find('input[type=text]').placeholder(rcmail.gettext('createnewtask','tasklist'));
 
         // click-handler on task list items (delegate)
-        $(rcmail.gui_objects.resultlist).on('click', function(e){
-            var item = $(e.target);
-            var className = e.target.className;
+        $(rcmail.gui_objects.resultlist).on('click', function(e) {
+            var item = $(e.target), className = e.target.className;
 
             if (item.hasClass('childtoggle')) {
                 item = item.parent().find('.taskhead');
                 className = 'childtoggle';
             }
-            else if (!item.hasClass('taskhead'))
-                item = item.closest('div.taskhead');
+            else {
+                if (!item.hasClass('taskhead'))
+                    item = item.closest('div.taskhead');
+
+                className = String(className).split(' ')[0];
+            }
 
             // ignore
             if (!item.length)
