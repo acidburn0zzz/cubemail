@@ -308,7 +308,7 @@ class calendar_ui
       $content = html::div(join(' ', $classes),
         html::a(array('class' => 'calname', 'id' => $label_id, 'title' => $title, 'href' => '#'), rcube::Q($prop['editname'] ?: $prop['listname']))
         . ($prop['virtual'] ? '' :
-          html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
+          html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id)) .
           html::span('actions', 
             ($prop['removable'] ? html::a(array('href' => '#', 'class' => 'remove', 'title' => $this->cal->gettext('removelist')), ' ') : '') .
             html::a(array('href' => '#', 'class' => 'quickview', 'title' => $this->cal->gettext('quickview'), 'role' => 'checkbox', 'aria-checked' => 'false'), '') .
