@@ -846,25 +846,17 @@ body.task-calendar {
 
 // fixes additional checkbox in Elastic's .datetime widget
 .datetime {
-    label {
-        margin-left: 1em;
-        margin-top: .4rem;
+    .custom-switch {
+        padding-left: .5rem;
 
         label {
-            line-height: 1;
-
-            &:before {
-                margin-right: .25rem;
-            }
+            line-height: 2;
+            margin-top: .2rem;
         }
     }
 
     input {
         width: 10em !important;
-    }
-
-    input[type=checkbox] {
-        width: auto !important;
     }
 
     @media screen and (max-width: 420px) {
@@ -919,16 +911,6 @@ body.task-calendar {
         html.layout-phone & {
             order: 100;
             margin-left: 0;
-        }
-
-        label {
-            vertical-align: middle;
-        }
-
-        input.icon-checkbox + label:before {
-            margin-right:.25rem;
-            display: inline;
-            float: none;
         }
     }
 

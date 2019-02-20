@@ -217,18 +217,11 @@
         }
     }
 
-    input + label,
-    input.complete {
+    .custom-switch {
         position: absolute;
-        right: .25rem;
-        bottom: 0;
-        top: auto;
-        padding: 0 .2em 0 0;
-        cursor: pointer;
+        top: 1.4rem;
         z-index: 1;
-        line-height: 1;
-        height: 1.5em;
-        font-size: 1.15em;
+        height: 2.3em;
     }
 
     .actions {
@@ -255,7 +248,7 @@ html.touch #tasklist {
 
     span.flagged,
     input[type=checkbox],
-    .icon-checkbox + label {
+    .custom-switch {
         display: none;
     }
 

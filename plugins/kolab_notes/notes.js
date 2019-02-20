@@ -170,7 +170,7 @@ function rcube_kolab_notes_ui(settings)
         // Make Elastic checkboxes pretty
         if (window.UI && UI.pretty_checkbox) {
             notebookslist.addEventListener('add-item', function(prop) {
-                UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
+                UI.pretty_checkbox($(prop.li).find('input'));
             });
         }
 

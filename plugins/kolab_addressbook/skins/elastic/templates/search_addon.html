@@ -11,7 +11,7 @@
         rcmail.addEventListener('init', function() {
             // Make checkboxes pretty
             rcmail.treelist.addEventListener('add-item', function(prop) {
-                UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
+                UI.pretty_checkbox($(prop.li).find('input'));
             });
         });
     }

@@ -219,10 +219,10 @@ function rcube_tasklist_ui(settings)
         // Make Elastic checkboxes pretty
         if (window.UI && UI.pretty_checkbox) {
             $(rcmail.gui_objects.tasklistslist).find('input[type=checkbox]').each(function() {
-                UI.pretty_checkbox($(this).addClass('flex-checkbox'));
+                UI.pretty_checkbox(this);
             });
             tasklists_widget.addEventListener('add-item', function(prop) {
-                UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
+                UI.pretty_checkbox($(prop.li).find('input'));
             });
         }
 
