@@ -255,8 +255,8 @@
 	<h3 id="aria-label-tasklistoptions" class="voice"><roundcube:label name="tasklist.listactions" /></h3>
 	<ul class="toolbarmenu listing" role="menu" aria-labelledby="aria-label-tasklistoptions">
 		<roundcube:button type="link-menuitem" command="list-create" label="tasklist.createlist" class="create disabled" classAct="create active" />
-		<roundcube:button type="link-menuitem" command="list-edit" label="edit" class="edit disabled" classAct="edit active" />
-		<roundcube:button type="link-menuitem" command="list-delete" label="delete" class="delete disabled" classAct="delete active" />
+		<roundcube:button type="link-menuitem" command="list-edit" label="tasklist.editlist" class="edit disabled" classAct="edit active" />
+		<roundcube:button type="link-menuitem" command="list-delete" label="tasklist.deletelist" class="delete disabled" classAct="delete active" />
 		<roundcube:if condition="env:tasklist_driver == 'kolab'" />
 			<roundcube:button type="link-menuitem" command="list-remove" label="tasklist.removelist" class="remove disabled" classAct="remove active" />
 		<roundcube:endif />
