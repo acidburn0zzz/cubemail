@@ -862,6 +862,16 @@ function rcube_tasklist_ui(settings)
         loadstate.lists = active_lists();
     }
 
+    var init_cloned_form = function(form) {
+        // update element IDs after clone
+        $('select,input,label', form).each(function() {
+            if (this.htmlFor)
+                this.htmlFor += '-clone';
+            else if (this.id)
+                this.id += '-clone';
+        });
+    }
+
     // open a dialog to upload an .ics file with tasks to be imported
     this.import_tasks = function(tasklist)
     {
@@ -875,6 +885,8 @@ function rcube_tasklist_ui(settings)
 
         if (tasklist)
             $('#task-import-list').val(tasklist);
+
+        init_cloned_form(form);
 
         buttons[rcmail.gettext('import', 'tasklist')] = function() {
             if (form && form.elements._data.value) {
@@ -939,22 +951,22 @@ function rcube_tasklist_ui(settings)
     this.export_tasks = function()
     {
         // close show dialog first
-        var $dialog = $("#tasksexport").clone(true).removeClass('uidialog'),
+        var list, $dialog = $("#tasksexport").clone(true).removeClass('uidialog'),
             form = $dialog.find('form').get(0),
             buttons = {};
 
         if ($dialog.is(':ui-dialog'))
             $dialog.dialog('close');
 
-        $("#task-export-list").val('');
+        list = $("#task-export-list").val('');
+
+        init_cloned_form(form);
 
         buttons[rcmail.gettext('export', 'tasklist')] = function() {
-            var data = {},
-                source = $('#task-export-list').val(),
-                form_elements = $('select, input', form);
+            var data = {}, form_elements = $('select, input', form);
 
             // "current view" export, use hidden form to POST task IDs
-            if (source === '') {
+            if (list.val() === '') {
                 var cache = {}, tasks = [], inputs = [],
                     postform = $('#tasks-export-form-post');
 
