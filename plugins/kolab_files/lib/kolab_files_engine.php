@@ -350,11 +350,10 @@ class kolab_files_engine
             'name'  => 'store_passwords',
             'value' => '1',
             'class' => 'pretty-checkbox',
-            'id'    => 'auth-pass-checkbox' . $attrib['suffix'],
         ));
 
-        return html::div('auth-options', $checkbox->show(). '&nbsp;'
-            . html::label('auth-pass-checkbox' . $attrib['suffix'], $this->plugin->gettext('storepasswords'))
+        return html::div('auth-options',
+            html::label(null, $checkbox->show() . ' ' . $this->plugin->gettext('storepasswords'))
             . html::p('description hint', $this->plugin->gettext('storepasswordsdesc'))
         );
     }
