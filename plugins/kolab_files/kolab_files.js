@@ -933,9 +933,7 @@ function kolab_dialog_show(content, params, onopen)
   };
 
   // display it as popup
-  var dialog = rcmail.show_popup_dialog('', params.title, params.buttons, params);
-
-  content.appendTo(dialog).show().find('input[type!="hidden"]:not(:hidden):first').focus();
+  var dialog = rcmail.show_popup_dialog(content, params.title, params.buttons, params);
 
   if (onopen) onopen(content);
 
