@@ -4136,15 +4136,15 @@ function kolab_files_ui()
           delete result.auth_errors[i];
         }
       });
+
       $.extend(this.auth_errors, result.auth_errors);
     }
 
     // ask for password to the first storage on the list
     var ref = this;
     $.each(this.auth_errors || [], function(i, v) {
-      file_api.folder_list_auth_dialog(i, v);
-      delete ref.auth_errors[i];
-      return false;
+      if (file_api.folder_list_auth_dialog(i, v))
+        return false;
     });
   };
 
@@ -4154,6 +4154,9 @@ function kolab_files_ui()
     var args = {width: 400, height: 300, buttons: {}},
       dialog = $('#files-folder-auth-dialog'),
       content = this.folder_list_auth_form(driver);
+
+    if ($('#files-folder-auth-dialog').is(':visible'))
+      return false;
 
     dialog.find('table.propform').remove();
     $('.auth-options', dialog).before(content);
@@ -4190,13 +4193,17 @@ function kolab_files_ui()
         }
       });
     });
+
+    return true;
   };
 
   // folder_auth handler
   this.folder_auth_response = function(response, params)
   {
-    if (!this.response(response))
+    if (!this.response(response)) {
+      this.folder_list_auth_errors();
       return;
+    }
 
     delete this.auth_errors[response.result.folder];
 
