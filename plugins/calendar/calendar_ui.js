@@ -2380,7 +2380,7 @@ function rcube_calendar_ui(settings)
     }
 
     // when the user accepts or declines an event invitation
-    var event_rsvp = function(response, delegate, replymode)
+    var event_rsvp = function(response, delegate, replymode, event)
     {
       var btn;
       if (typeof response == 'object') {
@@ -2394,8 +2394,8 @@ function rcube_calendar_ui(settings)
       // show menu to select rsvp reply mode (current or all)
       if (me.selected_event && me.selected_event.recurrence && !replymode) {
         rcube_libcalendaring.itip_rsvp_recurring(btn, function(resp, mode) {
-          event_rsvp(resp, null, mode);
-        });
+          event_rsvp(resp, null, mode, event);
+        }, event);
         return;
       }
 
@@ -2404,7 +2404,7 @@ function rcube_calendar_ui(settings)
         if (response == 'delegated' && !delegate) {
           rcube_libcalendaring.itip_delegate_dialog(function(data) {
             data.rsvp = data.rsvp ? 1 : '';
-            event_rsvp('delegated', data, replymode);
+            event_rsvp('delegated', data, replymode, event);
           });
           return;
         }
@@ -4059,7 +4059,7 @@ function rcube_calendar_ui(settings)
       });
 
       $('#event-rsvp input.button').click(function(e) {
-        event_rsvp(this)
+        event_rsvp(this, null, null, e.originalEvent);
       });
 
       $('#eventedit input.edit-recurring-savemode').change(function(e) {

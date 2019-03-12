@@ -1311,36 +1311,25 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
 /**
  * Show a menu for selecting the RSVP reply mode
  */
-rcube_libcalendaring.itip_rsvp_recurring = function(btn, callback)
+rcube_libcalendaring.itip_rsvp_recurring = function(btn, callback, event)
 {
-    var menu = $('<ul></ul>').attr('class', 'popupmenu libcal-rsvp-replymode');
+    var list, lc, menu = $('#itip-rsvp-menu'), action = btn.attr('rel');
 
-    $.each(['all','current'/*,'future'*/], function(i, mode) {
-        $('<li>')
-            .attr({rel: mode, 'class': 'ui-menu-item'})
-            .append($('<a>').attr({tabindex: "0", 'class': 'ui-menu-item-wrapper'})
-                .text(rcmail.get_label('rsvpmode' + mode)))
-            .appendTo(menu);
-    });
+    if (!menu.length) {
+        lc = $('body > #layout').length === 1 ? 'toolbarmenu listing' : 'toolbarmenu';
+        menu = $('<div>').attr({'class': 'popupmenu', id: 'itip-rsvp-menu', 'aria-hidden': 'true'}).appendTo(document.body);
+        list = $('<ul>').attr({'class': lc, role: 'menu'}).appendTo(menu);
 
-    var action = btn.attr('rel');
+        $.each(['all','current'/*,'future'*/], function(i, mode) {
+            var link = $('<a>').attr({'class': 'active', rel: mode})
+                .text(rcmail.get_label('rsvpmode' + mode))
+                .on('click', function() { callback(action, $(this).attr('rel')); });
 
-    // open the menu
-    menu.menu({
-        select: function(event, ui) {
-            callback(action, ui.item.attr('rel'));
-        }
-    })
-    .appendTo(document.body)
-    .position({ my: 'left top', at: 'left bottom+2', of: btn })
-    .data('action', action);
-
-    setTimeout(function() {
-        $(document).one('click', function() {
-            menu.menu('destroy');
-            menu.remove();
+            $('<li>').attr({role: 'menuitem'}).append(link).appendTo(list);
         });
-    }, 100);
+    }
+
+    rcmail.show_menu('itip-rsvp-menu', true, event);
 };
 
 /**
