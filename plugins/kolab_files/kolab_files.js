@@ -916,7 +916,8 @@ function kolab_dialog_show(content, params, onopen)
   params.close = function(e, ui) {
     var elem, stack = rcmail.dialog_stack;
 
-    content.appendTo(document.body).hide();
+    content.appendTo(document.body);
+    content.hide(); // for Larry's dialogs
     $(this).parent().remove(); // remove dialog
 
     // focus previously focused element (guessed)
@@ -931,6 +932,9 @@ function kolab_dialog_show(content, params, onopen)
 
     rcmail.ksearch_blur();
   };
+
+  // This is required for Larry's dialogs
+  params.create = function() { content.show(); };
 
   // display it as popup
   var dialog = rcmail.show_popup_dialog(content, params.title, params.buttons, params);
