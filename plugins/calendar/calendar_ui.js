@@ -2446,8 +2446,15 @@ function rcube_calendar_ui(settings)
         }
 
         // submit status change to server
-        var submit_data = $.extend({}, me.selected_event, { source:null, comment:$('#reply-comment-event-rsvp').val(), _savemode: replymode || 'all' }, (delegate || {})),
+        var submit_data = $.extend({}, { source:null, comment:$('#reply-comment-event-rsvp').val(), _savemode: replymode || 'all' }, (delegate || {})),
+          submit_items = 'id,uid,_instance,calendar,_mbox,_uid,_part,attendees,free_busy,allDay',
           noreply = $('#noreply-event-rsvp:checked').length ? 1 : 0;
+
+        // Submit only that data we really need
+        $.each(submit_items.split(','), function() {
+          if (this in me.selected_event)
+            submit_data[this] = me.selected_event[this];
+        });
 
         // import event from mail (temporary iTip event)
         if (submit_data._mbox && submit_data._uid) {

@@ -32,6 +32,9 @@ class kolab_date_recurrence
     private /* DateTime */ $next;
     private /* cDateTime */ $cnext;
     private /* DateInterval */ $duration;
+    private /* string */ $start_time;
+    private /* string */ $end_time;
+
 
     /**
      * Default constructor
@@ -46,6 +49,13 @@ class kolab_date_recurrence
         $this->engine = $object->to_libcal();
         $this->start  = $this->next = $data['start'];
         $this->cnext  = kolab_format::get_datetime($this->next);
+
+        if ($this->start && !empty($data['allday'])) {
+            $this->start_time = $data['start']->format('H:i:s');
+            if ($data['end']) {
+                $this->end_time = $data['end']->format('H:i:s');
+            }
+        }
 
         if (is_object($data['start']) && is_object($data['end'])) {
             $this->duration = $data['start']->diff($data['end']);
@@ -91,7 +101,21 @@ class kolab_date_recurrence
             $next_end = clone $next_start;
             $next_end->add($this->duration);
 
-            $next          = $this->object->to_array();
+            $next = $this->object->to_array();
+
+            // it looks that for allday events the occurrence time
+            // is reset to 00:00:00, this is causing various issues
+            if (!empty($next['allday'])) {
+                if ($this->start_time) {
+                    $time = explode(':', $this->start_time);
+                    $next_start->setTime((int)$time[0], (int)$time[1], (int)$time[2]);
+                }
+                if ($this->start_end) {
+                    $time = explode(':', $this->start_end);
+                    $next_end->setTime((int)$time[0], (int)$time[1], (int)$time[2]);
+                }
+            }
+
             $next['start'] = $next_start;
             $next['end']   = $next_end;
 
