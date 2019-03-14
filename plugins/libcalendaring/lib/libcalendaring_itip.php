@@ -870,6 +870,7 @@ class libcalendaring_itip
                 'value'    => 1,
                 'disabled' => $disable,
                 'checked'  => ($itip_sending & 1) == 0,
+                'class'    => 'pretty-checkbox',
             );
             $rsvp_additions = html::label(array('class' => 'noreply-toggle'),
                 html::tag('input', $toggle_attrib) . ' ' . $this->gettext('itipsuppressreply')
