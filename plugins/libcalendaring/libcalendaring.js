@@ -435,10 +435,15 @@ function rcube_libcalendaring(settings)
             $(this).parent().find('span.edit-alarm-values')[(this.selectedIndex>0?'show':'hide')]();
         });
         $(prefix+' select.edit-alarm-offset').change(function(){
-            var val = $(this).val(), parent = $(this).parent();
+            var val = $(this).val(),
+                parent = $(this).parent(),
+                class_map = {'0': 'ontime', '@': 'ondate'};
+
             parent.find('.edit-alarm-date, .edit-alarm-time')[val === '@' ? 'show' : 'hide']();
-            parent.find('.edit-alarm-value').prop('disabled', val === '@' || val === '0');
+            parent.find('.edit-alarm-value')[val === '@' || val === '0' ? 'hide' : 'show']();
             parent.find('.edit-alarm-related')[val === '@' ? 'hide' : 'show']();
+            parent.removeClass('offset-ontime offset-ondate offset-default')
+                .addClass('offset-' + (class_map[val] || 'default'));
         });
 
         $(prefix+' .edit-alarm-date').removeClass('hasDatepicker').removeAttr('id').datepicker(this.datepicker_settings);
@@ -455,7 +460,7 @@ function rcube_libcalendaring(settings)
 
         // Elastic
         if (window.UI && UI.pretty_select) {
-          $(prefix + ' select').each(function() { UI.pretty_select(this); });
+            $(prefix + ' select').each(function() { UI.pretty_select(this); });
         }
 
         if (index)
