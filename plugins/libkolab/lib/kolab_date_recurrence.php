@@ -32,8 +32,7 @@ class kolab_date_recurrence
     private /* DateTime */ $next;
     private /* cDateTime */ $cnext;
     private /* DateInterval */ $duration;
-    private /* string */ $start_time;
-    private /* string */ $end_time;
+    private /* bool */ $allday;
 
 
     /**
@@ -48,14 +47,8 @@ class kolab_date_recurrence
         $this->object = $object;
         $this->engine = $object->to_libcal();
         $this->start  = $this->next = $data['start'];
+        $this->allday = !empty($data['allday']);
         $this->cnext  = kolab_format::get_datetime($this->next);
-
-        if ($this->start && !empty($data['allday'])) {
-            $this->start_time = $data['start']->format('H:i:s');
-            if ($data['end']) {
-                $this->end_time = $data['end']->format('H:i:s');
-            }
-        }
 
         if (is_object($data['start']) && is_object($data['end'])) {
             $this->duration = $data['start']->diff($data['end']);
@@ -71,6 +64,7 @@ class kolab_date_recurrence
      * Get date/time of the next occurence of this event
      *
      * @param boolean Return a Unix timestamp instead of a DateTime object
+     *
      * @return mixed  DateTime object/unix timestamp or False if recurrence ended
      */
     public function next_start($timestamp = false)
@@ -79,8 +73,15 @@ class kolab_date_recurrence
 
         if ($this->engine && $this->next) {
             if (($cnext = new cDateTime($this->engine->getNextOccurence($this->cnext))) && $cnext->isValid()) {
-                $next = kolab_format::php_datetime($cnext);
+                $next = kolab_format::php_datetime($cnext, $this->start->getTimezone());
                 $time = $timestamp ? $next->format('U') : $next;
+
+                if ($this->allday) {
+                    // it looks that for allday events the occurrence time
+                    // is reset to 00:00:00, this is causing various issues
+                    $next->setTime($this->start->format('G'), $this->start->format('i'), $this->start->format('s'));
+                    $next->_dateonly = true;
+                }
 
                 $this->cnext = $cnext;
                 $this->next  = $next;
@@ -101,25 +102,10 @@ class kolab_date_recurrence
             $next_end = clone $next_start;
             $next_end->add($this->duration);
 
-            $next = $this->object->to_array();
-
-            // it looks that for allday events the occurrence time
-            // is reset to 00:00:00, this is causing various issues
-            if (!empty($next['allday'])) {
-                if ($this->start_time) {
-                    $time = explode(':', $this->start_time);
-                    $next_start->setTime((int)$time[0], (int)$time[1], (int)$time[2]);
-                }
-                if ($this->start_end) {
-                    $time = explode(':', $this->start_end);
-                    $next_end->setTime((int)$time[0], (int)$time[1], (int)$time[2]);
-                }
-            }
-
-            $next['start'] = $next_start;
-            $next['end']   = $next_end;
-
+            $next                    = $this->object->to_array();
             $recurrence_id_format    = libkolab::recurrence_id_format($next);
+            $next['start']           = $next_start;
+            $next['end']             = $next_end;
             $next['recurrence_date'] = clone $next_start;
             $next['_instance']       = $next_start->format($recurrence_id_format);
 
@@ -227,10 +213,6 @@ class kolab_date_recurrence
         while ($next = $recurrence->next_start()) {
             $start = $next;
             if ($next->format('Y-m-d') >= $orig_date) {
-                if ($event['allday']) {
-                    $next->setTime($orig_start->format('G'), $orig_start->format('i'), $orig_start->format('s'));
-                }
-
                 $found = true;
                 break;
             }
@@ -247,7 +229,7 @@ class kolab_date_recurrence
             return null;
         }
 
-        if ($event['allday']) {
+        if ($this->allday) {
             $start->_dateonly = true;
         }
 
