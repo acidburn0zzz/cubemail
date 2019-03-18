@@ -778,7 +778,7 @@ function kolab_files_file_create_dialog(file)
     create_func = function(dialog, editaction) {
       var sel, folder = select.val(), type = type_select.val(), name = input.val();
 
-      if (!name || !folder)
+      if (!name || !folder || !file_api.is_writable(folder))
         return;
 
       if (!/\.[a-z0-9]{1,5}$/.test(name)) {
