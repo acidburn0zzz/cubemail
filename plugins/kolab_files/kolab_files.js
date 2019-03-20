@@ -2255,7 +2255,7 @@ function kolab_files_ui()
     });
 
     // add Sessions entry
-    if (rcmail.task == 'files' && !rcmail.env.action && rcmail.env.files_caps && rcmail.env.files_caps.DOCEDIT) {
+    if (rcmail.task == 'files' && !rcmail.env.action && this.env.caps && this.env.caps.DOCEDIT) {
       rows.push($('<li class="mailbox collection sessions"></li>')
         .attr('id', 'rcmli' + rcmail.html_identifier_encode('folder-collection-sessions'))
         .append($('<a class="name"></a>').text(rcmail.gettext('kolab_files.sessions')))
@@ -2333,7 +2333,7 @@ function kolab_files_ui()
     // do not support fast folders list
     if (rcmail.env.files_api_version > 4) {
       var ref = this;
-      $.each(rcmail.env.files_caps.MOUNTPOINTS || [], function(k, v) {
+      $.each(this.env.caps.MOUNTPOINTS || [], function(k, v) {
         if (!v.FAST_FOLDER_LIST)
           ref.folder_list({level: 2, folder: k}, true);
       });
@@ -2812,7 +2812,7 @@ function kolab_files_ui()
   };
 
   // folder create response handler
-  this.folder_rename_response = function(response, data)
+  this.folder_rename_response = function(response, params)
   {
     if (!this.response(response))
       return;
@@ -2820,8 +2820,15 @@ function kolab_files_ui()
     this.display_message('kolab_files.folderupdatenotice', 'confirmation');
 
     // refresh folders and files list
-    if (this.env.folder == data.folder)
-      this.env.folder = data['new'];
+    if (this.env.folder == params.folder)
+      this.env.folder = params['new'];
+
+    // Removed mount point, refresh capabilities stored in session
+    if (this.env.caps.MOUNTPOINTS[params.folder]) {
+      this.env.caps.MOUNTPOINTS[params['new']] = this.env.caps.MOUNTPOINTS[params.folder];
+      delete this.env.caps.MOUNTPOINTS[params.folder];
+      rcmail.http_post('files/reset', {});
+    }
 
     // TODO: Don't reload the whole list
     this.folder_list();
@@ -2843,7 +2850,11 @@ function kolab_files_ui()
     this.display_message('kolab_files.foldermountnotice', 'confirmation');
 
     if (response.result.capabilities) {
-        rcmail.env.files_caps.MOUNTPOINTS[params.folder] = response.result.capabilities;
+      // we make sure the result is an object not array
+      // when the list is empty it is an array, because of how works JSON encoding from PHP
+      var add = {};
+      add[params.folder] = response.result.capabilities;
+      this.env.caps.MOUNTPOINTS = $.extend({}, this.env.caps.MOUNTPOINTS, add);
     }
 
     // Refresh capabilities stored in session
@@ -2875,8 +2886,8 @@ function kolab_files_ui()
     }
 
     // Removed mount point, refresh capabilities stored in session
-    if (rcmail.env.files_caps.MOUNTPOINTS[params.folder]) {
-      delete rcmail.env.files_caps.MOUNTPOINTS[params.folder];
+    if (this.env.caps.MOUNTPOINTS[params.folder]) {
+      delete this.env.caps.MOUNTPOINTS[params.folder];
       rcmail.http_post('files/reset', {});
     }
 
@@ -3014,7 +3025,7 @@ function kolab_files_ui()
   // quota request
   this.quota = function()
   {
-    if (rcmail.env.files_quota && (this.env.folder || !rcmail.env.files_caps.NOROOT))
+    if (rcmail.env.files_quota && (this.env.folder || !this.env.caps.NOROOT))
       this.request('quota', {folder: this.env.folder}, 'quota_response');
   };
 
@@ -3433,7 +3444,7 @@ function kolab_files_ui()
     });
 
     // refresh sessions info in time intervals
-    if (rcmail.env.files_caps && rcmail.env.files_caps.DOCEDIT && (rcmail.fileslist || rcmail.env.file))
+    if (this.env.caps && this.env.caps.DOCEDIT && (rcmail.fileslist || rcmail.env.file))
       this.workers[folder] = setTimeout(function() {
         file_api.request('folder_info', {folder: folder, sessions: 1}, 'folder_info_response');
       }, (rcmail.env.files_interval || 60) * 1000);
@@ -3682,7 +3693,7 @@ function kolab_files_ui()
 
     // open the file for editing if editable
     if (this.file_create_edit_file) {
-      var viewer = this.file_type_supported(this.file_create_edit_type, rcmail.env.files_caps);
+      var viewer = this.file_type_supported(this.file_create_edit_type, this.env.caps);
       this.file_open(this.file_create_edit_file, viewer, {action: 'edit'});
     }
   };
