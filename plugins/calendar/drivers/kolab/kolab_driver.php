@@ -169,7 +169,7 @@ class kolab_driver extends calendar_driver
           'editname' => $cal->get_foldername(),
           'color'    => $cal->get_color(),
           'active'   => $cal->is_active(),
-          'title'    => $cal->get_owner(),
+          'title'    => $cal->get_title(),
           'owner'    => $cal->get_owner(),
           'history'  => false,
           'virtual'  => false,
