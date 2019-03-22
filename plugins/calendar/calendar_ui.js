@@ -812,7 +812,7 @@ function rcube_calendar_ui(settings)
         save_func = function() {
           var start = allday.checked ? '12:00' : $.trim(starttime.val()),
             end = allday.checked ? '13:00' : $.trim(endtime.val()),
-            re = /^((0[0-9])|(1[0-9])|(2[0-3])):([0-5][0-9])(\s*[ap]\.?m\.?)?$/i;
+            re = /^((0?[0-9])|(1[0-9])|(2[0-3])):([0-5][0-9])(\s*[ap]\.?m\.?)?$/i;
 
           if (!re.test(start) || !re.test(end)) {
             rcmail.alert_dialog(rcmail.gettext('invalideventdates', 'calendar'));
