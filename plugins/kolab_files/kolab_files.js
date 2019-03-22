@@ -2103,7 +2103,6 @@ function kolab_files_ui()
 {
   this.requests = {};
   this.uploads = [];
-  this.workers = {};
   this.list_updates = 0;
 
 /*
@@ -3044,6 +3043,8 @@ function kolab_files_ui()
     if (!rcmail.gui_objects.sessionslist)
       return;
 
+    this.file_list_abort(true);
+
     if (!params)
       params = {};
 
@@ -3092,22 +3093,10 @@ function kolab_files_ui()
     if (!rcmail.gui_objects.fileslist)
       return;
 
+    this.file_list_abort(true);
+
     if (!params)
       params = {};
-
-    // reset all pending list requests
-    $.each(this.requests, function(i, v) {
-      v.abort();
-      rcmail.hide_message(i);
-    });
-
-    // reset folder_info workers
-    $.each(this.workers, function(i, v) {
-      clearTimeout(v);
-    });
-
-    this.workers = {};
-    this.requests = {};
 
     if (params.all_folders) {
       params.collection = null;
@@ -3149,7 +3138,7 @@ function kolab_files_ui()
     if (params.collection || params.all_folders)
       this.file_list_loop(params);
     else if (this.env.folder) {
-      params.req_id = this.set_busy(true, 'loading');
+      params.req_id = this.env.file_list_req_id = this.set_busy(true, 'loading');
       this.requests[params.req_id] = this.request('file_list', params, 'file_list_response');
     }
   };
@@ -3182,10 +3171,30 @@ function kolab_files_ui()
       this.request('folder_info', {folder: this.file_path(list[0].filename), sessions: 1}, 'folder_info_response');
   };
 
+  this.file_list_abort = function(all)
+  {
+    if (all) {
+      clearTimeout(this.file_list_worker);
+      this.file_list_worker = null;
+    }
+
+    // reset all pending list requests
+    $.each(this.requests, function(i, v) {
+      v.abort();
+      rcmail.hide_message(i);
+    });
+
+    this.requests = {};
+
+    rcmail.set_busy(false, null, this.env.file_list_req_id);
+  };
+
   // call file_list request for every folder (used for search and virt. collections)
   this.file_list_loop = function(params)
   {
-    var i, folders = [], limit = Math.max(this.env.search_threads || 1, 1);
+    var i, folders = [],
+      limit = Math.max(this.env.search_threads || 1, 1),
+      msg = rcmail.get_label('searching') + ' <a onclick="file_api.file_list_abort()">' + rcmail.get_label('kolab_files.abort') + '</a>';
 
     if (params.collection) {
       if (!params.search)
@@ -3202,32 +3211,38 @@ function kolab_files_ui()
     });
 
     this.env.folders_loop = folders;
-    this.env.folders_loop_params = params;
     this.env.folders_loop_lock = false;
+    this.env.file_list_req_id = rcmail.display_message(msg, 'loading', 5 * 60 * 1000, 'files-file-search');
+    rcmail.set_busy(true);
 
     for (i=0; i<folders.length && i<limit; i++) {
-      params.req_id = this.set_busy(true, 'loading');
+      params.req_id = new Date().getTime();
       params.folder = folders.shift();
       this.requests[params.req_id] = this.request('file_list', params, 'file_list_loop_response');
     }
   };
 
   // file list response handler for loop'ed request
-  this.file_list_loop_response = function(response)
+  this.file_list_loop_response = function(response, params)
   {
-    var i, folders = this.env.folders_loop,
-      params = this.env.folders_loop_params,
-      limit = Math.max(this.env.search_threads || 1, 1),
+    var folders = this.env.folders_loop,
       valid = this.response(response);
 
-    if (response.req_id)
-      rcmail.hide_message(response.req_id);
-
-    for (i=0; i<folders.length && i<limit; i++) {
-      params.req_id = this.set_busy(true, 'loading');
+    if (folders.length) {
+      params.req_id = new Date().getTime();
       params.folder = folders.shift();
       this.requests[params.req_id] = this.request('file_list', params, 'file_list_loop_response');
     }
+    else {
+      rcmail.set_busy(false, null, this.env.file_list_req_id);
+    }
+
+    // refresh sessions info in time intervals (one request for all folders)
+    if (!this.file_list_worker && this.env.caps && this.env.caps.DOCEDIT && (rcmail.fileslist || rcmail.env.file))
+      this.file_list_worker = setTimeout(function() {
+        var params = {req_id: file_api.set_busy(true, 'loading')};
+        file_api.request('sessions', params, 'file_list_sessions_response');
+      }, 0);
 
     rcmail.fileslist.resize();
 
@@ -3235,6 +3250,36 @@ function kolab_files_ui()
       return;
 
     this.file_list_loop_result_add(response.result);
+  };
+
+  // Update sessions metadata for files list (in multifolder mode)
+  this.file_list_sessions_response = function(response)
+  {
+    this.file_list_worker = setTimeout(function() {
+      var params = {req_id: file_api.set_busy(true, 'loading')};
+      file_api.request('sessions', params, 'file_list_sessions_response');
+    }, (rcmail.env.files_interval || 60) * 1000);
+
+    if (response.req_id)
+      rcmail.hide_message(response.req_id);
+
+    if (!this.response(response))
+      return;
+
+    this.sessions = [];
+
+    $.each(response.result || [], function(sess_id, data) {
+      var folder = file_api.file_path(data.file);
+      if (!file_api.sessions[folder])
+        file_api.sessions[folder] = {};
+      file_api.sessions[folder][sess_id] = data;
+    });
+
+    // update files list with document session info
+    $.each(file_api.env.file_list || [], function(i, file) {
+      var folder = file_api.file_path(file.filename);
+      file_api.file_session_data_set(file, file_api.sessions[folder]);
+    });
   };
 
   // add files from list request to the table (with sorting)
@@ -3252,9 +3297,19 @@ function kolab_files_ui()
     // lock table, other list responses will wait
     this.env.folders_loop_lock = true;
 
-    var n, i, len, elem, row, folder, list = [],
+    var n, i, len, elem, folder, list = [],
       index = this.env.file_list.length,
-      table = rcmail.fileslist;
+      table = rcmail.fileslist,
+      fn = function(result, key, before) {
+        var row = file_api.file_list_row(key, result[key], ++index);
+        table.insert_row(row, before);
+        result[key].row = row;
+        result[key].filename = key;
+        list.push(result[key]);
+
+        if (!folder)
+          folder = file_api.file_path(key);
+      };
 
     for (n=0, len=index; n<len; n++) {
       elem = this.env.file_list[n];
@@ -3262,15 +3317,7 @@ function kolab_files_ui()
         if (this.sort_compare(elem, result[i]) < 0)
           break;
 
-        row = this.file_list_row(i, result[i], ++index);
-        table.insert_row(row, elem.row);
-        result[i].row = row;
-        result[i].filename = i;
-        list.push(result[i]);
-
-        if (!folder)
-          folder = this.file_path(i);
-
+        fn(result, i, elem.row);
         delete result[i];
       }
 
@@ -3278,23 +3325,18 @@ function kolab_files_ui()
     }
 
     // add the rest of rows
-    $.each(result, function(key, data) {
-      var row = file_api.file_list_row(key, data, ++index);
-      table.insert_row(row);
-      result[key].row = row;
-      result[key].filename = key;
-      list.push(result[key]);
-
-      if (!folder)
-        folder = file_api.file_path(key);
-    });
+    for (i in result) fn(result, i);
 
     this.env.file_list = list;
-    this.env.folders_loop_lock = false;
 
-    // update document sessions info of this folder
-    if (folder)
-      this.request('folder_info', {folder: folder, sessions: 1}, 'folder_info_response');
+    // update files list with document session info
+    if (folder && this.sessions[folder])
+      $.each(list, function(i, file) {
+        if (folder == file_api.file_path(file.filename))
+          file_api.file_session_data_set(file, file_api.sessions[folder]);
+      });
+
+    this.env.folders_loop_lock = false;
   };
 
   // sort files list (without API request)
@@ -3420,34 +3462,39 @@ function kolab_files_ui()
     // update files list with document session info
     $.each(file_api.env.file_list || [], function(i, file) {
       // skip files from a different folder (in multi-folder listing)
-      if (file.filename.indexOf(prefix) !== 0)
-        return;
-
-      var classes = [];
-
-      if ($(file.row).is('.selected'))
-        classes.push('selected');
-
-      $.each(response.result.sessions || [], function(session_id, session) {
-        if (file.filename == session.file) {
-          if ($.inArray('session', classes) < 0)
-            classes.push('session');
-
-          if (session.is_owner && $.inArray('owner', classes) < 0)
-            classes.push('owner');
-          else if (session.is_invited && $.inArray('invited', classes) < 0)
-            classes.push('invited');
-        }
-      });
-
-      $(file.row).attr('class', classes.join(' '));
+      if (file.filename.indexOf(prefix) >= 0)
+        file_api.file_session_data_set(file, response.result.sessions)
     });
 
     // refresh sessions info in time intervals
     if (this.env.caps && this.env.caps.DOCEDIT && (rcmail.fileslist || rcmail.env.file))
-      this.workers[folder] = setTimeout(function() {
+      this.file_list_worker = setTimeout(function() {
         file_api.request('folder_info', {folder: folder, sessions: 1}, 'folder_info_response');
       }, (rcmail.env.files_interval || 60) * 1000);
+  };
+
+  // Set html classes on a file list entry according to defined document sessions
+  this.file_session_data_set = function(file, sessions)
+  {
+    var classes = [], old_class = file.row.className;
+
+    if ($(file.row).is('.selected'))
+      classes.push('selected');
+
+    $.each(sessions || [], function(session_id, session) {
+      if (file.filename == session.file) {
+        if ($.inArray('session', classes) < 0)
+          classes.push('session');
+
+        if (session.is_owner && $.inArray('owner', classes) < 0)
+          classes.push('owner');
+        else if (session.is_invited && $.inArray('invited', classes) < 0)
+          classes.push('invited');
+      }
+    });
+
+    if (classes.length || old_class.length)
+      $(file.row).attr('class', classes.join(' '));
   };
 
   this.file_get = function(file, params)

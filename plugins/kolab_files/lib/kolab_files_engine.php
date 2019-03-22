@@ -702,6 +702,8 @@ class kolab_files_engine
 
         $this->rc->output->include_script('list.js');
 
+        $this->rc->output->add_label('kolab_files.abort', 'searching');
+
         // attach css rules for mimetype icons
         if (!$this->filetypes_style) {
             $this->plugin->include_stylesheet($this->url . '/skins/default/images/mimetypes/style.css');
