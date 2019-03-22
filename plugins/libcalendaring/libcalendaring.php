@@ -53,8 +53,8 @@ class libcalendaring extends rcube_plugin
         'Y/m/d' => array('M d Y',   'm/d',  'l m/d'),
         'm/d/Y' => array('M d Y',   'm/d',  'l m/d'),
         'd/m/Y' => array('d M Y',   'd/m',  'l d/m'),
-        'd.m.Y' => array('d. M Y', 'd.m',  'l d.m.'),
-        'd.m.Y'   => array('d. M Y',  'd.m',  'l d.m.'),
+        'd.m.Y' => array('d. M Y',  'd.m.',  'l d.m.'),
+        'd.m.Y' => array('d. M Y',  'd.m.',  'l d.m.'),
       ),
     );
 
