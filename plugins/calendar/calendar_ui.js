@@ -4226,7 +4226,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         }
         dp.height('auto').removeClass('ui-dialog-content ui-widget-content')
           .data('dialog-parent', dp.closest('.ui-dialog'))
-          .appendTo('#layout > div.sidebar');
+          .appendTo('#layout-sidebar');
       }
       else if (!in_dialog && dp.length && width <= 768 && dp.data('dialog-parent')) {
         dp.addClass('ui-dialog-content ui-widget-content')
@@ -4284,7 +4284,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     // Mobile header title
     if (window.MutationObserver) {
       var title = $('.fc-header-toolbar > .fc-center h2'),
-        mobile_header = $('#layout > .content > .header > .header-title'),
+        mobile_header = $('#layout-content > .header > .header-title'),
         callback = function() {
           var text = title.text();
           mobile_header.html('').append([

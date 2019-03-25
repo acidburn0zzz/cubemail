@@ -21,7 +21,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-.toolbarmenu.listing li {
+.menu.listing li {
     a.calendarlink:before {
         .font-icon-regular(@fa-var-calendar);
     }
@@ -652,7 +652,7 @@ body.task-calendar {
     }
 
     @media screen and (min-width: (@screen-width-small + 1px)) {
-        & > #layout > div.sidebar {
+        #layout-sidebar {
             flex: 2 !important;
             max-width: 400px;
         }

@@ -188,13 +188,13 @@ class calendar extends rcube_plugin
 
       // add 'Create event' item to message menu
       if ($this->api->output->type == 'html' && $_GET['_rel'] != 'event') {
-        $this->api->add_content(html::tag('li', null, 
+        $this->api->add_content(html::tag('li', array('role' => 'menuitem'),
           $this->api->output->button(array(
             'command'  => 'calendar-create-from-mail',
             'label'    => 'calendar.createfrommail',
             'type'     => 'link',
             'classact' => 'icon calendarlink active',
-            'class'    => 'icon calendarlink',
+            'class'    => 'icon calendarlink disabled',
             'innerclass' => 'icon calendar',
           ))),
           'messagemenu');
@@ -2964,7 +2964,7 @@ class calendar extends rcube_plugin
         'type'       => 'link',
         'wrapper'    => 'li',
         'command'    => 'attachment-save-calendar',
-        'class'      => 'icon calendarlink',
+        'class'      => 'icon calendarlink disabled',
         'classact'   => 'icon calendarlink active',
         'innerclass' => 'icon calendar',
         'label'      => 'calendar.savetocalendar',

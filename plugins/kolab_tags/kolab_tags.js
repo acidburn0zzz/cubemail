@@ -899,7 +899,7 @@ function tag_selector(event, callback, remove_mode)
 
     if (!container) {
         var rows = [],
-            ul = $('<ul class="toolbarmenu">'),
+            ul = $('<ul class="toolbarmenu menu">'),
             li = document.createElement('li'),
             link = document.createElement('a'),
             span = document.createElement('span');

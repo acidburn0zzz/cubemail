@@ -279,7 +279,7 @@ html.touch .listing {
     }
 }
 
-.toolbarmenu.listing li {
+.menu.listing li {
     &.search {
         padding: .25rem .5rem;
         .input-group {
@@ -529,7 +529,8 @@ button.btn.print:before {
 
 // Use icons-only on taskmenu with small screen height
 @media screen and (max-height: 640px) and (min-width: (@screen-width-small + 1px)) {
-    body > #layout > .menu {
+    #layout-menu .popover-header img,
+    #layout-menu {
         width: 2.5rem;
     }
 
@@ -537,11 +538,6 @@ button.btn.print:before {
         a {
             height: auto;
             width: 100%;
-
-            &:before {
-                height: 2.1rem;
-                width: 100%;
-            }
         }
 
         .special-buttons {

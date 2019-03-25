@@ -2,8 +2,8 @@ function kolab_files_enable_command(p)
 {
     if (p.command == 'files-save') {
         var toolbar = $('#toolbar-menu');
-        $('a.button.edit', toolbar).parent().hide();
-        $('a.button.save', toolbar).show().parent().show();
+        $('a.edit', toolbar).parent().hide();
+        $('a.save', toolbar).show().parent().show();
 
         if (window.editor_edit_button)
             window.editor_edit_button.addClass('hidden');
@@ -52,7 +52,7 @@ function kolab_files_members_list(link)
 {
     var dialog = $('<div id="members-dialog" class="session-members"><ul></ul></div>'),
         title = $(link).text(),
-        add_button = $('#collaborators a.button.add'),
+        add_button = $('#collaborators a.add'),
         save_func = function(e) {
             add_button.click();
             return true;
@@ -82,7 +82,7 @@ if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
     rcmail.addEventListener('enable-command', kolab_files_enable_command);
 
     if (rcmail.env.action == 'open') {
-        $('#toolbar-menu a.button.save').parent().hide();
+        $('#toolbar-menu a.save').parent().hide();
     }
     else if (rcmail.env.action == 'edit') {
         if (rcmail.env.editor_type == 'wopi' && rcmail.is_framed()) {
@@ -104,8 +104,8 @@ if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
 
     // Elastic mobile preview uses an iframe in a dialog
     if ((rcmail.env.action == 'open' || rcmail.env.editor_type != 'wopi') && rcmail.is_framed()) {
-        var edit_button = $('#filetoolbar a.button.edit'),
-            save_button = $('#filetoolbar a.button.save');
+        var edit_button = $('#filetoolbar a.edit'),
+            save_button = $('#filetoolbar a.save');
 
         parent.$('.ui-dialog:visible .ui-dialog-buttonpane .ui-dialog-buttonset').prepend(
             window.editor_save_button = $('<button type="button">')
@@ -125,11 +125,11 @@ if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
 else {
     rcmail.addEventListener('files-folder-select', function(p) {
         var is_sess = p.folder == 'folder-collection-sessions';
-        $('#fileslistmenu-link, #layout > .content > .pagenav, #layout > .content .searchbar')[is_sess ? 'hide' : 'show']();
+        $('#fileslistmenu-link, #layout-content > .pagenav, #layout-content .searchbar')[is_sess ? 'hide' : 'show']();
         $('#sessionslistmenu-link')[is_sess ? 'removeClass' : 'addClass']('hidden');
 
         // set list header title for mobile
-        // $('#layout > .content > .header > .header-title').text($('#files-folder-list li.selected a.name:first').text());
+        // $('#layout-content > .header > .header-title').text($('#files-folder-list li.selected a.name:first').text());
     });
 }
 

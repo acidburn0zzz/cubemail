@@ -21,11 +21,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#taskmenu a.tasklist:before {
-    content: @fa-var-calendar-check;
-}
 
-.toolbarmenu.listing li {
+.menu li {
+    a.tasklist:before,
     a.tasklistlink:before,
     a.taskaddlink:before {
         .font-icon-regular(@fa-var-calendar-check);
