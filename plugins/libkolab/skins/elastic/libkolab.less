@@ -524,17 +524,18 @@ button.btn {
 @media screen and (max-height: 640px) and (min-width: (@screen-width-small + 1px)) {
     #layout-menu .popover-header img,
     #layout-menu {
-        width: 2.5rem;
+        width: @layout-menu-width-sm;
     }
 
     #taskmenu {
         a {
-            height: auto;
+            height: @layout-menu-width-sm;
             width: 100%;
+            font-size: 1.2rem !important;
         }
 
         .special-buttons {
-            width: 2.5rem;
+            width: @layout-menu-width-sm;
         }
 
         span.inner {
