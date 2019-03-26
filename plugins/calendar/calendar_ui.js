@@ -4279,7 +4279,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
     $('#timezone-display').appendTo($('.fc-header-toolbar > .fc-center')).removeClass('hidden');
     $('#agendaoptions').detach().insertAfter('.fc-header-toolbar');
 
-    $('.content-frame-navigation a.button.date').appendTo('.content > .searchbar');
+    $('.content-frame-navigation a.button.date').appendTo('#layout-content > .searchbar');
 
     // Mobile header title
     if (window.MutationObserver) {
