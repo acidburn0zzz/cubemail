@@ -279,8 +279,8 @@ html.touch .listing {
     }
 }
 
-.menu.listing li {
-    &.search {
+.menu {
+    li.search {
         padding: .25rem .5rem;
         .input-group {
 
@@ -300,12 +300,13 @@ html.touch .listing {
     }
 }
 
-a.history {
-    &:before {
-        &:extend(.font-icon-class);
-        content: @fa-var-history;
-        display: inline;
-        float: none;
+button.btn {
+    &.save.notify:before {
+        content: @fa-var-envelope;
+    }
+
+    &.print:before {
+        content: @fa-var-print;
     }
 }
 
@@ -373,14 +374,6 @@ a.history {
     label {
         order: 10;
     }
-}
-
-button.btn.save.notify:before {
-    content: @fa-var-envelope;
-}
-
-button.btn.print:before {
-    content: @fa-var-print;
 }
 
 .formcontent.text-only .faded * {

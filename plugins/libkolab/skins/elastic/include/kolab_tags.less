@@ -21,7 +21,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-.menu.listing li {
+.menu {
     a.tags:before {
         content: @fa-var-tags;
     }
@@ -36,6 +36,7 @@
 #taglist {
     li {
         padding: 0 .5rem;
+
         &:before {
             &:extend(.font-icon-class);
             content: @fa-var-tag;
