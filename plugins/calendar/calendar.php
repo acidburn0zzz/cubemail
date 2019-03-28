@@ -918,10 +918,6 @@ class calendar extends rcube_plugin
     $event  = rcube_utils::get_input_value('e', rcube_utils::INPUT_POST, true);
     $success = $reload = $got_msg = false;
 
-    // force notify if hidden + active
-    if ((int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']) === 1)
-      $event['_notify'] = 1;
-
     // read old event data in order to find changes
     if (($event['_notify'] || $event['_decline']) && $action != 'new') {
       $old = $this->driver->get_event($event);
