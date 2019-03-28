@@ -2537,6 +2537,10 @@ function rcube_calendar_ui(settings)
             data._notify = settings.itip_notify;
           }
         }
+        else if (cal.group != 'shared') {
+          html += '<div class="message dialog-message ui alert boxwarning">' + $('#edit-localchanges-warning').html() + '</div>';
+          data._notify = 0;
+        }
       }
 
       // recurring event: user needs to select the savemode
@@ -2565,7 +2569,6 @@ function rcube_calendar_ui(settings)
       
         $dialog.find('a.button').button().filter(':not(.disabled)').click(function(e) {
           data._savemode = String(this.href).replace(/.+#/, '');
-          data._notify = settings.itip_notify;
 
           // open event edit dialog when saving as new
           if (data._savemode == 'new') {
