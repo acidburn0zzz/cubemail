@@ -893,7 +893,7 @@ function rcube_tasklist_ui(settings)
                 rcmail.async_upload_form(form, 'import', function(e) {
                     rcmail.set_busy(false, null, saving_lock);
                     saving_lock = null;
-                    $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
+                    $('.ui-dialog-buttonpane button', $dialog.parent()).prop('disabled', false);
 
                     // display error message if no sophisticated response from server arrived (e.g. iframe load error)
                     if (me.import_succeeded === null)
@@ -905,7 +905,7 @@ function rcube_tasklist_ui(settings)
                 rcmail.env.request_timeout = 600;
                 me.import_succeeded = null;
                 saving_lock = rcmail.set_busy(true, 'uploading');
-                $('.ui-dialog-buttonpane button', $dialog.parent()).button('disable');
+                $('.ui-dialog-buttonpane button', $dialog.parent()).prop('disabled', true);
 
                 // restore settings
                 rcmail.env.request_timeout = timeout;

@@ -1277,12 +1277,10 @@ function rcube_calendar_ui(settings)
           
           return false;
         });
-      
+
       // enable/disable buttons
-      // FIXME: .button() does nothing in Elastic skin
-      var disabled = fb_start.getTime() < now.getTime();
-      $('#schedule-find-prev').button('option', 'disabled', disabled).prop('disabled', disabled);
-      
+      $('#schedule-find-prev').prop('disabled', fb_start.getTime() < now.getTime());
+
       // dialog buttons
       var buttons = [
         {
@@ -1829,7 +1827,8 @@ function rcube_calendar_ui(settings)
         // move freebusy grid if necessary
         var event_start = 'toDate' in event.start ? event.start.toDate() : event.start,
           event_end = 'toDate' in event.end ? event.end.toDate() : event.end,
-          offset = Math.ceil((event_start.getTime() - freebusy_ui.end.getTime()) / DAY_MS);
+          offset = Math.ceil((event_start.getTime() - freebusy_ui.end.getTime()) / DAY_MS),
+          now = new Date();
 
         if (event_start.getTime() >= freebusy_ui.end.getTime())
           render_freebusy_grid(Math.max(1, offset));
@@ -1838,9 +1837,7 @@ function rcube_calendar_ui(settings)
         else
           render_freebusy_overlay();
 
-        var now = new Date(), disabled = event_start.getTime() < now.getTime();
-        // FIXME: .button() does nothing in Elastic skin
-        $('#schedule-find-prev').button('option', 'disabled', disabled).prop('disabled', disabled);
+        $('#schedule-find-prev').prop('disabled', event_start.getTime() < now.getTime());
 
         // speak new selection
         rcmail.display_message(rcmail.gettext('suggestedslot', 'calendar') + ': ' + me.event_date_text(event, true), 'voice');
@@ -2642,12 +2639,12 @@ function rcube_calendar_ui(settings)
             (action != 'remove' ? '<a href="#new" class="button btn btn-secondary">' + rcmail.gettext('saveasnew', 'calendar') + '</a>' : '') +
           '</div>';
       }
-      
+
       // show dialog
       if (html) {
         var $dialog = $('<div>').html(html);
-      
-        $dialog.find('a.button').button().filter(':not(.disabled)').click(function(e) {
+
+        $dialog.find('a.button').filter(':not(.disabled)').click(function(e) {
           data._savemode = String(this.href).replace(/.+#/, '');
 
           // open event edit dialog when saving as new
@@ -2669,7 +2666,7 @@ function rcube_calendar_ui(settings)
           $dialog.dialog("close");
           return false;
         });
-        
+
         var buttons = [];
 
         if (!event.recurrence) {
@@ -3016,7 +3013,7 @@ function rcube_calendar_ui(settings)
             if (form && form.elements._data.value) {
               rcmail.async_upload_form(form, 'import_events', function(e) {
                 rcmail.set_busy(false, null, me.saving_lock);
-                $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
+                $('.ui-dialog-buttonpane button', $dialog.parent()).prop('disabled', false);
 
                 // display error message if no sophisticated response from server arrived (e.g. iframe load error)
                 if (me.import_succeeded === null)
@@ -3028,7 +3025,7 @@ function rcube_calendar_ui(settings)
               rcmail.env.request_timeout = 600;
               me.import_succeeded = null;
               me.saving_lock = rcmail.set_busy(true, 'uploading');
-              $('.ui-dialog-buttonpane button', $dialog.parent()).button('disable');
+              $('.ui-dialog-buttonpane button', $dialog.parent()).prop('disabled', true);
 
               // restore settings
               rcmail.env.request_timeout = timeout;
@@ -3049,7 +3046,7 @@ function rcube_calendar_ui(settings)
         closeOnEscape: false,
         title: rcmail.gettext('importevents', 'calendar'),
         close: function() {
-          $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
+          $('.ui-dialog-buttonpane button', $dialog.parent()).prop('disabled', false);
           $dialog.dialog("destroy").hide();
         },
         buttons: buttons,
@@ -3132,7 +3129,7 @@ function rcube_calendar_ui(settings)
         closeOnEscape: false,
         title: rcmail.gettext('exporttitle', 'calendar'),
         close: function() {
-          $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
+          $('.ui-dialog-buttonpane button', $dialog.parent()).prop('disabled', false);
           $dialog.dialog("destroy").hide();
         },
         buttons: buttons,
@@ -4053,11 +4050,11 @@ function rcube_calendar_ui(settings)
         event_freebusy_dialog();
       });
 
-      $('#schedule-freebusy-prev').html('&#9668;').button().click(function(){ render_freebusy_grid(-1); });
-      $('#schedule-freebusy-next').html('&#9658;').button().click(function(){ render_freebusy_grid(1); }); // FIXME .parent().buttonset();
+      $('#schedule-freebusy-prev').html('&#9668;').click(function() { render_freebusy_grid(-1); });
+      $('#schedule-freebusy-next').html('&#9658;').click(function() { render_freebusy_grid(1); });
 
-      $('#schedule-find-prev').button().click(function(){ freebusy_find_slot(-1); });
-      $('#schedule-find-next').button().click(function(){ freebusy_find_slot(1); });
+      $('#schedule-find-prev').click(function() { freebusy_find_slot(-1); });
+      $('#schedule-find-next').click(function() { freebusy_find_slot(1); });
 
       $('#schedule-freebusy-workinghours').click(function(){
         freebusy_ui.workinhoursonly = this.checked;
