@@ -39,7 +39,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
             edit = url._id,
             title = edit ? rcmail.gettext('kolab_notes.editnote') : rcmail.gettext('kolab_notes.appendnote'),
             dialog_render = function(p) {
-                $dialog.parent().find('.ui-dialog-buttonset .ui-button')
+                $dialog.parent().find('.ui-dialog-buttonset button')
                     .prop('disabled', p.readonly)
                     .last().prop('disabled', false);
             };

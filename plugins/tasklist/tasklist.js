@@ -1300,7 +1300,6 @@ function rcube_tasklist_ui(settings)
         if (!rcmail.busy) {
             saving_lock = rcmail.set_busy(true, 'tasklist.savingdata');
             rcmail.http_post('tasks/task', { action:action, t:rec, filter:filtermask });
-            $('button.ui-button:ui-button').button('option', 'disabled', rcmail.busy);
             return true;
         }
 
@@ -1382,7 +1381,7 @@ function rcube_tasklist_ui(settings)
                 buttons: buttons,
                 open: function() {
                     setTimeout(function(){
-                      $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+                      $dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
                     }, 5);
                 },
                 close: function(){
@@ -1404,7 +1403,6 @@ function rcube_tasklist_ui(settings)
     {
         if (saving_lock) {
             rcmail.set_busy(false, null, saving_lock);
-            $('button.ui-button:ui-button').button('option', 'disabled', false);
             saving_lock = null;
 
             // Elastic
@@ -2183,7 +2181,7 @@ function rcube_tasklist_ui(settings)
                 closeOnEscape: true,
                 title: rcmail.gettext('taskdetails', 'tasklist'),
                 open: function() {
-                    $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+                    $dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
                 },
                 close: function() {
                     $dialog.dialog('destroy').appendTo(document.body);

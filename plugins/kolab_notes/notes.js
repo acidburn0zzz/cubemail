@@ -1316,8 +1316,8 @@ function rcube_kolab_notes_ui(settings)
                 dialogClass: 'warning',
                 open: function(event, ui) {
                     $(this).parent().find('.ui-dialog-titlebar-close').hide();
-                    setTimeout(function(){
-                        dialog.parent().find('.ui-button:visible').first().focus();
+                    setTimeout(function() {
+                        dialog.parent().find('button:visible').first().focus();
                     }, 10);
                 },
                 close: function(event, ui) {

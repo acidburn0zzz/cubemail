@@ -951,7 +951,7 @@ function kolab_dialog_show(content, params, onopen)
 // Handle form submit with Enter key, click first dialog button instead
 function kolab_dialog_submit_handler()
 {
-  $(this).parents('.ui-dialog').find('.ui-button').first().click();
+  $(this).parents('.ui-dialog').find('.ui-dialog-buttonpane button').first().click();
   return false;
 };
 

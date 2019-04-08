@@ -759,7 +759,7 @@ function rcube_libcalendaring(settings)
             buttons: buttons,
             open: function() {
               setTimeout(function() {
-                me.alarm_dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+                me.alarm_dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
               }, 5);
             },
             close: function() {
@@ -1289,7 +1289,7 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
     dialog = rcmail.show_popup_dialog(form, rcmail.gettext('delegateinvitation', 'itip'), buttons, {
         width: 460,
         open: function(event, ui) {
-            $(this).parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().addClass('mainaction');
+            $(this).parent().find('button:not(.ui-dialog-titlebar-close)').first().addClass('mainaction');
             $(this).find('#itip-saveto').val('');
 
             // initialize autocompletion
@@ -1380,7 +1380,7 @@ rcube_libcalendaring.decline_attendee_reply = function(mime_id, task)
     dialog = rcmail.show_popup_dialog(html, rcmail.gettext('declineattendee', 'itip'), buttons, {
         width: 460,
         open: function() {
-            $(this).parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().addClass('mainaction');
+            $(this).parent().find('button:not(.ui-dialog-titlebar-close)').first().addClass('mainaction');
             $('#itip-decline-comment').focus();
         }
     });
