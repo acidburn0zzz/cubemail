@@ -565,7 +565,7 @@ function rcube_calendar_ui(settings)
         open: function() {
           $dialog.attr('aria-hidden', 'false');
           setTimeout(function(){
-            $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+            $dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
           }, 5);
         },
         beforeClose: function(e) {
@@ -1154,7 +1154,7 @@ function rcube_calendar_ui(settings)
         open: function() {
           $dialog.attr('aria-hidden', 'false');
           setTimeout(function(){
-            $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+            $dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
           }, 5);
         },
         close: function() {
@@ -2110,7 +2110,7 @@ function rcube_calendar_ui(settings)
         height: 500
       }).show();
 
-      $('.ui-dialog-buttonset .ui-button', $dialog.parent()).first().attr('id', 'rcmbtncalresadd');
+      $('.ui-dialog-buttonset button', $dialog.parent()).first().attr('id', 'rcmbtncalresadd');
 
       me.dialog_resize($dialog.get(0), 540, Math.min(1000, $(window).width() - 50));
 
@@ -2129,7 +2129,7 @@ function rcube_calendar_ui(settings)
         resources_treelist.addEventListener('select', function(node) {
           if (resources_data[node.id]) {
             resource_showinfo(resources_data[node.id]);
-            rcmail.enable_command('add-resource', me.selected_event && $("#eventedit").is(':visible') ? true : false);
+            rcmail.enable_command('add-resource', me.selected_event && $("#eventedit").is(':visible'));
 
             // on elastic mobile display resource info box
             if ($('html.layout-small,html.layout-phone').length) {
@@ -2152,7 +2152,7 @@ function rcube_calendar_ui(settings)
         rcmail.http_request('resources-list', {}, me.loading_lock);
 
         // register button
-        rcmail.register_button('add-resource', 'rcmbtncalresadd', 'uibutton');
+        rcmail.register_button('add-resource', 'rcmbtncalresadd', 'button');
 
         // initialize resource calendar display
         var resource_cal = $(rcmail.gui_objects.resourceinfocalendar);
@@ -2373,10 +2373,8 @@ function rcube_calendar_ui(settings)
     var add_resource2event = function()
     {
       var resource = resources_data[resources_treelist.get_selection()];
-      if (resource) {
-        if (add_attendee($.extend({ role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:'RESOURCE' }, resource)))
-          rcmail.display_message(rcmail.get_label('resourceadded', 'calendar'), 'confirmation');
-      }
+      if (resource)
+        add_attendee($.extend({ role:'REQ-PARTICIPANT', status:'NEEDS-ACTION', cutype:'RESOURCE' }, resource));
     }
 
     // when the user accepts or declines an event invitation
@@ -2703,7 +2701,7 @@ function rcube_calendar_ui(settings)
           buttons: buttons,
           open: function() {
             setTimeout(function(){
-              $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+              $dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
             }, 5);
           },
           close: function(){
