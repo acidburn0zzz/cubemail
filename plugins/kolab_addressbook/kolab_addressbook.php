@@ -831,10 +831,9 @@ class kolab_addressbook extends rcube_plugin
         }
 
         $ldap_public = $this->rc->config->get('ldap_public');
-        $abook_type  = $this->rc->config->get('address_book_type');
 
         // Hide option if there's no global addressbook
-        if (empty($ldap_public) || $abook_type != 'ldap') {
+        if (empty($ldap_public)) {
             return $args;
         }
 
@@ -1126,9 +1125,8 @@ class kolab_addressbook extends rcube_plugin
         // Make sure any global addressbooks are defined
         if ($abook_prio == 0 || $abook_prio == 2) {
             $ldap_public = $this->rc->config->get('ldap_public');
-            $abook_type  = $this->rc->config->get('address_book_type');
 
-            if (empty($ldap_public) || $abook_type != 'ldap') {
+            if (empty($ldap_public)) {
                 $abook_prio = 1;
             }
         }
