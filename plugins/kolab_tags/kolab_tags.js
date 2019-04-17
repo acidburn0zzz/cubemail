@@ -434,7 +434,7 @@ function tag_form_save()
 // ajax response handler
 function update_tags(response)
 {
-    var list = rcmail.message_list;
+    var list = main_list_widget();
 
     // reset tag selector popup
     tag_selector_reset();
@@ -513,7 +513,7 @@ function update_tags(response)
     rcmail.enable_command('reset-tags', tagsfilter.length && list);
 
     // update Mark menu in case some messages are already selected
-    if (list && list.selection.length) {
+    if (list && list.selection && list.selection.length) {
         message_list_select(list);
     }
 
