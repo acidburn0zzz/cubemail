@@ -874,11 +874,15 @@ class kolab_auth extends rcube_plugin
                 $username = sprintf('%s (as user %s)', $username, $login_as);
             }
 
+            // Don't log full session id for better security
+            $session_id = session_id();
+            $session_id = $session_id ? substr($session_id, 0, 16) : 'no-session';
+
             $message = sprintf(
                 "Failed login for %s from %s in session %s %s",
                 $username,
                 rcube_utils::remote_ip(),
-                session_id() ?: 'no-session',
+                $session_id,
                 $message ? "($message)" : ''
             );
 
