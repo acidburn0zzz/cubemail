@@ -906,7 +906,7 @@ class libcalendaring_itip
     {
         $table = new html_table(array('cols' => 2, 'border' => 0, 'class' => 'calendar-eventdetails'));
         $table->add('ititle', $title);
-        $table->add('title', rcube::Q($event['title']));
+        $table->add('title', rcube::Q(trim($event['title'])));
         if ($event['start'] && $event['end']) {
             $table->add('label', $this->gettext('date'));
             $table->add('date', rcube::Q($this->lib->event_date_text($event)));
@@ -923,21 +923,21 @@ class libcalendaring_itip
             $table->add('label', $this->gettext('recurring'));
             $table->add('recurrence', $this->lib->recurrence_text($event['recurrence']));
         }
-        if ($event['location'] && trim($event['location'])) {
+        if ($location = trim($event['location'])) {
             $table->add('label', $this->gettext('location'));
-            $table->add('location', rcube::Q($event['location']));
+            $table->add('location', rcube::Q($location));
         }
-        if ($event['sensitivity'] && !preg_match('/^(x-|public$)/i', $event['sensitivity'])) {
+        if (($sensitivity = trim($event['sensitivity'])) && !preg_match('/^(x-|public$)/i', $sensitivity)) {
             $table->add('label', $this->gettext('sensitivity'));
-            $table->add('sensitivity', ucfirst($this->gettext($event['sensitivity'])) . '!');
+            $table->add('sensitivity', ucfirst($this->gettext($sensitivity)) . '!');
         }
         if ($event['status'] == 'COMPLETED' || $event['status'] == 'CANCELLED') {
             $table->add('label', $this->gettext('status'));
             $table->add('status', $this->gettext('status-' . strtolower($event['status'])));
         }
-        if ($event['comment'] && trim($event['comment'])) {
+        if ($comment = trim($event['comment'])) {
             $table->add('label', $this->gettext('comment'));
-            $table->add('location', rcube::Q($event['comment']));
+            $table->add('location', rcube::Q($comment));
         }
 
         return $table->show();
