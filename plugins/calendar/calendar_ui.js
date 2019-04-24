@@ -317,7 +317,7 @@ function rcube_calendar_ui(settings)
       if (String(css['border-color']).match(/^#?f+$/i))
         delete css['border-color'];
 
-      $.each(css, function(i, v) { if (!v) delete css[i]; if (v.charAt(0) != '#') css[i] = '#' + v; });
+      $.each(css, function(i, v) { if (!v) delete css[i]; else if (v.charAt(0) != '#') css[i] = '#' + v; });
 
       if (mode == 'list') {
         bg_color = css['background-color'];
