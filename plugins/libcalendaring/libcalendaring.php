@@ -386,6 +386,7 @@ class libcalendaring extends rcube_plugin
      * Get a list of email addresses of the given user (from login and identities)
      *
      * @param string User Email (default to current user)
+     *
      * @return array Email addresses related to the user
      */
     public function get_user_emails($user = null)
@@ -418,10 +419,13 @@ class libcalendaring extends rcube_plugin
 
     /**
      * Set the given participant status to the attendee matching the current user's identities
+     * Unsets 'rsvp' flag too.
      *
-     * @param array   Hash array with event struct
-     * @param string  The PARTSTAT value to set
-     * @return mixed  Email address of the updated attendee or False if none matching found
+     * @param array  &$event    Event data
+     * @param string $status    The PARTSTAT value to set
+     * @param bool   $recursive Recurive call
+     *
+     * @return mixed Email address of the updated attendee or False if none matching found
      */
     public function set_partstat(&$event, $status, $recursive = true)
     {
@@ -430,6 +434,7 @@ class libcalendaring extends rcube_plugin
         foreach ((array)$event['attendees'] as $i => $attendee) {
             if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
                 $event['attendees'][$i]['status'] = strtoupper($status);
+                unset($event['attendees'][$i]['rsvp']);
                 $success = $attendee['email'];
             }
         }
