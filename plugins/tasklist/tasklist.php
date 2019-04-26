@@ -1869,7 +1869,7 @@ class tasklist extends rcube_plugin
         foreach ($this->message_tasks as $task) {
             $checkbox = new html_checkbox(array(
                 'name' => 'completed',
-                'class' => 'complete',
+                'class' => 'complete pretty-checkbox',
                 'title' => $this->gettext('complete'),
                 'data-list' => $task['list'],
             ));
