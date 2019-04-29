@@ -406,10 +406,12 @@ class kolab_calendar extends kolab_storage_folder_api
   }
 
   /**
+   * Get number of events in the given calendar
    *
    * @param  integer Date range start (unix timestamp)
    * @param  integer Date range end (unix timestamp)
    * @param  array   Additional query to filter events
+   *
    * @return integer Count
    */
   public function count_events($start, $end = null, $filter_query = null)
@@ -432,7 +434,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
     // query Kolab storage
     $query[] = array('dtend',   '>=', $start);
-    
+
     if ($end)
       $query[] = array('dtstart', '<=', $end);
 
@@ -455,7 +457,7 @@ class kolab_calendar extends kolab_storage_folder_api
    * Create a new event record
    *
    * @see calendar_driver::new_event()
-   * 
+   *
    * @return mixed The created record ID on success, False on error
    */
   public function insert_event($event)
@@ -495,9 +497,9 @@ class kolab_calendar extends kolab_storage_folder_api
    * Update a specific event record
    *
    * @see calendar_driver::new_event()
+   *
    * @return boolean True on success, False on error
    */
-
   public function update_event($event, $exception_id = null)
   {
     $updated = false;
@@ -541,6 +543,7 @@ class kolab_calendar extends kolab_storage_folder_api
    * Delete an event record
    *
    * @see calendar_driver::remove_event()
+   *
    * @return boolean True on success, False on error
    */
   public function delete_event($event, $force = true)
@@ -549,9 +552,8 @@ class kolab_calendar extends kolab_storage_folder_api
 
     if (!$deleted) {
       rcube::raise_error(array(
-        'code' => 600, 'type' => 'php',
-        'file' => __FILE__, 'line' => __LINE__,
-        'message' => sprintf("Error deleting event object '%s' from Kolab server", $event['id'])),
+          'code' => 600, 'file' => __FILE__, 'line' => __LINE__,
+          'message' => sprintf("Error deleting event object '%s' from Kolab server", $event['id'])),
         true, false);
     }
 
@@ -562,18 +564,21 @@ class kolab_calendar extends kolab_storage_folder_api
    * Restore deleted event record
    *
    * @see calendar_driver::undelete_event()
+   *
    * @return boolean True on success, False on error
    */
   public function restore_event($event)
   {
-    if ($this->storage->undelete($event['id'])) {
+    // Make sure this is not an instance identifier
+    $uid = preg_replace('/-\d{8}(T\d{6})?$/', '', $event['id']);
+
+    if ($this->storage->undelete($uid)) {
         return true;
     }
     else {
         rcube::raise_error(array(
-          'code' => 600, 'type' => 'php',
-          'file' => __FILE__, 'line' => __LINE__,
-          'message' => "Error undeleting the event object $event[id] from the Kolab server"),
+          'code' => 600, 'file' => __FILE__, 'line' => __LINE__,
+          'message' => sprintf("Error undeleting the event object '%s' from the Kolab server", $event['id'])),
         true, false);
     }
 
@@ -613,7 +618,7 @@ class kolab_calendar extends kolab_storage_folder_api
   {
     $object = $event['_formatobj'];
     if (!$object) {
-      $rec = $this->storage->get_object($event['id']);
+      $rec    = $this->storage->get_object($event['uid'] ?: $event['id']);
       $object = $rec['_formatobj'];
     }
 

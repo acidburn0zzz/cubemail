@@ -979,8 +979,7 @@ class calendar extends rcube_plugin
       case "remove":
         // remove previous deletes
         $undo_time = $this->driver->undelete ? $this->rc->config->get('undo_timeout', 0) : 0;
-        $this->rc->session->remove('calendar_event_undo');
-        
+
         // search for event if only UID is given
         if (!isset($event['calendar']) && $event['uid']) {
           if (!($event = $this->driver->get_event($event, calendar_driver::FILTER_WRITEABLE))) {
@@ -989,11 +988,12 @@ class calendar extends rcube_plugin
           $undo_time = 0;
         }
 
+        // Note: the driver is responsible for setting $_SESSION['calendar_event_undo']
+        //       containing 'ts' and 'data' elements
         $success = $this->driver->remove_event($event, $undo_time < 1);
         $reload = (!$success || $event['_savemode']) ? 2 : 1;
 
         if ($undo_time > 0 && $success) {
-          $_SESSION['calendar_event_undo'] = array('ts' => time(), 'data' => $event);
           // display message with Undo link.
           $msg = html::span(null, $this->gettext('successremoval'))
             . ' ' . html::a(array('onclick' => sprintf("%s.http_request('event', 'action=undo', %s.display_message('', 'loading'))",
@@ -1047,16 +1047,14 @@ class calendar extends rcube_plugin
 
       case "undo":
         // Restore deleted event
-        $event  = $_SESSION['calendar_event_undo']['data'];
-
-        if ($event)
+        if ($event = $_SESSION['calendar_event_undo']['data'])
           $success = $this->driver->restore_event($event);
 
         if ($success) {
           $this->rc->session->remove('calendar_event_undo');
           $this->rc->output->show_message('calendar.successrestore', 'confirmation');
           $got_msg = true;
-          $reload = 2;
+          $reload  = 2;
         }
 
         break;

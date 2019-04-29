@@ -779,21 +779,26 @@ class kolab_driver extends calendar_driver
    */
   public function remove_event($event, $force = true)
   {
-    $ret = true;
-    $success = false;
+    $ret      = true;
+    $success  = false;
     $savemode = $event['_savemode'];
     $decline  = $event['_decline'];
+
+    if (!$force) {
+      unset($event['attendees']);
+      $this->rc->session->remove('calendar_event_undo');
+      $this->rc->session->remove('calendar_restore_event_data');
+      $sess_data = $event;
+    }
 
     if (($storage = $this->get_calendar($event['calendar'])) && ($event = $storage->get_event($event['id']))) {
       $event['_savemode'] = $savemode;
       $savemode = 'all';
-      $master = $event;
-
-      $this->rc->session->remove('calendar_restore_event_data');
+      $master   = $event;
 
       // read master if deleting a recurring event
       if ($event['recurrence'] || $event['recurrence_id'] || $event['isexception']) {
-        $master = $storage->get_event($event['uid']);
+        $master   = $storage->get_event($event['uid']);
         $savemode = $event['_savemode'] ?: ($event['_instance'] || $event['isexception'] ? 'current' : 'all');
 
         // force 'current' mode for single occurrences stored as exception
@@ -821,23 +826,8 @@ class kolab_driver extends calendar_driver
         case 'current':
           $_SESSION['calendar_restore_event_data'] = $master;
 
-          // removing the first instance => just move to next occurence
-          if ($master['recurrence'] && $event['_instance'] == libcalendaring::recurrence_instance_identifier($master)) {
-            $recurring = reset($storage->get_recurring_events($event, $event['start'], null, $event['id'] . '-1', 1));
-
-            // no future instances found: delete the master event (bug #1677)
-            if (!$recurring['start']) {
-              $success = $storage->delete_event($master, $force);
-              break;
-            }
-
-            $master['start'] = $recurring['start'];
-            $master['end'] = $recurring['end'];
-            if ($master['recurrence']['COUNT'])
-              $master['recurrence']['COUNT']--;
-          }
           // remove the matching RDATE entry
-          else if ($master['recurrence']['RDATE']) {
+          if ($master['recurrence']['RDATE']) {
             foreach ($master['recurrence']['RDATE'] as $j => $rdate) {
               if ($rdate->format('Ymd') == $event['start']->format('Ymd')) {
                 unset($master['recurrence']['RDATE'][$j]);
@@ -845,9 +835,10 @@ class kolab_driver extends calendar_driver
               }
             }
           }
-          else {  // add exception to master event
-            $master['recurrence']['EXDATE'][] = $event['start'];
-          }
+
+          // add exception to master event
+          $master['recurrence']['EXDATE'][] = $event['start'];
+
           $success = $storage->update_event($master);
           break;
 
@@ -855,7 +846,7 @@ class kolab_driver extends calendar_driver
           $master['_instance'] = libcalendaring::recurrence_instance_identifier($master);
           if ($master['_instance'] != $event['_instance']) {
             $_SESSION['calendar_restore_event_data'] = $master;
-            
+
             // set until-date on master event
             $master['recurrence']['UNTIL'] = clone $event['start'];
             $master['recurrence']['UNTIL']->sub(new DateInterval('P1D'));
@@ -885,10 +876,10 @@ class kolab_driver extends calendar_driver
           if (!empty($event['recurrence_date']) && empty($master['recurrence']) && !empty($master['exceptions'])) {
             // make the first exception the new master
             $newmaster = array_shift($master['exceptions']);
-            $newmaster['exceptions'] = $master['exceptions'];
+            $newmaster['exceptions']   = $master['exceptions'];
             $newmaster['_attachments'] = $master['_attachments'];
-            $newmaster['_mailbox'] = $master['_mailbox'];
-            $newmaster['_msguid'] = $master['_msguid'];
+            $newmaster['_mailbox']     = $master['_mailbox'];
+            $newmaster['_msguid']      = $master['_msguid'];
 
             $success = $storage->update_event($newmaster);
           }
@@ -905,8 +896,18 @@ class kolab_driver extends calendar_driver
       }
     }
 
+    if ($success && !$force) {
+      if ($master['_folder_id'])
+        $sess_data['_folder_id'] = $master['_folder_id'];
+      $_SESSION['calendar_event_undo'] = array('ts' => time(), 'data' => $sess_data);
+    }
+
     if ($success && $this->freebusy_trigger)
-      $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
+      $this->rc->output->command('plugin.ping_url', array(
+          'action' => 'calendar/push-freebusy',
+          // _folder_id may be set by invitations calendar
+          'source' => $master['_folder_id'] ?: $storage->id,
+      ));
 
     return $success ? $ret : false;
   }
@@ -915,20 +916,26 @@ class kolab_driver extends calendar_driver
    * Restore a single deleted event
    *
    * @param array Hash array with event properties:
-   *      id: Event identifier
+   *                    id: Event identifier
+   *              calendar: Event calendar
+   *
    * @return boolean True on success, False on error
    */
   public function restore_event($event)
   {
     if ($storage = $this->get_calendar($event['calendar'])) {
       if (!empty($_SESSION['calendar_restore_event_data']))
-        $success = $storage->update_event($_SESSION['calendar_restore_event_data']);
+        $success = $storage->update_event($event = $_SESSION['calendar_restore_event_data']);
       else
         $success = $storage->restore_event($event);
-      
+
       if ($success && $this->freebusy_trigger)
-        $this->rc->output->command('plugin.ping_url', array('action' => 'calendar/push-freebusy', 'source' => $storage->id));
-      
+        $this->rc->output->command('plugin.ping_url', array(
+            'action' => 'calendar/push-freebusy',
+            // _folder_id may be set by invitations calendar
+            'source' => $event['_folder_id'] ?: $storage->id,
+        ));
+
       return $success;
     }
 

@@ -527,7 +527,13 @@ function rcube_calendar_ui(settings)
         }
       }
 
-      var buttons = [];
+      var buttons = [], is_removable_event = function(event, calendar) {
+          // for invitation calendars check permissions of the original folder
+          if (event._folder_id)
+            calendar = me.calendars[event._folder_id];
+          return calendar && me.has_permission(calendar, 'td');
+        };
+
       if (!temp && calendar.editable && event.editable !== false) {
         buttons.push({
           text: rcmail.gettext('edit', 'calendar'),
@@ -537,7 +543,8 @@ function rcube_calendar_ui(settings)
           }
         });
       }
-      if (!temp && me.has_permission(calendar, 'td') && event.editable !== false) {
+
+      if (!temp && is_removable_event(event, calendar) && event.editable !== false) {
         buttons.push({
           text: rcmail.gettext('delete', 'calendar'),
           'class': 'delete',
@@ -565,7 +572,7 @@ function rcube_calendar_ui(settings)
         open: function() {
           $dialog.attr('aria-hidden', 'false');
           setTimeout(function(){
-            $dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
+            $dialog.parent().find('button:not(.ui-dialog-titlebar-close,.delete)').first().focus();
           }, 5);
         },
         beforeClose: function(e) {
@@ -2587,6 +2594,7 @@ function rcube_calendar_ui(settings)
 
       if (!data) data = event;
       var decline = false, notify = false, html = '', cal = me.calendars[event.calendar],
+        _is_invitation = String(event.calendar).match(/^--invitation--(declined|pending)/) && RegExp.$1,
         _has_attendees = me.has_attendees(event),
         _is_attendee = _has_attendees && me.is_attendee(event),
         _is_organizer = me.is_organizer(event);
@@ -2595,19 +2603,19 @@ function rcube_calendar_ui(settings)
       if (_has_attendees) {
         var checked = (settings.itip_notify & 1 ? ' checked="checked"' : '');
 
-        if (action == 'remove' && cal.group != 'shared' && !_is_organizer && _is_attendee) {
+        if (action == 'remove' && cal.group != 'shared' && !_is_organizer && _is_attendee && _is_invitation != 'declined') {
           decline = true;
           checked = event.status != 'CANCELLED' ? checked : '';
           html += '<div class="message dialog-message ui alert boxwarning">' +
-            '<label><input class="confirm-attendees-decline" type="checkbox"' + checked + ' value="1" name="decline" />&nbsp;' +
-            rcmail.gettext('itipdeclineevent', 'calendar') + 
+            '<label><input class="confirm-attendees-decline pretty-checkbox" type="checkbox"' + checked + ' value="1" name="decline" />&nbsp;' +
+            rcmail.gettext('itipdeclineevent', 'calendar') +
             '</label></div>';
         }
         else if (_is_organizer) {
           notify = true;
           if (settings.itip_notify & 2) {
             html += '<div class="message dialog-message ui alert boxwarning">' +
-              '<label><input class="confirm-attendees-donotify" type="checkbox"' + checked + ' value="1" name="notify" />&nbsp;' +
+              '<label><input class="confirm-attendees-donotify pretty-checkbox" type="checkbox"' + checked + ' value="1" name="notify" />&nbsp;' +
                 rcmail.gettext((action == 'remove' ? 'sendcancellation' : 'sendnotifications'), 'calendar') +
               '</label></div>';
           }
@@ -2615,7 +2623,7 @@ function rcube_calendar_ui(settings)
             data._notify = settings.itip_notify;
           }
         }
-        else if (cal.group != 'shared') {
+        else if (cal.group != 'shared' && !_is_invitation) {
           html += '<div class="message dialog-message ui alert boxwarning">' + $('#edit-localchanges-warning').html() + '</div>';
           data._notify = 0;
         }
@@ -3217,7 +3225,10 @@ function rcube_calendar_ui(settings)
       function update_view(view, event, source) {
         var existing = view.fullCalendar('clientEvents', event._id);
         if (existing.length) {
+          delete existing[0].temp;
+          delete existing[0].editable;
           $.extend(existing[0], event);
+
           view.fullCalendar('updateEvent', existing[0]);
           // remove old recurrence instances
           if (event.recurrence && !event.recurrence_id)
@@ -3254,16 +3265,13 @@ function rcube_calendar_ui(settings)
       // add/update single event object
       else if (source && p.update) {
         var event = p.update;
-        event.temp = false;
-        event.editable = 0;
 
         // update main view
-        event.editable = source.editable;
         update_view(fc, event, source);
 
         // update the currently displayed event dialog
         if ($('#eventshow').is(':visible') && me.selected_event && me.selected_event.id == event.id)
-          event_show_dialog(event)
+          event_show_dialog(event);
       }
       // refetch all calendars
       else if (p.refetch) {
