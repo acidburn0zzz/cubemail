@@ -342,6 +342,7 @@ class kolab_calendar extends kolab_storage_folder_api
         if ($virtual && !empty($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS'])) {
           foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
             if ($event['_instance'] == $exception['_instance']) {
+              unset($exception['calendar'], $exception['className'], $exception['_folder_id']);
               // clone date objects from main event before adjusting them with exception data
               if (is_object($event['start'])) $event['start'] = clone $record['start'];
               if (is_object($event['end']))   $event['end']   = clone $record['end'];
@@ -754,6 +755,9 @@ class kolab_calendar extends kolab_storage_folder_api
   {
     $record['calendar'] = $this->id;
 
+    // remove (possibly outdated) cached parameters
+    unset($record['_folder_id'], $record['className']);
+
     if ($links && !array_key_exists('links', $record)) {
       $record['links'] = $this->get_links($record['uid']);
     }
@@ -833,17 +837,22 @@ class kolab_calendar extends kolab_storage_folder_api
       $event['comment'] = $old['comment'];
     }
 
+    // remove some internal properties which should not be cached
+    $cleanup_fn = function(&$event) {
+      unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_folder_id'],
+        $event['calendar'], $event['className'], $event['recurrence_id'],
+        $event['_attachments'], $event['attachments'], $event['deleted_attachments']);
+    };
+
+    $cleanup_fn($event);
+
     // clean up exception data
     if (is_array($event['exceptions'])) {
-      array_walk($event['exceptions'], function(&$exception) {
-        unset($exception['_mailbox'], $exception['_msguid'], $exception['_formatobj'], $exception['_attachments'],
-          $event['attachments'], $event['deleted_attachments'], $event['recurrence_id']);
+      array_walk($event['exceptions'], function(&$exception) use ($cleanup_fn) {
+        unset($exception['_mailbox'], $exception['_msguid'], $exception['_formatobj']);
+        $cleanup_fn($exception);
       });
     }
-
-    // remove some internal properties which should not be saved
-    unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_folder_id'],
-      $event['recurrence_id'], $event['attachments'], $event['deleted_attachments'], $event['className']);
 
     // copy meta data (starting with _) from old object
     foreach ((array)$old as $key => $val) {
