@@ -463,14 +463,17 @@ class kolab_storage
      *
      * Does additional checks for permissions and folder name restrictions
      *
-     * @param array Hash array with folder properties and metadata
+     * @param array &$prop Hash array with folder properties and metadata
      *  - name:       Folder name
      *  - oldname:    Old folder name when changed
      *  - parent:     Parent folder to create the new one in
      *  - type:       Folder type to create
      *  - subscribed: Subscribed flag (IMAP subscription)
      *  - active:     Activation flag (client-side subscription)
-     * @return mixed New folder name or False on failure
+     *
+     * @return string|false New folder name or False on failure
+     *
+     * @see self::set_folder_props() for list of other properties
      */
     public static function folder_update(&$prop)
     {
@@ -1473,7 +1476,7 @@ class kolab_storage
      * Sets folder metadata properties
      *
      * @param string $folder Folder name
-     * @param array  $prop   Folder properties
+     * @param array  &$prop  Folder properties (color, displayname)
      */
     public static function set_folder_props($folder, &$prop)
     {
