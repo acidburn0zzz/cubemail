@@ -69,13 +69,13 @@ class libkolab extends rcube_plugin
                 $this->include_script('libkolab.js');
 
                 // add 'Show history' item to message menu
-                $this->api->add_content(html::tag('li', null,
+                $this->api->add_content(html::tag('li', array('role' => 'menuitem'),
                     $this->api->output->button(array(
                         'command'  => 'kolab-mail-history',
                         'label'    => 'libkolab.showhistory',
                         'type'     => 'link',
                         'classact' => 'icon history active',
-                        'class'    => 'icon history',
+                        'class'    => 'icon history disabled',
                         'innerclass' => 'icon history',
                     ))),
                     'messagemenu');

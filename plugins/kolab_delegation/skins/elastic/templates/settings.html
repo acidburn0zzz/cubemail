@@ -5,7 +5,7 @@
 <h1 class="voice"><roundcube:label name="kolab_delegation.tabtitle" /></h1>
 
 <!-- devices list -->
-<div class="list listbox selected" aria-labelledby="aria-label-delegateslist">
+<div id="layout-list" class="listbox selected" aria-labelledby="aria-label-delegateslist">
 	<div class="header">
 		<a class="button icon back-sidebar-button" href="#sidebar"><span class="inner"><roundcube:label name="settings" /></span></a>
 		<span id="aria-label-delegateslist" class="header-title"><roundcube:label name="kolab_delegation.delegates" /></span>
@@ -15,19 +15,16 @@
 		<roundcube:object name="plugin.delegatelist" id="delegate-table" class="listing" role="listbox"
 			data-label-msg="listempty" data-label-ext="listusebutton" data-create-command="delegate-add" />
 	</div>
-<!--
-	<div class="footer"></div>
--->
 </div>
 
 <!-- delegatee info frame -->
-<div class="content" role="main">
+<div id="layout-content" role="main">
 	<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
 	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span class="header-title"></span>
 		<!-- toolbar -->
-		<div class="toolbar">
+		<div class="toolbar menu">
 			<roundcube:button command="delegate-add" type="link"
 				label="create" title="kolab_delegation.adddelegate"
 				class="button create disabled" classAct="button create" innerClass="inner" />

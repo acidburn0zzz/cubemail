@@ -21,9 +21,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-.toolbarmenu.listing li {
+.menu {
     a.calendarlink:before {
-        .font-icon-regular(@fa-var-calendar);
+        content: @fa-var-calendar-alt;
     }
 
     a.send:before {
@@ -36,12 +36,14 @@
     content: @fa-var-cube;
 }
 
-a.button.today:before {
-    .font-icon-regular(@fa-var-calendar);
-}
+a.button {
+    &.today:before {
+        .font-icon-regular(@fa-var-calendar);
+    }
 
-a.button.date:before {
-    .font-icon-regular(@fa-var-calendar-alt);
+    &.date:before {
+        .font-icon-regular(@fa-var-calendar-alt);
+    }
 }
 
 .listing {
@@ -652,7 +654,7 @@ body.task-calendar {
     }
 
     @media screen and (min-width: (@screen-width-small + 1px)) {
-        & > #layout > div.sidebar {
+        #layout-sidebar {
             flex: 2 !important;
             max-width: 400px;
         }
@@ -1254,10 +1256,6 @@ body.task-calendar {
 .searchbar a.button.date {
     @media screen and (min-width: (@screen-width-small + 1px)) {
         display: none;
-    }
-
-    &:before {
-        line-height: 1.25;
     }
 }
 

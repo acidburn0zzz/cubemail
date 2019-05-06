@@ -1318,12 +1318,11 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
  */
 rcube_libcalendaring.itip_rsvp_recurring = function(btn, callback, event)
 {
-    var list, lc, menu = $('#itip-rsvp-menu'), action = btn.attr('rel');
+    var list, menu = $('#itip-rsvp-menu'), action = btn.attr('rel');
 
     if (!menu.length) {
-        lc = $('body > #layout').length === 1 ? 'toolbarmenu listing' : 'toolbarmenu';
         menu = $('<div>').attr({'class': 'popupmenu', id: 'itip-rsvp-menu', 'aria-hidden': 'true'}).appendTo(document.body);
-        list = $('<ul>').attr({'class': lc, role: 'menu'}).appendTo(menu);
+        list = $('<ul>').attr({'class': 'toolbarmenu menu', role: 'menu'}).appendTo(menu);
 
         $.each(['all','current'/*,'future'*/], function(i, mode) {
             var link = $('<a>').attr({'class': 'active', rel: mode})

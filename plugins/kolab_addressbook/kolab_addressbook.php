@@ -88,7 +88,7 @@ class kolab_addressbook extends rcube_plugin
                 if ($this->bonnie_api) {
                     $this->add_button(array(
                         'command'    => 'contact-history-dialog',
-                        'class'      => 'history contact-history',
+                        'class'      => 'history contact-history disabled',
                         'classact'   => 'history contact-history active',
                         'innerclass' => 'icon inner',
                         'label'      => 'kolab_addressbook.showhistory',

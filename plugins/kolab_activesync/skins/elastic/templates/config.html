@@ -5,7 +5,7 @@
 <h1 class="voice"><roundcube:label name="kolab_activesync.tabtitle" /></h1>
 
 <!-- devices list -->
-<div class="list listbox selected" aria-labelledby="aria-label-deviceslist">
+<div id="layout-list" class="listbox selected" aria-labelledby="aria-label-deviceslist">
 	<div class="header">
 		<a class="button icon back-sidebar-button" href="#sidebar"><span class="inner"><roundcube:label name="settings" /></span></a>
 		<span id="aria-label-deviceslist" class="header-title"><roundcube:label name="kolab_activesync.devices" /></span>
@@ -18,15 +18,15 @@
 </div>
 
 <!-- device info frame -->
-<div class="content" role="main">
+<div id="layout-content" role="main">
 	<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
 	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span class="header-title"></span>
 		<!-- toolbar -->
-		<div class="toolbar">
+		<div class="toolbar menu">
 			<roundcube:button command="plugin.delete-device" type="link"
-				class="button delete disabled" classAct="button delete"
+				class="delete disabled" classAct="button delete"
 				label="delete" title="kolab_activesync.deletedevice" innerclass="inner" />
 		</div>
 	</div>
