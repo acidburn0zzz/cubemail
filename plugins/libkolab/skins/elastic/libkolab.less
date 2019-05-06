@@ -341,7 +341,12 @@ button.btn {
         }
 
         & > * {
-            display: initial;
+            display: block;
+        }
+
+        html.layout-small &,
+        html.layout-phone & {
+            overflow-y: auto !important;
         }
     }
 }
