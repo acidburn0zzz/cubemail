@@ -344,7 +344,7 @@ class libcalendaring extends rcube_plugin
     {
         unset($attrib['name']);
 
-        $input_value    = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value form-control input-group-prepend', 'size' => 3));
+        $input_value    = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value form-control', 'size' => 3));
         $input_date     = new html_inputfield(array('name' => 'alarmdate[]', 'class' => 'edit-alarm-date form-control', 'size' => 10));
         $input_time     = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time form-control', 'size' => 6));
         $select_type    = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type form-control', 'id' => $attrib['id']));
