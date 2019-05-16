@@ -242,7 +242,9 @@ class kolab_storage_cache
                     // fetch new objects from imap
                     $i = 0;
                     foreach (array_diff($imap_index, $old_index) as $msguid) {
-                        if ($object = $this->folder->read_object($msguid, '*')) {
+                        // Note: We'll store only objects matching the folder type
+                        // anything else will be silently ignored
+                        if ($object = $this->folder->read_object($msguid)) {
                             // Deduplication: remove older objects with the same UID
                             // Here we do not resolve conflicts, we just make sure
                             // the most recent version of the object will be used
@@ -921,7 +923,12 @@ class kolab_storage_cache
         }
         // Fetch object xml
         else {
-            $object = $this->folder->read_object($sql_arr['msguid']);
+            // FIXME: Because old cache solution allowed storing objects that
+            // do not match folder type we may end up with invalid objects.
+            // 2nd argument of read_object() here makes sure they are still
+            // usable. However, not allowing them here might be also an intended
+            // solution in future.
+            $object = $this->folder->read_object($sql_arr['msguid'], '*');
         }
 
         return $object;
