@@ -96,13 +96,13 @@ class kolab_notes extends rcube_plugin
 
             // add 'Append note' item to message menu
             if ($this->api->output->type == 'html' && $_REQUEST['_rel'] != 'note') {
-                $this->api->add_content(html::tag('li', null, 
+                $this->api->add_content(html::tag('li', array('role' => 'menuitem'),
                     $this->api->output->button(array(
                       'command'  => 'append-kolab-note',
                       'label'    => 'kolab_notes.appendnote',
                       'type'     => 'link',
                       'classact' => 'icon appendnote active',
-                      'class'    => 'icon appendnote',
+                      'class'    => 'icon appendnote disabled',
                       'innerclass' => 'icon note',
                     ))),
                     'messagemenu');

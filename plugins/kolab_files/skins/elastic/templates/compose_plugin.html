@@ -6,7 +6,7 @@
 			<a class="button icon back" href="#back" data-hidden="big" onclick="$('#folderlistbox').hide();$('#filelistcontainer').css('display','flex')"><span class="inner"><roundcube:label name="back" /></span></a>
 			<span class="header-title"><roundcube:label name="folders" /></span>
 		</div>
-		<roundcube:object name="libkolab.folder_search_form" id="foldersearch" wrapper="searchbar toolbar"
+		<roundcube:object name="libkolab.folder_search_form" id="foldersearch" wrapper="searchbar menu"
 			ariatag="h5" label="foldersearchform" buttontitle="kolab_files.findfolders" />
 		<div id="files-folder-list" class="scroller"></div>
 	</div>
@@ -15,7 +15,7 @@
 			<a class="button icon folders" href="#sidebar" data-hidden="big" onclick="$('#filelistcontainer').hide();$('#folderlistbox').css('display','flex')"><span class="inner"><roundcube:label name="folders" /></span></a>
 			<span class="header-title" data-hidden="big" ><roundcube:label name="kolab_files.selectfiles" /></span>
 		</div>
-		<roundcube:object name="file-search-form" id="filesearchbox" wrapper="searchbar toolbar"
+		<roundcube:object name="file-search-form" id="filesearchbox" wrapper="searchbar menu"
 			label="searchform" buttontitle="kolab_files.findfiles" label-domain="kolab_files"
 			ariatag="h3" options="filesearchmenu" />
 		<div id="filesearchmenu" class="hidden searchoptions scroller propform formcontainer" aria-labelledby="aria-label-search-menu" aria-controls="filelist">

@@ -87,19 +87,6 @@ function rcube_tasklist_ui(settings)
     var task_attendees = [];
     var attendees_list;
     var me = this;
-
-    // general datepicker settings
-    var datepicker_settings = {
-      // translate from PHP format to datepicker format
-      dateFormat: settings.date_format.replace(/M/g, 'm').replace(/mmmmm/, 'MM').replace(/mmm/, 'M').replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/yy/g, 'y'),
-      firstDay : settings.first_day,
-//      dayNamesMin: settings.days_short,
-//      monthNames: settings.months,
-//      monthNamesShort: settings.months,
-      changeMonth: false,
-      showOtherMonths: true,
-      selectOtherMonths: true
-    };
     var extended_datepicker_settings;
 
     /*  public members  */
@@ -127,10 +114,6 @@ function rcube_tasklist_ui(settings)
     /* imports */
     var Q = this.quote_html;
     var text2html = this.text2html;
-    var event_date_text = this.event_date_text;
-    var parse_datetime = this.parse_datetime;
-    var date2unixtime = this.date2unixtime;
-    var fromunixtime = this.fromunixtime;
     var render_message_links = this.render_message_links;
 
     /**
@@ -236,10 +219,10 @@ function rcube_tasklist_ui(settings)
         // Make Elastic checkboxes pretty
         if (window.UI && UI.pretty_checkbox) {
             $(rcmail.gui_objects.tasklistslist).find('input[type=checkbox]').each(function() {
-                UI.pretty_checkbox($(this).addClass('flex-checkbox'));
+                UI.pretty_checkbox(this);
             });
             tasklists_widget.addEventListener('add-item', function(prop) {
-                UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
+                UI.pretty_checkbox($(prop.li).find('input'));
             });
         }
 
@@ -377,16 +360,19 @@ function rcube_tasklist_ui(settings)
         }).find('input[type=text]').placeholder(rcmail.gettext('createnewtask','tasklist'));
 
         // click-handler on task list items (delegate)
-        $(rcmail.gui_objects.resultlist).on('click', function(e){
-            var item = $(e.target);
-            var className = e.target.className;
+        $(rcmail.gui_objects.resultlist).on('click', function(e) {
+            var item = $(e.target), className = e.target.className;
 
             if (item.hasClass('childtoggle')) {
                 item = item.parent().find('.taskhead');
                 className = 'childtoggle';
             }
-            else if (!item.hasClass('taskhead'))
-                item = item.closest('div.taskhead');
+            else {
+                if (!item.hasClass('taskhead'))
+                    item = item.closest('div.taskhead');
+
+                className = String(className).split(' ')[0];
+            }
 
             // ignore
             if (!item.length)
@@ -639,7 +625,7 @@ function rcube_tasklist_ui(settings)
                         });
                 }, 1);
             }
-        }, datepicker_settings);
+        }, me.datepicker_settings);
 
         rcmail.addEventListener('kolab-tags-search', filter_tasks)
             .addEventListener('kolab-tags-drop-data', function(e) { return listdata[e.id]; })
@@ -743,7 +729,7 @@ function rcube_tasklist_ui(settings)
         me.init_alarms_edit('#taskedit-alarms');
         me.init_recurrence_edit('#eventedit');
 
-        $('#taskedit-date, #taskedit-startdate').datepicker(datepicker_settings);
+        $('#taskedit-date, #taskedit-startdate').datepicker(me.datepicker_settings);
 
         $('a.edit-nodate').click(function(){
             var sel = $(this).attr('rel');
@@ -876,6 +862,16 @@ function rcube_tasklist_ui(settings)
         loadstate.lists = active_lists();
     }
 
+    var init_cloned_form = function(form) {
+        // update element IDs after clone
+        $('select,input,label', form).each(function() {
+            if (this.htmlFor)
+                this.htmlFor += '-clone';
+            else if (this.id)
+                this.id += '-clone';
+        });
+    }
+
     // open a dialog to upload an .ics file with tasks to be imported
     this.import_tasks = function(tasklist)
     {
@@ -890,12 +886,14 @@ function rcube_tasklist_ui(settings)
         if (tasklist)
             $('#task-import-list').val(tasklist);
 
+        init_cloned_form(form);
+
         buttons[rcmail.gettext('import', 'tasklist')] = function() {
             if (form && form.elements._data.value) {
                 rcmail.async_upload_form(form, 'import', function(e) {
                     rcmail.set_busy(false, null, saving_lock);
                     saving_lock = null;
-                    $('.ui-dialog-buttonpane button', $dialog.parent()).button('enable');
+                    $('.ui-dialog-buttonpane button', $dialog.parent()).prop('disabled', false);
 
                     // display error message if no sophisticated response from server arrived (e.g. iframe load error)
                     if (me.import_succeeded === null)
@@ -907,7 +905,7 @@ function rcube_tasklist_ui(settings)
                 rcmail.env.request_timeout = 600;
                 me.import_succeeded = null;
                 saving_lock = rcmail.set_busy(true, 'uploading');
-                $('.ui-dialog-buttonpane button', $dialog.parent()).button('disable');
+                $('.ui-dialog-buttonpane button', $dialog.parent()).prop('disabled', true);
 
                 // restore settings
                 rcmail.env.request_timeout = timeout;
@@ -953,22 +951,22 @@ function rcube_tasklist_ui(settings)
     this.export_tasks = function()
     {
         // close show dialog first
-        var $dialog = $("#tasksexport").clone(true).removeClass('uidialog'),
+        var list, $dialog = $("#tasksexport").clone(true).removeClass('uidialog'),
             form = $dialog.find('form').get(0),
             buttons = {};
 
         if ($dialog.is(':ui-dialog'))
             $dialog.dialog('close');
 
-        $("#task-export-list").val('');
+        list = $("#task-export-list").val('');
+
+        init_cloned_form(form);
 
         buttons[rcmail.gettext('export', 'tasklist')] = function() {
-            var data = {},
-                source = $('#task-export-list').val(),
-                form_elements = $('select, input', form);
+            var data = {}, form_elements = $('select, input', form);
 
             // "current view" export, use hidden form to POST task IDs
-            if (source === '') {
+            if (list.val() === '') {
                 var cache = {}, tasks = [], inputs = [],
                     postform = $('#tasks-export-form-post');
 
@@ -1302,7 +1300,6 @@ function rcube_tasklist_ui(settings)
         if (!rcmail.busy) {
             saving_lock = rcmail.set_busy(true, 'tasklist.savingdata');
             rcmail.http_post('tasks/task', { action:action, t:rec, filter:filtermask });
-            $('button.ui-button:ui-button').button('option', 'disabled', rcmail.busy);
             return true;
         }
 
@@ -1384,7 +1381,7 @@ function rcube_tasklist_ui(settings)
                 buttons: buttons,
                 open: function() {
                     setTimeout(function(){
-                      $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+                      $dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
                     }, 5);
                 },
                 close: function(){
@@ -1406,7 +1403,6 @@ function rcube_tasklist_ui(settings)
     {
         if (saving_lock) {
             rcmail.set_busy(false, null, saving_lock);
-            $('button.ui-button:ui-button').button('option', 'disabled', false);
             saving_lock = null;
 
             // Elastic
@@ -2185,7 +2181,7 @@ function rcube_tasklist_ui(settings)
                 closeOnEscape: true,
                 title: rcmail.gettext('taskdetails', 'tasklist'),
                 open: function() {
-                    $dialog.parent().find('.ui-button:not(.ui-dialog-titlebar-close)').first().focus();
+                    $dialog.parent().find('button:not(.ui-dialog-titlebar-close)').first().focus();
                 },
                 close: function() {
                     $dialog.dialog('destroy').appendTo(document.body);
@@ -2594,8 +2590,8 @@ function rcube_tasklist_ui(settings)
                 return false;
             }
             else if (data.startdate && data.date) {
-                var startdate = $.datepicker.parseDate(datepicker_settings.dateFormat, data.startdate, datepicker_settings);
-                var duedate = $.datepicker.parseDate(datepicker_settings.dateFormat, data.date, datepicker_settings);
+                var startdate = $.datepicker.parseDate(me.datepicker_settings.dateFormat, data.startdate, me.datepicker_settings);
+                var duedate = $.datepicker.parseDate(me.datepicker_settings.dateFormat, data.date, me.datepicker_settings);
                 if (startdate > duedate) {
                     rcmail.alert_dialog(rcmail.gettext('invalidstartduedates', 'tasklist'));
                     return false;

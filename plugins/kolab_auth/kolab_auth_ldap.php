@@ -176,7 +176,7 @@ class kolab_auth_ldap extends rcube_ldap_generic
             return;
         }
 
-        if ($rec = $this->get_entry($dn)) {
+        if ($rec = $this->get_entry($dn, $this->attributes)) {
             $rec = rcube_ldap_generic::normalize_entry($rec);
             $rec = $this->field_mapping($dn, $rec);
         }

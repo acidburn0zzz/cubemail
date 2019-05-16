@@ -434,7 +434,7 @@ function tag_form_save()
 // ajax response handler
 function update_tags(response)
 {
-    var list = rcmail.message_list;
+    var list = main_list_widget();
 
     // reset tag selector popup
     tag_selector_reset();
@@ -513,14 +513,14 @@ function update_tags(response)
     rcmail.enable_command('reset-tags', tagsfilter.length && list);
 
     // update Mark menu in case some messages are already selected
-    if (list && list.selection.length) {
+    if (list && list.selection && list.selection.length) {
         message_list_select(list);
     }
 
     // @TODO: sort tags by name/prio
 }
 
-// internal method to remove tags from messages and optionally tags cloud
+// internal method to remove tags from messages and tags cloud
 function remove_tags(tags, selection)
 {
     if (!tags || !tags.length) {
@@ -537,13 +537,14 @@ function remove_tags(tags, selection)
     // remove deleted tags
     $.each(tags, function() {
         var i, id = this,
-            filter = function() { return $(this).data('tag') == id; },
-            elements = tagboxes.filter(filter);
+            filter = function() { return $(this).data('tag') == id; };
 
-        // ... from the messages list (or message page)
-        elements.remove();
-
+        // When removing tags from selected messages only, we're using
+        // tag_remove_callback(), so here we can ignore that part
         if (!selection) {
+            // ... from the messages list (or message page)
+            tagboxes.filter(filter).remove();
+
             // ...from the tag cloud
             taglist.filter(filter).remove();
 
@@ -554,11 +555,11 @@ function remove_tags(tags, selection)
                     break;
                 }
             }
-        }
 
-        // ... from the message frame
-        if (frame_tagboxes.length) {
-            frame_tagboxes.filter(function() { return win.jQuery(this).data('tag') == id; }).remove();
+            // ... from the message frame
+            if (frame_tagboxes.length) {
+                frame_tagboxes.filter(function() { return win.jQuery(this).data('tag') == id; }).remove();
+            }
         }
 
         // if tagged messages found and tag was selected - refresh the list
@@ -692,7 +693,7 @@ function tag_remove(props, obj, event)
 
     // remove tags from message(s) without waiting to a response
     // in case of an error the list will be refreshed
-    tag_remove_callback(this.tag_find(props));
+    $.each(tags, function() { tag_remove_callback(this); });
 }
 
 // update messages list and message frame after removing tag assignments
@@ -701,16 +702,19 @@ function tag_remove_callback(tag)
     if (!tag)
         return;
 
-    var frame_window = rcmail.get_frame_window(rcmail.env.contentframe),
-        list = rcmail.message_list;
+    var uids = [],
+        win = rcmail.get_frame_window(rcmail.env.contentframe),
+        frame_tagboxes = win && win.jQuery ? win.jQuery('span.tagbox') : [],
+        list = main_list_widget();
 
     if (list) {
         $.each(list.get_selection(), function (i, uid) {
             var row = list.rows[uid];
             if (row) {
                 $('span.tagbox', row.obj).each(function() {
-                    if (!tag || $(this).data('tag') == tag.uid) {
+                    if ($(this).data('tag') == tag) {
                         $(this).remove();
+                        uids.push(String(uid));
                     }
                 });
             }
@@ -718,10 +722,16 @@ function tag_remove_callback(tag)
 
         message_list_select(list);
     }
+    else {
+        $('span.tagbox').filter(function() { return $(this).data('tag') == tag; }).remove();
+    }
 
-    // TODO: remove tag(s) from the preview frame
+    // ... from the message frame (make sure it the selected message frame,
+    // i.e. when using contextmenu it might be not the selected one)
+    if (frame_tagboxes.length && $.inArray(String(win.rcmail.env.uid), uids) >= 0) {
+        frame_tagboxes.filter(function() { return win.jQuery(this).data('tag') == tag; }).remove();
+    }
 }
-
 
 // executes messages search according to selected messages
 function apply_tags_filter()
@@ -899,7 +909,7 @@ function tag_selector(event, callback, remove_mode)
 
     if (!container) {
         var rows = [],
-            ul = $('<ul class="toolbarmenu">'),
+            ul = $('<ul class="toolbarmenu menu">'),
             li = document.createElement('li'),
             link = document.createElement('a'),
             span = document.createElement('span');

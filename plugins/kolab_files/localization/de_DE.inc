@@ -1,11 +1,4 @@
 <?php
-/**
- * Localizations for the Kolab Files plugin
- *
- * Copyright (C) 2014, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
- */
 $labels['files'] = 'Dateien';
 $labels['filepreview'] = 'Dateivorschau';
 $labels['saveall'] = 'Alles in der Cloud speichern …';
@@ -38,7 +31,6 @@ $labels['rename'] = 'Umbenennen';
 $labels['deletefile'] = 'Datei(en) löschen';
 $labels['edit'] = 'Bearbeiten';
 $labels['editfile'] = 'Datei bearbeiten';
-$labels['save'] = 'Speichern';
 $labels['savefile'] = 'Datei speichern';
 $labels['printfile'] = 'Datei drucken';
 $labels['renamefile'] = 'Datei umbenennen';
@@ -150,3 +142,4 @@ $labels['arialabelfilesessiondialog'] = 'Dokumentbearbeitungssitzung';
 $labels['type.plain'] = 'Klartextdokument';
 $labels['type.vndoasisopendocumenttext'] = 'Textdokument (ODF)';
 $labels['type.html'] = 'HTML-Dokument';
+$labels['addfolder'] = 'Ordner hinzufügen';

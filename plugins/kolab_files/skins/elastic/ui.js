@@ -2,8 +2,8 @@ function kolab_files_enable_command(p)
 {
     if (p.command == 'files-save') {
         var toolbar = $('#toolbar-menu');
-        $('a.button.edit', toolbar).parent().hide();
-        $('a.button.save', toolbar).show().parent().show();
+        $('a.edit', toolbar).parent().hide();
+        $('a.save', toolbar).show().parent().show();
 
         if (window.editor_edit_button)
             window.editor_edit_button.addClass('hidden');
@@ -52,7 +52,7 @@ function kolab_files_members_list(link)
 {
     var dialog = $('<div id="members-dialog" class="session-members"><ul></ul></div>'),
         title = $(link).text(),
-        add_button = $('#collaborators a.button.add'),
+        add_button = $('#collaborators a.add'),
         save_func = function(e) {
             add_button.click();
             return true;
@@ -78,8 +78,19 @@ function kolab_files_members_list(link)
 };
 
 
-if (rcmail.env.action == 'open') {
+if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
     rcmail.addEventListener('enable-command', kolab_files_enable_command);
+
+    if (rcmail.env.action == 'open') {
+        $('#toolbar-menu a.save').parent().hide();
+    }
+    else if (rcmail.env.action == 'edit') {
+        if (rcmail.env.editor_type == 'wopi' && rcmail.is_framed()) {
+            parent.$('.ui-dialog:visible .ui-dialog-buttonpane').addClass('hidden');
+        }
+
+        rcmail.gui_object('exportmenu', 'export-menu');
+    }
 
     // center and scale the image in preview frame
     if (rcmail.env.mimetype.startsWith('image/')) {
@@ -92,9 +103,9 @@ if (rcmail.env.action == 'open') {
     }
 
     // Elastic mobile preview uses an iframe in a dialog
-    if (rcmail.is_framed()) {
-        var edit_button = $('#filetoolbar a.button.edit'),
-            save_button = $('#filetoolbar a.button.save');
+    if ((rcmail.env.action == 'open' || rcmail.env.editor_type != 'wopi') && rcmail.is_framed()) {
+        var edit_button = $('#filetoolbar a.edit'),
+            save_button = $('#filetoolbar a.save');
 
         parent.$('.ui-dialog:visible .ui-dialog-buttonpane .ui-dialog-buttonset').prepend(
             window.editor_save_button = $('<button type="button">')
@@ -111,30 +122,18 @@ if (rcmail.env.action == 'open') {
         );
     }
 }
-else if (rcmail.env.action == 'edit') {
-    rcmail.gui_object('exportmenu', 'export-menu');
-}
 else {
     rcmail.addEventListener('files-folder-select', function(p) {
         var is_sess = p.folder == 'folder-collection-sessions';
-        $('#fileslistmenu-link, #layout > .content > .pagenav, #layout > .content .searchbar')[is_sess ? 'hide' : 'show']();
+        $('#fileslistmenu-link, #layout-content > .pagenav, #layout-content .searchbar')[is_sess ? 'hide' : 'show']();
         $('#sessionslistmenu-link')[is_sess ? 'removeClass' : 'addClass']('hidden');
 
         // set list header title for mobile
-        // $('#layout > .content > .header > .header-title').text($('#files-folder-list li.selected a.name:first').text());
+        // $('#layout-content > .header > .header-title').text($('#files-folder-list li.selected a.name:first').text());
     });
 }
 
 $(document).ready(function() {
-    if (rcmail.env.action == 'open') {
-        $('#toolbar-menu a.button.save').parent().hide();
-    }
-    else if (rcmail.env.action == 'edit') {
-        if (rcmail.is_framed()) {
-            parent.$('.ui-dialog:visible .ui-dialog-buttonpane').addClass('hidden');
-        }
-    }
-
     if ($('#dragfilemenu').length) {
         rcmail.gui_object('file_dragmenu', 'dragfilemenu');
     }

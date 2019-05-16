@@ -3,24 +3,23 @@
 # This file is distributed under the same license as the Roundcube Webmail Help package.
 # 
 # Translators:
-# Ettore Atalan <atalanttore@googlemail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Kolab Documentation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-26 23:28+0100\n"
-"PO-Revision-Date: 2017-09-23 20:32+0000\n"
-"Last-Translator: Jeroen van Meeuwen <vanmeeuwen@kolabsys.com>\n"
-"Language-Team: German (http://www.transifex.com/kolab/kolab-documentation/language/de/)\n"
+"PO-Revision-Date: 2014-11-27 23:34+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: German (Germany) (http://www.transifex.com/kolab/kolab-documentation/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: de\n"
+"Language: de_DE\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../../en_US/_plugins/calendar/settings.rst:8
 msgid "Calendar Preferences"
-msgstr "Kalendereinstellungen"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:10
 msgid ""
@@ -30,11 +29,11 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:14
 msgid "Main Options"
-msgstr "Hauptoptionen"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:17
 msgid "**Default view**"
-msgstr "**Standardansicht**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:17
 msgid ""
@@ -44,7 +43,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:21
 msgid "**Time slots per hour**"
-msgstr "**Zeitfenster pro Stunde**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:20
 msgid ""
@@ -54,7 +53,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:24
 msgid "**First weekday**"
-msgstr "**Erster Wochentag**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:24
 msgid "Which weekday to begin the week view with."
@@ -62,7 +61,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:28
 msgid "**First hour to show**"
-msgstr "**Erste angezeigte Stunde**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:27
 msgid ""
@@ -72,7 +71,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:33
 msgid "**Working hours**"
-msgstr "**Arbeitszeiten**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:33
 msgid ""
@@ -82,7 +81,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:40
 msgid "**Event coloring**"
-msgstr "**Einfärbung der Termine**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:37
 msgid ""
@@ -96,7 +95,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:43
 msgid "**Default reminder setting**"
-msgstr "**Standard-Erinnerungseinstellung**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:43
 msgid ""
@@ -105,7 +104,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:46
 msgid "**Default reminder time**"
-msgstr "**Standard-Erinnerungszeit**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:46
 msgid "When enabling reminders in a new event, use this preset as default."
@@ -113,7 +112,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:51
 msgid "**Create new events in**"
-msgstr "**Neue Termine erstellen in**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:49
 msgid ""
@@ -123,7 +122,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:54
 msgid "Categories"
-msgstr "Kategorien"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:56
 msgid ""
@@ -142,7 +141,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:65
 msgid "Birthdays Calendar"
-msgstr "Geburtstagskalender"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:67
 msgid ""
@@ -152,7 +151,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:71
 msgid "**Display birthdays calendar**"
-msgstr "**Geburtstagskalender anzeigen**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:71
 msgid "Enable the birthdays calendar feature with this checkbox."
@@ -160,7 +159,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:74
 msgid "**From these address books**"
-msgstr "**Von diesen Adressbüchern**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:74
 msgid ""
@@ -170,7 +169,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:80
 msgid "**Show reminders**"
-msgstr "**Erinnerungen anzeigen**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/settings.rst:77
 msgid ""

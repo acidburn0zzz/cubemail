@@ -1,11 +1,4 @@
 <?php
-/**
- * Localizations for the Kolab Folders plugin
- *
- * Copyright (C) 2015, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_notes/
- */
 $labels['navtitle'] = 'Notizen';
 $labels['tags'] = 'Schlagworte';
 $labels['lists'] = 'Notizbücher';
@@ -49,7 +42,6 @@ $labels['deletenotesconfirm'] = 'Willst du wirklich die ausgewählten Notizen l�
 $labels['deletenotebookconfirm'] = 'Willst du wirklich die ausgewählten Notizbücher löschen? Diese Aktion kann nicht rückgängig gemacht werden.';
 $labels['discardunsavedchanges'] = 'Die aktuelle Notiz wurde noch nicht gespeichert. Die Änderungen verwerfen?';
 $labels['invalidlistproperties'] = 'Ungültige Notizbuch Eigenschaften! Bitte gebe einen gültigen Namen ein.';
-$labels['entertitle'] = 'Bitte geben Sie einen Titel für diese Notiz ein!';
 $labels['aclnorights'] = 'Dir fehlen die Administrationsrechte für dieses Notizbuch.';
 $labels['arialabelnoteslist'] = 'Notizliste';
 $labels['arialabelnotesearchform'] = 'Notizen-Suchmaske';

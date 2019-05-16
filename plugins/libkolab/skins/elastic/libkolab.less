@@ -65,6 +65,10 @@
                 }
             }
 
+            .custom-switch {
+                position: relative;
+            }
+
             &.folder .listname:before {
                 &:extend(.font-icon-class);
                 content: @fa-var-sticky-note;
@@ -116,7 +120,7 @@
             .subscribed {
                 cursor: pointer;
                 // reset listing's link style
-                padding: 0;
+                padding: 0 !important;
                 border-left: 0;
                 width: auto;
 
@@ -190,18 +194,6 @@
     &.treelist:not(.notree) {
         & > li > div > a {
             padding-left: @listing-treetoggle-width;
-        }
-    }
-
-    input.flex-checkbox {
-        position: relative !important;
-        margin: 0 0 0 .25em !important;
-
-        & + label {
-            position: relative !important;
-            margin: 0 .3em 0 -1em !important;
-            right: 0 !important;
-            font-size: 1.15em;
         }
     }
 
@@ -287,8 +279,8 @@ html.touch .listing {
     }
 }
 
-.toolbarmenu.listing li {
-    &.search {
+.menu {
+    li.search {
         padding: .25rem .5rem;
         .input-group {
 
@@ -308,12 +300,13 @@ html.touch .listing {
     }
 }
 
-a.history {
-    &:before {
-        &:extend(.font-icon-class);
-        content: @fa-var-history;
-        display: inline;
-        float: none;
+button.btn {
+    &.save.notify:before {
+        content: @fa-var-envelope;
+    }
+
+    &.print:before {
+        content: @fa-var-print;
     }
 }
 
@@ -348,7 +341,12 @@ a.history {
         }
 
         & > * {
-            display: initial;
+            display: block;
+        }
+
+        html.layout-small &,
+        html.layout-phone & {
+            overflow-y: auto !important;
         }
     }
 }
@@ -381,21 +379,6 @@ a.history {
     label {
         order: 10;
     }
-
-    .icon-checkbox + label {
-        order: unset;
-        min-width: 2em;
-        padding: 0;
-        line-height: 1;
-    }
-}
-
-button.btn.save.notify:before {
-    content: @fa-var-envelope;
-}
-
-button.btn.print:before {
-    content: @fa-var-print;
 }
 
 .formcontent.text-only .faded * {
@@ -416,17 +399,13 @@ button.btn.print:before {
     }
 
     .prop {
+        line-height: 2;
         margin-left: .5rem;
         display: inline-block;
         vertical-align: middle;
 
         label {
             margin: 0;
-        }
-
-        label:before {
-            line-height: 1.25;
-            margin-right: .25rem;
         }
     }
 
@@ -548,23 +527,20 @@ button.btn.print:before {
 
 // Use icons-only on taskmenu with small screen height
 @media screen and (max-height: 640px) and (min-width: (@screen-width-small + 1px)) {
-    body > #layout > .menu {
-        width: 2.5rem;
+    #layout-menu .popover-header img,
+    #layout-menu {
+        width: @layout-menu-width-sm;
     }
 
     #taskmenu {
         a {
-            height: auto;
+            height: @layout-menu-width-sm;
             width: 100%;
-
-            &:before {
-                height: 2.1rem;
-                width: 100%;
-            }
+            font-size: 1.2rem !important;
         }
 
         .special-buttons {
-            width: 2.5rem;
+            width: @layout-menu-width-sm;
         }
 
         span.inner {

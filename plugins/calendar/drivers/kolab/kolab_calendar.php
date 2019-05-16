@@ -40,7 +40,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
   protected $cal;
   protected $events = array();
-  protected $search_fields = array('title', 'description', 'location', 'attendees');
+  protected $search_fields = array('title', 'description', 'location', 'attendees', 'categories');
 
   /**
    * Factory method to instantiate a kolab_calendar object
@@ -342,6 +342,7 @@ class kolab_calendar extends kolab_storage_folder_api
         if ($virtual && !empty($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS'])) {
           foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
             if ($event['_instance'] == $exception['_instance']) {
+              unset($exception['calendar'], $exception['className'], $exception['_folder_id']);
               // clone date objects from main event before adjusting them with exception data
               if (is_object($event['start'])) $event['start'] = clone $record['start'];
               if (is_object($event['end']))   $event['end']   = clone $record['end'];
@@ -406,10 +407,12 @@ class kolab_calendar extends kolab_storage_folder_api
   }
 
   /**
+   * Get number of events in the given calendar
    *
    * @param  integer Date range start (unix timestamp)
    * @param  integer Date range end (unix timestamp)
    * @param  array   Additional query to filter events
+   *
    * @return integer Count
    */
   public function count_events($start, $end = null, $filter_query = null)
@@ -432,7 +435,7 @@ class kolab_calendar extends kolab_storage_folder_api
 
     // query Kolab storage
     $query[] = array('dtend',   '>=', $start);
-    
+
     if ($end)
       $query[] = array('dtstart', '<=', $end);
 
@@ -455,7 +458,7 @@ class kolab_calendar extends kolab_storage_folder_api
    * Create a new event record
    *
    * @see calendar_driver::new_event()
-   * 
+   *
    * @return mixed The created record ID on success, False on error
    */
   public function insert_event($event)
@@ -495,9 +498,9 @@ class kolab_calendar extends kolab_storage_folder_api
    * Update a specific event record
    *
    * @see calendar_driver::new_event()
+   *
    * @return boolean True on success, False on error
    */
-
   public function update_event($event, $exception_id = null)
   {
     $updated = false;
@@ -541,6 +544,7 @@ class kolab_calendar extends kolab_storage_folder_api
    * Delete an event record
    *
    * @see calendar_driver::remove_event()
+   *
    * @return boolean True on success, False on error
    */
   public function delete_event($event, $force = true)
@@ -549,9 +553,8 @@ class kolab_calendar extends kolab_storage_folder_api
 
     if (!$deleted) {
       rcube::raise_error(array(
-        'code' => 600, 'type' => 'php',
-        'file' => __FILE__, 'line' => __LINE__,
-        'message' => sprintf("Error deleting event object '%s' from Kolab server", $event['id'])),
+          'code' => 600, 'file' => __FILE__, 'line' => __LINE__,
+          'message' => sprintf("Error deleting event object '%s' from Kolab server", $event['id'])),
         true, false);
     }
 
@@ -562,18 +565,21 @@ class kolab_calendar extends kolab_storage_folder_api
    * Restore deleted event record
    *
    * @see calendar_driver::undelete_event()
+   *
    * @return boolean True on success, False on error
    */
   public function restore_event($event)
   {
-    if ($this->storage->undelete($event['id'])) {
+    // Make sure this is not an instance identifier
+    $uid = preg_replace('/-\d{8}(T\d{6})?$/', '', $event['id']);
+
+    if ($this->storage->undelete($uid)) {
         return true;
     }
     else {
         rcube::raise_error(array(
-          'code' => 600, 'type' => 'php',
-          'file' => __FILE__, 'line' => __LINE__,
-          'message' => "Error undeleting the event object $event[id] from the Kolab server"),
+          'code' => 600, 'file' => __FILE__, 'line' => __LINE__,
+          'message' => sprintf("Error undeleting the event object '%s' from the Kolab server", $event['id'])),
         true, false);
     }
 
@@ -613,7 +619,7 @@ class kolab_calendar extends kolab_storage_folder_api
   {
     $object = $event['_formatobj'];
     if (!$object) {
-      $rec = $this->storage->get_object($event['id']);
+      $rec    = $this->storage->get_object($event['uid'] ?: $event['id']);
       $object = $rec['_formatobj'];
     }
 
@@ -749,6 +755,9 @@ class kolab_calendar extends kolab_storage_folder_api
   {
     $record['calendar'] = $this->id;
 
+    // remove (possibly outdated) cached parameters
+    unset($record['_folder_id'], $record['className']);
+
     if ($links && !array_key_exists('links', $record)) {
       $record['links'] = $this->get_links($record['uid']);
     }
@@ -828,17 +837,22 @@ class kolab_calendar extends kolab_storage_folder_api
       $event['comment'] = $old['comment'];
     }
 
+    // remove some internal properties which should not be cached
+    $cleanup_fn = function(&$event) {
+      unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_folder_id'],
+        $event['calendar'], $event['className'], $event['recurrence_id'],
+        $event['_attachments'], $event['attachments'], $event['deleted_attachments']);
+    };
+
+    $cleanup_fn($event);
+
     // clean up exception data
     if (is_array($event['exceptions'])) {
-      array_walk($event['exceptions'], function(&$exception) {
-        unset($exception['_mailbox'], $exception['_msguid'], $exception['_formatobj'], $exception['_attachments'],
-          $event['attachments'], $event['deleted_attachments'], $event['recurrence_id']);
+      array_walk($event['exceptions'], function(&$exception) use ($cleanup_fn) {
+        unset($exception['_mailbox'], $exception['_msguid'], $exception['_formatobj']);
+        $cleanup_fn($exception);
       });
     }
-
-    // remove some internal properties which should not be saved
-    unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_folder_id'],
-      $event['recurrence_id'], $event['attachments'], $event['deleted_attachments'], $event['className']);
 
     // copy meta data (starting with _) from old object
     foreach ((array)$old as $key => $val) {

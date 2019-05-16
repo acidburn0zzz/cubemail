@@ -1,11 +1,4 @@
 <?php
-/**
- * Localizations for the Kolab Tasks plugin
- *
- * Copyright (C) 2014, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
- */
 $labels['navtitle'] = 'Aufgaben';
 $labels['lists'] = 'Aufgabenlisten';
 $labels['list'] = 'Aufgabenliste';
@@ -68,7 +61,6 @@ $labels['nodate'] = 'Ohne Datum';
 $labels['removetag'] = 'Entfernen';
 $labels['removelink'] = 'E-Mail-Referenz entfernen';
 $labels['auto'] = 'Automatisch';
-$labels['newtask'] = 'Neue Aufgabe';
 $labels['edittask'] = 'Aufgabe ändern';
 $labels['save'] = 'Speichern';
 $labels['cancel'] = 'Abbrechen';
@@ -132,12 +124,34 @@ $labels['sendinvitations'] = 'Einladungen versenden';
 $labels['sendnotifications'] = 'Beauftragte Teilnehmer über die Änderung informieren';
 $labels['sendcancellation'] = 'Beauftragte Teilnehmer über die Stornierung informieren';
 $labels['invitationsubject'] = 'Ihnen wurde "$title" zugewiesen';
-$labels['invitationmailbody'] = "*\$title*\n\nFällig: \$date\n\nTeilnehmer: \$attendees\n\n\$description\n\nAngehängt finden Sie eine iCalendar-Datei mit allen Aufgabendetails, welche in Ihre Aufgabenanwendung importiert werden kann.";
+$labels['invitationmailbody'] = '*$title*
+
+Fällig: $date
+
+Teilnehmer: $attendees
+
+$description
+
+Angehängt finden Sie eine iCalendar-Datei mit allen Aufgabendetails, welche in Ihre Aufgabenanwendung importiert werden kann.';
 $labels['itipupdatesubject'] = '"$title" wurde aktualisiert';
 $labels['itipupdatesubjectempty'] = 'Eine ihrer Aufgabe wurde aktualisiert';
-$labels['itipupdatemailbody'] = "*\$title*\n\nFällig: \$date\n\nTeilnehmer: \$attendees\n\nAngehängt finden Sie eine iCalendar-Datei mit den aktualisierten Aufgabendetails, welche in Ihre Aufgabenanwendung importiert werden kann.";
+$labels['itipupdatemailbody'] = '*$title*
+
+Fällig: $date
+
+Teilnehmer: $attendees
+
+Angehängt finden Sie eine iCalendar-Datei mit den aktualisierten Aufgabendetails, welche in Ihre Aufgabenanwendung importiert werden kann.';
 $labels['itipcancelsubject'] = '"$title" wurde abgesagt';
-$labels['itipcancelmailbody'] = "*\$title*\n\nFällig: \$date\n\nTeilnehmer: \$attendees\n\nDie Aufgabe wurde durch \$organizer storniert.\n\nAngehängt finden Sie eine iCalendar-Datei mit den aktualisierten Aufgabendetails.";
+$labels['itipcancelmailbody'] = '*$title*
+
+Fällig: $date
+
+Teilnehmer: $attendees
+
+Die Aufgabe wurde durch $organizer storniert.
+
+Angehängt finden Sie eine iCalendar-Datei mit den aktualisierten Aufgabendetails.';
 $labels['saveintasklist'] = 'speichern in';
 $labels['taskhistory'] = 'Historie';
 $labels['objectchangelog'] = 'Änderungshistorie';
@@ -149,14 +163,52 @@ $labels['revisionrestoreconfirm'] = 'Möchten Sie wirklich die Version $rev dies
 $labels['objectrestoresuccess'] = 'Revision $rev erfolgreich wiederhergestellt';
 $labels['objectrestoreerror'] = 'Fehler beim Wiederherstellen der alten Revision';
 $labels['itipobjectnotfound'] = 'Die Aufgabe, auf welche sich diese Nachricht bezieht, wurde nicht in Ihrer Aufgabenliste gefunden.';
-$labels['itipmailbodyaccepted'] = "\$sender hat die Zuweisung folgender Aufgabe akzeptiert:\n\n*\$title*\n\nFällig: \$date\n\nVerantwortlich: \$attendees";
-$labels['itipmailbodytentative'] = "\$sender hat die Zuweisung folgender Aufgabe unter Vorbehalt akzeptiert:\n\n*\$title*\n\nFällig: \$date\n\nVerantwortlich: \$attendees";
-$labels['itipmailbodydeclined'] = "\$sender hat die Zuweisung folgender Aufgabe abgeleht:\n\n*\$title*\n\nFällig: \$date\n\nVerantwortlich: \$attendees";
-$labels['itipmailbodycancel'] = "\$sender hat die Zuweisung folgender Aufgabe abgeleht:\n\n*\$title*\n\nFällig: \$date";
-$labels['itipmailbodyin-process'] = "\$sender hat den Status folgender Aufgabe auf in-Bearbeitung gesetzt:\n\n*\$title*\n\nFällig: \$date";
-$labels['itipmailbodycompleted'] = "\$sender hat folgende Aufgabe abgeschlossen:\n\n*\$title*\n\nFällig: \$date";
-$labels['itipmailbodydelegated'] = "\$sender hat folgende Aufgabe delegiert:\n\n*\$title*\n\nFällig: \$date";
-$labels['itipmailbodydelegatedto'] = "\$sender hat folgende Aufgabe an Sie delegiert:\n\n*\$title*\n\nFällig: \$date";
+$labels['itipmailbodyaccepted'] = '$sender hat die Zuweisung folgender Aufgabe akzeptiert:
+
+*$title*
+
+Fällig: $date
+
+Verantwortlich: $attendees';
+$labels['itipmailbodytentative'] = '$sender hat die Zuweisung folgender Aufgabe unter Vorbehalt akzeptiert:
+
+*$title*
+
+Fällig: $date
+
+Verantwortlich: $attendees';
+$labels['itipmailbodydeclined'] = '$sender hat die Zuweisung folgender Aufgabe abgeleht:
+
+*$title*
+
+Fällig: $date
+
+Verantwortlich: $attendees';
+$labels['itipmailbodycancel'] = '$sender hat die Zuweisung folgender Aufgabe abgeleht:
+
+*$title*
+
+Fällig: $date';
+$labels['itipmailbodyin-process'] = '$sender hat den Status folgender Aufgabe auf in-Bearbeitung gesetzt:
+
+*$title*
+
+Fällig: $date';
+$labels['itipmailbodycompleted'] = '$sender hat folgende Aufgabe abgeschlossen:
+
+*$title*
+
+Fällig: $date';
+$labels['itipmailbodydelegated'] = '$sender hat folgende Aufgabe delegiert:
+
+*$title*
+
+Fällig: $date';
+$labels['itipmailbodydelegatedto'] = '$sender hat folgende Aufgabe an Sie delegiert:
+
+*$title*
+
+Fällig: $date';
 $labels['attendeeaccepted'] = 'Delegierter hat akzeptiert';
 $labels['attendeetentative'] = 'Delegierter hat unter Vorbehalt akzeptiert';
 $labels['attendeedeclined'] = 'Delegierter hat abgelehnt';

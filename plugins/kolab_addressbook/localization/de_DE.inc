@@ -1,11 +1,4 @@
 <?php
-/**
- * Localizations for the Kolab Address Book plugin
- *
- * Copyright (C) 2014, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_addressbook/
- */
 $labels['initials'] = 'Initialen';
 $labels['profession'] = 'Berufsbezeichnung';
 $labels['officelocation'] = 'Büro Adresse';
@@ -52,15 +45,3 @@ $labels['objectchangelognotavailable'] = 'Änderungshistorie ist nicht verfügba
 $labels['objectdiffnotavailable'] = 'Vergleich für die gewählten Versionen nicht möglich';
 $labels['objectrestoresuccess'] = 'Revision $rev erfolgreich wiederhergestellt';
 $labels['objectrestoreerror'] = 'Fehler beim Wiederherstellen der alten Revision';
-$messages['bookdeleteconfirm']  = 'Soll das gewählte Adressbuch und alle Kontakte darin wirklich gelöscht werden?';
-$messages['bookdeleting'] = 'Adressbuch wird gelöscht...';
-$messages['booksaving'] = 'Adressbuch wird gespeichert...';
-$messages['bookdeleted'] = 'Adressbuch erfolgreich gelöscht.';
-$messages['bookupdated'] = 'Adressbuch erfolgreich aktualisiert.';
-$messages['bookcreated'] = 'Adressbuch erfolgreich angelegt.';
-$messages['bookdeleteerror'] = 'Fehler beim Löschen des Adressbuchs.';
-$messages['bookupdateerror'] = 'Fehler beim Aktualisieren des Adressbuchs.';
-$messages['bookcreateerror'] = 'Fehler beim Anlegen des Adressbuchs.';
-$messages['nobooknamewarning'] = 'Bitte den Namen des Adressbuchs angeben.';
-$messages['noemailnamewarning'] = 'Bitte E-Mail-Adresse oder Namen des Kontakts angeben.';
-?>

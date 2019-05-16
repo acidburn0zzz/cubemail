@@ -707,14 +707,14 @@ class libcalendaring_itip
 
             // add button to open calendar/preview
             if (!empty($preview_url)) {
-              $msgref = $this->lib->ical_message->folder . '/' . $this->lib->ical_message->uid . '#' . $mime_id;
-              $rsvp_buttons .= html::tag('input', array(
-                  'type'    => 'button',
-                  // TODO: Temp. disable this button on small screen in Elastic (Bifrost#T105747)
-                  'class'   => "button preview hidden-phone hidden-small",
-                  'onclick' => "rcube_libcalendaring.open_itip_preview('" . rcube::JQ($preview_url) . "', '" . rcube::JQ($msgref) . "')",
-                  'value'   => $this->gettext('openpreview'),
-              ));
+                $msgref = $this->lib->ical_message->folder . '/' . $this->lib->ical_message->uid . '#' . $mime_id;
+                $rsvp_buttons .= html::tag('input', array(
+                    'type'    => 'button',
+                    // TODO: Temp. disable this button on small screen in Elastic (Bifrost#T105747)
+                    'class'   => "button preview hidden-phone hidden-small",
+                    'onclick' => "rcube_libcalendaring.open_itip_preview('" . rcube::JQ($preview_url) . "', '" . rcube::JQ($msgref) . "')",
+                    'value'   => $this->gettext('openpreview'),
+                ));
             }
 
             // 2. update the local copy with minor changes
@@ -733,9 +733,9 @@ class libcalendaring_itip
                 'value'   => $this->gettext('importtocalendar'),
             ));
 
-            // check my status
+            // check my status as an attendee
             foreach ($event['attendees'] as $attendee) {
-                if ($attendee['email'] && in_array(strtolower($attendee['email']), $emails)) {
+                if ($attendee['email'] && $attendee['role'] != 'ORGANIZER' && in_array(strtolower($attendee['email']), $emails)) {
                     $metadata['attendee'] = $attendee['email'];
                     $metadata['rsvp']     = $attendee['rsvp'] || $attendee['role'] != 'NON-PARTICIPANT';
                     $rsvp_status = !empty($attendee['status']) ? strtoupper($attendee['status']) : 'NEEDS-ACTION';
@@ -870,6 +870,7 @@ class libcalendaring_itip
                 'value'    => 1,
                 'disabled' => $disable,
                 'checked'  => ($itip_sending & 1) == 0,
+                'class'    => 'pretty-checkbox',
             );
             $rsvp_additions = html::label(array('class' => 'noreply-toggle'),
                 html::tag('input', $toggle_attrib) . ' ' . $this->gettext('itipsuppressreply')
@@ -905,7 +906,7 @@ class libcalendaring_itip
     {
         $table = new html_table(array('cols' => 2, 'border' => 0, 'class' => 'calendar-eventdetails'));
         $table->add('ititle', $title);
-        $table->add('title', rcube::Q($event['title']));
+        $table->add('title', rcube::Q(trim($event['title'])));
         if ($event['start'] && $event['end']) {
             $table->add('label', $this->gettext('date'));
             $table->add('date', rcube::Q($this->lib->event_date_text($event)));
@@ -922,21 +923,21 @@ class libcalendaring_itip
             $table->add('label', $this->gettext('recurring'));
             $table->add('recurrence', $this->lib->recurrence_text($event['recurrence']));
         }
-        if ($event['location'] && trim($event['location'])) {
+        if ($location = trim($event['location'])) {
             $table->add('label', $this->gettext('location'));
-            $table->add('location', rcube::Q($event['location']));
+            $table->add('location', rcube::Q($location));
         }
-        if ($event['sensitivity'] && !preg_match('/^(x-|public$)/i', $event['sensitivity'])) {
+        if (($sensitivity = trim($event['sensitivity'])) && !preg_match('/^(x-|public$)/i', $sensitivity)) {
             $table->add('label', $this->gettext('sensitivity'));
-            $table->add('sensitivity', ucfirst($this->gettext($event['sensitivity'])) . '!');
+            $table->add('sensitivity', ucfirst($this->gettext($sensitivity)) . '!');
         }
         if ($event['status'] == 'COMPLETED' || $event['status'] == 'CANCELLED') {
             $table->add('label', $this->gettext('status'));
             $table->add('status', $this->gettext('status-' . strtolower($event['status'])));
         }
-        if ($event['comment'] && trim($event['comment'])) {
+        if ($comment = trim($event['comment'])) {
             $table->add('label', $this->gettext('comment'));
-            $table->add('location', rcube::Q($event['comment']));
+            $table->add('location', rcube::Q($comment));
         }
 
         return $table->show();

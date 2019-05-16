@@ -2,7 +2,8 @@ Single Sign On Authentication for Kolab
 ---------------------------------------
 
 This plugin adds possibility to authenticate users via external authentication
-services. Currently the only supported method of authentication is OpenID Connect.
+services. Currently it supports various authentication methods based on
+OAuth2 and OpenID Connect (and requires JWT token use).
 
 Because Kolab backends do not support token authentication it is required
 to use master user (sasl proxy) authentication where possible and service

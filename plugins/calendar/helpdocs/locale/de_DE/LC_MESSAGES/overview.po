@@ -3,24 +3,23 @@
 # This file is distributed under the same license as the Roundcube Webmail Help package.
 # 
 # Translators:
-# Ettore Atalan <atalanttore@googlemail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Kolab Documentation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-26 23:28+0100\n"
-"PO-Revision-Date: 2017-09-23 20:32+0000\n"
-"Last-Translator: Jeroen van Meeuwen <vanmeeuwen@kolabsys.com>\n"
-"Language-Team: German (http://www.transifex.com/kolab/kolab-documentation/language/de/)\n"
+"PO-Revision-Date: 2014-11-27 23:33+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: German (Germany) (http://www.transifex.com/kolab/kolab-documentation/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: de\n"
+"Language: de_DE\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../../en_US/_plugins/calendar/overview.rst:6
 msgid "Overview"
-msgstr "Übersicht"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:8
 msgid ""
@@ -32,7 +31,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:17
 msgid "Calendar View"
-msgstr "Kalenderansicht"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:19
 msgid ""
@@ -44,7 +43,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:27
 msgid "Change Views"
-msgstr "Ansichten ändern"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:29
 msgid ""
@@ -54,7 +53,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:34
 msgid "**Day**"
-msgstr "**Tag**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:33
 msgid ""
@@ -65,7 +64,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:37
 msgid "**Week**"
-msgstr "**Woche**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:37
 msgid ""
@@ -75,7 +74,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:42
 msgid "**Month**"
-msgstr "**Monat**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:40
 msgid ""
@@ -87,7 +86,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:47
 msgid "**Agenda**"
-msgstr "**Tagesordnung**"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:45
 msgid ""
@@ -106,7 +105,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:54
 msgid "Go to a specific Date"
-msgstr "Zu einem bestimmten Datum gehen"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:56
 msgid ""
@@ -126,7 +125,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:64
 msgid "Show Event Details"
-msgstr "Termindetails anzeigen"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:66
 msgid ""
@@ -136,7 +135,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:70
 msgid "Searching Events"
-msgstr "Terminsuche"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:72
 msgid ""
@@ -172,7 +171,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:93
 msgid "Calendars List"
-msgstr "Kalenderliste"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:95
 msgid ""
@@ -191,7 +190,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:106
 msgid "Colorized Events"
-msgstr "Eingefärbte Termine"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:108
 msgid ""
@@ -209,7 +208,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:116
 msgid "Create a New Calendar"
-msgstr "Einen neuen Kalender erstellen"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:118
 msgid "Click the + icon in the calendars list footer."
@@ -221,7 +220,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:120
 msgid "Click *Save* to create it."
-msgstr "Klicken Sie auf *Speichern* zum Erstellen."
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:122
 msgid "The calendar view will reload and list the new calendar on the left."
@@ -229,7 +228,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:127
 msgid "Edit Calendar Names and Settings"
-msgstr "Kalendernamen und Einstellungen bearbeiten"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:129
 #: ../../en_US/_plugins/calendar/overview.rst:137
@@ -252,7 +251,7 @@ msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:135
 msgid "Remove entire Calendars"
-msgstr "Gesamte Kalender entfernen"
+msgstr ""
 
 #: ../../en_US/_plugins/calendar/overview.rst:138
 msgid ""

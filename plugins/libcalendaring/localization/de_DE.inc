@@ -1,11 +1,4 @@
 <?php
-/**
- * Localizations for the Kolab calendaring utilities plugin
- *
- * Copyright (C) 2014, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/libcalendaring/
- */
 $labels['until'] = 'bis';
 $labels['at'] = 'um';
 $labels['alarmemail'] = 'E-Mail senden';
@@ -69,7 +62,7 @@ $labels['onsamedate'] = 'Am gleichen Tag';
 $labels['forever'] = 'unendlich';
 $labels['recurrencend'] = 'bis';
 $labels['untilenddate'] = 'bis am';
-$labels['forntimes'] = '$nr Wiederholungen'; // old
+$labels['forntimes'] = '$nr Wiederholungen';
 $labels['first'] = 'erster';
 $labels['second'] = 'zweiter';
 $labels['third'] = 'dritter';

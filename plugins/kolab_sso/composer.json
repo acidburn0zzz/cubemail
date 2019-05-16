@@ -4,7 +4,7 @@
     "description": "Single Sign On for Kolab",
     "homepage": "https://git.kolab.org/diffusion/RPK/",
     "license": "AGPLv3",
-    "version": "3.4.1",
+    "version": "3.4.4",
     "authors": [
         {
             "name": "Aleksander Machniak",
@@ -15,7 +15,7 @@
     "repositories": [
         {
             "type": "composer",
-            "url": "http://plugins.roundcube.net"
+            "url": "https://plugins.roundcube.net"
         }
     ],
     "require": {

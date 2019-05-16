@@ -1,0 +1,30 @@
+<?php
+
+// Proxy user login
+// Note: that you should log using form of: <proxy_login>**<username>
+$config['kolab_auth_proxy_user'] = '';
+
+// Proxy user password
+$config['kolab_auth_proxy_pass'] = '';
+
+// IMAP (master) user
+$config['kolab_auth_proxy_imap_user'] = 'cyrus-admin';
+
+// IMAP (master) password
+$config['kolab_auth_proxy_imap_pass'] = '';
+
+// SMTP server host
+// To override the SMTP port or connection method, provide a full URL like 'tls://somehost:587'
+$config['kolab_auth_proxy_smtp_server'] = '';
+
+// SMTP username
+$config['kolab_auth_proxy_smtp_user'] = '';
+
+// SMTP password
+$config['kolab_auth_proxy_smtp_pass'] = '';
+
+// LDAP user DN
+$config['kolab_auth_proxy_ldap_user'] = 'uid=kolab-service,ou=Special Users,dc=example,dc=org';
+
+// LDAP password
+$config['kolab_auth_proxy_ldap_pass'] = '';

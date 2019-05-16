@@ -93,7 +93,8 @@ $labels['tabassignments'] = 'Assignments';
 $labels['tabattachments'] = 'Attachments';
 $labels['tabsharing'] = 'Sharing';
 
-$labels['editlist'] = 'Edit list';
+$labels['editlist'] = 'Edit/Share list';
+$labels['deletelist'] = 'Delete list';
 $labels['createlist'] = 'Add list';
 $labels['listactions'] = 'List options...';
 $labels['listname'] = 'Name';

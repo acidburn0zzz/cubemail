@@ -68,6 +68,7 @@ $labels['collection_image'] = 'Images';
 $labels['collection_document'] = 'Documents';
 $labels['sessions'] = 'Sessions';
 
+$labels['abort'] = 'Abort';
 $labels['uploading'] = 'Uploading file(s)...';
 $labels['attaching'] = 'Attaching file(s)...';
 $labels['authenticating'] = 'Authenticating...';

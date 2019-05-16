@@ -141,13 +141,13 @@ class tasklist extends rcube_plugin
 
             // add 'Create event' item to message menu
             if ($this->api->output->type == 'html' && $_GET['_rel'] != 'task') {
-                $this->api->add_content(html::tag('li', null, 
+                $this->api->add_content(html::tag('li', array('role' => 'menuitem'),
                     $this->api->output->button(array(
                         'command'  => 'tasklist-create-from-mail',
                         'label'    => 'tasklist.createfrommail',
                         'type'     => 'link',
                         'classact' => 'icon taskaddlink active',
-                        'class'    => 'icon taskaddlink',
+                        'class'    => 'icon taskaddlink disabled',
                         'innerclass' => 'icon taskadd',
                     ))),
                 'messagemenu');
@@ -1869,7 +1869,7 @@ class tasklist extends rcube_plugin
         foreach ($this->message_tasks as $task) {
             $checkbox = new html_checkbox(array(
                 'name' => 'completed',
-                'class' => 'complete',
+                'class' => 'complete pretty-checkbox',
                 'title' => $this->gettext('complete'),
                 'data-list' => $task['list'],
             ));
@@ -1910,7 +1910,7 @@ class tasklist extends rcube_plugin
                 'type'       => 'link',
                 'wrapper'    => 'li',
                 'command'    => 'attachment-save-task',
-                'class'      => 'icon tasklistlink',
+                'class'      => 'icon tasklistlink disabled',
                 'classact'   => 'icon tasklistlink active',
                 'innerclass' => 'icon taskadd',
                 'label'      => 'tasklist.savetotasklist',

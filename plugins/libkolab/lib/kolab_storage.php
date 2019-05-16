@@ -79,10 +79,10 @@ class kolab_storage
             return true;
 
         $rcmail = rcube::get_instance();
-        self::$config = $rcmail->config;
+        self::$config  = $rcmail->config;
         self::$version = strval($rcmail->config->get('kolab_format_version', self::$version));
-        self::$imap = $rcmail->get_storage();
-        self::$ready = class_exists('kolabformat') &&
+        self::$imap    = $rcmail->get_storage();
+        self::$ready   = class_exists('kolabformat') &&
             (self::$imap->get_capability('METADATA') || self::$imap->get_capability('ANNOTATEMORE') || self::$imap->get_capability('ANNOTATEMORE2'));
 
         if (self::$ready) {
@@ -96,8 +96,7 @@ class kolab_storage
         }
         else {
             rcube::raise_error(array(
-                'code' => 900, 'type' => 'php',
-                'message' => "IMAP server doesn't support METADATA or ANNOTATEMORE"
+                'code' => 900, 'type' => 'php', 'message' => "IMAP error"
             ), true);
         }
 
@@ -464,14 +463,17 @@ class kolab_storage
      *
      * Does additional checks for permissions and folder name restrictions
      *
-     * @param array Hash array with folder properties and metadata
+     * @param array &$prop Hash array with folder properties and metadata
      *  - name:       Folder name
      *  - oldname:    Old folder name when changed
      *  - parent:     Parent folder to create the new one in
      *  - type:       Folder type to create
      *  - subscribed: Subscribed flag (IMAP subscription)
      *  - active:     Activation flag (client-side subscription)
-     * @return mixed New folder name or False on failure
+     *
+     * @return string|false New folder name or False on failure
+     *
+     * @see self::set_folder_props() for list of other properties
      */
     public static function folder_update(&$prop)
     {
@@ -1474,7 +1476,7 @@ class kolab_storage
      * Sets folder metadata properties
      *
      * @param string $folder Folder name
-     * @param array  $prop   Folder properties
+     * @param array  &$prop  Folder properties (color, displayname)
      */
     public static function set_folder_props($folder, &$prop)
     {

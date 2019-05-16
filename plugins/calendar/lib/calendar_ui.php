@@ -60,9 +60,8 @@ class calendar_ui
       $this->cal->include_script('calendar_base.js');
     }
 
-    $skin_path = $this->cal->local_skin_path();
-    $this->cal->include_stylesheet($skin_path . '/calendar.css');
-    
+    $this->addCSS();
+
     $this->ready = true;
   }
 
@@ -109,7 +108,17 @@ class calendar_ui
   public function addCSS()
   {
     $skin_path = $this->cal->local_skin_path();
-    $this->cal->include_stylesheet($skin_path . '/fullcalendar.css');
+ 
+    if ($this->rc->task == 'calendar' && (!$this->rc->action || in_array($this->rc->action, array('index', 'print')))) {
+      // Include fullCalendar style before skin file for simpler style overriding
+      $this->cal->include_stylesheet($skin_path . '/fullcalendar.css');
+    }
+
+    $this->cal->include_stylesheet($skin_path . '/calendar.css');
+
+    if ($this->rc->task == 'calendar' && $this->rc->action == 'print') {
+      $this->cal->include_stylesheet($skin_path . '/print.css');
+    }
   }
 
   /**
@@ -117,12 +126,18 @@ class calendar_ui
    */
   public function addJS()
   {
-    $this->cal->include_script('calendar_ui.js');
+    $this->cal->include_script('lib/js/moment.js');
     $this->cal->include_script('lib/js/fullcalendar.js');
-    $this->rc->output->include_script('treelist.js');
-    $this->cal->api->include_script('libkolab/libkolab.js');
 
-    jqueryui::miniColors();
+    if ($this->rc->task == 'calendar' && $this->rc->action == 'print') {
+      $this->cal->include_script('print.js');
+    }
+    else {
+      $this->rc->output->include_script('treelist.js');
+      $this->cal->api->include_script('libkolab/libkolab.js');
+      $this->cal->include_script('calendar_ui.js');
+      jqueryui::miniColors();
+    }
   }
 
   /**
@@ -130,41 +145,30 @@ class calendar_ui
    */
   function calendar_css($attrib = array())
   {
+    $categories    = $this->cal->driver->list_categories();
+    $js_categories = array();
     $mode = $this->rc->config->get('calendar_event_coloring', $this->cal->defaults['calendar_event_coloring']);
-    $categories = $this->cal->driver->list_categories();
-    $css = "\n";
-    
+    $css  = "\n";
+
     foreach ((array)$categories as $class => $color) {
-      if (empty($color))
-        continue;
-      
-      $class = 'cat-' . asciiwords(strtolower($class), true);
-      $css  .= ".$class { color: #$color }\n";
-      if ($mode > 0) {
-        if ($mode == 2) {
-          $css .= ".fc-event-$class .fc-event-bg {";
-          $css .= " opacity: 0.9;";
-          $css .= " filter: alpha(opacity=90);";
-        }
-        else {
-          $css .= ".fc-event-$class.fc-event-skin, ";
-          $css .= ".fc-event-$class .fc-event-skin, ";
-          $css .= ".fc-event-$class .fc-event-inner {";
-        }
-        $css .= " background-color: #" . $color . ";";
-        if ($mode % 2)
-          $css .= " border-color: #$color;";
-        $css .= "}\n";
+      if (!empty($color)) {
+        $js_categories[$class] = $color;
+
+        $color = ltrim($color, '#');
+        $class = 'cat-' . asciiwords(strtolower($class), true);
+        $css  .= ".$class { color: #$color; }\n";
       }
     }
-    
+
+    $this->rc->output->set_env('calendar_categories', $js_categories);
+
     $calendars = $this->cal->driver->list_calendars();
     foreach ((array)$calendars as $id => $prop) {
-      if (!$prop['color'])
-        continue;
-      $css .= $this->calendar_css_classes($id, $prop, $mode, $attrib);
+      if ($prop['color']) {
+        $css .= $this->calendar_css_classes($id, $prop, $mode, $attrib);
+      }
     }
-    
+
     return html::tag('style', array('type' => 'text/css'), $css);
   }
 
@@ -177,29 +181,12 @@ class calendar_ui
 
     // replace white with skin-defined color
     if (!empty($attrib['folder-fallback-color']) && preg_match('/^f+$/i', $folder_color)) {
-        $folder_color = $attrib['folder-fallback-color'];
+        $folder_color = ltrim($attrib['folder-fallback-color'], '#');
     }
 
     $class = 'cal-' . asciiwords($id, true);
     $css   = str_replace('$class', $class, $attrib['folder-class']) ?: "li .$class";
-    $css  .= ", #eventshow .$class { color: #$folder_color; }\n";
-
-    if ($mode != 1) {
-      if ($mode == 3) {
-        $css .= ".fc-event-$class .fc-event-bg {";
-        $css .= " opacity: 0.9;";
-        $css .= " filter: alpha(opacity=90);";
-      }
-      else {
-        $css .= ".fc-event-$class, ";
-        $css .= ".fc-event-$class .fc-event-inner {";
-      }
-      if (!$prop['printmode'])
-        $css .= " background-color: #$color;";
-      if ($mode % 2 == 0)
-      $css .= " border-color: #$color;";
-      $css .= "}\n";
-    }
+    $css  .= " { color: #$folder_color; }\n";
 
     return $css . ".$class .handle { background-color: #$color; }\n";
   }
@@ -321,7 +308,7 @@ class calendar_ui
       $content = html::div(join(' ', $classes),
         html::a(array('class' => 'calname', 'id' => $label_id, 'title' => $title, 'href' => '#'), rcube::Q($prop['editname'] ?: $prop['listname']))
         . ($prop['virtual'] ? '' :
-          html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id), '') .
+          html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'], 'aria-labelledby' => $label_id)) .
           html::span('actions', 
             ($prop['removable'] ? html::a(array('href' => '#', 'class' => 'remove', 'title' => $this->cal->gettext('removelist')), ' ') : '') .
             html::a(array('href' => '#', 'class' => 'quickview', 'title' => $this->cal->gettext('quickview'), 'role' => 'checkbox', 'aria-checked' => 'false'), '') .
@@ -352,17 +339,6 @@ class calendar_ui
         html::label(array('for' => 'agenda-listrange', 'class' => 'input-group-prepend'),
             html::span('input-group-text', $this->cal->gettext('listrange')))
         . $select_range->show($this->rc->config->get('calendar_agenda_range', $this->cal->defaults['calendar_agenda_range']))
-    );
-
-    $select_sections = new html_select(array('name' => 'listsections', 'id' => 'agenda-listsections', 'class' => 'form-control custom-select'));
-    $select_sections->add('---', '');
-    foreach (array('day' => 'libcalendaring.days', 'week' => 'libcalendaring.weeks', 'month' => 'libcalendaring.months', 'smart' => 'calendar.smartsections') as $val => $label)
-      $select_sections->add(preg_replace('/\(|\)/', '', ucfirst($this->rc->gettext($label))), $val);
-
-    $html .= html::span('input-group',
-        html::label(array('for' => 'agenda-listsections', 'class' => 'input-group-prepend'),
-            html::span('input-group-text', $this->cal->gettext('listsections')))
-        . $select_sections->show($this->rc->config->get('calendar_agenda_sections', $this->cal->defaults['calendar_agenda_sections']))
     );
 
     return html::div($attrib, $html);
@@ -537,6 +513,7 @@ class calendar_ui
     }
 
     $input = new html_inputfield(array(
+        'id'     => 'importfile',
         'type'   => 'file',
         'name'   => '_data',
         'size'   => $attrib['uploadfieldsize'],
@@ -557,7 +534,7 @@ class calendar_ui
     $html = html::div('form-section form-group row',
       html::label(array('class' => 'col-sm-4 col-form-label', 'for' => 'importfile'), rcube::Q($this->rc->gettext('importfromfile')))
       . html::div('col-sm-8', $input->show()
-        . html::div('hint', $this->rc->gettext(array('id' => 'importfile', 'name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize)))))
+        . html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize)))))
     );
 
     $html .= html::div('form-section form-group row',

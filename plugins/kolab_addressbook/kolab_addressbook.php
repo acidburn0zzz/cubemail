@@ -88,7 +88,7 @@ class kolab_addressbook extends rcube_plugin
                 if ($this->bonnie_api) {
                     $this->add_button(array(
                         'command'    => 'contact-history-dialog',
-                        'class'      => 'history contact-history',
+                        'class'      => 'history contact-history disabled',
                         'classact'   => 'history contact-history active',
                         'innerclass' => 'icon inner',
                         'label'      => 'kolab_addressbook.showhistory',
@@ -204,8 +204,9 @@ class kolab_addressbook extends rcube_plugin
         $jsdata = array();
         $sources = (array)$this->rc->get_address_sources();
 
-        // list all non-kolab sources first
-        foreach (array_filter($sources, function($source){ return empty($source['kolab']); }) as $j => $source) {
+        // list all non-kolab sources first (also exclude hidden sources)
+        $filter = function($source){ return empty($source['kolab']) && empty($source['hidden']); };
+        foreach (array_filter($sources, $filter)  as $j => $source) {
             $id = strval(strlen($source['id']) ? $source['id'] : $j);
             $out .= $this->addressbook_list_item($id, $source, $jsdata) . '</li>';
         }
@@ -830,10 +831,9 @@ class kolab_addressbook extends rcube_plugin
         }
 
         $ldap_public = $this->rc->config->get('ldap_public');
-        $abook_type  = $this->rc->config->get('address_book_type');
 
         // Hide option if there's no global addressbook
-        if (empty($ldap_public) || $abook_type != 'ldap') {
+        if (empty($ldap_public)) {
             return $args;
         }
 
@@ -1125,9 +1125,8 @@ class kolab_addressbook extends rcube_plugin
         // Make sure any global addressbooks are defined
         if ($abook_prio == 0 || $abook_prio == 2) {
             $ldap_public = $this->rc->config->get('ldap_public');
-            $abook_type  = $this->rc->config->get('address_book_type');
 
-            if (empty($ldap_public) || $abook_type != 'ldap') {
+            if (empty($ldap_public)) {
                 $abook_prio = 1;
             }
         }

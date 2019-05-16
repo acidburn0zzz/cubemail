@@ -30,4 +30,3 @@ $labels['os'] = 'Betriebssystem';
 $labels['oslanguage'] = 'Betriebssystemsprache';
 $labels['phonenumber'] = 'Telefonnummer';
 $labels['arialabeldeviceframe'] = 'Formular für die Einstellungen zur Gerätesynchronisation';
-?>

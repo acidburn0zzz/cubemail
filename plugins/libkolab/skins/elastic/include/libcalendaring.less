@@ -82,6 +82,7 @@
     .itip-reply-controls {
         margin-top: .25rem;
         width: 100%;
+        line-height: 2;
 
         & > label {
             display: inline;
@@ -265,10 +266,10 @@
         }
 
     }
+
     td.invite {
-        label:before {
-            line-height: 1.6;
-            height: 1.5em;
+        .custom-switch {
+            margin-top: .15rem;
         }
     }
 
@@ -337,19 +338,7 @@
         }
 
         select {
-            padding: 0 .5rem;
-        }
-
-    }
-}
-
-html.touch {
-    .edit-attendees-table {
-        td.invite {
-            label:before {
-                line-height: 1.2;
-                height: 1.2em;
-            }
+            padding-left: .5rem;
         }
     }
 }
@@ -439,6 +428,25 @@ html.touch {
     .edit-alarm-values {
         margin-left: .25rem;
         flex: 5;
+
+        &.offset-default {
+            select.edit-alarm-related {
+                border-radius: 0 .25rem .25rem 0;
+            }
+        }
+        &.offset-ontime {
+            select.edit-alarm-offset {
+                border-radius: .25rem 0 0 .25rem;
+            }
+            select.edit-alarm-related {
+                border-radius: 0 .25rem .25rem 0;
+            }
+        }
+        &.offset-ondate {
+            select.edit-alarm-offset {
+                border-radius: .25rem 0 0 .25rem;
+            }
+        }
     }
 
     .edit-alarm-offset {

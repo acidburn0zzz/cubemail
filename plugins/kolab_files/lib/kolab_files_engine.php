@@ -131,10 +131,7 @@ class kolab_files_engine
                 ), 'taskbar');
         }
 
-        if ($_SESSION['kolab_files_caps']['MANTICORE'] || $_SESSION['kolab_files_caps']['WOPI']) {
-            $_SESSION['kolab_files_caps']['DOCEDIT'] = true;
-            $_SESSION['kolab_files_caps']['DOCTYPE'] = $_SESSION['kolab_files_caps']['MANTICORE'] ? 'manticore' : 'wopi';
-        }
+        $caps = $this->capabilities();
 
         $this->plugin->include_stylesheet($this->plugin->local_skin_path().'/style.css');
         $this->plugin->include_script($this->url . '/js/files_api.js');
@@ -142,11 +139,11 @@ class kolab_files_engine
 
         $this->rc->output->set_env('files_url', $this->url . '/api/');
         $this->rc->output->set_env('files_token', $this->get_api_token());
-        $this->rc->output->set_env('files_caps', $_SESSION['kolab_files_caps']);
-        $this->rc->output->set_env('files_api_version', $_SESSION['kolab_files_caps']['VERSION'] ?: 3);
+        $this->rc->output->set_env('files_caps', $caps);
+        $this->rc->output->set_env('files_api_version', $caps['VERSION'] ?: 3);
         $this->rc->output->set_env('files_user', $this->rc->get_user_name());
 
-        if ($_SESSION['kolab_files_caps']['DOCEDIT']) {
+        if ($caps['DOCEDIT']) {
             $this->plugin->add_label('declinednotice', 'invitednotice', 'acceptedownernotice',
                 'declinedownernotice', 'requestednotice', 'acceptednotice', 'declinednotice',
                 'more', 'accept', 'decline', 'join', 'status', 'when', 'file', 'comment',
@@ -350,11 +347,10 @@ class kolab_files_engine
             'name'  => 'store_passwords',
             'value' => '1',
             'class' => 'pretty-checkbox',
-            'id'    => 'auth-pass-checkbox' . $attrib['suffix'],
         ));
 
-        return html::div('auth-options', $checkbox->show(). '&nbsp;'
-            . html::label('auth-pass-checkbox' . $attrib['suffix'], $this->plugin->gettext('storepasswords'))
+        return html::div('auth-options',
+            html::label(null, $checkbox->show() . ' ' . $this->plugin->gettext('storepasswords'))
             . html::p('description hint', $this->plugin->gettext('storepasswordsdesc'))
         );
     }
@@ -706,6 +702,8 @@ class kolab_files_engine
 
         $this->rc->output->include_script('list.js');
 
+        $this->rc->output->add_label('kolab_files.abort', 'searching');
+
         // attach css rules for mimetype icons
         if (!$this->filetypes_style) {
             $this->plugin->include_stylesheet($this->url . '/skins/default/images/mimetypes/style.css');
@@ -1031,6 +1029,46 @@ class kolab_files_engine
         return $token;
     }
 
+    protected function capabilities()
+    {
+        if (empty($_SESSION['kolab_files_caps'])) {
+            $token = $this->get_api_token();
+
+            if (empty($_SESSION['kolab_files_caps'])) {
+                $request = $this->get_request(array('method' => 'capabilities'), $token);
+
+                // send request to the API
+                try {
+                    $response = $request->send();
+                    $status   = $response->getStatus();
+                    $body     = @json_decode($response->getBody(), true);
+
+                    if ($status == 200 && $body['status'] == 'OK') {
+                        $_SESSION['kolab_files_caps'] = $body['result'];
+                    }
+                    else {
+                        throw new Exception($body['reason'] ?: "Failed to get capabilities. Status: $status");
+                    }
+                }
+                catch (Exception $e) {
+                    rcube::raise_error($e, true, false);
+                    return array();
+                }
+            }
+        }
+
+        if ($_SESSION['kolab_files_caps']['MANTICORE'] || $_SESSION['kolab_files_caps']['WOPI']) {
+            $_SESSION['kolab_files_caps']['DOCEDIT'] = true;
+            $_SESSION['kolab_files_caps']['DOCTYPE'] = $_SESSION['kolab_files_caps']['MANTICORE'] ? 'manticore' : 'wopi';
+        }
+
+        if (!empty($_SESSION['kolab_files_caps']) && !isset($_SESSION['kolab_files_caps']['MOUNTPOINTS'])) {
+            $_SESSION['kolab_files_caps']['MOUNTPOINTS'] = array();
+        }
+
+        return $_SESSION['kolab_files_caps'];
+    }
+
     /**
      * Initialize HTTP_Request object
      */
@@ -1131,14 +1169,27 @@ class kolab_files_engine
             $this->rc->output->set_env('collection', rcube_utils::get_input_value('collection', rcube_utils::INPUT_GET));
         }
 
+        $caps = $this->capabilities();
+
         $this->rc->output->add_label('uploadprogress', 'GB', 'MB', 'KB', 'B');
         $this->rc->output->set_pagetitle($this->plugin->gettext('files'));
         $this->rc->output->set_env('file_mimetypes', $this->get_mimetypes());
-        $this->rc->output->set_env('files_quota', $_SESSION['kolab_files_caps']['QUOTA']);
-        $this->rc->output->set_env('files_max_upload', $_SESSION['kolab_files_caps']['MAX_UPLOAD']);
-        $this->rc->output->set_env('files_progress_name', $_SESSION['kolab_files_caps']['PROGRESS_NAME']);
-        $this->rc->output->set_env('files_progress_time', $_SESSION['kolab_files_caps']['PROGRESS_TIME']);
+        $this->rc->output->set_env('files_quota', $caps['QUOTA']);
+        $this->rc->output->set_env('files_max_upload', $caps['MAX_UPLOAD']);
+        $this->rc->output->set_env('files_progress_name', $caps['PROGRESS_NAME']);
+        $this->rc->output->set_env('files_progress_time', $caps['PROGRESS_TIME']);
         $this->rc->output->send('kolab_files.files');
+    }
+
+    /**
+     * Handler for resetting some session/cached information
+     */
+    protected function action_reset()
+    {
+        $this->rc->session->remove('kolab_files_caps');
+        if (($caps = $this->capabilities()) && !empty($caps)) {
+            $this->rc->output->set_env('files_caps', $caps);
+        }
     }
 
     /**
@@ -1624,6 +1675,7 @@ class kolab_files_engine
                 $this->mimetypes = false;
 
                 $token    = $this->get_api_token();
+                $caps     = $this->capabilities();
                 $request  = $this->get_request(array('method' => 'mimetypes'), $token);
                 $response = $request->send();
                 $status   = $response->getStatus();
@@ -1647,7 +1699,7 @@ class kolab_files_engine
                         'text/plain' => 'txt',
                         'text/html'  => 'html',
                     );
-                    if (!empty($_SESSION['kolab_files_caps']['MANTICORE'])) {
+                    if (!empty($caps['MANTICORE'])) {
                         $mimetypes = array_merge(array('application/vnd.oasis.opendocument.text' => 'odt'), $mimetypes);
                     }
 

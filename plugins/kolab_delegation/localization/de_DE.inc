@@ -1,11 +1,4 @@
 <?php
-/**
- * Localizations for the Kolab Delegation plugin
- *
- * Copyright (C) 2014, Kolab Systems AG
- *
- * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_delegation/
- */
 $labels['tabtitle'] = 'Vertretung';
 $labels['delegationtitle'] = 'Verwalte Vertreter';
 $labels['delegates'] = 'Vertreter';
@@ -33,4 +26,3 @@ $labels['createsuccess'] = 'Der Vertreter wurde erfolgreich hinzugefügt';
 $labels['createerror'] = 'Konnte Vertreter nicht hinzufügen.';
 $labels['arialabeldelegatedelete'] = 'Vertreter Löschen Dialog';
 $labels['arialabeldelegateform'] = 'Verterter Eigenschaften Maske';
-?>

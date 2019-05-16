@@ -1,0 +1,31 @@
+Proxy authentication for Kolab
+------------------------------
+
+This plugin adds ability for configured external app/user to impersonate
+as another user in services based on Roundcube Framework.
+
+Currently it works with Kolab iRony only, with one limitation - external file storages
+are not accessible.
+
+CONFIGURATION
+-------------
+
+1. In iRony config set:
+
+    $config['kolabdav_plugins'] = array('kolab_auth_proxy', 'kolab_auth');
+
+    Note: kolab_auth_proxy MUST be before kolab_auth.
+
+2. In plugin config set:
+
+    $config['kolab_auth_proxy_user']      = 'proxy';
+    $config['kolab_auth_proxy_pass']      = '12345';
+    $config['kolab_auth_proxy_imap_user'] = 'cyrus-admin';
+    $config['kolab_auth_proxy_imap_pass'] = 'password';
+
+After this you should be able to use *DAV services using HTTP basic authentication
+with login: proxy**username and password: 12345, where "username" is the login of
+the user you want to impersonate as.
+
+Note that there are more options in config if you need working functionality
+that involves accessing SMTP or LDAP.

@@ -100,7 +100,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                     open: function(event, ui) {
                         $(event.target).find('input[name="_verify_code"]').keypress(function(e) {
                             if (e.which == 13) {
-                                $(e.target).closest('.ui-dialog').find('.ui-button.mainaction').click();
+                                $(e.target).closest('.ui-dialog').find('button.mainaction').click();
                             }
                         });
                     },
@@ -242,7 +242,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
                             // submit code on <Enter>
                             $(event.target).find('input[name="_code"]').keypress(function(e) {
                                 if (e.which == 13) {
-                                    $(e.target).closest('.ui-dialog').find('.ui-button.mainaction').click();
+                                    $(e.target).closest('.ui-dialog').find('button.mainaction').click();
                                 }
                             }).select();
                         },

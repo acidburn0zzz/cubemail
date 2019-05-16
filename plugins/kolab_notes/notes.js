@@ -170,7 +170,7 @@ function rcube_kolab_notes_ui(settings)
         // Make Elastic checkboxes pretty
         if (window.UI && UI.pretty_checkbox) {
             notebookslist.addEventListener('add-item', function(prop) {
-                UI.pretty_checkbox($(prop.li).find('input').addClass('flex-checkbox'));
+                UI.pretty_checkbox($(prop.li).find('input'));
             });
         }
 
@@ -1316,8 +1316,8 @@ function rcube_kolab_notes_ui(settings)
                 dialogClass: 'warning',
                 open: function(event, ui) {
                     $(this).parent().find('.ui-dialog-titlebar-close').hide();
-                    setTimeout(function(){
-                        dialog.parent().find('.ui-button:visible').first().focus();
+                    setTimeout(function() {
+                        dialog.parent().find('button:visible').first().focus();
                     }, 10);
                 },
                 close: function(event, ui) {
