@@ -3050,8 +3050,6 @@ function rcube_tasklist_ui(settings)
                 data = form.serializeJSON();
                 if (list.id)
                     data.id = list.id;
-                if (form.find('#taskedit-tasklistname').is(':checked'))
-                    data.showalarms = 1;
 
                 saving_lock = rcmail.set_busy(true, 'tasklist.savingdata');
                 rcmail.http_post('tasklist', {action: (list.id ? 'edit' : 'new'), l: data});
@@ -3172,7 +3170,7 @@ function rcube_tasklist_ui(settings)
             me.tasklists[prop.id] = prop;
             $(li).find('input').first().val(prop.id);
             $(li).find('.listname').first().html(Q(prop.name));
-            tasklists_widget.update(id, { id:prop.id, html:li.children().first() });
+            tasklists_widget.update(id, {id: prop.id, html: $(li).children().first()});
         }
     }
 

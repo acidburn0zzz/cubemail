@@ -362,7 +362,7 @@ class tasklist_ui
             'showalarms' => array(
                 'id'    => 'taskedit-showalarms',
                 'label' => $this->plugin->gettext('showalarms'),
-                'value' => html::tag('input', array('id' => 'taskedit-showalarms', 'name' => 'color', 'type' => 'checkbox')),
+                'value' => html::tag('input', array('id' => 'taskedit-showalarms', 'name' => 'showalarms', 'type' => 'checkbox', 'value' => 1)),
             ),
         );
 
