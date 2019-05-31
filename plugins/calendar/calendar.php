@@ -2924,11 +2924,11 @@ class calendar extends rcube_plugin
         $append = '';
 
         // prepare a small agenda preview to be filled with actual event data on async request
-        if ($ical_objects->method == 'REQUEST') {
+        if ($ical_objects->method == 'REQUEST' && $event['start']) {
+          $date   = $this->rc->format_date($event['start'], $this->rc->config->get('date_format'), empty($event['start']->_dateonly));
           $append = html::div('calendar-agenda-preview',
-            html::tag('h3', 'preview-title', $this->gettext('agenda') . ' ' .
-              html::span('date', $this->rc->format_date($event['start'], $this->rc->config->get('date_format')))
-            ) . '%before%' . $this->mail_agenda_event_row($event, 'current') . '%after%');
+            html::tag('h3', 'preview-title', $this->gettext('agenda') . ' ' . html::span('date', $date))
+            . '%before%' . $this->mail_agenda_event_row($event, 'current') . '%after%');
         }
 
         $html .= html::div('calendar-invitebox invitebox boxinformation',
