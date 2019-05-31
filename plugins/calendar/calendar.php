@@ -2921,13 +2921,14 @@ class calendar extends rcube_plugin
 
       // get prepared inline UI for this event object
       if ($ical_objects->method) {
-        $append = '';
+        $append   = '';
+        $date_str = $this->rc->format_date($event['start'], $this->rc->config->get('date_format'), empty($event['start']->_dateonly));
+        $date     = new DateTime($event['start']->format('Y-m-d') . ' 12:00:00', new DateTimeZone('UTC'));
 
         // prepare a small agenda preview to be filled with actual event data on async request
-        if ($ical_objects->method == 'REQUEST' && $event['start']) {
-          $date   = $this->rc->format_date($event['start'], $this->rc->config->get('date_format'), empty($event['start']->_dateonly));
+        if ($ical_objects->method == 'REQUEST') {
           $append = html::div('calendar-agenda-preview',
-            html::tag('h3', 'preview-title', $this->gettext('agenda') . ' ' . html::span('date', $date))
+            html::tag('h3', 'preview-title', $this->gettext('agenda') . ' ' . html::span('date', $date_str))
             . '%before%' . $this->mail_agenda_event_row($event, 'current') . '%after%');
         }
 
@@ -2938,7 +2939,7 @@ class calendar extends rcube_plugin
             $ical_objects->mime_id . ':' . $idx,
             'calendar',
             rcube_utils::anytodatetime($ical_objects->message_date),
-            $this->rc->url(array('task' => 'calendar')) . '&view=agendaDay&date=' . $event['start']->format('U')
+            $this->rc->url(array('task' => 'calendar')) . '&view=agendaDay&date=' . $date->format('U')
           ) . $append
         );
       }
