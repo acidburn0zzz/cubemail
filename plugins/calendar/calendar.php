@@ -1361,7 +1361,7 @@ class calendar extends rcube_plugin
   public function itip_events($msgref)
   {
     $path = explode('/', $msgref);
-    $msg = array_pop($path);
+    $msg  = array_pop($path);
     $mbox = join('/', $path);
     list($uid, $mime_id) = explode('#', $msg);
     $events = array();
@@ -1377,23 +1377,27 @@ class calendar extends rcube_plugin
         }
       }
 */
-      $event['id'] = $event['uid'];
+      $event['id']        = $event['uid'];
       $event['temporary'] = true;
-      $event['readonly'] = true;
-      $event['calendar'] = '--invitation--itip';
+      $event['readonly']  = true;
+      $event['calendar']  = '--invitation--itip';
       $event['className'] = 'fc-invitation-' . strtolower($partstat);
-      $event['_mbox'] = $mbox;
-      $event['_uid']  = $uid;
-      $event['_part'] = $mime_id;
+      $event['_mbox']     = $mbox;
+      $event['_uid']      = $uid;
+      $event['_part']     = $mime_id;
 
       $events[] = $this->_client_event($event, true);
 
       // add recurring instances
       if (!empty($event['recurrence'])) {
-        foreach ($this->driver->get_recurring_events($event, $event['start']) as $recurring) {
+        // Some installations can't handle all occurrences (aborting the request w/o an error in log)
+        $end = clone $event['start'];
+        $end->add(new DateInterval($event['recurrence']['FREQ'] == 'DAILY' ? 'P1Y' : 'P10Y'));
+
+        foreach ($this->driver->get_recurring_events($event, $event['start'], $end) as $recurring) {
           $recurring['temporary'] = true;
-          $recurring['readonly'] = true;
-          $recurring['calendar'] = '--invitation--itip';
+          $recurring['readonly']  = true;
+          $recurring['calendar']  = '--invitation--itip';
           $events[] = $this->_client_event($recurring, true);
         }
       }
