@@ -3684,8 +3684,7 @@ function rcube_calendar_ui(settings)
     if (rcmail.env.itip_events && rcmail.env.itip_events.length) {
       me.calendars['--invitation--itip'] = {
         events: rcmail.env.itip_events,
-        color: '#fff',
-        textColor: '#333',
+        color: 'ffffff',
         editable: false,
         rights: 'lrs',
         attendees: true
