@@ -25,7 +25,7 @@
  +-------------------------------------------------------------------------+
 */
 
-// backend type (database, google, kolab)
+// backend type (database, kolab)
 $config['calendar_driver'] = "database";
 
 // default calendar view (agendaDay, agendaWeek, month)

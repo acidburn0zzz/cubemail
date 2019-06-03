@@ -348,6 +348,11 @@ function rcube_libcalendaring(settings)
         if (!color_map[color]) {
             color_map[color] = '#fff';
 
+            // Convert 3-char to 6-char
+            if (/^#?([a-f0-9]{1})([a-f0-9]{1})([a-f0-9]{1})$/i.test(color)) {
+                color = '#' + RegExp.$1 + RegExp.$1 + RegExp.$2 + RegExp.$2 + RegExp.$3 + RegExp.$3;
+            }
+
             if (/^#?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i.test(color)) {
                 // use information about brightness calculation found at
                 // http://javascriptrules.com/2009/08/05/css-color-brightness-contrast-using-javascript/

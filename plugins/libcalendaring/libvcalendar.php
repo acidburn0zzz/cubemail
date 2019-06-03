@@ -430,7 +430,7 @@ class libvcalendar implements Iterator
             case 'DTEND':
             case 'DUE':
                 $propmap = array('DTSTART' => 'start', 'DTEND' => 'end', 'DUE' => 'due');
-                $event[$propmap[$prop->name]] =  self::convert_datetime($prop);
+                $event[$propmap[$prop->name]] = self::convert_datetime($prop);
                 break;
 
             case 'TRANSP':
@@ -694,16 +694,14 @@ class libvcalendar implements Iterator
 
         // assign current timezone to event start/end
         if ($event['start'] instanceof DateTime) {
-            if ($this->timezone)
-                $event['start']->setTimezone($this->timezone);
+            $this->_apply_timezone($event['start']);
         }
         else {
             unset($event['start']);
         }
 
         if ($event['end'] instanceof DateTime) {
-            if ($this->timezone)
-                $event['end']->setTimezone($this->timezone);
+            $this->_apply_timezone($event['end']);
         }
         else {
             unset($event['end']);
@@ -726,6 +724,27 @@ class libvcalendar implements Iterator
         }
 
         return $event;
+    }
+
+    /**
+     * Apply user timezone to DateTime object
+     */
+    private function _apply_timezone(&$date)
+    {
+        if (empty($this->timezone)) {
+            return;
+        }
+
+        // For date-only we'll keep the date and time intact
+        if ($date->_dateonly) {
+            $dt = new DateTime(null, $this->timezone);
+            $dt->setDate($date->format('Y'), $date->format('n'), $date->format('j'));
+            $dt->setTime($date->format('G'), $date->format('i'), 0);
+            $date = $dt;
+        }
+        else {
+            $date->setTimezone($this->timezone);
+        }
     }
 
     /**
@@ -816,7 +835,6 @@ class libvcalendar implements Iterator
         if (empty($prop)) {
             return $as_array ? array() : null;
         }
-
         else if ($prop instanceof VObject\Property\iCalendar\DateTime) {
             if (count($prop->getDateTimes()) > 1) {
                 $dt = array();

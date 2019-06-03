@@ -3609,25 +3609,19 @@ function rcube_calendar_ui(settings)
       }
 
       var id = this.value;
-      if (me.calendars[id]) {  // add or remove event source on click
-        var action;
-        if (this.checked) {
-          action = 'addEventSource';
-          me.calendars[id].active = true;
-        }
-        else {
-          action = 'removeEventSource';
-          me.calendars[id].active = false;
-        }
 
+      // add or remove event source on click
+      if (me.calendars[id]) {
         // adjust checked state of original list item
         if (calendars_list.is_search()) {
           calendars_list.container.find('input[value="'+id+'"]').prop('checked', this.checked);
         }
 
+        me.calendars[id].active = this.checked;
+
         // add/remove event source
-        fc.fullCalendar(action, me.calendars[id]);
-        rcmail.http_post('calendar', { action:'subscribe', c:{ id:id, active:me.calendars[id].active?1:0 } });
+        fc.fullCalendar(this.checked ? 'addEventSource' : 'removeEventSource', me.calendars[id]);
+        rcmail.http_post('calendar', {action: 'subscribe', c: {id: id, active: this.checked ? 1 : 0}});
       }
     })
     .on('keypress', 'input[type=checkbox]', function(e) {
@@ -3690,8 +3684,7 @@ function rcube_calendar_ui(settings)
     if (rcmail.env.itip_events && rcmail.env.itip_events.length) {
       me.calendars['--invitation--itip'] = {
         events: rcmail.env.itip_events,
-        color: '#fff',
-        textColor: '#333',
+        color: 'ffffff',
         editable: false,
         rights: 'lrs',
         attendees: true

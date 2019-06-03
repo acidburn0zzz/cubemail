@@ -1361,7 +1361,7 @@ class calendar extends rcube_plugin
   public function itip_events($msgref)
   {
     $path = explode('/', $msgref);
-    $msg = array_pop($path);
+    $msg  = array_pop($path);
     $mbox = join('/', $path);
     list($uid, $mime_id) = explode('#', $msg);
     $events = array();
@@ -1377,23 +1377,27 @@ class calendar extends rcube_plugin
         }
       }
 */
-      $event['id'] = $event['uid'];
+      $event['id']        = $event['uid'];
       $event['temporary'] = true;
-      $event['readonly'] = true;
-      $event['calendar'] = '--invitation--itip';
+      $event['readonly']  = true;
+      $event['calendar']  = '--invitation--itip';
       $event['className'] = 'fc-invitation-' . strtolower($partstat);
-      $event['_mbox'] = $mbox;
-      $event['_uid']  = $uid;
-      $event['_part'] = $mime_id;
+      $event['_mbox']     = $mbox;
+      $event['_uid']      = $uid;
+      $event['_part']     = $mime_id;
 
       $events[] = $this->_client_event($event, true);
 
       // add recurring instances
       if (!empty($event['recurrence'])) {
-        foreach ($this->driver->get_recurring_events($event, $event['start']) as $recurring) {
+        // Some installations can't handle all occurrences (aborting the request w/o an error in log)
+        $end = clone $event['start'];
+        $end->add(new DateInterval($event['recurrence']['FREQ'] == 'DAILY' ? 'P1Y' : 'P10Y'));
+
+        foreach ($this->driver->get_recurring_events($event, $event['start'], $end) as $recurring) {
           $recurring['temporary'] = true;
-          $recurring['readonly'] = true;
-          $recurring['calendar'] = '--invitation--itip';
+          $recurring['readonly']  = true;
+          $recurring['calendar']  = '--invitation--itip';
           $events[] = $this->_client_event($recurring, true);
         }
       }
@@ -1764,20 +1768,25 @@ class calendar extends rcube_plugin
     $settings = array();
 
     // configuration
+    $settings['default_view']     = (string) $this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view']);
+    $settings['timeslots']        = (int) $this->rc->config->get('calendar_timeslots', $this->defaults['calendar_timeslots']);
+    $settings['first_day']        = (int) $this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']);
+    $settings['first_hour']       = (int) $this->rc->config->get('calendar_first_hour', $this->defaults['calendar_first_hour']);
+    $settings['work_start']       = (int) $this->rc->config->get('calendar_work_start', $this->defaults['calendar_work_start']);
+    $settings['work_end']         = (int) $this->rc->config->get('calendar_work_end', $this->defaults['calendar_work_end']);
+    $settings['agenda_range']     = (int) $this->rc->config->get('calendar_agenda_range', $this->defaults['calendar_agenda_range']);
+    $settings['event_coloring']   = (int) $this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring']);
+    $settings['time_indicator']   = (int) $this->rc->config->get('calendar_time_indicator', $this->defaults['calendar_time_indicator']);
+    $settings['invite_shared']    = (int) $this->rc->config->get('calendar_allow_invite_shared', $this->defaults['calendar_allow_invite_shared']);
+    $settings['itip_notify']      = (int) $this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']);
+    $settings['show_weekno']      = (int) $this->rc->config->get('calendar_show_weekno', $this->defaults['calendar_show_weekno']);
     $settings['default_calendar'] = $this->rc->config->get('calendar_default_calendar');
-    $settings['default_view'] = (string)$this->rc->config->get('calendar_default_view', $this->defaults['calendar_default_view']);
-    $settings['timeslots'] = (int)$this->rc->config->get('calendar_timeslots', $this->defaults['calendar_timeslots']);
-    $settings['first_day'] = (int)$this->rc->config->get('calendar_first_day', $this->defaults['calendar_first_day']);
-    $settings['first_hour'] = (int)$this->rc->config->get('calendar_first_hour', $this->defaults['calendar_first_hour']);
-    $settings['work_start'] = (int)$this->rc->config->get('calendar_work_start', $this->defaults['calendar_work_start']);
-    $settings['work_end'] = (int)$this->rc->config->get('calendar_work_end', $this->defaults['calendar_work_end']);
-    $settings['agenda_range'] = (int)$this->rc->config->get('calendar_agenda_range', $this->defaults['calendar_agenda_range']);
-    $settings['event_coloring'] = (int)$this->rc->config->get('calendar_event_coloring', $this->defaults['calendar_event_coloring']);
-    $settings['time_indicator'] = (int)$this->rc->config->get('calendar_time_indicator', $this->defaults['calendar_time_indicator']);
-    $settings['invite_shared'] = (int)$this->rc->config->get('calendar_allow_invite_shared', $this->defaults['calendar_allow_invite_shared']);
-    $settings['invitation_calendars'] = (bool)$this->rc->config->get('kolab_invitation_calendars', false);
-    $settings['itip_notify'] = (int)$this->rc->config->get('calendar_itip_send_option', $this->defaults['calendar_itip_send_option']);
-    $settings['show_weekno'] = (int)$this->rc->config->get('calendar_show_weekno', $this->defaults['calendar_show_weekno']);
+    $settings['invitation_calendars'] = (bool) $this->rc->config->get('kolab_invitation_calendars', false);
+
+    // 'table' view has been replaced by 'list' view
+    if ($settings['default_view'] == 'table') {
+      $settings['default_view'] = 'list';
+    }
 
     // get user identity to create default attendee
     if ($this->ui->screen == 'calendar') {
@@ -2916,14 +2925,15 @@ class calendar extends rcube_plugin
 
       // get prepared inline UI for this event object
       if ($ical_objects->method) {
-        $append = '';
+        $append   = '';
+        $date_str = $this->rc->format_date($event['start'], $this->rc->config->get('date_format'), empty($event['start']->_dateonly));
+        $date     = new DateTime($event['start']->format('Y-m-d') . ' 12:00:00', new DateTimeZone('UTC'));
 
         // prepare a small agenda preview to be filled with actual event data on async request
         if ($ical_objects->method == 'REQUEST') {
           $append = html::div('calendar-agenda-preview',
-            html::tag('h3', 'preview-title', $this->gettext('agenda') . ' ' .
-              html::span('date', $this->rc->format_date($event['start'], $this->rc->config->get('date_format')))
-            ) . '%before%' . $this->mail_agenda_event_row($event, 'current') . '%after%');
+            html::tag('h3', 'preview-title', $this->gettext('agenda') . ' ' . html::span('date', $date_str))
+            . '%before%' . $this->mail_agenda_event_row($event, 'current') . '%after%');
         }
 
         $html .= html::div('calendar-invitebox invitebox boxinformation',
@@ -2933,7 +2943,7 @@ class calendar extends rcube_plugin
             $ical_objects->mime_id . ':' . $idx,
             'calendar',
             rcube_utils::anytodatetime($ical_objects->message_date),
-            $this->rc->url(array('task' => 'calendar')) . '&view=agendaDay&date=' . $event['start']->format('U')
+            $this->rc->url(array('task' => 'calendar')) . '&view=agendaDay&date=' . $date->format('U')
           ) . $append
         );
       }

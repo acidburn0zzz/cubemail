@@ -315,8 +315,8 @@ class libcalendaring extends rcube_plugin
         $time_format = self::to_php_date_format($this->rc->config->get('calendar_time_format', $this->defaults['calendar_time_format']));
 
         if ($event['allday']) {
-            $fromto = $this->rc->format_date($event['start'], $date_format);
-            if (($todate = $this->rc->format_date($event['end'], $date_format)) != $fromto)
+            $fromto = $this->rc->format_date($event['start'], $date_format, false);
+            if (($todate = $this->rc->format_date($event['end'], $date_format, false)) != $fromto)
                 $fromto .= ' - ' . $todate;
         }
         else if ($duration < 86400 && $event['start']->format('d') == $event['end']->format('d')) {
@@ -344,7 +344,7 @@ class libcalendaring extends rcube_plugin
     {
         unset($attrib['name']);
 
-        $input_value    = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value form-control input-group-prepend', 'size' => 3));
+        $input_value    = new html_inputfield(array('name' => 'alarmvalue[]', 'class' => 'edit-alarm-value form-control', 'size' => 3));
         $input_date     = new html_inputfield(array('name' => 'alarmdate[]', 'class' => 'edit-alarm-date form-control', 'size' => 10));
         $input_time     = new html_inputfield(array('name' => 'alarmtime[]', 'class' => 'edit-alarm-time form-control', 'size' => 6));
         $select_type    = new html_select(array('name' => 'alarmtype[]', 'class' => 'edit-alarm-type form-control', 'id' => $attrib['id']));
