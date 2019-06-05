@@ -581,7 +581,9 @@ class kolab_delegation extends rcube_plugin
             $classes = array('mailbox');
 
             if ($folder_class = $this->rc->folder_classname($folder)) {
-                $foldername = html::quote($this->rc->gettext($folder_class));
+                if ($this->rc->text_exists($folder_class)) {
+                    $foldername = html::quote($this->rc->gettext($folder_class));
+                }
                 $classes[] = $folder_class;
             }
 
