@@ -51,15 +51,6 @@
                 position: relative;
                 flex-grow: 1;
 
-                &:after {
-                    color: #ccc;
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    height: @listing-line-height !important;
-                    font-size: 1.1em !important;
-                }
-
                 & + input {
                     position: initial;
                 }
@@ -94,6 +85,13 @@
 
                     &.remove {
                         display: none;
+                    }
+                }
+
+                html.touch & {
+                    margin-left: .2rem;
+                    a {
+                        margin-right: .5rem;
                     }
                 }
             }
@@ -152,11 +150,25 @@
 
         & > div.readonly a:first-child,
         &.readonly:not(.virtual) > div a:first-child {
-            padding-right: 1.6em;
-
             &:after {
                 &:extend(.font-icon-class);
                 content: @fa-var-lock;
+                position: absolute;
+                left: 2.25rem;
+                top: @listing-line-height / 2;
+                font-size: .9em !important;
+                width: .9em;
+                line-height: 1;
+                height: 1em !important;
+                background-color: #fff;
+                border-radius: 50% 50% 0 0;
+                color: @color-font;
+                opacity: .9;
+
+                html.touch & {
+                    top: @listing-touch-line-height / 2;
+                    left: 2.7rem;
+                }
             }
         }
 
@@ -222,19 +234,49 @@
     }
 }
 
-html.touch .listing {
-    li {
-        & > div {
-            a:after {
-                height: @listing-touch-line-height !important;
+@treelist-readonly-icon-margin: 1.7em;
+.treelist {
+    ul {
+        li {
+            a:first-child:after {
+                margin-left: 1 * @treelist-readonly-icon-margin !important;
+            }
+
+            li {
+                a:first-child:after {
+                    margin-left: 2 * @treelist-readonly-icon-margin !important;
+                }
+
+                li {
+                    a:first-child:after {
+                        margin-left: 3 * @treelist-readonly-icon-margin !important;
+                    }
+
+                    li {
+                        a:first-child:after {
+                            margin-left: 4 * @treelist-readonly-icon-margin !important;
+                        }
+
+                        li {
+                            a:first-child:after {
+                                margin-left: 5 * @treelist-readonly-icon-margin !important;
+                            }
+
+                            li {
+                                a:first-child:after {
+                                    margin-left: 6 * @treelist-readonly-icon-margin !important;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
 
-        .actions {
-            margin-left: .2rem;
-            a {
-                margin-right: .5rem;
-            }
+    &.notree {
+        li a:first-child:after {
+            left: 1.3rem !important;
         }
     }
 }
