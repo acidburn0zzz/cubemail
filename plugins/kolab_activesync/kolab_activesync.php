@@ -45,7 +45,6 @@ class kolab_activesync extends rcube_plugin
     {
         $this->rc = rcube::get_instance();
 
-        $this->require_plugin('jqueryui');
         $this->require_plugin('libkolab');
 
         $this->register_action('plugin.activesync', array($this, 'config_view'));

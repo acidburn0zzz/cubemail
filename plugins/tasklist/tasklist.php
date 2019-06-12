@@ -75,7 +75,6 @@ class tasklist extends rcube_plugin
     {
         $this->require_plugin('libcalendaring');
         $this->require_plugin('libkolab');
-        $this->require_plugin('jqueryui');
 
         $this->rc  = rcube::get_instance();
         $this->lib = libcalendaring::get_instance();
