@@ -1,20 +1,23 @@
 <?php
-    class loginfail extends rcube_plugin {
-        public $task = 'login';
 
-        function init() {
-            $this->add_hook('login_failed', array($this, 'login_failed'));
-        }
+class loginfail extends rcube_plugin
+{
+    public $task = 'login';
 
-        public function login_failed($args) {
-            $rcmail = rcmail::get_instance();
+    function init()
+    {
+        $this->add_hook('login_failed', array($this, 'login_failed'));
+    }
 
-            $filename = $this->home . '/loginfail.html';
+    public function login_failed($args)
+    {
+        $rcmail = rcmail::get_instance();
 
-            if (file_exists($filename)) {
-                $html = file_get_contents($filename);
-                $rcmail->output->add_footer($html);
-            }
+        $filename = $this->home . '/loginfail.html';
+
+        if (file_exists($filename)) {
+            $html = file_get_contents($filename);
+            $rcmail->output->add_footer($html);
         }
     }
-?>
+}

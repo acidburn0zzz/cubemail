@@ -10,6 +10,11 @@
             "name": "Thomas Bruederli",
             "email": "bruederli@kolabsys.com",
             "role": "Lead"
+        },
+        {
+            "name": "Aleksander Machniak",
+            "email": "machniak@kolabsys.com",
+            "role": "Developer"
         }
     ],
     "repositories": [
