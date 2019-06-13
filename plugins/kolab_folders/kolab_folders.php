@@ -72,6 +72,11 @@ class kolab_folders extends rcube_plugin
         // ACL plugin hooks
         $this->add_hook('acl_rights_simple', array($this, 'acl_rights_simple'));
         $this->add_hook('acl_rights_supported', array($this, 'acl_rights_supported'));
+
+        // Resolving other user folder names
+        $this->add_hook('render_mailboxlist', array($this, 'render_folderlist'));
+        $this->add_hook('render_folder_selector', array($this, 'render_folderlist'));
+        $this->add_hook('folders_list', array($this, 'render_folderlist'));
     }
 
     /**
@@ -709,6 +714,7 @@ class kolab_folders extends rcube_plugin
      * Static getter for default folder of the given type
      *
      * @param string $type Folder type
+     *
      * @return string Folder name
      */
     public static function default_folder($type)
@@ -780,5 +786,75 @@ class kolab_folders extends rcube_plugin
                 'value' => html::div('input-group', $html),
             );
         }
+    }
+
+    /**
+     * Handler for various folders list widgets (hooks)
+     *
+     * @param array $args Hash array with hook parameters
+     *
+     * @return array Hash array with modified hook parameters
+     */
+    public function render_folderlist($args)
+    {
+        $storage  = $this->rc->get_storage();
+        $ns_other = $storage->get_namespace('other');
+        $is_fl    = $this->rc->plugins->is_processing('folders_list');
+
+        foreach ((array) $ns_other as $root) {
+            $delim  = $root[1];
+            $prefix = rtrim($root[0], $delim);
+            $length = strlen($prefix);
+
+            if (!$length) {
+                continue;
+            }
+
+            // folders_list hook mode
+            if ($is_fl) {
+                foreach ((array) $args['list'] as $folder_name => $folder) {
+                    if (strpos($folder_name, $root[0]) === 0 && !substr_count($folder_name, $root[1], $length+1)) {
+                        if ($name = $this->folder_id2username(substr($folder_name, $length+1))) {
+                            $old     = $args['list'][$folder_name]['display'];
+                            $content = $args['list'][$folder_name]['content'];
+
+                            $name    = rcube::Q($name);
+                            $content = str_replace(">$old<", ">$name<", $content);
+
+                            $args['list'][$folder_name]['display'] = $name;
+                            $args['list'][$folder_name]['content'] = $content;
+                        }
+                    }
+                }
+
+                // TODO: Re-sort the list
+            }
+            // render_* hooks mode
+            else if (!empty($args['list'][$prefix]) && !empty($args['list'][$prefix]['folders'])) {
+                $map = array();
+                foreach ($args['list'][$prefix]['folders'] as $folder_name => $folder) {
+                    if ($name = $this->folder_id2username($folder_name)) {
+                        $args['list'][$prefix]['folders'][$folder_name]['name'] = $name;
+                    }
+
+                    $map[$folder_name] = $name ?: $args['list'][$prefix]['folders'][$folder_name]['name'];
+                }
+
+                // Re-sort the list
+                uasort($map, 'strcoll');
+                $args['list'][$prefix]['folders'] = array_replace($map, $args['list'][$prefix]['folders']);
+            }
+        }
+
+        return $args;
+    }
+
+    /**
+     * Map other user (imap) folder identifier to user name
+     * @see kolab_storage::folder_id2user()
+     */
+    private static function folder_id2username($uid)
+    {
+        return kolab_storage::folder_id2user($uid, true);
     }
 }

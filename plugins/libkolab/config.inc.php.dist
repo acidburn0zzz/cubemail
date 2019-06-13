@@ -64,6 +64,18 @@ $config['kolab_users_id_attrib'] = null;
 // Use these attributes when searching users in LDAP
 $config['kolab_users_search_attrib'] = array('cn','mail','alias');
 
+// Which property of the LDAP user record to use as a display name.
+// Defaults to the 'kolab_auth_name' configuration option.
+$config['kolab_users_name_field'] = null;
+
+// Type of cache for uid-to-user map. Supported: 'db', 'apc', 'memcache' and 'memcached'.
+// Note: This stores only other user folder identifier to user attributes map.
+$config['kolab_users_cache'] = null;
+
+// lifetime of shared folder mapping cache
+// possible units: s, m, h, d, w
+$config['kolab_users_cache_ttl'] = '10d';
+
 // JSON-RPC endpoint configuration of the Bonnie web service providing historic data for groupware objects
 $config['kolab_bonnie_api'] = array(
     'uri'    => 'https://<kolab-hostname>:8080/api/rpc',

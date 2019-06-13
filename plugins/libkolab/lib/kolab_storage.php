@@ -46,11 +46,13 @@ class kolab_storage
     private static $ready = false;
     private static $with_tempsubs = true;
     private static $subscriptions;
+    private static $ldapcache = array();
     private static $typedata = array();
     private static $states;
     private static $config;
     private static $imap;
     private static $ldap;
+
 
     // Default folder names
     private static $default_folders = array(
@@ -354,7 +356,6 @@ class kolab_storage
         return '';
     }
 
-
     /**
      * Deletes IMAP folder
      *
@@ -421,7 +422,6 @@ class kolab_storage
         return false;
     }
 
-
     /**
      * Renames IMAP folder
      *
@@ -456,7 +456,6 @@ class kolab_storage
 
         return $success;
     }
-
 
     /**
      * Rename or Create a new IMAP folder.
@@ -552,7 +551,6 @@ class kolab_storage
         return $result ? $folder : false;
     }
 
-
     /**
      * Getter for human-readable name of Kolab object (folder)
      * with kolab_custom_display_names support.
@@ -637,20 +635,18 @@ class kolab_storage
         if (!$found && !empty($namespace['other'])) {
             foreach ($namespace['other'] as $ns) {
                 if (strlen($ns[0]) && strpos($folder, $ns[0]) === 0) {
-                    // remove namespace prefix
+                    // remove namespace prefix and extract username
                     $folder = substr($folder, strlen($ns[0]));
                     $delim  = $ns[1];
-                    // get username
-                    $pos    = strpos($folder, $delim);
-                    if ($pos) {
-                        $prefix = '('.substr($folder, 0, $pos).')';
-                        $folder = substr($folder, $pos+1);
-                    }
-                    else {
-                        $prefix = '('.$folder.')';
-                        $folder = '';
-                    }
 
+                    // get username part and map it to user name
+                    $pos = strpos($folder, $delim);
+                    $fid = $pos ? substr($folder, 0, $pos) : $folder;
+                    $fid = self::folder_id2user($fid, true);
+                    $fid = str_replace($delim, '', $fid);
+
+                    $prefix = "($fid)";
+                    $folder = $pos ? substr($folder, $pos + 1) : '';
                     $found  = true;
                     $folder_ns = 'other';
                     break;
@@ -728,7 +724,6 @@ class kolab_storage
 
         return $name;
     }
-
 
     /**
      * Creates a SELECT field with folders list
@@ -811,7 +806,6 @@ class kolab_storage
 
         return $select;
     }
-
 
     /**
      * Returns a list of folder names
@@ -976,7 +970,6 @@ class kolab_storage
         return $folders;
     }
 
-
     /**
      * Sort the given list of kolab folders by namespace/name
      *
@@ -1005,7 +998,6 @@ class kolab_storage
 
         return $out;
     }
-
 
     /**
      * Check the folder tree and add the missing parents as virtual folders
@@ -1082,7 +1074,6 @@ class kolab_storage
         return $_folders;
     }
 
-
     /**
      * Returns folder types indexed by folder name
      *
@@ -1149,7 +1140,6 @@ class kolab_storage
         return self::$typedata[$prefix];
     }
 
-
     /**
      * Callback for array_map to select the correct annotation value
      */
@@ -1164,7 +1154,6 @@ class kolab_storage
         }
         return null;
     }
-
 
     /**
      * Returns type of IMAP folder
@@ -1197,7 +1186,6 @@ class kolab_storage
         return 'mail';
     }
 
-
     /**
      * Sets folder content-type.
      *
@@ -1220,7 +1208,6 @@ class kolab_storage
         return $success;
     }
 
-
     /**
      * Check subscription status of this folder
      *
@@ -1241,7 +1228,6 @@ class kolab_storage
         return in_array($folder, self::$subscriptions) ||
             ($temp && in_array($folder, (array)$_SESSION['kolab_subscribed_folders']));
     }
-
 
     /**
      * Change subscription status of this folder
@@ -1273,7 +1259,6 @@ class kolab_storage
         return false;
     }
 
-
     /**
      * Change subscription status of this folder
      *
@@ -1301,7 +1286,6 @@ class kolab_storage
         return false;
     }
 
-
     /**
      * Check activation status of this folder
      *
@@ -1315,7 +1299,6 @@ class kolab_storage
 
         return in_array($folder, $active_folders);
     }
-
 
     /**
      * Change activation status of this folder
@@ -1331,7 +1314,6 @@ class kolab_storage
         return self::set_state($folder, true);
     }
 
-
     /**
      * Change activation status of this folder
      *
@@ -1346,7 +1328,6 @@ class kolab_storage
 
         return self::set_state($folder, false);
     }
-
 
     /**
      * Return list of active folders
@@ -1378,7 +1359,6 @@ class kolab_storage
 
         return self::$states;
     }
-
 
     /**
      * Update list of active folders
@@ -1504,7 +1484,6 @@ class kolab_storage
         }
     }
 
-
     /**
      *
      * @param mixed   $query    Search value (or array of field => value pairs)
@@ -1544,7 +1523,6 @@ class kolab_storage
         return $results;
     }
 
-
     /**
      * Returns a list of IMAP folders shared by the given user
      *
@@ -1583,7 +1561,6 @@ class kolab_storage
 
         return $folders;
     }
-
 
     /**
      * Get a list of (virtual) top-level folders from the other users namespace
@@ -1635,7 +1612,6 @@ class kolab_storage
         return $folders;
     }
 
-
     /**
      * Handler for user_delete plugin hooks
      *
@@ -1671,6 +1647,81 @@ class kolab_storage
             $metadata = self::$imap->get_metadata($folder, $keys);
 
             return $metadata[$folder];
+        }
+    }
+
+    /**
+     * Get user attributes for specified other user (imap) folder identifier.
+     * Note: This uses LDAP config/code from kolab_auth.
+     *
+     * @param string $folder_id Folder name w/o path (imap user identifier)
+     * @param bool   $as_string Return configured display name attribute value
+     *
+     * @return array User attributes
+     * @see self::ldap()
+     */
+    public static function folder_id2user($folder_id, $as_string = false)
+    {
+        static $domain, $cache, $name_attr;
+
+        $rcube = rcube::get_instance();
+
+        if ($domain === null) {
+            list(, $domain) = explode('@', $rcube->get_user_name());
+        }
+
+        if ($name_attr === null) {
+            $name_attr = (array) (self::$config->get('kolab_users_name_field', self::$config->get('kolab_auth_name')) ?: 'name');
+        }
+
+        $token = $folder_id;
+        if ($domain && strpos($find, '@') === false) {
+            $token .= '@' . $domain;
+        }
+
+        if ($cache === null) {
+            $cache = $rcube->get_cache_shared('kolab_users') ?: false;
+        }
+
+        // use value cached in memory for repeated lookups
+        if (!$cache && array_key_exists($token, self::$ldapcache)) {
+            $user = self::$ldapcache[$token];
+        }
+
+        if (empty($user) && $cache) {
+            $user = $cache->get($token);
+        }
+
+        if (empty($user) && ($ldap = kolab_storage::ldap())) {
+            $user = $ldap->get_user_record($token, $_SESSION['imap_host']);
+
+            if (!empty($user)) {
+                $keys = array('displayname', 'name', 'mail'); // supported keys
+                $user = array_intersect_key($user, array_flip($keys));
+
+                if (!empty($user)) {
+                    if ($cache) {
+                        $cache->set($token, $user);
+                    }
+                    else {
+                        self::$ldapcache[$token] = $user;
+                    }
+                }
+            }
+        }
+
+        if (!empty($user)) {
+            if ($as_string) {
+                foreach ($name_attr as $attr) {
+                    if ($name = $user[$attr]) {
+                        return $name;
+                    }
+                }
+
+                return $user['displayname'] ?: $user['name'];
+            }
+
+            return $user;
         }
     }
 }

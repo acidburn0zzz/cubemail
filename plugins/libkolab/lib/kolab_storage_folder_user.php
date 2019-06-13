@@ -23,8 +23,6 @@
  */
 class kolab_storage_folder_user extends kolab_storage_folder_virtual
 {
-    protected static $ldapcache = array();
-
     public $ldaprec;
     public $type;
 
@@ -36,21 +34,13 @@ class kolab_storage_folder_user extends kolab_storage_folder_virtual
         parent::__construct($name, kolab_storage::object_prettyname($name), 'other', $parent);
 
         if (!empty($ldaprec)) {
-            self::$ldapcache[$name] = $this->ldaprec = $ldaprec;
+            $this->ldaprec = $ldaprec;
         }
-        // use value cached in memory for repeated lookups
-        else if (array_key_exists($name, self::$ldapcache)) {
-            $this->ldaprec = self::$ldapcache[$name];
-        }
-        // lookup user in LDAP and set $this->ldaprec
-        else if ($ldap = kolab_storage::ldap()) {
-            // get domain from current user
-            list(,$domain) = explode('@', rcube::get_instance()->get_user_name());
-            $this->ldaprec = $ldap->get_user_record(parent::get_foldername($this->name) . '@' . $domain, $_SESSION['imap_host']);
+        else {
+            $this->ldaprec = kolab_storage::folder_id2user(parent::get_foldername($this->name));
             if (!empty($this->ldaprec)) {
                 $this->ldaprec['kolabtargetfolder'] = $name;
             }
-            self::$ldapcache[$name] = $this->ldaprec;
         }
     }
 
