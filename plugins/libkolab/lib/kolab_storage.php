@@ -1671,7 +1671,7 @@ class kolab_storage
         }
 
         if ($name_attr === null) {
-            $name_attr = (array) (self::$config->get('kolab_users_name_field', self::$config->get('kolab_auth_name')) ?: 'name');
+            $name_attr = (array) ($rcube->config->get('kolab_users_name_field', $rcube->config->get('kolab_auth_name')) ?: 'name');
         }
 
         $token = $folder_id;
