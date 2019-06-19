@@ -28,7 +28,7 @@
 class libkolab extends rcube_plugin
 {
     static $http_requests = array();
-    static $bonnie_api = false;
+    static $bonnie_api    = false;
 
     /**
      * Required startup method of a Roundcube plugin
@@ -45,6 +45,9 @@ class libkolab extends rcube_plugin
         $this->add_hook('storage_init', array($this, 'storage_init'));
         $this->add_hook('storage_connect', array($this, 'storage_connect'));
         $this->add_hook('user_delete', array('kolab_storage', 'delete_user_folders'));
+
+        // For Chwala
+        $this->add_hook('folder_mod', array('kolab_storage', 'folder_mod'));
 
         $rcmail = rcube::get_instance();
         try {

@@ -1713,15 +1713,78 @@ class kolab_storage
         if (!empty($user)) {
             if ($as_string) {
                 foreach ($name_attr as $attr) {
-                    if ($name = $user[$attr]) {
-                        return $name;
+                    if ($display = $user[$attr]) {
+                        break;
                     }
                 }
 
-                return $user['displayname'] ?: $user['name'];
+                if (!$display) {
+                    $display = $user['displayname'] ?: $user['name'];
+                }
+
+                if ($display && $display != $folder_id) {
+                    $display = "$display ($folder_id)";
+                }
+
+                return $display;
             }
 
             return $user;
         }
+    }
+
+    /**
+     * Chwala's 'folder_mod' hook handler for mapping other users folder names
+     */
+    public static function folder_mod($args)
+    {
+        static $roots;
+
+        if ($roots === null) {
+            self::setup();
+            $roots = self::$imap->get_namespace('other');
+        }
+
+        // Note: We're working with UTF7-IMAP encoding here
+
+        if ($args['dir'] == 'in') {
+            foreach ((array) $roots as $root) {
+                if (strpos($args['folder'], $root[0]) === 0) {
+                    // remove root and explode folder
+                    $delim  = $root[1];
+                    $folder = explode($delim, substr($args['folder'], strlen($root[0])));
+                    // compare first (user) part with a regexp, it's supposed
+                    // to look like this: "Doe, Jane (uid)", so we can extract the uid
+                    // and replace the folder with it
+                    if (preg_match('~^[^/]+ \(([^)]+)\)$~', $folder[0], $m)) {
+                        $folder[0] = $m[1];
+                        $args['folder'] = $root[0] . implode($delim, $folder);
+                    }
+
+                    break;
+                }
+            }
+        }
+        else { // dir == 'out'
+            foreach ((array) $roots as $root) {
+                if (strpos($args['folder'], $root[0]) === 0) {
+                    // remove root and explode folder
+                    $delim  = $root[1];
+                    $folder = explode($delim, substr($args['folder'], strlen($root[0])));
+
+                    // Replace uid with "Doe, Jane (uid)"
+                    if ($user = self::folder_id2user($folder[0], true)) {
+                        $user      = str_replace($delim, '', $user);
+                        $folder[0] = rcube_charset::convert($user, RCUBE_CHARSET, 'UTF7-IMAP');
+
+                        $args['folder'] = $root[0] . implode($delim, $folder);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return $args;
     }
 }
