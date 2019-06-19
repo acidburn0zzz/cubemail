@@ -2264,6 +2264,9 @@ function kolab_files_ui()
     list.append(rows).appendTo(elem)
       .on('click', 'a.subscription', function(e) {
         return file_api.folder_list_subscription_button_click(this);
+      })
+      .on('mouseover', 'a.name', function() {
+        rcube_webmail.long_subject_title_ex(this);
       });
 
     if (rcmail.env.contextmenu)
