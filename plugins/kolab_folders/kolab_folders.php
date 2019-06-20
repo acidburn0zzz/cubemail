@@ -814,7 +814,7 @@ class kolab_folders extends rcube_plugin
             if ($is_fl) {
                 foreach ((array) $args['list'] as $folder_name => $folder) {
                     if (strpos($folder_name, $root[0]) === 0 && !substr_count($folder_name, $root[1], $length+1)) {
-                        if ($name = $this->folder_id2username(substr($folder_name, $length+1))) {
+                        if ($name = kolab_storage::folder_id2user(substr($folder_name, $length+1), true)) {
                             $old     = $args['list'][$folder_name]['display'];
                             $content = $args['list'][$folder_name]['content'];
 
@@ -833,7 +833,7 @@ class kolab_folders extends rcube_plugin
             else if (!empty($args['list'][$prefix]) && !empty($args['list'][$prefix]['folders'])) {
                 $map = array();
                 foreach ($args['list'][$prefix]['folders'] as $folder_name => $folder) {
-                    if ($name = $this->folder_id2username($folder_name)) {
+                    if ($name = kolab_storage::folder_id2user($folder_name, true)) {
                         $args['list'][$prefix]['folders'][$folder_name]['name'] = $name;
                     }
 
@@ -847,14 +847,5 @@ class kolab_folders extends rcube_plugin
         }
 
         return $args;
-    }
-
-    /**
-     * Map other user (imap) folder identifier to user name
-     * @see kolab_storage::folder_id2user()
-     */
-    private static function folder_id2username($uid)
-    {
-        return kolab_storage::folder_id2user($uid, true);
     }
 }
