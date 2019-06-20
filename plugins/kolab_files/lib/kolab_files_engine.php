@@ -450,7 +450,7 @@ class kolab_files_engine
             foreach ((array) $info['rights'] as $entry) {
                 if ($entry['mode'] == $mode) {
                     if (!empty($tab['list_column'])) {
-                        $table->add(null, html::span('name', rcube::Q($entry[$tab['list_column']])));
+                        $table->add(null, html::span(array('title' => $entry['title'], 'class' => 'name'), rcube::Q($entry[$tab['list_column']])));
                     }
                     else {
                         foreach ($tab['form'] as $index => $field) {
@@ -458,7 +458,7 @@ class kolab_files_engine
                                 $table->add(null, $fields[$index]->show($entry[$index]));
                             }
                             else if ($fields[$index] instanceof html_inputfield) {
-                                $table->add(null, html::span('name', rcube::Q($entry[$index])));
+                                $table->add(null, html::span(array('title' => $entry['title'], 'class' => 'name'), rcube::Q($entry[$index])));
                             }
                         }
                     }

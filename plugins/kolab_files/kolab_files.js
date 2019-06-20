@@ -2929,7 +2929,10 @@ function kolab_files_ui()
         .on('click', function() { file_api.sharing_delete(post.folder, $(this).closest('tr'), post.mode); });
 
     if (form_info.list_column) {
-      row.append($('<td>').append($('<span class="name">').text(post[form_info.list_column])));
+      row.append($('<td>').append($('<span class="name">')
+        .text(response.result.display || post[form_info.list_column])
+        .attr('title', response.result.title))
+      );
     }
     else {
       $.each(form_info.form || [], function(i, v) {
@@ -2945,7 +2948,7 @@ function kolab_files_ui()
           content.append(opts).val(post[i]);
         }
         else {
-          content = $('<span class="name">').text(post[i]);
+          content = $('<span class="name">').text(response.result.display || post[i]).attr('title', response.result.title);
           hidden.push($('<input>').attr({type: 'hidden', name: i, value: post[i] || ''}));
         }
 
