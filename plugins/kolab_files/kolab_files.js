@@ -245,7 +245,7 @@ function kolab_files_init()
 
   $.extend(editor_config, {
     // notifications/alerts
-    gettext: function(label) { return rcmail.get_label('kolab_files.' + label); },
+    gettext: function(label) { return rcmail.get_label(label, 'kolab_files'); },
     set_busy: function(state, message) { return rcmail.set_busy(state, message ? 'kolab_files.' + message : ''); },
     hide_message: function(id) { return rcmail.hide_message(id); },
     display_message: function(label, type, is_txt, timeout) {

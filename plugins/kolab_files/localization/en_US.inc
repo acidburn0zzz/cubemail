@@ -61,6 +61,7 @@ $labels['docedit'] = 'Document editing';
 $labels['submit'] = 'Submit';
 $labels['confirmpassword'] = 'Confirm password';
 $labels['passwordconflict'] = 'Passwords do not match';
+$labels['saving'] = 'Saving...';
 
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';

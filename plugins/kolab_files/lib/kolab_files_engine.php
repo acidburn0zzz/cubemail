@@ -106,7 +106,7 @@ class kolab_files_engine
             $this->get_external_storage_drivers();
 
             // these labels may be needed even if fetching ext sources failed
-            $this->plugin->add_label('folderauthtitle', 'authenticating', 'foldershare');
+            $this->plugin->add_label('folderauthtitle', 'authenticating', 'foldershare', 'saving');
         }
 
         if ($list_widget) {
@@ -149,7 +149,7 @@ class kolab_files_engine
                 'more', 'accept', 'decline', 'join', 'status', 'when', 'file', 'comment',
                 'statusaccepted', 'statusinvited', 'statusdeclined', 'statusrequested',
                 'invitationaccepting', 'invitationdeclining', 'invitationrequesting',
-                'close', 'invitationtitle', 'sessions');
+                'close', 'invitationtitle', 'sessions', 'saving');
         }
 
         if (!empty($templates)) {
