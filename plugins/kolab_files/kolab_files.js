@@ -1487,11 +1487,28 @@ rcube_webmail.prototype.document_editors = function()
 // close editing session
 rcube_webmail.prototype.document_close = function()
 {
+  var delete_fn = function() {
+    document_editor.terminate(function() {
+      var win = window.opener || window.parent;
+
+      if (win && win.rcmail && win.file_api)
+        win.file_api.document_delete(rcmail.env.file_data.session.id);
+
+      // For Elastic: hide the parent dialog
+      if (rcmail.is_framed()) {
+        parent.$('.ui-dialog:visible button.cancel').click();
+      }
+
+      window.close();
+    });
+  };
+
   // check document "unsaved changes" state and display a warning
-  if (this.commands['document-save'])
-    this.confirm_dialog(this.gettext('kolab_files.unsavedchanges'), 'kolab_files.terminate', function() {
-      file_api.document_delete(rcmail.env.file_data.session.id);
-    }, {button_class: 'delete'});
+  // skip the warning for WOPI, Collabora will save the document anyway on session close
+  if (this.commands['document-save'] && (!this.env.file_data.viewer || !this.env.file_data.viewer.wopi))
+    this.confirm_dialog(this.gettext('kolab_files.unsavedchanges'), 'kolab_files.terminate', delete_fn, {button_class: 'delete'});
+  else
+    delete_fn();
 };
 
 // document editors management dialog
@@ -4089,43 +4106,25 @@ function kolab_files_ui()
   this.document_delete = function(id)
   {
     this.req = this.set_busy(true, 'kolab_files.sessionterminating');
-    this.deleted_session = id;
     this.request('document_delete', {id: id}, 'document_delete_response');
   };
 
   // document session delete response handler
-  this.document_delete_response = function(response)
+  this.document_delete_response = function(response, params)
   {
     if (!this.response(response))
       return;
 
-    if (rcmail.task == 'files' && rcmail.env.action == 'edit') {
-      if (document_editor && document_editor.terminate)
-        document_editor.terminate();
-      // use timeout to have a chance to properly propagate termination request
-      setTimeout(function() { window.close(); }, 500);
-    }
-
-    // @todo: force sessions info update
-
-    var win = window, list = rcmail.sessionslist;
-
-    if (!list) {
-      win = window.opener || window.parent;
-      if (win && win.rcmail && win.file_api)
-        list = win.rcmail.sessionslist;
-    }
+    var list = rcmail.sessionslist;
 
     // remove session from the list (if sessions list exist)
     if (list)
-      list.remove_row(this.deleted_session);
-    if (win && win.file_api && win.file_api.env.sessions_list)
-      delete win.file_api.env.sessions_list[this.deleted_session];
+      list.remove_row(params.id);
 
-    // For Elastic: hide the parent dialog
-    if (rcmail.is_framed()) {
-      parent.$('.ui-dialog:visible button.cancel').click();
-    }
+    if (this.env.sessions_list)
+      delete this.env.sessions_list[params.id];
+
+    // @todo: force sessions info update, update files list
   };
 
   // Invite document session participants
