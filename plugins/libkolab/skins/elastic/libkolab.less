@@ -490,6 +490,15 @@ button.btn {
         position: relative; // for absolute positioning of searchbar
         overflow: hidden;
         white-space: nowrap;
+
+        a.button {
+            color: @color-toolbar-button;
+            margin: 0 .3rem;
+
+            &:before {
+                margin: 0;
+            }
+        }
     }
 
     .header-title {
@@ -533,15 +542,16 @@ button.btn {
             padding: 0 !important;
         }
 
-        .selection-list {
-            border: 0;
-        }
-
         .ui-dialog-titlebar {
             display: none;
             margin: 0;
         }
 
+        .selection-list {
+            border: 0;
+        }
+
+        .selection-list,
         .selection-content {
             .header-title {
                 margin-left: 0;
