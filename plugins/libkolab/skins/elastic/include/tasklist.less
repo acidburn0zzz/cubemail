@@ -71,6 +71,16 @@
             &.droptarget {
                 background-color: @color-list-droptarget-background;
             }
+
+            &.complete {
+                span.title {
+                    color: @color-list-deleted;
+                }
+
+                .progressbar {
+                    display: none;
+                }
+            }
         }
 
         & > div,
@@ -138,16 +148,6 @@
 
         &.collapsed:before {
             content: @fa-var-angle-right;
-        }
-
-        &.complete {
-            span.title {
-                text-decoration: line-through;
-            }
-
-            .progressbar {
-                display: none;
-            }
         }
     }
 
