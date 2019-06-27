@@ -124,12 +124,20 @@ if (rcmail.env.action == 'open' || rcmail.env.action == 'edit') {
 }
 else {
     rcmail.addEventListener('files-folder-select', function(p) {
-        var is_sess = p.folder == 'folder-collection-sessions';
+        var fname, is_sess = p.folder == 'folder-collection-sessions';
+
         $('#fileslistmenu-link, #layout-content > .pagenav, #layout-content .searchbar')[is_sess ? 'hide' : 'show']();
         $('#sessionslistmenu-link')[is_sess ? 'removeClass' : 'addClass']('hidden');
 
-        // set list header title for mobile
-        // $('#layout-content > .header > .header-title').text($('#files-folder-list li.selected a.name:first').text());
+        if (is_sess)
+            fname = rcmail.gettext('kolab_files.sessions');
+        else if (p.folder.match(/^folder-collection-([a-z]+)$/))
+            fname = rcmail.gettext('kolab_files.collection_' + RegExp.$1);
+        else
+            fname = p.folder.split(file_api.env.directory_separator).pop();
+
+        // jump to files list and set list header title for mobile
+        rcmail.triggerEvent('show-content', {title: fname});
     });
 }
 
