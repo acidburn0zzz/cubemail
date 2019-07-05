@@ -3096,9 +3096,10 @@ function rcube_calendar_ui(settings)
         $('#event-export-calendar').val(calendar.id);
 
       $('#event-export-range').change(function(e){
-        var custom = $('option:selected', this).val() == 'custom',
-          input = $('#event-export-startdate')
-        input.parent()[(custom?'show':'hide')]();
+        var custom = $(this).val() == 'custom', input = $('#event-export-startdate');
+
+        $(this)[custom ? 'removeClass' : 'addClass']('rounded-right'); // Elastic/Bootstrap
+        input[custom ? 'show' : 'hide']();
         if (custom)
           input.select();
       })
@@ -3109,8 +3110,8 @@ function rcube_calendar_ui(settings)
           'class': 'mainaction export',
           click: function() {
             if (form) {
-              var start = 0, range = $('#event-export-range option:selected', this).val(),
-                source = $('#event-export-calendar option:selected').val(),
+              var start = 0, range = $('#event-export-range', this).val(),
+                source = $('#event-export-calendar').val(),
                 attachmt = $('#event-export-attachments').get(0).checked;
 
               if (range == 'custom')

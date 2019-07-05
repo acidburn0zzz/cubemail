@@ -571,7 +571,7 @@ class calendar_ui
       html::label(array('for' => 'event-export-calendar', 'class' => 'col-sm-4 col-form-label'), $this->cal->gettext('calendar'))
         . html::div('col-sm-8', $this->calendar_select(array('name' => 'calendar', 'id' => 'event-export-calendar', 'class' => 'form-control custom-select'))));
 
-    $select = new html_select(array('name' => 'range', 'id' => 'event-export-range', 'class' => 'form-control custom-select'));
+    $select = new html_select(array('name' => 'range', 'id' => 'event-export-range', 'class' => 'form-control custom-select rounded-right'));
     $select->add(array(
         $this->cal->gettext('all'),
         $this->cal->gettext('onemonthback'),
@@ -583,11 +583,11 @@ class calendar_ui
       ),
       array(0,'1','2','3','6','12','custom'));
 
-    $startdate = new html_inputfield(array('name' => 'start', 'size' => 11, 'id' => 'event-export-startdate'));
+    $startdate = new html_inputfield(array('name' => 'start', 'size' => 11, 'id' => 'event-export-startdate', 'style' => 'display:none'));
 
     $html .= html::div('form-section form-group row',
       html::label(array('for' => 'event-export-range', 'class' => 'col-sm-4 col-form-label'), $this->cal->gettext('exportrange'))
-        . html::div('col-sm-8', $select->show(0) . html::span(array('style'=>'display:none'), $startdate->show())));
+        . html::div('col-sm-8 input-group', $select->show(0) . $startdate->show()));
 
     $checkbox = new html_checkbox(array('name' => 'attachments', 'id' => 'event-export-attachments', 'value' => 1, 'class' => 'form-check-input pretty-checkbox'));
     $html .= html::div('form-section form-check row',
