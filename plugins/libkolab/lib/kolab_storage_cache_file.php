@@ -24,6 +24,7 @@
 class kolab_storage_cache_file extends kolab_storage_cache
 {
     protected $extra_cols = array('filename');
+    protected $data_props = array('type', 'size', 'filename', 'fileid');
 
     /**
      * Helper method to convert the given Kolab object into a dataset to be written to cache
@@ -32,13 +33,45 @@ class kolab_storage_cache_file extends kolab_storage_cache
      */
     protected function _serialize($object)
     {
-        $sql_data = parent::_serialize($object);
-
         if (!empty($object['_attachments'])) {
             reset($object['_attachments']);
-            $sql_data['filename'] = $object['_attachments'][key($object['_attachments'])]['name'];
+
+            $file = $object['_attachments'][key($object['_attachments'])];
+
+            $object['type']   = $file['mimetype'];
+            $object['size']   = $file['size'];
+            $object['fileid'] = $file['id'];
+        }
+
+        $sql_data = parent::_serialize($object);
+
+        if (!empty($file)) {
+            $sql_data['filename'] = $file['name'];
         }
 
         return $sql_data;
+    }
+
+    /**
+     * Helper method to turn stored cache data into a valid storage object
+     *
+     * @override
+     */
+    protected function _unserialize($sql_arr)
+    {
+        $object = parent::_unserialize($sql_arr);
+
+        if ($object && $sql_arr['fast-mode']) {
+            if (!empty($object['_attachments'])) {
+                $file = $object['_attachments'][key($object['_attachments'])];
+
+                $object['type']     = $file['mimetype'];
+                $object['size']     = $file['size'];
+                $object['fileid']   = $file['id'];
+                $object['filename'] = $file['name'];
+            }
+        }
+
+        return $object;
     }
 }

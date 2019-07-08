@@ -281,12 +281,14 @@ class kolab_storage_folder extends kolab_storage_folder_api
     /**
      * Select Kolab objects matching the given query
      *
-     * @param mixed Pseudo-SQL query as list of filter parameter triplets
-     *    or string with object type (e.g. contact, event, todo, journal, note, configuration)
+     * @param mixed   Pseudo-SQL query as list of filter parameter triplets
+     *                or string with object type (e.g. contact, event, todo, journal, note, configuration)
+     * @param boolean Use fast mode to fetch only minimal set of information
+     *                (no xml fetching and parsing, etc.)
      *
      * @return array List of Kolab data objects (each represented as hash array)
      */
-    public function select($query = array())
+    public function select($query = array(), $fast = false)
     {
         if (!$this->valid) {
             return array();
@@ -296,7 +298,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
         $this->cache->synchronize();
 
         // fetch objects from cache
-        return $this->cache->select($this->_prepare_query($query));
+        return $this->cache->select($this->_prepare_query($query), false, $fast);
     }
 
     /**
@@ -419,6 +421,8 @@ class kolab_storage_folder extends kolab_storage_folder_api
             }
             else {
                 // return message part from IMAP directly
+                // TODO: We could improve performance if we cache part's encoding
+                //       without 3rd argument get_message_part() will request BODYSTRUCTURE from IMAP
                 return $this->imap->get_message_part($msguid, $part, null, $print, $fp, $skip_charset_conv);
             }
         }
@@ -486,8 +490,9 @@ class kolab_storage_folder extends kolab_storage_folder_api
         $content_type = kolab_format::KTYPE_PREFIX . $object_type;
 
         // check object type header and abort on mismatch
-        if ($type != '*' && $object_type != $type)
+        if ($type != '*' && strpos($object_type, $type) !== 0 && !($object_type == 'distribution-list' && $type == 'contact')) {
             return false;
+        }
 
         $attachments = array();
 
@@ -557,6 +562,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
             $object['_msguid']    = $msguid;
             $object['_mailbox']   = $this->name;
             $object['_formatobj'] = $format;
+            $object['_size']      = strlen($xml);
 
             return $object;
         }

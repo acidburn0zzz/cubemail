@@ -46,8 +46,8 @@ class kolab_storage_cache
     protected $folders_table;
     protected $max_sql_packet;
     protected $max_sync_lock_time = 600;
-    protected $binary_items = array();
     protected $extra_cols = array();
+    protected $data_props = array();
     protected $order_by = null;
     protected $limit = null;
     protected $error = 0;
@@ -201,7 +201,7 @@ class kolab_storage_cache
                   $this->metadata['changed'] < date(self::DB_DATE_FORMAT, time() - $this->cache_refresh) ||
                   $this->metadata['ctag'] != $this->folder->get_ctag() ||
                   intval($this->metadata['objectcount']) !== $this->count()
-                ) {
+            ) {
                 // lock synchronization for this folder or wait if locked
                 $this->_sync_lock();
 
@@ -242,7 +242,9 @@ class kolab_storage_cache
                     // fetch new objects from imap
                     $i = 0;
                     foreach (array_diff($imap_index, $old_index) as $msguid) {
-                        if ($object = $this->folder->read_object($msguid, '*')) {
+                        // Note: We'll store only objects matching the folder type
+                        // anything else will be silently ignored
+                        if ($object = $this->folder->read_object($msguid)) {
                             // Deduplication: remove older objects with the same UID
                             // Here we do not resolve conflicts, we just make sure
                             // the most recent version of the object will be used
@@ -447,7 +449,7 @@ class kolab_storage_cache
             $sql_data['uid']       = $object['uid'];
 
             $args = array();
-            $cols = array('folder_id', 'msguid', 'uid', 'changed', 'data', 'xml', 'tags', 'words');
+            $cols = array('folder_id', 'msguid', 'uid', 'changed', 'data', 'tags', 'words');
             $cols = array_merge($cols, $this->extra_cols);
 
             foreach ($cols as $idx => $col) {
@@ -585,9 +587,12 @@ class kolab_storage_cache
      * @param array Pseudo-SQL query as list of filter parameter triplets
      *   triplet: array('<colname>', '<comparator>', '<value>')
      * @param boolean Set true to only return UIDs instead of complete objects
+     * @param boolean Use fast mode to fetch only minimal set of information
+     *                (no xml fetching and parsing, etc.)
+     *
      * @return array List of Kolab data objects (each represented as hash array) or UIDs
      */
-    public function select($query = array(), $uids = false)
+    public function select($query = array(), $uids = false, $fast = false)
     {
         $result = $uids ? array() : new kolab_storage_dataset($this);
 
@@ -621,6 +626,9 @@ class kolab_storage_cache
             }
 
             while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
+                if ($fast) {
+                    $sql_arr['fast-mode'] = true;
+                }
                 if ($uids) {
                     $this->uid2msg[$sql_arr['uid']] = $sql_arr['_msguid'];
                     $result[] = $sql_arr['uid'];
@@ -678,7 +686,6 @@ class kolab_storage_cache
 
         return $result;
     }
-
 
     /**
      * Get number of objects mathing the given query
@@ -851,43 +858,36 @@ class kolab_storage_cache
      */
     protected function _serialize($object)
     {
-        $sql_data = array('changed' => null, 'xml' => '', 'tags' => '', 'words' => '');
+        $data     = array();
+        $sql_data = array('changed' => null, 'tags' => '', 'words' => '');
 
         if ($object['changed']) {
             $sql_data['changed'] = date(self::DB_DATE_FORMAT, is_object($object['changed']) ? $object['changed']->format('U') : $object['changed']);
         }
 
         if ($object['_formatobj']) {
-            $sql_data['xml']   = preg_replace('!(</?[a-z0-9:-]+>)[\n\r\t\s]+!ms', '$1', (string)$object['_formatobj']->write(3.0));
+            $xml = (string) $object['_formatobj']->write(3.0);
+
+            $data['_size']     = strlen($xml);
             $sql_data['tags']  = ' ' . join(' ', $object['_formatobj']->get_tags()) . ' ';  // pad with spaces for strict/prefix search
             $sql_data['words'] = ' ' . join(' ', $object['_formatobj']->get_words()) . ' ';
         }
 
-        // extract object data
-        $data = array();
-        foreach ($object as $key => $val) {
-            // skip empty properties
-            if ($val === "" || $val === null) {
-                continue;
-            }
-            // mark binary data to be extracted from xml on unserialize()
-            if (isset($this->binary_items[$key])) {
-                $data[$key] = true;
-            }
-            else if ($key[0] != '_') {
-                $data[$key] = $val;
-            }
-            else if ($key == '_attachments') {
-                foreach ($val as $k => $att) {
-                    unset($att['content'], $att['path']);
-                    if ($att['id'])
-                        $data[$key][$k] = $att;
+        // Store only minimal set of object properties
+        foreach ($this->data_props as $prop) {
+            if (isset($object[$prop])) {
+                $data[$prop] = $object[$prop];
+                if ($data[$prop] instanceof DateTime) {
+                    $data[$prop] = array(
+                        'cl' => 'DateTime',
+                        'dt' => $data[$prop]->format('Y-m-d H:i:s'),
+                        'tz' => $data[$prop]->getTimezone()->getName(),
+                    );
                 }
             }
         }
 
-        // use base64 encoding (Bug #1912, #2662)
-        $sql_data['data'] = base64_encode(serialize($data));
+        $sql_data['data'] = json_encode(rcube_charset::clean($data));
 
         return $sql_data;
     }
@@ -897,44 +897,38 @@ class kolab_storage_cache
      */
     protected function _unserialize($sql_arr)
     {
-        // check if data is a base64-encoded string, for backward compat.
-        if (strpos(substr($sql_arr['data'], 0, 64), ':') === false) {
-            $sql_arr['data'] = base64_decode($sql_arr['data']);
-        }
+        if ($sql_arr['fast-mode'] && !empty($sql_arr['data']) && ($object = json_decode($sql_arr['data'], true))) {
+            $object['uid'] = $sql_arr['uid'];
 
-        $object = unserialize($sql_arr['data']);
-
-        // de-serialization failed
-        if ($object === false) {
-            rcube::raise_error(array(
-                'code' => 900, 'type' => 'php',
-                'message' => "Malformed data for {$this->resource_uri}/{$sql_arr['msguid']} object."
-            ), true);
-
-            return null;
-        }
-
-        // decode binary properties
-        foreach ($this->binary_items as $key => $regexp) {
-            if (!empty($object[$key]) && preg_match($regexp, $sql_arr['xml'], $m)) {
-                $object[$key] = base64_decode($m[1]);
+            foreach ($this->data_props as $prop) {
+                if (isset($object[$prop]) && is_array($object[$prop]) && $object[$prop]['cl'] == 'DateTime') {
+                    $object[$prop] = new DateTime($object[$prop]['dt'], new DateTimeZone($object[$prop]['tz']));
+                }
+                else if (!isset($object[$prop]) && isset($sql_arr[$prop])) {
+                    $object[$prop] = $sql_arr[$prop];
+                }
             }
+
+            if ($sql_arr['created'] && empty($object['created'])) {
+                $object['created'] = new DateTime($sql_arr['created']);
+            }
+
+            if ($sql_arr['changed'] && empty($object['changed'])) {
+                $object['changed'] = new DateTime($sql_arr['changed']);
+            }
+
+            $object['_type']     = $sql_arr['type'] ?: $this->folder->type;
+            $object['_msguid']   = $sql_arr['msguid'];
+            $object['_mailbox']  = $this->folder->name;
         }
-
-        $object_type = $sql_arr['type'] ?: $this->folder->type;
-        $format_type = $this->folder->type == 'configuration' ? 'configuration' : $object_type;
-
-        // add meta data
-        $object['_type']      = $object_type;
-        $object['_msguid']    = $sql_arr['msguid'];
-        $object['_mailbox']   = $this->folder->name;
-        $object['_size']      = strlen($sql_arr['xml']);
-        $object['_formatobj'] = kolab_format::factory($format_type, 3.0, $sql_arr['xml']);
-
-        // Fix old broken objects with missing creation date
-        if (empty($object['created']) && method_exists($object['_formatobj'], 'to_array')) {
-            $new_object        = $object['_formatobj']->to_array();
-            $object['created'] = $new_object['created'];
+        // Fetch object xml
+        else {
+            // FIXME: Because old cache solution allowed storing objects that
+            // do not match folder type we may end up with invalid objects.
+            // 2nd argument of read_object() here makes sure they are still
+            // usable. However, not allowing them here might be also an intended
+            // solution in future.
+            $object = $this->folder->read_object($sql_arr['msguid'], '*');
         }
 
         return $object;
@@ -951,36 +945,38 @@ class kolab_storage_cache
         static $buffer = '';
 
         $line = '';
+        $cols = array('folder_id', 'msguid', 'uid', 'created', 'changed', 'data', 'tags', 'words');
+        if ($this->extra_cols) {
+            $cols = array_merge($cols, $this->extra_cols);
+        }
+
         if ($object) {
             $sql_data = $this->_serialize($object);
 
-            // Skip multifolder insert for Oracle, we can't put long data inline
-            if ($this->db->db_provider == 'oracle') {
-                $extra_cols = '';
-                if ($this->extra_cols) {
-                    $extra_cols = array_map(function($n) { return "`{$n}`"; }, $this->extra_cols);
-                    $extra_cols = ', ' . join(', ', $extra_cols);
-                    $extra_args = str_repeat(', ?', count($this->extra_cols));
-                }
-
+            // Skip multi-folder insert for all databases but MySQL
+            // In Oracle we can't put long data inline, others we don't support yet
+            if (strpos($this->db->db_provider, 'mysql') !== 0) {
+                $extra_args = array();
                 $params = array($this->folder_id, $msguid, $object['uid'], $sql_data['changed'],
-                    $sql_data['data'], $sql_data['xml'], $sql_data['tags'], $sql_data['words']);
+                    $sql_data['data'], $sql_data['tags'], $sql_data['words']);
 
                 foreach ($this->extra_cols as $col) {
                     $params[] = $sql_data[$col];
+                    $extra_args[] = '?';
                 }
 
+                $cols = implode(', ', array_map(function($n) { return "`{$n}`"; }, $cols));
+                $extra_args = count($extra_args) ? ', ' . implode(', ', $extra_args) : '';
+
                 $result = $this->db->query(
-                    "INSERT INTO `{$this->cache_table}` "
-                    . " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `xml`, `tags`, `words` $extra_cols)"
-                    . " VALUES (?, ?, ?, " . $this->db->now() . ", ?, ?, ?, ?, ? $extra_args)",
+                    "INSERT INTO `{$this->cache_table}` ($cols)"
+                    . " VALUES (?, ?, ?, " . $this->db->now() . ", ?, ?, ?, ?$extra_args)",
                     $params
                 );
 
                 if (!$this->db->affected_rows($result)) {
                     rcube::raise_error(array(
-                        'code' => 900, 'type' => 'php',
-                        'message' => "Failed to write to kolab cache"
+                        'code' => 900, 'message' => "Failed to write to kolab cache"
                     ), true);
                 }
 
@@ -994,7 +990,6 @@ class kolab_storage_cache
                 $this->db->now(),
                 $this->db->quote($sql_data['changed']),
                 $this->db->quote($sql_data['data']),
-                $this->db->quote($sql_data['xml']),
                 $this->db->quote($sql_data['tags']),
                 $this->db->quote($sql_data['words']),
             );
@@ -1005,22 +1000,17 @@ class kolab_storage_cache
         }
 
         if ($buffer && (!$msguid || (strlen($buffer) + strlen($line) > $this->max_sql_packet()))) {
-            $extra_cols = '';
-            if ($this->extra_cols) {
-                $extra_cols = array_map(function($n) { return "`{$n}`"; }, $this->extra_cols);
-                $extra_cols = ', ' . join(', ', $extra_cols);
-            }
+            $columns = implode(', ', array_map(function($n) { return "`{$n}`"; }, $cols));
+            $update  = implode(', ', array_map(function($i) { return "`{$i}` = VALUES(`{$i}`)"; }, array_slice($cols, 2)));
 
             $result = $this->db->query(
-                "INSERT INTO `{$this->cache_table}` ".
-                " (`folder_id`, `msguid`, `uid`, `created`, `changed`, `data`, `xml`, `tags`, `words` $extra_cols)".
-                " VALUES $buffer"
+                "INSERT INTO `{$this->cache_table}` ($columns) VALUES $buffer"
+                . " ON DUPLICATE KEY UPDATE $update"
             );
 
             if (!$this->db->affected_rows($result)) {
                 rcube::raise_error(array(
-                    'code' => 900, 'type' => 'php',
-                    'message' => "Failed to write to kolab cache"
+                    'code' => 900, 'message' => "Failed to write to kolab cache"
                 ), true);
             }
 
@@ -1190,7 +1180,7 @@ class kolab_storage_cache
     }
 
     /**
-     * Set Roundcube storage options and bypass messages cache.
+     * Set Roundcube storage options and bypass messages/indexes cache.
      *
      * We use skip_deleted and threading settings specific to Kolab,
      * we have to change these global settings only temporarily.
@@ -1245,17 +1235,18 @@ class kolab_storage_cache
 
             switch ($cache_bypass) {
                 case 2:
-                    // Disable messages cache completely
+                    // Disable messages and index cache completely
                     $this->imap->set_messages_caching(!$force);
                     break;
 
+                case 3:
                 case 1:
-                    // We'll disable messages cache, but keep index cache.
+                    // We'll disable messages cache, but keep index cache (1) or vice-versa (3)
                     // Default mode is both (MODE_INDEX | MODE_MESSAGE)
-                    $mode = rcube_imap_cache::MODE_INDEX;
+                    $mode = $cache_bypass == 3 ? rcube_imap_cache::MODE_MESSAGE : rcube_imap_cache::MODE_INDEX;
 
                     if (!$force) {
-                        $mode |= rcube_imap_cache::MODE_MESSAGE;
+                        $mode |= $cache_bypass == 3 ? rcube_imap_cache::MODE_INDEX : rcube_imap_cache::MODE_MESSAGE;
                     }
 
                     $this->imap->set_messages_caching(true, $mode);

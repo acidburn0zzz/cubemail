@@ -131,7 +131,7 @@ class kolab_storage_config
                 $folder->set_order_and_limit(null, $limit);
             }
 
-            foreach ($folder->select($filter) as $object) {
+            foreach ($folder->select($filter, true) as $object) {
                 unset($object['_formatobj']);
                 $list[] = $object;
             }
