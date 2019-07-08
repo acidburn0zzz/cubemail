@@ -1,4 +1,5 @@
--- remove xml column
+-- remove xml column, and change data format (clear cache needed)
+DELETE FROM "kolab_folders";
 ALTER TABLE "kolab_cache_contact" DROP COLUMN "xml";
 ALTER TABLE "kolab_cache_event" DROP COLUMN "xml";
 ALTER TABLE "kolab_cache_task" DROP COLUMN "xml";
