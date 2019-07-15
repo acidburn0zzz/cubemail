@@ -770,9 +770,13 @@ function rcube_kolab_notes_ui(settings)
             is_html = false;
 
         // tag-edit line
+        var tagline = $('.tagline', titlecontainer);
         if (window.kolab_tags_input) {
-            $('.tagline', titlecontainer).parent('.form-group').show();
-            taglist = kolab_tags_input($('.tagline', titlecontainer), data.tags, readonly);
+            tagline.parent('.form-group').show();
+            taglist = kolab_tags_input(tagline, data.tags, readonly);
+        }
+        else {
+            tagline.parent('.form-group').hide();
         }
 
         $('.notetitle', titlecontainer).val(data.title).prop('disabled', readonly).show();

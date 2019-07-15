@@ -2398,8 +2398,8 @@ function rcube_tasklist_ui(settings)
     function task_edit_dialog(id, action, presets)
     {
         var elastic = false, infodialog = $('#taskshow');
-        if (infodialog.data('nodialog') || $('#taskedit').data('nodialog')) {
 
+        if (infodialog.data('nodialog') || $('#taskedit').data('nodialog')) {
             elastic = true;
             infodialog.addClass('hidden').parent().addClass('watermark'); // Elastic
         }
@@ -2479,9 +2479,13 @@ function rcube_tasklist_ui(settings)
         tasklist.val(rec.list || me.selected_list || selected_list);
 
         // tag-edit line
+        var tagline = $('#taskedit-tagline');
         if (window.kolab_tags_input) {
-            $('#taskedit-tagline').parent('.form-group').show();
-            taglist = kolab_tags_input($('#taskedit-tagline'), rec.tags, readonly);
+            tagline.parent().show();
+            taglist = kolab_tags_input(tagline, rec.tags, readonly);
+        }
+        else {
+            tagline.parent().hide();
         }
 
         // set alarm(s)
