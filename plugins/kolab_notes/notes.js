@@ -792,7 +792,7 @@ function rcube_kolab_notes_ui(settings)
                     .addClass('message eml')
                     .append($('<a>')
                         .attr('href', link.mailurl)
-                        .addClass('messagelink')
+                        .addClass('messagelink filename')
                         .text(link.subject || link.uri)
                     )
                     .appendTo(attachmentslist);

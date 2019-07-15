@@ -1106,7 +1106,7 @@ function rcube_libcalendaring(settings)
     // Render message reference links to the given container
     this.render_message_links = function(links, container, edit, plugin)
     {
-        var ul = $('<ul>').addClass('attachmentslist');
+        var ul = $('<ul>').addClass('attachmentslist linkslist');
 
         $.each(links, function(i, link) {
             if (!link.mailurl)
@@ -1115,7 +1115,7 @@ function rcube_libcalendaring(settings)
             var li = $('<li>').addClass('link')
                 .addClass('message eml')
                 .append($('<a>')
-                    .attr({href: link.mailurl, 'class': 'messagelink'})
+                    .attr({href: link.mailurl, 'class': 'messagelink filename'})
                     .text(link.subject || link.uri)
                 )
                 .appendTo(ul);

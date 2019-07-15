@@ -416,6 +416,28 @@ button.btn {
     color: @color-black-shade-text;
 }
 
+.linkslist {
+    // Reset .attachmentslist style
+    border: 0 !important;
+    background: transparent !important;
+
+    li.link {
+        padding: 0;
+
+        &.message.eml:before {
+            content: @fa-var-envelope;
+        }
+
+        a.messagelink {
+            .overflow-ellipsis;
+        }
+
+        a.delete .inner {
+            display: none;
+        }
+    }
+}
+
 .print-config {
     position: fixed;
     top: 0;
