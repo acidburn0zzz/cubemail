@@ -79,7 +79,7 @@ class kolab_delegation_engine
 
         // add delegate to the list
         $list[] = $dn;
-        $list   = array_map(array('kolab_auth_ldap', 'dn_decode'), $list);
+        $list   = array_map(array('kolab_ldap', 'dn_decode'), $list);
 
         // update user record
         $result = $this->user_update_delegates($list);
@@ -149,7 +149,7 @@ class kolab_delegation_engine
         // remove delegate from the list
         unset($list[$dn]);
         $list = array_keys($list);
-        $list = array_map(array('kolab_auth_ldap', 'dn_decode'), $list);
+        $list = array_map(array('kolab_ldap', 'dn_decode'), $list);
         $user[$this->ldap_delegate_field] = $list;
 
         // update user record
@@ -181,7 +181,7 @@ class kolab_delegation_engine
             }
 
             // Get delegate
-            $user = $ldap->get_record(kolab_auth_ldap::dn_decode($dn));
+            $user = $ldap->get_record(kolab_ldap::dn_decode($dn));
 
             if (empty($user)) {
                 return array();
@@ -230,27 +230,9 @@ class kolab_delegation_engine
             return $this->ldap;
         }
 
-        if ($addressbook = $this->rc->config->get('kolab_delegation_addressbook')) {
-            if (!is_array($addressbook)) {
-                $ldap_config = (array) $this->rc->config->get('ldap_public');
-                $addressbook = $ldap_config[$addressbook];
-            }
+        $this->ldap = kolab_storage::ldap('kolab_delegation_addressbook');
 
-            if (!empty($addressbook)) {
-                require_once __DIR__ . '/../kolab_auth/kolab_auth_ldap.php';
-
-                $ldap = new kolab_auth_ldap($addressbook);
-            }
-        }
-
-        // Fallback to kolab_auth plugin's addressbook
-        if (!$ldap) {
-            $ldap = kolab_auth::ldap();
-        }
-
-        $this->ldap = $ldap;
-
-        if (!$ldap || !$ldap->ready) {
+        if (!$this->ldap || !$this->ldap->ready) {
             return null;
         }
 
@@ -270,10 +252,10 @@ class kolab_delegation_engine
         // Name of the LDAP field with organization name for identities
         $this->ldap_org_field = $this->rc->config->get('kolab_delegation_organization_field', $this->rc->config->get('kolab_auth_organization'));
 
-        $ldap->set_filter($this->ldap_filter);
-        $ldap->extend_fieldmap(array($this->ldap_delegate_field => $this->ldap_delegate_field));
+        $this->ldap->set_filter($this->ldap_filter);
+        $this->ldap->extend_fieldmap(array($this->ldap_delegate_field => $this->ldap_delegate_field));
 
-        return $ldap;
+        return $this->ldap;
     }
 
     /**
@@ -540,7 +522,7 @@ class kolab_delegation_engine
         }
 
         return array(
-            'ID'       => kolab_auth_ldap::dn_encode($dn),
+            'ID'       => kolab_ldap::dn_encode($dn),
             'uid'      => $uid,
             'name'     => $name,
             'realname' => $realname,

@@ -48,10 +48,10 @@ class kolab_storage
     private static $subscriptions;
     private static $ldapcache = array();
     private static $typedata = array();
+    private static $ldap = array();
     private static $states;
     private static $config;
     private static $imap;
-    private static $ldap;
 
 
     // Default folder names
@@ -96,7 +96,7 @@ class kolab_storage
                 'message' => "required kolabformat module not found"
             ), true);
         }
-        else {
+        else if (self::$imap->get_error_code()) {
             rcube::raise_error(array(
                 'code' => 900, 'type' => 'php', 'message' => "IMAP error"
             ), true);
@@ -116,16 +116,23 @@ class kolab_storage
 
     /**
      * Initializes LDAP object to resolve Kolab users
+     *
+     * @param string $name Name of the configuration option with LDAP config
      */
-    public static function ldap()
+    public static function ldap($name = 'kolab_users_directory')
     {
-        if (self::$ldap) {
-            return self::$ldap;
-        }
-
         self::setup();
 
-        $config = self::$config->get('kolab_users_directory', self::$config->get('kolab_auth_addressbook'));
+        $config = self::$config->get($name);
+
+        if (empty($config)) {
+            $name   = 'kolab_auth_addressbook';
+            $config = self::$config->get($name);
+        }
+
+        if (self::$ldap[$name]) {
+            return self::$ldap[$name];
+        }
 
         if (!is_array($config)) {
             $ldap_config = (array)self::$config->get('ldap_public');
@@ -136,17 +143,21 @@ class kolab_storage
             return null;
         }
 
+        $ldap = new kolab_ldap($config);
+
         // overwrite filter option
         if ($filter = self::$config->get('kolab_users_filter')) {
             self::$config->set('kolab_auth_filter', $filter);
         }
 
-        // re-use the LDAP wrapper class from kolab_auth plugin
-        require_once rtrim(RCUBE_PLUGINS_DIR, '/') . '/kolab_auth/kolab_auth_ldap.php';
+        $user_attrib = self::$config->get('kolab_users_id_attrib', self::$config->get('kolab_auth_login', 'mail'));
 
-        self::$ldap = new kolab_auth_ldap($config);
+        //$ldap->set_filter($this->ldap_filter);
+        $ldap->extend_fieldmap(array($user_attrib => $user_attrib));
 
-        return self::$ldap;
+        self::$ldap[$name] = $ldap;
+
+        return $ldap;
     }
 
     /**
@@ -1485,6 +1496,7 @@ class kolab_storage
     }
 
     /**
+     * Search users in Kolab LDAP storage
      *
      * @param mixed   $query    Search value (or array of field => value pairs)
      * @param int     $mode     Matching mode: 0 - partial (*abc*), 1 - strict (=), 2 - prefix (abc*)
@@ -1492,19 +1504,23 @@ class kolab_storage
      * @param int     $limit    Maximum number of records
      * @param int     $count    Returns the number of records found
      *
-     * @return array List or false on error
+     * @return array List of users
      */
     public static function search_users($query, $mode = 1, $required = array(), $limit = 0, &$count = 0)
     {
         $query = str_replace('*', '', $query);
 
         // requires a working LDAP setup
-        if (!self::ldap() || strlen($query) == 0) {
+        if (!strlen($query) || !($ldap = self::ldap())) {
             return array();
         }
 
+        $root          = self::namespace_root('other');
+        $user_attrib   = self::$config->get('kolab_users_id_attrib', self::$config->get('kolab_auth_login', 'mail'));
+        $search_attrib = self::$config->get('kolab_users_search_attrib', array('cn','mail','alias'));
+
         // search users using the configured attributes
-        $results = self::$ldap->dosearch(self::$config->get('kolab_users_search_attrib', array('cn','mail','alias')), $query, $mode, $required, $limit, $count);
+        $results = $ldap->dosearch($search_attrib, $query, $mode, $required, $limit, $count);
 
         // exclude myself
         if ($_SESSION['kolab_dn']) {
@@ -1512,9 +1528,6 @@ class kolab_storage
         }
 
         // resolve to IMAP folder name
-        $root = self::namespace_root('other');
-        $user_attrib = self::$config->get('kolab_users_id_attrib', self::$config->get('kolab_auth_login', 'mail'));
-
         array_walk($results, function(&$user, $dn) use ($root, $user_attrib) {
             list($localpart, ) = explode('@', $user[$user_attrib]);
             $user['kolabtargetfolder'] = $root . $localpart;
@@ -1652,7 +1665,6 @@ class kolab_storage
 
     /**
      * Get user attributes for specified other user (imap) folder identifier.
-     * Note: This uses LDAP config/code from kolab_auth.
      *
      * @param string $folder_id Folder name w/o path (imap user identifier)
      * @param bool   $as_string Return configured display name attribute value
@@ -1692,7 +1704,7 @@ class kolab_storage
             $user = $cache->get($token);
         }
 
-        if (empty($user) && ($ldap = kolab_storage::ldap())) {
+        if (empty($user) && ($ldap = self::ldap())) {
             $user = $ldap->get_user_record($token, $_SESSION['imap_host']);
 
             if (!empty($user)) {

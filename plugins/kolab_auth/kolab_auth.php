@@ -39,6 +39,7 @@ class kolab_auth extends rcube_plugin
         $rcmail = rcube::get_instance();
 
         $this->load_config();
+        $this->require_plugin('libkolab');
 
         $this->add_hook('authenticate', array($this, 'authenticate'));
         $this->add_hook('startup', array($this, 'startup'));
@@ -796,27 +797,11 @@ class kolab_auth extends rcube_plugin
      */
     public static function ldap()
     {
+        self::$ldap = kolab_storage::ldap('kolab_auth_addressbook');
+
         if (self::$ldap) {
-            return self::$ldap;
+            self::$ldap->extend_fieldmap(array('uniqueid' => 'nsuniqueid'));
         }
-
-        $rcmail      = rcube::get_instance();
-        $addressbook = $rcmail->config->get('kolab_auth_addressbook');
-
-        if (!is_array($addressbook)) {
-            $ldap_config = (array)$rcmail->config->get('ldap_public');
-            $addressbook = $ldap_config[$addressbook];
-        }
-
-        if (empty($addressbook)) {
-            return null;
-        }
-
-        $addressbook['fieldmap']['uniqueid'] = 'nsuniqueid';
-
-        require_once __DIR__ . '/kolab_auth_ldap.php';
-
-        self::$ldap = new kolab_auth_ldap($addressbook);
 
         return self::$ldap;
     }
@@ -834,7 +819,7 @@ class kolab_auth extends rcube_plugin
 
     /**
      * Parses LDAP DN string with replacing supported variables.
-     * See kolab_auth_ldap::parse_vars()
+     * See kolab_ldap::parse_vars()
      *
      * @param string $str LDAP DN string
      *

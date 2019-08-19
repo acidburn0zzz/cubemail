@@ -1,12 +1,11 @@
 <?php
 
 /**
- * Kolab Authentication
+ * Kolab Authentication and User Base
  *
- * @version @package_version@
  * @author Aleksander Machniak <machniak@kolabsys.com>
  *
- * Copyright (C) 2011-2013, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2011-2019, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,10 +24,11 @@
 /**
  * Wrapper class for rcube_ldap_generic
  */
-class kolab_auth_ldap extends rcube_ldap_generic
+class kolab_ldap extends rcube_ldap_generic
 {
     private $conf     = array();
     private $fieldmap = array();
+    private $rcache;
 
 
     function __construct($p)
@@ -43,6 +43,11 @@ class kolab_auth_ldap extends rcube_ldap_generic
 
         $p['attributes'] = array_values($this->fieldmap);
         $p['debug']      = (bool) $rcmail->config->get('ldap_debug');
+
+        if ($cache_type = $rcmail->config->get('ldap_cache', 'db')) {
+            $cache_ttl   = $rcmail->config->get('ldap_cache_ttl', '10m');
+            $this->cache = $rcmail->get_cache('LDAP.kolab_cache', $cache_type, $cache_ttl);
+        }
 
         // Connect to the server (with bind)
         parent::__construct($p);
@@ -65,19 +70,145 @@ class kolab_auth_ldap extends rcube_ldap_generic
                 continue;
             }
 
-            $bind_pass = $this->config['bind_pass'];
-            $bind_user = $this->config['bind_user'];
-            $bind_dn   = $this->config['bind_dn'];
+            $bind_pass      = $this->config['bind_pass'];
+            $bind_user      = $this->config['bind_user'];
+            $bind_dn        = $this->config['bind_dn'];
+            $base_dn        = $this->config['base_dn'];
+            $groups_base_dn = $this->config['groups']['base_dn'] ?: $base_dn;
+
+            // User specific access, generate the proper values to use.
+            if ($this->config['user_specific']) {
+                $rcube = rcube::get_instance();
+
+                // No password set, use the session password
+                if (empty($bind_pass)) {
+                    $bind_pass = $rcube->get_user_password();
+                }
+
+                // Get the pieces needed for variable replacement.
+                if ($fu = ($rcube->get_user_email() ?: $this->config['username'])) {
+                    list($u, $d) = explode('@', $fu);
+                }
+                else {
+                    $d = $this->config['mail_domain'];
+                }
+
+                $dc = 'dc=' . strtr($d, array('.' => ',dc=')); // hierarchal domain string
+
+                // resolve $dc through LDAP
+                if (!empty($this->config['domain_filter']) && !empty($this->config['search_bind_dn'])) {
+                    $this->bind($this->config['search_bind_dn'], $this->config['search_bind_pw']);
+                    $dc = $this->domain_root_dn($d);
+                }
+
+                $replaces = array('%dn' => '', '%dc' => $dc, '%d' => $d, '%fu' => $fu, '%u' => $u);
+
+                // Search for the dn to use to authenticate
+                if ($this->config['search_base_dn'] && $this->config['search_filter']
+                    && (strstr($bind_dn, '%dn') || strstr($base_dn, '%dn') || strstr($groups_base_dn, '%dn'))
+                ) {
+                    $search_attribs = array('uid');
+                    if ($search_bind_attrib = (array) $this->config['search_bind_attrib']) {
+                        foreach ($search_bind_attrib as $r => $attr) {
+                            $search_attribs[] = $attr;
+                            $replaces[$r] = '';
+                        }
+                    }
+
+                    $search_bind_dn = strtr($this->config['search_bind_dn'], $replaces);
+                    $search_base_dn = strtr($this->config['search_base_dn'], $replaces);
+                    $search_filter  = strtr($this->config['search_filter'], $replaces);
+
+                    $cache_key = 'DN.' . md5("$host:$search_bind_dn:$search_base_dn:$search_filter:" . $this->config['search_bind_pw']);
+
+                    if ($this->cache && ($dn = $this->cache->get($cache_key))) {
+                        $replaces['%dn'] = $dn;
+                    }
+                    else {
+                        $ldap = $this;
+                        if (!empty($search_bind_dn) && !empty($this->config['search_bind_pw'])) {
+                            // To protect from "Critical extension is unavailable" error
+                            // we need to use a separate LDAP connection
+                            if (!empty($this->config['vlv'])) {
+                                $ldap = new rcube_ldap_generic($this->config);
+                                $ldap->config_set(array('cache' => $this->cache, 'debug' => $this->debug));
+                                if (!$ldap->connect($host)) {
+                                    continue;
+                                }
+                            }
+
+                            if (!$ldap->bind($search_bind_dn, $this->config['search_bind_pw'])) {
+                                continue;  // bind failed, try next host
+                            }
+                        }
+
+                        $res = $ldap->search($search_base_dn, $search_filter, 'sub', $search_attribs);
+                        if ($res) {
+                            $res->rewind();
+                            $replaces['%dn'] = key($res->entries(true));
+
+                            // add more replacements from 'search_bind_attrib' config
+                            if ($search_bind_attrib) {
+                                $res = $res->current();
+                                foreach ($search_bind_attrib as $r => $attr) {
+                                    $replaces[$r] = $res[$attr][0];
+                                }
+                            }
+                        }
+
+                        if ($ldap != $this) {
+                            $ldap->close();
+                        }
+                    }
+
+                    // DN not found
+                    if (empty($replaces['%dn'])) {
+                        if (!empty($this->config['search_dn_default']))
+                            $replaces['%dn'] = $this->config['search_dn_default'];
+                        else {
+                            rcube::raise_error(array(
+                                'code' => 100, 'type' => 'ldap',
+                                'file' => __FILE__, 'line' => __LINE__,
+                                'message' => "DN not found using LDAP search."), true);
+                            continue;
+                        }
+                    }
+
+                    if ($this->cache && !empty($replaces['%dn'])) {
+                        $this->cache->set($cache_key, $replaces['%dn']);
+                    }
+                }
+
+                // Replace the bind_dn and base_dn variables.
+                $bind_dn        = strtr($bind_dn, $replaces);
+                $base_dn        = strtr($base_dn, $replaces);
+                $groups_base_dn = strtr($groups_base_dn, $replaces);
+
+                // replace placeholders in filter settings
+                if (!empty($this->config['filter'])) {
+                    $this->config['filter'] = strtr($this->config['filter'], $replaces);
+                }
+
+                foreach (array('base_dn', 'filter', 'member_filter') as $k) {
+                    if (!empty($this->config['groups'][$k])) {
+                        $this->config['groups'][$k] = strtr($this->config['groups'][$k], $replaces);
+                    }
+                }
+
+                if (empty($bind_user)) {
+                    $bind_user = $u;
+                }
+            }
 
             if (empty($bind_pass)) {
                 $this->ready = true;
             }
             else {
-                if (!empty($bind_dn)) {
-                    $this->ready = $this->bind($bind_dn, $bind_pass);
+                if (!empty($this->config['auth_cid'])) {
+                    $this->ready = $this->sasl_bind($this->config['auth_cid'], $bind_pass, $bind_dn);
                 }
-                else if (!empty($this->config['auth_cid'])) {
-                    $this->ready = $this->sasl_bind($this->config['auth_cid'], $bind_pass, $bind_user);
+                else if (!empty($bind_dn)) {
+                    $this->ready = $this->bind($bind_dn, $bind_pass);
                 }
                 else {
                     $this->ready = $this->sasl_bind($bind_user, $bind_pass);
@@ -220,7 +351,7 @@ class kolab_auth_ldap extends rcube_ldap_generic
      * @param int     $limit    Number of records
      * @param int     $count    Returns the number of records found
      *
-     * @return array List or false on error
+     * @return array List of LDAP records found
      */
     function dosearch($fields, $value, $mode=1, $required = array(), $limit = 0, &$count = 0)
     {
