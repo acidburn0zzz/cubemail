@@ -49,9 +49,19 @@ a.button {
 .listing {
     li {
         & > div {
-            &.calendar .calname:before {
-                &:extend(.font-icon-class);
-                content: @fa-var-calendar-alt;
+            &.calendar {
+                .calname:before {
+                    &:extend(.font-icon-class);
+                    content: @fa-var-calendar-alt;
+                }
+
+                .actions {
+                    padding-right: .25rem;
+
+                    :last-child {
+                        margin-right: 0;
+                    }
+                }
             }
 
             &.calendar.cal---invitation--pending .calname:before,
@@ -67,10 +77,6 @@ a.button {
             &.calendar.cal---invitation--declined,
             &.calendar.cal-__bdays__ {
                 font-style: italic;
-
-                a.quickview {
-                    padding-right: .25rem;
-                }
 
                 a.calname {
                     padding-right: 2.5em;
