@@ -2286,7 +2286,7 @@ function kolab_files_ui()
         rcube_webmail.long_subject_title_ex(this);
       });
 
-    if (rcmail.env.contextmenu)
+    if (rcmail.task == 'files' && rcmail.env.contextmenu)
       list.on('contextmenu', function(e) {
         var elem = $(e.target).closest('li');
           id = rcmail.html_identifier_decode(elem.attr('id').replace(/^rcmli/, ''));
