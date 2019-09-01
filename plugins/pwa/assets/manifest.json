@@ -5,8 +5,9 @@
   "lang": "en-US",
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#2e3135",
-  "background_color": "#2e3135",
+  "theme_color": "#f4f4f4",
+  "background_color": "#ffffff",
+  "pinned_tab_color": "#37beff",
   "scope": "/",
   "icons": [
     {

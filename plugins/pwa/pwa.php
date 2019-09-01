@@ -76,7 +76,7 @@ class pwa extends rcube_plugin
             array(
                 'rel'   => 'mask-icon',
                 'href'  => $this->urlbase . 'assets/safari-pinned-tab.svg',
-                'color' => $config['theme_color'] ?: '#5bbad5',
+                'color' => $config['pinned_tab_color'] ?: $config['theme_color'],
             ),
         );
 
@@ -169,7 +169,7 @@ class pwa extends rcube_plugin
         $config   = array();
         $defaults = array(
             'tile_color'      => '#2d89ef',
-            'theme_color'     => '#2e3135',
+            'theme_color'     => '#f4f4f4',
         );
 
         if ($file = rcube::get_instance()->find_asset('plugins/pwa/assets/manifest.json')) {
