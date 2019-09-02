@@ -841,7 +841,7 @@ class kolab_calendar extends kolab_storage_folder_api
     $cleanup_fn = function(&$event) {
       unset($event['_savemode'], $event['_fromcalendar'], $event['_identity'], $event['_folder_id'],
         $event['calendar'], $event['className'], $event['recurrence_id'],
-        $event['_attachments'], $event['attachments'], $event['deleted_attachments']);
+        $event['attachments'], $event['deleted_attachments']);
     };
 
     $cleanup_fn($event);
