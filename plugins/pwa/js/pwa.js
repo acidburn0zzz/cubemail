@@ -25,18 +25,18 @@
  * for the JavaScript code in this file.
  */
 
-/* SERVICE WORKER - REQUIRED */
+// Service worker (required by Android/Chrome but not iOS/Safari)
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-    .register('?PWA=sw.js')
-    .then(function(reg) {
-        console.log("ServiceWorker registered", reg);
-    })
-    .catch(function(error) {
-        console.log("Failed to register ServiceWorker", error);
-    });
+    navigator.serviceWorker.register('?PWA=sw.js')
+        .then(function(reg) {
+            console.log("ServiceWorker registered", reg);
+        })
+        .catch(function(error) {
+            console.log("Failed to register ServiceWorker", error);
+        });
 }
 
+/*
 function registerOneTimeSync() {
     if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.ready.then(function(reg) {
@@ -58,8 +58,9 @@ function registerOneTimeSync() {
         console.log("No active ServiceWorker");
     }
 }
+*/
 
-/* OFFLINE BANNER */
+// Offline banner
 function updateOnlineStatus() {
     // FIXME fill in something that makes sense in roundcube
     // var d = document.body;
@@ -75,7 +76,8 @@ window.addEventListener('load', function() {
     window.addEventListener('offline', updateOnlineStatus);
 });
 
-/* CHANGE PAGE TITLE BASED ON PAGE VISIBILITY */
+/* TODO: Do we need this to anything useful?
+// Change page title depending on document visibility
 function handleVisibilityChange() {
     if (document.visibilityState == "hidden") {
         document.title = "Hey! Come back!";
@@ -86,8 +88,10 @@ function handleVisibilityChange() {
 
 var original_title = document.title;
 document.addEventListener('visibilitychange', handleVisibilityChange, false);
+*/
 
-/* NOTIFICATIONS */
+/* TODO: Do we need this to anything useful?
+// Notifications
 window.addEventListener('load', function () {
     // At first, let's check if we have permission for notification
     // If not, let's ask for it
@@ -99,3 +103,4 @@ window.addEventListener('load', function () {
         });
     }
 });
+*/

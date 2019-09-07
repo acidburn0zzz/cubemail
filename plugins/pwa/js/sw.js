@@ -68,7 +68,9 @@ self.addEventListener('fetch', function(event) {
     // Ignore non-get request like when accessing the admin panel
     // if (event.request.method !== 'GET') { return; }
     // Don't try to handle non-secure assets because fetch will fail
-    if (/http:/.test(event.request.url)) { return; }
+    if (/http:/.test(event.request.url)) {
+        return;
+    }
 
     // Here's where we cache all the things!
     event.respondWith(
@@ -91,10 +93,10 @@ self.addEventListener('fetch', function(event) {
 
 self.addEventListener('beforeinstallprompt', function(e) {
     e.userChoice.then(function(choiceResult) {
-        if(choiceResult.outcome == 'dismissed') {
-                alert('User cancelled home screen install');
+        if (choiceResult.outcome == 'dismissed') {
+            alert('User cancelled home screen install');
         } else {
-                alert('User added to home screen');
+            alert('User added to home screen');
         }
     });
 });

@@ -29,8 +29,8 @@ class pwa extends rcube_plugin
     /** @var string $version Plugin version */
     public static $version = '0.1';
 
-    /** @var array|null $config Plugin config (from manifest.json) */
-    private $config;
+    /** @var array $config Plugin config (from manifest.json) */
+    private static $config;
 
 
     /**
@@ -49,49 +49,54 @@ class pwa extends rcube_plugin
      */
     public function template_object_links($args)
     {
+        $rcube   = rcube::get_instance();
         $config  = $this->get_config();
         $content = '';
         $links   = array(
             array(
                 'rel'  => 'manifest',
-                'href' => $this->urlbase . 'assets/manifest.json',
+                'href' => '?PWA=manifest.json', //$this->urlbase . 'assets/manifest.json',
             ),
             array(
                 'rel'   => 'apple-touch-icon',
                 'sizes' => '180x180',
-                'href'  => $this->urlbase . 'assets/apple-touch-icon.png'
+                'href'  => 'apple-touch-icon.png'
             ),
             array(
                 'rel'   => 'icon',
                 'type'  => 'image/png',
                 'sizes' => '32x32',
-                'href'  => $this->urlbase . 'assets/favicon-32x32.png'
+                'href'  => 'favicon-32x32.png'
             ),
             array(
                 'rel'   => 'icon',
                 'type'  => 'image/png',
                 'sizes' => '16x16',
-                'href'  => $this->urlbase . 'assets/favicon-16x16.png'
+                'href'  => 'favicon-16x16.png'
             ),
             array(
                 'rel'   => 'mask-icon',
-                'href'  => $this->urlbase . 'assets/safari-pinned-tab.svg',
+                'href'  => 'safari-pinned-tab.svg',
                 'color' => $config['pinned_tab_color'] ?: $config['theme_color'],
             ),
         );
 
+        // Check if the skin contains /pwa directory
+        $root_url = $rcube->find_asset('skins/' . $config['skin'] . '/pwa') ?: ($this->urlbase . 'assets');
+
         foreach ($links as $link) {
+            if ($link['href'][0] != '?') {
+                $link['href'] = $root_url . '/' . $link['href'];
+            }
+
             $content .= html::tag('link', $link) . "\n";
         }
 
-        $args['content'] .= $content;
-
         // replace favicon.ico
-        $args['content'] = preg_replace(
-            '/(<link rel="shortcut icon" href=")([^"]+)/',
-            '\\1' . $this->urlbase . 'assets/favicon.ico',
-            $args['content']
-        );
+        $icon            = $root_url . '/favicon.ico';
+        $args['content'] = preg_replace('/(<link rel="shortcut icon" href=")([^"]+)/', '\\1' . $icon, $args['content']);
+
+        $args['content'] .= $content;
 
         return $args;
     }
@@ -131,10 +136,11 @@ class pwa extends rcube_plugin
         // as ?PWA=sw.js. This way we don't need to put it in Roundcube root
         // and we can set some javascript variables like cache version, etc.
         if ($_GET['PWA'] === 'sw.js') {
-            $rcube = rcube::get_instance();
-            $rcube->task = 'pwa';
-
+            $rcube         = rcube::get_instance();
+            $rcube->task   = 'pwa';
+            $rcube->action = 'sw.js';
             if ($file = $rcube->find_asset('plugins/pwa/js/sw.js')) {
+                // TODO: use caching headers?
                 header('Content-Type: application/javascript');
 
                 // TODO: What assets do we want to cache?
@@ -153,32 +159,143 @@ class pwa extends rcube_plugin
             header('HTTP/1.0 404 PWA plugin error');
             exit;
         }
+
+        // We genarate manifest.json file from skin/plugin config
+        if ($_GET['PWA'] === 'manifest.json') {
+            $rcube         = rcube::get_instance();
+            $rcube->task   = 'pwa';
+            $rcube->action = 'manifest.json';
+
+            // Read skin/plugin config
+            $config = self::get_config();
+
+            // HTTP scope
+            $scope = preg_replace('|/*\?.*$|', '', $_SERVER['REQUEST_URI']);
+            $scope = strlen($scope) ? $scope : '';
+
+            // Check if the skin contains /pwa directory
+            $root_url = $rcube->find_asset('skins/' . $config['skin'] . '/pwa') ?: ('plugins/pwa/assets');
+
+            // Manifest defaults
+            $defaults = array(
+                'name'              => null,
+                'short_name'        => $config['name'],
+                'description'       => 'Free and Open Source Webmail',
+                'lang'              => 'en-US',
+                'theme_color'       => null,
+                'background_color'  => null,
+                'pinned_tab_color'  => null,
+                'icons'             => array(
+                    array(
+                        'src'   => $root_url . '/android-chrome-192x192.png',
+                        'sizes' => '192x192',
+                        'type'  => 'image/png',
+                    ),
+                    array(
+                        'src'   => $root_url . '/android-chrome-512x512.png',
+                        'sizes' => '512x512',
+                        'type'  => 'image/png',
+                    ),
+                ),
+            );
+
+            $manifest = array(
+                'scope'       => $scope,
+                'start_url'   => '?PWAMODE=1',
+                'display'     => 'standalone',
+/*
+                'permissions' => array(
+                    'desktop-notification' => array(
+                        'description' => "Needed for notifying you of any changes to your account."
+                    ),
+                ),
+*/
+            );
+
+            // Build manifest data from config and defaults
+            foreach ($defaults as $name => $value) {
+                if (isset($config[$name])) {
+                    $value = $config[$name];
+                }
+
+                $manifest[$name] = $value;
+            }
+
+            // Send manifest.json to the browser
+            // TODO: use caching headers?
+            header('Content-Type: application/json');
+            echo rcube_output::json_serialize($manifest, (bool) $rcube->config->get('devel_mode'));
+            exit;
+        }
     }
 
     /**
-     * Read configuration from manifest.json
+     * Load plugin and skin configuration
      *
      * @return array Key-value configuration
      */
-    private function get_config()
+    private static function get_config()
     {
-        if (is_array($this->config)) {
-            return $this->config;
+        if (is_array(self::$config)) {
+            return self::$config;
         }
 
-        $config   = array();
-        $defaults = array(
-            'tile_color'      => '#2d89ef',
-            'theme_color'     => '#f4f4f4',
+        $rcube        = rcube::get_instance();
+        $config       = array();
+        self::$config = array();
+        $defaults     = array(
+            'tile_color'        => '#2d89ef',
+            'theme_color'       => '#f4f4f4',
+            'pinned_tab_color'  => '#37beff',
+            'background_color'  => '#ffffff',
+            'skin'              => $rcube->config->get('skin') ?: 'elastic',
+            'name'              => $rcube->config->get('product_name') ?: 'Roundcube',
         );
 
-        if ($file = rcube::get_instance()->find_asset('plugins/pwa/assets/manifest.json')) {
-            $config = json_decode(file_get_contents(INSTALL_PATH . $file), true);
+        // Load plugin config into $config var
+        $fpath = __DIR__ . '/config.inc.php';
+        if (is_file($fpath) && is_readable($fpath)) {
+            ob_start();
+            include($fpath);
+            ob_end_clean();
         }
 
-        return $this->config = array_merge($defaults, $config);
+        // Load skin config
+        $meta = @file_get_contents(RCUBE_INSTALL_PATH . '/skins/' . $defaults['skin'] . '/meta.json');
+        $meta = @json_decode($meta, true);
+
+        if ($meta && $meta['extends']) {
+            // Merge with parent skin config
+            $root_meta = @file_get_contents(RCUBE_INSTALL_PATH . '/skins/' . $meta['extends'] . '/meta.json');
+            $root_meta = @json_decode($meta, true);
+
+            if ($root_meta && !empty($root_meta['config'])) {
+                $meta['config'] = array_merge((array) $root_meta['config'], (array) $meta['config']);
+            }
+        }
+
+        foreach ((array) $meta['config'] as $name => $value) {
+            if (strpos($name, 'pwa_') === 0 && !isset($config[$name])) {
+                $config[$name] = $value;
+            }
+        }
+
+        foreach ($config as $name => $value) {
+            $name = preg_replace('/^pwa_/', '', $name);
+            if ($value !== null) {
+                self::$config[$name] = $value;
+            }
+        }
+
+        foreach ($defaults as $name => $value) {
+            if (!array_key_exists($name, self::$config)) {
+                self::$config[$name] = $value;
+            }
+        }
+
+        return self::$config;
     }
 }
 
-// Hijack HTTP requests to plugin assets e.g. service worker
+// Hijack HTTP requests to special plugin assets e.g. sw.js, manifest.json
 pwa::http_request();
