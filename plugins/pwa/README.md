@@ -28,4 +28,9 @@ Copy config.inc.php.dist to config.inc.php and change config options to your lik
 Any option set in the plugin config will have a preference over skin configuration
 described above.
 
+IMPORTANT: Make sure to set `pwa_skin` in case you want to use a different skin
+           than your default skin or your default skin is not responsive.
+
 3. Enable the plugin in Roundcube configuration file.
+
+IMPORTANT: The plugin MUST appear first on the list of plugins!

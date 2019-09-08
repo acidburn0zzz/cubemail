@@ -23,13 +23,10 @@
  */
 class pwa extends rcube_plugin
 {
-    public $noajax  = true;
-    public $noframe = true;
-
     /** @var string $version Plugin version */
     public static $version = '0.1';
 
-    /** @var array $config Plugin config (from manifest.json) */
+    /** @var array $config Plugin config */
     private static $config;
 
 
@@ -42,10 +39,51 @@ class pwa extends rcube_plugin
         $this->add_hook('template_object_meta', array($this, 'template_object_meta'));
 
         $this->include_script('js/pwa.js');
+
+        // Set the skin for PWA mode
+        if (!empty($_GET['PWAMODE']) || !empty($_SESSION['PWAMODE'])) {
+            $rcube = rcube::get_instance();
+            $skin  = $_SESSION['PWAMODE'];
+
+            if (!$skin) {
+                $config = self::get_config();
+                $skin   = $config['skin'];
+            }
+
+            // Reset the skin to the responsive one
+            if ($rcube->config->get('skin') != $skin) {
+                if ($rcube->output->type == 'html') {
+                    $rcube->output->set_skin($skin);
+                }
+
+                $rcube->config->set('skin', $skin, true);
+
+                // Reset default skin, otherwise it will be reset to default in rcmail::kill_session()
+                // TODO: This could be done better
+                $rcube->default_skin = $skin;
+            }
+
+            // Disable skin switch as this wouldn't have any effect
+            // It also makes sure that user skin is not applied
+            // TODO: Allow skin selection if there's more than one responsive skin available
+            $dont_override = (array) $rcube->config->get('dont_override');
+            if (!in_array('skin', $dont_override)) {
+                $dont_override[] = 'skin';
+                $rcube->config->set('dont_override', $dont_override, true);
+            }
+
+            // Set the mode for the client environment
+            $rcube->output->set_env('PWAMODE', true);
+
+            // Remember the mode in session
+            $rcube->add_shutdown_function(function() use ($skin) {
+                $_SESSION['PWAMODE'] = $skin;
+            });
+        }
     }
 
     /**
-     * Adds <link> elements to the HTML output
+     * Adds <link> elements to the HTML output (handler for 'template_object_links' hook)
      */
     public function template_object_links($args)
     {
@@ -55,7 +93,7 @@ class pwa extends rcube_plugin
         $links   = array(
             array(
                 'rel'  => 'manifest',
-                'href' => '?PWA=manifest.json', //$this->urlbase . 'assets/manifest.json',
+                'href' => '?PWA=manifest.json',
             ),
             array(
                 'rel'   => 'apple-touch-icon',
@@ -102,7 +140,7 @@ class pwa extends rcube_plugin
     }
 
     /**
-     * Adds <meta> elements to the HTML output
+     * Adds <meta> elements to the HTML output (handler for 'template_object_meta' hook)
      */
     public function template_object_meta($args)
     {
