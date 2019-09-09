@@ -24,7 +24,7 @@
 class pwa extends rcube_plugin
 {
     /** @var string $version Plugin version */
-    public static $version = '0.1';
+    public static $version = '0.2';
 
     /** @var array $config Plugin config */
     private static $config;
@@ -184,7 +184,7 @@ class pwa extends rcube_plugin
                 // TODO: What assets do we want to cache?
                 // TODO: assets_dir support
                 $assets = array(
-//                    'plugins/pwa/assets/manifest.json',
+                    $rcube->find_asset('plugins/pwa/assets/wifi.svg'),
                 );
 
                 echo "var cacheName = 'v" . self::$version . "';\n";

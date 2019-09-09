@@ -36,71 +36,43 @@ if ('serviceWorker' in navigator) {
         });
 }
 
-/*
-function registerOneTimeSync() {
-    if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then(function(reg) {
-        if (reg.sync) {
-            reg.sync.register({
-                    tag: 'oneTimeSync'
-                })
-                .then(function(event) {
-                    console.log('Sync registration successful', event);
-                })
-                .catch(function(error) {
-                    console.log('Sync registration failed', error);
-                });
-        } else {
-            console.log("One time Sync not supported");
+// Offline overlay
+var pwa_online = true;
+function updateOnlineStatus() {
+    if (!navigator.onLine) {
+        var overlay = document.createElement('div'),
+            img_src = rcmail.assets_path('plugins/pwa/assets/wifi.svg');
+
+        overlay.id = 'pwa-offline-overlay';
+        overlay.style.cssText = 'position: absolute; top: 0; bottom: 0; width: 100%; z-index: 20000;'
+            + ' display: flex; flex-direction: column; align-items: center; justify-content: center;'
+            + ' opacity: .85; background-color: #000; color: #fff;';
+        overlay.innerHTML = '<img src="' + img_src + '" width="100">'
+            + '<div style="font-size: 12pt; margin-top: 1em"><b>No internet connection</b></div>';
+        overlay.onclick = function(e) { e.stopPropagation(); };
+
+        document.body.appendChild(overlay);
+
+        pwa_online = false;
+    }
+    else {
+        var overlay = document.getElementById('pwa-offline-overlay');
+        if (overlay) {
+            document.body.removeChild(overlay);
         }
-        });
-    } else {
-        console.log("No active ServiceWorker");
+
+        // When becoming online again, send keep-alive request to check if the session
+        // is still valid, if not user will be redirected to the logon screen
+        if (!pwa_online && rcmail.task != 'login') {
+            rcmail.keep_alive();
+        }
+
+        pwa_online = true;
     }
 }
-*/
-
-// Offline banner
-function updateOnlineStatus() {
-    // FIXME fill in something that makes sense in roundcube
-    // var d = document.body;
-    // d.className = d.className.replace(/\ offline\b/,'');
-    // if (!navigator.onLine) {
-    //     d.className += " offline";
-    // }
-}
-updateOnlineStatus();
 
 window.addEventListener('load', function() {
+    updateOnlineStatus();
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 });
-
-/* TODO: Do we need this to anything useful?
-// Change page title depending on document visibility
-function handleVisibilityChange() {
-    if (document.visibilityState == "hidden") {
-        document.title = "Hey! Come back!";
-    } else {
-        document.title = original_title;
-    }
-}
-
-var original_title = document.title;
-document.addEventListener('visibilitychange', handleVisibilityChange, false);
-*/
-
-/* TODO: Do we need this to anything useful?
-// Notifications
-window.addEventListener('load', function () {
-    // At first, let's check if we have permission for notification
-    // If not, let's ask for it
-    if (window.Notification && Notification.permission !== "granted") {
-        Notification.requestPermission(function (status) {
-            if (Notification.permission !== status) {
-                Notification.permission = status;
-            }
-        });
-    }
-});
-*/

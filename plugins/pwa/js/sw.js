@@ -28,13 +28,6 @@
 // Warning: cacheName and assetsToCache vars are set by the PWA plugin
 //          when sending this file content to the browser
 
-self.addEventListener('sync', function(event) {
-    if (event.registration.tag == "oneTimeSync") {
-        console.dir(self.registration);
-        console.log("One Time Sync Fired");
-    }
-});
-
 self.addEventListener('install', function(event) {
     // waitUntil() ensures that the Service Worker will not
     // install until the code inside has successfully occurred
@@ -65,13 +58,6 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-    // Ignore non-get request like when accessing the admin panel
-    // if (event.request.method !== 'GET') { return; }
-    // Don't try to handle non-secure assets because fetch will fail
-    if (/http:/.test(event.request.url)) {
-        return;
-    }
-
     // Here's where we cache all the things!
     event.respondWith(
         // Open the cache created when install
