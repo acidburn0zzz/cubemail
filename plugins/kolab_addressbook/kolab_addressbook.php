@@ -406,13 +406,7 @@ class kolab_addressbook extends rcube_plugin
     public function get_address_book($p)
     {
         if ($p['id']) {
-            $id = kolab_storage::id_decode($p['id']);
-
-            // check for falsely base64 decoded identifier
-            if (preg_match('![^A-Za-z0-9=/+&._ -]!', $id)) {
-                $id = $p['id'];
-            }
-
+            $id     = kolab_storage::id_decode($p['id']);
             $folder = kolab_storage::get_folder($id);
 
             // try with unencoded (old-style) identifier
