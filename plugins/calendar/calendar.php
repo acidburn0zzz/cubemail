@@ -2459,17 +2459,20 @@ class calendar extends rcube_plugin
    */
   public static function event_diff($a, $b)
   {
-    $diff = array();
+    $diff   = array();
     $ignore = array('changed' => 1, 'attachments' => 1);
+
     foreach (array_unique(array_merge(array_keys($a), array_keys($b))) as $key) {
-      if (!$ignore[$key] && $key[0] != '_' && $a[$key] != $b[$key])
+      if (!$ignore[$key] && $key[0] != '_' && $a[$key] != $b[$key]) {
         $diff[] = $key;
+      }
     }
-    
+
     // only compare number of attachments
-    if (count($a['attachments']) != count($b['attachments']))
+    if (count((array) $a['attachments']) != count((array) $b['attachments'])) {
       $diff[] = 'attachments';
-    
+    }
+
     return $diff;
   }
 
