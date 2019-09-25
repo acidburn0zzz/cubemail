@@ -1242,8 +1242,7 @@ rcube_libcalendaring.itip_delegate_dialog = function(callback, selector)
             '<input type="text" id="itip-delegate-to" class="text" size="40" value="" />' +
         '</div>' +
         '<div class="form-section form-group form-check">' +
-            '<label for="itip-delegate-rsvp">' + rcmail.gettext('itip.delegatersvpme') + '</label>' +
-            '<input type="checkbox" id="itip-delegate-rsvp" value="1" />' +
+            '<label><input type="checkbox" id="itip-delegate-rsvp" value="1" />' + rcmail.gettext('itip.delegatersvpme') + '</label>' +
         '</div>' +
         '<div class="form-section form-group">' +
             '<textarea id="itip-delegate-comment" class="itip-comment" cols="40" rows="8" placeholder="' +
