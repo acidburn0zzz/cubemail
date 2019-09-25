@@ -49,12 +49,13 @@ class libcalendaring extends rcube_plugin
       'calendar_first_hour'   => 6,
       'calendar_date_format_sets' => array(
         'Y-m-d' => array('d M Y',   'm-d',  'l m-d'),
+        'Y/m/d' => array('d M Y',   'm/d',  'l m/d'),
+        'Y.m.d' => array('d M Y',   'm.d',  'l m.d'),
         'd-m-Y' => array('d M Y',   'd-m',  'l d-m'),
-        'Y/m/d' => array('M d Y',   'm/d',  'l m/d'),
-        'm/d/Y' => array('M d Y',   'm/d',  'l m/d'),
         'd/m/Y' => array('d M Y',   'd/m',  'l d/m'),
-        'd.m.Y' => array('d. M Y',  'd.m.',  'l d.m.'),
-        'd.m.Y' => array('d. M Y',  'd.m.',  'l d.m.'),
+        'd.m.Y' => array('d M Y',  'd.m',  'l d.m'),
+        'j.n.Y' => array('d M Y',  'd.m',  'l d.m'),
+        'm/d/Y' => array('M d Y',   'm/d',  'l m/d'),
       ),
     );
 

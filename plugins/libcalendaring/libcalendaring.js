@@ -49,7 +49,7 @@ function rcube_libcalendaring(settings)
     this.datepicker_settings = {
         // translate from fullcalendar (MomentJS) format to datepicker format
         dateFormat: settings.date_format.replace(/M/g, 'm').replace(/mmmm/, 'MM').replace(/mmm/, 'M')
-            .replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/DD/, 'dd')
+            .replace(/dddd/, 'DD').replace(/ddd/, 'D').replace(/DD/, 'dd').replace(/D/, 'd')
             .replace(/Y/g, 'y').replace(/yyyy/, 'yy'),
         firstDay : settings.first_day,
         dayNamesMin: settings.days_short,
