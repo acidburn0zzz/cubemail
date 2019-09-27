@@ -524,6 +524,7 @@ class tasklist_database_driver extends tasklist_driver
         $rec['id']      = $rec['task_id'];
         $rec['list']    = $rec['tasklist_id'];
         $rec['changed'] = new DateTime($rec['changed']);
+        $rec['created'] = new DateTime($rec['created']);
         $rec['tags']    = array_filter(explode(',', $rec['tags']));
 
         if (!$rec['parent_id']) {
@@ -545,7 +546,7 @@ class tasklist_database_driver extends tasklist_driver
             $this->tags = array_merge($this->tags, (array)$rec['tags']);
         }
 
-        unset($rec['task_id'], $rec['tasklist_id'], $rec['created']);
+        unset($rec['task_id'], $rec['tasklist_id']);
 
         return $rec;
     }
