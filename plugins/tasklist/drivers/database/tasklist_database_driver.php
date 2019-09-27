@@ -236,8 +236,8 @@ class tasklist_database_driver extends tasklist_driver
     {
         if (empty($lists))
             $lists = array_keys($this->lists);
-        else if (is_string($lists))
-            $lists = explode(',', $lists);
+        else if (!is_array($lists))
+            $lists = explode(',', (string) $lists);
 
         // only allow to select from lists of this user
         $list_ids = array_map(array($this->rc->db, 'quote'), array_intersect($lists, array_keys($this->lists)));
@@ -284,8 +284,8 @@ class tasklist_database_driver extends tasklist_driver
     {
         if (empty($lists))
             $lists = array_keys($this->lists);
-        else if (is_string($lists))
-            $lists = explode(',', $lists);
+        else if (!is_array($lists))
+            $lists = explode(',', (string) $lists);
 
         // only allow to select from lists of this user
         $list_ids = array_map(array($this->rc->db, 'quote'), array_intersect($lists, array_keys($this->lists)));
@@ -452,8 +452,8 @@ class tasklist_database_driver extends tasklist_driver
     {
         if (empty($lists))
             $lists = array_keys($this->lists);
-        else if (is_string($lists))
-            $lists = explode(',', $lists);
+        else if (!is_array($lists))
+            $lists = explode(',', (string) $lists);
 
         // only allow to select from calendars with activated alarms
         $list_ids = array();
