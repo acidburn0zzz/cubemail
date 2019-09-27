@@ -69,4 +69,10 @@ Add 'calendar' to the list of active plugins:
   );
 
 
+IMPORTANT
+---------
+
+This plugin doesn't work with the classic skin of Roundcube because no
+templates are available for that skin.
+
 [1] https://git.kolab.org/diffusion/RPK/
