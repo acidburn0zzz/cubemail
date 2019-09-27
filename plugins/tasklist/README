@@ -8,12 +8,15 @@ INSTALLATION
 ------------
 
 When usigng the database driver, some initialization of the local database is
-necessary. To do so, execute the SQL commands in
-drivers/database/SQL/<yourdatabase>.initial.sql
+necessary:
+
+  cd ../../
+  $ bin/initdb.sh --dir=plugins/tasklist/drivers/database/SQL
+
 
 For some general calendar-based operations such as alarms handling, this
 plugin requires the `libcalendaring` plugin, as well as libkolab plugin
-for more skins support, which are also part of the Kolab Roundcube Plugins
+for skins support, which are also part of the Kolab Roundcube Plugins
 repository. Make sure these plugins are installed and configured correctly.
 
 IMPORTANT
