@@ -123,6 +123,7 @@ class tasklist_database_driver extends tasklist_driver
         );
 
         if ($result) {
+            $prop['rights'] = 'lrswikxtea';
             return $this->rc->db->insert_id($this->db_lists);
         }
 
