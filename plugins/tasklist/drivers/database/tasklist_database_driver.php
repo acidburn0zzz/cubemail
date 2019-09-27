@@ -185,13 +185,6 @@ class tasklist_database_driver extends tasklist_driver
         $list_id = $prop['id'];
 
         if ($this->lists[$list_id]) {
-            // delete all tasks linked with this list
-            $this->rc->db->query(
-                "DELETE FROM " . $this->db_tasks . " WHERE `tasklist_id` = ?",
-                $list_id
-            );
-
-            // delete list record
             $query = $this->rc->db->query(
                 "DELETE FROM " . $this->db_lists . " WHERE `tasklist_id` = ? AND `user_id` = ?",
                 $list_id,
@@ -209,6 +202,7 @@ class tasklist_database_driver extends tasklist_driver
      *
      * @param string Search string
      * @param string Section/source to search
+     *
      * @return array List of tasklists
      */
     public function search_lists($query, $source)
