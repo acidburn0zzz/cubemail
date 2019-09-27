@@ -140,8 +140,8 @@ class tasklist_database_driver extends tasklist_driver
              SET   name=?, color=?, showalarms=?
              WHERE tasklist_id=?
              AND   user_id=?",
-            $prop['name'],
-            $prop['color'],
+            strval($prop['name']),
+            strval($prop['color']),
             $prop['showalarms']?1:0,
             $prop['id'],
             $this->rc->user->ID
