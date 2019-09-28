@@ -983,8 +983,11 @@ class tasklist extends rcube_plugin
         $list    = rcube_utils::get_input_value('l', rcube_utils::INPUT_GPC, true);
         $success = false;
 
-        if (isset($list['showalarms']))
-          $list['showalarms'] = intval($list['showalarms']);
+        unset($list['_token']);
+
+        if (isset($list['showalarms'])) {
+            $list['showalarms'] = intval($list['showalarms']);
+        }
 
         switch ($action) {
         case 'form-new':
