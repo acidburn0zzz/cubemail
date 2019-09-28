@@ -3147,13 +3147,18 @@ function rcube_tasklist_ui(settings)
         }, prop.parent || null, prop.group);
 
         // flag as tasklist for drag & drop
-        $(tasklists_widget.get_item(prop.id)).data('type', 'tasklist');
+        var li = $(tasklists_widget.get_item(prop.id)).data('type', 'tasklist');
 
         delete prop.html;
         me.tasklists[prop.id] = prop;
 
         // append to list selector in task edit dialog, too (#2985)
         $('<option>').attr('value', prop.id).html(Q(prop.name)).appendTo('#taskedit-tasklist');
+
+        // Elastic skin
+        if (window.UI && UI.pretty_checkbox) {
+            UI.pretty_checkbox($(li).find('input'));
+        }
     }
 
     /**
