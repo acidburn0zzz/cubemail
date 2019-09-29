@@ -29,6 +29,10 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
         $rcmail = rcmail::get_instance();
         $rcmail->plugins->load_plugin('libkolab', true, true);
 
+        if (!kolab_format::supports(3)) {
+            return;
+        }
+
         if ($rcmail->config->get('tests_username')) {
             $authenticated = $rcmail->login(
                 $rcmail->config->get('tests_username'),
@@ -65,6 +69,10 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_001_folder_type_check()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $folder = new kolab_storage_folder('Calendar', 'event', 'event.default');
         $this->assertTrue($folder->valid);
         $this->assertEquals($folder->get_error(), 0);
@@ -80,6 +88,10 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_002_get_owner()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $rcmail = rcmail::get_instance();
         $folder = new kolab_storage_folder('Calendar', 'event', 'event');
         $this->assertEquals($folder->get_owner(), $rcmail->config->get('tests_username'));
@@ -97,6 +109,10 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_003_get_resource_uri()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $rcmail     = rcmail::get_instance();
         $foldername = 'Calendar';
         $uri        = parse_url($rcmail->config->get('default_host'));
@@ -112,6 +128,10 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_004_get_uid()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $rcmail = rcmail::get_instance();
         $folder = new kolab_storage_folder('Doesnt-Exist', 'event', 'event');
 
@@ -123,6 +143,10 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_005_subscribe()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $folder = new kolab_storage_folder('Contacts', 'contact');
         $this->assertTrue($folder->subscribe(true));
         $this->assertTrue($folder->is_subscribed());
@@ -135,6 +159,10 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_006_activate()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $folder = new kolab_storage_folder('Calendar', 'event');
         $this->assertTrue($folder->activate(true));
         $this->assertTrue($folder->is_active());
@@ -145,6 +173,10 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
 
     function test_010_write_contacts()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $contacts = array(
             'name' => 'FN',
             'surname' => 'Last',
@@ -164,12 +196,20 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
      */
     function test_011_list_contacts()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $folder = new kolab_storage_folder('Contacts', 'contact');
         $this->assertEquals($folder->count(), 1);
     }
 
     function test_T491_get_uid()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $rcmail = rcmail::get_instance();
         $imap   = $rcmail->get_storage();
         $db     = $rcmail->get_dbh();

@@ -34,6 +34,10 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
         $rcube = rcmail::get_instance();
         $rcube->plugins->load_plugin('libkolab', true, true);
 
+        if (!kolab_format::supports(3)) {
+            return;
+        }
+
         if ($rcube->config->get('tests_username')) {
             $authenticated = $rcube->login(
                 $rcube->config->get('tests_username'),
@@ -70,6 +74,10 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
 
     function test_001_build_member_url()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $rcube    = rcube::get_instance();
         $email    = $rcube->get_user_email();
         $personal = str_replace('$user', urlencode($email), $this->url_personal);
@@ -89,6 +97,10 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
 
     function test_002_parse_member_url()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $rcube    = rcube::get_instance();
         $email    = $rcube->get_user_email();
         $personal = str_replace('$user', urlencode($email), $this->url_personal);
@@ -113,6 +125,10 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
 
     function test_003_build_parse_member_url()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         // personal namespace
         $params = $this->params_personal;
         $params_ = kolab_storage_config::parse_member_url(kolab_storage_config::build_member_url($params));
@@ -138,6 +154,10 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
      */
     function test_save()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $config = kolab_storage_config::get_instance();
         $tags   = array(
             array(
@@ -171,6 +191,10 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
      */
     function test_T133()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $config = kolab_storage_config::get_instance();
 
         // get tags

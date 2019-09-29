@@ -36,6 +36,10 @@ class kolab_date_recurrence_test extends PHPUnit_Framework_TestCase
      */
     function test_first_occurrence($recurrence_data, $start, $expected)
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $start = new DateTime($start);
         if (!empty($recurrence_data['UNTIL'])) {
             $recurrence_data['UNTIL'] = new DateTime($recurrence_data['UNTIL']);
@@ -216,6 +220,10 @@ class kolab_date_recurrence_test extends PHPUnit_Framework_TestCase
      */
     function test_first_occurrence_allday($recurrence_data, $start, $expected)
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         $start = new DateTime($start);
         if (!empty($recurrence_data['UNTIL'])) {
             $recurrence_data['UNTIL'] = new DateTime($recurrence_data['UNTIL']);
@@ -236,6 +244,10 @@ class kolab_date_recurrence_test extends PHPUnit_Framework_TestCase
      */
     function test_next_instance()
     {
+        if (!kolab_format::supports(3)) {
+            $this->markTestSkipped('No Kolab support');
+        }
+
         date_default_timezone_set('America/New_York');
 
         $start = new DateTime('2017-08-31 11:00:00', new DateTimeZone('Europe/Berlin'));
