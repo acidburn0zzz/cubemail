@@ -594,7 +594,7 @@ class kolab_storage_folder extends kolab_storage_folder_api
      */
     public function save(&$object, $type = null, $uid = null)
     {
-        if (!$this->valid) {
+        if (!$this->valid && empty($object)) {
             return false;
         }
 

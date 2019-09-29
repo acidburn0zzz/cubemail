@@ -177,6 +177,11 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
             $this->markTestSkipped('No Kolab support');
         }
 
+        $folder = new kolab_storage_folder('Contacts', 'contact');
+
+        $saved = $folder->save(null, 'contact');
+        $this->assertFalse($saved);
+
         $contact = array(
             'name' => 'FN',
             'surname' => 'Last',
@@ -187,7 +192,6 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
             'organization' => 'Company A.G.'
         );
 
-        $folder = new kolab_storage_folder('Contacts', 'contact');
         $saved = $folder->save($contact, 'contact');
         $this->assertTrue((bool)$saved);
     }
