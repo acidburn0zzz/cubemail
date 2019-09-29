@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS `kolab_folders`;
 
 CREATE TABLE `kolab_folders` (
   `folder_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `resource` VARCHAR(255) NOT NULL,
+  `resource` VARCHAR(255) BINARY NOT NULL,
   `type` VARCHAR(32) NOT NULL,
   `synclock` INT(10) NOT NULL DEFAULT '0',
   `ctag` VARCHAR(40) DEFAULT NULL,
@@ -180,4 +180,4 @@ CREATE TABLE `kolab_cache_freebusy` (
 
 /*!40014  SET FOREIGN_KEY_CHECKS=1 */;
 
-REPLACE INTO `system` (`name`, `value`) VALUES ('libkolab-version', '2018122700');
+REPLACE INTO `system` (`name`, `value`) VALUES ('libkolab-version', '2019092900');

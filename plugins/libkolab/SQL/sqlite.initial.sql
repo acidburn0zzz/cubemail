@@ -148,4 +148,4 @@ CREATE TABLE kolab_cache_freebusy (
 
 CREATE INDEX ix_freebusy_uid2msguid ON kolab_cache_freebusy(folder_id,uid,msguid);
 
-INSERT INTO system (name, value) VALUES ('libkolab-version', '2018122700');
+INSERT INTO system (name, value) VALUES ('libkolab-version', '2019092900');
