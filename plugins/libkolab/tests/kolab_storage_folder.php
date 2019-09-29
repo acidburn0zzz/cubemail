@@ -177,13 +177,14 @@ class kolab_storage_folder_test extends PHPUnit_Framework_TestCase
             $this->markTestSkipped('No Kolab support');
         }
 
-        $contacts = array(
+        $contact = array(
             'name' => 'FN',
             'surname' => 'Last',
             'firstname' => 'First',
             'email' => array(
                 array('type' => 'home', 'address' => 'first.last@example.org'),
             ),
+            'organization' => 'Company A.G.'
         );
 
         $folder = new kolab_storage_folder('Contacts', 'contact');
