@@ -102,14 +102,6 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertFalse(array_key_exists('changed', $event), "No changed date field");
     }
 
-    function test_invalid_vevent()
-    {
-        $this->setExpectedException('\Sabre\VObject\ParseException');
-
-        $ical = new libvcalendar();
-        $events = $ical->import_from_file(__DIR__ . '/resources/invalid-event.ics', 'UTF-8', true);
-    }
-
     /**
      * Test some extended ical properties such as attendees, recurrence rules, alarms and attachments
      */
