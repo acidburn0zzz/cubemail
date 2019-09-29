@@ -236,7 +236,7 @@ class kolab_storage_config
         // on success, update cached tags list
         if ($status && is_array($this->tags)) {
             foreach ($this->tags as $idx => $tag) {
-                if ($tag['uid'] == $uid) {
+                if ($tag['uid'] == $object['uid']) {
                     unset($this->tags[$idx]);
                     break;
                 }

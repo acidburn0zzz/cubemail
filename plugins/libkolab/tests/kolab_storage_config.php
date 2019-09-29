@@ -230,5 +230,9 @@ class kolab_storage_config_test extends PHPUnit_Framework_TestCase
         // get tags again, make sure it contains the new tag
         $tags = $config->get_tags();
         $this->assertCount(4, $tags);
+
+        foreach ($tags as $_tag) {
+            $this->assertTrue($_tag['uid'] != $tag['uid']);
+        }
     }
 }
