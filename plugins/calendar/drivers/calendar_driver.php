@@ -731,7 +731,7 @@ abstract class calendar_driver
 
     $rcmail = rcmail::get_instance();
 
-    if ($source && $contact_id && ($abook = $rcmail->get_address_book($source))) {
+    if (strlen($source) && $contact_id && ($abook = $rcmail->get_address_book($source))) {
       if ($contact = $abook->get_record($contact_id, true)) {
         return self::parse_contact($contact, $source);
       }
