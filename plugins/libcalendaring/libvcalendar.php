@@ -1309,12 +1309,15 @@ class libvcalendar implements Iterator
      * @param string Timezone ID as used in PHP's Date functions
      * @param integer Unix timestamp with first date/time in this timezone
      * @param integer Unix timestap with last date/time in this timezone
+     * @param VObject\Component\VCalendar Optional VCalendar component
      *
      * @return mixed A Sabre\VObject\Component object representing a VTIMEZONE definition
      *               or false if no timezone information is available
      */
     public static function get_vtimezone($tzid, $from = 0, $to = 0, $cal = null)
     {
+        // TODO: Consider using tzurl.org database for better interoperability e.g. with Outlook
+
         if (!$from) $from = time();
         if (!$to)   $to = $from;
         if (!$cal)  $cal = new VObject\Component\VCalendar();
@@ -1338,6 +1341,17 @@ class libvcalendar implements Iterator
         $year = 86400 * 360;
         $transitions = $tz->getTransitions($from - $year, $to + $year);
 
+        // Make sure VTIMEZONE contains at least one STANDARD/DAYLIGHT component
+        // when there's only one transition in specified time period (T5626)
+        if (count($transitions) == 1) {
+            // Get more transitions and use OFFSET from the previous to last
+            $more_transitions = $tz->getTransitions(0, $to + $year);
+            if (count($more_transitions) > 1) {
+                $index  = count($more_transitions) - 2;
+                $tzfrom = $more_transitions[$index]['offset'] / 3600;
+            }
+        }
+
         $vt = $cal->createComponent('VTIMEZONE');
         $vt->TZID = $tz->getName();
 
@@ -1345,7 +1359,7 @@ class libvcalendar implements Iterator
         foreach ($transitions as $i => $trans) {
             $cmp = null;
 
-            if ($i == 0) {
+            if (!isset($tzfrom)) {
                 $tzfrom = $trans['offset'] / 3600;
                 continue;
             }

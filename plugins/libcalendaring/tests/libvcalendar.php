@@ -581,6 +581,25 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Sabre\VObject\Component', $vtz);
         $this->assertContains('TZOFFSETFROM:+1245', $vtz->serialize());
         $this->assertContains('TZOFFSETTO:+1345', $vtz->serialize());
+
+        // Making sure VTIMEZOONE contains at least one STANDARD/DAYLIGHT component
+        // when there's only one transition in specified time period (T5626)
+        $vtz = libvcalendar::get_vtimezone('Europe/Istanbul', strtotime('2019-10-04T15:00:00'));
+
+        $this->assertInstanceOf('\Sabre\VObject\Component', $vtz);
+
+        $dst = $vtz->select('DAYLIGHT');
+        $std = $vtz->select('STANDARD');
+
+        $this->assertEmpty($dst);
+        $this->assertCount(1, $std);
+
+        $std = end($std);
+        $this->assertEquals('STANDARD', $std->name);
+        $this->assertEquals('20181009T150000', $std->DTSTART);
+        $this->assertEquals('+0300', $std->TZOFFSETFROM);
+        $this->assertEquals('+0300', $std->TZOFFSETTO);
+        $this->assertEquals('+03', $std->TZNAME);
     }
 
     function get_attachment_data($id, $event)
@@ -588,4 +607,3 @@ class libvcalendar_test extends PHPUnit_Framework_TestCase
         return $this->attachment_data;
     }
 }
-
