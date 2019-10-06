@@ -3,7 +3,7 @@
     "type": "roundcube-plugin",
     "description": "COnverts Roundcube into a so-called Progressive Web App for mobile",
     "license": "GPLv3+",
-    "version": "0.1",
+    "version": "0.3",
     "authors": [
         {
             "name": "Aleksander Machniak",

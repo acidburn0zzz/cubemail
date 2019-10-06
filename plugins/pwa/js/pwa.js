@@ -39,6 +39,10 @@ if ('serviceWorker' in navigator) {
 // Offline overlay
 var pwa_online = true;
 function updateOnlineStatus() {
+    if (rcmail.is_framed()) {
+        return;
+    }
+
     if (!navigator.onLine) {
         var overlay = document.createElement('div'),
             img_src = rcmail.assets_path('plugins/pwa/assets/wifi.svg');
@@ -54,6 +58,7 @@ function updateOnlineStatus() {
         document.body.appendChild(overlay);
 
         pwa_online = false;
+        rcmail.busy = true;
     }
     else {
         var overlay = document.getElementById('pwa-offline-overlay');
@@ -63,8 +68,11 @@ function updateOnlineStatus() {
 
         // When becoming online again, send keep-alive request to check if the session
         // is still valid, if not user will be redirected to the logon screen
-        if (!pwa_online && rcmail.task != 'login') {
-            rcmail.keep_alive();
+        if (!pwa_online) {
+            rcmail.busy = true;
+            if (rcmail.task != 'login') {
+                rcmail.keep_alive();
+            }
         }
 
         pwa_online = true;

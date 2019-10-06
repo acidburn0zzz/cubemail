@@ -25,8 +25,8 @@
  * for the JavaScript code in this file.
  */
 
-// Warning: cacheName and assetsToCache vars are set by the PWA plugin
-//          when sending this file content to the browser
+// Notice: cacheName and assetsToCache vars are set by the PWA plugin
+//         when sending this file content to the browser
 
 self.addEventListener('install', function(event) {
     // waitUntil() ensures that the Service Worker will not
@@ -51,27 +51,48 @@ self.addEventListener('install', function(event) {
 // Activate event
 // Be sure to call self.clients.claim()
 self.addEventListener('activate', function(event) {
-    // `claim()` sets this worker as the active worker for all clients that
-    // match the workers scope and triggers an `oncontrollerchange` event for
-    // the clients.
-    return self.clients.claim();
+    event.waitUntil(
+        // Remove older version caches
+        caches.keys().then(function(keyList) {
+            return Promise.all(keyList.map(function(key) {
+                if (cacheName.indexOf(key) === -1) {
+                    return caches.delete(key);
+                }
+            }));
+        })
+        .then(
+            // `claim()` sets this worker as the active worker for all clients that
+            // match the workers scope and triggers an `oncontrollerchange` event for
+            // the clients.
+            self.clients.claim()
+        )
+    );
 });
 
 self.addEventListener('fetch', function(event) {
-    // Here's where we cache all the things!
+    // Don't attempt to cache non-assets
+    var url = event.request.url.replace(/\?(.*)$/, '');
+    if (event.request.method != 'GET' || !url.match(/\.(css|js|png|svg|jpg|jpeg|ico|woff|woff2|html|json)$/)) {
+        return;
+    }
+
     event.respondWith(
-        // Open the cache created when install
-        caches.open(cacheName).then(function(cache) {
-            // Go to the network to ask for that resource
-            return fetch(event.request).then(function(networkResponse) {
-                // Add a copy of the response to the cache (updating the old version)
-                cache.put(event.request, networkResponse.clone());
-                // Respond with it
-                return networkResponse;
-            }).catch(function() {
-                // If there is no internet connection, try to match the request
-                // to some of our cached resources
-                return cache.match(event.request);
+        caches.match(event.request).then(function(response) {
+            if (response) {
+                console.log('[Service Worker] Fetch (cache) ' + event.request.url);
+                return response;
+            }
+
+            console.log('[Service Worker] Fetch (remote) ' + event.request.url);
+
+            return fetch(event.request).then(function(response) {
+                return caches.open(cacheName).then(function(cache) {
+                    if (response.status === 200) {
+                        cache.put(event.request, response.clone());
+                    }
+
+                    return response;
+                })
             })
         })
     );

@@ -24,7 +24,7 @@
 class pwa extends rcube_plugin
 {
     /** @var string $version Plugin version */
-    public static $version = '0.2';
+    public static $version = '0.3';
 
     /** @var array $config Plugin config */
     private static $config;
@@ -177,18 +177,21 @@ class pwa extends rcube_plugin
             $rcube         = rcube::get_instance();
             $rcube->task   = 'pwa';
             $rcube->action = 'sw.js';
+
             if ($file = $rcube->find_asset('plugins/pwa/js/sw.js')) {
                 // TODO: use caching headers?
                 header('Content-Type: application/javascript');
 
-                // TODO: What assets do we want to cache?
-                // TODO: assets_dir support
+                $version     = 'v' . self::$version;
+                $assets_path = $rcube->config->get('assets_path');
+                $assets_path = $assets_path ? (trim($assets_path, '/') . '/') : '';
+
                 $assets = array(
-                    $rcube->find_asset('plugins/pwa/assets/wifi.svg'),
+                    $assets_path . $rcube->find_asset('plugins/pwa/assets/wifi.svg'),
                 );
 
-                echo "var cacheName = 'v" . self::$version . "';\n";
-                echo "var assetsToCache = " . json_encode($assets) . "\n";
+                echo "var cacheName = " . json_encode($version) . ";\n";
+                echo "var assetsToCache = " . json_encode($assets) . ";\n";
 
                 readfile($file);
                 exit;
