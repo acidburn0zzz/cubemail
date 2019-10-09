@@ -6,7 +6,7 @@ and manage the access to the Kolab groupware objects stored in various
 IMAP folders. For reading and writing these objects, the PHP bindings of
 the libkolabxml library are used.
 
-This plugin also provides elastic/larry skin support for Kolab plugins.
+This plugin also provides Elastic/Larry skin support for Kolab plugins.
 
 
 REQUIREMENTS
@@ -33,5 +33,8 @@ For available configuration options see config.inc.php.dist file.
 IMPORTANT
 ---------
 
-This plugin doesn't work with the classic skin of Roundcube because no
+This plugin doesn't work with the Classic skin of Roundcube because no
 templates are available for that skin.
+
+Use Roundcube `skins_allowed` option to limit skins available to the user
+or remove incompatible skins from the skins folder.
