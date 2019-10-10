@@ -50,7 +50,7 @@ Limitations:
 - supported signature algorithms: HS256, HS385, HS512, RS256, RS384, RS512.
 - supported token endpoint auth methods: client_secret_basic, client_secret_post.
 
-[IMAP] Because Kolab backend do not support token authentication it is required
+[IMAP] Because Kolab backend does not support token authentication it is required
 to use master user (sasl proxy) authentication, i.e. you have to put
 master user credentials in plugin's config.
 
@@ -58,7 +58,7 @@ master user credentials in plugin's config.
 you have to specify SMTP connection parameters/user+password.
 
 [LDAP] Global addressbook (read-only) requires LDAP user/password. 'user_specific' option does
-not work as well as proxy authentication.
+not work, neither the proxy authentication.
 
 [Freebusy] Authentication into kolab-freebusy service is not yet implemented. A solution for
 now is to add Roundcube host(s) into trustednetworks.allow option in kolab-freebusy service config.
