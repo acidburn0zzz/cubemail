@@ -1123,7 +1123,7 @@ class database_driver extends calendar_driver
                 . " WHERE e.calendar_id IN (" . join(',', $calendar_ids) . ")"
                     . " AND e.start <= " . $this->rc->db->fromunixtime($end)
                     . " AND e.end >= " . $this->rc->db->fromunixtime($start)
-                    . $sql_add,
+                    . $sql_add
             );
 
             while ($result && ($sql_arr = $this->rc->db->fetch_assoc($result))) {
@@ -1281,7 +1281,7 @@ class database_driver extends calendar_driver
             $result = $this->rc->db->query(
                 "SELECT * FROM `{$this->db_events}`"
                 . " WHERE `calendar_id` IN (" . join(',', $calendar_ids) . ")"
-                . " AND `notifyat` <= $stime AND `end` > $stime",
+                . " AND `notifyat` <= $stime AND `end` > $stime"
             );
 
             while ($event = $this->rc->db->fetch_assoc($result)) {
