@@ -85,7 +85,6 @@ $labels['tabrecurrence'] = 'Recurrencia';
 $labels['tabassignments'] = 'Asignaciones';
 $labels['tabattachments'] = 'Adjuntos';
 $labels['tabsharing'] = 'Compartir';
-$labels['editlist'] = 'Editar lista';
 $labels['createlist'] = 'Agregar lista';
 $labels['listactions'] = 'Opciones de la lista...';
 $labels['listname'] = 'Nombre';

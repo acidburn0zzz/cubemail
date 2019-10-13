@@ -32,7 +32,6 @@ $labels['calendars'] = 'Koledarji';
 $labels['category'] = 'Kategorija';
 $labels['categories'] = 'Kategorije';
 $labels['createcalendar'] = 'Ustvari nov koledar';
-$labels['editcalendar'] = 'Uredi nastavitve koledarja';
 $labels['name'] = 'Ime';
 $labels['color'] = 'Barva';
 $labels['day'] = 'Dan';

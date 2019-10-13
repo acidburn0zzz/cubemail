@@ -26,7 +26,6 @@ $labels['calendars'] = 'Naptárak';
 $labels['category'] = 'Kategória';
 $labels['categories'] = 'Kategóriák';
 $labels['createcalendar'] = 'Új naptár létrehozása';
-$labels['editcalendar'] = 'Naptár tulajdonságai';
 $labels['name'] = 'Név';
 $labels['color'] = 'Szín';
 $labels['day'] = 'Nap';

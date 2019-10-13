@@ -33,7 +33,6 @@ $labels['calendars'] = 'Kalender';
 $labels['category'] = 'Kategorie';
 $labels['categories'] = 'Kategorien';
 $labels['createcalendar'] = 'Neuen Kalender erstellen';
-$labels['editcalendar'] = 'Kalendereigenschaften bearbeiten';
 $labels['name'] = 'Name';
 $labels['color'] = 'Farbe';
 $labels['day'] = 'Tag';

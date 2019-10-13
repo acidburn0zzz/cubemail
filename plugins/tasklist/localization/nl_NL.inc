@@ -83,7 +83,6 @@ $labels['tabrecurrence'] = 'Herhaling';
 $labels['tabassignments'] = 'Toegewezen taken';
 $labels['tabattachments'] = 'Bijlagen';
 $labels['tabsharing'] = 'Delen';
-$labels['editlist'] = 'Lijst bewerken';
 $labels['createlist'] = 'Lijst toevoegen';
 $labels['listactions'] = 'Lijstopties...';
 $labels['listname'] = 'Naam';

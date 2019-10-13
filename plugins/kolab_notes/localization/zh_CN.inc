@@ -24,7 +24,6 @@ $labels['now'] = '现在';
 $labels['sortby'] = '按此排序';
 $labels['newnotebook'] = '创建新笔记本';
 $labels['addnotebook'] = '增加笔记本';
-$labels['editlist'] = '编辑笔记本';
 $labels['listname'] = '名称';
 $labels['tabsharing'] = '分享';
 $labels['discard'] = '放弃';

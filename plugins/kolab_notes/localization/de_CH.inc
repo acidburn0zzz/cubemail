@@ -24,7 +24,6 @@ $labels['now'] = 'Jetzt';
 $labels['sortby'] = 'Sortieren nach';
 $labels['newnotebook'] = 'Neues Notizbuch erstellen';
 $labels['addnotebook'] = 'Notizbuch hinzufügen';
-$labels['editlist'] = 'Notizbuch bearbeiten';
 $labels['listname'] = 'Name';
 $labels['tabsharing'] = 'Freigabe';
 $labels['discard'] = 'Verwerfen';

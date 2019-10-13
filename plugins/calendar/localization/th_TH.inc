@@ -31,7 +31,6 @@ $labels['calendars'] = 'ปฎิทิน';
 $labels['category'] = 'หมวดหมู่';
 $labels['categories'] = 'หมวดหมู่';
 $labels['createcalendar'] = 'สร้างปฎิทินฉบับใหม่';
-$labels['editcalendar'] = 'แก้ไขคุณสมบัติของปฎิทิน';
 $labels['name'] = 'ชื่อ';
 $labels['color'] = 'สี';
 $labels['day'] = 'วัน';

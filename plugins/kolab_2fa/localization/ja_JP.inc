@@ -12,5 +12,4 @@ $labels['continue'] = '続ける';
 $labels['yes'] = 'はい';
 $labels['no'] = 'いいえ';
 $labels['label'] = '名前';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];
 $labels['enterhighsecurity'] = '確認';

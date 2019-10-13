@@ -79,7 +79,6 @@ $labels['tabrecurrence'] = 'Ponovitev';
 $labels['tabassignments'] = 'Dodeljene naloge';
 $labels['tabattachments'] = 'Priponke';
 $labels['tabsharing'] = 'Deli z ostalimi';
-$labels['editlist'] = 'Uredi seznam';
 $labels['createlist'] = 'Dodaj seznam';
 $labels['listactions'] = 'Nastavitve seznama...';
 $labels['listname'] = 'Ime';

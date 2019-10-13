@@ -26,7 +26,6 @@ $labels['category'] = 'Kategooria';
 $labels['categories'] = 'Kategooriad';
 $labels['addcalendar'] = 'Lisa kalender';
 $labels['createcalendar'] = 'Loo uus kalender';
-$labels['editcalendar'] = 'Muuda kalendri omadusi';
 $labels['name'] = 'Nimi';
 $labels['color'] = 'Värv';
 $labels['day'] = 'Päev';

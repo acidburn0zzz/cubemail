@@ -9,4 +9,3 @@
 $labels['created'] = 'Creat';
 $labels['remove'] = 'Suprimeix';
 $labels['label'] = 'Nom';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

@@ -24,7 +24,6 @@ $labels['now'] = 'Nu';
 $labels['sortby'] = 'Sorteren op';
 $labels['newnotebook'] = 'Nieuw notitieblok maken';
 $labels['addnotebook'] = 'Notitieblok toevoegen';
-$labels['editlist'] = 'Notitieblok bewerken';
 $labels['listname'] = 'Naam';
 $labels['tabsharing'] = 'Delen';
 $labels['discard'] = 'Verwijderen';

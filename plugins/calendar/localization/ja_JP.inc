@@ -33,7 +33,6 @@ $labels['calendars'] = 'カレンダー';
 $labels['category'] = 'カテゴリ';
 $labels['categories'] = 'カテゴリ';
 $labels['createcalendar'] = '新しいカレンダーの作成';
-$labels['editcalendar'] = 'カレンダーのプロパティ編集';
 $labels['name'] = '名前';
 $labels['color'] = '色';
 $labels['day'] = '日';

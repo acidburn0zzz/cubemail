@@ -83,7 +83,6 @@ $labels['tabrecurrence'] = 'Opakování';
 $labels['tabassignments'] = 'Přiřazení';
 $labels['tabattachments'] = 'Přílohy';
 $labels['tabsharing'] = 'Sdílení';
-$labels['editlist'] = 'Upravit seznam';
 $labels['createlist'] = 'Přidat seznam';
 $labels['listactions'] = 'Volby pro seznam...';
 $labels['listname'] = 'Název';

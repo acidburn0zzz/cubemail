@@ -14,7 +14,7 @@ if [ "$RES" != "*" ]; then
     TXARGS="-r kolab.$RES"
 fi
 
-tx --debug pull --force -a --mode translator $TXARGS
+#tx --debug pull --force -a --mode translator $TXARGS
 
 do_count()
 {
@@ -22,7 +22,7 @@ do_count()
     MSGS=`grep -e '^\$messages' "$1" | wc -l`
     CNT=$((LABELS+MSGS))
 
-    return $CNT
+    echo $CNT
 }
 
 do_clean()
@@ -45,13 +45,11 @@ do_clean()
 # clean up translation files
 for plugin in $PWD/plugins/$RES; do
     if [ -s $plugin/localization/en_US.inc ]; then
-        do_count $plugin/localization/en_US.inc
-        EN_CNT=$?
+        EN_CNT=`do_count $plugin/localization/en_US.inc`
 
         for file in $plugin/localization/*.inc; do
             do_clean $file
-            do_count $file
-            CNT=$?
+            CNT=`do_count $file`
             PERCENT=$((CNT*100/$EN_CNT))
             echo "$file     [$PERCENT%]"
 

@@ -6,4 +6,10 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_2fa/
  */
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];
+$labels['created'] = 'Oprettet';
+$labels['remove'] = 'Fjern';
+$labels['continue'] = 'Fortsæt';
+$labels['yes'] = 'ja';
+$labels['no'] = 'nej';
+$labels['label'] = 'Navn';
+$labels['enterhighsecurity'] = 'Bekræft';

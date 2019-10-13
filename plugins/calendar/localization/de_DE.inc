@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for Kolab Calendar plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/calendar/
+ */
 $labels['default_view'] = 'Standardansicht';
 $labels['time_format'] = 'Zeitformatierung';
 $labels['timeslots'] = 'Zeitfenster pro Stunde';
@@ -26,7 +33,6 @@ $labels['calendars'] = 'Kalender';
 $labels['category'] = 'Kategorie';
 $labels['categories'] = 'Kategorien';
 $labels['createcalendar'] = 'Neuen Kalender erstellen';
-$labels['editcalendar'] = 'Kalendereigenschaften bearbeiten';
 $labels['name'] = 'Name';
 $labels['color'] = 'Farbe';
 $labels['day'] = 'Tag';
@@ -158,73 +164,47 @@ $labels['nextslot'] = 'Nächster Vorschlag';
 $labels['suggestedslot'] = 'Empfohlener Slot';
 $labels['noslotfound'] = 'Es konnten keine freien Zeiten gefunden werden';
 $labels['invitationsubject'] = 'Sie wurden zu »$title« eingeladen';
-$labels['invitationmailbody'] = '*$title*
-
+$labels['invitationmailbody'] = "*$title*
 Wann: $date
-
 Teilnehmer: $attendees
-
 $description
-
-Im Anhang finden Sie eine iCalendar-Datei mit allen Details des Termins. Diese können Sie in Ihre Kalenderanwendung importieren.';
-$labels['invitationattendlinks'] = 'Falls Ihr E-Mail-Programm keine iTip-Anfragen unterstützt, können Sie den folgenden Link verwenden, um den Termin zu bestätigen oder abzulehnen:
-$url';
+Im Anhang finden Sie eine iCalendar-Datei mit allen Details des Termins. Diese können Sie in Ihre Kalenderanwendung importieren.";
+$labels['invitationattendlinks'] = "Falls Ihr E-Mail-Programm keine iTip-Anfragen unterstützt, können Sie den folgenden Link verwenden, um den Termin zu bestätigen oder abzulehnen:
+$url";
 $labels['eventupdatesubject'] = '»$title« wurde aktualisiert';
 $labels['eventupdatesubjectempty'] = 'Termin wurde aktualisiert';
-$labels['eventupdatemailbody'] = '*$title*
-
+$labels['eventupdatemailbody'] = "*$title*
 Wann: $date
-
 Teilnehmer: $attendees
-
-Im Anhang finden Sie eine iCalendar-Datei mit den aktualisiereten Termindaten. Diese können Sie in Ihre Kalenderanwendung importieren.';
+Im Anhang finden Sie eine iCalendar-Datei mit den aktualisiereten Termindaten. Diese können Sie in Ihre Kalenderanwendung importieren.";
 $labels['eventcancelsubject'] = '»$title« wurde abgesagt';
-$labels['eventcancelmailbody'] = '*$title*
-
+$labels['eventcancelmailbody'] = "*$title*
 Wann: $date
-
 Teilnehmer: $attendees
-
 Der Termin wurde von $organizer abgesagt.
-
-Im Anhang finden Sie eine iCalendar-Datei mit den Termindaten.';
+Im Anhang finden Sie eine iCalendar-Datei mit den Termindaten.";
 $labels['itipobjectnotfound'] = 'Der Termin auf den sich diese Nachricht bezieht, wurde in Ihrem Kalender nicht gefunden.';
-$labels['itipmailbodyaccepted'] = '$sender hat die Einladung zum folgenden Termin angenommen:
-
+$labels['itipmailbodyaccepted'] = "$sender hat die Einladung zum folgenden Termin angenommen:
 *$title*
-
 Wann: $date
-
-Teilnehmer: $attendees';
-$labels['itipmailbodytentative'] = '$sender hat die Einladung mit Vorbehalt zum folgenden Termin angenommen:
-
+Teilnehmer: $attendees";
+$labels['itipmailbodytentative'] = "$sender hat die Einladung mit Vorbehalt zum folgenden Termin angenommen:
 *$title*
-
 Wann: $date
-
-Teilnehmer: $attendees';
-$labels['itipmailbodydeclined'] = '$sender hat die Einladung zum folgenden Termin abgelehnt:
-
+Teilnehmer: $attendees";
+$labels['itipmailbodydeclined'] = "$sender hat die Einladung zum folgenden Termin abgelehnt:
 *$title*
-
 Wann: $date
-
-Teilnehmer: $attendees';
-$labels['itipmailbodycancel'] = '$sender hat Ihre Teilnahme bei der folgenden Veranstaltung zurückgewiesen:
-
+Teilnehmer: $attendees";
+$labels['itipmailbodycancel'] = "$sender hat Ihre Teilnahme bei der folgenden Veranstaltung zurückgewiesen:
 *$title*
-
-Wann: $date';
-$labels['itipmailbodydelegated'] = '$sender hat die Teilnahme an folgendem Event delegiert:
-
+Wann: $date";
+$labels['itipmailbodydelegated'] = "$sender hat die Teilnahme an folgendem Event delegiert:
 *$title*
-
-When: $date';
-$labels['itipmailbodydelegatedto'] = '$sender hat die Teilnahme an folgendem Event an Sie delegiert:
-
+When: $date";
+$labels['itipmailbodydelegatedto'] = "$sender hat die Teilnahme an folgendem Event an Sie delegiert:
 *$title*
-
-Wann: $date';
+Wann: $date";
 $labels['itipdeclineevent'] = 'Möchten Sie die Einladung zu diesem Termin ablehnen?';
 $labels['declinedeleteconfirm'] = 'Soll der abgelehnte Termin zusätzlich aus dem Kalender gelöscht werden?';
 $labels['itipcomment'] = 'Kommentar zur Einladungs-/Benachrichtigungsnachricht';
@@ -312,3 +292,4 @@ $labels['arialabeleventattendees'] = 'Teilehmerliste';
 $labels['arialabeleventresources'] = 'Liste der Terminressourcen';
 $labels['arialabelresourcesearchform'] = 'Suchformular für Ressourcen';
 $labels['arialabelresourceselection'] = 'Verfügbare Ressourcen';
+?>

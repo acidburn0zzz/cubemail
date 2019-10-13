@@ -37,7 +37,6 @@ $labels['category'] = 'Kategorie';
 $labels['categories'] = 'Kategorie';
 $labels['addcalendar'] = 'Přidat kalendář';
 $labels['createcalendar'] = 'Vytvořit nový kalendář';
-$labels['editcalendar'] = 'Upravit vlastnosti kalendáře';
 $labels['name'] = 'Název';
 $labels['color'] = 'Barva';
 $labels['day'] = 'Den';

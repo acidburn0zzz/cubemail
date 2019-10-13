@@ -9,4 +9,3 @@
 $labels['created'] = 'Izveidots';
 $labels['yes'] = 'jā';
 $labels['label'] = 'Nosaukums';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

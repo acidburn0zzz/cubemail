@@ -6,5 +6,8 @@
  *
  * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_2fa/
  */
-$labels['remove'] = 'Borrar';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];
+$labels['created'] = 'Creado';
+$labels['remove'] = 'Eliminar';
+$labels['yes'] = 'sí';
+$labels['no'] = 'no';
+$labels['label'] = 'Nombre';

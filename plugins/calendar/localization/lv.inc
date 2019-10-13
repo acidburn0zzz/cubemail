@@ -33,7 +33,6 @@ $labels['calendars'] = 'Kalendāri';
 $labels['category'] = 'Kategorija';
 $labels['categories'] = 'Kategorijas';
 $labels['createcalendar'] = 'Jauns kalendārs';
-$labels['editcalendar'] = 'Kalendāra īpašības';
 $labels['name'] = 'Nosaukums';
 $labels['color'] = 'Krāsa';
 $labels['day'] = 'Diena';

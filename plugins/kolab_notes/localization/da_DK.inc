@@ -24,7 +24,6 @@ $labels['now'] = 'Nu';
 $labels['sortby'] = 'Sortér efter';
 $labels['newnotebook'] = 'Opret en ny notesbog';
 $labels['addnotebook'] = 'Tilføj notesbog';
-$labels['editlist'] = 'Redigér notesbog';
 $labels['listname'] = 'Navn';
 $labels['tabsharing'] = 'Deling';
 $labels['discard'] = 'Forkast';

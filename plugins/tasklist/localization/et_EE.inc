@@ -69,7 +69,6 @@ $labels['tabsummary'] = 'Kokkuvõte';
 $labels['tabrecurrence'] = 'Kordumine';
 $labels['tabattachments'] = 'Manused';
 $labels['tabsharing'] = 'Jagamine';
-$labels['editlist'] = 'Muuda nimekirja';
 $labels['createlist'] = 'Lisa nimekiri';
 $labels['listactions'] = 'Nimekirja valikud...';
 $labels['listname'] = 'Nimi';

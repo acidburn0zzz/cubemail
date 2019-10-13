@@ -9,4 +9,3 @@
 $labels['created'] = 'Utworzono';
 $labels['remove'] = 'Usuń';
 $labels['label'] = 'Nazwa';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

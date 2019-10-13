@@ -44,6 +44,7 @@ $labels['copyandedit'] = 'Αντιγραφή και επεξεργασία';
 $labels['documenttitle'] = 'Τίτλος:';
 $labels['close'] = 'Κλείσιμο';
 $labels['submit'] = 'Υποβολή';
+$labels['saving'] = 'Γίνεται αποθήκευση...';
 $labels['collection_audio'] = 'Ήχος';
 $labels['collection_video'] = 'Βίντεο';
 $labels['collection_image'] = 'Εικόνες';

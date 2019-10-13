@@ -42,6 +42,7 @@ $labels['savefile'] = 'Salva file';
 $labels['printfile'] = 'Stampa file';
 $labels['close'] = 'Chiudi';
 $labels['submit'] = 'Invia';
+$labels['saving'] = 'Salvataggio...';
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
 $labels['collection_image'] = 'Immagini';

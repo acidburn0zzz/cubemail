@@ -13,5 +13,4 @@ $labels['or'] = 'ou';
 $labels['yes'] = 'oui';
 $labels['no'] = 'non';
 $labels['label'] = 'Nom';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];
 $labels['enterhighsecurity'] = 'Confirmer';

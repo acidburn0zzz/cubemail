@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Tasks plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/tasklist/
+ */
 $labels['navtitle'] = 'Aufgaben';
 $labels['lists'] = 'Aufgabenlisten';
 $labels['list'] = 'Aufgabenliste';
@@ -61,6 +68,7 @@ $labels['nodate'] = 'Ohne Datum';
 $labels['removetag'] = 'Entfernen';
 $labels['removelink'] = 'E-Mail-Referenz entfernen';
 $labels['auto'] = 'Automatisch';
+$labels['newtask'] = 'Neue Aufgabe';
 $labels['edittask'] = 'Aufgabe ändern';
 $labels['save'] = 'Speichern';
 $labels['cancel'] = 'Abbrechen';
@@ -75,7 +83,6 @@ $labels['tabrecurrence'] = 'Wiederholung';
 $labels['tabassignments'] = 'Zuweisungen';
 $labels['tabattachments'] = 'Anhänge';
 $labels['tabsharing'] = 'Freigabe';
-$labels['editlist'] = 'Liste bearbeiten';
 $labels['createlist'] = 'Liste hinzufügen';
 $labels['listactions'] = 'Listeneinstellungen…';
 $labels['listname'] = 'Name';
@@ -124,34 +131,23 @@ $labels['sendinvitations'] = 'Einladungen versenden';
 $labels['sendnotifications'] = 'Beauftragte Teilnehmer über die Änderung informieren';
 $labels['sendcancellation'] = 'Beauftragte Teilnehmer über die Stornierung informieren';
 $labels['invitationsubject'] = 'Ihnen wurde "$title" zugewiesen';
-$labels['invitationmailbody'] = '*$title*
-
+$labels['invitationmailbody'] = "*$title*
 Fällig: $date
-
 Teilnehmer: $attendees
-
 $description
-
-Angehängt finden Sie eine iCalendar-Datei mit allen Aufgabendetails, welche in Ihre Aufgabenanwendung importiert werden kann.';
+Angehängt finden Sie eine iCalendar-Datei mit allen Aufgabendetails, welche in Ihre Aufgabenanwendung importiert werden kann.";
 $labels['itipupdatesubject'] = '"$title" wurde aktualisiert';
 $labels['itipupdatesubjectempty'] = 'Eine ihrer Aufgabe wurde aktualisiert';
-$labels['itipupdatemailbody'] = '*$title*
-
+$labels['itipupdatemailbody'] = "*$title*
 Fällig: $date
-
 Teilnehmer: $attendees
-
-Angehängt finden Sie eine iCalendar-Datei mit den aktualisierten Aufgabendetails, welche in Ihre Aufgabenanwendung importiert werden kann.';
+Angehängt finden Sie eine iCalendar-Datei mit den aktualisierten Aufgabendetails, welche in Ihre Aufgabenanwendung importiert werden kann.";
 $labels['itipcancelsubject'] = '"$title" wurde abgesagt';
-$labels['itipcancelmailbody'] = '*$title*
-
+$labels['itipcancelmailbody'] = "*$title*
 Fällig: $date
-
 Teilnehmer: $attendees
-
 Die Aufgabe wurde durch $organizer storniert.
-
-Angehängt finden Sie eine iCalendar-Datei mit den aktualisierten Aufgabendetails.';
+Angehängt finden Sie eine iCalendar-Datei mit den aktualisierten Aufgabendetails.";
 $labels['saveintasklist'] = 'speichern in';
 $labels['taskhistory'] = 'Historie';
 $labels['objectchangelog'] = 'Änderungshistorie';
@@ -163,52 +159,33 @@ $labels['revisionrestoreconfirm'] = 'Möchten Sie wirklich die Version $rev dies
 $labels['objectrestoresuccess'] = 'Revision $rev erfolgreich wiederhergestellt';
 $labels['objectrestoreerror'] = 'Fehler beim Wiederherstellen der alten Revision';
 $labels['itipobjectnotfound'] = 'Die Aufgabe, auf welche sich diese Nachricht bezieht, wurde nicht in Ihrer Aufgabenliste gefunden.';
-$labels['itipmailbodyaccepted'] = '$sender hat die Zuweisung folgender Aufgabe akzeptiert:
-
+$labels['itipmailbodyaccepted'] = "$sender hat die Zuweisung folgender Aufgabe akzeptiert:
 *$title*
-
 Fällig: $date
-
-Verantwortlich: $attendees';
-$labels['itipmailbodytentative'] = '$sender hat die Zuweisung folgender Aufgabe unter Vorbehalt akzeptiert:
-
+Verantwortlich: $attendees";
+$labels['itipmailbodytentative'] = "$sender hat die Zuweisung folgender Aufgabe unter Vorbehalt akzeptiert:
 *$title*
-
 Fällig: $date
-
-Verantwortlich: $attendees';
-$labels['itipmailbodydeclined'] = '$sender hat die Zuweisung folgender Aufgabe abgeleht:
-
+Verantwortlich: $attendees";
+$labels['itipmailbodydeclined'] = "$sender hat die Zuweisung folgender Aufgabe abgeleht:
 *$title*
-
 Fällig: $date
-
-Verantwortlich: $attendees';
-$labels['itipmailbodycancel'] = '$sender hat die Zuweisung folgender Aufgabe abgeleht:
-
+Verantwortlich: $attendees";
+$labels['itipmailbodycancel'] = "$sender hat die Zuweisung folgender Aufgabe abgeleht:
 *$title*
-
-Fällig: $date';
-$labels['itipmailbodyin-process'] = '$sender hat den Status folgender Aufgabe auf in-Bearbeitung gesetzt:
-
+Fällig: $date";
+$labels['itipmailbodyin-process'] = "$sender hat den Status folgender Aufgabe auf in-Bearbeitung gesetzt:
 *$title*
-
-Fällig: $date';
-$labels['itipmailbodycompleted'] = '$sender hat folgende Aufgabe abgeschlossen:
-
+Fällig: $date";
+$labels['itipmailbodycompleted'] = "$sender hat folgende Aufgabe abgeschlossen:
 *$title*
-
-Fällig: $date';
-$labels['itipmailbodydelegated'] = '$sender hat folgende Aufgabe delegiert:
-
+Fällig: $date";
+$labels['itipmailbodydelegated'] = "$sender hat folgende Aufgabe delegiert:
 *$title*
-
-Fällig: $date';
-$labels['itipmailbodydelegatedto'] = '$sender hat folgende Aufgabe an Sie delegiert:
-
+Fällig: $date";
+$labels['itipmailbodydelegatedto'] = "$sender hat folgende Aufgabe an Sie delegiert:
 *$title*
-
-Fällig: $date';
+Fällig: $date";
 $labels['attendeeaccepted'] = 'Delegierter hat akzeptiert';
 $labels['attendeetentative'] = 'Delegierter hat unter Vorbehalt akzeptiert';
 $labels['attendeedeclined'] = 'Delegierter hat abgelehnt';
@@ -234,8 +211,6 @@ $labels['importsuccess'] = '$nr Aufgaben erfolgreich importiert';
 $labels['importerror'] = 'Fehler beim Importieren';
 $labels['newerversionexists'] = 'Eine neuere Version dieser Aufgabe existiert bereits! Abbruch.';
 $labels['nowritetasklistfound'] = 'Keine Aufgabenliste zum Speichern der Aufgabe gefunden';
-$labels['importedsuccessfully'] = 'Die Aufgabe wurde erfolgreich unter \'$list\' gespeichert';
-$labels['updatedsuccessfully'] = 'Die Aufgabe wurde erfolgreich in \'$list\' aktualisiert';
 $labels['attendeupdateesuccess'] = 'Teilnehmerstatus erfolgreich aktualisiert';
 $labels['itipresponseerror'] = 'Senden der Antwort auf diese Aufgabenzuweisung fehlgeschlagen';
 $labels['itipinvalidrequest'] = 'Diese Einladung ist nicht mehr gültig.';

@@ -24,7 +24,6 @@ $labels['now'] = 'Nyní';
 $labels['sortby'] = 'Třídit dle';
 $labels['newnotebook'] = 'Vytvořit nový zápisník';
 $labels['addnotebook'] = 'Přidat zápisník';
-$labels['editlist'] = 'Upravit zápisník';
 $labels['listname'] = 'Název';
 $labels['tabsharing'] = 'Sdílení';
 $labels['discard'] = 'Zahodit';

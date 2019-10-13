@@ -9,4 +9,3 @@
 $labels['created'] = 'Създаден';
 $labels['remove'] = 'Изтриване';
 $labels['label'] = 'Име';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

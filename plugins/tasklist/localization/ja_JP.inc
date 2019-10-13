@@ -82,7 +82,6 @@ $labels['tabrecurrence'] = '繰返し';
 $labels['tabassignments'] = '割当';
 $labels['tabattachments'] = '添付';
 $labels['tabsharing'] = '共有';
-$labels['editlist'] = '一覧編集';
 $labels['createlist'] = '一覧追加';
 $labels['listactions'] = '一覧オプション';
 $labels['listname'] = '名前';

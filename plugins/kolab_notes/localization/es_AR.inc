@@ -24,7 +24,6 @@ $labels['now'] = 'Ahora';
 $labels['sortby'] = 'Ordenar por';
 $labels['newnotebook'] = 'Crear nueva libreta de notas';
 $labels['addnotebook'] = 'Agregar libreta de notas';
-$labels['editlist'] = 'Editar libreta de notas';
 $labels['listname'] = 'Nombre';
 $labels['tabsharing'] = 'Compartir';
 $labels['discard'] = 'Descartar';

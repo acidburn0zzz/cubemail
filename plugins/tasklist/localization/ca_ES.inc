@@ -79,7 +79,6 @@ $labels['tabrecurrence'] = 'Periodicitat';
 $labels['tabassignments'] = 'Assignacions';
 $labels['tabattachments'] = 'Fitxers adjunts';
 $labels['tabsharing'] = 'Compartit';
-$labels['editlist'] = 'Edita la llista';
 $labels['createlist'] = 'Afegeix llista';
 $labels['listactions'] = 'Opcions de la llista...';
 $labels['listname'] = 'Nom';

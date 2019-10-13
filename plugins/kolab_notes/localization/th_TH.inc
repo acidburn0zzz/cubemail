@@ -23,7 +23,6 @@ $labels['now'] = 'ขณะนี้';
 $labels['sortby'] = 'จัดเรียงโดย';
 $labels['newnotebook'] = 'สร้างสมุดบันทึกใหม่';
 $labels['addnotebook'] = 'เพิ่่มสมุดบันทึก';
-$labels['editlist'] = 'แก้ไขสมุดบันทึก';
 $labels['listname'] = 'ชื่อ';
 $labels['tabsharing'] = 'แบ่งปัน';
 $labels['discard'] = 'โยนทิ้ง';

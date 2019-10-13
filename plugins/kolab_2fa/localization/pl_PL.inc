@@ -29,5 +29,4 @@ Uruchom aplikację na swoim telefonie i zarejestruj tą usługę. Gdy aplikacja 
 $labels['yubikeyid'] = 'Twój identyfikator Yubikey';
 $labels['yubikeyidexplainyubikey'] = 'Naciśnij swojego Yubikeya i wprowadź wygenerowany kod';
 $labels['addfactor'] = 'Dodaj czynnik uwierzytelniający';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];
 $labels['enterhighsecurity'] = 'Potwierdź';

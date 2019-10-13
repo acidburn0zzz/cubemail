@@ -8,4 +8,3 @@
  */
 $labels['created'] = 'Criado em';
 $labels['label'] = 'Nome';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

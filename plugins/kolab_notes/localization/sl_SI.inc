@@ -24,7 +24,6 @@ $labels['now'] = 'Zdaj';
 $labels['sortby'] = 'Sortiraj po';
 $labels['newnotebook'] = 'Ustvari novo beležko';
 $labels['addnotebook'] = 'Dodaj beležko';
-$labels['editlist'] = 'Uredi beležko';
 $labels['listname'] = 'Ime';
 $labels['tabsharing'] = 'Deli z ostalimi';
 $labels['discard'] = 'Prekliči';

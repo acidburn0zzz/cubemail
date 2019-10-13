@@ -11,4 +11,3 @@ $labels['remove'] = 'Eemalda';
 $labels['yes'] = 'jah';
 $labels['no'] = 'ˇei';
 $labels['label'] = 'Nimi';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

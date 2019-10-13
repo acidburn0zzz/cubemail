@@ -8,4 +8,3 @@
  */
 $labels['created'] = '작성됨';
 $labels['label'] = '이름';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

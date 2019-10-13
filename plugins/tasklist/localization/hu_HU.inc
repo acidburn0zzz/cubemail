@@ -78,7 +78,6 @@ $labels['tabrecurrence'] = 'Ismétlődés';
 $labels['tabassignments'] = 'Assignments';
 $labels['tabattachments'] = 'Mellékletek';
 $labels['tabsharing'] = 'Megosztás';
-$labels['editlist'] = 'Lista szerkesztése';
 $labels['createlist'] = 'Lista hozzáadása';
 $labels['listactions'] = 'Lista beállítások...';
 $labels['listname'] = 'Név';

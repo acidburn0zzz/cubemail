@@ -11,4 +11,3 @@ $labels['remove'] = 'ลบ';
 $labels['yes'] = 'ตกลง';
 $labels['no'] = 'ไม่';
 $labels['label'] = 'ชื่อ';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

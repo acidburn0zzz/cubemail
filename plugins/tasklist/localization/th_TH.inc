@@ -78,7 +78,6 @@ $labels['tabrecurrence'] = 'การเกิดซ้ำ';
 $labels['tabassignments'] = 'งานที่ได้รับมอบหมาย';
 $labels['tabattachments'] = 'สิ่งที่แนบมาด้วย';
 $labels['tabsharing'] = 'แบ่งปัน';
-$labels['editlist'] = 'แก้ไขรายการ';
 $labels['createlist'] = 'เพิ่มรายการ';
 $labels['listactions'] = 'แสดงรายการทางเลือก...';
 $labels['listname'] = 'ชื่อ';

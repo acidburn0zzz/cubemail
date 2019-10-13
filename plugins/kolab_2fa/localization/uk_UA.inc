@@ -8,4 +8,3 @@
  */
 $labels['created'] = 'Створена';
 $labels['label'] = 'Назва';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

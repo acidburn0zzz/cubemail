@@ -83,7 +83,6 @@ $labels['tabrecurrence'] = 'Gentagelse';
 $labels['tabassignments'] = 'Opgaver';
 $labels['tabattachments'] = 'Vedhæftninger';
 $labels['tabsharing'] = 'Deling';
-$labels['editlist'] = 'Redigér liste';
 $labels['createlist'] = 'Tilføj liste';
 $labels['listactions'] = 'Tilvalg for liste...';
 $labels['listname'] = 'Navn';

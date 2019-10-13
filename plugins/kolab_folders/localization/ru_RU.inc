@@ -25,5 +25,7 @@ $labels['wastebasket'] = 'Корзина';
 $labels['junkemail'] = 'Спам';
 $labels['confidential'] = 'Конфиденциальное';
 $labels['private'] = 'Личное';
+$labels['folderexpire'] = 'Удалить сообщения старше чем';
+$labels['xdays'] = '$x дней';
 $messages['defaultfolderexists'] = 'Уже назначен ящик по умолчанию для указанного типа';
 ?>

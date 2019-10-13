@@ -24,7 +24,6 @@ $labels['now'] = 'Maintenant';
 $labels['sortby'] = 'Tri par';
 $labels['newnotebook'] = 'Créer un nouveau carnet';
 $labels['addnotebook'] = 'Ajout carnet';
-$labels['editlist'] = 'Modifier le carnet';
 $labels['listname'] = 'Nom';
 $labels['tabsharing'] = 'Partage';
 $labels['discard'] = 'Abandonner';

@@ -11,4 +11,3 @@ $labels['remove'] = 'Αφαίρεση';
 $labels['yes'] = 'ναι';
 $labels['no'] = 'όχι';
 $labels['label'] = 'Όνομα';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

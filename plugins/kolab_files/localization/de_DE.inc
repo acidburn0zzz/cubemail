@@ -1,4 +1,11 @@
 <?php
+/**
+ * Localizations for the Kolab Files plugin
+ *
+ * Copyright (C) 2014, Kolab Systems AG
+ *
+ * For translation see https://www.transifex.com/projects/p/kolab/resource/kolab_files/
+ */
 $labels['files'] = 'Dateien';
 $labels['filepreview'] = 'Dateivorschau';
 $labels['saveall'] = 'Alles in der Cloud speichern …';
@@ -11,11 +18,16 @@ $labels['fromcloud'] = 'Aus der Cloud …';
 $labels['selectfiles'] = 'Datei(en) zum Anhängen auswählen …';
 $labels['attachsel'] = 'Ausgewählte anhängen';
 $labels['foldercreate'] = 'Ordner erstellen';
+$labels['addfolder'] = 'Ordner hinzufügen';
+$labels['foldershare'] = 'Ordner teilen';
 $labels['folderedit'] = 'Ordner ändern';
 $labels['folderrename'] = 'Ordner umbenennen';
 $labels['foldermount'] = 'Speicher hinzufügen';
 $labels['folderdelete'] = 'Ordner löschen';
 $labels['folderoptions'] = 'Ordneroptionen';
+$labels['findfolders'] = 'Ordner suchen...';
+$labels['findfiles'] = 'Dateien suchen';
+$labels['share'] = 'Teilen';
 $labels['folderinside'] = 'Erstellen in';
 $labels['foldername'] = 'Ordnername';
 $labels['name'] = 'Name';
@@ -31,6 +43,7 @@ $labels['rename'] = 'Umbenennen';
 $labels['deletefile'] = 'Datei(en) löschen';
 $labels['edit'] = 'Bearbeiten';
 $labels['editfile'] = 'Datei bearbeiten';
+$labels['save'] = 'Speichern';
 $labels['savefile'] = 'Datei speichern';
 $labels['printfile'] = 'Datei drucken';
 $labels['renamefile'] = 'Datei umbenennen';
@@ -40,13 +53,16 @@ $labels['copyfile'] = 'Datei kopieren';
 $labels['copyandedit'] = 'Kopieren und Bearbeiten';
 $labels['documenttitle'] = 'Titel:';
 $labels['close'] = 'Schließen';
+$labels['docedit'] = 'Dokument bearbeitung';
 $labels['submit'] = 'Absenden';
 $labels['confirmpassword'] = 'Passwort bestätigen';
+$labels['passwordconflict'] = 'Passwörter stimmen nicht überein';
 $labels['collection_audio'] = 'Audio';
 $labels['collection_video'] = 'Video';
 $labels['collection_image'] = 'Bilder';
 $labels['collection_document'] = 'Dokumente';
 $labels['sessions'] = 'Sitzungen';
+$labels['abort'] = 'Abbrechen';
 $labels['uploading'] = 'Datei(en) wird/werden hochgeladen …';
 $labels['attaching'] = 'Datei(en) wird/werden angehängt …';
 $labels['authenticating'] = 'Legitimierung wird durchgeführt …';
@@ -73,6 +89,7 @@ $labels['filedeletenotice'] = 'Datei(en) erfolgreich gelöscht.';
 $labels['filemovenotice'] = 'Datei(en) erfolgreich verschoben.';
 $labels['filecopynotice'] = 'Datei(en) erfolgreich kopiert.';
 $labels['uploadsizeerror'] = 'Maximale Dateigröße ($size) überschritten!';
+$labels['updatingfoldershares'] = 'Zugrifssrechte wirden aktualisiert …';
 $labels['listpermanent'] = 'Dauerhaft anzeigen';
 $labels['additionalfolders'] = 'Zusätzliche Ordner';
 $labels['allfolders'] = 'in allen Ordnern suchen';
@@ -142,4 +159,3 @@ $labels['arialabelfilesessiondialog'] = 'Dokumentbearbeitungssitzung';
 $labels['type.plain'] = 'Klartextdokument';
 $labels['type.vndoasisopendocumenttext'] = 'Textdokument (ODF)';
 $labels['type.html'] = 'HTML-Dokument';
-$labels['addfolder'] = 'Ordner hinzufügen';

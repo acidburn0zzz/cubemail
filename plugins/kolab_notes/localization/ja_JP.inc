@@ -24,7 +24,6 @@ $labels['now'] = '現在';
 $labels['sortby'] = '並び替え';
 $labels['newnotebook'] = '新しいノートブックの作成';
 $labels['addnotebook'] = 'ノートブックの追加';
-$labels['editlist'] = 'ノートブックの編集';
 $labels['listname'] = '名前';
 $labels['tabsharing'] = '共有';
 $labels['discard'] = '捨てる';

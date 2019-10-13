@@ -12,5 +12,4 @@ $labels['continue'] = 'Continuar';
 $labels['yes'] = 'sim';
 $labels['no'] = 'não';
 $labels['label'] = 'Nome';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];
 $labels['enterhighsecurity'] = 'Confirmar';

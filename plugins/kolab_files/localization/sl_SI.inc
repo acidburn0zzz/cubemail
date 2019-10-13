@@ -13,6 +13,7 @@ $labels['folderinside'] = 'Vstavi';
 $labels['name'] = 'Ime';
 $labels['edit'] = 'Uredi';
 $labels['save'] = 'Shrani';
+$labels['abort'] = 'Prekini';
 $labels['listpermanent'] = 'Označi za vedno';
 $labels['select'] = 'Izberi';
 $labels['participant'] = 'Udeleženec';

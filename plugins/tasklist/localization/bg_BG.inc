@@ -83,7 +83,6 @@ $labels['tabrecurrence'] = 'Повтаряне';
 $labels['tabassignments'] = 'Assignments';
 $labels['tabattachments'] = 'Прикрепени файлове';
 $labels['tabsharing'] = 'Споделяне';
-$labels['editlist'] = 'Редактиране на списък';
 $labels['createlist'] = 'Добавяне на списък';
 $labels['listactions'] = 'List options...';
 $labels['listname'] = 'Име';

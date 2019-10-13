@@ -13,6 +13,7 @@ $labels['folderinside'] = 'Внасяне вътре';
 $labels['name'] = 'Име';
 $labels['edit'] = 'Промяна';
 $labels['save'] = 'Запис';
+$labels['abort'] = 'Abort';
 $labels['listpermanent'] = 'Постоянен списък';
 $labels['select'] = 'Избиране';
 $labels['participant'] = 'Участник';

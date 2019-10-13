@@ -10,4 +10,3 @@ $labels['created'] = 'Gemaakt op';
 $labels['remove'] = 'Verwijderen';
 $labels['yes'] = 'ja';
 $labels['label'] = 'Naam';
-$labels['verifycodeexplainhotp'] = $labels['verifycodeexplaintotp'];

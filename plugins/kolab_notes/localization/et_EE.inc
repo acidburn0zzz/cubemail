@@ -24,7 +24,6 @@ $labels['now'] = 'Praegu';
 $labels['sortby'] = 'Sorteeri';
 $labels['newnotebook'] = 'Loo uus märkmik';
 $labels['addnotebook'] = 'Lisa märkmik';
-$labels['editlist'] = 'Muuda märkmikku';
 $labels['listname'] = 'Nimi';
 $labels['tabsharing'] = 'Jagamine';
 $labels['discard'] = 'Loobu';

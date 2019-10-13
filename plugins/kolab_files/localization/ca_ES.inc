@@ -12,6 +12,7 @@ $labels['folderinside'] = 'Insereix dins';
 $labels['name'] = 'Nom';
 $labels['edit'] = 'Edita';
 $labels['save'] = 'Desa';
+$labels['abort'] = 'Abort';
 $labels['listpermanent'] = 'Llista permanentment';
 $labels['select'] = 'Selecciona';
 $labels['participant'] = 'Participant';

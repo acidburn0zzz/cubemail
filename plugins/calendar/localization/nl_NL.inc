@@ -33,7 +33,6 @@ $labels['calendars'] = 'Agenda\'s';
 $labels['category'] = 'Categorie';
 $labels['categories'] = 'Categorieën';
 $labels['createcalendar'] = 'Nieuwe agenda maken';
-$labels['editcalendar'] = 'Agenda-eigenschappen bewerken';
 $labels['name'] = 'Naam';
 $labels['color'] = 'Kleur';
 $labels['day'] = 'Dag';

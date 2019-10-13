@@ -32,7 +32,6 @@ $labels['calendars'] = 'Календари';
 $labels['category'] = 'Категория';
 $labels['categories'] = 'Категории';
 $labels['createcalendar'] = 'Създаване на нов календар';
-$labels['editcalendar'] = 'Промяна на свойствата на календара';
 $labels['name'] = 'Име';
 $labels['color'] = 'Цвят';
 $labels['day'] = 'Ден';
