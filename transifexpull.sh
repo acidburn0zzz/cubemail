@@ -14,7 +14,7 @@ if [ "$RES" != "*" ]; then
     TXARGS="-r kolab.$RES"
 fi
 
-#tx --debug pull --force -a --mode translator $TXARGS
+tx --debug pull --force -a --mode translator $TXARGS
 
 do_count()
 {

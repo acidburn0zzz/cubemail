@@ -24,6 +24,5 @@ $labels['outbox'] = 'Utkorg';
 $labels['wastebasket'] = 'Papperskorg';
 $labels['junkemail'] = 'Skräp';
 $labels['confidential'] = 'Konfidentiellt';
-$labels['private'] = 'Privat';
 $messages['defaultfolderexists'] = 'Det finns redan en standardmapp för specificerad typ';
 ?>
