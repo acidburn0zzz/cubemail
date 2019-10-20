@@ -332,7 +332,7 @@ class tasklist_database_driver extends tasklist_driver
             foreach (array('title', 'description', 'organizer', 'attendees') as $col) {
                 $sql_query[] = $this->rc->db->ilike($col, '%' . $filter['search'] . '%');
             }
-            $sql_add = "AND (" . join(" OR ", $sql_query) . ")";
+            $sql_add = " AND (" . join(" OR ", $sql_query) . ")";
         }
 
         if ($filter['since'] && is_numeric($filter['since'])) {
