@@ -283,7 +283,7 @@ class kolab_sso_oauth2
                         $key = $keyid;
                     }
                     else {
-                        throw new Exception("Failed to extract public key");
+                        throw new Exception("Failed to extract public key. " . openssl_error_string());
                     }
                 }
 
