@@ -311,7 +311,7 @@ class kolab_sso_oauth2
      */
     protected function validate_token_payload($payload)
     {
-        $items = $this->get_maram('validate_items');
+        $items = $this->get_param('validate_items');
         $email = $this->config['debug_email'] ?: $payload->{$this->get_param('user_field')};
 
         if (empty($email)) {
