@@ -659,8 +659,10 @@ class kolab_storage
                     // get username part and map it to user name
                     $pos = strpos($folder, $delim);
                     $fid = $pos ? substr($folder, 0, $pos) : $folder;
-                    $fid = self::folder_id2user($fid, true);
-                    $fid = str_replace($delim, '', $fid);
+
+                    if ($user = self::folder_id2user($fid, true)) {
+                        $fid = str_replace($delim, '', $user);
+                    }
 
                     $prefix = "($fid)";
                     $folder = $pos ? substr($folder, $pos + 1) : '';
