@@ -559,8 +559,11 @@ class kolab_auth extends rcube_plugin
                     $effective_rights = (array)$ldap->effective_rights($target_entry['dn']);
 
                     if (!empty($effective_rights)) {
-                        $effective_rights['attrib'] = $effective_rights['attributeLevelRights'];
-                        $effective_rights['entry']  = $effective_rights['entryLevelRights'];
+                        // compat with out of date Net_LDAP3
+                        $effective_rights = array_change_key_case($effective_rights, CASE_LOWER);
+
+                        $effective_rights['attrib'] = $effective_rights['attributelevelrights'];
+                        $effective_rights['entry']  = $effective_rights['entrylevelrights'];
 
                         // compare the rights with the permissions mapping
                         $allowed_tasks = array();
